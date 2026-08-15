@@ -1,56 +1,81 @@
-# dsh-Opencode TUI 主题 v2 — 34 主题引擎
+# 🎨 dsh-opencode-palette
 
-> 让 DSH（DeepSeek Harness）Web 界面支持 **opencode TUI 的全部 34 个主题**
-> （33 内置 + system），一键切换、即时生效、持久化保存。
+**The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
 
-## 功能
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
+[![tests](https://img.shields.io/badge/tests-18%2F18-green)]()
 
-| 维度 | 说明 |
-|---|---|
-| 主题 | **34 个**：aura / ayu / carbonfox / catppuccin×3 / cobalt2 / cursor / dracula / everforest / flexoki / github / gruvbox / kanagawa / lucent-orng / material / matrix / mercury / monokai / nightowl / nord / one-dark / opencode / orng / osaka-jade / palenight / rosepine / solarized / synthwave84 / system / tokyonight / vercel / vesper / zenburn |
-| 数据源 | opencode v1.18.12 官方主题 JSON（npm run sync 可升级/校验） |
-| 管线 | 主题 JSON → 颜色解析（引用链/ANSI/变体）→ DSH 适配注入（token + CSS + shiki） |
-| 切换 | 设置 → 插件 →「Opencode 主题」面板：排印三控件置顶 + 色系分组标签网格 + 搜索，点击即切换（组合 1 布局） |
-| system | 恢复 DSH 原生配色（只保留字体/字号/代码排印） |
-| 字体 | 主题只管颜色；正文模式（全等宽/无衬线）、字号 12-14px、5 种代码字体独立调节 |
-| 持久化 | localStorage 保存，刷新/重启后保持 |
-| 自检 | 面板内 getComputedStyle 实测背景/字体/字号 |
+Make **DeepSeek Harness** look like **opencode** — `tokyonight`, `dracula`, `gruvbox`, `matrix`, `rose-pine`, `catppuccin ×3`, `solarized`, `synthwave84` … **all 34 official themes**, faithfully ported, switchable in one click from the settings panel.
 
-## 开发
+![palette matrix](assets/palette-matrix.svg)
 
-    npm run sync    # ① 从 opencode 官方 tag 同步主题数据（版本锁 v1.18.12）
-    npm test        # ② 引擎单测（34 主题全量解析审计）
-    npm run build   # ③ 零依赖打包 → package/ 产物 + 动态版 client.js
+## Why you'll love it
 
-## 安装（正式版）
+- 🎯 **34 official opencode themes** — every color is *resolved* from opencode's official theme JSON (v1.18.12), not an eyeballed approximation. What opencode ships is what you get.
+- ⚡ **One-click switching** — instantly re-skins the whole UI: backgrounds, surfaces, borders, buttons, status colors, markdown, and code syntax highlighting (shiki tokens).
+- 💾 **Persisted** — your choice survives refresh and restart (per browser, `localStorage`).
+- 🅰️ **Typing is independent from theming** — body style (monospace / regular), font size (11–18 px), and 5 code font presets are tuned separately from the color theme.
+- 🔄 **`system` = back to default** — one click restores DSH's native look while keeping your typography.
+- 🧱 **Zero runtime dependencies · MIT licensed · 18 engine tests** — a data-driven pipeline (theme JSON → color resolver → DSH adapter), single source of truth for the DSH mapping layer.
 
-    1. 构建产物: npm run build
-    2. 更新已装副本（安装位 = profiles/web/node_modules/dsh-opencode-palette）
-       或首次安装: npx --yes @deepseek-ai/dsh plugin --profile web add dsh-opencode-palette
-       并在 cordis.patch.yml 追加:
-       - insert:
-           - id: opencode-palette
-             name: 'dsh-opencode-palette'
-    3. 刷新浏览器页面
+## Gallery — every theme, decomposed
 
-> ⛔ 不要手动复制到 ~/.dsh/profiles/node_modules/（回退软链区，会被重建覆盖）。
-> 正确安装位 = profiles/web/node_modules，注册写 web/cordis.patch.yml。
+![palette strips](assets/palette-strips.svg)
 
-## 架构
+Each row shows the 7 core semantic colors — `background · text · primary · accent · error · warning · success` — resolved from the official opencode theme JSONs.
 
-见 DESIGN.md：数据驱动三层管线（数据层/引擎层/适配层），
-映射表 src/engine/map-dsh.mjs 是唯一需要理解 DSH 侧知识的地方；
-加新主题 = npm run sync，改 DSH 变量名 = 只改映射表。
+## Installation
 
-## 调试
+Requires DSH (DeepSeek Harness) with the web client. Two steps, one time:
 
-控制台可用 window.__opencodePalette（getState / setTheme / toggle / list / previews）。
+```bash
+# 1. Install the package into your profile
+npx --yes @deepseek-ai/dsh plugin --profile web add dsh-opencode-palette
 
-## 文件
+# 2. Register it in the profile patch (no restart needed, hot-reloaded)
+#    append to ~/.dsh/profiles/web/cordis.patch.yml:
+#    - insert:
+#        - id: opencode-palette
+#          name: 'dsh-opencode-palette'
+```
 
-- scripts/sync-themes.mjs — 数据同步（下载 + 校验 + SHA256 指纹 + NOTICES）
-- src/engine/ — 纯逻辑引擎（resolve / map-dsh / generate / registry / index）
-- runtime/client.mjs — 浏览器胶水（注入/切换/持久化/面板）
-- scripts/build-client.mjs — 零依赖 mini-bundler
-- package/ — 产物包（lib/index.js 宿主半 + lib/client.js 浏览器半）
-- client.js — 动态版（cordis_define code.client 函数体，与包版同源）
+Refresh the browser page — done. The plugin auto-enables with the official `opencode` theme (deep black + orange/blue/violet).
+
+## Usage
+
+1. Open **Settings → Plugins → Opencode Palette**.
+2. Pick a theme from the color-family grouped grid (searchable) — it applies instantly.
+3. Tune typography above the grid: body style, font size, code font.
+4. Toggle the whole skin on/off with the switch.
+
+Power users can drive it from the console: `window.__opencodePalette` exposes `getState`, `setTheme(name)`, `toggle()`, `list()`, `previews()`.
+
+## Migrating from dsh-opencode-tui-theme
+
+Old users of `dsh-opencode-tui-theme`: remove its entry from `cordis.patch.yml`, run `dsh plugin --profile web remove dsh-opencode-tui-theme`, then install this package as above. Your previously selected theme is migrated automatically.
+
+## Development
+
+```bash
+npm run sync    # fetch official theme JSONs from opencode (version-locked, checksummed)
+npm test        # 18 engine tests: full resolution audit of all 34 themes, grouping, determinism
+npm run build   # zero-dependency bundler -> package/ + dynamic client.js
+npm run assets  # regenerate the SVG showcase images above
+```
+
+Architecture: see [DESIGN.md](DESIGN.md) — a data-driven three-stage pipeline, with `src/engine/map-dsh.mjs` as the single source of truth for the DSH mapping layer.
+
+## Contributing
+
+PRs welcome! Good starting points: new upstream themes (run `npm run sync`), mapping refinements, or copy polish. Keep the engine pure (no DOM) so tests stay green.
+
+## License & credits
+
+MIT © FeatherHunter.
+
+Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md).
+
+---
+
+**中文**：📖 [README.zh-CN.md](docs/README.zh-CN.md)

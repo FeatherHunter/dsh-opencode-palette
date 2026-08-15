@@ -8162,7 +8162,7 @@ function createClient(slotTarget) {
             },
           }, [
             dot(c && c.primary, 9),
-            t.name,
+            t.name === 'system' ? 'system（默认）' : t.name,
             isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
           ])
         }
@@ -8205,35 +8205,35 @@ function createClient(slotTarget) {
           })) : null,
         ])
 
-        // 启停开关
-        const switchCtrl = h('div', { style: { display: 'flex', flexDirection: 'column', gap: 5 } }, [
-          h('span', { style: fieldLabel }, '启用主题'),
-          h('span', {
-            onClick: function () { props.toggle(); setUi(props.getState()) },
-            title: st.enabled ? '点击停用主题' : '点击启用主题',
-            style: {
-              position: 'relative', display: 'inline-block', width: 36, height: 20,
-              borderRadius: 11, cursor: 'pointer',
-              background: st.enabled ? 'rgba(250,178,131,0.4)' : '#333338',
-              transition: 'background .12s', alignSelf: 'flex-start',
-            },
-          }, h('span', {
-            style: {
-              position: 'absolute', top: 3, left: st.enabled ? 19 : 3,
-              width: 14, height: 14, borderRadius: '50%',
-              background: st.enabled ? '#FAB283' : '#8b8b95',
-              transition: 'left .12s',
-            },
-          })),
-        ])
 
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
-          // 头行：标题 + 状态
+          // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
-            h('strong', null, '🖥 Opencode TUI 主题'),
-            h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
-              st.enabled ? '● 已启用' : '○ 已停用'),
+            h('strong', null, '🎨 Opencode Palette'),
+            h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
+              h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
+                st.enabled ? '已启用' : '已停用'),
+              h('span', {
+                onClick: function () { props.toggle(); setUi(props.getState()) },
+                title: st.enabled ? '点击停用主题' : '点击启用主题',
+                style: {
+                  position: 'relative', display: 'inline-block', width: 36, height: 20,
+                  borderRadius: 11, cursor: 'pointer',
+                  background: st.enabled ? 'rgba(250,178,131,0.4)' : '#333338',
+                  transition: 'background .12s',
+                },
+              }, h('span', {
+                style: {
+                  position: 'absolute', top: 3, left: st.enabled ? 19 : 3,
+                  width: 14, height: 14, borderRadius: '50%',
+                  background: st.enabled ? '#FAB283' : '#8b8b95',
+                  transition: 'left .12s',
+                },
+              })),
+            ]),
           ]),
+          h('div', { style: { fontSize: 12, color: muted } },
+            '34 款 opencode 官方配色主题，点击即切换'),
           // ── 排印调节（置顶）──
           h('div', { style: secTitle }, [
             h('span', null, '字体字号'),
@@ -8246,7 +8246,6 @@ function createClient(slotTarget) {
             field('字号', seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
               function (v) { props.refresh(st.mode, Number(v), st.fontKey); setUi(props.getState()) })),
             field('代码字体', fontDropdown),
-            switchCtrl,
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [
@@ -8254,7 +8253,7 @@ function createClient(slotTarget) {
             h('span', { style: countStyle }, '34 款 · 按色系分组'),
           ]),
           h('input', {
-            placeholder: '搜索主题…（「system」= 默认外观）',
+            placeholder: '搜索主题…',
             value: query,
             onChange: function (e) { setQuery(e.target.value) },
             style: {
@@ -8283,7 +8282,7 @@ function createClient(slotTarget) {
           name: slotTarget,
           id: 'opencode-palette',
           order: 30,
-          label: function () { return 'Opencode 主题' },
+          label: function () { return 'Opencode Palette' },
           inject: function () {
             return {
               getState: getState,
