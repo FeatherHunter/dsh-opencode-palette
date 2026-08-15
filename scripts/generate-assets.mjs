@@ -153,6 +153,10 @@ function setupDoc(lang) {
   const SPW = 1000, SPH = 590
   const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="12" font-weight="700" fill="#140a1e">' + n + '</text>'
   const nav = (zh, en) => lang === 'zh' ? zh : en
+  // 正文样式按钮宽度按语言自适应（等宽字体 11px 约 6.6px/字符）
+  const monoW = lang === 'zh' ? 88 : 136
+  const sansW = lang === 'zh' ? 88 : 92
+  const btnX2 = 222 + monoW + 6
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + SPW + '" height="' + SPH + '" viewBox="0 0 ' + SPW + ' ' + SPH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
@@ -166,15 +170,17 @@ function setupDoc(lang) {
     '<text x="20" y="224" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + nav('语言 · 中文', 'Language · English') + '</text>',
     '<rect x="196" y="20" width="784" height="560" rx="14" fill="#101014" stroke="#27272a"/>',
     '<text x="222" y="56" font-family="' + SANS + '" font-size="15" font-weight="700" fill="#f0f0f0">🎨 ' + esc(T.panelName) + '</text>',
-    '<text x="896" y="53" font-family="' + SANS + '" font-size="12" fill="#7fd88f">' + T.enabled + '</text>',
+    '<text x="916" y="53" text-anchor="end" font-family="' + SANS + '" font-size="12" fill="#7fd88f">' + T.enabled + '</text>',
     '<rect x="924" y="42" width="36" height="20" rx="10" fill="rgba(250,178,131,0.4)"/><circle cx="949" cy="52" r="7" fill="#FAB283"/>',
     '<text x="222" y="82" font-family="' + SANS + '" font-size="12" fill="#8b8b95">' + esc(T.subtitle) + '</text>',
     '<text x="222" y="120" font-family="' + SANS + '" font-size="11" fill="#a1a1aa">' + T.typography + '</text>',
-    '<rect x="222" y="130" width="150" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>',
-    '<rect x="226" y="134" width="72" height="18" rx="4" fill="rgba(255,255,255,0.14)"/><text x="234" y="147" font-family="' + SANS + '" font-size="11" fill="#f0f0f0">' + T.mono + '</text>',
-    '<text x="308" y="147" font-family="' + SANS + '" font-size="11" fill="#8b8b95">' + T.sans + '</text>',
-    '<rect x="386" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="400" y="147" font-family="' + SANS + '" font-size="11" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
-    '<rect x="520" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="534" y="147" font-family="' + MONO + '" font-size="11" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
+    // 正文样式：两个独立按钮（选中态高亮），文字各自在框内
+    '<rect x="222" y="130" width="' + monoW + '" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>',
+    '<rect x="226" y="134" width="' + (monoW - 8) + '" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="' + SANS + '" font-size="11" fill="#f0f0f0">' + T.mono + '</text>',
+    '<rect x="' + btnX2 + '" y="130" width="' + sansW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>',
+    '<text x="' + (btnX2 + 8) + '" y="147" font-family="' + SANS + '" font-size="11" fill="#8b8b95">' + T.sans + '</text>',
+    '<rect x="' + (btnX2 + sansW + 8) + '" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 22) + '" y="147" font-family="' + SANS + '" font-size="11" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
+    '<rect x="' + (btnX2 + sansW + 136) + '" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 150) + '" y="147" font-family="' + MONO + '" font-size="11" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
     '<text x="222" y="192" font-family="' + SANS + '" font-size="11" fill="#a1a1aa">' + T.themeSection + '</text>',
     '<text x="222" y="224" font-family="' + SANS + '" font-size="12" fill="#c8c8d0">● ' + T.groupWarm + '</text>',
     chipSvg(292, 208, 'opencode', 108), chipSvg(408, 208, 'orng', 90), chipSvg(506, 208, 'vesper', 96),
