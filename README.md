@@ -1,0 +1,2 @@
+# dsh-opencode-palette
+
