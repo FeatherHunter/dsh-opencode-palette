@@ -173,7 +173,7 @@ function chipSvg(x, y, name, w) {
 // ── palette-matrix ──（玻璃拟态墙：柔光斑背景 + 半透明卡片 + 主色顶条 + 语义色微条）
 function matrixDoc(lang) {
   const T = L[lang]
-  const COLS = 6, CW = 196, CH = 98, GAP = 12, PAD_X = 20, PAD_Y = 116
+  const COLS = 6, CW = 196, CH = 106, GAP = 12, PAD_X = 20, PAD_Y = 124
   const rows = Math.ceil(names.length / COLS)
   const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
   const H = PAD_Y + rows * CH + (rows - 1) * GAP + 20
@@ -190,12 +190,12 @@ function matrixDoc(lang) {
     // 中文版卡片补一行中文译名；主题名用主题自己的文字色（非纯白）
     const nameFill = hex(c.text) || '#e2e2e8'
     const zhName = lang === 'zh' && THEME_ZH[n]
-      ? '<text x="' + (x + 14) + '" y="' + (y + 49) + '" font-family="' + SANS + '" font-size="15" fill="' + nameFill + '" opacity="0.88">' + esc(THEME_ZH[n]) + '</text>'
+      ? '<text x="' + (x + 14) + '" y="' + (y + 56) + '" font-family="' + SANS + '" font-size="17" font-weight="700" letter-spacing="1" fill="' + hex(c.primary) + '">' + esc(THEME_ZH[n]) + '</text>'
       : ''
     return '<g>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="14" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.09)"/>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="3" rx="1.5" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 14) + '" y="' + (y + 28) + '" font-family="' + MONO + '" font-size="16.5" font-weight="600" fill="' + nameFill + '">' + esc(n) + '</text>' +
+      '<text x="' + (x + 14) + '" y="' + (y + 31) + '" font-family="' + MONO + '" font-size="18.5" font-weight="600" fill="' + nameFill + '">' + esc(n) + '</text>' +
       zhName +
       strip +
       '</g>'
@@ -205,8 +205,8 @@ function matrixDoc(lang) {
     '<defs>' + blobs + '</defs>',
     '<rect width="100%" height="100%" fill="#0a0a0a"/>',
     '<rect width="100%" height="100%" fill="url(#blob0)"/><rect width="100%" height="100%" fill="url(#blob1)"/><rect width="100%" height="100%" fill="url(#blob2)"/><rect width="100%" height="100%" fill="url(#blob3)"/>',
-    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="29" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<text x="' + PAD_X + '" y="82" font-family="' + SANS + '" font-size="16.5" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
+    '<text x="' + PAD_X + '" y="58" font-family="' + SANS + '" font-size="31" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
+    '<text x="' + PAD_X + '" y="86" font-family="' + SANS + '" font-size="18.5" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
     cards,
     '</svg>',
   ].join('\n')
@@ -312,7 +312,7 @@ function uiFrame(x, y, w, themeName, lang) {
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="250" rx="12" fill="' + bg + '" stroke="' + border + '"/>' +
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="34" rx="12" fill="' + panel + '"/>' +
     '<circle cx="' + (x + 22) + '" cy="' + (y + 17) + '" r="6" fill="' + primary + '"/>' +
-    '<text x="' + (x + 38) + '" y="' + (y + 21) + '" font-family="' + SANS + '" font-size="13.5" fill="' + muted + '">DeepSeek Harness</text>' +
+    '<text x="' + (x + 38) + '" y="' + (y + 21) + '" font-family="' + SANS + '" font-size="15.5" fill="' + muted + '">DeepSeek Harness</text>' +
     '<rect x="' + (x + 14) + '" y="' + (y + 48) + '" width="' + (w * 0.72) + '" height="34" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
     '<rect x="' + (x + 22) + '" y="' + (y + 59) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.7"/>' +
     '<rect x="' + (x + 22) + '" y="' + (y + 69) + '" width="' + (w * 0.3) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.5"/>' +
@@ -323,21 +323,21 @@ function uiFrame(x, y, w, themeName, lang) {
     '<text x="' + (x + 26 + 108) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="13" fill="' + (c.syntaxString || '#7fd88f') + '">"tokyonight"</text>' +
     '<rect x="' + (x + 26) + '" y="' + (y + 160) + '" width="' + (w * 0.4) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
     '<rect x="' + (x + 26) + '" y="' + (y + 172) + '" width="' + (w * 0.55) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
-    '<rect x="' + (x + 14) + '" y="' + (y + 202) + '" width="' + (w - 28) + '" height="28" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
+    '<rect x="' + (x + 14) + '" y="' + (y + 202) + '" width="' + (w - 28) + '" height="34" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
     '<text x="' + (x + 26) + '" y="' + (y + 220) + '" font-family="' + SANS + '" font-size="13" fill="' + muted + '" opacity="0.8">' + T.ask + '</text>' +
     '<circle cx="' + (x + w - 26) + '" cy="' + (y + 216) + '" r="8" fill="' + primary + '"/>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 270) + '" text-anchor="middle" font-family="' + MONO + '" font-size="15.5" font-weight="600" fill="' + text + '">' + esc(themeName) + '</text>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 286) + '" text-anchor="middle" font-family="' + MONO + '" font-size="13.5" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + 272) + '" text-anchor="middle" font-family="' + MONO + '" font-size="17.5" font-weight="600" fill="' + text + '">' + esc(themeName) + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + 288) + '" text-anchor="middle" font-family="' + MONO + '" font-size="15.5" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
     '</g>'
 }
 function switchDoc(lang) {
   const T = L[lang]
   // TH=372：主题名 y=336、主色 y=354，320 会被裁剪；372 留足边距
-  const TW = 1140, TH = 372
+  const TW = 1140, TH = 380
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + TW + '" height="' + TH + '" viewBox="0 0 ' + TW + ' ' + TH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="18" y="32" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">' + esc(T.switchTitle) + '</text>',
+    '<text x="18" y="34" font-family="' + SANS + '" font-size="20.5" font-weight="700" fill="#f0f0f0">' + esc(T.switchTitle) + '</text>',
     uiFrame(18, 52, 356, 'opencode', lang),
     uiFrame(392, 52, 356, 'tokyonight', lang),
     uiFrame(766, 52, 356, 'matrix', lang),
@@ -376,7 +376,7 @@ function heroFrame(x, y, w, themeName) {
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="40" rx="16" fill="' + panel + '"/>' +
     '<rect x="' + x + '" y="' + (y + 24) + '" width="' + w + '" height="16" fill="' + panel + '"/>' +
     '<circle cx="' + (x + 26) + '" cy="' + (y + 20) + '" r="7" fill="' + primary + '"/>' +
-    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="15" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
+    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="17" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
     '<circle cx="' + (x + w - 24) + '" cy="' + (y + 20) + '" r="5" fill="' + muted + '" opacity="0.6"/>' +
     // assistant 消息（含代码块）
     '<rect x="' + (x + 16) + '" y="' + (y + 54) + '" width="' + (w * 0.78) + '" height="30" rx="9" fill="' + panel + '" stroke="' + border + '"/>' +
@@ -390,10 +390,10 @@ function heroFrame(x, y, w, themeName) {
     '<circle cx="' + (x + 30) + '" cy="' + (y + 104) + '" r="3.5" fill="' + number + '" opacity="0.9"/>' +
     '<circle cx="' + (x + 42) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.5"/>' +
     '<circle cx="' + (x + 54) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.3"/>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + keyword + '">const theme</text>' +
-    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + muted + '">=</text>' +
-    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + string + '">"' + esc(themeName) + '"</text>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="13.5" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + keyword + '">const theme</text>' +
+    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + muted + '">=</text>' +
+    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + string + '">"' + esc(themeName) + '"</text>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="15.5" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
     '<rect x="' + (x + 24) + '" y="' + (y + 162) + '" width="' + (w * 0.5) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
     // 用户消息
     '<rect x="' + (x + w - 16 - w * 0.5) + '" y="' + (y + 194) + '" width="' + (w * 0.5) + '" height="28" rx="9" fill="' + primary + '" opacity="0.9"/>' +
@@ -406,9 +406,9 @@ function heroFrame(x, y, w, themeName) {
     '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>'
     // 底部：主题名 + 取色器式 swatch（色块 + 同色 HEX）
     return '<g>' + frameBody +
-    '<text x="' + (x + w / 2) + '" y="' + (y + h + 36) + '" text-anchor="middle" ' + mono + ' font-size="17.5" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h + 36) + '" text-anchor="middle" ' + mono + ' font-size="19.5" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
     '<rect x="' + swX + '" y="' + (y + h + 44) + '" width="' + sw + '" height="' + sw + '" rx="3" fill="' + primary + '" stroke="rgba(0,0,0,0.35)"/>' +
-    '<text x="' + hexX + '" y="' + (y + h + 55) + '" ' + mono + ' font-size="14.5" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
+    '<text x="' + hexX + '" y="' + (y + h + 55) + '" ' + mono + ' font-size="16.5" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
     '</g>'
 }
 function heroDoc(lang) {
@@ -434,63 +434,77 @@ function heroDoc(lang) {
     '<rect width="100%" height="100%" fill="url(#haloViolet)"/>',
     '<rect width="100%" height="100%" fill="url(#haloTeal)"/>',
     // 小标签（品牌行，字距拉开，× 点缀橙色）
-    '<text x="' + (HW / 2) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
-    '<text x="' + (HW / 2 + 12) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="2" fill="#FAB283">×</text>',
-    '<text x="' + (HW / 2 + 64) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
+    '<text x="' + (HW / 2) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
+    '<text x="' + (HW / 2 + 12) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="2" fill="#FAB283">×</text>',
+    '<text x="' + (HW / 2 + 64) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
     // 主标语（渐变大字）
-    '<text x="' + (HW / 2) + '" y="92" text-anchor="middle" font-family="' + SANS + '" font-size="49" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
+    '<text x="' + (HW / 2) + '" y="92" text-anchor="middle" font-family="' + SANS + '" font-size="51" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
     // 副行（终端风：等宽 + 橙色 ▸ 引导）
-    '<text x="' + (HW / 2) + '" y="130" text-anchor="middle" font-family="' + MONO + '" font-size="18.5" fill="#b0b0b8">',
+    '<text x="' + (HW / 2) + '" y="132" text-anchor="middle" font-family="' + MONO + '" font-size="20.5" fill="#b0b0b8">',
     '<tspan fill="#FAB283">▸ </tspan>' + esc(T.heroSub) + '</text>',
     // 3 个拟真界面
     heroFrame(x0, y0, frameW, 'opencode'),
     heroFrame(x0 + frameW + gap, y0, frameW, 'tokyonight'),
     heroFrame(x0 + 2 * (frameW + gap), y0, frameW, 'synthwave84'),
     // 底部一行：终端风 + 数量高亮
-    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="17" fill="#8b8b95">',
+    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="19" fill="#8b8b95">',
     esc(T.heroMorePre) + '<tspan fill="#FAB283" font-weight="700">' + esc(T.heroMoreHi) + '</tspan>' + esc(T.heroMorePost) + '</text>',
     '</svg>',
   ].join('\n')
 }
 
-// ── 主题图鉴（theme-stories-{zh,en}.svg）：中文名 + 由来 ──
+// ── 故事卡墙（theme-stories-{zh,en}.svg）：26 个有故事的名字，明信片式卡片 ──
+// 筛选：只保留有文化/意象来历的主题（去掉 cursor/github/vercel/material/one-dark/monokai/opencode/system）
+const STORY_PICKS = ['tokyonight','dracula','gruvbox','matrix','rose-pine','catppuccin','catppuccin-frappe','catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight','ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng']
 function themeStoriesDoc(lang) {
   const T = L[lang]
-  const COLS = 2, CW = 618, CH = 76, GAP = 14, PAD_X = 20, PAD_Y = 110
-  const rows = Math.ceil(names.length / COLS)
-  const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 18
   const story = lang === 'zh' ? THEME_STORY_ZH : THEME_STORY_EN
-  const cards = names.map((n, i) => {
+  const picked = STORY_PICKS.filter((n) => data[n])
+  const COLS = 2, CW = 610, CH = 152, GAP = 14, PAD_X = 20, PAD_Y = 118
+  const rows = Math.ceil(picked.length / COLS)
+  const W = PAD_X * 2 + COLS * CW + GAP
+  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 20
+  const cards = picked.map((n, i) => {
     const c = data[n]
     const col = i % COLS, row = Math.floor(i / COLS)
     const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
     const zh = THEME_ZH[n]
-    const line1 = lang === 'zh'
-      ? esc(n) + (zh ? '  ·  ' + esc(zh) : '')
-      : esc(n)
-    // 主题名用其代表色（primary），不再用纯白
-    const nameFill = hex(c.primary) || '#e2e2e8'
+    const gid = 'sc' + i
+    // 顶部压暗渐变（文字区永远高对比）+ 底部主色光晕（纯氛围，不干扰文字）
+    const nameRow = lang === 'zh'
+      ? '<text x="' + (x + 28) + '" y="' + (y + 58) + '" font-family="' + SANS + '" font-size="26" font-weight="800" fill="' + hex(c.primary) + '">' + esc(zh || n) + '</text>' +
+        '<text x="' + (x + 28) + '" y="' + (y + 82) + '" font-family="' + MONO + '" font-size="13" fill="#9a9aa2">' + esc(n) + '</text>'
+      : '<text x="' + (x + 28) + '" y="' + (y + 58) + '" font-family="' + MONO + '" font-size="24" font-weight="700" fill="' + hex(c.primary) + '">' + esc(n) + '</text>'
+    // 由来：主色引用竖线 + 亮灰白 15px（光晕压暗后高对比）
+    const storyLine = '<rect x="' + (x + 28) + '" y="' + (y + 99) + '" width="3" height="17" rx="1.5" fill="' + hex(c.primary) + '"/>' +
+      '<text x="' + (x + 40) + '" y="' + (y + 112) + '" font-family="' + SANS + '" font-size="15" fill="#d8d8de">' + esc(story[n] || '') + '</text>'
+    const dots = ['primary', 'accent', 'error', 'warning', 'success'].map((k, j) =>
+      '<circle cx="' + (x + 28 + j * 22) + '" cy="' + (y + CH - 20) + '" r="5" fill="' + hex(c[k]) + '"/>'
+    ).join('')
     return '<g>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>' +
-      '<rect x="' + (x + 16) + '" y="' + (y + 18) + '" width="52" height="40" rx="9" fill="' + (c.background || '#1c1c1e') + '"/>' +
-      '<circle cx="' + (x + 30) + '" cy="' + (y + 38) + '" r="6" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 84) + '" y="' + (y + 31) + '" font-family="' + MONO + '" font-size="17.5" font-weight="700" fill="' + nameFill + '">' + line1 + '</text>' +
-      '<text x="' + (x + 84) + '" y="' + (y + 56) + '" font-family="' + SANS + '" font-size="16" fill="#a1a1aa">' + esc(story[n] || '') + '</text>' +
+      '<defs>' +
+        '<linearGradient id="' + gid + 'd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#000" stop-opacity="0.30"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></linearGradient>' +
+        '<radialGradient id="' + gid + 'g" cx="78%" cy="105%" r="85%"><stop offset="0%" stop-color="' + hex(c.primary) + '" stop-opacity="0.17"/><stop offset="100%" stop-color="' + hex(c.primary) + '" stop-opacity="0"/></radialGradient>' +
+      '</defs>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="' + (c.background || '#141414') + '" stroke="rgba(255,255,255,0.07)"/>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + Math.round(CH * 0.55) + '" rx="16" fill="url(#' + gid + 'd)"/>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="url(#' + gid + 'g)"/>' +
+      nameRow +
+      storyLine +
+      dots +
       '</g>'
   }).join('')
-  const title = lang === 'zh' ? '34 款主题，与它们的名字' : '34 themes and the stories behind their names'
-  const sub = lang === 'zh' ? '每个名字背后都有一段来历' : 'Every name has a story'
+  const title = lang === 'zh' ? '26 个有故事的名字' : '26 names with stories'
+  const sub = lang === 'zh' ? '从 34 款主题中，挑出真正有来历的' : 'Picked from all 34 themes — the ones with real stories'
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="31" font-weight="700" fill="#f0f0f0">' + esc(title) + '</text>',
-    '<text x="' + PAD_X + '" y="84" font-family="' + SANS + '" font-size="17.5" fill="#8b8b95">' + esc(sub) + '</text>',
+    '<text x="' + PAD_X + '" y="60" font-family="' + SANS + '" font-size="30" font-weight="800" fill="#f0f0f0">' + esc(title) + '</text>',
+    '<text x="' + PAD_X + '" y="86" font-family="' + SANS + '" font-size="15" fill="#8b8b95">' + esc(sub) + '</text>',
     cards,
     '</svg>',
-  ].join('\\n')
+  ].join('\n')
 }
-
 await mkdir(OUT_DIR, { recursive: true })
 const files = {
   'palette-matrix-en.svg': matrixDoc('en'),
