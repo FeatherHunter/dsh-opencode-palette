@@ -84,41 +84,35 @@ function chipSvg(x, y, name, w) {
     '</g>'
 }
 
-// ── palette-matrix ──（霓虹光晕画廊：每张卡片 = 主题色的光晕艺术品）
+// ── palette-matrix ──（Pantone 色卡墙：大色块 + 零装饰 + 秩序网格，简约大气）
 function matrixDoc(lang) {
   const T = L[lang]
-  const COLS = 6, CW = 190, CH = 142, GAP = 16, PAD_X = 16, PAD_Y = 84
+  const titleLine = lang === 'zh' ? '款官方主题 · 全部官方配色' : 'official opencode themes'
+  const COLS = 6, CW = 196, CH = 118, GAP = 10, PAD_X = 20, PAD_Y = 96
   const rows = Math.ceil(names.length / COLS)
   const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 18
+  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 20
   const cards = names.map((n, i) => {
     const c = data[n]
     const col = i % COLS, row = Math.floor(i / COLS)
     const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
-    const bg = c.background ? c.background : '#141414'
+    const bg = c.background ? c.background : '#161616'
     const fg = c.text || '#c8c8d0'
-    const gid = 'mg' + i
-    const halo = (suffix, color, op) => '<radialGradient id="' + gid + suffix + '"><stop offset="0%" stop-color="' + hex(color) + '" stop-opacity="' + op + '"/><stop offset="100%" stop-color="' + hex(color) + '" stop-opacity="0"/></radialGradient>'
-    const glow = (suffix, cxr, cyr, r) => '<circle cx="' + (x + cxr) + '" cy="' + (y + cyr) + '" r="' + r + '" fill="url(#' + gid + suffix + ')"/>'
-    const dot = (cx, cy, color) => '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="' + hex(color) + '" opacity="0.95"/>'
+    const focus = n === 'opencode' ? '<rect x="' + (x - 1.5) + '" y="' + (y - 1.5) + '" width="' + (CW + 3) + '" height="' + (CH + 3) + '" rx="10" fill="none" stroke="#FAB283" stroke-opacity="0.85" stroke-width="1.5"/>' : ''
     return '<g>' +
-      '<defs>' + halo('a', c.primary, 0.9) + halo('b', c.accent, 0.85) + halo('c', c.success, 0.65) + '</defs>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="' + bg + '" stroke="rgba(255,255,255,0.05)"/>' +
-      // 三层光晕（主色 / 强调 / 成功），模拟辉光艺术
-      glow('a', CW * 0.36, CH * 0.30, CH * 0.62) +
-      glow('b', CW * 0.74, CH * 0.66, CH * 0.52) +
-      glow('c', CW * 0.88, CH * 0.18, CH * 0.36) +
-      '<text x="' + (x + 16) + '" y="' + (y + 28) + '" font-family="' + MONO + '" font-size="12.5" font-weight="600" fill="' + fg + '" opacity="0.95">' + esc(n) + '</text>' +
-      dot(x + 18, y + CH - 18, c.primary) + dot(x + 32, y + CH - 18, c.accent) + dot(x + 46, y + CH - 18, c.error) + dot(x + 60, y + CH - 18, c.warning) + dot(x + 74, y + CH - 18, c.success) +
+      focus +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="8" fill="' + bg + '"/>' +
+      '<text x="' + (x + 14) + '" y="' + (y + CH - 14) + '" font-family="' + MONO + '" font-size="11" letter-spacing="0.5" fill="' + fg + '" opacity="0.92">' + esc(n) + '</text>' +
       '</g>'
   }).join('')
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
-    '<defs><linearGradient id="titleLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FAB283"/><stop offset="55%" stop-color="#9D7CD8"/><stop offset="100%" stop-color="#56B6C2"/></linearGradient></defs>',
-    '<rect width="100%" height="100%" fill="#0a0a0a"/>',
-    '<text x="' + PAD_X + '" y="40" font-family="' + SANS + '" font-size="22" font-weight="800" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<rect x="' + PAD_X + '" y="54" width="96" height="3" rx="1.5" fill="url(#titleLine)"/>',
-    '<text x="' + PAD_X + '" y="74" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
+    '<defs><linearGradient id="bigNum" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FAB283"/><stop offset="55%" stop-color="#9D7CD8"/><stop offset="100%" stop-color="#56B6C2"/></linearGradient></defs>',
+    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
+    // 杂志式标题：超大数字 + 细字说明，两行留白
+    '<text x="' + PAD_X + '" y="82" font-family="' + SANS + '" font-size="64" font-weight="800" fill="url(#bigNum)">34</text>',
+    '<text x="' + (PAD_X + 130) + '" y="52" font-family="' + SANS + '" font-size="16" font-weight="600" fill="#e8e8e8">' + esc(titleLine) + '</text>',
+    '<text x="' + (PAD_X + 130) + '" y="74" font-family="' + SANS + '" font-size="12.5" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
     cards,
     '</svg>',
   ].join('\n')
