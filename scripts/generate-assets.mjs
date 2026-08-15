@@ -303,7 +303,8 @@ function heroFrame(x, y, w, themeName) {
 }
 function heroDoc(lang) {
   const T = L[lang]
-  const HW = 1280, HH = 660
+  // HH=605：内容到底约 556，底部纯黑区 110px 裁掉一半（内容不变形）
+  const HW = 1280, HH = 605
   const frameW = 372
   const gap = 26
   const total = 3 * frameW + 2 * gap

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="660" viewBox="0 0 1280 660">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="605" viewBox="0 0 1280 605">
 <defs>
 <radialGradient id="haloOrange" cx="20%" cy="0%" r="60%"><stop offset="0%" stop-color="#FAB283" stop-opacity="0.16"/><stop offset="100%" stop-color="#FAB283" stop-opacity="0"/></radialGradient>
 <radialGradient id="haloViolet" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#9D7CD8" stop-opacity="0.14"/><stop offset="100%" stop-color="#9D7CD8" stop-opacity="0"/></radialGradient>
