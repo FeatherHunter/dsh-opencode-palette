@@ -41,7 +41,9 @@ const L = {
     ask: 'Ask anything…',
     heroTitle: 'One interface. 34 looks.',
     heroSub: 'The complete opencode palette for DeepSeek Harness — every theme, one click away',
-    heroMore: 'opencode · tokyonight · synthwave84 — and 31 more, all official, all one click',
+    heroMorePre: 'opencode · tokyonight · synthwave84 — ',
+    heroMoreHi: '+31 more',
+    heroMorePost: ' — all official, all one click',
   },
   zh: {
     matrixTitle: 'dsh-opencode-palette — 34 款 opencode 官方主题',
@@ -64,7 +66,9 @@ const L = {
     ask: '问点什么…',
     heroTitle: '一个界面，34 种风格',
     heroSub: '把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 每一款，一键切换',
-    heroMore: 'opencode · tokyonight · synthwave84 —— 还有 31 款，全部官方配色，全部一键切换',
+    heroMorePre: 'opencode · tokyonight · synthwave84 —— ',
+    heroMoreHi: '还有 31 款',
+    heroMorePost: '，全部官方配色，全部一键切换',
   },
 }
 
@@ -245,9 +249,16 @@ function heroFrame(x, y, w, themeName) {
   const number = c.syntaxNumber || keyword
   const border = c.border || '#2a2a30'
   const h = 300
+  // 底部取色器式 swatch 行尺寸（色块 + 同色 HEX）
+  const sw = 10, gapS = 5
+  const hexTxt = primary || '—'
+  const hexW = hexTxt.length * 6.6
+  const rowW = sw + gapS + hexW
+  const swX = x + w / 2 - rowW / 2
+  const hexX = swX + sw + gapS
   const mono = 'font-family="' + MONO + '"'
   const sans = 'font-family="' + SANS + '"'
-  return '<g>' +
+  const frameBody =
     // 界面卡片 + 投影
     '<defs><filter id="glow' + themeName + '" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000" flood-opacity="0.55"/></filter></defs>' +
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="16" fill="' + bg + '" stroke="' + border + '" filter="url(#glow' + themeName + ')"/>' +
@@ -282,10 +293,12 @@ function heroFrame(x, y, w, themeName) {
     '<circle cx="' + (x + 32) + '" cy="' + (y + 251) + '" r="4" fill="' + muted + '" opacity="0.5"/>' +
     '<rect x="' + (x + 44) + '" y="' + (y + 247) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
     '<circle cx="' + (x + w - 30) + '" cy="' + (y + 251) + '" r="9" fill="' + primary + '"/>' +
-    '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>' +
-    // 底部：主题名 + 主色
+    '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>'
+    // 底部：主题名 + 取色器式 swatch（色块 + 同色 HEX）
+    return '<g>' + frameBody +
     '<text x="' + (x + w / 2) + '" y="' + (y + h + 34) + '" text-anchor="middle" ' + mono + ' font-size="14" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + h + 52) + '" text-anchor="middle" ' + mono + ' font-size="11" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
+    '<rect x="' + swX + '" y="' + (y + h + 44) + '" width="' + sw + '" height="' + sw + '" rx="3" fill="' + primary + '" stroke="rgba(0,0,0,0.35)"/>' +
+    '<text x="' + hexX + '" y="' + (y + h + 53) + '" ' + mono + ' font-size="11" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
     '</g>'
 }
 function heroDoc(lang) {
@@ -295,7 +308,7 @@ function heroDoc(lang) {
   const gap = 26
   const total = 3 * frameW + 2 * gap
   const x0 = Math.round((HW - total) / 2)
-  const y0 = 150
+  const y0 = 168
   // 氛围光晕（品牌橙/紫）
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + HW + '" height="' + HH + '" viewBox="0 0 ' + HW + ' ' + HH + '">',
@@ -309,15 +322,22 @@ function heroDoc(lang) {
     '<rect width="100%" height="100%" fill="url(#haloOrange)"/>',
     '<rect width="100%" height="100%" fill="url(#haloViolet)"/>',
     '<rect width="100%" height="100%" fill="url(#haloTeal)"/>',
-    // 主标语
-    '<text x="' + (HW / 2) + '" y="68" text-anchor="middle" font-family="' + SANS + '" font-size="40" font-weight="800" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
-    '<text x="' + (HW / 2) + '" y="102" text-anchor="middle" font-family="' + SANS + '" font-size="16" fill="#8b8b95">' + esc(T.heroSub) + '</text>',
+    // 小标签（品牌行，字距拉开，× 点缀橙色）
+    '<text x="' + (HW / 2) + '" y="42" text-anchor="middle" font-family="' + SANS + '" font-size="11" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
+    '<text x="' + (HW / 2 + 11) + '" y="42" text-anchor="middle" font-family="' + SANS + '" font-size="11" letter-spacing="2" fill="#FAB283">×</text>',
+    '<text x="' + (HW / 2 + 60) + '" y="42" text-anchor="middle" font-family="' + SANS + '" font-size="11" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
+    // 主标语（渐变大字）
+    '<text x="' + (HW / 2) + '" y="88" text-anchor="middle" font-family="' + SANS + '" font-size="42" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
+    // 副行（终端风：等宽 + 橙色 ▸ 引导）
+    '<text x="' + (HW / 2) + '" y="124" text-anchor="middle" font-family="' + MONO + '" font-size="15" fill="#b0b0b8">',
+    '<tspan fill="#FAB283">▸ </tspan>' + esc(T.heroSub) + '</text>',
     // 3 个拟真界面
     heroFrame(x0, y0, frameW, 'opencode'),
     heroFrame(x0 + frameW + gap, y0, frameW, 'tokyonight'),
     heroFrame(x0 + 2 * (frameW + gap), y0, frameW, 'synthwave84'),
-    // 底部一行：还有 31 款
-    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + SANS + '" font-size="14" fill="#5c5c66">' + esc(T.heroMore) + '</text>',
+    // 底部一行：终端风 + 数量高亮
+    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="13.5" fill="#8b8b95">',
+    esc(T.heroMorePre) + '<tspan fill="#FAB283" font-weight="700">' + esc(T.heroMoreHi) + '</tspan>' + esc(T.heroMorePost) + '</text>',
     '</svg>',
   ].join('\n')
 }
