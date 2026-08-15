@@ -7824,17 +7824,18 @@ const { getThemeJson, isSystem, listThemes } = __mods["registry"]
 const { resolveThemeColors, hexToRgb } = __mods["resolve"]
 
 // 色系顺序与代表色（组标题色点/色带）
-const GROUP_ORDER = ['暖橙', '黄绿', '青绿', '青蓝', '冷蓝', '蓝紫', '中性', '透明', '特殊']
+// 组 key 为语言中立 slug（显示名由运行时 i18n 翻译表提供）
+const GROUP_ORDER = ['warm', 'yellow-green', 'teal', 'cyan-blue', 'cool-blue', 'violet', 'neutral', 'transparent', 'special']
 const GROUP_COLORS = {
-  暖橙: '#FAB283',
-  黄绿: '#A7C080',
-  青绿: '#2DD5B7',
-  青蓝: '#88C0D0',
-  冷蓝: '#82AAFF',
-  蓝紫: '#C4A7E7',
-  中性: '#9E9E9E',
-  透明: '#8B8B95',
-  特殊: '#8B8B95',
+  warm: '#FAB283',
+  'yellow-green': '#A7C080',
+  teal: '#2DD5B7',
+  'cyan-blue': '#88C0D0',
+  'cool-blue': '#82AAFF',
+  violet: '#C4A7E7',
+  neutral: '#9E9E9E',
+  transparent: '#8B8B95',
+  special: '#8B8B95',
 }
 
 // 色相：hex → 0-360；中性（低饱和/无色）→ -2；无值 → -1
@@ -7857,16 +7858,16 @@ function hueOf(hex) {
 }
 
 function groupOf(name, colors) {
-  if (isSystem(name)) return '特殊'
-  if (colors.background === null) return '透明'
+  if (isSystem(name)) return 'special'
+  if (colors.background === null) return 'transparent'
   const h = hueOf(colors.primary)
-  if (h === -2) return '中性'
-  if (h < 35) return '暖橙'
-  if (h < 90) return '黄绿'
-  if (h < 160) return '青绿'
-  if (h < 200) return '青蓝'
-  if (h < 230) return '冷蓝'
-  return '蓝紫'
+  if (h === -2) return 'neutral'
+  if (h < 35) return 'warm'
+  if (h < 90) return 'yellow-green'
+  if (h < 160) return 'teal'
+  if (h < 200) return 'cyan-blue'
+  if (h < 230) return 'cool-blue'
+  return 'violet'
 }
 
 // 解析单个主题的预览关键色（transparent → null）
@@ -7997,6 +7998,45 @@ function saveState(state) {
     if (globalThis.localStorage) localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch (e) { /* 忽略持久化失败 */ }
 }
+// ── i18n：面板文案双语表（跟随 DSH 界面语言，html[lang] 为信号源）──
+const I18N = {
+  panelName: { zh: 'OpenCode 调色板', en: 'Opencode Palette' },
+  subtitle: { zh: '34 款 opencode 官方配色主题，点击即切换', en: '34 official opencode themes — click to switch' },
+  enabled: { zh: '已启用', en: 'Enabled' },
+  disabled: { zh: '已停用', en: 'Disabled' },
+  disableTitle: { zh: '点击停用主题', en: 'Click to disable' },
+  enableTitle: { zh: '点击启用主题', en: 'Click to enable' },
+  typography: { zh: '字体字号', en: 'Typography' },
+  bodyStyle: { zh: '正文样式', en: 'Body style' },
+  mono: { zh: '等宽字体（终端风）', en: 'Monospace (terminal)' },
+  sans: { zh: '常规字体（界面风）', en: 'Regular (UI)' },
+  fontSize: { zh: '字号', en: 'Font size' },
+  codeFont: { zh: '代码字体', en: 'Code font' },
+  fontPreview: { zh: '等宽', en: 'mono' },
+  themeSection: { zh: '选择主题', en: 'Themes' },
+  themeCount: { zh: '34 款 · 按色系分组', en: '34 · by color family' },
+  search: { zh: '搜索主题…', en: 'Search themes…' },
+  noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
+  systemDefault: { zh: 'system（默认）', en: 'system (default)' },
+  'group.warm': { zh: '暖橙', en: 'Warm' },
+  'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
+  'group.teal': { zh: '青绿', en: 'Teal' },
+  'group.cyan-blue': { zh: '青蓝', en: 'Cyan-blue' },
+  'group.cool-blue': { zh: '冷蓝', en: 'Cool blue' },
+  'group.violet': { zh: '蓝紫', en: 'Violet' },
+  'group.neutral': { zh: '中性', en: 'Neutral' },
+  'group.transparent': { zh: '透明', en: 'Transparent' },
+  'group.special': { zh: '特殊', en: 'Special' },
+}
+
+// 语言检测：html[lang] 优先，回退浏览器语言
+function getLang() {
+  try {
+    const l = (document.documentElement && document.documentElement.lang) || (navigator.language || 'en')
+    return /^zh/i.test(l) ? 'zh' : 'en'
+  } catch (e) { return 'en' }
+}
+
 
 // 生成注入物并注入：token 层 + <style> 层；幂等（先清后注入）
 function createClient(slotTarget) {
@@ -8007,6 +8047,22 @@ function createClient(slotTarget) {
     let state = loadState()
     let tokenDispose = null
     let styleTag = null
+
+    // ── i18n 运行时：语言跟随 DSH（html[lang] 变化即通知面板重渲染）──
+    let currentLang = getLang()
+    const localeListeners = []
+    function t(key) { const e = I18N[key]; return e ? e[currentLang] : key }
+    function notifyLocale() {
+      const next = getLang()
+      if (next === currentLang) return
+      currentLang = next
+      for (const fn of localeListeners) { try { fn() } catch (e) { /* 忽略 */ } }
+    }
+    let localeObserver = null
+    if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
+      localeObserver = new MutationObserver(notifyLocale)
+      localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] })
+    }
 
     function safeThemeName(name) {
       const names = themeNames()
@@ -8105,6 +8161,11 @@ function createClient(slotTarget) {
           return function () { document.removeEventListener('mousedown', onDoc) }
         }, [fontOpen])
 
+        // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
+        react.useEffect(function () {
+          return props.subscribeLocale(function () { setUi(props.getState()) })
+        }, [])
+
         // 搜索过滤（命中组保留，空组隐藏）
         const q = query.trim().toLowerCase()
         const shown = q === ''
@@ -8162,7 +8223,7 @@ function createClient(slotTarget) {
             },
           }, [
             dot(c && c.primary, 9),
-            t.name === 'system' ? 'system（默认）' : t.name,
+            t.name === 'system' ? t('systemDefault') : t.name,
             isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
           ])
         }
@@ -8201,7 +8262,7 @@ function createClient(slotTarget) {
                 background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
                 color: on ? base : muted,
               },
-            }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa 等宽'))
+            }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + t('fontPreview')))
           })) : null,
         ])
 
@@ -8209,13 +8270,13 @@ function createClient(slotTarget) {
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
-            h('strong', null, '🎨 Opencode Palette'),
+            h('strong', null, '🎨 ' + t('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
-                st.enabled ? '已启用' : '已停用'),
+                st.enabled ? t('enabled') : t('disabled')),
               h('span', {
                 onClick: function () { props.toggle(); setUi(props.getState()) },
-                title: st.enabled ? '点击停用主题' : '点击启用主题',
+                title: st.enabled ? t('disableTitle') : t('enableTitle'),
                 style: {
                   position: 'relative', display: 'inline-block', width: 36, height: 20,
                   borderRadius: 11, cursor: 'pointer',
@@ -8233,27 +8294,27 @@ function createClient(slotTarget) {
             ]),
           ]),
           h('div', { style: { fontSize: 12, color: muted } },
-            '34 款 opencode 官方配色主题，点击即切换'),
+            t('subtitle')),
           // ── 排印调节（置顶）──
           h('div', { style: secTitle }, [
-            h('span', null, '字体字号'),
+            h('span', null, t('typography')),
           ]),
           h('div', { style: { display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' } }, [
-            field('正文样式', seg(st.mode, [
-              { value: 'mono', label: '等宽字体（终端风）' },
-              { value: 'tui', label: '常规字体（界面风）' },
+            field(t('bodyStyle'), seg(st.mode, [
+              { value: 'mono', label: t('mono') },
+              { value: 'tui', label: t('sans') },
             ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) })),
-            field('字号', seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
+            field(t('fontSize'), seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
               function (v) { props.refresh(st.mode, Number(v), st.fontKey); setUi(props.getState()) })),
-            field('代码字体', fontDropdown),
+            field(t('codeFont'), fontDropdown),
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [
-            h('span', null, '选择主题'),
-            h('span', { style: countStyle }, '34 款 · 按色系分组'),
+            h('span', null, t('themeSection')),
+            h('span', { style: countStyle }, t('themeCount')),
           ]),
           h('input', {
-            placeholder: '搜索主题…',
+            placeholder: t('search'),
             value: query,
             onChange: function (e) { setQuery(e.target.value) },
             style: {
@@ -8264,12 +8325,12 @@ function createClient(slotTarget) {
             },
           }),
           shown.length === 0
-            ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, '未找到匹配的主题')
+            ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, t('noMatch'))
             : shown.map(function (g) {
                 return h('div', { key: g.name, style: { marginBottom: 10 } }, [
                   h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
                     dot(g.color, 8),
-                    g.name,
+                    t('group.' + g.name),
                     h('span', { style: countStyle }, String(g.themes.length)),
                   ]),
                   h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
@@ -8282,7 +8343,7 @@ function createClient(slotTarget) {
           name: slotTarget,
           id: 'opencode-palette',
           order: 30,
-          label: function () { return 'Opencode Palette' },
+          label: function () { return t('panelName') },
           inject: function () {
             return {
               getState: getState,
@@ -8291,6 +8352,13 @@ function createClient(slotTarget) {
               setTheme: setTheme,
               themeNames: themeNames,
               groups: function () { return themeGroups() },
+              subscribeLocale: function (fn) {
+                localeListeners.push(fn)
+                return function () {
+                  const i = localeListeners.indexOf(fn)
+                  if (i >= 0) localeListeners.splice(i, 1)
+                }
+              },
               previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
             }
           },
@@ -8304,6 +8372,7 @@ function createClient(slotTarget) {
         try { clearStyle() } catch (e) { /* 忽略 */ }
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
         try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
+        try { if (localeObserver) localeObserver.disconnect() } catch (e) { /* 忽略 */ }
       }
     }, 'dsh-opencode-palette: styles')
   }

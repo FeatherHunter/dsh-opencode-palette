@@ -5,17 +5,18 @@ import { getThemeJson, isSystem, listThemes } from './registry.mjs'
 import { resolveThemeColors, hexToRgb } from './resolve.mjs'
 
 // 色系顺序与代表色（组标题色点/色带）
-export const GROUP_ORDER = ['暖橙', '黄绿', '青绿', '青蓝', '冷蓝', '蓝紫', '中性', '透明', '特殊']
+// 组 key 为语言中立 slug（显示名由运行时 i18n 翻译表提供）
+export const GROUP_ORDER = ['warm', 'yellow-green', 'teal', 'cyan-blue', 'cool-blue', 'violet', 'neutral', 'transparent', 'special']
 export const GROUP_COLORS = {
-  暖橙: '#FAB283',
-  黄绿: '#A7C080',
-  青绿: '#2DD5B7',
-  青蓝: '#88C0D0',
-  冷蓝: '#82AAFF',
-  蓝紫: '#C4A7E7',
-  中性: '#9E9E9E',
-  透明: '#8B8B95',
-  特殊: '#8B8B95',
+  warm: '#FAB283',
+  'yellow-green': '#A7C080',
+  teal: '#2DD5B7',
+  'cyan-blue': '#88C0D0',
+  'cool-blue': '#82AAFF',
+  violet: '#C4A7E7',
+  neutral: '#9E9E9E',
+  transparent: '#8B8B95',
+  special: '#8B8B95',
 }
 
 // 色相：hex → 0-360；中性（低饱和/无色）→ -2；无值 → -1
@@ -38,16 +39,16 @@ export function hueOf(hex) {
 }
 
 export function groupOf(name, colors) {
-  if (isSystem(name)) return '特殊'
-  if (colors.background === null) return '透明'
+  if (isSystem(name)) return 'special'
+  if (colors.background === null) return 'transparent'
   const h = hueOf(colors.primary)
-  if (h === -2) return '中性'
-  if (h < 35) return '暖橙'
-  if (h < 90) return '黄绿'
-  if (h < 160) return '青绿'
-  if (h < 200) return '青蓝'
-  if (h < 230) return '冷蓝'
-  return '蓝紫'
+  if (h === -2) return 'neutral'
+  if (h < 35) return 'warm'
+  if (h < 90) return 'yellow-green'
+  if (h < 160) return 'teal'
+  if (h < 200) return 'cyan-blue'
+  if (h < 230) return 'cool-blue'
+  return 'violet'
 }
 
 // 解析单个主题的预览关键色（transparent → null）

@@ -1,8 +1,10 @@
 # 🎨 dsh-opencode-palette
 
+**🌐 [English](../README.md) · [中文](README.zh-CN.md)**
+
 **把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 34 款主题，一键切换。**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-18%2F18-green)]()
 
@@ -16,6 +18,7 @@
 - ⚡ **一键切换、即时生效** —— 整个界面重新换肤：背景、表面、边框、按钮、状态色、markdown、代码语法高亮（shiki token）全覆盖。
 - 💾 **持久化** —— 刷新、重启都不丢（按浏览器保存于 localStorage）。
 - 🅰️ **排印与主题解耦** —— 正文样式（等宽/常规）、字号（11–18px）、5 种代码字体预设，与配色主题互不干扰。
+- 🌐 **面板自动双语** —— 跟随 DSH 界面语言（中文 / English），切换语言即时生效。
 - 🔄 **`system` = 一键还原** —— 恢复 DSH 原生外观，同时保留你的排印设置。
 - 🧱 **零运行时依赖 · MIT 协议 · 18 项引擎测试** —— 数据驱动三层管线（主题 JSON → 颜色解析 → DSH 适配），映射层单一真相源。
 
@@ -44,10 +47,10 @@ npx --yes @deepseek-ai/dsh plugin --profile web add dsh-opencode-palette
 
 ## 使用
 
-1. 打开 **设置 → 插件 → Opencode Palette**。
+1. 打开 **设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）。
 2. 在按色系分组的主题网格中挑选（支持搜索）—— 点击即生效。
 3. 网格上方的排印控件：正文样式、字号、代码字体。
-4. 右上角开关一键启用/停用整套皮肤。
+4. 头部右侧的开关一键启用/停用整套皮肤。
 
 高级用法：控制台 `window.__opencodePalette` 暴露 `getState`、`setTheme(name)`、`toggle()`、`list()`、`previews()`。
 
@@ -64,7 +67,7 @@ npm run build   # 零依赖打包 → package/ + 动态版 client.js
 npm run assets  # 重新生成上文 SVG 展示图
 ```
 
-架构见 [DESIGN.md](DESIGN.md)：数据驱动三层管线，`src/engine/map-dsh.mjs` 是 DSH 映射层唯一真相源。
+架构见 [DESIGN.md](../DESIGN.md)：数据驱动三层管线，`src/engine/map-dsh.mjs` 是 DSH 映射层唯一真相源。
 
 ## 参与贡献
 
@@ -75,7 +78,3 @@ npm run assets  # 重新生成上文 SVG 展示图
 MIT © FeatherHunter。
 
 主题定义来自 [opencode](https://github.com/anomalyco/opencode)（MIT）及其上游主题项目 —— 见 [THIRD_PARTY_NOTICES](../src/themes/THIRD_PARTY_NOTICES.md)。
-
----
-
-**English**: 📖 [README.md](../README.md)

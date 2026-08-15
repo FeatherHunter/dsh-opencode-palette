@@ -159,10 +159,10 @@ test('色系分组: 34 主题全覆盖且不重复，组序符合 GROUP_ORDER', 
 test('色系分组: 特殊/透明主题归位，暖橙含 opencode', () => {
   const groups = themeGroups()
   const by = (g) => groups.find((x) => x.name === g).themes.map((t) => t.name)
-  assert.ok(by('特殊').includes('system'))
-  assert.ok(by('透明').includes('lucent-orng'))
-  assert.ok(by('暖橙').includes('opencode'))
-  assert.ok(by('冷蓝').includes('tokyonight'))
+  assert.ok(by('special').includes('system'))
+  assert.ok(by('transparent').includes('lucent-orng'))
+  assert.ok(by('warm').includes('opencode'))
+  assert.ok(by('cool-blue').includes('tokyonight'))
 })
 
 test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {
@@ -174,7 +174,7 @@ test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {
   assert.equal(hueOf(null), -1)
 })
 
-test('groupOf: system → 特殊，透明背景 → 透明', () => {
-  assert.equal(groupOf('system', { background: '#000', primary: '#FFF' }), '特殊')
-  assert.equal(groupOf('lucent-orng', resolvePreview('lucent-orng')), '透明')
+test('groupOf: system → special，透明背景 → transparent', () => {
+  assert.equal(groupOf('system', { background: '#000', primary: '#FFF' }), 'special')
+  assert.equal(groupOf('lucent-orng', resolvePreview('lucent-orng')), 'transparent')
 })
