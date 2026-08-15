@@ -39,6 +39,9 @@ const L = {
     step1: '1 Open Settings', step2: '2 Open Plugins', step3: '3 Pick a theme — the UI re-skins instantly',
     switchTitle: 'Same interface, three themes',
     ask: 'Ask anything…',
+    heroTitle: 'One interface. 34 looks.',
+    heroSub: 'The complete opencode palette for DeepSeek Harness — every theme, one click away',
+    heroMore: 'opencode · tokyonight · synthwave84 — and 31 more, all official, all one click',
   },
   zh: {
     matrixTitle: 'dsh-opencode-palette — 34 款 opencode 官方主题',
@@ -59,6 +62,9 @@ const L = {
     step1: '① 打开 设置', step2: '② 点开 插件', step3: '③ 在面板里选一个主题，界面立即换色',
     switchTitle: '同一界面，三种主题',
     ask: '问点什么…',
+    heroTitle: '一个界面，34 种风格',
+    heroSub: '把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 每一款，一键切换',
+    heroMore: 'opencode · tokyonight · synthwave84 —— 还有 31 款，全部官方配色，全部一键切换',
   },
 }
 
@@ -225,6 +231,97 @@ function switchDoc(lang) {
   ].join('\n')
 }
 
+
+// ── 5) Hero 首图（hero-{en,zh}.svg）：氛围光晕 + 3 个拟真界面并排 ──
+function heroFrame(x, y, w, themeName) {
+  const c = data[themeName] || {}
+  const bg = c.background || '#101014'
+  const panel = c.background || '#16161a'
+  const text = c.text || '#d4d4d4'
+  const muted = c.textMuted || c.text || '#8b8b95'
+  const primary = c.primary || '#FAB283'
+  const keyword = c.syntaxKeyword || primary
+  const string = c.syntaxString || '#7fd88f'
+  const number = c.syntaxNumber || keyword
+  const border = c.border || '#2a2a30'
+  const h = 300
+  const mono = 'font-family="' + MONO + '"'
+  const sans = 'font-family="' + SANS + '"'
+  return '<g>' +
+    // 界面卡片 + 投影
+    '<defs><filter id="glow' + themeName + '" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000" flood-opacity="0.55"/></filter></defs>' +
+    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="16" fill="' + bg + '" stroke="' + border + '" filter="url(#glow' + themeName + ')"/>' +
+    // 顶栏
+    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="40" rx="16" fill="' + panel + '"/>' +
+    '<rect x="' + x + '" y="' + (y + 24) + '" width="' + w + '" height="16" fill="' + panel + '"/>' +
+    '<circle cx="' + (x + 26) + '" cy="' + (y + 20) + '" r="7" fill="' + primary + '"/>' +
+    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="12.5" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
+    '<circle cx="' + (x + w - 24) + '" cy="' + (y + 20) + '" r="5" fill="' + muted + '" opacity="0.6"/>' +
+    // assistant 消息（含代码块）
+    '<rect x="' + (x + 16) + '" y="' + (y + 54) + '" width="' + (w * 0.78) + '" height="30" rx="9" fill="' + panel + '" stroke="' + border + '"/>' +
+    '<circle cx="' + (x + 30) + '" cy="' + (y + 69) + '" r="6" fill="' + primary + '" opacity="0.8"/>' +
+    '<rect x="' + (x + 44) + '" y="' + (y + 62) + '" width="' + (w * 0.4) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.7"/>' +
+    '<rect x="' + (x + 44) + '" y="' + (y + 72) + '" width="' + (w * 0.28) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
+    // 代码块
+    '<rect x="' + (x + 16) + '" y="' + (y + 92) + '" width="' + (w - 32) + '" height="92" rx="10" fill="' + bg + '" stroke="' + border + '"/>' +
+    '<rect x="' + (x + 16) + '" y="' + (y + 92) + '" width="' + (w - 32) + '" height="24" rx="10" fill="' + panel + '"/>' +
+    '<rect x="' + (x + 16) + '" y="' + (y + 106) + '" width="' + (w - 32) + '" height="10" fill="' + panel + '"/>' +
+    '<circle cx="' + (x + 30) + '" cy="' + (y + 104) + '" r="3.5" fill="' + number + '" opacity="0.9"/>' +
+    '<circle cx="' + (x + 42) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.5"/>' +
+    '<circle cx="' + (x + 54) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.3"/>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + keyword + '">const theme</text>' +
+    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + muted + '">=</text>' +
+    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + string + '">"' + esc(themeName) + '"</text>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="11" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
+    '<rect x="' + (x + 24) + '" y="' + (y + 162) + '" width="' + (w * 0.5) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
+    // 用户消息
+    '<rect x="' + (x + w - 16 - w * 0.5) + '" y="' + (y + 194) + '" width="' + (w * 0.5) + '" height="28" rx="9" fill="' + primary + '" opacity="0.9"/>' +
+    '<rect x="' + (x + w - 16 - w * 0.36) + '" y="' + (y + 203) + '" width="' + (w * 0.22) + '" height="5" rx="2.5" fill="' + bg + '" opacity="0.75"/>' +
+    // 输入框
+    '<rect x="' + (x + 16) + '" y="' + (y + 234) + '" width="' + (w - 32) + '" height="34" rx="10" fill="' + panel + '" stroke="' + border + '"/>' +
+    '<circle cx="' + (x + 32) + '" cy="' + (y + 251) + '" r="4" fill="' + muted + '" opacity="0.5"/>' +
+    '<rect x="' + (x + 44) + '" y="' + (y + 247) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
+    '<circle cx="' + (x + w - 30) + '" cy="' + (y + 251) + '" r="9" fill="' + primary + '"/>' +
+    '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>' +
+    // 底部：主题名 + 主色
+    '<text x="' + (x + w / 2) + '" y="' + (y + h + 34) + '" text-anchor="middle" ' + mono + ' font-size="14" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h + 52) + '" text-anchor="middle" ' + mono + ' font-size="11" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
+    '</g>'
+}
+function heroDoc(lang) {
+  const T = L[lang]
+  const HW = 1280, HH = 660
+  const frameW = 372
+  const gap = 26
+  const total = 3 * frameW + 2 * gap
+  const x0 = Math.round((HW - total) / 2)
+  const y0 = 150
+  // 氛围光晕（品牌橙/紫）
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="' + HW + '" height="' + HH + '" viewBox="0 0 ' + HW + ' ' + HH + '">',
+    '<defs>',
+    '<radialGradient id="haloOrange" cx="20%" cy="0%" r="60%"><stop offset="0%" stop-color="#FAB283" stop-opacity="0.16"/><stop offset="100%" stop-color="#FAB283" stop-opacity="0"/></radialGradient>',
+    '<radialGradient id="haloViolet" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#9D7CD8" stop-opacity="0.14"/><stop offset="100%" stop-color="#9D7CD8" stop-opacity="0"/></radialGradient>',
+    '<radialGradient id="haloTeal" cx="50%" cy="100%" r="65%"><stop offset="0%" stop-color="#56B6C2" stop-opacity="0.10"/><stop offset="100%" stop-color="#56B6C2" stop-opacity="0"/></radialGradient>',
+    '<linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FAB283"/><stop offset="55%" stop-color="#9D7CD8"/><stop offset="100%" stop-color="#56B6C2"/></linearGradient>',
+    '</defs>',
+    '<rect width="100%" height="100%" fill="#0a0a0a"/>',
+    '<rect width="100%" height="100%" fill="url(#haloOrange)"/>',
+    '<rect width="100%" height="100%" fill="url(#haloViolet)"/>',
+    '<rect width="100%" height="100%" fill="url(#haloTeal)"/>',
+    // 主标语
+    '<text x="' + (HW / 2) + '" y="68" text-anchor="middle" font-family="' + SANS + '" font-size="40" font-weight="800" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
+    '<text x="' + (HW / 2) + '" y="102" text-anchor="middle" font-family="' + SANS + '" font-size="16" fill="#8b8b95">' + esc(T.heroSub) + '</text>',
+    // 3 个拟真界面
+    heroFrame(x0, y0, frameW, 'opencode'),
+    heroFrame(x0 + frameW + gap, y0, frameW, 'tokyonight'),
+    heroFrame(x0 + 2 * (frameW + gap), y0, frameW, 'synthwave84'),
+    // 底部一行：还有 31 款
+    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + SANS + '" font-size="14" fill="#5c5c66">' + esc(T.heroMore) + '</text>',
+    '</svg>',
+  ].join('\n')
+}
+
 await mkdir(OUT_DIR, { recursive: true })
 const files = {
   'palette-matrix-en.svg': matrixDoc('en'),
@@ -235,6 +332,8 @@ const files = {
   'setup-panel-zh.svg': setupDoc('zh'),
   'theme-switch-en.svg': switchDoc('en'),
   'theme-switch-zh.svg': switchDoc('zh'),
+  'hero-en.svg': heroDoc('en'),
+  'hero-zh.svg': heroDoc('zh'),
 }
 for (const [name, content] of Object.entries(files)) {
   await writeFile(join(OUT_DIR, name), content)

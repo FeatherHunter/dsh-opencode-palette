@@ -8,7 +8,7 @@
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-![palette matrix](assets/palette-matrix-en.svg)
+![hero](assets/hero-en.svg)
 
 ## Install in one command
 
@@ -60,6 +60,10 @@ Click any theme chip — the interface re-skins instantly:
 Every theme below is resolved from the official opencode theme JSON — each row is the 7 core semantic colors (`background · text · primary · accent · error · warning · success`):
 
 ![palette strips](assets/palette-strips-en.svg)
+
+All 34 at a glance:
+
+![palette matrix](assets/palette-matrix-en.svg)
 
 ### Typography, independent from the theme
 

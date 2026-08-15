@@ -8,7 +8,7 @@
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-![palette matrix](../assets/palette-matrix-zh.svg)
+![hero](../assets/hero-zh.svg)
 
 ## 一条命令完成安装
 
@@ -60,6 +60,10 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 下表每个主题都由官方 JSON 解析而来 —— 每行是 7 个核心语义色（`背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功`）：
 
 ![palette strips](../assets/palette-strips-zh.svg)
+
+34 款一览：
+
+![palette matrix](../assets/palette-matrix-zh.svg)
 
 ### 排印独立于主题
 
