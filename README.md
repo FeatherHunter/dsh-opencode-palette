@@ -24,15 +24,9 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-注册条目（热加载，无需重启）：在 `~/.dsh/profiles/web/cordis.patch.yml` 末尾追加：
+安装即完成：postinstall 钩子会把注册条目自动追加到 `~/.dsh/profiles/web/cordis.patch.yml`（卸载时自动移除），**无需手动编辑任何文件**。重启 DSH（或刷新浏览器页面）即生效，插件默认启用官方 `opencode` 主题（深黑底 + 橙 / 蓝 / 紫）。
 
-```yaml
-- insert:
-    - id: opencode-palette
-      name: 'dsh-opencode-palette'
-```
-
-刷新浏览器页面即生效。插件默认启用官方 `opencode` 主题（深黑底 + 橙 / 蓝 / 紫）。
+> **pnpm v10 用户注意**：若安装输出出现 `Ignored build scripts: dsh-opencode-palette`，说明 pnpm 拦截了构建脚本、自动注册没有执行。在 `~/.dsh/profiles/web` 下运行一次 `pnpm approve-builds`（勾选 dsh-opencode-palette），或在该目录 `pnpm-workspace.yaml` 的 `allowBuilds` 中加一行 `dsh-opencode-palette: true`，然后执行 `pnpm rebuild dsh-opencode-palette` 完成注册。
 
 ## 它是什么
 

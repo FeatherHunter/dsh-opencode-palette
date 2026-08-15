@@ -12,7 +12,9 @@ function findPatchPath() {
   const home = process.env.DSH_HOME
     || (process.platform === 'win32' ? process.env.USERPROFILE : process.env.HOME)
   if (!home) return null
-  return path.join(home, '.dsh', 'profiles', 'web', 'cordis.patch.yml')
+  // DSH_HOME 已设时它就是 .dsh 基目录；未设时以用户主目录 + .dsh 计算
+  const base = process.env.DSH_HOME ? home : path.join(home, '.dsh')
+  return path.join(base, 'profiles', 'web', 'cordis.patch.yml')
 }
 
 // insert 块（id 必须匹配，name 容错引号）

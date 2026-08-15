@@ -24,15 +24,9 @@ Then install the plugin into your profile:
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-Register the entry (hot-reloaded, no restart): append to `~/.dsh/profiles/web/cordis.patch.yml`:
+That's it: a postinstall hook appends the registration entry to `~/.dsh/profiles/web/cordis.patch.yml` automatically (and removes it on uninstall) — **no manual file editing**. Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
 
-```yaml
-- insert:
-    - id: opencode-palette
-      name: 'dsh-opencode-palette'
-```
-
-Refresh the browser page — the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
+> **pnpm v10 users**: if the install output shows `Ignored build scripts: dsh-opencode-palette`, pnpm blocked the postinstall so auto-registration didn't run. Run `pnpm approve-builds` once in `~/.dsh/profiles/web` (select dsh-opencode-palette), or add `dsh-opencode-palette: true` to the `allowBuilds` block of that directory's `pnpm-workspace.yaml`, then run `pnpm rebuild dsh-opencode-palette` to finish registration.
 
 ## What it does
 
