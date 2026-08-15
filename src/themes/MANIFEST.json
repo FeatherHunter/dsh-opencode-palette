@@ -1,0 +1,139 @@
+{
+  "source": "anomalyco/opencode",
+  "tag": "v1.18.12",
+  "syncedAt": "2026-08-15T11:56:03.875Z",
+  "themes": {
+    "aura": {
+      "bytes": 1966,
+      "sha256": "3877fc874509286f934bc99d053ed158279623fae8747f61e588a342fc1ffa59"
+    },
+    "ayu": {
+      "bytes": 2462,
+      "sha256": "c6f22767ad334e1b1b071fb4027a707b869a36a13627dee28961b49ef7a379df"
+    },
+    "carbonfox": {
+      "bytes": 5016,
+      "sha256": "e75eca27f53a2274f82fc6767883d8b67988e9788da26dc408f67f562df4d55c"
+    },
+    "catppuccin-frappe": {
+      "bytes": 5202,
+      "sha256": "f05740e3f637840caec38ed77368ee20e24d8c8e191c08f5c56eb04a627b58d8"
+    },
+    "catppuccin-macchiato": {
+      "bytes": 4854,
+      "sha256": "1f8ed24b6d5ce9ebee68f5af0bc0c3e62e0347f36958c3364703816802c1ecee"
+    },
+    "catppuccin": {
+      "bytes": 5848,
+      "sha256": "10f9cbbd7c264c02845bdaa831e7d95a1475d857dbe222ba4cc57818809d8408"
+    },
+    "cobalt2": {
+      "bytes": 4601,
+      "sha256": "08f33731f2d3434e874d8c431d6410bb8ebcc6c642dc890d0a0d3b21b5b1c607"
+    },
+    "cursor": {
+      "bytes": 5576,
+      "sha256": "ba025a1cb28d1b510b5855a1bc8c14a03e09ddd849fade8d30477752c3b46441"
+    },
+    "dracula": {
+      "bytes": 4287,
+      "sha256": "c721f9a3fb2ed273d0ffd8acdc5fd6c0a4d974d837ea80a19f619738055a319a"
+    },
+    "everforest": {
+      "bytes": 5235,
+      "sha256": "67ff970d72877d9e827a01560ba8727f7ff1cf6c7cadf4b9213aae4b026e1970"
+    },
+    "flexoki": {
+      "bytes": 4912,
+      "sha256": "73047c4544f190d6de213e1194057facdcf8fb7b84007084e2fbe86246d9893c"
+    },
+    "github": {
+      "bytes": 4978,
+      "sha256": "b0cd4a988115e7705dd52cab0ea18464ffdfe76bad2a0a1e817c12839849c53d"
+    },
+    "gruvbox": {
+      "bytes": 5395,
+      "sha256": "749d91f778a9aa7419c5a9fa4e1117c0b8fa6d8907fa867156af3f35f7323eab"
+    },
+    "kanagawa": {
+      "bytes": 4817,
+      "sha256": "696e3272242b11bf79f71ecc60c714f8c6f0473152642ed0868c43c01eec9d19"
+    },
+    "lucent-orng": {
+      "bytes": 5139,
+      "sha256": "e1d051beffcd1ef3e62734d3621d28c21a6bca44cf5ec9b47c44af86860c91fc"
+    },
+    "material": {
+      "bytes": 5051,
+      "sha256": "d987cc3d31797617b4a517e46b26cddba46ed56fecc276fa1a778b2274914d1f"
+    },
+    "matrix": {
+      "bytes": 4865,
+      "sha256": "e7411b523b8c6d8f8205ea4f6e7105df2815574d47d5aa4ebaf5f7b51bc83f75"
+    },
+    "mercury": {
+      "bytes": 5612,
+      "sha256": "71fcbfc16873d41f5fc9e26ff35e4855c454ef99cb2ea2ab1b824fd479e2be86"
+    },
+    "monokai": {
+      "bytes": 4342,
+      "sha256": "f0623af87201c4d2cd6874ca8bfb41d1949c68f22a03811a8ad56450fc3bed0a"
+    },
+    "nightowl": {
+      "bytes": 5000,
+      "sha256": "18cad6067ccfd42cfc2d3c249fe90d44a8f99f20b8e1fb5372ad1a37c16de83f"
+    },
+    "nord": {
+      "bytes": 4331,
+      "sha256": "2a4074516dcb08080cd97694884809a0d047063c894b71ed03a5ce20eb561284"
+    },
+    "one-dark": {
+      "bytes": 4938,
+      "sha256": "1558f4b3ad863c8bf5fa207f09ec04f24ca56a00106bfc9926cb743bbb461098"
+    },
+    "opencode": {
+      "bytes": 5393,
+      "sha256": "7d118db9abe1cf5f130fe99831406e5f0a5de6e2900e6ccda2f8e1aee3d1afd7"
+    },
+    "orng": {
+      "bytes": 5430,
+      "sha256": "db9e776dc081944aa950936a170b5f1ad2898ff1daa543aeff492dd788c6134e"
+    },
+    "osaka-jade": {
+      "bytes": 5220,
+      "sha256": "458aabcaeaa39aa3d182c0bddb572e63283c736cf2bb229dde5a5b1dd3a118c6"
+    },
+    "palenight": {
+      "bytes": 4428,
+      "sha256": "baf6bb21968a70a9c85a8881f43cb207d9f8167e5c2854896075e28bcfe6b00c"
+    },
+    "rosepine": {
+      "bytes": 4730,
+      "sha256": "549e7aa10e75bcc39e8469bcfacca97681860856c439d509a140ba6fefe66988"
+    },
+    "solarized": {
+      "bytes": 4299,
+      "sha256": "ebcbc744c069429afb8fa5c7146833de03b097ef9eb46cdbe2179c2b73f3e9fa"
+    },
+    "synthwave84": {
+      "bytes": 4612,
+      "sha256": "7b7d0c5d5203046eccc3b49934ed89dab8a407be3fe0af081453fb7d905d80c0"
+    },
+    "tokyonight": {
+      "bytes": 5324,
+      "sha256": "8dd2620d45535dc6297343b684e81ec00add795edd1f6b6f9396421fd90aa75f"
+    },
+    "vercel": {
+      "bytes": 5249,
+      "sha256": "094eeb863e762cdb9aea2c32c3e4813973c9bbb90f7d8196da180d781544fd1b"
+    },
+    "vesper": {
+      "bytes": 4640,
+      "sha256": "4e6eb4fceed17999ed1f8189ad24ed192370abf9ec2d37c56c5f401148c449d0"
+    },
+    "zenburn": {
+      "bytes": 4397,
+      "sha256": "ee0facb4e0090b3eedc945e4f7957f872070206c7380c81fcffa46103c3c4900"
+    }
+  }
+}

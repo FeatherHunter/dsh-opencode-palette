@@ -1,0 +1,14 @@
+{
+  "name": "dsh-opencode-palette",
+  "version": "1.4.0",
+  "private": true,
+  "description": "DSH Web 多主题引擎：完整支持 opencode TUI 全部 34 个主题（33 内置 + system）。数据驱动三层管线：主题 JSON → 颜色解析 → DSH 适配注入。",
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-themes.mjs",
+    "build": "node scripts/build-client.mjs",
+    "test": "node --test tests/engine.test.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "license": "MIT"
+}
