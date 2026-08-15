@@ -149,7 +149,8 @@ function stripsDoc(lang) {
 // ── setup-panel ──
 function setupDoc(lang) {
   const T = L[lang]
-  const SPW = 1000, SPH = 620
+  // SPH=590：面板 20-580，步骤文字在面板内 545，底部留 10px
+  const SPW = 1000, SPH = 590
   const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="12" font-weight="700" fill="#140a1e">' + n + '</text>'
   const nav = (zh, en) => lang === 'zh' ? zh : en
   return [
@@ -183,7 +184,8 @@ function setupDoc(lang) {
     chipSvg(292, 296, 'matrix', 100), chipSvg(400, 296, 'gruvbox', 104), chipSvg(512, 296, 'osaka-jade', 112),
     '<text x="222" y="348" font-family="' + SANS + '" font-size="11" fill="#5c5c66">' + T.groupsMore + '</text>',
     badge(212, 155, '1'), badge(212, 40, '2'), badge(620, 178, '3'),
-    '<text x="70" y="600" text-anchor="middle" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + T.step1 + ' → ' + T.step2 + ' → ' + T.step3 + '</text>',
+    // 步骤说明：置于面板内底部（左对齐，避免长文本越界）
+    '<text x="222" y="545" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + T.step1 + ' → ' + T.step2 + ' → ' + T.step3 + '</text>',
     '</svg>',
   ].join('\n')
 }
@@ -223,7 +225,8 @@ function uiFrame(x, y, w, themeName, lang) {
 }
 function switchDoc(lang) {
   const T = L[lang]
-  const TW = 1140, TH = 320
+  // TH=372：主题名 y=336、主色 y=354，320 会被裁剪；372 留足边距
+  const TW = 1140, TH = 372
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + TW + '" height="' + TH + '" viewBox="0 0 ' + TW + ' ' + TH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
@@ -303,8 +306,8 @@ function heroFrame(x, y, w, themeName) {
 }
 function heroDoc(lang) {
   const T = L[lang]
-  // HH=605：内容到底约 556，底部纯黑区 110px 裁掉一半（内容不变形）
-  const HW = 1280, HH = 605
+  // HH=564：heroMore 基线 550 文字底约 556，底部仅留 8px 呼吸
+  const HW = 1280, HH = 564
   const frameW = 372
   const gap = 26
   const total = 3 * frameW + 2 * gap
