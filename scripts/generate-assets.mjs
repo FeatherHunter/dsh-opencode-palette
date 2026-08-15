@@ -84,40 +84,41 @@ function chipSvg(x, y, name, w) {
     '</g>'
 }
 
-// ── palette-matrix ──（主题画廊：氛围渐变 + 语义色点，非数据网格）
+// ── palette-matrix ──（霓虹光晕画廊：每张卡片 = 主题色的光晕艺术品）
 function matrixDoc(lang) {
   const T = L[lang]
-  const COLS = 6, CW = 196, CH = 134, GAP = 14, PAD_X = 16, PAD_Y = 78
+  const COLS = 6, CW = 190, CH = 142, GAP = 16, PAD_X = 16, PAD_Y = 84
   const rows = Math.ceil(names.length / COLS)
   const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 16
+  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 18
   const cards = names.map((n, i) => {
     const c = data[n]
     const col = i % COLS, row = Math.floor(i / COLS)
     const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
-    const bg = c.background ? c.background : 'url(#chess)'
+    const bg = c.background ? c.background : '#141414'
     const fg = c.text || '#c8c8d0'
-    const border = c.primary || '#3a3a42'
     const gid = 'mg' + i
-    const dot = (cx, cy, color) => '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + hex(color) + '" stroke="rgba(0,0,0,0.3)"/>'
+    const halo = (suffix, color, op) => '<radialGradient id="' + gid + suffix + '"><stop offset="0%" stop-color="' + hex(color) + '" stop-opacity="' + op + '"/><stop offset="100%" stop-color="' + hex(color) + '" stop-opacity="0"/></radialGradient>'
+    const glow = (suffix, cxr, cyr, r) => '<circle cx="' + (x + cxr) + '" cy="' + (y + cyr) + '" r="' + r + '" fill="url(#' + gid + suffix + ')"/>'
+    const dot = (cx, cy, color) => '<circle cx="' + cx + '" cy="' + cy + '" r="4" fill="' + hex(color) + '" opacity="0.95"/>'
     return '<g>' +
-      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
-        '<stop offset="0%" stop-color="' + hex(c.primary) + '" stop-opacity="0.30"/>' +
-        '<stop offset="100%" stop-color="' + hex(c.primary) + '" stop-opacity="0"/>' +
-      '</linearGradient></defs>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="12" fill="' + bg + '" stroke="' + border + '" stroke-opacity="0.45"/>' +
-      '<rect x="' + x + '" y="' + (y + 26) + '" width="' + CW + '" height="' + (CH - 26) + '" rx="12" fill="url(#' + gid + ')"/>' +
-      '<text x="' + (x + 14) + '" y="' + (y + 26) + '" font-family="' + MONO + '" font-size="12.5" font-weight="700" fill="' + fg + '">' + esc(n) + '</text>' +
-      dot(x + 18, y + CH - 19, c.primary) + dot(x + 40, y + CH - 19, c.accent) +
-      dot(x + 62, y + CH - 19, c.error) + dot(x + 84, y + CH - 19, c.warning) + dot(x + 106, y + CH - 19, c.success) +
+      '<defs>' + halo('a', c.primary, 0.9) + halo('b', c.accent, 0.85) + halo('c', c.success, 0.65) + '</defs>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="' + bg + '" stroke="rgba(255,255,255,0.05)"/>' +
+      // 三层光晕（主色 / 强调 / 成功），模拟辉光艺术
+      glow('a', CW * 0.36, CH * 0.30, CH * 0.62) +
+      glow('b', CW * 0.74, CH * 0.66, CH * 0.52) +
+      glow('c', CW * 0.88, CH * 0.18, CH * 0.36) +
+      '<text x="' + (x + 16) + '" y="' + (y + 28) + '" font-family="' + MONO + '" font-size="12.5" font-weight="600" fill="' + fg + '" opacity="0.95">' + esc(n) + '</text>' +
+      dot(x + 18, y + CH - 18, c.primary) + dot(x + 32, y + CH - 18, c.accent) + dot(x + 46, y + CH - 18, c.error) + dot(x + 60, y + CH - 18, c.warning) + dot(x + 74, y + CH - 18, c.success) +
       '</g>'
   }).join('')
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
-    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    CHESS,
-    '<text x="' + PAD_X + '" y="36" font-family="' + SANS + '" font-size="20" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<text x="' + PAD_X + '" y="58" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
+    '<defs><linearGradient id="titleLine" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FAB283"/><stop offset="55%" stop-color="#9D7CD8"/><stop offset="100%" stop-color="#56B6C2"/></linearGradient></defs>',
+    '<rect width="100%" height="100%" fill="#0a0a0a"/>',
+    '<text x="' + PAD_X + '" y="40" font-family="' + SANS + '" font-size="22" font-weight="800" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
+    '<rect x="' + PAD_X + '" y="54" width="96" height="3" rx="1.5" fill="url(#titleLine)"/>',
+    '<text x="' + PAD_X + '" y="74" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
     cards,
     '</svg>',
   ].join('\n')
