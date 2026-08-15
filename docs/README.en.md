@@ -57,7 +57,7 @@ Click any theme chip — the interface re-skins instantly:
 
 ### 34 official themes, faithfully ported
 
-Every theme below is resolved from the official opencode theme JSON — each row is the 7 core semantic colors (`background · text · primary · accent · error · warning · success`):
+Each theme shows its 7 core colors at a glance — `background · text · primary · accent · error · warning · success`:
 
 ![palette strips](../assets/palette-strips-en.svg)
 

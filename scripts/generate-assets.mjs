@@ -21,10 +21,10 @@ const MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'
 // ── 双语文案表 ──
 const L = {
   en: {
-    matrixTitle: 'dsh-opencode-palette — 34 official opencode themes',
-    matrixSub: 'faithful colors, one click · for DeepSeek Harness',
+    matrixTitle: 'All 34 themes · official opencode colors',
+    matrixSub: 'click any theme — the whole interface re-skins instantly',
     stripsTitle: 'Every theme, decomposed',
-    stripsSub: 'bg · text · primary · accent · error · warning · success — resolved from opencode v1.18.12',
+    stripsSub: 'bg · text · primary · accent · error · warning · success — the 7 colors that define each theme',
     panelName: 'Opencode Palette',
     enabled: 'Enabled',
     subtitle: '34 official opencode themes — click to switch',
@@ -46,10 +46,10 @@ const L = {
     heroMorePost: ' — all official, all one click',
   },
   zh: {
-    matrixTitle: 'dsh-opencode-palette — 34 款 opencode 官方主题',
-    matrixSub: '官方配色忠实还原 · 一键切换 · 为 DeepSeek Harness 打造',
+    matrixTitle: '34 款主题 · 全部官方配色',
+    matrixSub: '点击任意一款，整个界面立即换上它的配色',
     stripsTitle: '每个主题，逐一拆解',
-    stripsSub: '背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功 —— 全部由 opencode v1.18.12 官方 JSON 解析',
+    stripsSub: '背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功 —— 定义每个主题气质的 7 种颜色',
     panelName: 'OpenCode 调色板',
     enabled: '已启用',
     subtitle: '34 款 opencode 官方配色主题，点击即切换',
@@ -84,13 +84,13 @@ function chipSvg(x, y, name, w) {
     '</g>'
 }
 
-// ── palette-matrix ──
+// ── palette-matrix ──（主题画廊：氛围渐变 + 语义色点，非数据网格）
 function matrixDoc(lang) {
   const T = L[lang]
-  const COLS = 6, CW = 208, CH = 118, GAP = 12, PAD_X = 18, PAD_Y = 76
+  const COLS = 6, CW = 196, CH = 134, GAP = 14, PAD_X = 16, PAD_Y = 78
   const rows = Math.ceil(names.length / COLS)
   const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 18
+  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 16
   const cards = names.map((n, i) => {
     const c = data[n]
     const col = i % COLS, row = Math.floor(i / COLS)
@@ -98,25 +98,30 @@ function matrixDoc(lang) {
     const bg = c.background ? c.background : 'url(#chess)'
     const fg = c.text || '#c8c8d0'
     const border = c.primary || '#3a3a42'
-    const dot = (cx, cy, color, r) => '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + hex(color) + '" stroke="rgba(0,0,0,0.35)" stroke-width="1"/>'
+    const gid = 'mg' + i
+    const dot = (cx, cy, color) => '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="' + hex(color) + '" stroke="rgba(0,0,0,0.3)"/>'
     return '<g>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="10" fill="' + bg + '" stroke="' + border + '" stroke-opacity="0.55"/>' +
-      '<text x="' + (x + 12) + '" y="' + (y + 26) + '" font-family="' + MONO + '" font-size="13" font-weight="600" fill="' + fg + '">' + esc(n) + '</text>' +
-      dot(x + 12, y + CH - 18, c.primary, 7) + dot(x + 34, y + CH - 18, c.accent, 7) +
-      '<text x="' + (x + 50) + '" y="' + (y + CH - 14) + '" font-family="' + MONO + '" font-size="10" fill="' + fg + '" opacity="0.75">' + esc(c.primary || 'transparent') + '</text>' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + hex(c.primary) + '" stop-opacity="0.30"/>' +
+        '<stop offset="100%" stop-color="' + hex(c.primary) + '" stop-opacity="0"/>' +
+      '</linearGradient></defs>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="12" fill="' + bg + '" stroke="' + border + '" stroke-opacity="0.45"/>' +
+      '<rect x="' + x + '" y="' + (y + 26) + '" width="' + CW + '" height="' + (CH - 26) + '" rx="12" fill="url(#' + gid + ')"/>' +
+      '<text x="' + (x + 14) + '" y="' + (y + 26) + '" font-family="' + MONO + '" font-size="12.5" font-weight="700" fill="' + fg + '">' + esc(n) + '</text>' +
+      dot(x + 18, y + CH - 19, c.primary) + dot(x + 40, y + CH - 19, c.accent) +
+      dot(x + 62, y + CH - 19, c.error) + dot(x + 84, y + CH - 19, c.warning) + dot(x + 106, y + CH - 19, c.success) +
       '</g>'
   }).join('')
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
     CHESS,
-    '<text x="' + PAD_X + '" y="34" font-family="' + SANS + '" font-size="17" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<text x="' + PAD_X + '" y="54" font-family="' + SANS + '" font-size="12" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
+    '<text x="' + PAD_X + '" y="36" font-family="' + SANS + '" font-size="20" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
+    '<text x="' + PAD_X + '" y="58" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
     cards,
     '</svg>',
   ].join('\n')
 }
-
 // ── palette-strips ──
 function stripsDoc(lang) {
   const T = L[lang]
