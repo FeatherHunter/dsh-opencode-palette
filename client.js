@@ -1,4 +1,4 @@
-// dsh-opencode-palette v1.4.1 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v1.5.0 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {

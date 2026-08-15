@@ -1,0 +1,7 @@
+# dsh-opencode-palette bundle 层：插入主题引擎插件条目。
+# 由 dsh plugin --profile <name> add 自动装配（包声明 dsh.bundle.patch），
+# 无需手动编辑任何文件；dsh plugin remove 时自动移除。
+- insert:
+    - id: opencode-palette
+      name: 'dsh-opencode-palette'
+      config: {}

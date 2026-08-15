@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.4.1 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v1.5.0 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 源：src/engine/* + runtime/client.mjs（npm run build 重新生成）
  */

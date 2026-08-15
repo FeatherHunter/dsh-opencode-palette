@@ -1,22 +1,19 @@
 {
   "name": "dsh-opencode-palette",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "DSH Web 多主题引擎：完整支持 opencode TUI 全部 34 个主题（33 内置 + system）。数据驱动管线：主题 JSON → 颜色解析 → DSH 适配注入；设置面板即时切换、持久化。",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
     "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
   "files": [
     "lib",
-    "scripts"
+    "cordis.patch.yml"
   ],
-  "scripts": {
-    "postinstall": "node scripts/install-patch.cjs",
-    "preuninstall": "node scripts/uninstall-patch.cjs"
-  },
   "keywords": [
     "dsh",
     "deepseek-harness",
@@ -28,6 +25,9 @@
     "multi-theme"
   ],
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "platform": "web",
       "immediately": true,

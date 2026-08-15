@@ -24,15 +24,9 @@ Then install the plugin into your profile:
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-Register the entry (hot-reloaded, no restart): append to `~/.dsh/profiles/web/cordis.patch.yml`:
+That's it — **zero configuration**: this plugin uses DSH's official bundle mechanism — it ships its own `cordis.patch.yml` (declared via `dsh.bundle.patch`), so `dsh plugin add` automatically joins the package into the profile's `dsh.profile.bundles` layer stack, where the DSH loader assembles it at startup; `dsh plugin remove` removes it automatically. No manual file editing, and no pnpm build scripts (no postinstall, so pnpm v10 never blocks it). Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
 
-```yaml
-- insert:
-    - id: opencode-palette
-      name: 'dsh-opencode-palette'
-```
-
-Refresh the browser page — the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
+> **Upgrading from 1.4.x or earlier**: old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Before upgrading, delete the `opencode-palette` block from that file (a leftover would duplicate the bundle registration), then re-run `dsh plugin --profile web add dsh-opencode-palette`.
 
 ## What it does
 

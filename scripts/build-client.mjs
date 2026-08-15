@@ -149,15 +149,13 @@ async function main() {
     exports: {
       '.': './lib/index.js',
       './client': './lib/client.js',
+      './cordis.patch.yml': './cordis.patch.yml',
       './package.json': './package.json',
     },
-    files: ['lib', 'scripts'],
-    scripts: {
-      postinstall: 'node scripts/install-patch.cjs',
-      preuninstall: 'node scripts/uninstall-patch.cjs',
-    },
+    files: ['lib', 'cordis.patch.yml'],
     keywords: ['dsh', 'deepseek-harness', 'plugin', 'theme', 'opencode', 'tui', 'dark', 'multi-theme'],
     dsh: {
+      bundle: { patch: './cordis.patch.yml' },
       client: {
         platform: 'web',
         immediately: true,
@@ -171,9 +169,7 @@ async function main() {
   await rm(join(PKG_DIR, 'node_modules'), { recursive: true, force: true })
   await rm(join(PKG_DIR, 'package-lock.json'), { force: true })
   await mkdir(join(PKG_DIR, 'lib'), { recursive: true })
-  await mkdir(join(PKG_DIR, 'scripts'), { recursive: true })
-  await copyFile(join(ROOT, 'scripts', 'install-patch.cjs'), join(PKG_DIR, 'scripts', 'install-patch.cjs'))
-  await copyFile(join(ROOT, 'scripts', 'uninstall-patch.cjs'), join(PKG_DIR, 'scripts', 'uninstall-patch.cjs'))
+  await copyFile(join(ROOT, 'cordis.patch.yml'), join(PKG_DIR, 'cordis.patch.yml'))
   await writeFile(join(PKG_DIR, 'lib', 'client.js'), pkgBundle)
   await writeFile(join(PKG_DIR, 'lib', 'index.js'), host)
   await writeFile(join(PKG_DIR, 'package.json'), JSON.stringify(pkgJson, null, 2) + '\n')

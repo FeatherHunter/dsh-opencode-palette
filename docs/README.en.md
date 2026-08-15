@@ -24,9 +24,9 @@ Then install the plugin into your profile:
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-That's it: a postinstall hook appends the registration entry to `~/.dsh/profiles/web/cordis.patch.yml` automatically (and removes it on uninstall) — **no manual file editing**. Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
+That's it — **zero configuration**: this plugin uses DSH's official bundle mechanism — it ships its own `cordis.patch.yml` (declared via `dsh.bundle.patch`), so `dsh plugin add` automatically joins the package into the profile's `dsh.profile.bundles` layer stack, where the DSH loader assembles it at startup; `dsh plugin remove` removes it automatically. No manual file editing, and no pnpm build scripts (no postinstall, so pnpm v10 never blocks it). Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
 
-> **pnpm v10 users**: if the install output shows `Ignored build scripts: dsh-opencode-palette`, pnpm blocked the postinstall so auto-registration didn't run. Run `pnpm approve-builds` once in `~/.dsh/profiles/web` (select dsh-opencode-palette), or add `dsh-opencode-palette: true` to the `allowBuilds` block of that directory's `pnpm-workspace.yaml`, then run `pnpm rebuild dsh-opencode-palette` to finish registration.
+> **Upgrading from 1.4.x or earlier**: old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Before upgrading, delete the `opencode-palette` block from that file (a leftover would duplicate the bundle registration), then re-run `dsh plugin --profile web add dsh-opencode-palette`.
 
 ## What it does
 
