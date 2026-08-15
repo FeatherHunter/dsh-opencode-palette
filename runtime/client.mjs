@@ -92,7 +92,7 @@ export function createClient(slotTarget) {
     // ── i18n 运行时：语言跟随 DSH（html[lang] 变化即通知面板重渲染）──
     let currentLang = getLang()
     const localeListeners = []
-    function t(key) { const e = I18N[key]; return e ? e[currentLang] : key }
+    function tr(key) { const e = I18N[key]; return e ? e[currentLang] : key }
     function notifyLocale() {
       const next = getLang()
       if (next === currentLang) return
@@ -264,7 +264,7 @@ export function createClient(slotTarget) {
             },
           }, [
             dot(c && c.primary, 9),
-            t.name === 'system' ? t('systemDefault') : t.name,
+            t.name === 'system' ? tr('systemDefault') : t.name,
             isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
           ])
         }
@@ -303,7 +303,7 @@ export function createClient(slotTarget) {
                 background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
                 color: on ? base : muted,
               },
-            }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + t('fontPreview')))
+            }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + tr('fontPreview')))
           })) : null,
         ])
 
@@ -311,13 +311,13 @@ export function createClient(slotTarget) {
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
-            h('strong', null, '🎨 ' + t('panelName')),
+            h('strong', null, '🎨 ' + tr('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
-                st.enabled ? t('enabled') : t('disabled')),
+                st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
                 onClick: function () { props.toggle(); setUi(props.getState()) },
-                title: st.enabled ? t('disableTitle') : t('enableTitle'),
+                title: st.enabled ? tr('disableTitle') : tr('enableTitle'),
                 style: {
                   position: 'relative', display: 'inline-block', width: 36, height: 20,
                   borderRadius: 11, cursor: 'pointer',
@@ -335,27 +335,27 @@ export function createClient(slotTarget) {
             ]),
           ]),
           h('div', { style: { fontSize: 12, color: muted } },
-            t('subtitle')),
+            tr('subtitle')),
           // ── 排印调节（置顶）──
           h('div', { style: secTitle }, [
-            h('span', null, t('typography')),
+            h('span', null, tr('typography')),
           ]),
           h('div', { style: { display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' } }, [
-            field(t('bodyStyle'), seg(st.mode, [
-              { value: 'mono', label: t('mono') },
-              { value: 'tui', label: t('sans') },
+            field(tr('bodyStyle'), seg(st.mode, [
+              { value: 'mono', label: tr('mono') },
+              { value: 'tui', label: tr('sans') },
             ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) })),
-            field(t('fontSize'), seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
+            field(tr('fontSize'), seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
               function (v) { props.refresh(st.mode, Number(v), st.fontKey); setUi(props.getState()) })),
-            field(t('codeFont'), fontDropdown),
+            field(tr('codeFont'), fontDropdown),
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [
-            h('span', null, t('themeSection')),
-            h('span', { style: countStyle }, t('themeCount')),
+            h('span', null, tr('themeSection')),
+            h('span', { style: countStyle }, tr('themeCount')),
           ]),
           h('input', {
-            placeholder: t('search'),
+            placeholder: tr('search'),
             value: query,
             onChange: function (e) { setQuery(e.target.value) },
             style: {
@@ -366,12 +366,12 @@ export function createClient(slotTarget) {
             },
           }),
           shown.length === 0
-            ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, t('noMatch'))
+            ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, tr('noMatch'))
             : shown.map(function (g) {
                 return h('div', { key: g.name, style: { marginBottom: 10 } }, [
                   h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
                     dot(g.color, 8),
-                    t('group.' + g.name),
+                    tr('group.' + g.name),
                     h('span', { style: countStyle }, String(g.themes.length)),
                   ]),
                   h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
@@ -384,7 +384,7 @@ export function createClient(slotTarget) {
           name: slotTarget,
           id: 'opencode-palette',
           order: 30,
-          label: function () { return t('panelName') },
+          label: function () { return tr('panelName') },
           inject: function () {
             return {
               getState: getState,

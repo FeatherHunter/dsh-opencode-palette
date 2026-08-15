@@ -7,7 +7,7 @@
   "scripts": {
     "sync": "node scripts/sync-themes.mjs",
     "build": "node scripts/build-client.mjs",
-    "test": "node --test tests/engine.test.mjs"
+    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs"
   },
   "engines": { "node": ">=20" },
   "license": "MIT"

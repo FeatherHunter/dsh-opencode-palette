@@ -1,5 +1,7 @@
 # 🎨 dsh-opencode-palette
 
+**🌐 [English](README.md) · [中文](docs/README.zh-CN.md)**
+
 **The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
@@ -16,6 +18,7 @@ Make **DeepSeek Harness** look like **opencode** — `tokyonight`, `dracula`, `g
 - ⚡ **One-click switching** — instantly re-skins the whole UI: backgrounds, surfaces, borders, buttons, status colors, markdown, and code syntax highlighting (shiki tokens).
 - 💾 **Persisted** — your choice survives refresh and restart (per browser, `localStorage`).
 - 🅰️ **Typing is independent from theming** — body style (monospace / regular), font size (11–18 px), and 5 code font presets are tuned separately from the color theme.
+- 🌐 **Bilingual panel** — follows your DSH interface language automatically (中文 / English).
 - 🔄 **`system` = back to default** — one click restores DSH's native look while keeping your typography.
 - 🧱 **Zero runtime dependencies · MIT licensed · 18 engine tests** — a data-driven pipeline (theme JSON → color resolver → DSH adapter), single source of truth for the DSH mapping layer.
 
@@ -44,10 +47,10 @@ Refresh the browser page — done. The plugin auto-enables with the official `op
 
 ## Usage
 
-1. Open **Settings → Plugins → Opencode Palette**.
+1. Open **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**).
 2. Pick a theme from the color-family grouped grid (searchable) — it applies instantly.
 3. Tune typography above the grid: body style, font size, code font.
-4. Toggle the whole skin on/off with the switch.
+4. Toggle the whole skin on/off with the switch in the header.
 
 Power users can drive it from the console: `window.__opencodePalette` exposes `getState`, `setTheme(name)`, `toggle()`, `list()`, `previews()`.
 
@@ -75,7 +78,3 @@ PRs welcome! Good starting points: new upstream themes (run `npm run sync`), map
 MIT © FeatherHunter.
 
 Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md).
-
----
-
-**中文**：📖 [README.zh-CN.md](docs/README.zh-CN.md)
