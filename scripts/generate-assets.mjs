@@ -166,7 +166,7 @@ function chipSvg(x, y, name, w) {
   return '<g>' +
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="26" rx="6" fill="' + bg + '" stroke="' + bd + '" stroke-opacity="0.7"/>' +
     (c.primary ? '<circle cx="' + (x + 12) + '" cy="' + (y + 13) + '" r="4.5" fill="' + c.primary + '"/>' : '') +
-    '<text x="' + (x + 22) + '" y="' + (y + 17) + '" font-family="' + MONO + '" font-size="12" fill="' + fg + '">' + esc(name) + '</text>' +
+    '<text x="' + (x + 22) + '" y="' + (y + 17) + '" font-family="' + MONO + '" font-size="14.5" fill="' + fg + '">' + esc(name) + '</text>' +
     '</g>'
 }
 
@@ -190,12 +190,12 @@ function matrixDoc(lang) {
     // 中文版卡片补一行中文译名；主题名用主题自己的文字色（非纯白）
     const nameFill = hex(c.text) || '#e2e2e8'
     const zhName = lang === 'zh' && THEME_ZH[n]
-      ? '<text x="' + (x + 14) + '" y="' + (y + 49) + '" font-family="' + SANS + '" font-size="12.5" fill="' + nameFill + '" opacity="0.88">' + esc(THEME_ZH[n]) + '</text>'
+      ? '<text x="' + (x + 14) + '" y="' + (y + 49) + '" font-family="' + SANS + '" font-size="15" fill="' + nameFill + '" opacity="0.88">' + esc(THEME_ZH[n]) + '</text>'
       : ''
     return '<g>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="14" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.09)"/>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="3" rx="1.5" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 14) + '" y="' + (y + 28) + '" font-family="' + MONO + '" font-size="14" font-weight="600" fill="' + nameFill + '">' + esc(n) + '</text>' +
+      '<text x="' + (x + 14) + '" y="' + (y + 28) + '" font-family="' + MONO + '" font-size="16.5" font-weight="600" fill="' + nameFill + '">' + esc(n) + '</text>' +
       zhName +
       strip +
       '</g>'
@@ -205,8 +205,8 @@ function matrixDoc(lang) {
     '<defs>' + blobs + '</defs>',
     '<rect width="100%" height="100%" fill="#0a0a0a"/>',
     '<rect width="100%" height="100%" fill="url(#blob0)"/><rect width="100%" height="100%" fill="url(#blob1)"/><rect width="100%" height="100%" fill="url(#blob2)"/><rect width="100%" height="100%" fill="url(#blob3)"/>',
-    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="26" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<text x="' + PAD_X + '" y="82" font-family="' + SANS + '" font-size="14" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
+    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="29" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
+    '<text x="' + PAD_X + '" y="82" font-family="' + SANS + '" font-size="16.5" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
     cards,
     '</svg>',
   ].join('\n')
@@ -214,7 +214,7 @@ function matrixDoc(lang) {
 // ── palette-strips ──
 function stripsDoc(lang) {
   const T = L[lang]
-  const STRIP_H = 32, NAME_W = 140, SEG_W = 78, ROW_GAP = 4, TOP = 72
+  const STRIP_H = 36, NAME_W = 176, SEG_W = 78, ROW_GAP = 4, TOP = 72
   const W2 = NAME_W + 7 * SEG_W + 40
   const H2 = TOP + names.length * (STRIP_H + ROW_GAP) + 16
   const segs = (y, c) => ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'].map((k, j) => {
@@ -225,7 +225,7 @@ function stripsDoc(lang) {
     const c = data[n]
     const y = TOP + i * (STRIP_H + ROW_GAP)
     return '<g>' +
-      '<text x="10" y="' + (y + STRIP_H - 9) + '" font-family="' + MONO + '" font-size="12.5" fill="' + (c.text || '#c8c8d0') + '">' + esc(n) + '</text>' +
+      '<text x="10" y="' + (y + STRIP_H - 9) + '" font-family="' + MONO + '" font-size="15" fill="' + (c.text || '#c8c8d0') + '">' + esc(n) + '</text>' +
       segs(y, c) +
       '</g>'
   }).join('')
@@ -233,8 +233,8 @@ function stripsDoc(lang) {
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W2 + '" height="' + H2 + '" viewBox="0 0 ' + W2 + ' ' + H2 + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
     CHESS,
-    '<text x="10" y="34" font-family="' + SANS + '" font-size="19" font-weight="700" fill="#f0f0f0">' + esc(T.stripsTitle) + '</text>',
-    '<text x="10" y="56" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.stripsSub) + '</text>',
+    '<text x="10" y="34" font-family="' + SANS + '" font-size="21.5" font-weight="700" fill="#f0f0f0">' + esc(T.stripsTitle) + '</text>',
+    '<text x="10" y="56" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + esc(T.stripsSub) + '</text>',
     strips,
     '</svg>',
   ].join('\n')
@@ -245,7 +245,7 @@ function setupDoc(lang) {
   const T = L[lang]
   // SPH=590：面板 20-580，步骤文字在面板内 545，底部留 10px
   const SPW = 1000, SPH = 590
-  const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="12" font-weight="700" fill="#140a1e">' + n + '</text>'
+  const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" font-weight="700" fill="#140a1e">' + n + '</text>'
   const nav = (zh, en) => lang === 'zh' ? zh : en
   // 正文样式按钮宽度按语言自适应（等宽字体 11px 约 6.6px/字符）
   const monoW = lang === 'zh' ? 88 : 136
@@ -255,37 +255,37 @@ function setupDoc(lang) {
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + SPW + '" height="' + SPH + '" viewBox="0 0 ' + SPW + ' ' + SPH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
     '<rect x="0" y="0" width="178" height="' + SPH + '" fill="#111111"/>',
-    '<text x="20" y="40" font-family="' + SANS + '" font-size="16" font-weight="700" fill="#f0f0f0">DSH</text>',
-    '<text x="20" y="92" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + nav('常规', 'General') + '</text>',
-    '<text x="20" y="124" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + nav('模型', 'Models') + '</text>',
+    '<text x="20" y="40" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">DSH</text>',
+    '<text x="20" y="92" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('常规', 'General') + '</text>',
+    '<text x="20" y="124" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('模型', 'Models') + '</text>',
     '<rect x="0" y="140" width="4" height="30" fill="#FAB283"/>',
-    '<text x="20" y="160" font-family="' + SANS + '" font-size="13" font-weight="600" fill="#f0f0f0">' + nav('插件', 'Plugins') + '</text>',
-    '<text x="20" y="192" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + nav('外观', 'Appearance') + '</text>',
-    '<text x="20" y="224" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + nav('语言 · 中文', 'Language · English') + '</text>',
+    '<text x="20" y="160" font-family="' + SANS + '" font-size="15.5" font-weight="600" fill="#f0f0f0">' + nav('插件', 'Plugins') + '</text>',
+    '<text x="20" y="192" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('外观', 'Appearance') + '</text>',
+    '<text x="20" y="224" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('语言 · 中文', 'Language · English') + '</text>',
     '<rect x="196" y="20" width="784" height="560" rx="14" fill="#101014" stroke="#27272a"/>',
-    '<text x="222" y="56" font-family="' + SANS + '" font-size="16" font-weight="700" fill="#f0f0f0">🎨 ' + esc(T.panelName) + '</text>',
-    '<text x="916" y="53" text-anchor="end" font-family="' + SANS + '" font-size="13" fill="#7fd88f">' + T.enabled + '</text>',
+    '<text x="222" y="56" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">🎨 ' + esc(T.panelName) + '</text>',
+    '<text x="916" y="53" text-anchor="end" font-family="' + SANS + '" font-size="15.5" fill="#7fd88f">' + T.enabled + '</text>',
     '<rect x="924" y="42" width="36" height="20" rx="10" fill="rgba(250,178,131,0.4)"/><circle cx="949" cy="52" r="7" fill="#FAB283"/>',
-    '<text x="222" y="82" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(T.subtitle) + '</text>',
-    '<text x="222" y="120" font-family="' + SANS + '" font-size="12" fill="#a1a1aa">' + T.typography + '</text>',
+    '<text x="222" y="82" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + esc(T.subtitle) + '</text>',
+    '<text x="222" y="120" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.typography + '</text>',
     // 正文样式：两个独立按钮（选中态高亮），文字各自在框内
     '<rect x="222" y="130" width="' + monoW + '" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>',
-    '<rect x="226" y="134" width="' + (monoW - 8) + '" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="' + SANS + '" font-size="12" fill="#f0f0f0">' + T.mono + '</text>',
+    '<rect x="226" y="134" width="' + (monoW - 8) + '" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="' + SANS + '" font-size="14.5" fill="#f0f0f0">' + T.mono + '</text>',
     '<rect x="' + btnX2 + '" y="130" width="' + sansW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>',
-    '<text x="' + (btnX2 + 8) + '" y="147" font-family="' + SANS + '" font-size="12" fill="#8b8b95">' + T.sans + '</text>',
-    '<rect x="' + (btnX2 + sansW + 8) + '" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 22) + '" y="147" font-family="' + SANS + '" font-size="11" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
-    '<rect x="' + (btnX2 + sansW + 136) + '" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 150) + '" y="147" font-family="' + MONO + '" font-size="11" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
-    '<text x="222" y="192" font-family="' + SANS + '" font-size="12" fill="#a1a1aa">' + T.themeSection + '</text>',
-    '<text x="222" y="224" font-family="' + SANS + '" font-size="12" fill="#c8c8d0">● ' + T.groupWarm + '</text>',
+    '<text x="' + (btnX2 + 8) + '" y="147" font-family="' + SANS + '" font-size="14.5" fill="#8b8b95">' + T.sans + '</text>',
+    '<rect x="' + (btnX2 + sansW + 8) + '" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 22) + '" y="147" font-family="' + SANS + '" font-size="13.5" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
+    '<rect x="' + (btnX2 + sansW + 136) + '" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 150) + '" y="147" font-family="' + MONO + '" font-size="13.5" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
+    '<text x="222" y="192" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.themeSection + '</text>',
+    '<text x="222" y="224" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupWarm + '</text>',
     chipSvg(292, 208, 'opencode', 108), chipSvg(408, 208, 'orng', 90), chipSvg(506, 208, 'vesper', 96),
-    '<text x="222" y="268" font-family="' + SANS + '" font-size="12" fill="#c8c8d0">● ' + T.groupCool + '</text>',
+    '<text x="222" y="268" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupCool + '</text>',
     chipSvg(292, 252, 'tokyonight', 116), chipSvg(416, 252, 'dracula', 104), chipSvg(528, 252, 'catppuccin', 118), chipSvg(654, 252, 'nord', 86),
-    '<text x="222" y="312" font-family="' + SANS + '" font-size="12" fill="#c8c8d0">● ' + T.groupTeal + '</text>',
+    '<text x="222" y="312" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupTeal + '</text>',
     chipSvg(292, 296, 'matrix', 100), chipSvg(400, 296, 'gruvbox', 104), chipSvg(512, 296, 'osaka-jade', 112),
-    '<text x="222" y="348" font-family="' + SANS + '" font-size="11" fill="#5c5c66">' + T.groupsMore + '</text>',
+    '<text x="222" y="348" font-family="' + SANS + '" font-size="13.5" fill="#5c5c66">' + T.groupsMore + '</text>',
     badge(212, 155, '1'), badge(212, 40, '2'), badge(620, 178, '3'),
     // 步骤说明：置于面板内底部（左对齐，避免长文本越界）
-    '<text x="222" y="548" font-family="' + SANS + '" font-size="14" fill="#8b8b95">' + T.step1 + ' → ' + T.step2 + ' → ' + T.step3 + '</text>',
+    '<text x="222" y="548" font-family="' + SANS + '" font-size="16.5" fill="#8b8b95">' + T.step1 + ' → ' + T.step2 + ' → ' + T.step3 + '</text>',
     '</svg>',
   ].join('\n')
 }
@@ -305,22 +305,22 @@ function uiFrame(x, y, w, themeName, lang) {
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="250" rx="12" fill="' + bg + '" stroke="' + border + '"/>' +
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="34" rx="12" fill="' + panel + '"/>' +
     '<circle cx="' + (x + 22) + '" cy="' + (y + 17) + '" r="6" fill="' + primary + '"/>' +
-    '<text x="' + (x + 38) + '" y="' + (y + 21) + '" font-family="' + SANS + '" font-size="11" fill="' + muted + '">DeepSeek Harness</text>' +
+    '<text x="' + (x + 38) + '" y="' + (y + 21) + '" font-family="' + SANS + '" font-size="13.5" fill="' + muted + '">DeepSeek Harness</text>' +
     '<rect x="' + (x + 14) + '" y="' + (y + 48) + '" width="' + (w * 0.72) + '" height="34" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
     '<rect x="' + (x + 22) + '" y="' + (y + 59) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.7"/>' +
     '<rect x="' + (x + 22) + '" y="' + (y + 69) + '" width="' + (w * 0.3) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.5"/>' +
     '<rect x="' + (x + w - 14 - w * 0.5) + '" y="' + (y + 92) + '" width="' + (w * 0.5) + '" height="26" rx="8" fill="' + primary + '" opacity="0.85"/>' +
     '<rect x="' + (x + w - 14 - w * 0.38) + '" y="' + (y + 100) + '" width="' + (w * 0.26) + '" height="5" rx="2.5" fill="' + bg + '" opacity="0.8"/>' +
     '<rect x="' + (x + 14) + '" y="' + (y + 130) + '" width="' + (w - 28) + '" height="58" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<text x="' + (x + 26) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="10.5" fill="' + keyword + '">const palette =</text>' +
-    '<text x="' + (x + 26 + 108) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="10.5" fill="' + (c.syntaxString || '#7fd88f') + '">"tokyonight"</text>' +
+    '<text x="' + (x + 26) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="13" fill="' + keyword + '">const palette =</text>' +
+    '<text x="' + (x + 26 + 108) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="13" fill="' + (c.syntaxString || '#7fd88f') + '">"tokyonight"</text>' +
     '<rect x="' + (x + 26) + '" y="' + (y + 160) + '" width="' + (w * 0.4) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
     '<rect x="' + (x + 26) + '" y="' + (y + 172) + '" width="' + (w * 0.55) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
     '<rect x="' + (x + 14) + '" y="' + (y + 202) + '" width="' + (w - 28) + '" height="28" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<text x="' + (x + 26) + '" y="' + (y + 220) + '" font-family="' + SANS + '" font-size="10.5" fill="' + muted + '" opacity="0.8">' + T.ask + '</text>' +
+    '<text x="' + (x + 26) + '" y="' + (y + 220) + '" font-family="' + SANS + '" font-size="13" fill="' + muted + '" opacity="0.8">' + T.ask + '</text>' +
     '<circle cx="' + (x + w - 26) + '" cy="' + (y + 216) + '" r="8" fill="' + primary + '"/>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 270) + '" text-anchor="middle" font-family="' + MONO + '" font-size="13" font-weight="600" fill="' + text + '">' + esc(themeName) + '</text>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 286) + '" text-anchor="middle" font-family="' + MONO + '" font-size="11" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + 270) + '" text-anchor="middle" font-family="' + MONO + '" font-size="15.5" font-weight="600" fill="' + text + '">' + esc(themeName) + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + 286) + '" text-anchor="middle" font-family="' + MONO + '" font-size="13.5" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
     '</g>'
 }
 function switchDoc(lang) {
@@ -330,7 +330,7 @@ function switchDoc(lang) {
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + TW + '" height="' + TH + '" viewBox="0 0 ' + TW + ' ' + TH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="18" y="32" font-family="' + SANS + '" font-size="16" font-weight="700" fill="#f0f0f0">' + esc(T.switchTitle) + '</text>',
+    '<text x="18" y="32" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">' + esc(T.switchTitle) + '</text>',
     uiFrame(18, 52, 356, 'opencode', lang),
     uiFrame(392, 52, 356, 'tokyonight', lang),
     uiFrame(766, 52, 356, 'matrix', lang),
@@ -369,7 +369,7 @@ function heroFrame(x, y, w, themeName) {
     '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="40" rx="16" fill="' + panel + '"/>' +
     '<rect x="' + x + '" y="' + (y + 24) + '" width="' + w + '" height="16" fill="' + panel + '"/>' +
     '<circle cx="' + (x + 26) + '" cy="' + (y + 20) + '" r="7" fill="' + primary + '"/>' +
-    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="12.5" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
+    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="15" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
     '<circle cx="' + (x + w - 24) + '" cy="' + (y + 20) + '" r="5" fill="' + muted + '" opacity="0.6"/>' +
     // assistant 消息（含代码块）
     '<rect x="' + (x + 16) + '" y="' + (y + 54) + '" width="' + (w * 0.78) + '" height="30" rx="9" fill="' + panel + '" stroke="' + border + '"/>' +
@@ -383,10 +383,10 @@ function heroFrame(x, y, w, themeName) {
     '<circle cx="' + (x + 30) + '" cy="' + (y + 104) + '" r="3.5" fill="' + number + '" opacity="0.9"/>' +
     '<circle cx="' + (x + 42) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.5"/>' +
     '<circle cx="' + (x + 54) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.3"/>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + keyword + '">const theme</text>' +
-    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + muted + '">=</text>' +
-    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="11" fill="' + string + '">"' + esc(themeName) + '"</text>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="11" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + keyword + '">const theme</text>' +
+    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + muted + '">=</text>' +
+    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="13.5" fill="' + string + '">"' + esc(themeName) + '"</text>' +
+    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="13.5" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
     '<rect x="' + (x + 24) + '" y="' + (y + 162) + '" width="' + (w * 0.5) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
     // 用户消息
     '<rect x="' + (x + w - 16 - w * 0.5) + '" y="' + (y + 194) + '" width="' + (w * 0.5) + '" height="28" rx="9" fill="' + primary + '" opacity="0.9"/>' +
@@ -399,15 +399,15 @@ function heroFrame(x, y, w, themeName) {
     '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>'
     // 底部：主题名 + 取色器式 swatch（色块 + 同色 HEX）
     return '<g>' + frameBody +
-    '<text x="' + (x + w / 2) + '" y="' + (y + h + 36) + '" text-anchor="middle" ' + mono + ' font-size="15" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
+    '<text x="' + (x + w / 2) + '" y="' + (y + h + 36) + '" text-anchor="middle" ' + mono + ' font-size="17.5" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
     '<rect x="' + swX + '" y="' + (y + h + 44) + '" width="' + sw + '" height="' + sw + '" rx="3" fill="' + primary + '" stroke="rgba(0,0,0,0.35)"/>' +
-    '<text x="' + hexX + '" y="' + (y + h + 55) + '" ' + mono + ' font-size="12" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
+    '<text x="' + hexX + '" y="' + (y + h + 55) + '" ' + mono + ' font-size="14.5" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
     '</g>'
 }
 function heroDoc(lang) {
   const T = L[lang]
   // HH=564：heroMore 基线 550 文字底约 556，底部仅留 8px 呼吸
-  const HW = 1280, HH = 564
+  const HW = 1280, HH = 574
   const frameW = 372
   const gap = 26
   const total = 3 * frameW + 2 * gap
@@ -427,20 +427,20 @@ function heroDoc(lang) {
     '<rect width="100%" height="100%" fill="url(#haloViolet)"/>',
     '<rect width="100%" height="100%" fill="url(#haloTeal)"/>',
     // 小标签（品牌行，字距拉开，× 点缀橙色）
-    '<text x="' + (HW / 2) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="12" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
-    '<text x="' + (HW / 2 + 12) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="12" letter-spacing="2" fill="#FAB283">×</text>',
-    '<text x="' + (HW / 2 + 64) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="12" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
+    '<text x="' + (HW / 2) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
+    '<text x="' + (HW / 2 + 12) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="2" fill="#FAB283">×</text>',
+    '<text x="' + (HW / 2 + 64) + '" y="44" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
     // 主标语（渐变大字）
-    '<text x="' + (HW / 2) + '" y="92" text-anchor="middle" font-family="' + SANS + '" font-size="46" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
+    '<text x="' + (HW / 2) + '" y="92" text-anchor="middle" font-family="' + SANS + '" font-size="49" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
     // 副行（终端风：等宽 + 橙色 ▸ 引导）
-    '<text x="' + (HW / 2) + '" y="130" text-anchor="middle" font-family="' + MONO + '" font-size="16" fill="#b0b0b8">',
+    '<text x="' + (HW / 2) + '" y="130" text-anchor="middle" font-family="' + MONO + '" font-size="18.5" fill="#b0b0b8">',
     '<tspan fill="#FAB283">▸ </tspan>' + esc(T.heroSub) + '</text>',
     // 3 个拟真界面
     heroFrame(x0, y0, frameW, 'opencode'),
     heroFrame(x0 + frameW + gap, y0, frameW, 'tokyonight'),
     heroFrame(x0 + 2 * (frameW + gap), y0, frameW, 'synthwave84'),
     // 底部一行：终端风 + 数量高亮
-    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="14.5" fill="#8b8b95">',
+    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="17" fill="#8b8b95">',
     esc(T.heroMorePre) + '<tspan fill="#FAB283" font-weight="700">' + esc(T.heroMoreHi) + '</tspan>' + esc(T.heroMorePost) + '</text>',
     '</svg>',
   ].join('\n')
@@ -468,8 +468,8 @@ function themeStoriesDoc(lang) {
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>' +
       '<rect x="' + (x + 16) + '" y="' + (y + 18) + '" width="52" height="40" rx="9" fill="' + (c.background || '#1c1c1e') + '"/>' +
       '<circle cx="' + (x + 30) + '" cy="' + (y + 38) + '" r="6" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 84) + '" y="' + (y + 31) + '" font-family="' + MONO + '" font-size="15" font-weight="700" fill="' + nameFill + '">' + line1 + '</text>' +
-      '<text x="' + (x + 84) + '" y="' + (y + 56) + '" font-family="' + SANS + '" font-size="13.5" fill="#a1a1aa">' + esc(story[n] || '') + '</text>' +
+      '<text x="' + (x + 84) + '" y="' + (y + 31) + '" font-family="' + MONO + '" font-size="17.5" font-weight="700" fill="' + nameFill + '">' + line1 + '</text>' +
+      '<text x="' + (x + 84) + '" y="' + (y + 56) + '" font-family="' + SANS + '" font-size="16" fill="#a1a1aa">' + esc(story[n] || '') + '</text>' +
       '</g>'
   }).join('')
   const title = lang === 'zh' ? '34 款主题，与它们的名字' : '34 themes and the stories behind their names'
@@ -477,8 +477,8 @@ function themeStoriesDoc(lang) {
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="28" font-weight="700" fill="#f0f0f0">' + esc(title) + '</text>',
-    '<text x="' + PAD_X + '" y="84" font-family="' + SANS + '" font-size="15" fill="#8b8b95">' + esc(sub) + '</text>',
+    '<text x="' + PAD_X + '" y="56" font-family="' + SANS + '" font-size="31" font-weight="700" fill="#f0f0f0">' + esc(title) + '</text>',
+    '<text x="' + PAD_X + '" y="84" font-family="' + SANS + '" font-size="17.5" fill="#8b8b95">' + esc(sub) + '</text>',
     cards,
     '</svg>',
   ].join('\\n')
