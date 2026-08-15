@@ -55,6 +55,12 @@ Click any theme chip — the interface re-skins instantly:
 
 ## Features
 
+### 34 themes and the stories behind their names
+
+Every name has a story:
+
+![theme stories](../assets/theme-stories-en.svg)
+
 ### 34 official themes, faithfully ported
 
 Each theme shows its 7 core colors at a glance — `background · text · primary · accent · error · warning · success`:
@@ -64,12 +70,6 @@ Each theme shows its 7 core colors at a glance — `background · text · primar
 All 34 at a glance:
 
 ![palette matrix](../assets/palette-matrix-en.svg)
-
-### 34 themes and the stories behind their names
-
-Every name has a story:
-
-![theme stories](../assets/theme-stories-en.svg)
 
 ### Typography, independent from the theme
 

@@ -55,6 +55,12 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 
 ## 功能详解
 
+### 主题与它们的名字
+
+每个名字背后都有一段来历：
+
+![theme stories](assets/theme-stories-zh.svg)
+
 ### 34 款官方主题，忠实还原
 
 每个主题都能一眼看到它最核心的 7 种颜色 —— `背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功`：
@@ -64,12 +70,6 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 34 款一览：
 
 ![palette matrix](assets/palette-matrix-zh.svg)
-
-### 主题与它们的名字
-
-每个名字背后都有一段来历：
-
-![theme stories](assets/theme-stories-zh.svg)
 
 ### 排印独立于主题
 
