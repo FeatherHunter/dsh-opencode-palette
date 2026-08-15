@@ -211,35 +211,42 @@ function matrixDoc(lang) {
     '</svg>',
   ].join('\n')
 }
-// ── palette-strips ──
+// ── palette-strips ──（名字 + 故事 + 语义色带：中文版显示中文名与由来）
 function stripsDoc(lang) {
   const T = L[lang]
-  const STRIP_H = 36, NAME_W = 176, SEG_W = 78, ROW_GAP = 4, TOP = 72
-  const W2 = NAME_W + 7 * SEG_W + 40
-  const H2 = TOP + names.length * (STRIP_H + ROW_GAP) + 16
-  const segs = (y, c) => ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'].map((k, j) => {
-    const v = c[k]
-    return '<rect x="' + (NAME_W + 20 + j * SEG_W) + '" y="' + y + '" width="' + (SEG_W - 2) + '" height="' + STRIP_H + '" rx="3" fill="' + (v ? v : 'url(#chess)') + '" stroke="rgba(255,255,255,0.06)"/>'
-  }).join('')
-  const strips = names.map((n, i) => {
+  const story = lang === 'zh' ? THEME_STORY_ZH : THEME_STORY_EN
+  const ROW_H = 56, NAME_W = 376, SEG_W = 84, SEG_H = 30, TOP = 84
+  const W2 = 10 + NAME_W + 18 + 7 * SEG_W + 30
+  const H2 = TOP + names.length * (ROW_H + 4) + 16
+  const rows = names.map((n, i) => {
     const c = data[n]
-    const y = TOP + i * (STRIP_H + ROW_GAP)
-    return '<g>' +
-      '<text x="10" y="' + (y + STRIP_H - 9) + '" font-family="' + MONO + '" font-size="15" fill="' + (c.text || '#c8c8d0') + '">' + esc(n) + '</text>' +
-      segs(y, c) +
+    const y = TOP + i * (ROW_H + 4)
+    const fg = c.text || '#c8c8d0'
+    const segs = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'].map((k, j) => {
+      const v = c[k]
+      return '<rect x="' + (10 + NAME_W + 18 + j * SEG_W) + '" y="' + (y + (ROW_H - SEG_H) / 2) + '" width="' + (SEG_W - 2) + '" height="' + SEG_H + '" rx="4" fill="' + (v ? v : 'url(#chess)') + '" stroke="rgba(255,255,255,0.06)"/>'
+    }).join('')
+    // 中文版：中文名（主）+ 英文名（小字辅助）；英文版：英文名（主）
+    const zh = THEME_ZH[n]
+    const nameRow = lang === 'zh'
+      ? '<text x="10" y="' + (y + 22) + '" font-family="' + SANS + '" font-size="16" font-weight="700" fill="' + fg + '">' + esc(zh || n) + '</text>' +
+        '<text x="' + (10 + (zh || n).length * 16 + 12) + '" y="' + (y + 21) + '" font-family="' + MONO + '" font-size="12" fill="#8b8b95">' + esc(n) + '</text>'
+      : '<text x="10" y="' + (y + 22) + '" font-family="' + MONO + '" font-size="16" font-weight="700" fill="' + fg + '">' + esc(n) + '</text>'
+    return '<g>' + nameRow +
+      '<text x="10" y="' + (y + 44) + '" font-family="' + SANS + '" font-size="13" fill="#a1a1aa">' + esc(story[n] || '') + '</text>' +
+      segs +
       '</g>'
   }).join('')
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W2 + '" height="' + H2 + '" viewBox="0 0 ' + W2 + ' ' + H2 + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
     CHESS,
-    '<text x="10" y="34" font-family="' + SANS + '" font-size="21.5" font-weight="700" fill="#f0f0f0">' + esc(T.stripsTitle) + '</text>',
-    '<text x="10" y="56" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + esc(T.stripsSub) + '</text>',
-    strips,
+    '<text x="10" y="36" font-family="' + SANS + '" font-size="21.5" font-weight="700" fill="#f0f0f0">' + esc(T.stripsTitle) + '</text>',
+    '<text x="10" y="58" font-family="' + SANS + '" font-size="15" fill="#8b8b95">' + esc(T.stripsSub) + '</text>',
+    rows,
     '</svg>',
   ].join('\n')
 }
-
 // ── setup-panel ──
 function setupDoc(lang) {
   const T = L[lang]
