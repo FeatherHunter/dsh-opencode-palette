@@ -143,7 +143,7 @@ async function main() {
   const pkgJson = {
     name: ID,
     version: version,
-    description: 'DSH Web 多主题引擎：完整支持 opencode TUI 全部 34 个主题（33 内置 + system）。数据驱动管线：主题 JSON → 颜色解析 → DSH 适配注入；设置面板即时切换、持久化。',
+    description: '让 DeepSeek Harness 穿上 34 款经典皮肤——东京的霓虹夜色、德古拉的暗红月光、复古工坊的暖黄灯火、黑客帝国的数字雨、玫瑰松林间的风……一键换肤，即点即换，重启不丢。34 legendary skins for DeepSeek Harness — tokyonight\'s neon dusk, dracula\'s crimson moon, gruvbox\'s retro glow, the matrix\'s digital rain, rose-pine\'s rosewood calm… one click, instant, persisted.',
     type: 'module',
     main: 'lib/index.js',
     exports: {
