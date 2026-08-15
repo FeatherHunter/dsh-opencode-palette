@@ -65,6 +65,12 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 
 ![palette matrix](assets/palette-matrix-zh.svg)
 
+### 主题与它们的名字
+
+每个名字背后都有一段来历：
+
+![theme stories](assets/theme-stories-zh.svg)
+
 ### 排印独立于主题
 
 - 正文样式：等宽（终端风）或常规（界面风）——想要 opencode 的终端观感，还是经典界面观感。

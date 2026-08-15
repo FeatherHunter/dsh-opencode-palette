@@ -18,6 +18,92 @@ const CHESS = '<pattern id="chess" width="10" height="10" patternUnits="userSpac
 const SANS = '-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif'
 const MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'
 
+// ── 主题中文名与由来（双语）──
+const THEME_ZH = {
+  opencode: "opencode", tokyonight: "东京之夜", dracula: "德古拉", gruvbox: "复古凹槽",
+  matrix: "黑客帝国", "rose-pine": "玫瑰松林", catppuccin: "卡布奇诺", "catppuccin-frappe": "卡布奇诺·冰沙",
+  "catppuccin-macchiato": "卡布奇诺·玛奇朵", solarized: "日光浴", synthwave84: "合成波 84",
+  everforest: "常青森林", nord: "北极", kanagawa: "神奈川", nightowl: "夜猫子",
+  "one-dark": "One Dark", monokai: "Monokai", palenight: "苍白之夜", material: "材料设计",
+  ayu: "鮎", carbonfox: "碳狐", cobalt2: "钴蓝", cursor: "Cursor", aura: "光环",
+  flexoki: "纸墨", github: "GitHub", zenburn: "禅燃", mercury: "水星",
+  "osaka-jade": "大阪翡翠", vesper: "黄昏星", vercel: "Vercel", "lucent-orng": "透光橙",
+  orng: "纯橙", system: "跟随系统",
+}
+const THEME_STORY_ZH = {
+  opencode: "官方默认主题：深黑底 + 橙 / 蓝 / 紫",
+  tokyonight: "东京夜景的深蓝与霓虹紫",
+  dracula: "吸血鬼风格的暗紫，经典中的经典",
+  gruvbox: "致敬 80 年代 CRT 与合成器的复古暖色",
+  matrix: "数字雨的荧光绿，一键进入 Matrix",
+  "rose-pine": "玫瑰粉与松林绿的低饱和温柔",
+  catppuccin: "拿铁般的柔和（Mocha 摩卡 / Frappé 冰沙 / Macchiato 玛奇朵）",
+  "catppuccin-frappe": "卡布奇诺家族更轻盈的灰调",
+  "catppuccin-macchiato": "卡布奇诺家族更浓郁的层次",
+  solarized: "按太阳光谱精确设计的护眼配色",
+  synthwave84: "80 年代合成波的霓虹粉青",
+  everforest: "森林绿的护眼配色",
+  nord: "北欧极地的冷静蓝灰",
+  kanagawa: "取自浮世绘《神奈川冲浪里》",
+  nightowl: "深夜编程的蓝紫",
+  "one-dark": "Atom 编辑器的经典深色",
+  monokai: "Sublime Text 的经典黄粉",
+  palenight: "Material 的深紫蓝变体",
+  material: "Google Material 的蓝灰",
+  ayu: "日语「香鱼」的温暖橙黄",
+  carbonfox: "IBM Carbon 设计语言",
+  cobalt2: "化学元素钴的蓝（Wes Bos 出品）",
+  cursor: "Cursor 编辑器官方配色",
+  aura: "紫色霓虹光环",
+  flexoki: "暖纸上的墨色（kepano 出品）",
+  github: "GitHub 官方配色",
+  zenburn: "Vim 经典低对比",
+  mercury: "薰衣草紫（opencode 定制）",
+  "osaka-jade": "和风玉石绿（opencode 定制）",
+  vesper: "暖橙香槟（opencode 定制）",
+  vercel: "Vercel 品牌蓝",
+  "lucent-orng": "透明底色 + 活力橙",
+  orng: "热烈直白的橙",
+  system: "一键回到 DSH 默认外观",
+}
+const THEME_STORY_EN = {
+  opencode: "The official default theme — deep black with orange / blue / violet",
+  tokyonight: "The deep blues and neon violets of Tokyo at night",
+  dracula: "The classic vampire-purple, a community icon",
+  gruvbox: "Retro warm tones honoring 80s CRTs and synths",
+  matrix: "The glowing green of digital rain",
+  "rose-pine": "Low-saturation rose and pine, soft and calm",
+  catppuccin: "Latte-soft pastels (Mocha / Frappé / Macchiato)",
+  "catppuccin-frappe": "The lighter, cooler sibling of Catppuccin",
+  "catppuccin-macchiato": "The deeper, richer sibling of Catppuccin",
+  solarized: "Sun-spectrum colors designed precisely around CIELAB",
+  synthwave84: "80s synthwave neon pink and cyan",
+  everforest: "Forest-green tones, easy on the eyes",
+  nord: "The cool blue-grays of the Nordic arctic",
+  kanagawa: "Named after the ukiyo-e print 「The Great Wave off Kanagawa」",
+  nightowl: "Late-night coding blues and violets",
+  "one-dark": "The classic dark theme from Atom editor",
+  monokai: "The classic yellow-and-pink from Sublime Text",
+  palenight: "Material’s deep purple-blue variant",
+  material: "The blue-grays of Google Material Design",
+  ayu: "Japanese for “sweetfish” — warm orange",
+  carbonfox: "From the Nightfox family, built on IBM Carbon",
+  cobalt2: "The blue of the element cobalt (by Wes Bos)",
+  cursor: "The official palette of the Cursor editor",
+  aura: "Purple neon aura",
+  flexoki: "Ink on warm paper (by kepano)",
+  github: "GitHub’s official palette",
+  zenburn: "The classic low-contrast Vim theme",
+  mercury: "Lavender violet (opencode original)",
+  "osaka-jade": "Jade green, Japanese-style (opencode original)",
+  vesper: "Warm champagne orange (opencode original)",
+  vercel: "Vercel’s brand blue",
+  "lucent-orng": "Vivid orange on a transparent base",
+  orng: "Straightforward, vivid orange",
+  system: "One click back to DSH’s default look",
+}
+
+
 // ── 双语文案表 ──
 const L = {
   en: {
@@ -101,10 +187,15 @@ function matrixDoc(lang) {
     const strip = ['primary', 'accent', 'error', 'warning', 'success'].map((k, j) =>
       '<rect x="' + (x + 14 + j * 34) + '" y="' + (y + CH - 16) + '" width="30" height="4" rx="2" fill="' + hex(c[k]) + '"/>'
     ).join('')
+    // 中文版卡片补一行中文译名
+    const zhName = lang === 'zh' && THEME_ZH[n]
+      ? '<text x="' + (x + 14) + '" y="' + (y + 43) + '" font-family="' + SANS + '" font-size="10.5" fill="#b8b8c0">' + esc(THEME_ZH[n]) + '</text>'
+      : ''
     return '<g>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="14" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.09)"/>' +
       '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="3" rx="1.5" fill="' + hex(c.primary) + '"/>' +
       '<text x="' + (x + 14) + '" y="' + (y + 26) + '" font-family="' + MONO + '" font-size="12" font-weight="600" fill="#e2e2e8">' + esc(n) + '</text>' +
+      zhName +
       strip +
       '</g>'
   }).join('')
@@ -354,6 +445,43 @@ function heroDoc(lang) {
   ].join('\n')
 }
 
+// ── 主题图鉴（theme-stories-{zh,en}.svg）：中文名 + 由来 ──
+function themeStoriesDoc(lang) {
+  const T = L[lang]
+  const COLS = 2, CW = 618, CH = 58, GAP = 12, PAD_X = 20, PAD_Y = 96
+  const rows = Math.ceil(names.length / COLS)
+  const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
+  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 18
+  const story = lang === 'zh' ? THEME_STORY_ZH : THEME_STORY_EN
+  const cards = names.map((n, i) => {
+    const c = data[n]
+    const col = i % COLS, row = Math.floor(i / COLS)
+    const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
+    const zh = THEME_ZH[n]
+    const line1 = lang === 'zh'
+      ? esc(n) + (zh ? '  ·  ' + esc(zh) : '')
+      : esc(n)
+    const nameFill = lang === 'zh' ? '#e2e2e8' : '#e2e2e8'
+    return '<g>' +
+      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="12" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)"/>' +
+      '<rect x="' + (x + 14) + '" y="' + (y + 12) + '" width="46" height="34" rx="8" fill="' + (c.background || '#1c1c1e') + '"/>' +
+      '<circle cx="' + (x + 28) + '" cy="' + (y + 29) + '" r="5" fill="' + hex(c.primary) + '"/>' +
+      '<text x="' + (x + 74) + '" y="' + (y + 24) + '" font-family="' + MONO + '" font-size="12" font-weight="600" fill="' + nameFill + '">' + line1 + '</text>' +
+      '<text x="' + (x + 74) + '" y="' + (y + 43) + '" font-family="' + SANS + '" font-size="11" fill="#8b8b95">' + esc(story[n] || '') + '</text>' +
+      '</g>'
+  }).join('')
+  const title = lang === 'zh' ? '34 款主题，与它们的名字' : '34 themes and the stories behind their names'
+  const sub = lang === 'zh' ? '每个名字背后都有一段来历' : 'Every name has a story'
+  return [
+    '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
+    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
+    '<text x="' + PAD_X + '" y="48" font-family="' + SANS + '" font-size="24" font-weight="700" fill="#f0f0f0">' + esc(title) + '</text>',
+    '<text x="' + PAD_X + '" y="72" font-family="' + SANS + '" font-size="13" fill="#8b8b95">' + esc(sub) + '</text>',
+    cards,
+    '</svg>',
+  ].join('\\n')
+}
+
 await mkdir(OUT_DIR, { recursive: true })
 const files = {
   'palette-matrix-en.svg': matrixDoc('en'),
@@ -366,6 +494,8 @@ const files = {
   'theme-switch-zh.svg': switchDoc('zh'),
   'hero-en.svg': heroDoc('en'),
   'hero-zh.svg': heroDoc('zh'),
+  'theme-stories-en.svg': themeStoriesDoc('en'),
+  'theme-stories-zh.svg': themeStoriesDoc('zh'),
 }
 for (const [name, content] of Object.entries(files)) {
   await writeFile(join(OUT_DIR, name), content)

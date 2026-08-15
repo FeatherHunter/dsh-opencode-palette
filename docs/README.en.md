@@ -65,6 +65,12 @@ All 34 at a glance:
 
 ![palette matrix](../assets/palette-matrix-en.svg)
 
+### 34 themes and the stories behind their names
+
+Every name has a story:
+
+![theme stories](../assets/theme-stories-en.svg)
+
 ### Typography, independent from the theme
 
 - Body style: monospace (terminal) or regular (UI) — the opencode terminal look or a classic interface look.
