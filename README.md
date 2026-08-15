@@ -1,30 +1,30 @@
 # 🎨 dsh-opencode-palette
 
-**🌐 [English](README.md) · [中文](docs/README.zh-CN.md)**
+**🌐 [中文](README.md) · [English](docs/README.en.md)**
 
-**The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
+**把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 34 款主题，一键切换。**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-![hero](assets/hero-en.svg)
+![hero](assets/hero-zh.svg)
 
-## Install in one command
+## 一条命令完成安装
 
-Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:
+需要 **DSH CLI**（DeepSeek Harness 命令行工具）。如果还没有，先安装：
 
 ```bash
 npm install -g @deepseek-ai/dsh
 ```
 
-Then install the plugin into your profile:
+然后把插件装进你的 profile：
 
 ```bash
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-Register the entry (hot-reloaded, no restart): append to `~/.dsh/profiles/web/cordis.patch.yml`:
+注册条目（热加载，无需重启）：在 `~/.dsh/profiles/web/cordis.patch.yml` 末尾追加：
 
 ```yaml
 - insert:
@@ -32,72 +32,72 @@ Register the entry (hot-reloaded, no restart): append to `~/.dsh/profiles/web/co
       name: 'dsh-opencode-palette'
 ```
 
-Refresh the browser page — the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
+刷新浏览器页面即生效。插件默认启用官方 `opencode` 主题（深黑底 + 橙 / 蓝 / 紫）。
 
-## What it does
+## 它是什么
 
-DeepSeek Harness ships with one look. This plugin lets you dress the whole interface in any of the **34 official opencode themes** — `tokyonight`, `dracula`, `gruvbox`, `matrix`, `rose-pine`, `catppuccin ×3`, `solarized`, `synthwave84` …
+DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个界面穿上 **opencode 的 34 套官方配色**中的任意一套 —— `tokyonight`、`dracula`、`gruvbox`、`matrix`、`rose-pine`、`catppuccin ×3`、`solarized`、`synthwave84` ……
 
-- Every color comes from opencode's official theme JSON (v1.18.12) — what opencode ships is what you get.
-- One click re-skins everything: backgrounds, buttons, borders, status colors, markdown, and code syntax highlighting.
-- Your choice is remembered across restarts.
-- The panel speaks your language — it follows the DSH interface language (中文 / English).
+- 每个颜色都来自 opencode 官方主题 JSON（v1.18.12）——opencode 出厂什么样，这里就是什么样。
+- 点一下，整个界面跟着换：背景、按钮、边框、状态色、markdown、代码高亮全部同步。
+- 选过的主题会被记住，重启不丢。
+- 面板跟着 DSH 界面语言走（中文 / English）。
 
-## Get started in 30 seconds
+## 30 秒上手
 
-**Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**):
+**设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）：
 
-![setup panel](assets/setup-panel-en.svg)
+![setup panel](assets/setup-panel-zh.svg)
 
-Click any theme chip — the interface re-skins instantly:
+点任意主题色块，界面立即换色：
 
-![theme switch](assets/theme-switch-en.svg)
+![theme switch](assets/theme-switch-zh.svg)
 
-## Features
+## 功能详解
 
-### 34 official themes, faithfully ported
+### 34 款官方主题，忠实还原
 
-Every theme below is resolved from the official opencode theme JSON — each row is the 7 core semantic colors (`background · text · primary · accent · error · warning · success`):
+下表每个主题都由官方 JSON 解析而来 —— 每行是 7 个核心语义色（`背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功`）：
 
-![palette strips](assets/palette-strips-en.svg)
+![palette strips](assets/palette-strips-zh.svg)
 
-All 34 at a glance:
+34 款一览：
 
-![palette matrix](assets/palette-matrix-en.svg)
+![palette matrix](assets/palette-matrix-zh.svg)
 
-### Typography, independent from the theme
+### 排印独立于主题
 
-- Body style: monospace (terminal) or regular (UI) — the opencode terminal look or a classic interface look.
-- Font size: 11–18 px.
-- Code font: 5 presets with live preview (JetBrains Mono, Cascadia Code, Fira Code, SF Mono, Consolas).
+- 正文样式：等宽（终端风）或常规（界面风）——想要 opencode 的终端观感，还是经典界面观感。
+- 字号：11–18 px。
+- 代码字体：5 种预设，带实时预览（JetBrains Mono、Cascadia Code、Fira Code、SF Mono、Consolas）。
 
-### `system` — back to default in one click
+### `system` —— 一键回到默认
 
-Restores DSH's native appearance whenever you want, while keeping your typography settings.
+随时恢复 DSH 原生外观，同时保留你的排印设置。
 
-### Persisted per browser
+### 按浏览器持久化
 
-Your theme and typography choices are stored locally and survive refresh and restart.
+主题与排印选择保存在本地，刷新、重启都不丢。
 
-### Bilingual panel
+### 面板自动双语
 
-The panel follows your DSH interface language automatically — switch the language in DSH and the panel follows instantly.
+面板跟随 DSH 界面语言 —— 在 DSH 里切换语言，面板即时跟随。
 
-## Development
+## 开发
 
 ```bash
-npm run sync    # fetch official theme JSONs from opencode (version-locked, checksummed)
-npm test        # 20 tests: engine audit of all 34 themes + panel render (zh/en)
-npm run build   # zero-dependency bundler -> package/ + dynamic client.js
-npm run assets  # regenerate the SVG images in this README
+npm run sync    # 从 opencode 拉取官方主题 JSON（版本锁定 + 校验和）
+npm test        # 20 项测试：34 主题全量审计 + 面板渲染（中/英）
+npm run build   # 零依赖打包 → package/ + 动态版 client.js
+npm run assets  # 重新生成本 README 中的 SVG 图
 ```
 
-Architecture: see [DESIGN.md](DESIGN.md) — a data-driven three-stage pipeline, with `src/engine/map-dsh.mjs` as the single source of truth for the DSH mapping layer.
+架构见 [DESIGN.md](DESIGN.md)：数据驱动三层管线，`src/engine/map-dsh.mjs` 是 DSH 映射层唯一真相源。
 
-## Contributing
+## 参与贡献
 
-Good starting points: new upstream themes (run `npm run sync`), mapping refinements, copy polish, or more locale translations. Keep the engine pure (no DOM) so the tests stay green.
+合适的切入点：上游新主题（跑 `npm run sync`）、映射层调优、文案打磨、更多语言翻译。保持引擎纯净（无 DOM），测试全绿即可。
 
-## License & credits
+## 许可与归属
 
-MIT © FeatherHunter. Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md).
+MIT © FeatherHunter。主题定义来自 [opencode](https://github.com/anomalyco/opencode)（MIT）及其上游主题项目 —— 见 [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md)。

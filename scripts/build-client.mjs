@@ -170,7 +170,8 @@ async function main() {
   await writeFile(join(PKG_DIR, 'lib', 'client.js'), pkgBundle)
   await writeFile(join(PKG_DIR, 'lib', 'index.js'), host)
   await writeFile(join(PKG_DIR, 'package.json'), JSON.stringify(pkgJson, null, 2) + '\n')
-  const readme = await readFile(join(ROOT, 'README.md'), 'utf8').catch(() => '(README 缺失)')
+  // npm 包 README 用英文版（GitHub 首页 README.md 为中文版）
+  const readme = await readFile(join(ROOT, 'docs', 'README.en.md'), 'utf8').catch(() => '(README 缺失)')
   await writeFile(join(PKG_DIR, 'README.md'), readme)
   await writeFile(join(ROOT, 'client.js'), dynBundle)
 
