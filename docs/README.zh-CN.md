@@ -8,7 +8,7 @@
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-![palette matrix](../assets/palette-matrix.svg)
+![palette matrix](../assets/palette-matrix-zh.svg)
 
 ## 一条命令完成安装
 
@@ -47,11 +47,11 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 
 **设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）：
 
-![setup panel](../assets/setup-panel.svg)
+![setup panel](../assets/setup-panel-zh.svg)
 
 点任意主题色块，界面立即换色：
 
-![theme switch](../assets/theme-switch.svg)
+![theme switch](../assets/theme-switch-zh.svg)
 
 ## 功能详解
 
@@ -59,7 +59,7 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 
 下表每个主题都由官方 JSON 解析而来 —— 每行是 7 个核心语义色（`背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功`）：
 
-![palette strips](../assets/palette-strips.svg)
+![palette strips](../assets/palette-strips-zh.svg)
 
 ### 排印独立于主题
 

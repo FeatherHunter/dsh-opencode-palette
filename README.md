@@ -8,7 +8,7 @@
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-![palette matrix](assets/palette-matrix.svg)
+![palette matrix](assets/palette-matrix-en.svg)
 
 ## Install in one command
 
@@ -47,11 +47,11 @@ DeepSeek Harness ships with one look. This plugin lets you dress the whole inter
 
 **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**):
 
-![setup panel](assets/setup-panel.svg)
+![setup panel](assets/setup-panel-en.svg)
 
 Click any theme chip — the interface re-skins instantly:
 
-![theme switch](assets/theme-switch.svg)
+![theme switch](assets/theme-switch-en.svg)
 
 ## Features
 
@@ -59,7 +59,7 @@ Click any theme chip — the interface re-skins instantly:
 
 Every theme below is resolved from the official opencode theme JSON — each row is the 7 core semantic colors (`background · text · primary · accent · error · warning · success`):
 
-![palette strips](assets/palette-strips.svg)
+![palette strips](assets/palette-strips-en.svg)
 
 ### Typography, independent from the theme
 
