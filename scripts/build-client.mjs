@@ -7,7 +7,7 @@
 //   package/README.md       用户文档副本
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入
-import { readFile, writeFile, mkdir, rm } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, rm, copyFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -151,7 +151,11 @@ async function main() {
       './client': './lib/client.js',
       './package.json': './package.json',
     },
-    files: ['lib'],
+    files: ['lib', 'scripts'],
+    scripts: {
+      postinstall: 'node scripts/install-patch.cjs',
+      preuninstall: 'node scripts/uninstall-patch.cjs',
+    },
     keywords: ['dsh', 'deepseek-harness', 'plugin', 'theme', 'opencode', 'tui', 'dark', 'multi-theme'],
     dsh: {
       client: {
@@ -167,6 +171,9 @@ async function main() {
   await rm(join(PKG_DIR, 'node_modules'), { recursive: true, force: true })
   await rm(join(PKG_DIR, 'package-lock.json'), { force: true })
   await mkdir(join(PKG_DIR, 'lib'), { recursive: true })
+  await mkdir(join(PKG_DIR, 'scripts'), { recursive: true })
+  await copyFile(join(ROOT, 'scripts', 'install-patch.cjs'), join(PKG_DIR, 'scripts', 'install-patch.cjs'))
+  await copyFile(join(ROOT, 'scripts', 'uninstall-patch.cjs'), join(PKG_DIR, 'scripts', 'uninstall-patch.cjs'))
   await writeFile(join(PKG_DIR, 'lib', 'client.js'), pkgBundle)
   await writeFile(join(PKG_DIR, 'lib', 'index.js'), host)
   await writeFile(join(PKG_DIR, 'package.json'), JSON.stringify(pkgJson, null, 2) + '\n')

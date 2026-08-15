@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.4.0 — 宿主半（no-op）
+ * dsh-opencode-palette v1.4.1 — 宿主半（no-op）
  *
  * 主题的全部工作在浏览器端（./client.js）完成：
  *   - 34 个 opencode 主题（33 内置 JSON + system）经数据驱动管线解析

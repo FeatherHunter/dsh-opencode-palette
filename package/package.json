@@ -1,6 +1,6 @@
 {
   "name": "dsh-opencode-palette",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "DSH Web 多主题引擎：完整支持 opencode TUI 全部 34 个主题（33 内置 + system）。数据驱动管线：主题 JSON → 颜色解析 → DSH 适配注入；设置面板即时切换、持久化。",
   "type": "module",
   "main": "lib/index.js",
@@ -10,8 +10,13 @@
     "./package.json": "./package.json"
   },
   "files": [
-    "lib"
+    "lib",
+    "scripts"
   ],
+  "scripts": {
+    "postinstall": "node scripts/install-patch.cjs",
+    "preuninstall": "node scripts/uninstall-patch.cjs"
+  },
   "keywords": [
     "dsh",
     "deepseek-harness",

@@ -1,80 +1,109 @@
 # 🎨 dsh-opencode-palette
 
-**🌐 [English](README.md) · [中文](docs/README.zh-CN.md)**
+**🌐 [中文](../README.md) · [English](README.en.md)**
 
 **The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
-[![tests](https://img.shields.io/badge/tests-18%2F18-green)]()
+[![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
-Make **DeepSeek Harness** look like **opencode** — `tokyonight`, `dracula`, `gruvbox`, `matrix`, `rose-pine`, `catppuccin ×3`, `solarized`, `synthwave84` … **all 34 official themes**, faithfully ported, switchable in one click from the settings panel.
+![hero](../assets/hero-en.svg)
 
-![palette matrix](assets/palette-matrix.svg)
+## Install in one command
 
-## Why you'll love it
-
-- 🎯 **34 official opencode themes** — every color is *resolved* from opencode's official theme JSON (v1.18.12), not an eyeballed approximation. What opencode ships is what you get.
-- ⚡ **One-click switching** — instantly re-skins the whole UI: backgrounds, surfaces, borders, buttons, status colors, markdown, and code syntax highlighting (shiki tokens).
-- 💾 **Persisted** — your choice survives refresh and restart (per browser, `localStorage`).
-- 🅰️ **Typing is independent from theming** — body style (monospace / regular), font size (11–18 px), and 5 code font presets are tuned separately from the color theme.
-- 🌐 **Bilingual panel** — follows your DSH interface language automatically (中文 / English).
-- 🔄 **`system` = back to default** — one click restores DSH's native look while keeping your typography.
-- 🧱 **Zero runtime dependencies · MIT licensed · 18 engine tests** — a data-driven pipeline (theme JSON → color resolver → DSH adapter), single source of truth for the DSH mapping layer.
-
-## Gallery — every theme, decomposed
-
-![palette strips](assets/palette-strips.svg)
-
-Each row shows the 7 core semantic colors — `background · text · primary · accent · error · warning · success` — resolved from the official opencode theme JSONs.
-
-## Installation
-
-Requires DSH (DeepSeek Harness) with the web client. Two steps, one time:
+Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:
 
 ```bash
-# 1. Install the package into your profile
-npx --yes @deepseek-ai/dsh plugin --profile web add dsh-opencode-palette
-
-# 2. Register it in the profile patch (no restart needed, hot-reloaded)
-#    append to ~/.dsh/profiles/web/cordis.patch.yml:
-#    - insert:
-#        - id: opencode-palette
-#          name: 'dsh-opencode-palette'
+npm install -g @deepseek-ai/dsh
 ```
 
-Refresh the browser page — done. The plugin auto-enables with the official `opencode` theme (deep black + orange/blue/violet).
+Then install the plugin into your profile:
 
-## Usage
+```bash
+dsh plugin --profile web add dsh-opencode-palette
+```
 
-1. Open **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**).
-2. Pick a theme from the color-family grouped grid (searchable) — it applies instantly.
-3. Tune typography above the grid: body style, font size, code font.
-4. Toggle the whole skin on/off with the switch in the header.
+Register the entry (hot-reloaded, no restart): append to `~/.dsh/profiles/web/cordis.patch.yml`:
 
-Power users can drive it from the console: `window.__opencodePalette` exposes `getState`, `setTheme(name)`, `toggle()`, `list()`, `previews()`.
+```yaml
+- insert:
+    - id: opencode-palette
+      name: 'dsh-opencode-palette'
+```
 
-## Migrating from dsh-opencode-tui-theme
+Refresh the browser page — the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
 
-Old users of `dsh-opencode-tui-theme`: remove its entry from `cordis.patch.yml`, run `dsh plugin --profile web remove dsh-opencode-tui-theme`, then install this package as above. Your previously selected theme is migrated automatically.
+## What it does
+
+DeepSeek Harness ships with one look. This plugin lets you dress the whole interface in any of the **34 official opencode themes** — `tokyonight`, `dracula`, `gruvbox`, `matrix`, `rose-pine`, `catppuccin ×3`, `solarized`, `synthwave84` …
+
+- Every color comes from opencode's official theme JSON (v1.18.12) — what opencode ships is what you get.
+- One click re-skins everything: backgrounds, buttons, borders, status colors, markdown, and code syntax highlighting.
+- Your choice is remembered across restarts.
+- The panel speaks your language — it follows the DSH interface language (中文 / English).
+
+## Get started in 30 seconds
+
+**Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**):
+
+![setup panel](../assets/setup-panel-en.svg)
+
+Click any theme chip — the interface re-skins instantly:
+
+![theme switch](../assets/theme-switch-en.svg)
+
+## Features
+
+### 34 themes and the stories behind their names
+
+Every name has a story:
+
+![theme stories](../assets/theme-stories-en.svg)
+
+### 34 official themes, faithfully ported
+
+Each theme shows its 7 core colors at a glance — `background · text · primary · accent · error · warning · success`:
+
+![palette strips](../assets/palette-strips-en.svg)
+
+All 34 at a glance:
+
+![palette matrix](../assets/palette-matrix-en.svg)
+
+### Typography, independent from the theme
+
+- Body style: monospace (terminal) or regular (UI) — the opencode terminal look or a classic interface look.
+- Font size: 11–18 px.
+- Code font: 5 presets with live preview (JetBrains Mono, Cascadia Code, Fira Code, SF Mono, Consolas).
+
+### `system` — back to default in one click
+
+Restores DSH's native appearance whenever you want, while keeping your typography settings.
+
+### Persisted per browser
+
+Your theme and typography choices are stored locally and survive refresh and restart.
+
+### Bilingual panel
+
+The panel follows your DSH interface language automatically — switch the language in DSH and the panel follows instantly.
 
 ## Development
 
 ```bash
 npm run sync    # fetch official theme JSONs from opencode (version-locked, checksummed)
-npm test        # 18 engine tests: full resolution audit of all 34 themes, grouping, determinism
+npm test        # 20 tests: engine audit of all 34 themes + panel render (zh/en)
 npm run build   # zero-dependency bundler -> package/ + dynamic client.js
-npm run assets  # regenerate the SVG showcase images above
+npm run assets  # regenerate the SVG images in this README
 ```
 
-Architecture: see [DESIGN.md](DESIGN.md) — a data-driven three-stage pipeline, with `src/engine/map-dsh.mjs` as the single source of truth for the DSH mapping layer.
+Architecture: see [DESIGN.md](../DESIGN.md) — a data-driven three-stage pipeline, with `src/engine/map-dsh.mjs` as the single source of truth for the DSH mapping layer.
 
 ## Contributing
 
-PRs welcome! Good starting points: new upstream themes (run `npm run sync`), mapping refinements, or copy polish. Keep the engine pure (no DOM) so tests stay green.
+Good starting points: new upstream themes (run `npm run sync`), mapping refinements, copy polish, or more locale translations. Keep the engine pure (no DOM) so the tests stay green.
 
 ## License & credits
 
-MIT © FeatherHunter.
-
-Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md).
+MIT © FeatherHunter. Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](../src/themes/THIRD_PARTY_NOTICES.md).
