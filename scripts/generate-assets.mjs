@@ -5,6 +5,7 @@ import { writeFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { themeNames, previewColors } from '../src/engine/index.mjs'
+import { THEME_ZH } from '../src/engine/zh-names.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const OUT_DIR = join(ROOT, 'assets')
@@ -19,17 +20,7 @@ const SANS = '-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif'
 const MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'
 
 // ── 主题中文名与由来（双语）──
-const THEME_ZH = {
-  opencode: "opencode", tokyonight: "东京之夜", dracula: "德古拉", gruvbox: "复古凹槽",
-  matrix: "黑客帝国", "rose-pine": "玫瑰松林", catppuccin: "卡布奇诺", "catppuccin-frappe": "卡布奇诺·冰沙",
-  "catppuccin-macchiato": "卡布奇诺·玛奇朵", solarized: "日光浴", synthwave84: "合成波 84",
-  everforest: "常青森林", nord: "北极", kanagawa: "神奈川", nightowl: "夜猫子",
-  "one-dark": "One Dark", monokai: "Monokai", palenight: "苍白之夜", material: "材料设计",
-  ayu: "鮎", carbonfox: "碳狐", cobalt2: "钴蓝", cursor: "Cursor", aura: "光环",
-  flexoki: "纸墨", github: "GitHub", zenburn: "禅燃", mercury: "水星",
-  "osaka-jade": "大阪翡翠", vesper: "黄昏星", vercel: "Vercel", "lucent-orng": "透光橙",
-  orng: "纯橙", system: "跟随系统",
-}
+// THEME_ZH 已下沉至 src/engine/zh-names.mjs（单一来源，面板与生成器共用）
 const THEME_STORY_ZH = {
   opencode: "官方默认主题：深黑底 + 橙 / 蓝 / 紫",
   tokyonight: "东京夜景的深蓝与霓虹紫",

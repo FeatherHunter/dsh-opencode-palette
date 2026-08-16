@@ -67,4 +67,13 @@ test('面板渲染（中文界面）：输出 OpenCode 调色板与中文组名'
   assert.ok(html.includes('OpenCode 调色板'), '缺中文品牌标题')
   assert.ok(html.includes('暖橙'), '缺中文色系组名')
   assert.ok(html.includes('system（默认）'), '缺 system 中文标签')
+  assert.ok(html.includes('东京之夜'), '缺 tokyonight 中文名')
+  assert.ok(html.includes('黑客帝国'), '缺 matrix 中文名')
+  assert.ok(html.includes('德古拉'), '缺 dracula 中文名')
+})
+
+test('面板渲染（英文界面）：主题芯片显示英文原名，不出现中文名', () => {
+  const html = loadPanel('en')
+  assert.ok(html.includes('tokyonight'), '缺 tokyonight 芯片')
+  assert.ok(!html.includes('东京之夜'), '英文界面不应显示中文主题名')
 })

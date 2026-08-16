@@ -3,6 +3,7 @@
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
 import { renderTheme, previewColors, themeNames, themeGroups } from './engine/index.mjs'
 import { FONTS, SANS_STACK } from './engine/map-dsh.mjs'
+import { THEME_ZH } from './engine/zh-names.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
@@ -215,11 +216,15 @@ export function createClient(slotTarget) {
         const shown = q === ''
           ? props.groups()
           : props.groups()
-              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return t.name.indexOf(q) >= 0 }) } })
+              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return (t.name + ' ' + (THEME_ZH[t.name] || '')).toLowerCase().indexOf(q) >= 0 }) } })
               .filter(function (g) { return g.themes.length > 0 })
 
         const muted = 'var(--dsw-alias-label-secondary)'
         const base = 'var(--dsw-alias-label-primary)'
+        // 主题显示名：中文界面用中文名（system 走 i18n 文案）
+        const themeLabel = function (name) {
+          return currentLang === 'zh' && name !== 'system' ? (THEME_ZH[name] || name) : name
+        }
         const fieldLabel = { fontSize: 11, color: muted }
         const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }
         const countStyle = { color: 'var(--dsw-alias-label-dimmed)', fontSize: 11, letterSpacing: 0 }
@@ -284,7 +289,7 @@ export function createClient(slotTarget) {
             },
           }, [
             dot(c && c.primary, 9),
-            t.name === 'system' ? tr('systemDefault') : t.name,
+            t.name === 'system' ? tr('systemDefault') : themeLabel(t.name),
             isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
           ])
         }
@@ -391,32 +396,49 @@ export function createClient(slotTarget) {
               }),
         ])
       }
+      // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
+      const paletteApi = function () {
+        return {
+          getState: getState,
+          toggle: toggle,
+          refresh: refresh,
+          setTheme: setTheme,
+          themeNames: themeNames,
+          groups: function () { return themeGroups() },
+          subscribeLocale: function (fn) {
+            localeListeners.push(fn)
+            return function () {
+              const i = localeListeners.indexOf(fn)
+              if (i >= 0) localeListeners.splice(i, 1)
+            }
+          },
+          previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
+        }
+      }
       disposePanel = slots.inject(slotTarget, function () {
         return slots.register({
           name: slotTarget,
           id: 'opencode-palette',
           order: 30,
           label: function () { return tr('panelName') },
-          inject: function () {
-            return {
-              getState: getState,
-              toggle: toggle,
-              refresh: refresh,
-              setTheme: setTheme,
-              themeNames: themeNames,
-              groups: function () { return themeGroups() },
-              subscribeLocale: function (fn) {
-                localeListeners.push(fn)
-                return function () {
-                  const i = localeListeners.indexOf(fn)
-                  if (i >= 0) localeListeners.splice(i, 1)
-                }
-              },
-              previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
-            }
-          },
+          inject: paletteApi,
         }, Panel)
       })
+      // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
+      // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
+      let disposeSection = null
+      if (slotTarget === 'settings.plugins.tab') {
+        disposeSection = slots.inject('settings.section', function () {
+          return slots.register({
+            name: 'settings.section',
+            id: 'opencode-palette',
+            order: 16,
+            label: function () { return tr('panelName') },
+            inject: paletteApi,
+          }, Panel)
+        })
+      }
+      disposeSection = disposeSection || null
     }
 
     // 卸载清理（cordis 语义：effect fn 立即执行，返回值才是清理器）
@@ -424,6 +446,7 @@ export function createClient(slotTarget) {
       return function () {
         try { clearStyle() } catch (e) { /* 忽略 */ }
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
+        try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
         try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
         try { if (localeObserver) localeObserver.disconnect() } catch (e) { /* 忽略 */ }
       }

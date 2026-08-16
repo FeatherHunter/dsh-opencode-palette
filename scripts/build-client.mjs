@@ -18,7 +18,7 @@ const RUNTIME_FILE = join(ROOT, 'runtime', 'client.mjs')
 const PKG_DIR = join(ROOT, 'package')
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
-const MODULE_ORDER = ['resolve', 'map-dsh', 'generate', 'registry', 'grouping', 'index', 'client']
+const MODULE_ORDER = ['resolve', 'map-dsh', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'client']
 
 const JSON_IMPORT_RE = /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/
 const JS_IMPORT_RE = /^import \{ ([^}]+) \} from '\.\/([A-Za-z0-9_\/-]+)\.mjs'$/
