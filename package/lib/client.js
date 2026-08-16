@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.6.0 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v1.6.1 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 源：src/engine/* + runtime/client.mjs（npm run build 重新生成）
  */
@@ -8020,7 +8020,7 @@ function saveState(state) {
 }
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，html[lang] 为信号源）──
 const I18N = {
-  panelName: { zh: 'OpenCode 调色板', en: 'Opencode Palette' },
+  panelName: { zh: 'opencode调色板', en: 'Opencode Palette' },
   subtitle: { zh: '34 款 opencode 官方配色主题，点击即切换', en: '34 official opencode themes — click to switch' },
   enabled: { zh: '已启用', en: 'Enabled' },
   disabled: { zh: '已停用', en: 'Disabled' },

@@ -64,7 +64,7 @@ test('面板渲染（英文界面）：不抛错，输出品牌标题与主题�
 
 test('面板渲染（中文界面）：输出 OpenCode 调色板与中文组名', () => {
   const html = loadPanel('zh-CN')
-  assert.ok(html.includes('OpenCode 调色板'), '缺中文品牌标题')
+  assert.ok(html.includes('opencode调色板'), '缺中文品牌标题（opencode 与调色板之间无空格）')
   assert.ok(html.includes('暖橙'), '缺中文色系组名')
   assert.ok(html.includes('system（默认）'), '缺 system 中文标签')
   assert.ok(html.includes('东京之夜'), '缺 tokyonight 中文名')

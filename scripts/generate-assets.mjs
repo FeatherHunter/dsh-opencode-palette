@@ -127,7 +127,7 @@ const L = {
     matrixSub: '点击任意一款，整个界面立即换上它的配色',
     stripsTitle: '每个主题，逐一拆解',
     stripsSub: '背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功 —— 定义每个主题气质的 7 种颜色',
-    panelName: 'OpenCode 调色板',
+    panelName: 'opencode调色板',
     enabled: '已启用',
     subtitle: '34 款 opencode 官方配色主题，点击即切换',
     typography: '字体字号',
