@@ -1,4 +1,3 @@
-<!-- dsh-opencode-palette setup guide -->
 <svg xmlns="http://www.w3.org/2000/svg" width="1000" height="590" viewBox="0 0 1000 590">
 <rect width="100%" height="100%" fill="#0d0d0d"/>
 <rect x="0" y="0" width="178" height="590" fill="#111111"/>
@@ -15,12 +14,12 @@
 <rect x="924" y="42" width="36" height="20" rx="10" fill="rgba(250,178,131,0.4)"/><circle cx="949" cy="52" r="7" fill="#FAB283"/>
 <text x="222" y="82" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="15.5" fill="#8b8b95">34 official opencode themes — click to switch</text>
 <text x="222" y="120" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#a1a1aa">Typography</text>
-<rect x="222" y="130" width="136" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>
-<rect x="226" y="134" width="128" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#f0f0f0">Monospace (terminal)</text>
-<rect x="364" y="130" width="92" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>
-<text x="372" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#8b8b95">Regular (UI)</text>
-<rect x="464" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="478" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13.5" fill="#f0f0f0">Font size 13px ▾</text>
-<rect x="592" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="606" y="147" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#f0f0f0">JetBrains Mono ▾</text>
+<rect x="222" y="130" width="179" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>
+<rect x="226" y="134" width="171" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#f0f0f0">Monospace (terminal)</text>
+<rect x="407" y="130" width="114" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>
+<text x="415" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#8b8b95">Regular (UI)</text>
+<rect x="529" y="130" width="131" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="539" y="147" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13.5" fill="#f0f0f0">Font size 13px ▾</text>
+<rect x="668" y="130" width="150" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="678" y="147" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="13.5" fill="#f0f0f0">JetBrains Mono ▾</text>
 <text x="222" y="192" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#a1a1aa">Themes · 34 · by color family</text>
 <text x="222" y="224" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="14.5" fill="#c8c8d0">● Warm</text>
 <g><rect x="292" y="208" width="108" height="26" rx="6" fill="#0A0A0A" stroke="#FAB283" stroke-opacity="0.7"/><circle cx="304" cy="221" r="4.5" fill="#FAB283"/><text x="314" y="225" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="14.5" fill="#EEEEEE">opencode</text></g>

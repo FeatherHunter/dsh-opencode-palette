@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.5.0 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v1.5.1 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 源：src/engine/* + runtime/client.mjs（npm run build 重新生成）
  */
@@ -8008,8 +8008,8 @@ const I18N = {
   enableTitle: { zh: '点击启用主题', en: 'Click to enable' },
   typography: { zh: '字体字号', en: 'Typography' },
   bodyStyle: { zh: '正文样式', en: 'Body style' },
-  mono: { zh: '等宽字体（终端风）', en: 'Monospace (terminal)' },
-  sans: { zh: '常规字体（界面风）', en: 'Regular (UI)' },
+  mono: { zh: '等宽（终端风）', en: 'Monospace (terminal)' },
+  sans: { zh: '常规（界面风）', en: 'Regular (UI)' },
   fontSize: { zh: '字号', en: 'Font size' },
   codeFont: { zh: '代码字体', en: 'Code font' },
   fontPreview: { zh: '等宽', en: 'mono' },
@@ -8146,20 +8146,23 @@ function createClient(slotTarget) {
         const h = react.createElement
         const [query, setQuery] = react.useState('')
         const [fontOpen, setFontOpen] = react.useState(false)
+        const [sizeOpen, setSizeOpen] = react.useState(false)
         const fontRef = react.useRef(null)
+        const sizeRef = react.useRef(null)
         // UI 快照：所有引擎动作后 setUi(props.getState()) 重同步，避免受控控件显示值漂移
         const [ui, setUi] = react.useState(props.getState())
         const st = ui
 
         // 字体下拉：点击外部关闭
         react.useEffect(function () {
-          if (!fontOpen) return
+          if (!fontOpen && !sizeOpen) return
           function onDoc(e) {
             if (fontRef.current && !fontRef.current.contains(e.target)) setFontOpen(false)
+            if (sizeRef.current && !sizeRef.current.contains(e.target)) setSizeOpen(false)
           }
           document.addEventListener('mousedown', onDoc)
           return function () { document.removeEventListener('mousedown', onDoc) }
-        }, [fontOpen])
+        }, [fontOpen, sizeOpen])
 
         // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
         react.useEffect(function () {
@@ -8197,9 +8200,26 @@ function createClient(slotTarget) {
               }, opt.label)
             }))
         }
-        const field = function (labelText, node) {
-          return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 5 } },
-            h('span', { style: fieldLabel }, labelText), node)
+        // 通用下拉（字号 / 代码字体）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
+        const dd = function (open, setOpen, ref, labelNode, items) {
+          return h('div', { ref: ref, style: { position: 'relative' } }, [
+            h('button', {
+              onClick: function () { setOpen(!open) },
+              style: {
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+                color: base, fontFamily: 'var(--dsw-font-family)',
+              },
+            }, [labelNode, h('span', { style: { color: muted } }, '▾')]),
+            open ? h('div', {
+              style: {
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
+                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
+                borderRadius: 8, minWidth: 200, padding: 4, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+              },
+            }, items) : null,
+          ])
         }
         const dot = function (color, size) {
           return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || '#555', display: 'inline-block', flex: 'none' } })
@@ -8228,43 +8248,6 @@ function createClient(slotTarget) {
           ])
         }
 
-        // 自定义字体下拉（每个选项用其字体预览）
-        const fontDropdown = h('div', { ref: fontRef, style: { position: 'relative' } }, [
-          h('button', {
-            onClick: function () { setFontOpen(!fontOpen) },
-            style: {
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
-              background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
-              borderRadius: 6, padding: '6px 12px', fontSize: 12, cursor: 'pointer', minWidth: 200,
-              color: base, fontFamily: 'var(--dsw-font-family)',
-            },
-          }, [
-            h('span', { style: { fontFamily: FONTS[st.fontKey] || FONTS['JetBrains Mono'] } }, st.fontKey),
-            h('span', { style: { color: muted } }, '▾'),
-          ]),
-          fontOpen ? h('div', {
-            style: {
-              position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
-              background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-              borderRadius: 8, minWidth: 230, padding: 4, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
-            },
-          }, Object.keys(FONTS).map(function (k) {
-            const on = k === st.fontKey
-            return h('div', {
-              key: k,
-              onClick: function () {
-                props.refresh(st.mode, st.size, k)
-                setUi(props.getState())
-                setFontOpen(false)
-              },
-              style: {
-                padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
-                color: on ? base : muted,
-              },
-            }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + tr('fontPreview')))
-          })) : null,
-        ])
 
 
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
@@ -8299,14 +8282,43 @@ function createClient(slotTarget) {
           h('div', { style: secTitle }, [
             h('span', null, tr('typography')),
           ]),
-          h('div', { style: { display: 'flex', alignItems: 'flex-end', gap: 20, flexWrap: 'wrap' } }, [
-            field(tr('bodyStyle'), seg(st.mode, [
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' } }, [
+            seg(st.mode, [
               { value: 'mono', label: tr('mono') },
               { value: 'tui', label: tr('sans') },
-            ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) })),
-            field(tr('fontSize'), seg(st.size, [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) { return { value: s, label: s + 'px' } }),
-              function (v) { props.refresh(st.mode, Number(v), st.fontKey); setUi(props.getState()) })),
-            field(tr('codeFont'), fontDropdown),
+            ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) }),
+            dd(sizeOpen, setSizeOpen, sizeRef,
+              h('span', null, tr('fontSize') + ' ' + st.size + 'px'),
+              [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) {
+                const on = s === st.size
+                return h('div', {
+                  key: String(s),
+                  onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false) },
+                  style: {
+                    padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
+                    background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    color: on ? base : muted,
+                  },
+                }, String(s) + 'px')
+              })),
+            dd(fontOpen, setFontOpen, fontRef,
+              h('span', { style: { fontFamily: FONTS[st.fontKey] || FONTS['JetBrains Mono'] } }, st.fontKey),
+              Object.keys(FONTS).map(function (k) {
+                const on = k === st.fontKey
+                return h('div', {
+                  key: k,
+                  onClick: function () {
+                    props.refresh(st.mode, st.size, k)
+                    setUi(props.getState())
+                    setFontOpen(false)
+                  },
+                  style: {
+                    padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
+                    background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    color: on ? base : muted,
+                  },
+                }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + tr('fontPreview')))
+              })),
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [

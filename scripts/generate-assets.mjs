@@ -247,6 +247,21 @@ function stripsDoc(lang) {
     '</svg>',
   ].join('\n')
 }
+// 文本宽度估算（CJK 全角 = 1em；ASCII 平均 0.56em；空格 0.3em）——按钮宽度按实际文本自适应，防文字溢出背景
+function textW(s, fs) {
+  let w = 0
+  for (const ch of String(s)) {
+    const c = ch.codePointAt(0)
+    if ((c >= 0x2e80 && c <= 0x9fff) || (c >= 0xff00 && c <= 0xffef) || c === 0x3000) w += fs
+    else if (ch === ' ') w += fs * 0.3
+    else w += fs * 0.56
+  }
+  return Math.ceil(w)
+}
+function btnW(s, fs) {
+  return textW(s, fs) + 20 // 左右各 10px 外内边距；内高亮框 x+4 宽 btnW-8，文字 x+10 → 两侧各留 6px
+}
+
 // ── setup-panel ──
 function setupDoc(lang) {
   const T = L[lang]
@@ -254,10 +269,14 @@ function setupDoc(lang) {
   const SPW = 1000, SPH = 590
   const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" font-weight="700" fill="#140a1e">' + n + '</text>'
   const nav = (zh, en) => lang === 'zh' ? zh : en
-  // 正文样式按钮宽度按语言自适应（等宽字体 11px 约 6.6px/字符）
-  const monoW = lang === 'zh' ? 88 : 136
-  const sansW = lang === 'zh' ? 88 : 92
+  // 排印行按钮宽度按实际文本估算（防文字溢出背景），同一行流式排布
+  const monoW = btnW(T.mono, 14.5)
+  const sansW = btnW(T.sans, 14.5)
+  const sizeW = Math.max(btnW(T.fontSize + ' ▾', 13.5), 96)
+  const fontW = Math.max(btnW(T.codeFont + ' ▾', 13.5), 150)
   const btnX2 = 222 + monoW + 6
+  const btnX3 = btnX2 + sansW + 8
+  const btnX4 = btnX3 + sizeW + 8
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + SPW + '" height="' + SPH + '" viewBox="0 0 ' + SPW + ' ' + SPH + '">',
     '<rect width="100%" height="100%" fill="#0d0d0d"/>',
@@ -275,13 +294,13 @@ function setupDoc(lang) {
     '<rect x="924" y="42" width="36" height="20" rx="10" fill="rgba(250,178,131,0.4)"/><circle cx="949" cy="52" r="7" fill="#FAB283"/>',
     '<text x="222" y="82" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + esc(T.subtitle) + '</text>',
     '<text x="222" y="120" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.typography + '</text>',
-    // 正文样式：两个独立按钮（选中态高亮），文字各自在框内
+    // 正文样式：两个独立按钮（选中态高亮），文字各自在框内；宽度按文本自适应
     '<rect x="222" y="130" width="' + monoW + '" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>',
     '<rect x="226" y="134" width="' + (monoW - 8) + '" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="' + SANS + '" font-size="14.5" fill="#f0f0f0">' + T.mono + '</text>',
     '<rect x="' + btnX2 + '" y="130" width="' + sansW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>',
     '<text x="' + (btnX2 + 8) + '" y="147" font-family="' + SANS + '" font-size="14.5" fill="#8b8b95">' + T.sans + '</text>',
-    '<rect x="' + (btnX2 + sansW + 8) + '" y="130" width="120" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 22) + '" y="147" font-family="' + SANS + '" font-size="13.5" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
-    '<rect x="' + (btnX2 + sansW + 136) + '" y="130" width="180" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX2 + sansW + 150) + '" y="147" font-family="' + MONO + '" font-size="13.5" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
+    '<rect x="' + btnX3 + '" y="130" width="' + sizeW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX3 + 10) + '" y="147" font-family="' + SANS + '" font-size="13.5" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
+    '<rect x="' + btnX4 + '" y="130" width="' + fontW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX4 + 10) + '" y="147" font-family="' + MONO + '" font-size="13.5" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
     '<text x="222" y="192" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.themeSection + '</text>',
     '<text x="222" y="224" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupWarm + '</text>',
     chipSvg(292, 208, 'opencode', 108), chipSvg(408, 208, 'orng', 90), chipSvg(506, 208, 'vesper', 96),
