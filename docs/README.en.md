@@ -10,17 +10,6 @@
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
 ![hero](../assets/hero-en.svg)
-
-## 📦 My other skills · More from FeatherHunter
-
-A three-piece DeepSeek Harness ecosystem — each covers a different pain point:
-
-| Repo | One-liner (pain → fix) |
-| --- | --- |
-| [⚡ **dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) | Tired of hunting history and copy-pasting prompts? **24 deep templates, one click into your input** — no memory, no search. |
-| [🧠 **dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) | AI that chats but can't get things done? **25 engineering skills (wayfinder / triage / grilling / handoff), installed in one prompt.** |
-
-> The three repos cross-link: **re-skin** (this one) · **write prompts** (dsh-prompt) · **make AI work** (skills-deck).
 ## Install in one command
 
 Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:
@@ -93,6 +82,13 @@ Your theme and typography choices are stored locally and survive refresh and res
 ### Bilingual panel
 
 The panel follows your DSH interface language automatically — switch the language in DSH and the panel follows instantly.
+
+## More from the author
+
+If you like this plugin, you might also like:
+
+- [**dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box.
+- [**dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt.
 
 ## Development
 
