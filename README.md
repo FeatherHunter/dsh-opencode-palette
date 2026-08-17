@@ -2,7 +2,7 @@
 
 **🌐 [中文](README.md) · [English](docs/README.en.md)**
 
-**把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 34 款主题，一键切换。**
+**把 opencode 的经典配色带进 DeepSeek Harness —— 34 款主题，眼睛舒服，码字开心。**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)

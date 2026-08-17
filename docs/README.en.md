@@ -2,7 +2,7 @@
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
+**The complete opencode palette for DeepSeek Harness — 34 official themes. Easier on the eyes, nicer to code in.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
