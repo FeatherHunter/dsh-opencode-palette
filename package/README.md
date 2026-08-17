@@ -2,7 +2,7 @@
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**The complete opencode palette for DeepSeek Harness — 34 official themes, one click.**
+**The complete opencode palette for DeepSeek Harness — 34 official themes. Easier on the eyes, nicer to code in.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
@@ -10,7 +10,6 @@
 [![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
 
 ![hero](../assets/hero-en.svg)
-
 ## Install in one command
 
 Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:
@@ -83,6 +82,13 @@ Your theme and typography choices are stored locally and survive refresh and res
 ### Bilingual panel
 
 The panel follows your DSH interface language automatically — switch the language in DSH and the panel follows instantly.
+
+## More from the author
+
+If you like this plugin, you might also like:
+
+- [**dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box.
+- [**dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt.
 
 ## Development
 

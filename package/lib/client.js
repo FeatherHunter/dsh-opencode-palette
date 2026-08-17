@@ -132,6 +132,10 @@ __mods["resolve"] = { ansiToHex, rgbToHex, hexToRgb, shade, withAlpha, contrastT
 // DSH 升级改 CSS 变量名时，只需要改这一个文件。
 // 值 = opencode 色位名；generate.mjs 负责取值与派生（提亮/透明/对比色）。
 
+const { shade, withAlpha, contrastText } = __mods["resolve"]
+
+// 派生 token 的 helpers 来自 resolve.mjs（shade/withAlpha/contrastText）
+
 // ── 1. token 层：theme.overrideTokens 注册的 --dsw-alias-* 变量 ──
 // 格式: [DSH 变量, 来源色位]（来源缺失/透明/解析失败 → 该 token 自动跳过，不污染）
 const TOKEN_MAP = [
@@ -167,7 +171,6 @@ const TOKEN_MAP = [
   ['--dsw-alias-button-primary-dimmed', 'backgroundPanel'],
   // 文字层级
   ['--dsw-alias-label-primary', 'text'],
-  ['--dsw-alias-label-primary-inverted', 'text'],
   ['--dsw-alias-label-primary-dimmed', 'text'],
   ['--dsw-alias-brand-primary-invert', 'text'],
   ['--dsw-alias-label-secondary', 'textMuted'],
@@ -194,6 +197,7 @@ const TOKEN_MAP = [
 const DERIVED_TOKENS = [
   ['--dsw-alias-button-primary-hover', (c) => shade(c.primary, 0.12)],
   ['--dsw-alias-button-info-hover', (c) => shade(c.info, 0.12)],
+  ['--dsw-alias-label-primary-inverted', (c) => contrastText(c.text)],
   ['--dsw-alias-label-primary-foreground', (c) => contrastText(c.primary)],
   ['--dsw-alias-label-dimmed', (c) => withAlpha(c.textMuted, 0.8)],
   ['--dsw-alias-button-tool-bar-fill', (c) => withAlpha(c.text, 0.1)],

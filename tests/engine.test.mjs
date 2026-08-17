@@ -75,6 +75,31 @@ test('opencode 官方主题: 关键色与官方 JSON 一致', () => {
   assert.equal(p.primary, '#FAB283')
 })
 
+test('opencode 徽标对比度: label-primary-inverted 与 label-primary 相反明度（dark/light）', () => {
+  const j = getThemeJson('opencode')
+  const dt = buildTokens(resolveThemeColors(j, 'dark'))
+  assert.equal(dt['--dsw-alias-label-primary'].dark, '#EEEEEE')
+  assert.equal(dt['--dsw-alias-label-primary-inverted'].dark, '#141414')
+  const lt = buildTokens(resolveThemeColors(j, 'light'))
+  assert.equal(lt['--dsw-alias-label-primary'].dark, '#1A1A1A')
+  assert.equal(lt['--dsw-alias-label-primary-inverted'].dark, '#F4F4F5')
+})
+
+test('HARNESS 文字可读性不变式: 全部主题 dark/light 下 inverted ≠ label-primary', () => {
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const json = getThemeJson(name)
+    for (const mode of ['dark', 'light']) {
+      const t = buildTokens(resolveThemeColors(json, mode))
+      const primary = t['--dsw-alias-label-primary'] && t['--dsw-alias-label-primary'].dark
+      const inverted = t['--dsw-alias-label-primary-inverted'] && t['--dsw-alias-label-primary-inverted'].dark
+      assert.ok(primary, name + '/' + mode + ' 缺 --dsw-alias-label-primary')
+      assert.ok(inverted, name + '/' + mode + ' 缺 --dsw-alias-label-primary-inverted')
+      assert.notEqual(inverted, primary, name + '/' + mode + ' 徽标文字与底色同色不可读: ' + inverted)
+    }
+  }
+})
+
 test('代表性主题色值: dracula / matrix / gruvbox', () => {
   assert.equal(renderTheme('dracula', TYPO).tokens['--dsw-alias-bg-base'].dark, '#282A36')
   assert.equal(renderTheme('matrix', TYPO).tokens['--dsw-alias-bg-base'].dark, '#0A0E0A')
