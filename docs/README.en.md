@@ -11,6 +11,16 @@
 
 ![hero](../assets/hero-en.svg)
 
+## 📦 My other skills · More from FeatherHunter
+
+A three-piece DeepSeek Harness ecosystem — each covers a different pain point:
+
+| Repo | One-liner (pain → fix) |
+| --- | --- |
+| [⚡ **dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) | Tired of hunting history and copy-pasting prompts? **24 deep templates, one click into your input** — no memory, no search. |
+| [🧠 **dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) | AI that chats but can't get things done? **25 engineering skills (wayfinder / triage / grilling / handoff), installed in one prompt.** |
+
+> The three repos cross-link: **re-skin** (this one) · **write prompts** (dsh-prompt) · **make AI work** (skills-deck).
 ## Install in one command
 
 Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:

@@ -11,6 +11,16 @@
 
 ![hero](assets/hero-zh.svg)
 
+## 📦 本人的其他技能 · More from FeatherHunter
+
+DeepSeek Harness 生态三件套，互相配合干活更顺：
+
+| 仓库 | 一句话（痛点 → 解决） |
+| --- | --- |
+| [⚡ **dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) | 写 Prompt 靠搜历史、靠复制粘贴？**24 条深度模板点一下进输入框**，不记忆、不搜索。 |
+| [🧠 **dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) | AI 只会聊天、不会干活？**25 个工程技能（wayfinder / triage / grilling / handoff）装好即用**，一个 Prompt 全装完。 |
+
+> 三个仓库互相联动：**换肤**（本仓库）· **写 Prompt**（dsh-prompt）· **让 AI 干活**（skills-deck）。
 ## 一条命令完成安装
 
 需要 **DSH CLI**（DeepSeek Harness 命令行工具）。如果还没有，先安装：
