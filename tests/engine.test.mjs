@@ -100,6 +100,24 @@ test('HARNESS 文字可读性不变式: 全部主题 dark/light 下 inverted ≠
   }
 })
 
+test('opencode 导航项派生色: hover/active 用 text 的 alpha 叠加（不再取 DSH 浅色默认）', () => {
+  const j = getThemeJson('opencode')
+  const dt = buildTokens(resolveThemeColors(j, 'dark'))
+  assert.equal(dt['--dsw-specific-sidebar-nav-item-hover'].dark, 'rgba(238,238,238,0.08)')
+  assert.equal(dt['--dsw-specific-sidebar-nav-item-active'].dark, 'rgba(238,238,238,0.14)')
+  assert.equal(dt['--dsw-specific-sidebar-nav-item-active-accent'].dark, 'rgba(250,178,131,0.35)')
+})
+
+test('设置面板导航项悬停不变式: hover/active/accent 全部主题齐全且为 alpha 叠加', () => {
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const r = renderTheme(name, TYPO)
+    for (const v of ['--dsw-specific-sidebar-nav-item-hover', '--dsw-specific-sidebar-nav-item-active', '--dsw-specific-sidebar-nav-item-active-accent']) {
+      assert.ok(r.tokens[v] && /^rgba\(/.test(r.tokens[v].dark), name + ' 缺/异常 ' + v)
+    }
+  }
+})
+
 test('代表性主题色值: dracula / matrix / gruvbox', () => {
   assert.equal(renderTheme('dracula', TYPO).tokens['--dsw-alias-bg-base'].dark, '#282A36')
   assert.equal(renderTheme('matrix', TYPO).tokens['--dsw-alias-bg-base'].dark, '#0A0E0A')

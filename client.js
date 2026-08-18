@@ -207,6 +207,11 @@ const DERIVED_TOKENS = [
   ['--dsw-alias-scrollbar-bg-l2', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-hover-l1', (c) => c.borderActive],
   ['--dsw-alias-scrollbar-hover-l2', (c) => c.borderActive],
+  // 侧边栏/设置面板导航项悬停与选中：DSH 默认随明暗模式取浅/深两套值，
+  // 调色板未覆盖时在浅色系统（无 data-ds-dark-theme）下会白字撞浅底
+  ['--dsw-specific-sidebar-nav-item-hover', (c) => withAlpha(c.text, 0.08)],
+  ['--dsw-specific-sidebar-nav-item-active', (c) => withAlpha(c.text, 0.14)],
+  ['--dsw-specific-sidebar-nav-item-active-accent', (c) => withAlpha(c.primary, 0.35)],
 ]
 
 // ── 3. shiki 语法高亮变量（DSH 只认 10 个，opencode 9 色位做角色合并）──

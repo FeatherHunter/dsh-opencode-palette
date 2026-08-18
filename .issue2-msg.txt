@@ -1,0 +1,10 @@
+[dsh-opencode-palette] 修复设置面板导航项悬停白字撞浅底：补 sidebar-nav-item hover/active 派生覆盖（fixes #2）
+
+- map-dsh.mjs DERIVED_TOKENS 新增：
+  - --dsw-specific-sidebar-nav-item-hover → withAlpha(text, 0.08)
+  - --dsw-specific-sidebar-nav-item-active → withAlpha(text, 0.14)
+  - --dsw-specific-sidebar-nav-item-active-accent → withAlpha(primary, 0.35)
+- 根因：调色板覆盖了 label-primary/sidebar-fill 但漏掉 sidebar-nav-item 三变量；主题偏好 system 且系统浅色（无 data-ds-dark-theme）时，hover 背景落到 DSH 浅色默认 #F1F3F5，白字 #EEEEEE 撞浅底
+- 全量差集审计 17 个明暗随变且未覆盖变量，其余为蒙层/边框/状态色，无同class文字风险
+- tests：opencode 派生值断言 + 全主题 hover/active 齐全不变式；npm test 25/25
+- 重建 client.js / package/lib/client.js
