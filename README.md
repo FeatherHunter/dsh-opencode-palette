@@ -26,7 +26,23 @@ dsh plugin --profile web add dsh-opencode-palette
 
 安装即完成，**零配置**：本插件采用 DSH 官方 bundle 机制——包内自带 `cordis.patch.yml`（声明 `dsh.bundle.patch`），`dsh plugin add` 装完后自动把插件加入 profile 的 `dsh.profile.bundles` 层栈，DSH 启动时直接装配；`dsh plugin remove` 卸载时自动移除。全程无需手动编辑任何文件，也不依赖 pnpm 构建脚本（无 postinstall，pnpm v10 不会拦截）。重启 DSH（或刷新浏览器页面）即生效，插件默认启用官方 `opencode` 主题（深黑底 + 橙 / 蓝 / 紫）。
 
-> **从 1.4.x 及更早版本升级**：旧版本通过 postinstall 在 `~/.dsh/profiles/web/cordis.patch.yml` 里写过注册块。升级前请删除其中的 `opencode-palette` 注册块（bundle 装配后残留会导致重复注册），再重新执行 `dsh plugin --profile web add dsh-opencode-palette`。
+## 升级
+
+`dsh plugin` 子命令透传 pnpm verb，所以升级就是 `update` + 自动对齐 manifest：
+
+```bash
+dsh plugin --profile web update dsh-opencode-palette
+```
+
+等价方案（幂等重装，pnpm 会升到 latest 匹配版本）：
+
+```bash
+dsh plugin --profile web add dsh-opencode-palette
+```
+
+升级后无需手动编辑任何配置——`dsh.profile.bundles` 在每次成功的 plugin 子命令后都会自动和已装状态对齐，bundle 层的 `cordis.patch.yml` 自动接入。重启 DSH（或刷新浏览器页面）即生效。需要钉回历史版本：`dsh plugin --profile web add dsh-opencode-palette@<版本>`。
+
+> **从 1.4.x 及更早版本升级**：旧版本通过 postinstall 在 `~/.dsh/profiles/web/cordis.patch.yml` 里写过注册块。升级前请删除其中的 `opencode-palette` 注册块（bundle 装配后残留会导致重复注册），再执行上面的 `update` 或 `add`。
 
 ## 它是什么
 

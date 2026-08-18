@@ -26,7 +26,23 @@ dsh plugin --profile web add dsh-opencode-palette
 
 That's it — **zero configuration**: this plugin uses DSH's official bundle mechanism — it ships its own `cordis.patch.yml` (declared via `dsh.bundle.patch`), so `dsh plugin add` automatically joins the package into the profile's `dsh.profile.bundles` layer stack, where the DSH loader assembles it at startup; `dsh plugin remove` removes it automatically. No manual file editing, and no pnpm build scripts (no postinstall, so pnpm v10 never blocks it). Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
 
-> **Upgrading from 1.4.x or earlier**: old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Before upgrading, delete the `opencode-palette` block from that file (a leftover would duplicate the bundle registration), then re-run `dsh plugin --profile web add dsh-opencode-palette`.
+## Upgrade
+
+`dsh plugin` forwards pnpm verbs, so upgrading is `update` + automatic manifest reconciliation:
+
+```bash
+dsh plugin --profile web update dsh-opencode-palette
+```
+
+Equivalent (idempotent re-add — pnpm bumps to the latest matching version):
+
+```bash
+dsh plugin --profile web add dsh-opencode-palette
+```
+
+No manual config edits are needed after the upgrade — `dsh.profile.bundles` is reconciled against the installed state after every successful plugin subcommand, and the bundle layer's `cordis.patch.yml` joins the stack automatically. Restart DSH (or refresh the browser page) to pick up the new build. To pin to an older version: `dsh plugin --profile web add dsh-opencode-palette@<version>`.
+
+> **Upgrading from 1.4.x or earlier**: old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Before upgrading, delete the `opencode-palette` block from that file (a leftover would duplicate the bundle registration), then run `update` or `add` as shown above.
 
 ## What it does
 
