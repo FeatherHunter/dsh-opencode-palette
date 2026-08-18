@@ -8018,7 +8018,7 @@ function saveState(state) {
     if (globalThis.localStorage) localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch (e) { /* 忽略持久化失败 */ }
 }
-// ── i18n：面板文案双语表（跟随 DSH 界面语言，html[lang] 为信号源）──
+// ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
 const I18N = {
   panelName: { zh: 'opencode调色板', en: 'Opencode Palette' },
   subtitle: { zh: '34 款 opencode 官方配色主题，点击即切换', en: '34 official opencode themes — click to switch' },
@@ -8049,12 +8049,24 @@ const I18N = {
   'group.special': { zh: '特殊', en: 'Special' },
 }
 
-// 语言检测：html[lang] 优先，回退浏览器语言
+// 语言检测（回退）：html[lang] 优先，回退浏览器语言
 function getLang() {
   try {
     const l = (document.documentElement && document.documentElement.lang) || (navigator.language || 'en')
     return /^zh/i.test(l) ? 'zh' : 'en'
   } catch (e) { return 'en' }
+}
+
+// 把 key → {zh,en} 表转成 locale 服务注册形态 {zh: {...}, en: {...}}
+function toLocaleDicts(i18n) {
+  const zh = {}
+  const en = {}
+  for (const key in i18n) {
+    const pair = i18n[key]
+    zh[key] = pair.zh
+    en[key] = pair.en
+  }
+  return { zh, en }
 }
 
 
@@ -8068,20 +8080,35 @@ function createClient(slotTarget) {
     let tokenDispose = null
     let styleTag = null
 
-    // ── i18n 运行时：语言跟随 DSH（html[lang] 变化即通知面板重渲染）──
-    let currentLang = getLang()
+    // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
+    const localeSvc = ctx.get('locale') || ctx.locale || null
+    const LOCALE_NS = 'opencode-palette'
+    let dictDispose = null
+    let localeUnsub = null
+    let currentLang = localeSvc ? localeSvc.getLocale().active : getLang()
     const localeListeners = []
-    function tr(key) { const e = I18N[key]; return e ? e[currentLang] : key }
+    function currentLocale() { return localeSvc ? localeSvc.getLocale().active : getLang() }
+    function tr(key) {
+      const entry = I18N[key]
+      return entry ? (entry[currentLang] !== undefined ? entry[currentLang] : key) : key
+    }
     function notifyLocale() {
-      const next = getLang()
+      const next = currentLocale()
       if (next === currentLang) return
       currentLang = next
       for (const fn of localeListeners) { try { fn() } catch (e) { /* 忽略 */ } }
     }
+    // 监听语言变化：官方 locale 服务优先；无该服务的环境（如旧版 DSH/测试沙箱）回退监听 html[lang]
     let localeObserver = null
-    if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
+    if (localeSvc && typeof localeSvc.subscribe === 'function') {
+      localeUnsub = localeSvc.subscribe(notifyLocale)
+    } else if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
       localeObserver = new MutationObserver(notifyLocale)
       localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] })
+    }
+    // 把面板双语表注册进 locale 服务：标题/文案随 DSH 语言实时切换（disposer 交给清理器）
+    if (localeSvc && typeof localeSvc.register === 'function') {
+      try { dictDispose = localeSvc.register(LOCALE_NS, toLocaleDicts(I18N)) } catch (e) { /* 忽略 */ }
     }
 
     function safeThemeName(name) {
@@ -8426,6 +8453,8 @@ function createClient(slotTarget) {
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
         try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
         try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
+        try { if (dictDispose) dictDispose() } catch (e) { /* 忽略 */ }
+        try { if (localeUnsub) localeUnsub() } catch (e) { /* 忽略 */ }
         try { if (localeObserver) localeObserver.disconnect() } catch (e) { /* 忽略 */ }
       }
     }, 'dsh-opencode-palette: styles')

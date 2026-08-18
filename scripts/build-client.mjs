@@ -104,7 +104,7 @@ async function main() {
     // TypeError: {} is not a function（dsh-opencode-palette v1.2.0 加载失败的根因）
     '    var __mods = {};',
     modules,
-    '    exports.inject = ' + q(['theme', 'slots']),
+    '    exports.inject = ' + q(['theme', 'slots', 'locale']),
     '    exports.apply = __mods[' + qClient + '].createClient(' + qSettings + ')',
     '    return module.exports',
     '  },',
