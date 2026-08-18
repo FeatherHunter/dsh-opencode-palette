@@ -10,5 +10,8 @@
     "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs"
   },
   "engines": { "node": ">=20" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" }
+  },
   "license": "MIT"
 }
