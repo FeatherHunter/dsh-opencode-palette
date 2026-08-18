@@ -1,0 +1,5 @@
+[dsh-opencode-palette] v1.6.2：发布版本 bump（HARNESS 徽标对比度修复上线）
+
+- package.json：1.6.1 → 1.6.2
+- 重建 client.js / package/lib/*（版本头 + 修复后的 bundle）
+- npm 官方源 latest=1.6.2 已验证；GitHub Release v1.6.2 已发（tgz 附件）
