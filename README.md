@@ -124,3 +124,9 @@ npm run assets  # 重新生成本 README 中的 SVG 图
 ## 许可与归属
 
 MIT © FeatherHunter。主题定义来自 [opencode](https://github.com/anomalyco/opencode)（MIT）及其上游主题项目 —— 见 [THIRD_PARTY_NOTICES](src/themes/THIRD_PARTY_NOTICES.md)。
+
+## 反馈与联系
+
+遇到问题或有改进建议，欢迎直接 [提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)；也欢迎扫码添加作者飞书，备注 `dsh-opencode-palette`，一起交流。
+
+<img src="assets/feishu-qr.png" alt="作者飞书二维码" width="260" />

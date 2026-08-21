@@ -124,3 +124,9 @@ Good starting points: new upstream themes (run `npm run sync`), mapping refineme
 ## License & credits
 
 MIT © FeatherHunter. Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](../src/themes/THIRD_PARTY_NOTICES.md).
+
+## Feedback & Contact
+
+Found a bug or have an idea? Please [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). You can also scan the QR code to add the author on Feishu (mention `dsh-opencode-palette`).
+
+<img src="../assets/feishu-qr.png" alt="Author's Feishu QR code" width="260" />
