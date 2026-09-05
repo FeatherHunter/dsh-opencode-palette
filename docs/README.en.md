@@ -1,64 +1,28 @@
-# 🎨 dsh-opencode-palette
+<h1 align="center">🎨 dsh-opencode-palette</h1>
+
+<div align="center">
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**The complete opencode palette for DeepSeek Harness — 34 official themes. Easier on the eyes, nicer to code in.**
+**Built for long coding sessions — 34 eye-friendly themes, one click. Easier on the eyes, nicer to code in.**
+
+*为长时间编程而生 —— 34 款护眼配色一键换上，眼睛舒服，码字开心。*
+
+Your ⭐ is the brightest star in my night sky.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![opencode](https://img.shields.io/badge/themes-opencode%20v1.18.12-orange)](https://github.com/anomalyco/opencode)
-[![tests](https://img.shields.io/badge/tests-20%2F20-green)]()
+[![themes](https://img.shields.io/badge/themes-34%20opencode-orange)](https://github.com/anomalyco/opencode)
+[![tests](https://img.shields.io/badge/tests-31%2F31-green)]()
 
-![hero](../assets/hero-en.svg)
-## Install in one command
-
-Requires the **DSH CLI** (DeepSeek Harness command-line tool). If you don't have it yet:
-
-```bash
-npm install -g @deepseek-ai/dsh
-```
-
-Then install the plugin into your profile:
-
-```bash
-dsh plugin --profile web add dsh-opencode-palette
-```
-
-That's it — **zero configuration**: this plugin uses DSH's official bundle mechanism — it ships its own `cordis.patch.yml` (declared via `dsh.bundle.patch`), so `dsh plugin add` automatically joins the package into the profile's `dsh.profile.bundles` layer stack, where the DSH loader assembles it at startup; `dsh plugin remove` removes it automatically. No manual file editing, and no pnpm build scripts (no postinstall, so pnpm v10 never blocks it). Restart DSH (or refresh the browser page) and the plugin is on, using the official `opencode` theme (deep black with orange / blue / violet).
-
-## Upgrade
-
-`dsh plugin` forwards pnpm verbs, so upgrading is `update` + automatic manifest reconciliation:
-
-```bash
-dsh plugin --profile web update dsh-opencode-palette
-```
-
-Equivalent (idempotent re-add — pnpm bumps to the latest matching version):
-
-```bash
-dsh plugin --profile web add dsh-opencode-palette
-```
-
-No manual config edits are needed after the upgrade — `dsh.profile.bundles` is reconciled against the installed state after every successful plugin subcommand, and the bundle layer's `cordis.patch.yml` joins the stack automatically. Restart DSH (or refresh the browser page) to pick up the new build. To pin to an older version: `dsh plugin --profile web add dsh-opencode-palette@<version>`.
-
-> **Upgrading from 1.4.x or earlier**: old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Before upgrading, delete the `opencode-palette` block from that file (a leftover would duplicate the bundle registration), then run `update` or `add` as shown above.
-
-## What it does
-
-DeepSeek Harness ships with one look. This plugin lets you dress the whole interface in any of the **34 official opencode themes** — `tokyonight`, `dracula`, `gruvbox`, `matrix`, `rose-pine`, `catppuccin ×3`, `solarized`, `synthwave84` …
-
-- Every color comes from opencode's official theme JSON (v1.18.12) — what opencode ships is what you get.
-- One click re-skins everything: backgrounds, buttons, borders, status colors, markdown, and code syntax highlighting.
-- Your choice is remembered across restarts.
-- The panel speaks your language — it follows the DSH interface language (中文 / English).
+</div>
 
 <!-- showcase:start -->
 <h2 align="center"><sub>SHOWCASE</sub><br>Real Look</h2>
 
 <div align="center">
 
-34 official opencode themes — one click re-skins the whole UI, persisted across restarts.
+Staring at a screen ten-plus hours a day, tired eyes are inevitable — a gentler palette lets them rest. opencode's 34 classic themes are loved by developers everywhere: one click dresses your whole DSH, dark themes for the night, light themes for the day.
 
 **👇 This is what it looks like after install (opencode theme).**
 
@@ -76,80 +40,80 @@ DeepSeek Harness ships with one look. This plugin lets you dress the whole inter
 
 <!-- showcase:end -->
 
-## Get started in 30 seconds
+<h2 align="center"><sub>INSTALL</sub><br>Install in one command</h2>
 
-**Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**):
+<div align="center">
 
-![setup panel](../assets/setup-panel-en.svg)
+Requires the **DSH CLI**. **Zero configuration** — restart DSH (or refresh the browser page) and it just works, with the official `opencode` theme on by default.
 
-Click any theme chip — the interface re-skins instantly:
+</div>
 
-![theme switch](../assets/theme-switch-en.svg)
+```bash
+# 1. install the DSH CLI first (skip if you have it)
+npm install -g @deepseek-ai/dsh
 
-## Features
+# 2. add the plugin to your profile
+dsh plugin --profile web add dsh-opencode-palette
+```
 
-### 34 themes and the stories behind their names
+<h2 align="center"><sub>GUIDE</sub><br>Get started in 30 seconds</h2>
 
-Every name has a story:
+1. Open **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**).
+2. Click any theme chip — the interface re-skins instantly. Try a few and find the kindest one for your eyes.
+
+<h2 align="center"><sub>THEMES</sub><br>Features</h2>
+
+<div align="center">
+
+Every theme name has a story behind it, and all 34 live in the settings panel grouped by color family — search and switch. Each theme's 7 core colors — `background · text · primary · accent · error · warning · success` — are defined in `src/themes/`.
+
+</div>
 
 ![theme stories](../assets/theme-stories-en.svg)
 
-### 34 official themes, faithfully ported
+<div align="center">
 
-Each theme shows its 7 core colors at a glance — `background · text · primary · accent · error · warning · success`:
+Typography stays independent from the theme: monospace (terminal) or regular (UI), 11–18 px, 5 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
 
-![palette strips](../assets/palette-strips-en.svg)
+</div>
 
-All 34 at a glance:
+<h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
-![palette matrix](../assets/palette-matrix-en.svg)
+```bash
+dsh plugin --profile web update dsh-opencode-palette
+# pin to an older version:
+dsh plugin --profile web add dsh-opencode-palette@<version>
+```
 
-### Typography, independent from the theme
+<div align="center">
 
-- Body style: monospace (terminal) or regular (UI) — the opencode terminal look or a classic interface look.
-- Font size: 11–18 px.
-- Code font: 5 presets with live preview (JetBrains Mono, Cascadia Code, Fira Code, SF Mono, Consolas).
+<details>
+<summary>Upgrading from 1.4.x or earlier</summary>
 
-### `system` — back to default in one click
+Old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Delete the `opencode-palette` block from that file first (a leftover would duplicate the bundle registration), then run `update` above.
 
-Restores DSH's native appearance whenever you want, while keeping your typography settings.
+</details>
 
-### Persisted per browser
+</div>
 
-Your theme and typography choices are stored locally and survive refresh and restart.
+<h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
-### Bilingual panel
-
-The panel follows your DSH interface language automatically — switch the language in DSH and the panel follows instantly.
-
-## More from the author
+<div align="center">
 
 If you like this plugin, you might also like:
 
-- [**dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box.
-- [**dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt.
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box
 
-## Development
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt
 
-```bash
-npm run sync    # fetch official theme JSONs from opencode (version-locked, checksummed)
-npm test        # 20 tests: engine audit of all 34 themes + panel render (zh/en)
-npm run build   # zero-dependency bundler -> package/ + dynamic client.js
-npm run assets  # regenerate the SVG images in this README
-```
+</div>
 
-Architecture: see [DESIGN.md](../DESIGN.md) — a data-driven three-stage pipeline, with `src/engine/map-dsh.mjs` as the single source of truth for the DSH mapping layer.
+<h2 align="center"><sub>CONNECT</sub><br>Feedback & Contact</h2>
 
-## Contributing
-
-Good starting points: new upstream themes (run `npm run sync`), mapping refinements, copy polish, or more locale translations. Keep the engine pure (no DOM) so the tests stay green.
-
-## License & credits
-
-MIT © FeatherHunter. Theme definitions are vendored from [opencode](https://github.com/anomalyco/opencode) (MIT) and its upstream theme projects — see [THIRD_PARTY_NOTICES](../src/themes/THIRD_PARTY_NOTICES.md).
-
-## Feedback & Contact
+<div align="center">
 
 Found a bug or have an idea? Please [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). You can also scan the QR code to add the author on Feishu (mention `dsh-opencode-palette`).
 
 <img src="../assets/feishu-qr.png" alt="Author's Feishu QR code" width="260" />
+
+</div>
