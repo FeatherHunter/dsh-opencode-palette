@@ -20,7 +20,7 @@
 
 <div align="center">
 
-每天盯屏幕十几个小时，眼睛发涩真不怪你——多半是配色的问题。opencode 的 34 套经典配色久经码农检验，一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
+每天盯屏幕十几个小时，眼睛难免发涩——换套温柔的配色，让眼睛歇一会儿。opencode 的 34 套经典配色深受开发者喜爱，一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
 
 **👇 装完重启，主界面就是这个样子（opencode 主题）。**
 
@@ -56,12 +56,8 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>GUIDE</sub><br>30 秒上手</h2>
 
-<div align="center">
-
 1. 打开 **设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）。
 2. 点任意主题色块，界面立即换色，多试几款找到最养眼的那套。
-
-</div>
 
 <h2 align="center"><sub>THEMES</sub><br>功能详解</h2>
 
