@@ -53,6 +53,7 @@ DeepSeek Harness ships with one look. This plugin lets you dress the whole inter
 - Your choice is remembered across restarts.
 - The panel speaks your language — it follows the DSH interface language (中文 / English).
 
+
 ## Get started in 30 seconds
 
 **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**):

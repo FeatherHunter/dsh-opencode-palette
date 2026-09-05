@@ -53,6 +53,29 @@ DeepSeek Harness 默认只有一套外观。装上它之后，你可以让整个
 - 选过的主题会被记住，重启不丢。
 - 面板跟着 DSH 界面语言走（中文 / English）。
 
+<!-- showcase:start -->
+<h2 align="center"><sub>SHOWCASE</sub><br>真实效果</h2>
+
+<div align="center">
+
+34 款 opencode 官方配色，点一下整个界面跟着换，重启不丢。
+
+**👇 装完重启，主界面就是这个样子（opencode 主题）。**
+
+<img src="showcase/overview-opencode-zh.png" width="640" alt="OpenCode 调色板 — 主界面概览（opencode 主题，34 款同款）" style="border:1px solid #30363d;border-radius:6px">
+
+**👇 设置面板：34 款按色系分组，搜一下即切。**
+
+<img src="showcase/opencode调色板设置页面-zh.png" width="640" alt="OpenCode 调色板 — 设置面板（opencode 主题，34 款同款）" style="border:1px solid #30363d;border-radius:6px">
+
+**👇 白天党放心：浅色主题同样完整覆盖。**
+
+<img src="showcase/overview-github-light-zh.png" width="640" alt="OpenCode 调色板 — 浅色主题概览（GitHub 亮色，34 款同款）" style="border:1px solid #30363d;border-radius:6px">
+
+</div>
+
+<!-- showcase:end -->
+
 ## 30 秒上手
 
 **设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）：
