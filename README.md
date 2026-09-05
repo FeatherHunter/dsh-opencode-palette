@@ -8,6 +8,8 @@
 
 *Built for long coding sessions — 34 eye-friendly themes, one click.*
 
+你的 ⭐是我夜空中最亮的星。
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![themes](https://img.shields.io/badge/themes-34%20opencode-orange)](https://github.com/anomalyco/opencode)
