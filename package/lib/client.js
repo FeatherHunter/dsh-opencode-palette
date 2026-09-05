@@ -8066,6 +8066,15 @@ function getLang() {
   } catch (e) { return 'en' }
 }
 
+// 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
+// 未知环境（SSR/旧宿主/mock 缺 body）回退 true = 保持现有深色视觉，绝不误伤深色主题
+function isHostDark() {
+  try {
+    if (typeof document === 'undefined' || !document.body || typeof document.body.hasAttribute !== 'function') return true
+    return document.body.hasAttribute('data-ds-dark-theme')
+  } catch (e) { return true }
+}
+
 // 把 key → {zh,en} 表转成 locale 服务注册形态 {zh: {...}, en: {...}}
 function toLocaleDicts(i18n) {
   const zh = {}
@@ -8208,6 +8217,8 @@ function createClient(slotTarget) {
         // UI 快照：所有引擎动作后 setUi(props.getState()) 重同步，避免受控控件显示值漂移
         const [ui, setUi] = react.useState(props.getState())
         const st = ui
+        // 宿主明暗跟随：浅色下硬编码深色值须换 DSH 语义 token；开着面板切换系统主题时重渲染
+        const [hostDark, setHostDark] = react.useState(isHostDark)
 
         // 字体下拉：点击外部关闭
         react.useEffect(function () {
@@ -8223,6 +8234,17 @@ function createClient(slotTarget) {
         // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
         react.useEffect(function () {
           return props.subscribeLocale(function () { setUi(props.getState()) })
+        }, [])
+
+        // 明暗切换：body[data-ds-dark-theme] 增删时重渲染（浅色适配跟随）
+        react.useEffect(function () {
+          if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return
+          let obs = null
+          try {
+            obs = new MutationObserver(function () { setHostDark(isHostDark()) })
+            obs.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
+          } catch (e) { obs = null }
+          return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
         // 搜索过滤（命中组保留，空组隐藏）
@@ -8242,6 +8264,17 @@ function createClient(slotTarget) {
         const fieldLabel = { fontSize: 11, color: muted }
         const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }
         const countStyle = { color: 'var(--dsw-alias-label-dimmed)', fontSize: 11, letterSpacing: 0 }
+        // 浅色适配（Q1/Q2 结论）：深色分支保持原值字节一致，浅色分支走 DSH 语义 token；
+        // token 随生效主题解析（停用走宿主浅色默认，启用走主题派生），两态各自正确
+        const segOnBg = hostDark ? 'rgba(255,255,255,0.14)' : 'var(--dsw-alias-interactive-bg-active)'
+        const ddItemOnBg = hostDark ? 'rgba(255,255,255,0.1)' : 'var(--dsw-alias-interactive-bg-hover)'
+        const menuShadow = hostDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.18)'
+        const switchOffTrack = hostDark ? '#333338' : 'var(--dsw-alias-bg-layer-3)'
+        const switchOffKnob = hostDark ? '#8b8b95' : 'var(--dsw-alias-bg-base)'
+        const dotFallback = hostDark ? '#555' : 'var(--dsw-alias-label-tertiary)'
+        const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
+        // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
+        const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
 
         // 分段按钮控件
         const seg = function (value, options, onChange) {
@@ -8253,7 +8286,7 @@ function createClient(slotTarget) {
                 onClick: function () { onChange(opt.value) },
                 style: {
                   border: 0, borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
-                  background: on ? 'rgba(255,255,255,0.14)' : 'transparent',
+                  background: on ? segOnBg : 'transparent',
                   color: on ? base : muted,
                   fontFamily: 'var(--dsw-font-family)',
                 },
@@ -8276,13 +8309,13 @@ function createClient(slotTarget) {
               style: {
                 position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 200, padding: 4, boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                borderRadius: 8, minWidth: 200, padding: 4, boxShadow: menuShadow,
               },
             }, items) : null,
           ])
         }
         const dot = function (color, size) {
-          return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || '#555', display: 'inline-block', flex: 'none' } })
+          return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || dotFallback, display: 'inline-block', flex: 'none' } })
         }
 
         // 主题 mini 芯片（组合 1）
@@ -8296,8 +8329,8 @@ function createClient(slotTarget) {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: c && c.background ? c.background : 'var(--dsw-alias-bg-layer-2)',
               color: c && c.text ? c.text : base,
-              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || '#555'),
-              borderRadius: 6, padding: '3px 8px 3px 5px',
+              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
+              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
               fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
               outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
             },
@@ -8323,14 +8356,14 @@ function createClient(slotTarget) {
                 style: {
                   position: 'relative', display: 'inline-block', width: 36, height: 20,
                   borderRadius: 11, cursor: 'pointer',
-                  background: st.enabled ? 'rgba(250,178,131,0.4)' : '#333338',
+                  background: st.enabled ? 'rgba(250,178,131,0.4)' : switchOffTrack,
                   transition: 'background .12s',
                 },
               }, h('span', {
                 style: {
                   position: 'absolute', top: 3, left: st.enabled ? 19 : 3,
                   width: 14, height: 14, borderRadius: '50%',
-                  background: st.enabled ? '#FAB283' : '#8b8b95',
+                  background: st.enabled ? '#FAB283' : switchOffKnob,
                   transition: 'left .12s',
                 },
               })),
@@ -8356,7 +8389,7 @@ function createClient(slotTarget) {
                   onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false) },
                   style: {
                     padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                    background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    background: on ? ddItemOnBg : 'transparent',
                     color: on ? base : muted,
                   },
                 }, String(s) + 'px')
@@ -8374,7 +8407,7 @@ function createClient(slotTarget) {
                   },
                   style: {
                     padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                    background: on ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    background: on ? ddItemOnBg : 'transparent',
                     color: on ? base : muted,
                   },
                 }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + tr('fontPreview')))

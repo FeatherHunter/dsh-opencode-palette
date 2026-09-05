@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 
-const requireDsh = createRequire('D:/0Tools/DSHDesktop/DSH Desktop/resources/app/node_modules/')
+const requireDsh = createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/')
 const React = requireDsh('react')
 const ReactDOMServer = requireDsh('react-dom/server')
 
@@ -77,8 +77,13 @@ function loadPanel(opts = {}) {
     addEventListener: () => {},
     removeEventListener: () => {},
   }
+  // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省无 body → 回退深色
+  if (opts.hostDark === true) global.document.body = { hasAttribute: () => true }
+  if (opts.hostDark === false) global.document.body = { hasAttribute: () => false }
   // 注：Node 22 的 navigator 只读；getLang 以 document.documentElement.lang 为主信号源
-  global.localStorage = undefined
+  global.localStorage = opts.disabled
+    ? { getItem: () => JSON.stringify({ enabled: false, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }), setItem: () => {} }
+    : undefined
   eval(code)
   const p = loaded[0].exports
   let panelCmp = null
@@ -162,3 +167,34 @@ test('面板双语表已注册进 locale 服务（opencode-palette 命名空间�
   assert.equal(locale.dictFor('opencode-palette', 'zh', 'group.warm'), '暖橙')
   assert.equal(locale.dictFor('opencode-palette', 'en', 'group.warm'), 'Warm')
 })
+test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义 token', () => {
+  const { html } = loadPanel({ lang: 'zh-CN', disabled: true, hostDark: false })
+  assert.ok(html.includes('已停用'), '应渲染停用态')
+  assert.ok(!html.includes('#333338'), '停用开关底色须浅色适配')
+  assert.ok(!html.includes('#8b8b95'), '停用开关钮色须浅色适配')
+  assert.ok(!html.includes('rgba(255,255,255,0.14)'), '分段选中须浅色适配')
+  assert.ok(!html.includes('1px solid #555'), '芯片兜底边框须浅色适配')
+  assert.ok(!html.includes('background:#555'), '圆点兜底色须浅色适配')
+  assert.ok(html.includes('var(--dsw-alias-interactive-bg-active)'), '分段选中走语义 token')
+  assert.ok(html.includes('var(--dsw-alias-bg-layer-3)'), '停用开关走语义 token')
+  assert.ok(html.includes('0 1px 3px rgba(0,0,0,0.25)'), '预览芯片浅色分离阴影')
+})
+
+test('深色回退（未知宿主）：深色硬编码原样保留', () => {
+  const { html } = loadPanel({ lang: 'zh-CN', disabled: true })
+  assert.ok(html.includes('已停用'), '应渲染停用态')
+  assert.ok(html.includes('#333338'), '停用开关底色保持深色')
+  assert.ok(html.includes('#8b8b95'), '停用开关钮色保持深色')
+  assert.ok(html.includes('rgba(255,255,255,0.14)'), '分段选中保持深色')
+  assert.ok(html.includes('1px solid #555'), 'system 芯片兜底边框保持深色')
+  assert.ok(!html.includes('0 1px 3px rgba(0,0,0,0.25)'), '深色不加分离阴影')
+})
+
+test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', () => {
+  const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
+  assert.ok(code.includes('var(--dsw-alias-interactive-bg-hover)'), '下拉选中浅色分支缺失')
+  assert.ok(code.includes('0 8px 24px rgba(0,0,0,0.18)'), '菜单浅色阴影缺失')
+  assert.ok(code.includes('isHostDark'), '宿主明暗信号缺失')
+  assert.ok(code.includes('data-ds-dark-theme'), '明暗跟随订阅缺失')
+})
+
