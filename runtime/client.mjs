@@ -282,12 +282,18 @@ export function createClient(slotTarget) {
         const segOnBg = hostDark ? 'rgba(255,255,255,0.14)' : 'var(--dsw-alias-interactive-bg-active)'
         const ddItemOnBg = hostDark ? 'rgba(255,255,255,0.1)' : 'var(--dsw-alias-interactive-bg-hover)'
         const menuShadow = hostDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.18)'
-        const switchOffTrack = hostDark ? '#333338' : 'var(--dsw-alias-bg-layer-3)'
-        const switchOffKnob = hostDark ? '#8b8b95' : 'var(--dsw-alias-bg-base)'
+        // 开关停用态浅色用定值中性灰：面 token 在浅色下与底色撞车会隐身（复检教训），定值灰在任何浅底上可见
+        const switchOffTrack = hostDark ? '#333338' : '#D4D4D8'
+        const switchOffKnob = hostDark ? '#8b8b95' : '#FFFFFF'
         const dotFallback = hostDark ? '#555' : 'var(--dsw-alias-label-tertiary)'
         const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
         // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
         const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
+        // 透明底芯片背景回退到浅色面，沿用主题浅色字会被洗白（如透光橙），浅色下改用主文字色
+        const chipText = function (colors) {
+          if (colors && colors.text && (hostDark || colors.background)) return colors.text
+          return base
+        }
 
         // 分段按钮控件
         const seg = function (value, options, onChange) {
@@ -341,7 +347,7 @@ export function createClient(slotTarget) {
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: c && c.background ? c.background : 'var(--dsw-alias-bg-layer-2)',
-              color: c && c.text ? c.text : base,
+              color: chipText(c),
               border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
               borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
               fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',

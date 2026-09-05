@@ -176,9 +176,19 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
   assert.ok(!html.includes('1px solid #555'), '芯片兜底边框须浅色适配')
   assert.ok(!html.includes('background:#555'), '圆点兜底色须浅色适配')
   assert.ok(html.includes('var(--dsw-alias-interactive-bg-active)'), '分段选中走语义 token')
-  assert.ok(html.includes('var(--dsw-alias-bg-layer-3)'), '停用开关走语义 token')
+  assert.ok(html.includes('background:#D4D4D8'), '停用开关底色浅色可见')
+  assert.ok(html.includes('background:#FFFFFF'), '停用开关钮色浅色可见')
   assert.ok(html.includes('0 1px 3px rgba(0,0,0,0.25)'), '预览芯片浅色分离阴影')
+  const translucent = chipSegment(html, '透光橙')
+  assert.ok(translucent.includes('color:var(--dsw-alias-label-primary)'), '透明底芯片浅色下用主文字色（不洗白）')
 })
+
+// 取某主题芯片 button 片段（断言其行内样式用）
+function chipSegment(html, label) {
+  const i = html.indexOf(label)
+  assert.ok(i >= 0, '缺芯片：' + label)
+  return html.slice(html.lastIndexOf('<button', i), html.indexOf('</button>', i))
+}
 
 test('深色回退（未知宿主）：深色硬编码原样保留', () => {
   const { html } = loadPanel({ lang: 'zh-CN', disabled: true })
@@ -188,6 +198,8 @@ test('深色回退（未知宿主）：深色硬编码原样保留', () => {
   assert.ok(html.includes('rgba(255,255,255,0.14)'), '分段选中保持深色')
   assert.ok(html.includes('1px solid #555'), 'system 芯片兜底边框保持深色')
   assert.ok(!html.includes('0 1px 3px rgba(0,0,0,0.25)'), '深色不加分离阴影')
+  const translucent = chipSegment(html, '透光橙')
+  assert.ok(!translucent.includes('color:var(--dsw-alias-label-primary)'), '透明底芯片深色保持主题字色')
 })
 
 test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', () => {
