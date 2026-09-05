@@ -1,4 +1,6 @@
-# 🎨 dsh-opencode-palette
+<h1 align="center">🎨 dsh-opencode-palette</h1>
+
+<div align="center">
 
 **🌐 [中文](README.md) · [English](docs/README.en.md)**
 
@@ -8,18 +10,17 @@
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![opencode](https://img.shields.io/badge/themes-34%20opencode-orange)](https://github.com/anomalyco/opencode)
+[![themes](https://img.shields.io/badge/themes-34%20opencode-orange)](https://github.com/anomalyco/opencode)
 [![tests](https://img.shields.io/badge/tests-31%2F31-green)]()
 
-## 真实效果
-
-每天盯屏幕十几个小时，眼睛发涩真不怪你——多半是配色的问题。opencode 的 34 套经典配色久经码农检验：`tokyonight`、`dracula`、`gruvbox`、`matrix`、`rose-pine`、`catppuccin ×3`、`solarized`、`synthwave84` ……装上它，一键给整个 DSH 换上。
-
-- 点一下，背景、按钮、边框、代码高亮全跟着换。
-- 深色护眼、浅色通透，白天黑夜各取所需。
+</div>
 
 <!-- showcase:start -->
+<h2 align="center"><sub>SHOWCASE</sub><br>真实效果</h2>
+
 <div align="center">
+
+每天盯屏幕十几个小时，眼睛发涩真不怪你——多半是配色的问题。opencode 的 34 套经典配色久经码农检验，一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
 
 **👇 装完重启，主界面就是这个样子（opencode 主题）。**
 
@@ -37,52 +38,56 @@
 
 <!-- showcase:end -->
 
-## 一条命令完成安装
+<h2 align="center"><sub>INSTALL</sub><br>一条命令完成安装</h2>
 
-需要 **DSH CLI**。如果还没有，先安装：
+<div align="center">
+
+需要 **DSH CLI**。**零配置**：装完重启 DSH（或刷新浏览器页面）即生效，默认启用官方 `opencode` 主题。
+
+</div>
 
 ```bash
+# ① 还没装 DSH CLI 先装（已装跳过）
 npm install -g @deepseek-ai/dsh
-```
 
-然后把插件装进你的 profile：
-
-```bash
+# ② 把插件装进你的 profile
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**零配置**：装完重启 DSH（或刷新浏览器页面）即生效，默认启用官方 `opencode` 主题。
+<h2 align="center"><sub>GUIDE</sub><br>30 秒上手</h2>
 
-## 30 秒上手
+<div align="center">
 
 1. 打开 **设置 → 插件 → OpenCode 调色板**（英文界面为 **Settings → Plugins → Opencode Palette**）。
 2. 点任意主题色块，界面立即换色，多试几款找到最养眼的那套。
 
-## 功能详解
+</div>
 
-### 主题与它们的名字
+<h2 align="center"><sub>THEMES</sub><br>功能详解</h2>
 
-每个名字背后都有一段来历：
+<div align="center">
+
+每个主题名字背后都有一段来历，34 款在设置面板里按色系分组、一搜即切。每款最核心的 7 种颜色 —— `背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功` —— 定义在 `src/themes/`。
+
+</div>
 
 ![theme stories](assets/theme-stories-zh.svg)
 
-### 34 款一览
+<div align="center">
 
-34 款在设置面板里按色系分组、一搜即切（见上图）。每款最核心的 7 种颜色 —— `背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功` —— 定义在 `src/themes/`，一览矩阵由 `npm run assets` 生成。
+排印独立于主题：等宽（终端风）或常规（界面风）、字号 11–18 px、5 种代码字体带实时预览。`system` 一键回到 DSH 原生外观，排印设置保留。面板跟着 DSH 界面语言走（中文 / English），切换即时跟随。
 
-### 顺手好用
+</div>
 
-- 排印独立于主题：等宽（终端风）或常规（界面风）、字号 11–18 px、5 种代码字体带实时预览。
-- `system` 一键回到 DSH 原生外观，排印设置保留。
-- 面板跟着 DSH 界面语言走（中文 / English），切换即时跟随。
-
-## 升级
+<h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
 ```bash
 dsh plugin --profile web update dsh-opencode-palette
+# 需要钉回历史版本：
+dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
-需要钉回历史版本：`dsh plugin --profile web add dsh-opencode-palette@<版本>`。
+<div align="center">
 
 <details>
 <summary>从 1.4.x 及更早版本升级</summary>
@@ -91,15 +96,26 @@ dsh plugin --profile web update dsh-opencode-palette
 
 </details>
 
-## 作者的其他作品
+</div>
+
+<h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
+
+<div align="center">
 
 喜欢这个插件的话，这些可能你也用得上：
 
-- [**dsh-prompt**](https://github.com/FeatherHunter/dsh-prompt) —— 写 Prompt 卡壳的时候，里面有 24 条深度模板，点一下直接进输入框。
-- [**dsh-mattpocock-skills-deck**](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck) —— 想让 AI 不只是会聊天？25 个工程技能装好即用，一条安装 Prompt 的事。
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 写 Prompt 卡壳的时候，里面有 24 条深度模板，点一下直接进输入框
 
-## 反馈与联系
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 想让 AI 不只是会聊天？25 个工程技能装好即用，一条安装 Prompt 的事
+
+</div>
+
+<h2 align="center"><sub>CONNECT</sub><br>反馈与联系</h2>
+
+<div align="center">
 
 遇到问题或有改进建议，欢迎直接 [提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)；也欢迎扫码添加作者飞书，备注 `dsh-opencode-palette`，一起交流。
 
 <img src="assets/feishu-qr.png" alt="作者飞书二维码" width="260" />
+
+</div>
