@@ -210,3 +210,12 @@ test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', ()
   assert.ok(code.includes('data-ds-dark-theme'), '明暗跟随订阅缺失')
 })
 
+test("\u9762\u677f\u5e95\u90e8\u5c0f\u5b57\u663e\u793a\u5f53\u524d\u7248\u672c\u53f7", () => {
+  const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+  const { html } = loadPanel({ lang: "zh-CN" })
+  assert.ok(html.includes("v" + pkg.version), "\u7f3a\u7248\u672c\u53f7\u5c0f\u5b57 v" + pkg.version)
+  assert.ok(html.includes("https://github.com/FeatherHunter/dsh-opencode-palette\""), "\u7f3a\u661f\u6807\u94fe\u63a5")
+  assert.ok(html.includes("/issues\""), "\u7f3aISSUE\u94fe\u63a5")
+  assert.ok(html.indexOf("\u591c\u7a7a\u4e2d\u6700\u4eae") >= 0, "\u7f3a\u661f\u6807hover")
+  assert.ok(html.includes("ISSUE"), "\u7f3aISSUE hover")
+})

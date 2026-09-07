@@ -11,5 +11,6 @@ export const THEME_ZH = {
   ayu: "鮎", carbonfox: "碳狐", cobalt2: "钴蓝", cursor: "Cursor", aura: "光环",
   flexoki: "纸墨", github: "GitHub", zenburn: "禅燃", mercury: "水星",
   "osaka-jade": "大阪翡翠", vesper: "黄昏星", vercel: "Vercel", "lucent-orng": "透光橙",
-  orng: "纯橙", system: "跟随系统",
+  orng: "纯橙", amoled: "AMOLED", "oc-2": "OC 2", onedarkpro: "One Dark Pro",
+  shadesofpurple: "紫影", system: "跟随系统",
 }

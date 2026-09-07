@@ -3,12 +3,15 @@
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
 import { renderTheme, previewColors, themeNames, themeGroups } from './engine/index.mjs'
 import { FONTS, SANS_STACK } from './engine/map-dsh.mjs'
+import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { THEME_ZH } from './engine/zh-names.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
+// 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
+const PALETTE_VERSION = '__PALETTE_VERSION__'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -43,7 +46,7 @@ function saveState(state) {
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
 const I18N = {
   panelName: { zh: 'opencode调色板', en: 'Opencode Palette' },
-  subtitle: { zh: '34 款 opencode 官方配色主题，点击即切换', en: '34 official opencode themes — click to switch' },
+  subtitle: { zh: '38 款 opencode 官方配色主题，点击即切换', en: '38 official opencode themes — click to switch' },
   enabled: { zh: '已启用', en: 'Enabled' },
   disabled: { zh: '已停用', en: 'Disabled' },
   disableTitle: { zh: '点击停用主题', en: 'Click to disable' },
@@ -54,9 +57,10 @@ const I18N = {
   sans: { zh: '常规（界面风）', en: 'Regular (UI)' },
   fontSize: { zh: '字号', en: 'Font size' },
   codeFont: { zh: '代码字体', en: 'Code font' },
-  fontPreview: { zh: '等宽', en: 'mono' },
+  fontNotInstalled: { zh: '本机未装', en: 'missing' },
+  fontLocal: { zh: '本地', en: 'local' },
   themeSection: { zh: '选择主题', en: 'Themes' },
-  themeCount: { zh: '34 款 · 按色系分组', en: '34 · by color family' },
+  themeCount: { zh: '38 款 · 按色系分组', en: '38 · by color family' },
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
   systemDefault: { zh: 'system（默认）', en: 'system (default)' },
@@ -77,6 +81,18 @@ function getLang() {
     const l = (document.documentElement && document.documentElement.lang) || (navigator.language || 'en')
     return /^zh/i.test(l) ? 'zh' : 'en'
   } catch (e) { return 'en' }
+}
+
+// 字体可用性：随包字体（OFL 内联 @font-face）恒可用；SF Mono / Consolas 等私有字体
+// 只能本地检测，缺失即灰显提示（仍可选中，回退栈保证不断字）。未知环境保守返回可用。
+function isFontAvailable(family) {
+  try {
+    if (BUNDLED_FONTS && BUNDLED_FONTS.indexOf(family) >= 0) return true
+    if (typeof document !== 'undefined' && document.fonts && typeof document.fonts.check === 'function') {
+      return document.fonts.check('12px "' + family + '"')
+    }
+  } catch (e) { /* 保守可用 */ }
+  return true
 }
 
 // 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
@@ -328,7 +344,7 @@ export function createClient(slotTarget) {
               style: {
                 position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 200, padding: 4, boxShadow: menuShadow,
+                borderRadius: 8, minWidth: 200, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
               },
             }, items) : null,
           ])
@@ -367,6 +383,31 @@ export function createClient(slotTarget) {
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
             h('strong', null, '🎨 ' + tr('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
+              h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
+              h('a', {
+                href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
+                target: '_blank', rel: 'noopener noreferrer',
+                title: '你的 ⭐是我夜空中最亮的星',
+                style: { color: muted, display: 'inline-flex', cursor: 'pointer' },
+              }, h('svg', {
+                width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
+                stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                style: { display: 'block' },
+              }, h('polygon', { points: '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26' }))),
+              h('a', {
+                href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
+                target: '_blank', rel: 'noopener noreferrer',
+                title: '任何功能需求、故障、建议、意见都可以提ISSUE',
+                style: { color: muted, display: 'inline-flex', cursor: 'pointer' },
+              }, h('svg', {
+                width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
+                stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                style: { display: 'block' },
+              }, [
+                h('circle', { cx: 12, cy: 12, r: 10 }),
+                h('line', { x1: 12, y1: 8, x2: 12, y2: 12 }),
+                h('line', { x1: 12, y1: 16, x2: 12.01, y2: 16 }),
+              ])),
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
@@ -417,6 +458,9 @@ export function createClient(slotTarget) {
               h('span', { style: { fontFamily: FONTS[st.fontKey] || FONTS['JetBrains Mono'] } }, st.fontKey),
               Object.keys(FONTS).map(function (k) {
                 const on = k === st.fontKey
+                const ok = isFontAvailable(k)
+                const bundled = BUNDLED_FONTS && BUNDLED_FONTS.indexOf(k) >= 0
+                const suffix = bundled ? '' : '(' + (ok ? tr('fontLocal') : tr('fontNotInstalled')) + ')'
                 return h('div', {
                   key: k,
                   onClick: function () {
@@ -424,12 +468,14 @@ export function createClient(slotTarget) {
                     setUi(props.getState())
                     setFontOpen(false)
                   },
+                  title: ok ? '' : tr('fontNotInstalled'),
                   style: {
                     padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
                     background: on ? ddItemOnBg : 'transparent',
                     color: on ? base : muted,
+                    opacity: ok ? 1 : 0.45,
                   },
-                }, h('span', { style: { fontFamily: FONTS[k] } }, k + ' — Aa ' + tr('fontPreview')))
+                }, h('span', { style: { fontFamily: FONTS[k], whiteSpace: 'nowrap' } }, k + suffix))
               })),
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──

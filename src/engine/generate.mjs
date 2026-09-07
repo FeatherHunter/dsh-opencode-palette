@@ -1,6 +1,7 @@
 // generate.mjs — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
 import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } from './map-dsh.mjs'
+import { FONT_FACE_CSS } from './font-face.mjs'
 import { withAlpha } from './resolve.mjs'
 
 const TRANSPARENT = 'transparent'
@@ -46,7 +47,7 @@ export function buildTypographyCss(typography) {
   const codeFont = FONTS[fontKey] || FONTS['JetBrains Mono']
   const lh = size + 9
   const small = size - 1
-  return [
+  return [FONT_FACE_CSS,
     'body,body[data-ds-dark-theme]{',
     '--dsw-font-family:' + bodyFont + ';',
     '--ds-font-family-code:' + codeFont + ';',

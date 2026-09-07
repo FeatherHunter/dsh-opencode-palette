@@ -4,17 +4,19 @@ import assert from 'node:assert/strict'
 import {
   themeNames, themeStats, previewColors, renderTheme, auditAll,
 } from '../src/engine/index.mjs'
-import { resolveColor, resolveThemeColors, collectErrors, ansiToHex } from '../src/engine/resolve.mjs'
+import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
-import { generateTheme, buildTokens } from '../src/engine/generate.mjs'
+import { generateTheme, buildTokens, buildTypographyCss } from '../src/engine/generate.mjs'
+import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
+import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
 
 const TYPO = { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 
-test('注册表: 34 个主题（33 静态 + system），字母序', () => {
+test('注册表: 38 个主题（37 静态 + system），字母序', () => {
   const names = themeNames()
-  assert.equal(names.length, 34)
-  assert.equal(themeStats().static, 33)
+  assert.equal(names.length, 38)
+  assert.equal(themeStats().static, 37)
   const sorted = [...names].sort((a, b) => a.localeCompare(b))
   assert.deepEqual(names, sorted)
   assert.ok(names.includes(SYSTEM_THEME))
@@ -44,9 +46,9 @@ test('resolve: 循环引用检测', () => {
   assert.throws(() => resolveColor('a', defs, {}, 'dark'), /循环/)
 })
 
-test('全量审计: 34 个主题 0 解析失败', () => {
+test('全量审计: 38 个主题 0 解析失败', () => {
   const report = auditAll()
-  assert.equal(report.ok.length, 34)
+  assert.equal(report.ok.length, 38)
   assert.deepEqual(report.broken, [])
 })
 
@@ -139,7 +141,7 @@ test('确定性: 同一输入两次渲染完全一致', () => {
   assert.deepEqual(a.tokens, b.tokens)
 })
 
-test('previewColors: 34 主题全部可预览（hex 或 null）', () => {
+test('previewColors: 38 主题全部可预览（hex 或 null）', () => {
   for (const name of themeNames()) {
     const p = previewColors(name)
     assert.ok(p, name + ' 预览缺失')
@@ -185,7 +187,7 @@ test('generateTheme(null) = system 语义', () => {
   assert.deepEqual(r.tokens, {})
 })
 
-test('色系分组: 34 主题全覆盖且不重复，组序符合 GROUP_ORDER', () => {
+test('色系分组: 38 主题全覆盖且不重复，组序符合 GROUP_ORDER', () => {
   const groups = themeGroups()
   const seen = []
   for (const g of groups) {
@@ -193,8 +195,8 @@ test('色系分组: 34 主题全覆盖且不重复，组序符合 GROUP_ORDER', 
     assert.ok(GROUP_COLORS[g.name], '组缺代表色 ' + g.name)
     for (const t of g.themes) seen.push(t.name)
   }
-  assert.equal(seen.length, 34)
-  assert.equal(new Set(seen).size, 34)
+  assert.equal(seen.length, 38)
+  assert.equal(new Set(seen).size, 38)
   const orderIdx = groups.map((g) => GROUP_ORDER.indexOf(g.name))
   assert.deepEqual(orderIdx, [...orderIdx].sort((a, b) => a - b))
 })
@@ -220,4 +222,66 @@ test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {
 test('groupOf: system → special，透明背景 → transparent', () => {
   assert.equal(groupOf('system', { background: '#000', primary: '#FFF' }), 'special')
   assert.equal(groupOf('lucent-orng', resolvePreview('lucent-orng')), 'transparent')
+})
+test('fonts: 3 OFL families inlined as @font-face', () => {
+  assert.deepEqual(BUNDLED_FONTS, ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Inter', 'IBM Plex Mono'])
+  const css = buildTypographyCss({ mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
+  for (const f of BUNDLED_FONTS) {
+    assert.ok(css.includes('@font-face{font-family:"' + f + '"'), 'missing @font-face ' + f)
+  }
+  assert.ok(css.includes('font-display:swap'), 'missing font-display')
+  assert.ok(css.includes('data:font/woff2;base64,'), 'missing base64 woff2')
+})
+
+test('fonts: system theme also carries bundled fonts, no color tokens', () => {
+  const r = renderTheme(SYSTEM_THEME, { mode: 'sans', size: 13, fontKey: 'Fira Code' })
+  assert.equal(Object.keys(r.tokens).length, 0)
+  assert.ok(r.css.includes('@font-face'), 'system lost bundled fonts')
+})
+
+test('tokens: elevation ladder (panel/element) follows opencode steps', () => {
+  const r = renderTheme('opencode', TYPO)
+  const t = (k) => r.tokens[k].dark
+  assert.equal(t('--dsw-alias-bg-base'), '#0A0A0A')
+  assert.equal(t('--dsw-alias-markdown-tag'), t('--dsw-alias-markdown-code-block'))
+  assert.equal(t('--dsw-specific-bubble'), t('--dsw-alias-markdown-code-block'))
+  assert.equal(t('--dsw-alias-markdown-citation'), t('--dsw-alias-markdown-code-block-banner'))
+  assert.equal(t('--dsw-specific-tip'), t('--dsw-alias-toast-bg'))
+  assert.notEqual(t('--dsw-alias-markdown-tag'), t('--dsw-alias-bg-base'))
+})
+
+test('tokens: R2/R3 recipes (invert/dimmed/ghost)', () => {
+  const j = getThemeJson('opencode')
+  const colors = resolveThemeColors(j, 'dark')
+  const dt = buildTokens(colors)
+  assert.equal(dt['--dsw-alias-brand-primary-invert'].dark, contrastText(colors.primary))
+  assert.equal(dt['--dsw-alias-button-primary-dimmed'].dark, withAlpha(colors.primary, 0.2))
+  assert.equal(dt['--dsw-alias-button-ghost-active-fill'].dark, withAlpha(colors.text, 0.1))
+  assert.equal(dt['--dsw-alias-bg-skeleton'].dark, withAlpha(colors.text, 0.08))
+  assert.equal(dt['--dsw-alias-state-error-secondary'].dark, shade(colors.error, 0.25))
+  assert.equal(dt['--dsw-alias-state-success-tertiary'].dark, withAlpha(colors.success, 0.14))
+  assert.equal(dt['--dsw-alias-state-warn-label'].dark, colors.warning)
+  assert.equal(dt['--dsw-alias-state-business-primary'].dark, colors.primary)
+  assert.equal(dt['--dsw-alias-border-l3'].dark, colors.borderActive)
+})
+
+test('tokens: new coverage present in all non-system themes', () => {
+  const vars = ['--dsw-alias-border-l3', '--dsw-alias-border-l4', '--dsw-alias-brand-text', '--dsw-alias-button-contrast-fill', '--dsw-alias-bg-skeleton', '--dsw-alias-state-warn-label', '--dsw-alias-state-business-primary', '--dsw-alias-state-business-tertiary', '--dsw-alias-brand-primary-invert', '--dsw-alias-button-primary-dimmed', '--dsw-alias-button-ghost-active-fill']
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const r = renderTheme(name, TYPO)
+    for (const v of vars) assert.ok(r.tokens[v], name + ' missing ' + v)
+  }
+})
+
+test('fonts: dropdown order sinks proprietary fonts, Inter heads sans', () => {
+  assert.deepEqual(Object.keys(FONTS), ['JetBrains Mono', 'Cascadia Code', 'Fira Code', 'IBM Plex Mono', 'SF Mono', 'Consolas'])
+  assert.ok(SANS_STACK.indexOf("'Inter'") === 0, 'Inter not at sans head')
+  for (const k of Object.keys(FONTS)) {
+    const stack = FONTS[k]
+    const selfPos = k === 'Consolas' ? stack.indexOf('Consolas') : stack.indexOf("'" + k + "'")
+    assert.equal(selfPos, 0, k + ' self not head')
+    if (k !== 'SF Mono') assert.ok(stack.indexOf('SF Mono') > stack.indexOf('Fira Code'), k + ' SF Mono not sunk')
+    if (k !== 'Consolas') assert.ok(stack.indexOf('Consolas') > stack.indexOf('Cascadia Code'), k + ' Consolas not sunk')
+  }
 })

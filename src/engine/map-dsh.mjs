@@ -8,27 +8,34 @@ import { shade, withAlpha, contrastText } from './resolve.mjs'
 
 // ── 1. token 层：theme.overrideTokens 注册的 --dsw-alias-* 变量 ──
 // 格式: [DSH 变量, 来源色位]（来源缺失/透明/解析失败 → 该 token 自动跳过，不污染）
+// 高度梯子（第一性原理：opencode background/backgroundPanel/backgroundElement 本就是
+// 深色 step1<step2<step3 台阶，与 DSH base<panel<element 浮起方向一致）：
+//   step1 页面底 ← DSH 950 级（base/sidebar/unselected）；
+//   step2 中层 ← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
+//   step3 浮起 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
 export const TOKEN_MAP = [
-  // 背景面：全部收敛到主题 background
+  // 页面底：step1（DSH 深色 900~950 级：base/sidebar/unselected）
   ['--dsw-alias-bg-base', 'background'],
   ['--dsw-alias-bg-layer-1', 'background'],
   ['--dsw-alias-bg-layer-2', 'background'],
   ['--dsw-alias-bg-overlay', 'background'],
   ['--dsw-alias-bg-layer-3', 'background'],
-  ['--dsw-alias-bg-module-platform', 'background'],
-  ['--dsw-alias-bg-multi-select', 'background'],
   ['--dsw-specific-sidebar-fill', 'background'],
   ['--dsw-specific-menu', 'background'],
-  ['--dsw-specific-selector', 'background'],
-  ['--dsw-specific-tip', 'background'],
-  ['--dsw-specific-bubble', 'background'],
-  ['--dsw-specific-bubble-highlight', 'background'],
-  ['--dsw-alias-markdown-tag', 'background'],
-  ['--dsw-alias-markdown-placeholder', 'background'],
-  ['--dsw-alias-markdown-citation', 'background'],
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
   ['--dsw-alias-markdown-code-segment-selected', 'backgroundElement'],
-  // 浮起面：输入框/代码块底 = backgroundPanel；横幅/按钮面 = backgroundElement
+  // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
+  ['--dsw-alias-markdown-tag', 'backgroundPanel'],
+  ['--dsw-alias-markdown-placeholder', 'backgroundPanel'],
+  ['--dsw-specific-bubble', 'backgroundPanel'],
+  ['--dsw-alias-bg-multi-select', 'backgroundPanel'],
+  // 浮起面：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
+  ['--dsw-alias-markdown-citation', 'backgroundElement'],
+  ['--dsw-alias-bg-module-platform', 'backgroundElement'],
+  ['--dsw-specific-selector', 'backgroundElement'],
+  ['--dsw-specific-tip', 'backgroundElement'],
+  ['--dsw-specific-bubble-highlight', 'backgroundElement'],
+  // 输入框/代码块底 = backgroundPanel；横幅/按钮面 = backgroundElement
   ['--dsw-specific-input-major', 'backgroundPanel'],
   ['--dsw-specific-login-input', 'backgroundPanel'],
   ['--dsw-alias-markdown-code-block', 'backgroundPanel'],
@@ -37,26 +44,30 @@ export const TOKEN_MAP = [
   ['--dsw-alias-tooltip-bg', 'backgroundElement'],
   ['--dsw-alias-button-elevated-fill', 'backgroundPanel'],
   ['--dsw-alias-button-floating-fill', 'backgroundPanel'],
-  ['--dsw-alias-button-ghost-active-fill', 'backgroundPanel'],
-  ['--dsw-alias-button-primary-dimmed', 'backgroundPanel'],
   // 文字层级
   ['--dsw-alias-label-primary', 'text'],
   ['--dsw-alias-label-primary-dimmed', 'text'],
-  ['--dsw-alias-brand-primary-invert', 'text'],
   ['--dsw-alias-label-secondary', 'textMuted'],
   ['--dsw-alias-label-tertiary', 'textMuted'],
   ['--dsw-alias-label-caption', 'textMuted'],
-  // 品牌与状态
+  ['--dsw-alias-label-primary-bluish', 'markdownLink'],
+  // 品牌与状态（含旧报告 R2/R3 修复后迁入派生的 invert/dimmed/ghost，见 §2）
   ['--dsw-alias-brand-primary', 'primary'],
+  ['--dsw-alias-brand-text', 'primary'],
   ['--dsw-alias-button-primary-fill', 'primary'],
   ['--dsw-alias-button-info-fill', 'info'],
+  ['--dsw-alias-button-contrast-fill', 'text'],
   ['--dsw-alias-state-error-primary', 'error'],
   ['--dsw-alias-state-warn-primary', 'warning'],
+  ['--dsw-alias-state-warn-label', 'warning'],
   ['--dsw-alias-state-success-primary', 'success'],
-  // 边框
+  ['--dsw-alias-state-business-primary', 'primary'],
+  // 边框（DSH 深色 l3/l4 = 白 16%/20% 强边框 → 主题 borderActive）
   ['--dsw-alias-border-l1', 'border'],
   ['--dsw-alias-border-l2', 'borderActive'],
   ['--dsw-alias-border-l2-darkmode-thin', 'borderActive'],
+  ['--dsw-alias-border-l3', 'borderActive'],
+  ['--dsw-alias-border-l4', 'borderActive'],
   ['--dsw-alias-button-ghost-active-border', 'borderActive'],
   // 内联代码无芯片（opencode TUI 风格，固定 transparent）
   ['--dsw-alias-markdown-inline-code', '__transparent__'],
@@ -69,6 +80,21 @@ export const DERIVED_TOKENS = [
   ['--dsw-alias-button-info-hover', (c) => shade(c.info, 0.12)],
   ['--dsw-alias-label-primary-inverted', (c) => contrastText(c.text)],
   ['--dsw-alias-label-primary-foreground', (c) => contrastText(c.primary)],
+  // R3 修复：brand 底上的字 = 主色的反色（旧值裸 text 在主色偏深时不可读）
+  ['--dsw-alias-brand-primary-invert', (c) => contrastText(c.primary)],
+  // R2 修复：dimmed/ghost 是主色/文字的弱填充，不是中性输入框底
+  ['--dsw-alias-button-primary-dimmed', (c) => withAlpha(c.primary, 0.2)],
+  ['--dsw-alias-button-ghost-active-fill', (c) => withAlpha(c.text, 0.1)],
+  // 骨架屏：DSH 深色 #ffffff14（白 8%）→ 文字 8% 透明
+  ['--dsw-alias-bg-skeleton', (c) => withAlpha(c.text, 0.08)],
+  // 状态 secondary = 主色提亮（DSH 深色 red/green/amber-400，即更亮的同色）
+  ['--dsw-alias-state-error-secondary', (c) => shade(c.error, 0.25)],
+  ['--dsw-alias-state-success-secondary', (c) => shade(c.success, 0.25)],
+  ['--dsw-alias-state-warn-secondary', (c) => shade(c.warning, 0.25)],
+  // 状态 tertiary = 同色弱底（DSH 深色 green/amber-900 暗饱和底 ≈ 主题色 14% 透明）
+  ['--dsw-alias-state-success-tertiary', (c) => withAlpha(c.success, 0.14)],
+  ['--dsw-alias-state-warn-tertiary', (c) => withAlpha(c.warning, 0.14)],
+  ['--dsw-alias-state-business-tertiary', (c) => withAlpha(c.primary, 0.12)],
   ['--dsw-alias-label-dimmed', (c) => withAlpha(c.textMuted, 0.8)],
   ['--dsw-alias-button-tool-bar-fill', (c) => withAlpha(c.text, 0.1)],
   ['--dsw-alias-button-tool-bar-hover', (c) => withAlpha(c.text, 0.16)],
@@ -120,15 +146,18 @@ export const CSS_RULES = [
 ]
 
 // ── 5. 字体预设（主题无关维度；等宽栈尾部保留 CJK 字体避免 Windows 中文回退 SimSun）──
+// 回退栈按可用性排序：自选 > 随包 OFL > 私有本地检测（SF Mono/Consolas 沉底）> 系统 > CJK；
+// SANS 栈顶为 Inter（opencode 桌面端 UI 字体，OFL 随包），失败即回退宿主原生栈。
 export const SANS_STACK = [
-  '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", "'PingFang SC'",
+  "'Inter'", '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", "'PingFang SC'",
   "'Hiragino Sans GB'", "'Microsoft YaHei'", "'Helvetica Neue'", 'Helvetica', 'Arial', 'sans-serif',
 ].join(', ')
 
 export const FONTS = {
-  'JetBrains Mono': "'JetBrains Mono','SF Mono','Cascadia Code','Fira Code',Menlo,Consolas,'Liberation Mono','Courier New','PingFang SC','Microsoft YaHei'",
-  'Cascadia Code': "'Cascadia Code','JetBrains Mono','SF Mono','Fira Code',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
-  'Fira Code': "'Fira Code','JetBrains Mono','Cascadia Code',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
-  'SF Mono': "'SF Mono','JetBrains Mono','Fira Code',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
-  'Consolas': "Consolas,'JetBrains Mono','Cascadia Code','Courier New','PingFang SC','Microsoft YaHei'",
+  'JetBrains Mono': "'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,Menlo,'Liberation Mono','Courier New','PingFang SC','Microsoft YaHei'",
+  'Cascadia Code': "'Cascadia Code','JetBrains Mono','Fira Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
+  'Fira Code': "'Fira Code','JetBrains Mono','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
+  'IBM Plex Mono': "'IBM Plex Mono','JetBrains Mono','Fira Code','Cascadia Code','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
+  'SF Mono': "'SF Mono','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
+  'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
 }

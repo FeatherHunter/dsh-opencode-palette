@@ -4,16 +4,16 @@
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**Built for long coding sessions — 34 eye-friendly themes, one click. Easier on the eyes, nicer to code in.**
+**Built for long coding sessions — 38 eye-friendly themes, one click. Easier on the eyes, nicer to code in.**
 
-*为长时间编程而生 —— 34 款护眼配色一键换上，眼睛舒服，码字开心。*
+*为长时间编程而生 —— 38 款护眼配色一键换上，眼睛舒服，码字开心。*
 
 Your ⭐ is the brightest star in my night sky.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![themes](https://img.shields.io/badge/themes-34%20opencode-orange)](https://github.com/anomalyco/opencode)
-[![tests](https://img.shields.io/badge/tests-31%2F31-green)]()
+[![themes](https://img.shields.io/badge/themes-38%20opencode-orange)](https://github.com/anomalyco/opencode)
+[![tests](https://img.shields.io/badge/tests-38%2F38-green)]()
 
 </div>
 
@@ -43,7 +43,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <div align="center">
 
-Every theme name has a story behind it, and all 34 live in the settings panel grouped by color family — search and switch. Each theme's 7 core colors — `background · text · primary · accent · error · warning · success` — are defined in `src/themes/`.
+Every theme name has a story behind it, and all 38 live in the settings panel grouped by color family — search and switch. Each theme's 7 core colors — `background · text · primary · accent · error · warning · success` — are defined in `src/themes/`.
 
 </div>
 
@@ -51,7 +51,7 @@ Every theme name has a story behind it, and all 34 live in the settings panel gr
 
 <div align="center">
 
-Typography stays independent from the theme: monospace (terminal) or regular (UI), 11–18 px, 5 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
+Typography stays independent from the theme: monospace (terminal) or regular (UI), 11–18 px, 6 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
 
 </div>
 

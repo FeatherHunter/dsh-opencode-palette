@@ -1,5 +1,7 @@
-// registry.mjs — 主题注册表：33 个静态主题（vendored JSON）+ system 特殊主题
-// 数据由 scripts/sync-themes.mjs 从 opencode v1.18.12 官方 tag 同步（见 MANIFEST.json 指纹）
+// registry.mjs — 主题注册表：37 个静态主题（33 TUI vendored + 4 桌面 2.0 转换）+ system 特殊主题
+// TUI 数据由 scripts/sync-themes.mjs 从 opencode v1.18.12 同步；2.0 四款由
+// scripts/convert-desktop-themes.mjs 从桌面 schema 转换（见 MANIFEST.json 指纹）
+import amoled from '../themes/amoled.json' with { type: 'json' }
 import aura from '../themes/aura.json' with { type: 'json' }
 import ayu from '../themes/ayu.json' with { type: 'json' }
 import carbonfox from '../themes/carbonfox.json' with { type: 'json' }
@@ -21,12 +23,15 @@ import mercury from '../themes/mercury.json' with { type: 'json' }
 import monokai from '../themes/monokai.json' with { type: 'json' }
 import nightowl from '../themes/nightowl.json' with { type: 'json' }
 import nord from '../themes/nord.json' with { type: 'json' }
+import oc_2 from '../themes/oc-2.json' with { type: 'json' }
 import one_dark from '../themes/one-dark.json' with { type: 'json' }
+import onedarkpro from '../themes/onedarkpro.json' with { type: 'json' }
 import opencode from '../themes/opencode.json' with { type: 'json' }
 import orng from '../themes/orng.json' with { type: 'json' }
 import osaka_jade from '../themes/osaka-jade.json' with { type: 'json' }
 import palenight from '../themes/palenight.json' with { type: 'json' }
 import rosepine from '../themes/rosepine.json' with { type: 'json' }
+import shadesofpurple from '../themes/shadesofpurple.json' with { type: 'json' }
 import solarized from '../themes/solarized.json' with { type: 'json' }
 import synthwave84 from '../themes/synthwave84.json' with { type: 'json' }
 import tokyonight from '../themes/tokyonight.json' with { type: 'json' }
@@ -37,6 +42,7 @@ import zenburn from '../themes/zenburn.json' with { type: 'json' }
 export const SYSTEM_THEME = 'system'
 
 const THEMES = {
+  "amoled": amoled,
   "aura": aura,
   "ayu": ayu,
   "carbonfox": carbonfox,
@@ -58,12 +64,15 @@ const THEMES = {
   "monokai": monokai,
   "nightowl": nightowl,
   "nord": nord,
+  "oc-2": oc_2,
   "one-dark": one_dark,
+  "onedarkpro": onedarkpro,
   "opencode": opencode,
   "orng": orng,
   "osaka-jade": osaka_jade,
   "palenight": palenight,
   "rosepine": rosepine,
+  "shadesofpurple": shadesofpurple,
   "solarized": solarized,
   "synthwave84": synthwave84,
   "tokyonight": tokyonight,

@@ -1,0 +1,117 @@
+{
+  "defs": {},
+  "theme": {
+    "background": {
+      "dark": "#1F1F1F",
+      "light": "#F7F7F7"
+    },
+    "backgroundPanel": {
+      "dark": "#1C1C1C",
+      "light": "#F8F8F8"
+    },
+    "backgroundElement": {
+      "dark": "#232323",
+      "light": "#F3F3F3"
+    },
+    "text": {
+      "dark": "#EDEDED",
+      "light": "#171717"
+    },
+    "textMuted": {
+      "dark": "#707070",
+      "light": "#8F8F8F"
+    },
+    "primary": {
+      "dark": "#FAB283",
+      "light": "#DCDE8D"
+    },
+    "accent": {
+      "dark": "#034CFF",
+      "light": "#034CFF"
+    },
+    "error": {
+      "dark": "#FC533A",
+      "light": "#FC533A"
+    },
+    "warning": {
+      "dark": "#FCD53A",
+      "light": "#FFDC17"
+    },
+    "success": {
+      "dark": "#12C905",
+      "light": "#12C905"
+    },
+    "info": {
+      "dark": "#EDB2F1",
+      "light": "#A753AE"
+    },
+    "border": {
+      "dark": "#282828",
+      "light": "#DBDBDB"
+    },
+    "borderActive": {
+      "dark": "#AEAAA8",
+      "light": "#5F5C5B"
+    },
+    "syntaxComment": {
+      "dark": "#8F8F8F",
+      "light": "#7A7A7A"
+    },
+    "syntaxKeyword": {
+      "dark": "#EDB2F1",
+      "light": "#A753AE"
+    },
+    "syntaxFunction": {
+      "dark": "#FAB283",
+      "light": "#DCDE8D"
+    },
+    "syntaxVariable": {
+      "dark": "#EDEDED",
+      "light": "#171717"
+    },
+    "syntaxString": {
+      "dark": "#00CEB9",
+      "light": "#00CEB9"
+    },
+    "syntaxNumber": {
+      "dark": "#93E9F6",
+      "light": "#007B80"
+    },
+    "syntaxType": {
+      "dark": "#FCD53A",
+      "light": "#8A6F00"
+    },
+    "syntaxOperator": {
+      "dark": "#707070",
+      "light": "#8F8F8F"
+    },
+    "markdownLink": {
+      "dark": "#034CFF",
+      "light": "#034CFF"
+    },
+    "markdownHeading": {
+      "dark": "#EDEDED",
+      "light": "#171717"
+    },
+    "markdownCode": {
+      "dark": "#FAB283",
+      "light": "#DCDE8D"
+    },
+    "markdownEmph": {
+      "dark": "#EDEDED",
+      "light": "#171717"
+    },
+    "markdownStrong": {
+      "dark": "#EDEDED",
+      "light": "#171717"
+    },
+    "markdownBlockQuote": {
+      "dark": "#707070",
+      "light": "#8F8F8F"
+    },
+    "markdownHorizontalRule": {
+      "dark": "#282828",
+      "light": "#DBDBDB"
+    }
+  }
+}

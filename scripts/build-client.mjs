@@ -18,7 +18,7 @@ const RUNTIME_FILE = join(ROOT, 'runtime', 'client.mjs')
 const PKG_DIR = join(ROOT, 'package')
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
-const MODULE_ORDER = ['resolve', 'map-dsh', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'client']
+const MODULE_ORDER = ['resolve', 'map-dsh', 'font-face', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'client']
 
 const JSON_IMPORT_RE = /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/
 const JS_IMPORT_RE = /^import \{ ([^}]+) \} from '\.\/([A-Za-z0-9_\/-]+)\.mjs'$/
@@ -80,7 +80,8 @@ async function packageVersion() {
 
 async function main() {
   const version = await packageVersion()
-  const modules = await bundleModules()
+  // 面板版本号：源码占位统一替换为当前版本（包版/动态版一致）
+  const modules = (await bundleModules()).split('__PALETTE_VERSION__').join(version)
   const ID = 'dsh-opencode-palette'
   const qClient = q('client')
   const qSettings = q('settings.plugins.tab')
@@ -127,7 +128,7 @@ async function main() {
     ' * dsh-opencode-palette v' + version + ' — 宿主半（no-op）',
     ' *',
     ' * 主题的全部工作在浏览器端（./client.js）完成：',
-    ' *   - 34 个 opencode 主题（33 内置 JSON + system）经数据驱动管线解析',
+    ' *   - 38 个 opencode 主题（37 内置 JSON：33 TUI + 4 桌面 2.0，另加 system）经数据驱动管线解析',
     ' *   - theme.overrideTokens 覆盖注册 token + <style> 层 CSS 变量/元素规则',
     ' * 宿主半只保证 loader 条目可解析、可挂载。',
     ' */',
@@ -143,7 +144,7 @@ async function main() {
   const pkgJson = {
     name: ID,
     version: version,
-    description: '让 DeepSeek Harness 穿上 34 款经典皮肤——东京的霓虹夜色、德古拉的暗红月光、复古工坊的暖黄灯火、黑客帝国的数字雨、玫瑰松林间的风……一键换肤，即点即换，重启不丢。34 legendary skins for DeepSeek Harness — tokyonight\'s neon dusk, dracula\'s crimson moon, gruvbox\'s retro glow, the matrix\'s digital rain, rose-pine\'s rosewood calm… one click, instant, persisted.',
+    description: '让 DeepSeek Harness 穿上 38 款经典皮肤——东京的霓虹夜色、德古拉的暗红月光、复古工坊的暖黄灯火、黑客帝国的数字雨、玫瑰松林间的风……一键换肤，即点即换，重启不丢。38 legendary skins for DeepSeek Harness — tokyonight\'s neon dusk, dracula\'s crimson moon, gruvbox\'s retro glow, the matrix\'s digital rain, rose-pine\'s rosewood calm… one click, instant, persisted.',
     type: 'module',
     main: 'lib/index.js',
     exports: {

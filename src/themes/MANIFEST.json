@@ -135,5 +135,16 @@
       "bytes": 4397,
       "sha256": "ee0facb4e0090b3eedc945e4f7957f872070206c7380c81fcffa46103c3c4900"
     }
+  },
+  "adapted20": {
+    "source": "sst/opencode 2.0 branch packages/ui/src/theme/themes/ (desktop-theme.json)",
+    "method": "scripts/convert-desktop-themes.mjs (direct roles + documented mix derivations)",
+    "sources": "src/themes/desktop-2.0/*.json (originals, do not edit outputs by hand)",
+    "themes": {
+      "amoled": { "bytes": 2226, "sha256": "086d8e663ea91fa96fa459d4bf95d8877adf2d8e21068a23c3c46b1aa6c5b091" },
+      "oc-2": { "bytes": 2226, "sha256": "f350754ec7b08c521c20f02a47d65ee8bc0fcf3b9448b6c8051df4fd4a8017ab" },
+      "onedarkpro": { "bytes": 2226, "sha256": "15d2b5f17148ebe7909aace15dbcbb8a71daa64037a1a4c8e243f57ddf68a2f2" },
+      "shadesofpurple": { "bytes": 2226, "sha256": "df6f0789fb493e0826eff0525b94edbdd6556aaf9375ac3a4ffabcba0cb81563" }
+    }
   }
 }

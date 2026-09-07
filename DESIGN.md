@@ -1,6 +1,6 @@
 # DESIGN — dsh-opencode-palette v2（多主题引擎）
 
-> 目标：让 DSH Web 界面支持 **opencode TUI 的全部 34 个主题**（33 内置 + system），
+> 目标：让 DSH Web 界面支持 **opencode 的全部 38 个主题**（37 内置：33 TUI + 4 桌面 2.0 转换 + system），
 > 可即时切换、可持久化、可扩展。本文是架构师视角的设计说明：分层、数据流、映射表、扩展点。
 
 ## 1. 一句话架构
@@ -23,6 +23,7 @@ dsh-opencode-palette/
 │   ├── themes/               # ① vendored 主题数据（33 个 JSON + NOTICES）
 │   └── engine/               # ② 纯逻辑引擎（ESM，可在 node 直接测试）
 │       ├── resolve.mjs       #    颜色解析器：引用链 → RGBA/HEX
+│       ├── font-face.mjs     #    生成文件：3 款 OFL 字体 @font-face（inline-fonts.mjs 生成，勿手改）
 │       ├── map-dsh.mjs       #    ★ 单一真相源：opencode 色位 → DSH CSS 变量
 │       ├── generate.mjs      #    主题 → { tokens, cssText }
 │       ├── registry.mjs      #    注册表：33 JSON + system 生成
@@ -59,7 +60,7 @@ dsh-opencode-palette/
 
 **为什么这样分层**：
 - 数据与代码分离 → 加新主题只跑 `npm run sync`（opencode 上游新增主题 0 代码改动）；
-- 引擎无 DOM 依赖 → `node --test` 全绿即保证 34 主题可解析可生成（CI 友好）；
+- 引擎无 DOM 依赖 → `node --test` 全绿即保证 38 主题可解析可生成（CI 友好）；
 - 适配层唯一 → DSH 升级改变量名时只改 `map-dsh.mjs` 一张表；
 - 运行时无业务逻辑 → 切换 = 幂等重放，永远"当前主题完整渲染"（无增量状态）。
 
@@ -125,6 +126,7 @@ build-client.mjs 用 ~120 行把 src/engine + src/themes + runtime 内联为一�
 |---|---|
 | opencode 上游新增主题 | `npm run sync`（自动下载+校验+指纹，代码 0 改动） |
 | DSH 改 CSS 变量名 | 只改 map-dsh.mjs 对应行 |
+| 字体版本更新 | 换 src/fonts/*.woff2 后 `npm run fonts` 重生成（OFL 可再分发限定；SF Mono/Consolas 私有，只检测不内置） |
 | 新增字体预设 | runtime 的 FONTS 常量 |
 | 支持浅色变体（light） | generate 读 DSH 外观模式，resolve 输出 light 分支（已预留） |
 | 面板加"对比度"等参数 | state 加字段 + generate 消费（管线不动） |
