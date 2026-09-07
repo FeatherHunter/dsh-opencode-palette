@@ -1,6 +1,6 @@
 {
   "name": "dsh-opencode-palette",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "private": true,
   "description": "DSH Web 多主题引擎：完整支持 opencode 全部 38 个主题（37 内置：33 TUI + 4 桌面 2.0 + system）。数据驱动三层管线：主题 JSON → 颜色解析 → DSH 适配注入。",
   "type": "module",

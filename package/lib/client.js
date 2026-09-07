@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.7.0 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v1.7.1 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 源：src/engine/* + runtime/client.mjs（npm run build 重新生成）
  */
@@ -8512,7 +8512,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '1.7.0'
+const PALETTE_VERSION = '1.7.1'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
