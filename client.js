@@ -8880,12 +8880,8 @@ function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: '你的 ⭐是我夜空中最亮的星',
-                style: { color: muted, display: 'inline-flex', cursor: 'pointer' },
-              }, h('svg', {
-                width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
-                stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-                style: { display: 'block' },
-              }, h('polygon', { points: '12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26' }))),
+                style: { color: muted, display: 'inline-flex', cursor: 'pointer', fontSize: 15, lineHeight: 1, textDecoration: 'none' },
+              }, '🌟'),
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
