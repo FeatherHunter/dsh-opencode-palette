@@ -51,7 +51,7 @@ Every theme name has a story behind it, and all 38 live in the settings panel gr
 
 <div align="center">
 
-Typography stays independent from the theme: monospace (terminal) or regular (UI), 11–18 px, 6 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
+Typography stays independent from the theme: applied to all text or code only, 11–18 px, 6 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
 
 </div>
 

@@ -73,7 +73,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <div align="center">
 
-排印独立于主题：等宽（终端风）或常规（界面风）、字号 11–18 px、6 种代码字体带实时预览。`system` 一键回到 DSH 原生外观，排印设置保留。面板跟着 DSH 界面语言走（中文 / English），切换即时跟随。
+排印独立于主题：作用到全部文字或仅代码、字号 11–18 px、6 种代码字体带实时预览。`system` 一键回到 DSH 原生外观，排印设置保留。面板跟着 DSH 界面语言走（中文 / English），切换即时跟随。
 
 </div>
 
