@@ -73,7 +73,23 @@ Every theme name has a story behind it, and all 38 live in the settings panel gr
 
 <div align="center">
 
-Typography stays independent from the theme: applied to all text or code only, 11–18 px, 6 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
+Typography stays independent from the theme: applied to all text or code only, 11–18 px, 7 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
+
+</div>
+
+<h2 align="center"><sub>EXTENSIONS</sub><br>What we add on top of the opencode themes</h2>
+
+<div align="center">
+
+The theme data itself stays faithful to upstream (37 theme JSONs + `system`, synced by `npm run sync`). Everything we add lives in three layers — **typography, adaptation, panel** — and never rewrites upstream colors.
+
+| Extension | What it does | Upstream opencode |
+| --- | --- | --- |
+| **Typography as its own dimension** | Font, size 11–18 px and scope (all text / code only) are independent of color and persist across restarts | Themes define colors only |
+| **A CJK-native font option** | Adds `Maple Mono NF CN`: English and Chinese from one typeface at a 2:1 width ratio, so mixed-language code blocks and tables stop drifting. Pick it once the font is installed locally; a missing font is greyed out and marked `missing` | None |
+| **Light & dark host** | The injected layer covers both `body` and `body[data-ds-dark-theme]`; the panel leaves no dark leftovers on a light host | Built for terminals — no web light/dark duality |
+| **`system` (default)** | One click back to DSH's native look: overrides no color tokens and keeps your typography | `system` = follow the terminal's 16 colors |
+| **Panel experience** | 38 themes grouped by color family, searchable, live preview; bilingual, following your DSH interface language | Theme files only |
 
 </div>
 

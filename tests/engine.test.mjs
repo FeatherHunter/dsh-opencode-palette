@@ -10,6 +10,7 @@ import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview 
 import { generateTheme, buildTokens, buildTypographyCss } from '../src/engine/generate.mjs'
 import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
 import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
+import { createFontAvailability, FONT_PROBE_ABSENT } from '../src/engine/font-avail.mjs'
 
 const TYPO = { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 
@@ -275,7 +276,7 @@ test('tokens: new coverage present in all non-system themes', () => {
 })
 
 test('fonts: dropdown order sinks proprietary fonts, Inter heads sans', () => {
-  assert.deepEqual(Object.keys(FONTS), ['JetBrains Mono', 'Cascadia Code', 'Fira Code', 'IBM Plex Mono', 'SF Mono', 'Consolas'])
+  assert.deepEqual(Object.keys(FONTS), ['JetBrains Mono', 'Cascadia Code', 'Fira Code', 'IBM Plex Mono', 'Maple Mono NF CN', 'SF Mono', 'Consolas'])
   assert.ok(SANS_STACK.indexOf("'Inter'") === 0, 'Inter not at sans head')
   for (const k of Object.keys(FONTS)) {
     const stack = FONTS[k]
@@ -284,4 +285,54 @@ test('fonts: dropdown order sinks proprietary fonts, Inter heads sans', () => {
     if (k !== 'SF Mono') assert.ok(stack.indexOf('SF Mono') > stack.indexOf('Fira Code'), k + ' SF Mono not sunk')
     if (k !== 'Consolas') assert.ok(stack.indexOf('Consolas') > stack.indexOf('Cascadia Code'), k + ' Consolas not sunk')
   }
+})
+
+test('fonts: Maple Mono NF CN 不随包（CJK 体积），但预设与回退栈齐备', () => {
+  const k = 'Maple Mono NF CN'
+  assert.ok(FONTS[k], '缺 ' + k + ' 预设')
+  assert.ok(BUNDLED_FONTS.indexOf(k) < 0, k + ' 不应随包内联（全量 CJK 体积不可行），只能本机检测')
+  const stack = FONTS[k]
+  assert.equal(stack.indexOf("'" + k + "'"), 0, '家族名未置栈首')
+  assert.ok(stack.endsWith("'PingFang SC','Microsoft YaHei'"), 'CJK 收尾被破坏（缺字会掉到 SimSun）')
+  // 未注册的 fontKey 会静默回落 JetBrains Mono 栈，故必须能解析到自身预设
+  const css = buildTypographyCss({ mode: 'mono', size: 13, fontKey: k })
+  assert.ok(css.includes('--ds-font-family-code:' + stack), k + ' 未被排版管线解析（会静默回退）')
+})
+
+// 假 host document：家族名在 installed 内 → 量宽不同于「确定不存在」的家族（= 本机已装）
+function fakeDoc(installed) {
+  const body = { appendChild: (el) => { el.parentNode = body }, removeChild: (el) => { el.parentNode = null } }
+  return {
+    body,
+    createElement: () => {
+      const el = {
+        style: { cssText: '', fontFamily: '' }, textContent: '', parentNode: null,
+        getBoundingClientRect() {
+          const fam = String(el.style.fontFamily || '').replace(/['"]/g, '')
+          return { width: (installed.indexOf(fam) >= 0 ? 5.498 : 8.12) * el.textContent.length }
+        },
+      }
+      return el
+    },
+  }
+}
+
+test('字体可用性：宽度对比法判本机字体（随包恒可用 / 未装判缺失）', () => {
+  const avail = createFontAvailability(() => fakeDoc(['Consolas']), BUNDLED_FONTS)
+  assert.equal(avail('JetBrains Mono'), true, '随包字体应恒可用（不量宽）')
+  assert.equal(avail('Consolas'), true, '本机已装应判可用')
+  assert.equal(avail('Maple Mono NF CN'), false, '本机未装应判缺失')
+  assert.equal(avail('SF Mono'), false, '本机未装应判缺失')
+  assert.equal(avail('Consolas'), true, '重复调用应命中缓存且结论一致')
+  assert.ok(FONT_PROBE_ABSENT.indexOf('dsh_palette') >= 0, '缺失基准家族名应带命名空间前缀，避免撞真实字体')
+})
+
+test('字体可用性：环境不支持量宽时保守判可用（绝不误灰可用字体）', () => {
+  const noDoc = createFontAvailability(() => undefined, BUNDLED_FONTS)
+  assert.equal(noDoc('Maple Mono NF CN'), true, '无 document 时不得误判缺失')
+  assert.equal(noDoc('Consolas'), true, '无 document 时不得误判缺失')
+  const noLayout = createFontAvailability(() => ({ body: {}, createElement: () => ({ style: {}, textContent: '' }) }), BUNDLED_FONTS)
+  assert.equal(noLayout('Consolas'), true, '量不出宽度时不得误判缺失')
+  const broken = createFontAvailability(() => ({ body: { appendChild: () => {} }, createElement: () => { throw new Error('boom') } }), BUNDLED_FONTS)
+  assert.equal(broken('Consolas'), true, '量宽抛异常时不得误判缺失')
 })

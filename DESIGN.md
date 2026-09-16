@@ -23,7 +23,8 @@ dsh-opencode-palette/
 │   ├── themes/               # ① vendored 主题数据（33 个 JSON + NOTICES）
 │   └── engine/               # ② 纯逻辑引擎（ESM，可在 node 直接测试）
 │       ├── resolve.mjs       #    颜色解析器：引用链 → RGBA/HEX
-│       ├── font-face.mjs     #    生成文件：3 款 OFL 字体 @font-face（inline-fonts.mjs 生成，勿手改）
+│       ├── font-face.mjs     #    生成文件：随包 OFL 字体 @font-face（inline-fonts.mjs 生成，勿手改）
+│       ├── font-avail.mjs    #    本机字体可用性判定：宽度对比法（document 注入，可 node 直测）
 │       ├── map-dsh.mjs       #    ★ 单一真相源：opencode 色位 → DSH CSS 变量
 │       ├── generate.mjs      #    主题 → { tokens, cssText }
 │       ├── registry.mjs      #    注册表：33 JSON + system 生成

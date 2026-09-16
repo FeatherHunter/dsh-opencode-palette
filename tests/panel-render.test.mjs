@@ -92,16 +92,34 @@ function loadPanel(opts = {}) {
       },
     },
   }
+  // 本机已装字体（供宽度对比检测的 mock）：缺省只装 Consolas，对齐常见 Windows 环境
+  const installedFonts = opts.installedFonts ?? ['Consolas']
+  const body = {
+    // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省/true → 深色
+    hasAttribute: () => opts.hostDark !== false,
+    appendChild: (el) => { el.parentNode = body },
+    removeChild: (el) => { el.parentNode = null },
+  }
   global.document = {
     head: { appendChild: () => {} },
-    createElement: () => ({ dataset: {}, parentNode: null, textContent: '' }),
+    body: body,
+    // 量宽 mock：家族名在 installedFonts 内 → 宽度不同于「确定不存在」的家族 → 判定已装
+    createElement: () => {
+      const el = {
+        dataset: {}, parentNode: null, textContent: '',
+        style: { cssText: '', fontFamily: '' },
+        getBoundingClientRect() {
+          const fam = String(el.style.fontFamily || '').replace(/['"]/g, '')
+          const unit = installedFonts.indexOf(fam) >= 0 ? 5.498 : 8.12
+          return { width: unit * el.textContent.length }
+        },
+      }
+      return el
+    },
     documentElement: { lang: lang },
     addEventListener: () => {},
     removeEventListener: () => {},
   }
-  // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省无 body → 回退深色
-  if (opts.hostDark === true) global.document.body = { hasAttribute: () => true }
-  if (opts.hostDark === false) global.document.body = { hasAttribute: () => false }
   // 注：Node 22 的 navigator 只读；getLang 以 document.documentElement.lang 为主信号源
   global.localStorage = opts.disabled
     ? { getItem: () => JSON.stringify({ enabled: false, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }), setItem: () => {} }
@@ -313,4 +331,14 @@ test('底部引流卡片（浅色宿主）：只用语义 token，无深色硬�
   assert.ok(seg.includes('var(--dsw-alias-label-tertiary)'), '外链图标未走语义字色')
   assert.ok(!/#555/.test(seg), '卡片内不应出现深色硬编码兜底色')
   assert.ok(!/#[0-9a-fA-F]{6}/.test(seg), '卡片内不应有任何硬编码 hex 颜色')
+})
+
+test('构建产物：新增预设与宽度对比字体检测都在产物里', () => {
+  const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
+  assert.ok(code.includes('Maple Mono NF CN'), '产物缺新增预设 Maple Mono NF CN')
+  assert.ok(code.includes('__dsh_palette_absent_font__'), '产物缺宽度对比检测（document.fonts.check 判不出未装）')
+  assert.ok(!code.includes("document.fonts.check('12px"), '旧的 check() 判定应已移除（说明注释里提到该 API 不算）')
+  // 下拉菜单默认折叠、不进 SSR 输出，故菜单项文案（本地 / 本机未装）由引擎单测覆盖判定逻辑
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(!html.includes('(本机未装)'), '折叠态不应出现菜单项后缀')
 })

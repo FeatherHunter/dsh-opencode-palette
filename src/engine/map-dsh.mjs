@@ -146,8 +146,12 @@ export const CSS_RULES = [
 ]
 
 // ── 5. 字体预设（主题无关维度；等宽栈尾部保留 CJK 字体避免 Windows 中文回退 SimSun）──
-// 回退栈按可用性排序：自选 > 随包 OFL > 私有本地检测（SF Mono/Consolas 沉底）> 系统 > CJK；
+// 回退栈按可用性排序：自选 > 随包 OFL > OFL 但不随包（Maple Mono NF CN：中英同字体）>
+// 私有本地检测（SF Mono/Consolas 沉底）> 系统 > CJK；
 // SANS 栈顶为 Inter（opencode 桌面端 UI 字体，OFL 随包），失败即回退宿主原生栈。
+// Maple Mono NF CN 为 OFL-1.1，中英文同一字体（中英宽度 2:1，混排对齐），但全量 CJK
+// 体积是 latin 子集的数十倍（单文件 ~18MB，切片 webfont 每字重 ~5MB），内联随包会把发布包
+// 从 0.4MB 级推到 15MB 级 —— 故与 SF Mono/Consolas 同策：只做本机检测，不随包内联。
 export const SANS_STACK = [
   "'Inter'", '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", "'PingFang SC'",
   "'Hiragino Sans GB'", "'Microsoft YaHei'", "'Helvetica Neue'", 'Helvetica', 'Arial', 'sans-serif',
@@ -158,6 +162,7 @@ export const FONTS = {
   'Cascadia Code': "'Cascadia Code','JetBrains Mono','Fira Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'Fira Code': "'Fira Code','JetBrains Mono','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'IBM Plex Mono': "'IBM Plex Mono','JetBrains Mono','Fira Code','Cascadia Code','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
+  'Maple Mono NF CN': "'Maple Mono NF CN','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'SF Mono': "'SF Mono','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
 }

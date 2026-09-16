@@ -4,6 +4,7 @@
 import { renderTheme, previewColors, themeNames, themeGroups } from './engine/index.mjs'
 import { FONTS, SANS_STACK } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
+import { createFontAvailability } from './engine/font-avail.mjs'
 import { THEME_ZH } from './engine/zh-names.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
@@ -89,17 +90,13 @@ function getLang() {
   } catch (e) { return 'en' }
 }
 
-// 字体可用性：随包字体（OFL 内联 @font-face）恒可用；SF Mono / Consolas 等私有字体
-// 只能本地检测，缺失即灰显提示（仍可选中，回退栈保证不断字）。未知环境保守返回可用。
-function isFontAvailable(family) {
-  try {
-    if (BUNDLED_FONTS && BUNDLED_FONTS.indexOf(family) >= 0) return true
-    if (typeof document !== 'undefined' && document.fonts && typeof document.fonts.check === 'function') {
-      return document.fonts.check('12px "' + family + '"')
-    }
-  } catch (e) { /* 保守可用 */ }
-  return true
-}
+// 字体可用性：随包字体（OFL 内联 @font-face）恒可用；本机字体（SF Mono / Consolas /
+// Maple Mono NF CN 等）缺失即灰显提示（仍可选中，回退栈保证不断字）。
+// 判定实现（宽度对比法）与理由见 engine/font-avail.mjs。
+const isFontAvailable = createFontAvailability(
+  () => (typeof document === 'undefined' ? undefined : document),
+  BUNDLED_FONTS
+)
 
 // 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
 // 未知环境（SSR/旧宿主/mock 缺 body）回退 true = 保持现有深色视觉，绝不误伤深色主题
