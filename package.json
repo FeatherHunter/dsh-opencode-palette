@@ -8,10 +8,12 @@
     "sync": "node scripts/sync-themes.mjs",
     "fonts": "node scripts/inline-fonts.mjs",
     "build": "node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
-    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs"
+    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs"
   },
   "engines": { "node": ">=20" },
   "devDependencies": {
+    "dsh-log": "0.2.1",
+    "dsh-plugin-update": "0.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },
