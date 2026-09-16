@@ -116,10 +116,25 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
 ## 7. 构建（零依赖 mini-bundler）
 
 约束：引擎代码使用受限 ESM 语法（单行 import、无 default/re-export、无动态导入），
-build-client.mjs 用 ~120 行把 src/engine + src/themes + runtime 内联为一个
+build-client.mjs 把 src/engine + src/themes + runtime 内联为一个
 `window.__ModuleLoader__.load({ id, factory })` CJS bundle（保留 `require('react')`
 外部引用）。同一份引擎同时产出「包版 lib/client.js」与「动态版 client.js」两个入口形状。
 不引入 esbuild/rollup：环境无网络依赖、产物确定、无版本漂移。
+
+同一个构建器还产出宿主半与 npm 包 vendor（v1.8.0 起）：
+
+- **宿主半**：`runtime/host.mjs` 原样复制成 `package/lib/index.js`（另带 `channel.mjs`、`event-list.json`
+  两个随包文件）。宿主半是真插件：接日志落盘与更新三电话，并把电话经精确路由 `/api/opencode-palette`
+  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（现在只有 `dsh-log`）。
+- **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/client` 在构建期从 npm 包读入、
+  转成 bundle 模块内联（转换器支持多行 `import`/`export` 与 `as` 别名）。所以面板里的电话名与轮询间隔
+  是**运行时从包的函数算出来的**，不是抄进源码的常量。
+- **更新包 dist 随包 vendor**：`runtime/vendor/dsh-plugin-update/` 与 `package/lib/vendor/dsh-plugin-update/`
+  由构建从 npm 包复制（带来源标记行，门禁断言逐字节一致）。为什么不能直接 `import 'dsh-plugin-update'`
+  见 `docs/adr/0001-vendor-dsh-plugin-update.md`。
+- **换行归一**：仓库 `* text=auto`，Windows 新克隆检出为 CRLF；构建器在读取处统一成 LF，
+  否则依赖「行首 import」的正则会全部失配（新克隆上构建静默产出 broken bundle）。
+
 
 ## 8. 扩展点（怎么加东西）
 
@@ -140,5 +155,9 @@ build-client.mjs 用 ~120 行把 src/engine + src/themes + runtime 内联为一�
   与 v1.1.0 行为一致；浅色支持作为扩展点保留。
 - D3 system 取「恢复原生」语义（见 §5），不做 ANSI 仿真（浏览器无终端调色板）。
 - D4 主题数据含第三方主题（dracula/nord/...），随 opencode MIT 分发，NOTICES 落盘。
-- D5 更新已装插件 = 替换 profiles/web/node_modules 实体目录文件 + 页面刷新
-  （客户端 bundle 由 webserver 从安装位伺服），宿主侧 no-op 无需重启。
+- D5（v1.8.0 改写）更新已装插件 = 替换 `profiles/<范围>/node_modules` 里的包文件 + **重启 DSH**。
+  旧表述「页面刷新即可、宿主侧 no-op 无需重启」在 v1.7.x 之前成立（那时宿主半是空的）；现在宿主半
+  真干活（日志落盘 + 更新电话 + 通道路由），而 DSH 不热重载 `node_modules` 里已装插件的宿主半
+  （`hmr` 行 disabled、启动器只 watch profile patch、HMR 默认忽略 `node_modules`），所以：
+  客户端半换成新版后由 `dsh-client-hmr` 自动热换（改 `dsh.client` 声明字段除外），
+  宿主半必须重启进程才生效——这正是更新包 `pending-restart` 的语义，也是面板「待重启」提示的由来。

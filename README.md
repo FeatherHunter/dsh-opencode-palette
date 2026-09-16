@@ -101,6 +101,18 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
+不想敲命令就用面板：打开「设置 → opencode调色板」，标题行右侧有 **检查更新** 按钮。
+
+- 点一下才联网（平时不会偷偷联网）；有新版本按钮会变成「更新至 vX.Y.Z」并弹出升级窗，里面能直接点 **立即升级**。
+- 自动升级没成功时，窗里会给一条可复制的手工命令（等价于上面的 `dsh plugin ... add --save-exact`），复制到终端执行即可。
+- **装完要重启 DSH 才生效**：新版已经写到磁盘，但正在跑的进程用的还是旧版。重启前面板顶部会一直挂着「新版 vX.Y.Z 已装好，重启 DSH 后生效」。
+
+排障日志（想反馈问题时可带上）：
+
+- 目录：`<DSH_HOME>/logs/dsh-opencode-palette/`（`DSH_HOME` 默认 `~/.dsh`），按天一个 `YYYY-MM-DD.log`。
+- 错误与告警**一直**记；信息与调试默认不记，要把 `~/.dsh/logs/log-switch-dsh-opencode-palette.json` 里的 `enabled` 改成 `true` 才记。
+- 日志只记枚举与散列（电话名、结果、失败散列），不记命令原文与真实路径。
+
 <div align="center">
 
 <details>
