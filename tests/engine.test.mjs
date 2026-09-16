@@ -300,16 +300,26 @@ test('fonts: Maple Mono NF CN 不随包（CJK 体积），但预设与回退栈�
 })
 
 // 假 host document：家族名在 installed 内 → 量宽不同于「确定不存在」的家族（= 本机已装）
+// 同时模拟浏览器行为：fontFamily 不是「配对引号包住的家族名」就当声明被丢弃（等于回退字体），
+// 这样引号写错这类会让所有字体都判成未装的 bug 会被测出来。
 function fakeDoc(installed) {
   const body = { appendChild: (el) => { el.parentNode = body }, removeChild: (el) => { el.parentNode = null } }
   return {
     body,
     createElement: () => {
+      // 模拟浏览器：家族名不是「配对双引号整体包住」的合法值时，整条 font-family 声明被丢弃（读回 ''）
+      const style = {
+        cssText: '',
+        _ff: '',
+        get fontFamily() { return this._ff },
+        set fontFamily(v) { this._ff = /^"[^"]+"$/.test(String(v)) ? String(v) : '' },
+      }
       const el = {
-        style: { cssText: '', fontFamily: '' }, textContent: '', parentNode: null,
+        style, textContent: '', parentNode: null,
         getBoundingClientRect() {
-          const fam = String(el.style.fontFamily || '').replace(/['"]/g, '')
-          return { width: (installed.indexOf(fam) >= 0 ? 5.498 : 8.12) * el.textContent.length }
+          const m = /^"([^"]+)"$/.exec(style.fontFamily)
+          const unit = m && installed.indexOf(m[1]) >= 0 ? 5.498 : 8.12
+          return { width: unit * el.textContent.length }
         },
       }
       return el
@@ -335,4 +345,7 @@ test('字体可用性：环境不支持量宽时保守判可用（绝不误灰�
   assert.equal(noLayout('Consolas'), true, '量不出宽度时不得误判缺失')
   const broken = createFontAvailability(() => ({ body: { appendChild: () => {} }, createElement: () => { throw new Error('boom') } }), BUNDLED_FONTS)
   assert.equal(broken('Consolas'), true, '量宽抛异常时不得误判缺失')
+  // 家族名带双引号 → CSS 声明会被丢弃；此时必须保守判可用，而不是把本机已装的字体判成未装
+  const badName = createFontAvailability(() => fakeDoc(['Consolas']), BUNDLED_FONTS)
+  assert.equal(badName('Cons"olas'), true, '声明被丢弃时应保守判可用')
 })

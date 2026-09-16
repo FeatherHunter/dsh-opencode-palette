@@ -26,7 +26,10 @@ export function createFontAvailability(resolveDoc, bundledFonts) {
     if (!host || typeof host.appendChild !== 'function') return null
     const span = doc.createElement('span')
     span.style.cssText = 'position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:pre;font-size:' + FONT_PROBE_SIZE + 'px;font-weight:400;font-style:normal;letter-spacing:0;font-feature-settings:normal'
-    span.style.fontFamily = "'" + family + '"'
+    // 家族名必须用配对的引号整体包住（引号写错 → 整条声明被浏览器静默丢弃 → 所有字体都量成回退宽度，
+    // 于是全部被误判成「未装」）。两端统一用双引号，赋不上值就直接返回 null 交给调用方保守处理。
+    span.style.fontFamily = '"' + family + '"'
+    if (span.style.fontFamily === '') return null // 声明没生效（家族名含引号等）→ 交给调用方保守处理
     span.textContent = FONT_PROBE_TEXT
     host.appendChild(span)
     let w = null
