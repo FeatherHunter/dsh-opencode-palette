@@ -6,6 +6,10 @@ import { FONTS, SANS_STACK } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
 import { THEME_ZH } from './engine/zh-names.mjs'
+import { createClientLog } from 'dsh-log/client'
+import { buildClientPhoneNames, CLIENT_POLL } from 'dsh-plugin-update/client'
+import { createUpdateController, buttonState, blockedReasonKey } from './update-panel.mjs'
+import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
@@ -17,6 +21,36 @@ const PALETTE_VERSION = '__PALETTE_VERSION__'
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
   if (typeof globalThis !== 'undefined' && globalThis.React) return globalThis.React
+  return null
+}
+
+// ── 宿主桥：浏览器半调宿主半的电话 ──
+// 两条方言都要接：
+//   1) 包版（本插件装成 npm 包）：ctx.get('connection').rpc.call('/api', 'opencode-palette', { method, payload })
+//      走宿主 connection.fetch.register 注册的精确路由；两个常量来自 runtime/channel.mjs（两侧同一份）。
+//   2) 动态版（cordis_define）：runner 给闭包注入自由变量 host，直接 host.call(电话名, 入参)。
+// 都没有时返回 null，整块更新功能降级隐藏（不影响主题面板本身）。
+function rpcCall(rpc, phone, args) {
+  return Promise.resolve(rpc.call(CHANNEL, ENDPOINT, { method: phone, payload: args })).then(function (res) {
+    if (res && res.ok) return res.value
+    const why = res && res.error && res.error.message ? res.error.message : 'rpc failed: ' + phone
+    throw new Error(why)
+  })
+}
+
+function createHostBridge(ctx) {
+  try {
+    const connection = ctx && typeof ctx.get === 'function' ? ctx.get('connection') : null
+    const rpc = connection && connection.rpc ? connection.rpc : null
+    if (rpc && typeof rpc.call === 'function') {
+      return { call: function (phone, args) { return rpcCall(rpc, phone, args) } }
+    }
+  } catch (e) { /* 落到下一条方言 */ }
+  try {
+    if (typeof host !== 'undefined' && host && typeof host.call === 'function') {
+      return { call: function (phone, args) { return host.call(phone, args) } }
+    }
+  } catch (e) { /* 无宿主 */ }
   return null
 }
 
@@ -80,6 +114,39 @@ const I18N = {
   'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
   'authorPlugin.prompt': { zh: '常用 prompt 预置或者自定义保存，开发只需要一键注入，不再繁琐', en: 'Save your prompt presets, inject them into a dev task with one click' },
   'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
+  // ── 检查更新（面板头行按钮 + 升级弹窗 + 待重启横幅）──
+  updateCheck: { zh: '检查更新', en: 'Check for updates' },
+  updateChecking: { zh: '检查中…', en: 'Checking…' },
+  updateInstalling: { zh: '正在升级…', en: 'Updating…' },
+  updateToVersion: { zh: '更新至 v{v}', en: 'Update to v{v}' },
+  updateRestart: { zh: '待重启', en: 'Restart needed' },
+  updateLatest: { zh: '已是最新版本（v{v}）', en: "You're on the latest version (v{v})" },
+  updateCheckFail: { zh: '检查更新失败，请稍后再试', en: 'Could not check for updates — try again later' },
+  updateToastRestart: { zh: '新版 v{v} 已装好，重启 DSH 后生效', en: 'v{v} installed — restart DSH to apply' },
+  updateDialogTitle: { zh: '发现新版本 v{v}', en: 'New version v{v}' },
+  updateVersions: { zh: '当前版本 v{running} → 最新版本 v{latest}', en: 'Current v{running} → latest v{latest}' },
+  updateRestartNote: { zh: '装好后要重启 DSH 才会生效（正在运行的还是旧版）。', en: 'Restart DSH after installing — the running process keeps the old version until then.' },
+  updateStart: { zh: '立即升级', en: 'Update now' },
+  updateLater: { zh: '稍后', en: 'Later' },
+  updateFailInstall: { zh: '升级失败，已保持当前版本', en: 'Update failed — the current version was kept' },
+  updateFailChanged: { zh: '安装位置在升级过程中变了，重开 DSH 再试一次', en: 'The install location changed mid-update — reopen DSH and retry' },
+  updateFailRecovery: { zh: '上次安装被打断，重新点一次「立即升级」', en: 'The last install was interrupted — press “Update now” again' },
+  updateManualTitle: { zh: '自动升级没成功，可复制这条命令手动执行', en: 'Auto-update did not go through — copy this command and run it yourself' },
+  updateManualNote: { zh: '在终端里执行（需要 pnpm 在 PATH 里）。', en: 'Run it in a terminal (pnpm must be on your PATH).' },
+  updateCopy: { zh: '复制', en: 'Copy' },
+  updateCopied: { zh: '已复制', en: 'Copied' },
+  updateCopyFail: { zh: '复制失败，请手动选中复制', en: 'Copy failed — select the command manually' },
+  updateUpToDateTitle: { zh: '已是最新版本', en: 'Up to date' },
+  // 装不了的原因（更新包 README 第 8 节八种，文案照「用户该做什么」那一列）
+  'blocked.unknown-profile': { zh: '使用范围认不出：检查范围名是否含特殊字符、目录是否还在', en: 'Unknown profile — check the profile name and that the directory still exists' },
+  'blocked.source-install': { zh: '当前是按源码装的，想走更新先按版本号重装一次', en: 'Installed from source — reinstall by version first' },
+  'blocked.invalid-installation': { zh: '已装的包不完整，先重装当前版本', en: 'The installed package is incomplete — reinstall the current version' },
+  'blocked.installation-changed': { zh: '安装位置在使用中途变了，重开 DSH 再查一次', en: 'The install location changed — reopen DSH and check again' },
+  'blocked.pending-restart': { zh: '新版已装到磁盘，重启 DSH 后生效', en: 'The new version is on disk — restart DSH to apply' },
+  'blocked.registry-conflict': { zh: '清单里那行写的不是版本号，改成版本号再试', en: 'The profile manifest does not pin a version — pin one and retry' },
+  'blocked.incompatible-node': { zh: '新版要求的 Node 更高，先升级 Node', en: 'The new version needs a newer Node — upgrade it first' },
+  'blocked.recovery-required': { zh: '上次安装被打断，重新点一次安装', en: 'The last install was interrupted — retry the install' },
+  'blocked.unknown': { zh: '当前装不了：重开 DSH 再查一次', en: 'Cannot update right now — reopen DSH and try again' },
 }
 
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
@@ -129,6 +196,25 @@ export function createClient(slotTarget) {
     let state = loadState()
     let tokenDispose = null
     let styleTag = null
+    // ── 宿主桥 + 日志骨架 + 更新控制器（宿主不可用时整块降级，不影响主题面板）──
+    const hostBridge = createHostBridge(ctx)
+    const clientLog = createClientLog(
+      {
+        host: hostBridge,
+        timer: { timeout: function (fn, ms) { return setTimeout(fn, ms) } },
+        storage: (globalThis.localStorage ? globalThis.localStorage : null),
+      },
+      { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
+    )
+    const update = createUpdateController({
+      call: hostBridge ? function (phone, args) { return hostBridge.call(phone, args) } : null,
+      phones: buildClientPhoneNames(PHONE_PREFIX),
+      pollMs: CLIENT_POLL.defaultMs,
+      log: function (level, event, fields) { try { clientLog.log(level, event, fields) } catch (e) { /* 忽略 */ } },
+    })
+    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错
+    try { clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
+    try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
 
     // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
     const localeSvc = ctx.get('locale') || ctx.locale || null
@@ -141,6 +227,14 @@ export function createClient(slotTarget) {
     function tr(key) {
       const entry = I18N[key]
       return entry ? (entry[currentLang] !== undefined ? entry[currentLang] : key) : key
+    }
+    // 带占位符的文案：trf('updateToVersion', { v: '1.8.0' })
+    function trf(key, vars) {
+      let text = tr(key)
+      for (const name in vars) {
+        if (Object.prototype.hasOwnProperty.call(vars, name)) text = text.split('{' + name + '}').join(String(vars[name]))
+      }
+      return text
     }
     function notifyLocale() {
       const next = currentLocale()
@@ -447,12 +541,121 @@ export function createClient(slotTarget) {
           }),
         ])
 
+        // ── 检查更新：订阅控制器（宿主不可用时整块不渲染）──
+        const [upd, setUpd] = react.useState(props.update ? props.update.getState() : null)
+        const [copied, setCopied] = react.useState(false)
+        react.useEffect(function () {
+          if (!props.update) return undefined
+          setUpd(props.update.getState())
+          const unsub = props.update.subscribe(function () { setUpd(props.update.getState()) })
+          // 打开面板静默读一次本地状态：只读、不联网（联网只在用户点按钮时发生）
+          props.update.readStatus()
+          return unsub
+        }, [])
+        const updState = upd
+        const updFailKey = function (s) {
+          const message = String((s && s.jobMessage) || '')
+          if (message === 'installation-changed') return 'updateFailChanged'
+          if (message === 'recovery-required') return 'updateFailRecovery'
+          return 'updateFailInstall'
+        }
+        const updLabel = function (s) {
+          const which = buttonState(s)
+          if (which === 'installing') return tr('updateInstalling')
+          if (which === 'checking') return tr('updateChecking')
+          if (which === 'pending') return tr('updateRestart')
+          if (which === 'hasNew') return trf('updateToVersion', { v: s.latest })
+          return tr('updateCheck')
+        }
+        const copyManual = function () {
+          try {
+            if (typeof navigator !== 'undefined' && navigator.clipboard) navigator.clipboard.writeText(String(updState.manual))
+            setCopied(true)
+          } catch (e) { /* 复制不可用 */ }
+        }
+        const updateButton = (updState && updState.available)
+          ? h('button', {
+              key: 'upd',
+              onClick: function () { props.update.check() },
+              disabled: !!(updState.checking || updState.installing),
+              title: tr('updateCheck'),
+              style: {
+                border: '1px solid ' + (updState.hasNew ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
+                borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
+                background: updState.hasNew ? segOnBg : 'transparent',
+                color: updState.hasNew ? 'var(--dsw-alias-brand-primary)' : muted,
+                fontFamily: 'var(--dsw-font-family)', whiteSpace: 'nowrap',
+              },
+            }, updLabel(updState))
+          : null
+        const restartBanner = (updState && updState.pending)
+          ? h('div', {
+              key: 'restart',
+              style: {
+                display: 'flex', alignItems: 'center', gap: 8,
+                border: '1px solid var(--dsw-alias-state-warn-primary)',
+                background: 'var(--dsw-alias-bg-layer-2)',
+                borderRadius: 8, padding: '8px 12px', fontSize: 12,
+                color: 'var(--dsw-alias-state-warn-primary)',
+              },
+            }, trf('updateToastRestart', { v: updState.installed || '' }))
+          : null
+        const updateDialog = (updState && updState.available && updState.dialogOpen)
+          ? h('div', {
+              key: 'updDlg',
+              onClick: function (e) { if (e.target === e.currentTarget) props.update.closeDialog() },
+              style: { position: 'fixed', left: 0, top: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' },
+            }, h('div', {
+              style: {
+                width: 460, maxWidth: 'calc(100vw - 32px)', boxSizing: 'border-box',
+                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
+                borderRadius: 12, padding: 18, boxShadow: menuShadow,
+                display: 'flex', flexDirection: 'column', gap: 10,
+              },
+            }, [
+              h('div', { key: 'ttl', style: { fontSize: 14, fontWeight: 600, color: base } }, trf('updateDialogTitle', { v: updState.latest || '' })),
+              h('div', { key: 'ver', style: { fontSize: 12, color: muted } }, trf('updateVersions', { running: updState.running || PALETTE_VERSION, latest: updState.latest || '' })),
+              h('div', { key: 'note', style: { fontSize: 12, color: muted } }, tr('updateRestartNote')),
+              updState.failure ? h('div', { key: 'fail', style: { fontSize: 12, color: 'var(--dsw-alias-state-error-primary)' } }, tr(updFailKey(updState))) : null,
+              (updState.blocked && !updState.canInstall) ? h('div', { key: 'blocked', style: { fontSize: 12, color: muted } }, tr(blockedReasonKey(updState.blocked))) : null,
+              updState.manual ? h('div', { key: 'manual', style: { display: 'flex', flexDirection: 'column', gap: 6 } }, [
+                h('div', { key: 'mh', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, fontSize: 12, color: base } }, [
+                  h('span', { key: 't' }, tr('updateManualTitle')),
+                  h('button', {
+                    key: 'c',
+                    onClick: copyManual,
+                    style: { border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: '2px 8px', fontSize: 11, cursor: 'pointer', background: 'transparent', color: muted, fontFamily: 'var(--dsw-font-family)' },
+                  }, tr(copied ? 'updateCopied' : 'updateCopy')),
+                ]),
+                h('pre', { key: 'p', style: { margin: 0, padding: '8px 10px', background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, fontSize: 11, overflowX: 'auto', color: base, fontFamily: 'var(--ds-font-family-code)' } }, String(updState.manual)),
+                h('div', { key: 'mn', style: { fontSize: 11, color: muted } }, tr('updateManualNote')),
+              ]) : null,
+              h('div', { key: 'acts', style: { display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 2 } }, [
+                updState.canInstall && updState.checkId
+                  ? h('button', {
+                      key: 'go',
+                      onClick: function () { props.update.install() },
+                      disabled: !!updState.installing,
+                      style: { border: '1px solid var(--dsw-alias-brand-primary)', borderRadius: 6, padding: '5px 14px', fontSize: 12, cursor: 'pointer', background: segOnBg, color: 'var(--dsw-alias-brand-primary)', fontFamily: 'var(--dsw-font-family)' },
+                    }, tr('updateStart'))
+                  : null,
+                h('button', {
+                  key: 'later',
+                  onClick: function () { props.update.closeDialog() },
+                  style: { border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: '5px 14px', fontSize: 12, cursor: 'pointer', background: 'transparent', color: muted, fontFamily: 'var(--dsw-font-family)' },
+                }, tr('updateLater')),
+              ]),
+            ]))
+          : null
+
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
+          restartBanner,
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
             h('strong', null, '🎨 ' + tr('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
               h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
+              updateButton,
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
@@ -572,6 +775,7 @@ export function createClient(slotTarget) {
               }),
           // ── 底部：作者其他插件（引流位）──
           authorCard,
+          updateDialog,
         ])
       }
       // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
@@ -582,6 +786,9 @@ export function createClient(slotTarget) {
           refresh: refresh,
           setTheme: setTheme,
           themeNames: themeNames,
+          // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
+          update: update,
+          log: clientLog,
           groups: function () { return themeGroups() },
           subscribeLocale: function (fn) {
             localeListeners.push(fn)
@@ -629,6 +836,8 @@ export function createClient(slotTarget) {
         try { if (dictDispose) dictDispose() } catch (e) { /* 忽略 */ }
         try { if (localeUnsub) localeUnsub() } catch (e) { /* 忽略 */ }
         try { if (localeObserver) localeObserver.disconnect() } catch (e) { /* 忽略 */ }
+        try { update.dispose() } catch (e) { /* 忽略 */ }
+        try { clientLog.flush() } catch (e) { /* 忽略 */ }
       }
     }, 'dsh-opencode-palette: styles')
   }

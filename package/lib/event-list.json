@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "pluginId": "dsh-opencode-palette",
+  "counts": { "resident": 7, "ondemand": 0, "selfmon": 0 },
+  "events": {
+    "host.call": {
+      "level": "info",
+      "kind": "resident",
+      "fields": ["method", "latencyMs", "ok", "kind", "pluginId"]
+    },
+    "host.call.fail": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": ["method", "kind", "errorHash", "pluginId"]
+    },
+    "update.install.exec": {
+      "level": "info",
+      "kind": "resident",
+      "fields": ["route", "ok", "exitCode", "durationMs", "pluginId"]
+    },
+    "log.forward.summary": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": ["droppedDelta", "totalDropped", "reason", "windowMs"]
+    },
+    "log.switch.watchdog": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": ["op", "timeoutMs", "stage"]
+    },
+    "log.export.fail": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": ["op", "reason", "errorHash"]
+    },
+    "host.channel.fail": {
+      "level": "error",
+      "kind": "resident",
+      "fields": ["stage", "path", "reason"]
+    }
+  }
+}

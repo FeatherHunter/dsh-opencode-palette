@@ -24,6 +24,9 @@
     "dark",
     "multi-theme"
   ],
+  "dependencies": {
+    "dsh-log": "0.2.1"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
