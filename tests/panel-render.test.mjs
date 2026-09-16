@@ -6,9 +6,31 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 
-const requireDsh = createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/')
-const React = requireDsh('react')
-const ReactDOMServer = requireDsh('react-dom/server')
+// React 解析：优先本仓 devDependencies（自包含、不受宿主安装位变动影响），
+// 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，
+// 硬编码该路径会让测试在换机/升级后直接崩，故解析失败时报明确修复指引）。
+function loadReact() {
+  const candidates = [
+    createRequire(import.meta.url),
+    createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/'),
+  ]
+  let missing = null
+  for (const req of candidates) {
+    try {
+      return { React: req('react'), ReactDOMServer: req('react-dom/server') }
+    } catch (e) { missing = e }
+  }
+  throw new Error('缺 react / react-dom（面板渲染测试前置）——先在本仓执行 `npm install` 装 devDependencies。原因：' + (missing && missing.message))
+}
+
+const { React, ReactDOMServer } = loadReact()
+
+// 引流卡片固定指向的三个兄弟插件仓库（顺序即渲染顺序）
+const AUTHOR_REPOS = ['dsh-mattpocock-skills-deck', 'dsh-prompt', 'dsh-im-companion']
+// 出现次数统计（用于「不多不少、每行一次」断言）
+function occurrences(hay, needle) {
+  return hay.split(needle).length - 1
+}
 
 // 迷你 locale 服务 mock：对齐 @deepseek-ai/dsh-client-locale 的受用面
 // （register / getLocale / subscribe），外加测试专用 setActive 触发语言切换
@@ -218,4 +240,77 @@ test("\u9762\u677f\u5e95\u90e8\u5c0f\u5b57\u663e\u793a\u5f53\u524d\u7248\u672c\u
   assert.ok(html.includes("/issues\""), "\u7f3aISSUE\u94fe\u63a5")
   assert.ok(html.indexOf("\u591c\u7a7a\u4e2d\u6700\u4eae") >= 0, "\u7f3a\u661f\u6807hover")
   assert.ok(html.includes("ISSUE"), "\u7f3aISSUE hover")
+})
+
+test('星标 hover 文案尾部带 🌹', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(html.includes('你的 ⭐是我夜空中最亮的星 🌹'), '星标 hover 缺尾部 🌹')
+})
+
+test('ISSUE 入口是消息气泡图标（不再是匿名信息图标）', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  const i = html.indexOf('dsh-opencode-palette/issues')
+  assert.ok(i >= 0, '缺 ISSUE 链接')
+  const seg = html.slice(i, i + 900)
+  assert.ok(seg.indexOf('M21 11.5a8.38') >= 0, 'ISSUE 图标未换成消息气泡路径')
+  assert.ok(seg.indexOf('任何功能需求') >= 0, 'ISSUE hover 文案被改动')
+  assert.ok(!html.includes('cx="12" cy="12" r="10"'), '旧 ⓘ 圆圈图标仍在')
+  assert.ok(!html.includes('<circle'), '不该再有任何 circle 图标（ISSUE 图标与主题圆点都已改）')
+})
+
+test('底部引流卡片（中文）：标题 + 3 行兄弟插件 + 外链图标', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(html.includes('作者其他插件'), '缺引流卡片标题')
+  assert.ok(html.includes('装好即自带 25 个工程/效率技能，右侧面板直接调用'), '缺 skills-deck 文案')
+  assert.ok(html.includes('常用 prompt 预置或者自定义保存，开发只需要一键注入，不再繁琐'), '缺 prompt 文案')
+  assert.ok(html.includes('dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力'), '缺 im-companion 文案')
+  for (const repo of AUTHOR_REPOS) {
+    const url = 'https://github.com/FeatherHunter/' + repo
+    assert.equal(occurrences(html, url), 1, '引流链接应恰好出现一次：' + repo)
+  }
+  // 图标确实渲染了：宫格标题图标 + 3 个外链箭头；锚点属性齐备
+  assert.equal(occurrences(html, 'polyline points="15 3 21 3 21 9"'), 3, '外链小图标应为 3 个')
+  assert.equal(occurrences(html, 'rect x="3" y="3"'), 1, '缺卡片标题前的宫格图标')
+  assert.equal(occurrences(html, 'target="_blank"'), occurrences(html, 'rel="noopener noreferrer"'), '外链锚点属性不成对')
+})
+
+test('底部引流卡片（英文）：整体英文，不出现中文引流文案', () => {
+  const locale = makeLocale('en')
+  const { html } = loadPanel({ locale })
+  assert.ok(html.includes('More from the author'), '缺英文卡片标题')
+  assert.ok(html.includes('25 engineering skills built in'), '缺 skills-deck 英文文案')
+  assert.ok(html.includes('Save your prompt presets'), '缺 prompt 英文文案')
+  assert.ok(html.includes("Supercharges dsh-im"), '缺 im-companion 英文文案')
+  assert.ok(!html.includes('作者其他插件'), '英文界面不应出现中文卡片标题')
+  assert.ok(!html.includes('装好即自带'), '英文界面不应出现中文引流文案')
+  assert.ok(!html.includes('不再繁琐'), '英文界面不应出现中文引流文案')
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'authorPlugins'), '作者其他插件')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'authorPlugins'), 'More from the author')
+})
+
+test('底部引流卡片：跟随语言切换实时改文案', () => {
+  const locale = makeLocale('zh')
+  const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
+  assert.ok(zhHtml.includes('作者其他插件'), '初始中文卡片标题缺失')
+  locale.setActive('en')
+  const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
+  assert.ok(enHtml.includes('More from the author'), '切换后缺英文卡片标题')
+  assert.ok(!enHtml.includes('作者其他插件'), '切换后不应残留中文卡片标题')
+})
+
+test('底部引流卡片（浅色宿主）：只用语义 token，无深色硬编码残留', () => {
+  const { html } = loadPanel({ lang: 'zh-CN', disabled: true, hostDark: false })
+  const title = html.indexOf('作者其他插件')
+  assert.ok(title >= 0, '缺引流卡片标题')
+  // 卡片开标签在标题之前，按「最近的 border-radius:10px」回溯定位，末行取到卡片闭标签
+  const style = html.lastIndexOf('border-radius:10px', title)
+  assert.ok(style > 0, '未找到引流卡片开标签（卡片容器结构变了）')
+  const start = html.lastIndexOf('<div', style)
+  const seg = html.slice(start, html.indexOf('</div></div>', title))
+  assert.ok(seg.includes('var(--dsw-alias-border-l1)'), '卡片描边未走语义 token')
+  assert.ok(seg.includes('var(--dsw-alias-label-primary)'), '卡片插件名未走语义字色')
+  assert.ok(seg.includes('var(--dsw-alias-label-secondary)'), '卡片描述未走语义字色')
+  assert.ok(seg.includes('var(--dsw-alias-label-tertiary)'), '外链图标未走语义字色')
+  assert.ok(!/#555/.test(seg), '卡片内不应出现深色硬编码兜底色')
+  assert.ok(!/#[0-9a-fA-F]{6}/.test(seg), '卡片内不应有任何硬编码 hex 颜色')
 })

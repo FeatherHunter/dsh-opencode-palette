@@ -4,3 +4,15 @@ node_modules/
 .scratch*
 dist/
 *.log
+
+# teach workspace（本机学习状态，不属于插件，不提交）
+MISSION.md
+RESOURCES.md
+NOTES.md
+/lessons/
+/reference/
+/learning-records/
+assets/teach.css
+
+# 本机 vision 工具链产物（截图/裁剪等临时文件，不属于插件）
+.dsh-vision-router/

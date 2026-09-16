@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v1.7.1 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v1.7.2 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 源：src/engine/* + runtime/client.mjs（npm run build 重新生成）
  */
@@ -8512,7 +8512,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '1.7.1'
+const PALETTE_VERSION = '1.7.2'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -8574,6 +8574,12 @@ const I18N = {
   'group.neutral': { zh: '中性', en: 'Neutral' },
   'group.transparent': { zh: '透明', en: 'Transparent' },
   'group.special': { zh: '特殊', en: 'Special' },
+  // 底部「作者其他插件」引流卡片（兄弟插件导流位，对齐 MattSkillsDeck 同款卡片）
+  authorPlugins: { zh: '作者其他插件', en: 'More from the author' },
+  authorPluginOpen: { zh: '在新窗口打开', en: 'Open in new window' },
+  'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
+  'authorPlugin.prompt': { zh: '常用 prompt 预置或者自定义保存，开发只需要一键注入，不再繁琐', en: 'Save your prompt presets, inject them into a dev task with one click' },
+  'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
 }
 
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
@@ -8879,6 +8885,72 @@ function createClient(slotTarget) {
 
 
 
+        // ── 作者其他插件（底部引流位）──
+        // 只列兄弟插件、不自我推荐（本面板自己的星标链接就在标题行）；
+        // 静态外链列表，不做「已安装」检测（面板侧无稳定安装信号）。
+        const authorPlugins = [
+          { repo: 'dsh-mattpocock-skills-deck', descKey: 'authorPlugin.skillsDeck' },
+          { repo: 'dsh-prompt', descKey: 'authorPlugin.prompt' },
+          { repo: 'dsh-im-companion', descKey: 'authorPlugin.imCompanion' },
+        ]
+        // 外链小图标（方框 + 右上斜箭头，与 MattSkills 同款语义）
+        const extLinkIcon = function () {
+          return h('svg', {
+            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+            style: { display: 'block' },
+          }, [
+            h('path', { d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }),
+            h('polyline', { points: '15 3 21 3 21 9' }),
+            h('line', { x1: 10, y1: 14, x2: 21, y2: 3 }),
+          ])
+        }
+        // 四宫格小图标（卡片标题前）
+        const gridIcon = function () {
+          return h('svg', {
+            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+            style: { display: 'block' },
+          }, [
+            h('rect', { key: 'tl', x: 3, y: 3, width: 7, height: 7, rx: 1 }),
+            h('rect', { key: 'tr', x: 14, y: 3, width: 7, height: 7, rx: 1 }),
+            h('rect', { key: 'bl', x: 3, y: 14, width: 7, height: 7, rx: 1 }),
+            h('rect', { key: 'br', x: 14, y: 14, width: 7, height: 7, rx: 1 }),
+          ])
+        }
+        // 底部引流卡片：3 行兄弟插件，整行可点（锚点），新窗口打开
+        const authorCard = h('div', {
+          style: {
+            marginTop: 4,
+            border: '1px solid var(--dsw-alias-border-l1)',
+            borderRadius: 10, padding: '12px 14px',
+            display: 'flex', flexDirection: 'column', gap: 4,
+          },
+        }, [
+          h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, color: base, fontSize: 13, fontWeight: 600, marginBottom: 6 } }, [
+            h('span', { key: 'ico', style: { color: muted, display: 'inline-flex' } }, gridIcon()),
+            tr('authorPlugins'),
+          ]),
+          ...authorPlugins.map(function (p) {
+            return h('a', {
+              key: p.repo,
+              href: 'https://github.com/FeatherHunter/' + p.repo,
+              target: '_blank', rel: 'noopener noreferrer',
+              title: tr('authorPluginOpen') + '：' + p.repo,
+              style: {
+                display: 'flex', alignItems: 'baseline', gap: 10,
+                padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
+                textDecoration: 'none', cursor: 'pointer',
+                background: 'transparent',
+              },
+            }, [
+              h('span', { key: 'name', style: { fontFamily: 'var(--ds-font-family-code)', fontSize: 12, fontWeight: 700, color: base, whiteSpace: 'nowrap' } }, p.repo),
+              h('span', { key: 'desc', style: { fontSize: 12, color: muted, flex: 1 } }, tr(p.descKey)),
+              h('span', { key: 'ext', style: { color: 'var(--dsw-alias-label-tertiary)', display: 'inline-flex', flex: 'none' } }, extLinkIcon()),
+            ])
+          }),
+        ])
+
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
@@ -8888,9 +8960,10 @@ function createClient(slotTarget) {
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
-                title: '你的 ⭐是我夜空中最亮的星',
+                title: '你的 ⭐是我夜空中最亮的星 🌹',
                 style: { color: muted, display: 'inline-flex', cursor: 'pointer', fontSize: 15, lineHeight: 1, textDecoration: 'none' },
               }, '🌟'),
+              // ISSUE 入口：消息气泡形态（信息图标认不出「提需求」，气泡才读得出是反馈）
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
@@ -8900,11 +8973,9 @@ function createClient(slotTarget) {
                 width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
                 stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
                 style: { display: 'block' },
-              }, [
-                h('circle', { cx: 12, cy: 12, r: 10 }),
-                h('line', { x1: 12, y1: 8, x2: 12, y2: 12 }),
-                h('line', { x1: 12, y1: 16, x2: 12.01, y2: 16 }),
-              ])),
+              }, h('path', {
+                d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+              }))),
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
@@ -9003,6 +9074,8 @@ function createClient(slotTarget) {
                   h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
                 ])
               }),
+          // ── 底部：作者其他插件（引流位）──
+          authorCard,
         ])
       }
       // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
