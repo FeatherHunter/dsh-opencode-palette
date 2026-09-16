@@ -79,6 +79,18 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
+Prefer a button? Open Settings → Opencode Palette: there is a **Check for updates** button at the right of the title row.
+
+- It only goes online when you click it — never in the background. When a newer version exists, the button turns into “Update to vX.Y.Z” and opens an upgrade dialog with an **Update now** action.
+- If the automatic install cannot go through, the dialog hands you a copy-paste command (same as the `dsh plugin ... add --save-exact` above).
+- **Restart DSH for the new version to take effect**: the new files are already on disk, but the running process keeps the old ones. Until you restart, the panel shows a persistent “vX.Y.Z installed — restart DSH to apply” banner.
+
+Diagnostic logs (attach them when filing an issue):
+
+- Directory: `<DSH_HOME>/logs/dsh-opencode-palette/` (`DSH_HOME` defaults to `~/.dsh`), one `YYYY-MM-DD.log` per day.
+- Errors and warnings are always written; info and debug are off until you set `enabled` to `true` in `~/.dsh/logs/log-switch-dsh-opencode-palette.json`.
+- Lines carry enums and hashes only (phone names, outcomes, failure hashes) — never command text or real paths.
+
 <div align="center">
 
 <details>
