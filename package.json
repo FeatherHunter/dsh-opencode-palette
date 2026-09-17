@@ -9,7 +9,7 @@
     "sync:update": "node scripts/sync-themes.mjs --update-baseline",
     "fonts": "node scripts/inline-fonts.mjs",
     "build": "node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
-    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs"
+    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs tests/readme-body.test.mjs"
   },
   "engines": { "node": ">=20" },
   "repository": {

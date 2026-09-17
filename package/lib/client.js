@@ -1569,7 +1569,7 @@ __mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColo
 
 const THEME_ZH = {
   opencode: "opencode", tokyonight: "东京之夜", dracula: "德古拉", gruvbox: "复古凹槽",
-  matrix: "黑客帝国", "rose-pine": "玫瑰松林", catppuccin: "卡布奇诺", "catppuccin-frappe": "卡布奇诺·冰沙",
+  matrix: "黑客帝国", rosepine: "玫瑰松林", catppuccin: "卡布奇诺", "catppuccin-frappe": "卡布奇诺·冰沙",
   "catppuccin-macchiato": "卡布奇诺·玛奇朵", solarized: "日光浴", synthwave84: "合成波 84",
   everforest: "常青森林", nord: "北极", kanagawa: "神奈川", nightowl: "夜猫子",
   "one-dark": "One Dark", monokai: "Monokai", palenight: "苍白之夜", material: "材料设计",
@@ -10057,7 +10057,7 @@ const I18N = {
   themeCount: { zh: '38 款 · 按色系分组', en: '38 · by color family' },
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
-  systemDefault: { zh: 'system（默认）', en: 'system (default)' },
+  systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
   'group.teal': { zh: '青绿', en: 'Teal' },

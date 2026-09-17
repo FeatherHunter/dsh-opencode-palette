@@ -112,7 +112,7 @@ const I18N = {
   themeCount: { zh: '38 款 · 按色系分组', en: '38 · by color family' },
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
-  systemDefault: { zh: 'system（默认）', en: 'system (default)' },
+  systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
   'group.teal': { zh: '青绿', en: 'Teal' },

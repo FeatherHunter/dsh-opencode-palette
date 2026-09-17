@@ -1,10 +1,15 @@
 // scripts/generate-assets.mjs — 生成开源展示资产（真实主题色 SVG，中英双语）
-// 产出 assets/: palette-matrix-{en,zh}.svg · palette-strips-{en,zh}.svg
-//            setup-panel-{en,zh}.svg · theme-switch-{en,zh}.svg
+// 产出 assets/: theme-stories-{zh,en}.svg —— 「色带基线」版（票 #29 定案 A，票 #31 落地）：
+//   画布 860 × 1812（860 = GitHub 桌面内容宽，1:1 显示不缩字）；一行一款：
+//   中文名（该主题 primary 色）＋ 主题 id（mono）＋ 一句由来（最多 2 行，栏宽 320）；
+//   右侧 7 格色带（每格 64 × 30、间距 6、圆角 4），顺序固定
+//   背景 / 文字 / 主色 / 强调 / 错误 / 警告 / 成功；色带正上方一列 7 个列名。
+//   26 款策展名单（非全 38），按色系分组、组序与面板一致（GROUP_ORDER 去掉 neutral）。
 import { writeFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { themeNames, previewColors } from '../src/engine/index.mjs'
+import { GROUP_ORDER, groupOf } from '../src/engine/grouping.mjs'
 import { THEME_ZH } from '../src/engine/zh-names.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -27,7 +32,7 @@ const THEME_STORY_ZH = {
   dracula: "吸血鬼风格的暗紫，经典中的经典",
   gruvbox: "致敬 80 年代 CRT 与合成器的复古暖色",
   matrix: "数字雨的荧光绿，一键进入 Matrix",
-  "rose-pine": "玫瑰粉与松林绿的低饱和温柔",
+  rosepine: "玫瑰粉与松林绿的低饱和温柔",
   catppuccin: "拿铁般的柔和（Mocha 摩卡 / Frappé 冰沙 / Macchiato 玛奇朵）",
   "catppuccin-frappe": "卡布奇诺家族更轻盈的灰调",
   "catppuccin-macchiato": "卡布奇诺家族更浓郁的层次",
@@ -55,7 +60,7 @@ const THEME_STORY_ZH = {
   vercel: "Vercel 品牌蓝",
   "lucent-orng": "透明底色 + 活力橙",
   orng: "热烈直白的橙",
-  system: "一键回到 DSH 默认外观",
+  system: "一键回到 DSH 原生外观",
 }
 const THEME_STORY_EN = {
   opencode: "The official default theme — deep black with orange / blue / violet",
@@ -63,7 +68,7 @@ const THEME_STORY_EN = {
   dracula: "The classic vampire-purple, a community icon",
   gruvbox: "Retro warm tones honoring 80s CRTs and synths",
   matrix: "The glowing green of digital rain",
-  "rose-pine": "Low-saturation rose and pine, soft and calm",
+  rosepine: "Low-saturation rose and pine, soft and calm",
   catppuccin: "Latte-soft pastels (Mocha / Frappé / Macchiato)",
   "catppuccin-frappe": "The lighter, cooler sibling of Catppuccin",
   "catppuccin-macchiato": "The deeper, richer sibling of Catppuccin",
@@ -91,442 +96,153 @@ const THEME_STORY_EN = {
   vercel: "Vercel’s brand blue",
   "lucent-orng": "Vivid orange on a transparent base",
   orng: "Straightforward, vivid orange",
-  system: "One click back to DSH’s default look",
+  system: "One click back to DSH’s native look",
 }
 
+// ── 策展名单（26 款）与分组口径 ──
+// 只留「名字有来历」的主题；分组走引擎的 groupOf（与面板同源），
+// 组序用 GROUP_ORDER 去掉 neutral（策展名单里没有中性色主题）。
+const STORY_PICKS = ['tokyonight','dracula','gruvbox','matrix','rosepine','catppuccin','catppuccin-frappe','catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight','ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng']
+const GROUP_NAMES = {
+  warm: ['暖橙', 'Warm'], 'yellow-green': ['黄绿', 'Yellow-green'], teal: ['青绿', 'Teal'],
+  'cyan-blue': ['青蓝', 'Cyan-blue'], 'cool-blue': ['冷蓝', 'Cool-blue'], violet: ['蓝紫', 'Violet'],
+  transparent: ['透明', 'Transparent'],
+}
+const GROUP_KEYS = GROUP_ORDER.filter((g) => g !== 'neutral' && g !== 'special')
+// 组头色点的代表色（与 src/engine/grouping.mjs 的 GROUP_COLORS 同值；此处只用于画图）
+const GROUP_COLORS_FALLBACK = {
+  warm: '#FAB283', 'yellow-green': '#A7C080', teal: '#2DD5B7',
+  'cyan-blue': '#88C0D0', 'cool-blue': '#82AAFF', violet: '#C4A7E7', transparent: '#8B8B95',
+}
+const SLOTS = {
+  zh: ['背景', '文字', '主色', '强调', '错误', '警告', '成功'],
+  en: ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'],
+}
+const BAND_KEYS = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success']
 
-// ── 双语文案表 ──
-const L = {
-  en: {
-    matrixTitle: 'All 38 themes · official opencode colors',
-    matrixSub: 'click any theme — the whole interface re-skins instantly',
-    stripsTitle: 'Every theme, decomposed',
-    stripsSub: 'bg · text · primary · accent · error · warning · success — the 7 colors that define each theme',
-    panelName: 'Opencode Palette',
-    enabled: 'Enabled',
-    subtitle: '38 official opencode themes — click to switch',
-    typography: 'Typography',
-    mono: 'All text',
-    sans: 'Code only',
-    fontSize: 'Font size 13px',
-    codeFont: 'JetBrains Mono',
-    themeSection: 'Themes · 38 · by color family',
-    groupWarm: 'Warm', groupCool: 'Cool blue', groupTeal: 'Teal',
-    groupsMore: '…38 themes total (warm / yellow-green / teal / cyan-blue / cool-blue / violet / transparent / special)',
-    step1: '1 Open Settings', step2: '2 Open Plugins', step3: '3 Pick a theme — the UI re-skins instantly',
-    switchTitle: 'Same interface, three themes',
-    ask: 'Ask anything…',
-    heroTitle: 'One interface. 38 looks.',
-    heroSub: 'The complete opencode palette for DeepSeek Harness — every theme, one click away',
-    heroMorePre: 'opencode · tokyonight · synthwave84 — ',
-    heroMoreHi: '+35 more',
-    heroMorePost: ' — all official, all one click',
-  },
-  zh: {
-    matrixTitle: '38 款主题 · 全部官方配色',
-    matrixSub: '点击任意一款，整个界面立即换上它的配色',
-    stripsTitle: '每个主题，逐一拆解',
-    stripsSub: '背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功 —— 定义每个主题气质的 7 种颜色',
-    panelName: 'opencode调色板',
-    enabled: '已启用',
-    subtitle: '38 款 opencode 官方配色主题，点击即切换',
-    typography: '字体字号',
-    mono: '全部文字',
-    sans: '仅代码',
-    fontSize: '字号 13px',
-    codeFont: 'JetBrains Mono',
-    themeSection: '选择主题 · 38 款 · 按色系分组',
-    groupWarm: '暖橙', groupCool: '冷蓝', groupTeal: '青绿',
-    groupsMore: '…共 38 款（暖橙 / 黄绿 / 青绿 / 青蓝 / 冷蓝 / 蓝紫 / 透明 / 特殊）',
-    step1: '① 打开 设置', step2: '② 点开 插件', step3: '③ 在面板里选一个主题，界面立即换色',
-    switchTitle: '同一界面，三种主题',
-    ask: '问点什么…',
-    heroTitle: '一个界面，38 种风格',
-    heroSub: '把 opencode 的整套官方调色板搬进 DeepSeek Harness —— 每一款，一键切换',
-    heroMorePre: 'opencode · tokyonight · synthwave84 —— ',
-    heroMoreHi: '还有 35 款',
-    heroMorePost: '，全部官方配色，全部一键切换',
-  },
-}
-
-function chipSvg(x, y, name, w) {
-  const c = data[name] || {}
-  const bg = c.background || '#1c1c1e'
-  const fg = c.text || '#c8c8d0'
-  const bd = c.primary || '#555'
-  return '<g>' +
-    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="26" rx="6" fill="' + bg + '" stroke="' + bd + '" stroke-opacity="0.7"/>' +
-    (c.primary ? '<circle cx="' + (x + 12) + '" cy="' + (y + 13) + '" r="4.5" fill="' + c.primary + '"/>' : '') +
-    '<text x="' + (x + 22) + '" y="' + (y + 17) + '" font-family="' + MONO + '" font-size="14.5" fill="' + fg + '">' + esc(name) + '</text>' +
-    '</g>'
-}
-
-// ── palette-matrix ──（玻璃拟态墙：柔光斑背景 + 半透明卡片 + 主色顶条 + 语义色微条）
-function matrixDoc(lang) {
-  const T = L[lang]
-  const COLS = 6, CW = 196, CH = 106, GAP = 12, PAD_X = 20, PAD_Y = 124
-  const rows = Math.ceil(names.length / COLS)
-  const W = PAD_X * 2 + COLS * CW + (COLS - 1) * GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 20
-  const blobs = ['#FAB283', '#9D7CD8', '#56B6C2', '#FF7EDB'].map((col, i) =>
-    '<radialGradient id="blob' + i + '" cx="' + (18 + i * 22) + '%" cy="' + (12 + (i % 2) * 40) + '%" r="34%"><stop offset="0%" stop-color="' + col + '" stop-opacity="' + (0.10 - i * 0.015) + '"/><stop offset="100%" stop-color="' + col + '" stop-opacity="0"/></radialGradient>'
-  ).join('')
-  const cards = names.map((n, i) => {
-    const c = data[n]
-    const col = i % COLS, row = Math.floor(i / COLS)
-    const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
-    const strip = ['primary', 'accent', 'error', 'warning', 'success'].map((k, j) =>
-      '<rect x="' + (x + 14 + j * 34) + '" y="' + (y + CH - 16) + '" width="30" height="4" rx="2" fill="' + hex(c[k]) + '"/>'
-    ).join('')
-    // 中文版卡片补一行中文译名；主题名用主题自己的文字色（非纯白）
-    const nameFill = hex(c.text) || '#e2e2e8'
-    const zhName = lang === 'zh' && THEME_ZH[n]
-      ? '<text x="' + (x + 14) + '" y="' + (y + 56) + '" font-family="' + SANS + '" font-size="17" font-weight="700" letter-spacing="1" fill="' + hex(c.primary) + '">' + esc(THEME_ZH[n]) + '</text>'
-      : ''
-    return '<g>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="14" fill="rgba(255,255,255,0.045)" stroke="rgba(255,255,255,0.09)"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="3" rx="1.5" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 14) + '" y="' + (y + 31) + '" font-family="' + MONO + '" font-size="18.5" font-weight="600" fill="' + nameFill + '">' + esc(n) + '</text>' +
-      zhName +
-      strip +
-      '</g>'
-  }).join('')
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
-    '<defs>' + blobs + '</defs>',
-    '<rect width="100%" height="100%" fill="#0a0a0a"/>',
-    '<rect width="100%" height="100%" fill="url(#blob0)"/><rect width="100%" height="100%" fill="url(#blob1)"/><rect width="100%" height="100%" fill="url(#blob2)"/><rect width="100%" height="100%" fill="url(#blob3)"/>',
-    '<text x="' + PAD_X + '" y="58" font-family="' + SANS + '" font-size="31" font-weight="700" fill="#f0f0f0">' + esc(T.matrixTitle) + '</text>',
-    '<text x="' + PAD_X + '" y="86" font-family="' + SANS + '" font-size="18.5" fill="#8b8b95">' + esc(T.matrixSub) + '</text>',
-    cards,
-    '</svg>',
-  ].join('\n')
-}
-// ── palette-strips ──（名字 + 故事 + 语义色带：中文版显示中文名与由来）
-function stripsDoc(lang) {
-  const T = L[lang]
-  const story = lang === 'zh' ? THEME_STORY_ZH : THEME_STORY_EN
-  const ROW_H = 56, NAME_W = 376, SEG_W = 84, SEG_H = 30, TOP = 84
-  const W2 = 10 + NAME_W + 18 + 7 * SEG_W + 30
-  const H2 = TOP + names.length * (ROW_H + 4) + 16
-  const rows = names.map((n, i) => {
-    const c = data[n]
-    const y = TOP + i * (ROW_H + 4)
-    const fg = c.text || '#c8c8d0'
-    const segs = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'].map((k, j) => {
-      const v = c[k]
-      return '<rect x="' + (10 + NAME_W + 18 + j * SEG_W) + '" y="' + (y + (ROW_H - SEG_H) / 2) + '" width="' + (SEG_W - 2) + '" height="' + SEG_H + '" rx="4" fill="' + (v ? v : 'url(#chess)') + '" stroke="rgba(255,255,255,0.06)"/>'
-    }).join('')
-    // 中文版：中文名（主）+ 英文名（小字辅助）；英文版：英文名（主）
-    const zh = THEME_ZH[n]
-    const nameRow = lang === 'zh'
-      ? '<text x="10" y="' + (y + 22) + '" font-family="' + SANS + '" font-size="16" font-weight="700" fill="' + fg + '">' + esc(zh || n) + '</text>' +
-        '<text x="' + (10 + (zh || n).length * 16 + 12) + '" y="' + (y + 21) + '" font-family="' + MONO + '" font-size="12" fill="#8b8b95">' + esc(n) + '</text>'
-      : '<text x="10" y="' + (y + 22) + '" font-family="' + MONO + '" font-size="16" font-weight="700" fill="' + fg + '">' + esc(n) + '</text>'
-    return '<g>' + nameRow +
-      '<text x="10" y="' + (y + 44) + '" font-family="' + SANS + '" font-size="13" fill="#a1a1aa">' + esc(story[n] || '') + '</text>' +
-      segs +
-      '</g>'
-  }).join('')
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="' + W2 + '" height="' + H2 + '" viewBox="0 0 ' + W2 + ' ' + H2 + '">',
-    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    CHESS,
-    '<text x="10" y="36" font-family="' + SANS + '" font-size="21.5" font-weight="700" fill="#f0f0f0">' + esc(T.stripsTitle) + '</text>',
-    '<text x="10" y="58" font-family="' + SANS + '" font-size="15" fill="#8b8b95">' + esc(T.stripsSub) + '</text>',
-    rows,
-    '</svg>',
-  ].join('\n')
-}
-// 文本宽度估算（CJK 全角 = 1em；ASCII 平均 0.56em；空格 0.3em）——按钮宽度按实际文本自适应，防文字溢出背景
-function textW(s, fs) {
+/** 文本宽度估算（CJK 全角 = 1em；ASCII 平均 0.56em；空格 0.3em）——由来行折行用。 */
+function measure(s, size) {
   let w = 0
   for (const ch of String(s)) {
     const c = ch.codePointAt(0)
-    if ((c >= 0x2e80 && c <= 0x9fff) || (c >= 0xff00 && c <= 0xffef) || c === 0x3000) w += fs
-    else if (ch === ' ') w += fs * 0.3
-    else w += fs * 0.56
+    if ((c >= 0x2e80 && c <= 0x9fff) || (c >= 0xff00 && c <= 0xffef) || c === 0x3000) w += size
+    else if (ch === ' ') w += size * 0.3
+    else w += size * 0.56
   }
   return Math.ceil(w)
 }
-function btnW(s, fs) {
-  return textW(s, fs) + 20 // 左右各 10px 外内边距；内高亮框 x+4 宽 btnW-8，文字 x+10 → 两侧各留 6px
+
+/** 贪心折行到最多 maxLines 行（每行不超过 maxW px）；放不下就截尾加省略号。
+ *  避头标点（」』）等收尾符号不另起一行——跟在上行尾（汉字排版基本规则，避免孤立收尾符）。 */
+function wrap(s, size, maxW, maxLines) {
+  const words = String(s).split(/(\s+)/).filter((w) => w !== '')
+  const lines = []
+  let cur = ''
+  const cjk = (w) => /[\u2e80-\u9fff\uff00-\uffef\u3000]/.test(w)
+  const push = (piece) => {
+    if (measure(cur + piece, size) <= maxW) { cur += piece; return }
+    if (cur !== '') { lines.push(cur); cur = '' }
+    if (measure(piece, size) <= maxW) { cur = piece; return }
+    // 单个词就超宽（中文常见）：按字切
+    let buf = ''
+    for (const ch of piece) {
+      if (measure(buf + ch, size) > maxW) { lines.push(buf); buf = '' }
+      buf += ch
+    }
+    cur = buf
+  }
+  for (const word of words) {
+    if (!cjk(word) && word.trim() !== '' && cur.trim() !== '' && measure(cur + word, size) > maxW) {
+      lines.push(cur.replace(/\s+$/, ''))
+      cur = word
+      continue
+    }
+    push(word)
+  }
+  if (cur !== '') lines.push(cur)
+  // 收尾符号不另起一行：把它并回上一行（宽度已超一点点，视觉上比孤立标点好）
+  for (let i = lines.length - 1; i > 0; i--) {
+    if (/^[」』）】、，。！？；：…]+/.test(lines[i])) {
+      const m = lines[i].match(/^[」』）】、，。！？；：…]+/)
+      lines[i - 1] += lines[i].slice(0, m[0].length)
+      lines[i] = lines[i].slice(m[0].length)
+      if (lines[i] === '') lines.splice(i, 1)
+    }
+  }
+  if (lines.length <= maxLines) return lines
+  const kept = lines.slice(0, maxLines)
+  let last = kept[maxLines - 1].replace(/\s+$/, '')
+  while (last.length > 0 && measure(last + '…', size) > maxW) last = last.slice(0, -1)
+  kept[maxLines - 1] = last.replace(/[\s，、·,]$/, '') + '…'
+  return kept
 }
 
-// ── setup-panel ──
-function setupDoc(lang) {
-  const T = L[lang]
-  // SPH=590：面板 20-580，步骤文字在面板内 545，底部留 10px
-  const SPW = 1000, SPH = 590
-  const badge = (x, y, n) => '<circle cx="' + x + '" cy="' + y + '" r="11" fill="#FAB283"/><text x="' + x + '" y="' + (y + 4.5) + '" text-anchor="middle" font-family="' + SANS + '" font-size="14.5" font-weight="700" fill="#140a1e">' + n + '</text>'
-  const nav = (zh, en) => lang === 'zh' ? zh : en
-  // 排印行按钮宽度按实际文本估算（防文字溢出背景），同一行流式排布
-  const monoW = btnW(T.mono, 14.5)
-  const sansW = btnW(T.sans, 14.5)
-  const sizeW = Math.max(btnW(T.fontSize + ' ▾', 13.5), 96)
-  const fontW = Math.max(btnW(T.codeFont + ' ▾', 13.5), 150)
-  const btnX2 = 222 + monoW + 6
-  const btnX3 = btnX2 + sansW + 8
-  const btnX4 = btnX3 + sizeW + 8
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="' + SPW + '" height="' + SPH + '" viewBox="0 0 ' + SPW + ' ' + SPH + '">',
-    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<rect x="0" y="0" width="178" height="' + SPH + '" fill="#111111"/>',
-    '<text x="20" y="40" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">DSH</text>',
-    '<text x="20" y="92" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('常规', 'General') + '</text>',
-    '<text x="20" y="124" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('模型', 'Models') + '</text>',
-    '<rect x="0" y="140" width="4" height="30" fill="#FAB283"/>',
-    '<text x="20" y="160" font-family="' + SANS + '" font-size="15.5" font-weight="600" fill="#f0f0f0">' + nav('插件', 'Plugins') + '</text>',
-    '<text x="20" y="192" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('外观', 'Appearance') + '</text>',
-    '<text x="20" y="224" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + nav('语言 · 中文', 'Language · English') + '</text>',
-    '<rect x="196" y="20" width="784" height="560" rx="14" fill="#101014" stroke="#27272a"/>',
-    '<text x="222" y="56" font-family="' + SANS + '" font-size="18.5" font-weight="700" fill="#f0f0f0">🎨 ' + esc(T.panelName) + '</text>',
-    '<text x="916" y="53" text-anchor="end" font-family="' + SANS + '" font-size="15.5" fill="#7fd88f">' + T.enabled + '</text>',
-    '<rect x="924" y="42" width="36" height="20" rx="10" fill="rgba(250,178,131,0.4)"/><circle cx="949" cy="52" r="7" fill="#FAB283"/>',
-    '<text x="222" y="82" font-family="' + SANS + '" font-size="15.5" fill="#8b8b95">' + esc(T.subtitle) + '</text>',
-    '<text x="222" y="120" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.typography + '</text>',
-    // 正文样式：两个独立按钮（选中态高亮），文字各自在框内；宽度按文本自适应
-    '<rect x="222" y="130" width="' + monoW + '" height="26" rx="6" fill="rgba(255,255,255,0.08)" stroke="#3a3a42"/>',
-    '<rect x="226" y="134" width="' + (monoW - 8) + '" height="18" rx="4" fill="rgba(255,255,255,0.16)"/><text x="232" y="147" font-family="' + SANS + '" font-size="14.5" fill="#f0f0f0">' + T.mono + '</text>',
-    '<rect x="' + btnX2 + '" y="130" width="' + sansW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/>',
-    '<text x="' + (btnX2 + 8) + '" y="147" font-family="' + SANS + '" font-size="14.5" fill="#8b8b95">' + T.sans + '</text>',
-    '<rect x="' + btnX3 + '" y="130" width="' + sizeW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX3 + 10) + '" y="147" font-family="' + SANS + '" font-size="13.5" fill="#f0f0f0">' + T.fontSize + ' ▾</text>',
-    '<rect x="' + btnX4 + '" y="130" width="' + fontW + '" height="26" rx="6" fill="#1c1c1e" stroke="#333338"/><text x="' + (btnX4 + 10) + '" y="147" font-family="' + MONO + '" font-size="13.5" fill="#f0f0f0">' + T.codeFont + ' ▾</text>',
-    '<text x="222" y="192" font-family="' + SANS + '" font-size="14.5" fill="#a1a1aa">' + T.themeSection + '</text>',
-    '<text x="222" y="224" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupWarm + '</text>',
-    chipSvg(292, 208, 'opencode', 108), chipSvg(408, 208, 'orng', 90), chipSvg(506, 208, 'vesper', 96),
-    '<text x="222" y="268" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupCool + '</text>',
-    chipSvg(292, 252, 'tokyonight', 116), chipSvg(416, 252, 'dracula', 104), chipSvg(528, 252, 'catppuccin', 118), chipSvg(654, 252, 'nord', 86),
-    '<text x="222" y="312" font-family="' + SANS + '" font-size="14.5" fill="#c8c8d0">● ' + T.groupTeal + '</text>',
-    chipSvg(292, 296, 'matrix', 100), chipSvg(400, 296, 'gruvbox', 104), chipSvg(512, 296, 'osaka-jade', 112),
-    '<text x="222" y="348" font-family="' + SANS + '" font-size="13.5" fill="#5c5c66">' + T.groupsMore + '</text>',
-    badge(212, 155, '1'), badge(212, 40, '2'), badge(620, 178, '3'),
-    // 步骤说明：置于面板内底部（左对齐，避免长文本越界）
-    '<text x="222" y="548" font-family="' + SANS + '" font-size="16.5" fill="#8b8b95">' + T.step1 + ' → ' + T.step2 + ' → ' + T.step3 + '</text>',
-    '</svg>',
-  ].join('\n')
-}
-
-// ── theme-switch ──
-function uiFrame(x, y, w, themeName, lang) {
-  const T = L[lang]
-  const c = data[themeName] || {}
-  const bg = c.background || '#101014'
-  const panel = c.background || '#16161a'
-  const text = c.text || '#d4d4d4'
-  const muted = c.textMuted || c.text || '#8b8b95'
-  const primary = c.primary || '#FAB283'
-  const keyword = c.syntaxKeyword || primary
-  const border = c.border || '#2a2a30'
-  return '<g>' +
-    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="250" rx="12" fill="' + bg + '" stroke="' + border + '"/>' +
-    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="34" rx="12" fill="' + panel + '"/>' +
-    '<circle cx="' + (x + 22) + '" cy="' + (y + 17) + '" r="6" fill="' + primary + '"/>' +
-    '<text x="' + (x + 38) + '" y="' + (y + 21) + '" font-family="' + SANS + '" font-size="15.5" fill="' + muted + '">DeepSeek Harness</text>' +
-    '<rect x="' + (x + 14) + '" y="' + (y + 48) + '" width="' + (w * 0.72) + '" height="34" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<rect x="' + (x + 22) + '" y="' + (y + 59) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.7"/>' +
-    '<rect x="' + (x + 22) + '" y="' + (y + 69) + '" width="' + (w * 0.3) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.5"/>' +
-    '<rect x="' + (x + w - 14 - w * 0.5) + '" y="' + (y + 92) + '" width="' + (w * 0.5) + '" height="26" rx="8" fill="' + primary + '" opacity="0.85"/>' +
-    '<rect x="' + (x + w - 14 - w * 0.38) + '" y="' + (y + 100) + '" width="' + (w * 0.26) + '" height="5" rx="2.5" fill="' + bg + '" opacity="0.8"/>' +
-    '<rect x="' + (x + 14) + '" y="' + (y + 130) + '" width="' + (w - 28) + '" height="58" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<text x="' + (x + 26) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="13" fill="' + keyword + '">const palette =</text>' +
-    '<text x="' + (x + 26 + 108) + '" y="' + (y + 152) + '" font-family="' + MONO + '" font-size="13" fill="' + (c.syntaxString || '#7fd88f') + '">"tokyonight"</text>' +
-    '<rect x="' + (x + 26) + '" y="' + (y + 160) + '" width="' + (w * 0.4) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
-    '<rect x="' + (x + 26) + '" y="' + (y + 172) + '" width="' + (w * 0.55) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
-    '<rect x="' + (x + 14) + '" y="' + (y + 202) + '" width="' + (w - 28) + '" height="34" rx="8" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<text x="' + (x + 26) + '" y="' + (y + 220) + '" font-family="' + SANS + '" font-size="13" fill="' + muted + '" opacity="0.8">' + T.ask + '</text>' +
-    '<circle cx="' + (x + w - 26) + '" cy="' + (y + 216) + '" r="8" fill="' + primary + '"/>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 272) + '" text-anchor="middle" font-family="' + MONO + '" font-size="17.5" font-weight="600" fill="' + text + '">' + esc(themeName) + '</text>' +
-    '<text x="' + (x + w / 2) + '" y="' + (y + 288) + '" text-anchor="middle" font-family="' + MONO + '" font-size="15.5" fill="' + muted + '">primary ' + (primary || '—') + '</text>' +
-    '</g>'
-}
-function switchDoc(lang) {
-  const T = L[lang]
-  // TH=372：主题名 y=336、主色 y=354，320 会被裁剪；372 留足边距
-  const TW = 1140, TH = 380
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="' + TW + '" height="' + TH + '" viewBox="0 0 ' + TW + ' ' + TH + '">',
-    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="18" y="34" font-family="' + SANS + '" font-size="20.5" font-weight="700" fill="#f0f0f0">' + esc(T.switchTitle) + '</text>',
-    uiFrame(18, 52, 356, 'opencode', lang),
-    uiFrame(392, 52, 356, 'tokyonight', lang),
-    uiFrame(766, 52, 356, 'matrix', lang),
-    '</svg>',
-  ].join('\n')
-}
-
-
-// ── 5) Hero 首图（hero-{en,zh}.svg）：氛围光晕 + 3 个拟真界面并排 ──
-function heroFrame(x, y, w, themeName) {
-  const c = data[themeName] || {}
-  const bg = c.background || '#101014'
-  const panel = c.background || '#16161a'
-  const text = c.text || '#d4d4d4'
-  const muted = c.textMuted || c.text || '#8b8b95'
-  const primary = c.primary || '#FAB283'
-  const keyword = c.syntaxKeyword || primary
-  const string = c.syntaxString || '#7fd88f'
-  const number = c.syntaxNumber || keyword
-  const border = c.border || '#2a2a30'
-  const h = 300
-  // 底部取色器式 swatch 行尺寸（色块 + 同色 HEX）
-  const sw = 10, gapS = 5
-  const hexTxt = primary || '—'
-  const hexW = hexTxt.length * 6.6
-  const rowW = sw + gapS + hexW
-  const swX = x + w / 2 - rowW / 2
-  const hexX = swX + sw + gapS
-  const mono = 'font-family="' + MONO + '"'
-  const sans = 'font-family="' + SANS + '"'
-  const frameBody =
-    // 界面卡片 + 投影
-    '<defs><filter id="glow' + themeName + '" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="16" flood-color="#000" flood-opacity="0.55"/></filter></defs>' +
-    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="16" fill="' + bg + '" stroke="' + border + '" filter="url(#glow' + themeName + ')"/>' +
-    // 顶栏
-    '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="40" rx="16" fill="' + panel + '"/>' +
-    '<rect x="' + x + '" y="' + (y + 24) + '" width="' + w + '" height="16" fill="' + panel + '"/>' +
-    '<circle cx="' + (x + 26) + '" cy="' + (y + 20) + '" r="7" fill="' + primary + '"/>' +
-    '<text x="' + (x + 44) + '" y="' + (y + 25) + '" ' + sans + ' font-size="17" font-weight="600" fill="' + text + '">DeepSeek Harness</text>' +
-    '<circle cx="' + (x + w - 24) + '" cy="' + (y + 20) + '" r="5" fill="' + muted + '" opacity="0.6"/>' +
-    // assistant 消息（含代码块）
-    '<rect x="' + (x + 16) + '" y="' + (y + 54) + '" width="' + (w * 0.78) + '" height="30" rx="9" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<circle cx="' + (x + 30) + '" cy="' + (y + 69) + '" r="6" fill="' + primary + '" opacity="0.8"/>' +
-    '<rect x="' + (x + 44) + '" y="' + (y + 62) + '" width="' + (w * 0.4) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.7"/>' +
-    '<rect x="' + (x + 44) + '" y="' + (y + 72) + '" width="' + (w * 0.28) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
-    // 代码块
-    '<rect x="' + (x + 16) + '" y="' + (y + 92) + '" width="' + (w - 32) + '" height="92" rx="10" fill="' + bg + '" stroke="' + border + '"/>' +
-    '<rect x="' + (x + 16) + '" y="' + (y + 92) + '" width="' + (w - 32) + '" height="24" rx="10" fill="' + panel + '"/>' +
-    '<rect x="' + (x + 16) + '" y="' + (y + 106) + '" width="' + (w - 32) + '" height="10" fill="' + panel + '"/>' +
-    '<circle cx="' + (x + 30) + '" cy="' + (y + 104) + '" r="3.5" fill="' + number + '" opacity="0.9"/>' +
-    '<circle cx="' + (x + 42) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.5"/>' +
-    '<circle cx="' + (x + 54) + '" cy="' + (y + 104) + '" r="3.5" fill="' + muted + '" opacity="0.3"/>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + keyword + '">const theme</text>' +
-    '<text x="' + (x + 24 + 92) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + muted + '">=</text>' +
-    '<text x="' + (x + 24 + 106) + '" y="' + (y + 132) + '" ' + mono + ' font-size="15.5" fill="' + string + '">"' + esc(themeName) + '"</text>' +
-    '<text x="' + (x + 24) + '" y="' + (y + 150) + '" ' + mono + ' font-size="15.5" fill="' + muted + '" opacity="0.85">' + esc('syntax: { keyword, string, number }') + '</text>' +
-    '<rect x="' + (x + 24) + '" y="' + (y + 162) + '" width="' + (w * 0.5) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.35"/>' +
-    // 用户消息
-    '<rect x="' + (x + w - 16 - w * 0.5) + '" y="' + (y + 194) + '" width="' + (w * 0.5) + '" height="28" rx="9" fill="' + primary + '" opacity="0.9"/>' +
-    '<rect x="' + (x + w - 16 - w * 0.36) + '" y="' + (y + 203) + '" width="' + (w * 0.22) + '" height="5" rx="2.5" fill="' + bg + '" opacity="0.75"/>' +
-    // 输入框
-    '<rect x="' + (x + 16) + '" y="' + (y + 234) + '" width="' + (w - 32) + '" height="34" rx="10" fill="' + panel + '" stroke="' + border + '"/>' +
-    '<circle cx="' + (x + 32) + '" cy="' + (y + 251) + '" r="4" fill="' + muted + '" opacity="0.5"/>' +
-    '<rect x="' + (x + 44) + '" y="' + (y + 247) + '" width="' + (w * 0.45) + '" height="5" rx="2.5" fill="' + muted + '" opacity="0.45"/>' +
-    '<circle cx="' + (x + w - 30) + '" cy="' + (y + 251) + '" r="9" fill="' + primary + '"/>' +
-    '<path d="M ' + (x + w - 33) + ' ' + (y + 251) + ' l 4 -3 l 4 3 l -4 3 z" fill="' + bg + '" opacity="0.85"/>'
-    // 底部：主题名 + 取色器式 swatch（色块 + 同色 HEX）
-    return '<g>' + frameBody +
-    '<text x="' + (x + w / 2) + '" y="' + (y + h + 36) + '" text-anchor="middle" ' + mono + ' font-size="19.5" font-weight="700" fill="' + text + '">' + esc(themeName) + '</text>' +
-    '<rect x="' + swX + '" y="' + (y + h + 44) + '" width="' + sw + '" height="' + sw + '" rx="3" fill="' + primary + '" stroke="rgba(0,0,0,0.35)"/>' +
-    '<text x="' + hexX + '" y="' + (y + h + 55) + '" ' + mono + ' font-size="16.5" fill="' + primary + '">' + esc(hexTxt) + '</text>' +
-    '</g>'
-}
-function heroDoc(lang) {
-  const T = L[lang]
-  // HH=564：heroMore 基线 550 文字底约 556，底部仅留 8px 呼吸
-  const HW = 1280, HH = 574
-  const frameW = 372
-  const gap = 26
-  const total = 3 * frameW + 2 * gap
-  const x0 = Math.round((HW - total) / 2)
-  const y0 = 168
-  // 氛围光晕（品牌橙/紫）
-  return [
-    '<svg xmlns="http://www.w3.org/2000/svg" width="' + HW + '" height="' + HH + '" viewBox="0 0 ' + HW + ' ' + HH + '">',
-    '<defs>',
-    '<radialGradient id="haloOrange" cx="20%" cy="0%" r="60%"><stop offset="0%" stop-color="#FAB283" stop-opacity="0.16"/><stop offset="100%" stop-color="#FAB283" stop-opacity="0"/></radialGradient>',
-    '<radialGradient id="haloViolet" cx="85%" cy="10%" r="55%"><stop offset="0%" stop-color="#9D7CD8" stop-opacity="0.14"/><stop offset="100%" stop-color="#9D7CD8" stop-opacity="0"/></radialGradient>',
-    '<radialGradient id="haloTeal" cx="50%" cy="100%" r="65%"><stop offset="0%" stop-color="#56B6C2" stop-opacity="0.10"/><stop offset="100%" stop-color="#56B6C2" stop-opacity="0"/></radialGradient>',
-    '<linearGradient id="titleGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#FAB283"/><stop offset="55%" stop-color="#9D7CD8"/><stop offset="100%" stop-color="#56B6C2"/></linearGradient>',
-    '</defs>',
-    '<rect width="100%" height="100%" fill="#0a0a0a"/>',
-    '<rect width="100%" height="100%" fill="url(#haloOrange)"/>',
-    '<rect width="100%" height="100%" fill="url(#haloViolet)"/>',
-    '<rect width="100%" height="100%" fill="url(#haloTeal)"/>',
-    // 小标签（品牌行，字距拉开，× 点缀橙色）
-    '<text x="' + (HW / 2) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="4" fill="#6d6d6d">DEEPSEEK HARNESS</text>',
-    '<text x="' + (HW / 2 + 12) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="2" fill="#FAB283">×</text>',
-    '<text x="' + (HW / 2 + 64) + '" y="46" text-anchor="middle" font-family="' + SANS + '" font-size="16.5" letter-spacing="4" fill="#6d6d6d">OPENCODE</text>',
-    // 主标语（渐变大字）
-    '<text x="' + (HW / 2) + '" y="92" text-anchor="middle" font-family="' + SANS + '" font-size="51" font-weight="800" letter-spacing="1" fill="url(#titleGrad)">' + esc(T.heroTitle) + '</text>',
-    // 副行（终端风：等宽 + 橙色 ▸ 引导）
-    '<text x="' + (HW / 2) + '" y="132" text-anchor="middle" font-family="' + MONO + '" font-size="20.5" fill="#b0b0b8">',
-    '<tspan fill="#FAB283">▸ </tspan>' + esc(T.heroSub) + '</text>',
-    // 3 个拟真界面
-    heroFrame(x0, y0, frameW, 'opencode'),
-    heroFrame(x0 + frameW + gap, y0, frameW, 'tokyonight'),
-    heroFrame(x0 + 2 * (frameW + gap), y0, frameW, 'synthwave84'),
-    // 底部一行：终端风 + 数量高亮
-    '<text x="' + (HW / 2) + '" y="' + (y0 + 300 + 82) + '" text-anchor="middle" font-family="' + MONO + '" font-size="19" fill="#8b8b95">',
-    esc(T.heroMorePre) + '<tspan fill="#FAB283" font-weight="700">' + esc(T.heroMoreHi) + '</tspan>' + esc(T.heroMorePost) + '</text>',
-    '</svg>',
-  ].join('\n')
-}
-
-// ── 故事卡墙（theme-stories-{zh,en}.svg）：26 个有故事的名字，明信片式卡片 ──
-// 筛选：只保留有文化/意象来历的主题（去掉 cursor/github/vercel/material/one-dark/monokai/opencode/system）
-const STORY_PICKS = ['tokyonight','dracula','gruvbox','matrix','rose-pine','catppuccin','catppuccin-frappe','catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight','ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng']
+// ── 色带基线（theme-stories-{zh,en}.svg）──
+// 画布与全部几何值来自 #29 定案 A（原型 prototypes/visual-refresh-prototype.html 的 figA），
+// 高度 1812 由内容累加得出（组头 30+10 / 行 54 / 表头 112 / 尾部 16）。
 function themeStoriesDoc(lang) {
-  const T = L[lang]
+  const W = 860, PAD = 20, TXTW = 320, BX = PAD + TXTW + 16
+  const CELL = 64, CG = 6, CH = 30, ROW = 54, GH = 30, GG = 10, Y0 = 112
+  const slots = SLOTS[lang]
   const story = lang === 'zh' ? THEME_STORY_ZH : THEME_STORY_EN
-  const picked = STORY_PICKS.filter((n) => data[n])
-  const COLS = 2, CW = 610, CH = 152, GAP = 14, PAD_X = 20, PAD_Y = 118
-  const rows = Math.ceil(picked.length / COLS)
-  const W = PAD_X * 2 + COLS * CW + GAP
-  const H = PAD_Y + rows * CH + (rows - 1) * GAP + 20
-  const cards = picked.map((n, i) => {
-    const c = data[n]
-    const col = i % COLS, row = Math.floor(i / COLS)
-    const x = PAD_X + col * (CW + GAP), y = PAD_Y + row * (CH + GAP)
-    const zh = THEME_ZH[n]
-    const gid = 'sc' + i
-    // 顶部压暗渐变（文字区永远高对比）+ 底部主色光晕（纯氛围，不干扰文字）
-    const nameRow = lang === 'zh'
-      ? '<text x="' + (x + 28) + '" y="' + (y + 58) + '" font-family="' + SANS + '" font-size="26" font-weight="800" fill="' + hex(c.primary) + '">' + esc(zh || n) + '</text>' +
-        '<text x="' + (x + 28) + '" y="' + (y + 82) + '" font-family="' + MONO + '" font-size="13" fill="#9a9aa2">' + esc(n) + '</text>'
-      : '<text x="' + (x + 28) + '" y="' + (y + 58) + '" font-family="' + MONO + '" font-size="24" font-weight="700" fill="' + hex(c.primary) + '">' + esc(n) + '</text>'
-    // 由来：主色引用竖线 + 亮灰白 15px（光晕压暗后高对比）
-    const storyLine = '<rect x="' + (x + 28) + '" y="' + (y + 99) + '" width="3" height="17" rx="1.5" fill="' + hex(c.primary) + '"/>' +
-      '<text x="' + (x + 40) + '" y="' + (y + 112) + '" font-family="' + SANS + '" font-size="15" fill="#d8d8de">' + esc(story[n] || '') + '</text>'
-    const dots = ['primary', 'accent', 'error', 'warning', 'success'].map((k, j) =>
-      '<circle cx="' + (x + 28 + j * 22) + '" cy="' + (y + CH - 20) + '" r="5" fill="' + hex(c[k]) + '"/>'
-    ).join('')
-    return '<g>' +
-      '<defs>' +
-        '<linearGradient id="' + gid + 'd" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#000" stop-opacity="0.30"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></linearGradient>' +
-        '<radialGradient id="' + gid + 'g" cx="78%" cy="105%" r="85%"><stop offset="0%" stop-color="' + hex(c.primary) + '" stop-opacity="0.17"/><stop offset="100%" stop-color="' + hex(c.primary) + '" stop-opacity="0"/></radialGradient>' +
-      '</defs>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="' + (c.background || '#141414') + '" stroke="rgba(255,255,255,0.07)"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + Math.round(CH * 0.55) + '" rx="16" fill="url(#' + gid + 'd)"/>' +
-      '<rect x="' + x + '" y="' + y + '" width="' + CW + '" height="' + CH + '" rx="16" fill="url(#' + gid + 'g)"/>' +
-      nameRow +
-      storyLine +
-      dots +
-      '</g>'
-  }).join('')
-  const title = lang === 'zh' ? '26 个有故事的名字' : '26 names with stories'
-  const sub = lang === 'zh' ? '从 38 款主题中，挑出真正有来历的' : 'Picked from all 38 themes — the ones with real stories'
+  const groups = GROUP_KEYS
+    .map((g) => ({ key: g, ids: STORY_PICKS.filter((n) => data[n] && groupOf(n, data[n]) === g) }))
+    .filter((g) => g.ids.length > 0)
+  const out = []
+  const text = (x, y, s, size, color, extra) =>
+    '<text x="' + x + '" y="' + y + '" font-family="' + SANS + '" font-size="' + size + '" fill="' + color + '"' + (extra || '') + '>' + esc(s) + '</text>'
+  const monoText = (x, y, s, size, color) =>
+    '<text x="' + x + '" y="' + y + '" font-family="' + MONO + '" font-size="' + size + '" fill="' + color + '">' + esc(s) + '</text>'
+  const box = (x, y, w, h, fill, rx) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + rx + '" fill="' + fill + '"/>'
+
+  out.push(text(PAD, 30, lang === 'zh' ? '每个主题，逐一拆解' : 'Every theme, decomposed', 22, '#f0f0f0', ' font-weight="800"'))
+  out.push(text(PAD, 60, lang === 'zh'
+    ? '背景 · 文字 · 主色 · 强调 · 错误 · 警告 · 成功 —— 定义每个主题气质的 7 种颜色'
+    : 'bg · text · primary · accent · error · warning · success — the 7 colors that define each theme', 12.5, '#8b8b95'))
+  // 列图例：压在各列正上方的名字（原图缺的这块）
+  slots.forEach((s, j) => {
+    const cx = BX + j * (CELL + CG) + CELL / 2
+    out.push(box(BX + j * (CELL + CG), 74, CELL, 14, '#232326', 3))
+    out.push(text(cx, 90, s, 10.5, '#8b8b95', ' text-anchor="middle"'))
+  })
+  let y = Y0
+  for (const g of groups) {
+    const gn = GROUP_NAMES[g.key][lang === 'zh' ? 0 : 1]
+    out.push('<circle cx="' + (PAD + 4) + '" cy="' + (y + 13) + '" r="4" fill="' + GROUP_COLORS_FALLBACK[g.key] + '"/>')
+    out.push(text(PAD + 16, y + 13, gn, 13, '#e8e8ee', ' font-weight="700"'))
+    out.push(text(PAD + 16 + measure(gn, 13) + 10, y + 13, g.ids.length + (lang === 'zh' ? ' 款' : ' themes'), 10.5, '#6f6f78'))
+    out.push(box(PAD, y + GH - 2, W - PAD * 2, 1, '#232326', 0))
+    y += GH + GG
+    for (const id of g.ids) {
+      const c = data[id]
+      const label = (lang === 'zh' && THEME_ZH[id]) || id
+      out.push(text(PAD, y + 17, label, 16, hex(c.primary), ' font-weight="700"'))
+      out.push(monoText(PAD + measure(label, 16) + 10, y + 16, id, 11, '#8b8b95'))
+      wrap(story[id] || '', 12.5, TXTW, 2).forEach((line, i) => {
+        out.push(text(PAD, y + 35 + i * 15, line, 12.5, '#a1a1aa'))
+      })
+      BAND_KEYS.forEach((k, j) => {
+        const v = c[k]
+        const x = BX + j * (CELL + CG)
+        out.push(v
+          ? box(x, y + 12, CELL, CH, v, 4)
+          : '<rect x="' + x + '" y="' + (y + 12) + '" width="' + CELL + '" height="' + CH + '" rx="4" fill="url(#chess)"/>')
+      })
+      y += ROW
+    }
+  }
+  const H = y + 16
   return [
     '<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '">',
-    '<rect width="100%" height="100%" fill="#0d0d0d"/>',
-    '<text x="' + PAD_X + '" y="60" font-family="' + SANS + '" font-size="30" font-weight="800" fill="#f0f0f0">' + esc(title) + '</text>',
-    '<text x="' + PAD_X + '" y="86" font-family="' + SANS + '" font-size="15" fill="#8b8b95">' + esc(sub) + '</text>',
-    cards,
+    '<defs>' + CHESS + '</defs>',
+    box(0, 0, W, H, '#0d0d0d', 0),
+    out.join('\n'),
     '</svg>',
   ].join('\n')
 }
+
 await mkdir(OUT_DIR, { recursive: true })
 const files = {
-  'palette-matrix-en.svg': matrixDoc('en'),
-  'palette-matrix-zh.svg': matrixDoc('zh'),
-  'palette-strips-en.svg': stripsDoc('en'),
-  'palette-strips-zh.svg': stripsDoc('zh'),
-  'setup-panel-en.svg': setupDoc('en'),
-  'setup-panel-zh.svg': setupDoc('zh'),
-  'theme-switch-en.svg': switchDoc('en'),
-  'theme-switch-zh.svg': switchDoc('zh'),
-  'hero-en.svg': heroDoc('en'),
-  'hero-zh.svg': heroDoc('zh'),
   'theme-stories-en.svg': themeStoriesDoc('en'),
   'theme-stories-zh.svg': themeStoriesDoc('zh'),
 }

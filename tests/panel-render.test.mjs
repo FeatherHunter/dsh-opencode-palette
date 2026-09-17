@@ -174,10 +174,11 @@ test('面板渲染（DOM 回退·中文）：输出 opencode调色板 与中文�
   const { html } = loadPanel({ lang: 'zh-CN' })
   assert.ok(html.includes('opencode调色板'), '缺中文品牌标题（opencode 与调色板之间无空格）')
   assert.ok(html.includes('暖橙'), '缺中文色系组名')
-  assert.ok(html.includes('system（默认）'), '缺 system 中文标签')
+  assert.ok(html.includes('system（跟随系统）'), '缺 system 中文标签')
   assert.ok(html.includes('东京之夜'), '缺 tokyonight 中文名')
   assert.ok(html.includes('黑客帝国'), '缺 matrix 中文名')
   assert.ok(html.includes('德古拉'), '缺 dracula 中文名')
+  assert.ok(html.includes('玫瑰松林'), '缺 rosepine 中文名（键曾是 rose-pine，查不到就退回英文 id）')
 })
 
 test('面板渲染（locale 服务·英文）：整体英文，不出现中文', () => {

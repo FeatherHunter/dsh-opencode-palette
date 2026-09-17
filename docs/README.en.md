@@ -23,31 +23,27 @@ Your ⭐ is the brightest star in my night sky.
 
 <div align="center">
 
-Staring at a screen ten-plus hours a day, tired eyes are inevitable — a gentler palette lets them rest. opencode's 38 classic themes are loved by developers everywhere: one click dresses your whole DSH, dark themes for the night, light themes for the day.
+Staring at a screen ten-plus hours a day, tired eyes are inevitable — a gentler palette lets them rest.
 
-**👇 This is what it looks like after install (opencode theme).**
+opencode's 37 classic themes are loved by developers everywhere, plus a native look that touches no colors: one click dresses your whole DSH, dark for the night, light for the day.
 
-<img src="../showcase/opencode调色板opencode风格主页面-en.png" width="640" alt="Opencode Palette — overview (opencode theme, 34 themes)" style="border:1px solid #30363d;border-radius:6px">
+**👇 This is what it looks like after install and restart (opencode theme).**
 
-**👇 Settings: 38 themes grouped by color family, search and switch.**
+<img src="../showcase/opencode调色板opencode风格主页面-en.png" width="640" alt="Opencode Palette — overview (opencode theme)" style="border:1px solid #30363d;border-radius:6px">
 
-<img src="../showcase/settings-opencode-en.png" width="640" alt="Opencode Palette — settings (opencode theme, 34 themes)" style="border:1px solid #30363d;border-radius:6px">
+**👇 Settings panel: 38 themes grouped by color family, search and switch.**
 
-**👇 More than one skin: star themes like tokyonight included.**
+<img src="../showcase/settings-opencode-en.png" width="640" alt="Opencode Palette — settings panel (grouped by color family)" style="border:1px solid #30363d;border-radius:6px">
 
-<img src="../showcase/overview-tokyonight-en.png" width="640" alt="Opencode Palette — overview (tokyonight theme, 34 themes)" style="border:1px solid #30363d;border-radius:6px">
+**👇 Light-theme users: full light coverage included.**
+
+<img src="../showcase/overview-tokyonight-en.png" width="640" alt="Opencode Palette — light theme overview" style="border:1px solid #30363d;border-radius:6px">
 
 </div>
 
 <!-- showcase:end -->
 
-<h2 align="center"><sub>INSTALL</sub><br>Install in one command</h2>
-
-<div align="center">
-
-Requires the **DSH CLI**. **Zero configuration** — restart DSH (or refresh the browser page) and it just works, with the official `opencode` theme on by default.
-
-</div>
+<h2 align="center"><sub>INSTALL</sub><br>Get started in three steps</h2>
 
 ```bash
 # 1. install the DSH CLI first (skip if you have it)
@@ -57,41 +53,31 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-<h2 align="center"><sub>GUIDE</sub><br>Get started in 30 seconds</h2>
+**① Install.** Requires the DSH CLI — run the two commands above, then restart DSH (or refresh the browser page) and it just works, **zero configuration**, with the official `opencode` theme on by default.
 
-1. Open **Settings → Plugins → Opencode Palette** (in Chinese: **设置 → 插件 → OpenCode 调色板**).
-2. Click any theme chip — the interface re-skins instantly. Try a few and find the kindest one for your eyes.
+**② Open the panel.** Go to **Settings → Plugins → Opencode Palette**.
 
-<h2 align="center"><sub>THEMES</sub><br>Features</h2>
+**③ Pick a theme.** Click any chip to re-skin instantly — try a few and find the kindest one.
+
+<h2 align="center"><sub>THEMES</sub><br>Themes</h2>
 
 <div align="center">
 
-Every theme name has a story behind it, and all 38 live in the settings panel grouped by color family — search and switch. Each theme's 7 core colors — `background · text · primary · accent · error · warning · success` — are defined in `src/themes/`.
+38 entries live in the settings panel, grouped by color family and switchable with a search: 37 stay faithful to upstream, plus one native look that keeps only your typography. Every name has a story behind it — the picture below shows them all at once.
 
 </div>
 
 ![theme stories](../assets/theme-stories-en.svg)
 
-<div align="center">
-
-Typography stays independent from the theme: applied to all text or code only, 11–18 px, live font preview. The list is 7 common presets **plus the fonts actually installed on your machine** — read on demand when you open the dropdown, monospace first, searchable, proportional fonts selectable too. If the list cannot be read, you still get the presets plus a one-line notice — the control never goes empty. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
-
-</div>
-
 <h2 align="center"><sub>EXTENSIONS</sub><br>What we add on top of the opencode themes</h2>
 
 <div align="center">
 
-The theme data itself stays faithful to upstream (37 theme JSONs + `system`, synced by `npm run sync`). Everything we add lives in three layers — **typography, adaptation, panel** — and never rewrites upstream colors.
+Colors stay faithful to the 37 upstream themes; all our work goes into three things: **type that reads well, an easy way back, a panel you can find.**
 
-| Extension | What it does | Upstream opencode |
-| --- | --- | --- |
-| **Typography as its own dimension** | Font, size 11–18 px and scope (all text / code only) are independent of color and persist across restarts | Themes define colors only |
-| **Your installed fonts in the list** | Opening the code-font dropdown reads your machine's font list once (browser `queryLocalFonts`; it asks for permission once, and the desktop build grants it silently). Families are deduplicated, monospace first, searchable. The chosen family is quoted and placed at the head of the fallback stack, so missing glyphs still fall back to the bundled OFL fonts and the CJK tail. If the list cannot be read (unsupported platform / permission denied / page hidden), you get the 7 presets plus a notice — never an empty dropdown | None |
-| **A CJK-native font option** | Bundled `Maple Mono NF CN` preset: English and Chinese from one typeface at a 2:1 width ratio, so mixed-language code blocks and tables stop drifting. Pick it once the font is installed locally; a missing font is greyed out and marked `missing` | None |
-| **Light & dark host** | The injected layer covers both `body` and `body[data-ds-dark-theme]`; the panel leaves no dark leftovers on a light host | Built for terminals — no web light/dark duality |
-| **`system` (default)** | One click back to DSH's native look: overrides no color tokens and keeps your typography | `system` = follow the terminal's 16 colors |
-| **Panel experience** | 38 themes grouped by color family, searchable, live preview; bilingual, following your DSH interface language | Theme files only |
+- **Type that reads well.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
+- **An easy way back.** The native look restores DSH in one click: it overrides no colors, it only keeps your typography setup.
+- **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
 
 </div>
 
@@ -103,19 +89,20 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Open Settings → Opencode Palette: there is a **Check for updates** button at the right of the title row.
+Prefer a button? Open Settings → Opencode Palette: there is a **Check for updates** button at the right of the title row. It only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades, and if that cannot go through it hands you a copy-paste command instead. Then restart DSH to apply: until you do, a reminder banner stays at the top of the panel.
 
-- It only goes online when you click it — never in the background. When a newer version exists, the button turns into “Update to vX.Y.Z” and opens an upgrade dialog with an **Update now** action.
-- If the automatic install cannot go through, the dialog hands you a copy-paste command (same as the `dsh plugin ... add --save-exact` above).
-- **Restart DSH for the new version to take effect**: the new files are already on disk, but the running process keeps the old ones. Until you restart, the panel shows a persistent “vX.Y.Z installed — restart DSH to apply” banner.
-
-Diagnostic logs (attach them when filing an issue):
-
-- Directory: `<DSH_HOME>/logs/dsh-opencode-palette/` (`DSH_HOME` defaults to `~/.dsh`), one `YYYY-MM-DD.log` per day.
-- Errors and warnings are always written; info and debug are off until you set `enabled` to `true` in `~/.dsh/logs/log-switch-dsh-opencode-palette.json`.
-- Lines carry enums and hashes only (phone names, outcomes, failure hashes) — never command text or real paths.
+Attach the logs when filing an issue:
 
 <div align="center">
+
+<details>
+<summary>Where the logs are, what they hold</summary>
+
+- Directory: `<DSH_HOME>/logs/dsh-opencode-palette/` (`DSH_HOME` defaults to `~/.dsh`), one `YYYY-MM-DD.log` per day.
+- Errors and warnings are **always** written; info and debug are off until you set `enabled` to `true` in `~/.dsh/logs/log-switch-dsh-opencode-palette.json`.
+- Lines carry enums and hashes only (phone names, outcomes, failure hashes) — never command text or real paths.
+
+</details>
 
 <details>
 <summary>Upgrading from 1.4.x or earlier</summary>
