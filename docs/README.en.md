@@ -4,16 +4,17 @@
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**Built for long coding sessions — 38 eye-friendly themes, one click. Easier on the eyes, nicer to code in.**
+**Built for long coding sessions — 38 eye-friendly themes, one click.**
 
 *为长时间编程而生 —— 38 款护眼配色一键换上，眼睛舒服，码字开心。*
 
 Your ⭐ is the brightest star in my night sky.
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](../LICENSE)
-[![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![themes](https://img.shields.io/badge/themes-38%20opencode-orange)](https://github.com/anomalyco/opencode)
-[![tests](https://img.shields.io/badge/tests-38%2F38-green)]()
+[![npm](https://img.shields.io/npm/v/dsh-opencode-palette?label=npm)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=downloads&suffix=%2Fmo&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![last-commit](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=last-commit&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
+[![themes](https://img.shields.io/badge/themes-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
+[![PRs welcome](https://img.shields.io/badge/PRs%20welcome-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
 
@@ -134,6 +135,24 @@ If you like this plugin, you might also like:
 **[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box
 
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt
+
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Supercharge the dsh-im plugin and DSH workspaces for a better experience.
+
+</div>
+
+<h2 align="center"><sub>THANKS</sub><br>Contributors</h2>
+
+<div align="left">
+
+Thanks to everyone who filed issues and joined discussions — you make this plugin better bit by bit.
+
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes
+
+[@xiSage](https://github.com/xiSage) — #11 asked for any system font (shipped)
+
+[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK (shipped)
+
+PRs wanted: fix, theme, or words — open a PR and you'll be named next.
 
 </div>
 

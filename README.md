@@ -8,12 +8,13 @@
 
 *Built for long coding sessions — 38 eye-friendly themes, one click.*
 
-你的 ⭐是我夜空中最亮的星。
+你的 ⭐ 是我夜空中最亮的星。
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![npm](https://img.shields.io/npm/v/dsh-opencode-palette)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![themes](https://img.shields.io/badge/themes-38%20opencode-orange)](https://github.com/anomalyco/opencode)
-[![tests](https://img.shields.io/badge/tests-38%2F38-green)]()
+[![版本](https://img.shields.io/npm/v/dsh-opencode-palette?label=%E7%89%88%E6%9C%AC)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![下载量](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=%E4%B8%8B%E8%BD%BD%E9%87%8F&suffix=%2F%E6%9C%88&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![最近更新](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
+[![主题包](https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
+[![期待你参与](https://img.shields.io/badge/%E6%9C%9F%E5%BE%85%E4%BD%A0%E5%8F%82%E4%B8%8E-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
 
@@ -134,6 +135,24 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 **[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 写 Prompt 卡壳的时候，里面有 24 条深度模板，点一下直接进输入框
 
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 想让 AI 不只是会聊天？25 个工程技能装好即用，一条安装 Prompt 的事
+
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强dsh-im插件和DSH工作区的能力，给你更优质的用户体验。
+
+</div>
+
+<h2 align="center"><sub>THANKS</sub><br>感谢贡献者</h2>
+
+<div align="left">
+
+感谢每一位提交 Issue、参与讨论的朋友，是你们让这个插件一点点变好。
+
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据
+
+[@xiSage](https://github.com/xiSage) — #11 要任意系统字体（已落地：点开即列本机字体）
+
+[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽（已落地）
+
+PR 虚位以待：修 Bug、加主题、改顺文案都欢迎，下一个被点名的就是你。
 
 </div>
 
