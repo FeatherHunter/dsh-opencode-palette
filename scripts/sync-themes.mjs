@@ -2,7 +2,7 @@
 // 用法: node scripts/sync-themes.mjs   （版本锁见 OPCODE_TAG）
 // 职责: 下载 + 结构校验 + 必填色位校验 + SHA256 指纹清单 + 第三方归属说明
 import { createHash } from 'node:crypto'
-import { mkdir, writeFile, readdir, rm } from 'node:fs/promises'
+import { mkdir, writeFile, readFile, readdir, rm } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -60,6 +60,12 @@ async function fetchTheme(name) {
 
 async function main() {
   await mkdir(THEMES_DIR, { recursive: true })
+  // 同步前读取上一次可信清单的指纹，用作后续下载的信任基准（TOFU）
+  let knownHashes = {}
+  try {
+    const prev = JSON.parse(await readFile(join(THEMES_DIR, 'MANIFEST.json'), 'utf8'))
+    knownHashes = prev.themes || {}
+  } catch { /* 无历史清单，首次同步 */ }
   // 清空旧数据（防残留）
   for (const f of await readdir(THEMES_DIR)) {
     if (f.endsWith('.json')) await rm(join(THEMES_DIR, f), { force: true })
@@ -71,11 +77,13 @@ async function main() {
     try { data = JSON.parse(text) } catch (e) { fail(name + ': JSON 解析失败 ' + e.message) }
     validate(name, data)
     const pretty = JSON.stringify(data, null, 2) + '\n'
-    await writeFile(join(THEMES_DIR, name + '.json'), pretty)
-    manifest.themes[name] = {
-      bytes: pretty.length,
-      sha256: createHash('sha256').update(pretty).digest('hex'),
+    const sha256 = createHash('sha256').update(pretty).digest('hex')
+    const known = knownHashes[name]
+    if (known && known.sha256 !== sha256) {
+      fail(name + ': SHA256 指纹与上次可信清单不一致，疑似被篡改，拒绝写入 (期望 ' + known.sha256 + ', 实得 ' + sha256 + ')')
     }
+    await writeFile(join(THEMES_DIR, name + '.json'), pretty)
+    manifest.themes[name] = { bytes: pretty.length, sha256 }
     console.log('  ✓ ' + name)
   }
   await writeFile(join(THEMES_DIR, 'MANIFEST.json'), JSON.stringify(manifest, null, 2) + '\n')
