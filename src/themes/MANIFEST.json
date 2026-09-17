@@ -1,7 +1,8 @@
 {
   "source": "anomalyco/opencode",
-  "tag": "v1.18.12",
-  "syncedAt": "2026-08-15T11:56:03.875Z",
+  "rev": "0dd6950d1b06958fbcdcadf0ad56258257ab7fdb",
+  "tag": "v1.18.12（注释用，不参与拉取；拉取以 rev 为准）",
+  "syncedAt": "2026-09-17T12:07:03.482Z",
   "themes": {
     "aura": {
       "bytes": 1966,
@@ -141,10 +142,22 @@
     "method": "scripts/convert-desktop-themes.mjs (direct roles + documented mix derivations)",
     "sources": "src/themes/desktop-2.0/*.json (originals, do not edit outputs by hand)",
     "themes": {
-      "amoled": { "bytes": 2226, "sha256": "086d8e663ea91fa96fa459d4bf95d8877adf2d8e21068a23c3c46b1aa6c5b091" },
-      "oc-2": { "bytes": 2226, "sha256": "f350754ec7b08c521c20f02a47d65ee8bc0fcf3b9448b6c8051df4fd4a8017ab" },
-      "onedarkpro": { "bytes": 2226, "sha256": "15d2b5f17148ebe7909aace15dbcbb8a71daa64037a1a4c8e243f57ddf68a2f2" },
-      "shadesofpurple": { "bytes": 2226, "sha256": "df6f0789fb493e0826eff0525b94edbdd6556aaf9375ac3a4ffabcba0cb81563" }
+      "amoled": {
+        "bytes": 2226,
+        "sha256": "086d8e663ea91fa96fa459d4bf95d8877adf2d8e21068a23c3c46b1aa6c5b091"
+      },
+      "oc-2": {
+        "bytes": 2226,
+        "sha256": "f350754ec7b08c521c20f02a47d65ee8bc0fcf3b9448b6c8051df4fd4a8017ab"
+      },
+      "onedarkpro": {
+        "bytes": 2226,
+        "sha256": "15d2b5f17148ebe7909aace15dbcbb8a71daa64037a1a4c8e243f57ddf68a2f2"
+      },
+      "shadesofpurple": {
+        "bytes": 2226,
+        "sha256": "df6f0789fb493e0826eff0525b94edbdd6556aaf9375ac3a4ffabcba0cb81563"
+      }
     }
   }
 }

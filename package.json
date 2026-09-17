@@ -6,9 +6,10 @@
   "type": "module",
   "scripts": {
     "sync": "node scripts/sync-themes.mjs",
+    "sync:update": "node scripts/sync-themes.mjs --update-baseline",
     "fonts": "node scripts/inline-fonts.mjs",
     "build": "node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
-    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs"
+    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/sync-verify.test.mjs"
   },
   "engines": { "node": ">=20" },
   "repository": {

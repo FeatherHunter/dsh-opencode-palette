@@ -1,4 +1,4 @@
-opencode 主题资产源自 opencode (MIT) 仓库 packages/tui/src/theme/assets/，tag v1.18.12。
+opencode 主题资产源自 opencode (MIT) 仓库 packages/tui/src/theme/assets/，commit 0dd6950d1b06958fbcdcadf0ad56258257ab7fdb（对应 tag v1.18.12，不跟随 tag 移动）。
 各主题原创归属：
   - aura: Aura Theme (VSCode)
   - ayu: ayu-theme (dempfi)
