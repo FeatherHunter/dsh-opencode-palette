@@ -11,6 +11,12 @@
     "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs"
   },
   "engines": { "node": ">=20" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FeatherHunter/dsh-opencode-palette.git"
+  },
+  "homepage": "https://github.com/FeatherHunter/dsh-opencode-palette",
+  "bugs": { "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues" },
   "devDependencies": {
     "dsh-log": "0.2.1",
     "dsh-plugin-update": "0.1.1",

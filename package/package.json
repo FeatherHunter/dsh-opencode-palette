@@ -24,6 +24,14 @@
     "dark",
     "multi-theme"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FeatherHunter/dsh-opencode-palette.git"
+  },
+  "homepage": "https://github.com/FeatherHunter/dsh-opencode-palette",
+  "bugs": {
+    "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues"
+  },
   "dependencies": {
     "dsh-log": "0.2.1"
   },

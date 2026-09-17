@@ -286,6 +286,10 @@ async function main() {
     },
     files: ['lib', 'cordis.patch.yml'],
     keywords: ['dsh', 'deepseek-harness', 'plugin', 'theme', 'opencode', 'tui', 'dark', 'multi-theme'],
+    // 站端 npm 自动关联要求：repository 指回 GitHub 仓库（缺了市场就认不出这是 npm 包）
+    repository: { type: 'git', url: 'git+https://github.com/FeatherHunter/dsh-opencode-palette.git' },
+    homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
+    bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志系统（dsh-log）。更新系统不进 dependencies——它的 dist 已随包 vendor
     // 到 lib/vendor/dsh-plugin-update（原因见该目录头部注释），再声明一份只会装一份用不到的东西。
     dependencies: { 'dsh-log': '0.2.1' },
