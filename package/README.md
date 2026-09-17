@@ -51,7 +51,7 @@ Every theme name has a story behind it, and all 38 live in the settings panel gr
 
 <div align="center">
 
-Typography stays independent from the theme: applied to all text or code only, 11–18 px, 7 code fonts with live preview. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
+Typography stays independent from the theme: applied to all text or code only, 11–18 px, live font preview. The list is 7 common presets **plus the fonts actually installed on your machine** — read on demand when you open the dropdown, monospace first, searchable, proportional fonts selectable too. If the list cannot be read, you still get the presets plus a one-line notice — the control never goes empty. `system` takes you back to DSH's native look in one click while keeping your typography. The panel follows your DSH interface language (中文 / English) instantly.
 
 </div>
 
@@ -64,7 +64,8 @@ The theme data itself stays faithful to upstream (37 theme JSONs + `system`, syn
 | Extension | What it does | Upstream opencode |
 | --- | --- | --- |
 | **Typography as its own dimension** | Font, size 11–18 px and scope (all text / code only) are independent of color and persist across restarts | Themes define colors only |
-| **A CJK-native font option** | Adds `Maple Mono NF CN`: English and Chinese from one typeface at a 2:1 width ratio, so mixed-language code blocks and tables stop drifting. Pick it once the font is installed locally; a missing font is greyed out and marked `missing` | None |
+| **Your installed fonts in the list** | Opening the code-font dropdown reads your machine's font list once (browser `queryLocalFonts`; it asks for permission once, and the desktop build grants it silently). Families are deduplicated, monospace first, searchable. The chosen family is quoted and placed at the head of the fallback stack, so missing glyphs still fall back to the bundled OFL fonts and the CJK tail. If the list cannot be read (unsupported platform / permission denied / page hidden), you get the 7 presets plus a notice — never an empty dropdown | None |
+| **A CJK-native font option** | Bundled `Maple Mono NF CN` preset: English and Chinese from one typeface at a 2:1 width ratio, so mixed-language code blocks and tables stop drifting. Pick it once the font is installed locally; a missing font is greyed out and marked `missing` | None |
 | **Light & dark host** | The injected layer covers both `body` and `body[data-ds-dark-theme]`; the panel leaves no dark leftovers on a light host | Built for terminals — no web light/dark duality |
 | **`system` (default)** | One click back to DSH's native look: overrides no color tokens and keeps your typography | `system` = follow the terminal's 16 colors |
 | **Panel experience** | 38 themes grouped by color family, searchable, live preview; bilingual, following your DSH interface language | Theme files only |

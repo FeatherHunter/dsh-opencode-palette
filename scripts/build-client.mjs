@@ -67,7 +67,7 @@ const HOST_VENDOR_DIRS = [join(RUNTIME_DIR, 'vendor', HOST_VENDOR_PACKAGE), join
 const MODULE_ORDER = [
   'upd-config', 'upd-commands', 'upd-client',
   'log-config', 'log-client',
-  'resolve', 'map-dsh', 'font-face', 'font-avail', 'generate', 'zh-names', 'registry', 'grouping', 'index',
+  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index',
   'channel', 'update-panel', 'client',
 ]
 

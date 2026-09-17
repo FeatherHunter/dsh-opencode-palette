@@ -7,10 +7,15 @@ import {
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
-import { generateTheme, buildTokens, buildTypographyCss } from '../src/engine/generate.mjs'
+import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.mjs'
 import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
 import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
 import { createFontAvailability, FONT_PROBE_ABSENT } from '../src/engine/font-avail.mjs'
+import { sanitizeFontName, quoteFontFamily, FONT_NAME_MAX } from '../src/engine/font-names.mjs'
+import {
+  collectLocalFonts, dedupeFamilies, measureMonospaceFonts, buildFontCandidates, MONO_PROBE_TEXT,
+  FONT_ENUM_UNAVAILABLE, FONT_ENUM_DENIED, FONT_ENUM_BLOCKED, FONT_ENUM_EMPTY, FONT_ENUM_FAILED,
+} from '../src/engine/local-fonts.mjs'
 
 const TYPO = { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 
@@ -348,4 +353,164 @@ test('字体可用性：环境不支持量宽时保守判可用（绝不误灰�
   // 家族名带双引号 → CSS 声明会被丢弃；此时必须保守判可用，而不是把本机已装的字体判成未装
   const badName = createFontAvailability(() => fakeDoc(['Consolas']), BUNDLED_FONTS)
   assert.equal(badName('Cons"olas'), true, '声明被丢弃时应保守判可用')
+})
+
+// ── #11 任意系统字体：族名净化 / 安全包裹 / 回退栈合成 ──
+
+const cssVar = (css, name) => {
+  const m = new RegExp('--' + name + ':([^;]*)').exec(css)
+  return m ? m[1] : null
+}
+
+test('字体族名净化：放行真实字体名，拒绝能逃出注入 <style> 的输入', () => {
+  assert.equal(sanitizeFontName('  Maple Mono NF CN  '), 'Maple Mono NF CN', '两端空白应剥掉')
+  assert.equal(sanitizeFontName('Sarasa Mono SC'), 'Sarasa Mono SC')
+  assert.equal(sanitizeFontName('思源黑体'), '思源黑体', 'CJK 族名应放行')
+  assert.equal(sanitizeFontName('Hack Nerd Font'), 'Hack Nerd Font')
+  for (const bad of ['a{color:red}', 'a}body{', 'x;body{color:red}', 'x<y', 'a\\b', 'a\n b', '']) {
+    assert.equal(sanitizeFontName(bad), null, '应拒绝: ' + JSON.stringify(bad))
+  }
+  assert.equal(sanitizeFontName(null), null, '非字符串应拒绝')
+  assert.equal(sanitizeFontName(42), null, '非字符串应拒绝')
+  assert.equal(sanitizeFontName('x'.repeat(FONT_NAME_MAX)).length, FONT_NAME_MAX, '上限之内应放行')
+  assert.equal(sanitizeFontName('x'.repeat(FONT_NAME_MAX + 1)), null, '超长应拒绝')
+})
+
+test('字体族名安全包裹：恒配对引号，拒绝时返回 null（绝不裸拼）', () => {
+  assert.equal(quoteFontFamily('Hack Nerd Font'), "'Hack Nerd Font'")
+  assert.equal(quoteFontFamily('Sarasa Mono SC'), "'Sarasa Mono SC'")
+  assert.equal(quoteFontFamily('思源等宽'), "'思源等宽'")
+  // 引号本身在 CSS 字符串里是终结符，直接判非法（族名里真带引号的字体可忽略）
+  assert.equal(quoteFontFamily("O'Brien"), null, '含引号应拒绝而不是换引号硬塞')
+  assert.equal(quoteFontFamily('X}body{color:red}'), null, '非法名不得返回未加引号的原文')
+  assert.equal(quoteFontFamily('a;b'), null)
+})
+
+test('自定义字体进代码字体栈首位：其后仍是随包 OFL 字体与 CJK 回退（#11 最小复现）', () => {
+  const css = buildTypographyCss({ mode: 'mono', size: 13, fontKey: 'Hack Nerd Font' })
+  const code = cssVar(css, 'ds-font-family-code')
+  assert.equal(code.indexOf("'Hack Nerd Font'"), 0, '用户字体未置栈首（仍被静默降级）')
+  assert.ok(code.endsWith("'PingFang SC','Microsoft YaHei'"), 'CJK 回退被破坏（缺字会掉到 SimSun）')
+  assert.ok(code.includes("'JetBrains Mono'"), '随包 OFL 字体应从第二位起保留')
+  assert.ok(code.includes("'Fira Code'") && code.includes("'Cascadia Code'"), '随包 OFL 字体应保留')
+  assert.ok(code.includes('Consolas') && code.includes("'SF Mono'"), '系统字体层应保留')
+  // 正文语义（已拍板 Q2）：mode=mono 时同栈；mode=tui 时正文固定 SANS_STACK，不受自定义字体影响
+  assert.equal(cssVar(css, 'dsw-font-family'), code, 'mode=mono 正文与代码同栈')
+  const tui = buildTypographyCss({ mode: 'tui', size: 13, fontKey: 'Hack Nerd Font' })
+  assert.equal(cssVar(tui, 'dsw-font-family'), SANS_STACK, 'mode=tui 正文必须固定 SANS_STACK')
+  assert.equal(cssVar(tui, 'ds-font-family-code').indexOf("'Hack Nerd Font'"), 0, 'mode=tui 下自定义字体仍作用于代码')
+})
+
+test('非法族名不逃逸注入的 <style>：一律落回默认预设栈，且原文不进 CSS', () => {
+  for (const bad of ['X}body{color:red}', 'X;body{color:red}', 'X<style>', 'a{}', 'x<y']) {
+    const css = buildTypographyCss({ mode: 'mono', size: 13, fontKey: bad })
+    assert.equal(cssVar(css, 'ds-font-family-code'), FONTS['JetBrains Mono'], '非法名应落回默认栈: ' + bad)
+    assert.ok(css.indexOf(bad) < 0, '非法原文不得出现在 CSS 里: ' + bad)
+    assert.equal(codeFontStack(bad), FONTS['JetBrains Mono'], 'codeFontStack 也应拒绝')
+  }
+  // 未注册但合法的旧值（老预设 / 历史自定义值）走默认栈，不再静默丢成两套不同值
+  assert.equal(cssVar(buildTypographyCss({ mode: 'mono', size: 13, fontKey: '' }), 'ds-font-family-code'), FONTS['JetBrains Mono'], '空值应落默认栈')
+})
+
+test('字体族名去重：一族一份，按 family 归并（style/bold/italic 记录折叠）', () => {
+  const list = [
+    { family: 'JetBrains Mono', style: 'Regular', fullName: 'JetBrains Mono Regular' },
+    { family: 'JetBrains Mono', style: 'Bold', fullName: 'JetBrains Mono Bold' },
+    { family: 'Hack Nerd Font', style: 'Italic' },
+    { family: 'Maple Mono NF CN' },
+    { family: '  Hack Nerd Font  ' }, // 归一后与前面同族
+    { family: '' }, null, 42, { fullName: 'No Family Field' },
+  ]
+  assert.deepEqual(dedupeFamilies(list), ['JetBrains Mono', 'Hack Nerd Font', 'Maple Mono NF CN', 'No Family Field'])
+  assert.deepEqual(dedupeFamilies(null), [], '空清单不抛错')
+})
+
+test('本机字体枚举：成功去重 + 等宽置顶 + 字母序（非等宽仍列出）', async () => {
+  const fonts = [
+    { family: 'Sarasa Mono SC' }, { family: 'Sarasa Mono SC', style: 'Bold' },
+    { family: 'Arial' }, { family: 'JetBrains Mono' }, { family: 'Hack Nerd Font' }, { family: 'Zed Mono' },
+  ]
+  const res = await collectLocalFonts({ queryLocalFonts: () => Promise.resolve(fonts) }, { measureMono: () => ({ 'Sarasa Mono SC': true, 'JetBrains Mono': true, 'Hack Nerd Font': true, 'Zed Mono': true }) })
+  assert.equal(res.ok, true, '应判成功')
+  // 等宽置顶（Hack Nerd Font / JetBrains Mono / Sarasa Mono SC / Zed Mono），非等宽的 Arial 沉底
+  assert.deepEqual(res.fonts, ['Hack Nerd Font', 'JetBrains Mono', 'Sarasa Mono SC', 'Zed Mono', 'Arial'])
+  assert.equal(res.fonts.indexOf('Sarasa Mono SC'), res.fonts.lastIndexOf('Sarasa Mono SC'), '同族不得重复列出')
+  assert.equal(res.mono.Arial, undefined, '非等宽不进等宽表')
+})
+
+test('本机字体枚举：失败各有其因，绝不抛异常（无 API / 拒授权 / 手势或可见性 / 空清单）', async () => {
+  const noApi = await collectLocalFonts({})
+  assert.deepEqual([noApi.ok, noApi.reason, noApi.fonts], [false, FONT_ENUM_UNAVAILABLE, []], '无 queryLocalFonts 应判不可用')
+
+  const denied = await collectLocalFonts({ queryLocalFonts: () => { const e = new Error('denied'); e.name = 'NotAllowedError'; throw e } })
+  assert.equal(denied.reason, FONT_ENUM_DENIED, '拒绝授权应判 denied')
+
+  const blocked = await collectLocalFonts({ queryLocalFonts: () => { const e = new Error('gesture'); e.name = 'SecurityError'; throw e } })
+  assert.equal(blocked.reason, FONT_ENUM_BLOCKED, '缺手势/页面不可见应判 blocked')
+
+  const rejected = await collectLocalFonts({ queryLocalFonts: () => Promise.reject(Object.assign(new Error('x'), { name: 'NotAllowedError' })) })
+  assert.equal(rejected.reason, FONT_ENUM_DENIED, 'async reject 同样要收敛成 reason')
+
+  // 空数组而不抛错：权限态 denied → 说「没授权」；否则才说「没读到清单」
+  const emptyDenied = await collectLocalFonts({ queryLocalFonts: () => Promise.resolve([]), navigator: { permissions: { query: () => Promise.resolve({ state: 'denied' }) } } })
+  assert.equal(emptyDenied.reason, FONT_ENUM_DENIED, '空清单 + 权限 denied 应判没授权')
+  const emptyPlain = await collectLocalFonts({ queryLocalFonts: () => Promise.resolve([]), navigator: { permissions: { query: () => Promise.resolve({ state: 'prompt' }) } } })
+  assert.equal(emptyPlain.reason, FONT_ENUM_EMPTY, '空清单 + 未拒绝应判空清单')
+
+  // Permissions API 本身抛错 / 不存在 → 不能连累主路径
+  const permBroken = await collectLocalFonts({ queryLocalFonts: () => Promise.resolve([]), navigator: { permissions: { query: () => { throw new Error('unsupported') } } } })
+  assert.equal(permBroken.reason, FONT_ENUM_EMPTY, '权限查询抛错应退到 empty')
+  const generic = await collectLocalFonts({ queryLocalFonts: () => { throw new Error('boom') } })
+  assert.equal(generic.reason, FONT_ENUM_FAILED, '其它异常应兜底成 failed')
+})
+
+test('等宽判定：canvas 实测宽度（不靠字体名猜），量不了就不标', () => {
+  // 模拟 canvas：只有「真等宽体」逐字同宽；比例体 i 窄 W 宽。
+  // 判定只看实测宽度，与字体名里有没有 Mono 无关。
+  let family = ''
+  const ctx = {
+    set font(v) { family = String(v) },
+    get font() { return family },
+    measureText(ch) { return { width: family.indexOf('真等宽体') >= 0 ? 16 : (ch === 'W' ? 24 : 9) } },
+  }
+  const doc = { createElement: () => ({ getContext: () => ctx }) }
+  const mono = measureMonospaceFonts(doc, ['真等宽体', '比例体', 'Mono Sans 比例体'])
+  assert.equal(mono['真等宽体'], true, '窄字符同宽应判等宽')
+  assert.equal(mono['比例体'], undefined, '异宽不得进等宽表')
+  // 名字带 Mono 但实测是比例体：按实测判，不靠名字猜
+  assert.equal(mono['Mono Sans 比例体'], undefined, '名字带 Mono 不得被当成等宽')
+  assert.equal(Object.keys(measureMonospaceFonts(null, ['X Mono'])).length, 0, '无 document 应返回空表（不误标）')
+  assert.equal(Object.keys(measureMonospaceFonts({ createElement: () => { throw new Error('boom') } }, ['X Mono'])).length, 0, '抛异常应返回空表')
+})
+
+test('等宽判定：探针字符必须含异宽对，否则判定没有区分度', () => {
+  // 窄字符（i）与宽字符（W）在比例字体里必然异宽 —— 探针缺了其中一类就量不出等宽与否
+  assert.ok(MONO_PROBE_TEXT.indexOf('i') >= 0, '探针缺窄字符')
+  assert.ok(MONO_PROBE_TEXT.indexOf('W') >= 0, '探针缺宽字符')
+})
+
+test('候选分级：预设恒在（置顶 + 兜底），本机字体在后并按枚举顺序（等宽置顶）', () => {
+  const avail = (k) => k === 'Consolas' // 只装 Consolas 的机器
+  const cands = buildFontCandidates(['Hack Nerd Font', 'Maple Mono NF CN'], avail, { 'Hack Nerd Font': true }, Object.keys(FONTS), BUNDLED_FONTS)
+  const presets = cands.filter((c) => c.isPreset)
+  assert.deepEqual(presets.map((c) => c.key), Object.keys(FONTS), '预设分区应保持既有顺序且一个不少')
+  assert.equal(cands[0].key, 'JetBrains Mono', '预设置顶')
+  assert.equal(cands[0].bundled, true, '随包 OFL 字体应标 bundled（恒可用）')
+  assert.equal(cands[0].ok, true, '随包字体恒判可用')
+  assert.equal(cands[0].installed, false, '随包字体不得标「本机装了」（它与本机装没装无关）')
+  assert.equal(presets.filter((c) => c.key === 'Consolas')[0].ok, true, '本机已装的预设应判可用')
+  assert.equal(presets.filter((c) => c.key === 'Consolas')[0].installed, true, '本机已装的预设应标 installed')
+  assert.equal(presets.filter((c) => c.key === 'SF Mono')[0].ok, false, '本机未装的预设应判缺失（灰显但可选）')
+  assert.equal(presets.filter((c) => c.key === 'SF Mono')[0].installed, false, '未装的不得标 installed')
+  assert.equal(presets.filter((c) => c.key === 'SF Mono')[0].bundled, false, '非随包预设不得标 bundled')
+  const locals = cands.filter((c) => !c.isPreset)
+  assert.deepEqual(locals.map((c) => c.key), ['Hack Nerd Font'], '已在预设表里的族名不重复进本机分区')
+  assert.equal(locals[0].ok, true, '枚举到的本机字体恒判可用（不必再量宽）')
+  assert.equal(locals[0].installed, true, '枚举到的本机字体就是「本机装了」')
+  assert.equal(locals[0].stack, null, '自定义族名无预设栈，由 codeFontStack 合成')
+  assert.equal(presets.filter((c) => c.key === 'Maple Mono NF CN')[0].isLocal, true, '预设里本机也装的应标 isLocal')
+  // 枚举不可用（读不到清单）时候选仍是完整预设列表 —— 绝不出现空下拉
+  const fallback = buildFontCandidates([], avail, null)
+  assert.deepEqual(fallback.map((c) => c.key), Object.keys(FONTS), '读不到清单时应退成预设列表')
+  assert.ok(fallback.every((c) => c.isPreset), '回退态不含本机分区')
 })

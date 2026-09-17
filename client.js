@@ -1180,10 +1180,266 @@ function createFontAvailability(resolveDoc, bundledFonts) {
 __mods["font-avail"] = { FONT_PROBE_TEXT, FONT_PROBE_ABSENT, FONT_PROBE_SIZE, createFontAvailability }
 })();
 (function () {
+// font-names.mjs — 任意字体族名的净化与 CSS 安全包裹
+//
+// 为什么单独成模块：族名会经字符串拼接落进注入宿主页面的 <style>（generate.mjs 的
+// buildTypographyCss）。族名一旦含 `{` `}` `;` `<` 就能提前闭合规则或标签，把用户可控的
+// 值变成 CSS/HTML 注入。所以「净化」是引擎层的硬约束，不是面板层的输入提示。
+
+// 族名长度上限：真实字体家族名最长也就数十字符（含 Nerd Font 后缀与 CJK 名），
+// 给足余量的同时挡住把整段文本塞进 CSS 的用法
+const FONT_NAME_MAX = 128
+
+// CSS 字符串字面量无法安全承载的字符（会在注入的 <style> 里取得语法意义）：
+//   {} 结构   ; 声明分隔   <> 逃出标签   \ 转义   " ' 引号终结（' 单独其实安全，一并挡掉更省心）
+//   ` 模板拼接   换行 / 制表   控制字符
+const UNSAFE_FONT_NAME_RE = /[{}<>;\\"'\r\n\t\f\v`\u0000-\u001f\u007f]/
+
+// sanitizeFontName(name) → 合法族名 | null
+//   非法（非字符串 / 空 / 超长 / 含保留字符）一律返回 null，由调用方落到默认回退栈。
+//   刻意不做「剥离字符后继续用」的修复：修复会把一个用户没要的名字当成他的选择，比拒绝更糟。
+function sanitizeFontName(name) {
+  if (typeof name !== 'string') return null
+  const trimmed = name.trim()
+  if (trimmed === '' || trimmed.length > FONT_NAME_MAX) return null
+  if (UNSAFE_FONT_NAME_RE.test(trimmed)) return null
+  return trimmed
+}
+
+// quoteFontFamily(name) → "'Family Name'" | null
+//   用配对单引号整体包住族名；名字里若带单引号，改用双引号。
+//   两侧都带引号才是浏览器认得的「家族名」写法，裸写会被拆成多个家族名。
+//   拒绝（净化不通过）时返回 null —— 绝不返回未加引号的原始输入。
+function quoteFontFamily(name) {
+  const safe = sanitizeFontName(name)
+  if (safe === null) return null
+  return safe.indexOf("'") >= 0 ? '"' + safe + '"' : "'" + safe + "'"
+}
+
+__mods["font-names"] = { FONT_NAME_MAX, sanitizeFontName, quoteFontFamily }
+})();
+(function () {
+// local-fonts.mjs — 本机字体清单：取（queryLocalFonts）→ 去重 → 等宽判定 → 候选分级
+//
+// document / window 与等宽测量句柄都以参数注入，保持引擎层可在 node 里直接跑（与 font-avail.mjs 同策）。
+//
+// 浏览器侧的三道门（实测于真实宿主，见 issue #11 证据表）：
+//   1) 必须真实用户手势：click → await 别的东西 → queryLocalFonts 会丢手势（SecurityError）；
+//   2) 必须已授权 local-fonts：拒绝抛 NotAllowedError；
+//   3) 页面必须可见：窗口不可见抛 SecurityError。
+// 另有「被自动拒绝时不抛错、直接返回空数组」这种宿主行为，故空数组不能一律说成「本机没字体」，
+// 要用 Permissions API 的状态区分（reason 取值见下）。
+
+const { FONTS } = __mods["map-dsh"]
+const { quoteFontFamily } = __mods["font-names"]
+
+// 等宽判定探针：必须含「窄 + 宽」两类字符 —— 比例字体里 i 与 W 宽度差得很远，
+// 等宽字体里两者逐像素同宽；只用单一种窄字符（如 iiiii）判不出任何东西。
+const MONO_PROBE_TEXT = 'iiiiWWWW'
+const MONO_PROBE_SIZE = 32
+// 等宽测量的数量上限：清单通常 200–400 条，超出部分不再量（省掉每条一次布局），
+// 只是排在「等宽优先」后面，仍可正常选用
+const MONO_MEASURE_LIMIT = 400
+
+// 不可枚举/取不到清单的原因（面板按它给不同人话提示）
+const FONT_ENUM_UNAVAILABLE = 'unavailable' // 宿主平台没有这个 API（Firefox / Safari / 非安全上下文）
+const FONT_ENUM_DENIED = 'denied'           // 用户或宿主拒绝了授权（NotAllowedError / 权限态 denied）
+const FONT_ENUM_BLOCKED = 'blocked'         // 手势 / 页面可见性等 SecurityError
+const FONT_ENUM_EMPTY = 'empty'             // 授了权也调得通，但没拿到任何字体（含被自动拒绝返回空数组）
+const FONT_ENUM_FAILED = 'failed'           // 其它异常（兜底，绝不把异常抛给面板）
+
+function reasonOfError(err) {
+  const name = err && err.name
+  if (name === 'NotAllowedError') return FONT_ENUM_DENIED
+  if (name === 'SecurityError') return FONT_ENUM_BLOCKED
+  return FONT_ENUM_FAILED
+}
+
+// queryLocalFonts 的权限态（'granted' / 'denied' / 'prompt'），拿不到就解析成 null
+function permissionState(nav) {
+  try {
+    const perms = nav && nav.permissions
+    if (!perms || typeof perms.query !== 'function') return Promise.resolve(null)
+    const p = perms.query({ name: 'local-fonts' })
+    if (!p || typeof p.then !== 'function') return Promise.resolve(null)
+    return p.then(function (st) { return (st && st.state) || null }, function () { return null })
+  } catch (e) { return Promise.resolve(null) }
+}
+
+// collectLocalFonts(scope, opts) → { ok, fonts, reason }
+//   scope: { queryLocalFonts?, navigator?, document? }（浏览器里直接传 window）
+//   opts.measureMono(families): (families) => { family: true }（默认见 measureMonospaceFonts）
+//   opts.onCalled(): 枚举调用**同步发起后立刻**回调（无参）。用来验证「调用确实落在用户手势的
+//     同步段里」——一旦有人把调用挪到 await 之后，手势就丢了，这个信号会先于失败出现（见 #11 三道门）。
+//   调用必须在真实用户手势里**同步发起**（本函数同步发起调用，返回 promise）。
+//   不抛异常：所有失败都收敛成 reason，面板据此决定提示文案。
+function collectLocalFonts(scope, opts) {
+  const settings = opts || {}
+  const win = scope || {}
+  const query = win.queryLocalFonts
+  if (typeof query !== 'function') {
+    return Promise.resolve({ ok: false, fonts: [], reason: FONT_ENUM_UNAVAILABLE })
+  }
+  let raw
+  try {
+    // 同步发起：调用发生在手势事件处理器的同步段里，await 之后就不算手势了
+    raw = query.call(win)
+    if (typeof settings.onCalled === 'function') settings.onCalled()
+  } catch (err) {
+    if (typeof settings.onCalled === 'function') settings.onCalled(err)
+    return Promise.resolve({ ok: false, fonts: [], reason: reasonOfError(err) })
+  }
+  return Promise.resolve(raw).then(function (list) {
+    const families = dedupeFamilies(list)
+    if (families.length === 0) {
+      // 空清单有两种来源：本机真没字体 / 宿主静默拒绝。用权限态区分，别一口咬定「没字体」。
+      return permissionState(win.navigator).then(function (state) {
+        return { ok: false, fonts: [], reason: state === 'denied' ? FONT_ENUM_DENIED : FONT_ENUM_EMPTY }
+      })
+    }
+    return families
+  }, function (err) {
+    return { ok: false, fonts: [], reason: reasonOfError(err) }
+  }).then(function (value) {
+    // 成功路径拿到的是裸数组，失败路径是结果对象（在上一段收敛）
+    if (!Array.isArray(value)) return value
+    const measure = settings.measureMono || function (list) { return measureMonospaceFonts(win.document, list) }
+    let mono = {}
+    // 只量前 MONO_MEASURE_LIMIT 款：清单通常 200–400 条，超出部分不量（省掉每条一次布局），
+    // 只是排在「等宽优先」后面，仍可正常选用
+    try { mono = measure(value.slice(0, MONO_MEASURE_LIMIT)) || {} } catch (e) { mono = {} }
+    // 等宽置顶（不按名字猜，靠实测宽度），组内按字母序；非等宽同样列出可选
+    const fonts = value.slice().sort(function (a, b) {
+      const d = (mono[a] ? 0 : 1) - (mono[b] ? 0 : 1)
+      return d !== 0 ? d : a.localeCompare(b)
+    })
+    return { ok: true, fonts: fonts, mono: mono, reason: null }
+  })
+}
+
+// 按 family 去重（一个族通常返回多份 style/bold/italic 记录，下拉只列族名一次）
+function dedupeFamilies(list) {
+  const out = []
+  const seen = Object.create(null)
+  if (!list) return out
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i]
+    // FontData 的族名字段是 family；个别环境可能只给 fullName，兜底取它
+    const name = item && typeof item === 'object'
+      ? (typeof item.family === 'string' && item.family !== '' ? item.family
+        : (typeof item.fullName === 'string' ? item.fullName : null))
+      : null
+    if (typeof name !== 'string') continue
+    const key = name.trim()
+    if (key === '' || seen[key]) continue
+    seen[key] = true
+    out.push(key)
+  }
+  return out
+}
+
+// measureMonospaceFonts(doc, families) → { family: true }
+//   canvas 实测量宽：探针文本里所有窄字符同宽 = 等宽。长度少于 2 的家族名不量（画布量不出有意义的差别）。
+//   量不了（无 document / 无 canvas / 抛异常）就返回空表 —— 面板按「未判为等宽」处理，绝不误标。
+function measureMonospaceFonts(doc, families) {
+  const result = Object.create(null)
+  const list = families || []
+  if (!doc || typeof doc.createElement !== 'function') return result
+  let ctx = null
+  try {
+    const canvas = doc.createElement('canvas')
+    ctx = canvas && typeof canvas.getContext === 'function' ? canvas.getContext('2d') : null
+  } catch (e) { ctx = null }
+  if (!ctx || typeof ctx.measureText !== 'function') return result
+  for (let i = 0; i < list.length; i++) {
+    const family = list[i]
+    if (typeof family !== 'string' || family.length < 2) continue
+    let widths = null
+    try {
+      ctx.font = MONO_PROBE_SIZE + 'px ' + quoteFontFamily(family)
+      widths = []
+      for (let c = 0; c < MONO_PROBE_TEXT.length; c++) {
+        widths.push(ctx.measureText(MONO_PROBE_TEXT.charAt(c)).width)
+      }
+    } catch (e) { continue }
+    if (!widths || widths.length < MONO_PROBE_TEXT.length) continue
+    let mono = true
+    for (let w = 1; w < widths.length; w++) {
+      if (Math.abs(widths[w] - widths[0]) >= 0.01) { mono = false; break }
+    }
+    if (mono) result[family] = true
+  }
+  return result
+}
+
+// buildFontCandidates(localFamilies, isFontAvailable, monoMap, presetOrder, bundledFonts) → 候选清单
+//   一条候选：{ key, isPreset, isLocal, bundled, ok, installed, mono, stack }
+//     isPreset  在预设表里（置顶「常用预设」分区）
+//     isLocal   在本机枚举结果里（本地分区的成员资格以枚举为准）
+//     bundled   随包内联 @font-face，恒可用（面板据此不标「未装」）
+//     ok        可用（本地枚举或宽度对比法判定；bundled 恒真）
+//     installed ok && !bundled —— 即「确实在本机装过」，可直接写「已装」；bundled 的恒可用但不必说「本机装了」
+//     mono      等宽（canvas 实测；没量到就是 false）
+//     stack     该项自己的回退栈（预设查表；自定义族名 = null，由 codeFontStack 合成）
+//   排序：预设按传入顺序在前，本机字体按传入顺序（已被 collectLocalFonts 排成「等宽置顶 + 字母序」）在后。
+function buildFontCandidates(localFamilies, isFontAvailable, monoMap, presetOrder, bundledFonts) {
+  const available = typeof isFontAvailable === 'function' ? isFontAvailable : function () { return true }
+  const bundled = bundledFonts || []
+  const mono = monoMap || {}
+  const locals = []
+  const localSeen = Object.create(null)
+  for (const name of (localFamilies || [])) {
+    if (typeof name !== 'string') continue
+    const key = name.trim()
+    if (key === '' || localSeen[key]) continue
+    localSeen[key] = true
+    locals.push(key)
+  }
+  const presets = (presetOrder && presetOrder.length ? presetOrder : Object.keys(FONTS))
+  const out = []
+  const taken = Object.create(null)
+  for (const key of presets) {
+    if (taken[key]) continue
+    taken[key] = true
+    const isBundled = bundled.indexOf(key) >= 0
+    // 随包字体恒可用；其余预设靠宽度对比法探；本机字体不需要探（枚举到即存在，见下）
+    const ok = isBundled ? true : available(key)
+    out.push({
+      key: key,
+      isPreset: true,
+      isLocal: locals.indexOf(key) >= 0,
+      bundled: isBundled,
+      ok: ok,
+      installed: ok && !isBundled,
+      mono: !!mono[key],
+      stack: FONTS[key],
+    })
+  }
+  for (const key of locals) {
+    if (taken[key]) continue
+    taken[key] = true
+    out.push({
+      key: key,
+      isPreset: false,
+      isLocal: true,
+      bundled: false,
+      ok: true,
+      installed: true,
+      mono: !!mono[key],
+      stack: null,
+    })
+  }
+  return out
+}
+
+__mods["local-fonts"] = { MONO_PROBE_TEXT, MONO_PROBE_SIZE, MONO_MEASURE_LIMIT, FONT_ENUM_UNAVAILABLE, FONT_ENUM_DENIED, FONT_ENUM_BLOCKED, FONT_ENUM_EMPTY, FONT_ENUM_FAILED, collectLocalFonts, dedupeFamilies, measureMonospaceFonts, buildFontCandidates }
+})();
+(function () {
 // generate.mjs — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
 const { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } = __mods["map-dsh"]
 const { FONT_FACE_CSS } = __mods["font-face"]
+const { quoteFontFamily } = __mods["font-names"]
 const { withAlpha } = __mods["resolve"]
 
 const TRANSPARENT = 'transparent'
@@ -1220,13 +1476,22 @@ function buildTokens(colors) {
   return tokens
 }
 
+// 代码字体栈：fontKey 是预设名 → 查预设表；是任意族名（本机字体现选）→ 把该族名安全包裹后
+// 夹在默认预设栈最前（用户字体 → 随包 OFL 字体 → 系统 → CJK），缺字不断行；
+// 名字非法（含 {} ; < 等能逃出注入 <style> 的字符）→ 一律落到默认栈，绝不把原始输入拼进 CSS。
+function codeFontStack(fontKey) {
+  if (FONTS[fontKey]) return FONTS[fontKey]
+  const quoted = quoteFontFamily(fontKey)
+  return quoted ? quoted + ',' + FONTS['JetBrains Mono'] : FONTS['JetBrains Mono']
+}
+
 // 排印 CSS（与主题无关，system 模式也输出）
 function buildTypographyCss(typography) {
   const size = (typography && typography.size) || 13
   const mode = (typography && typography.mode) || 'mono'
   const fontKey = (typography && typography.fontKey) || 'JetBrains Mono'
-  const bodyFont = mode === 'mono' ? (FONTS[fontKey] || FONTS['JetBrains Mono']) : SANS_STACK
-  const codeFont = FONTS[fontKey] || FONTS['JetBrains Mono']
+  const codeFont = codeFontStack(fontKey)
+  const bodyFont = mode === 'mono' ? codeFont : SANS_STACK
   const lh = size + 9
   const small = size - 1
   return [FONT_FACE_CSS,
@@ -1285,7 +1550,7 @@ function generateTheme(colors, typography, themeName) {
     meta: { theme: themeName || (colors ? 'theme' : 'system'), typography: typography || {} },
   }
 }
-__mods["generate"] = { buildTokens, buildTypographyCss, buildColorCss, generateTheme }
+__mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColorCss, generateTheme }
 })();
 (function () {
 // zh-names.mjs — 主题中文名表（单一来源）
@@ -9672,9 +9937,11 @@ __mods["update-panel"] = { readSnapshot, buttonState, blockedReasonKey, createUp
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
 const { renderTheme, previewColors, themeNames, themeGroups } = __mods["index"]
-const { FONTS, SANS_STACK } = __mods["map-dsh"]
+const { FONTS } = __mods["map-dsh"]
 const { BUNDLED_FONTS } = __mods["font-face"]
 const { createFontAvailability } = __mods["font-avail"]
+const { codeFontStack } = __mods["generate"]
+const { buildFontCandidates, collectLocalFonts } = __mods["local-fonts"]
 const { THEME_ZH } = __mods["zh-names"]
 const { createClientLog } = __mods["log-client"]
 const { buildClientPhoneNames, CLIENT_POLL } = __mods["upd-client"]
@@ -9764,6 +10031,18 @@ const I18N = {
   codeFont: { zh: '代码字体', en: 'Code font' },
   fontNotInstalled: { zh: '本机未装', en: 'missing' },
   fontLocal: { zh: '本地', en: 'local' },
+  fontMono: { zh: '等宽', en: 'mono' },
+  fontPresets: { zh: '常用预设', en: 'Common presets' },
+  fontLocals: { zh: '本机字体', en: 'Installed on this machine' },
+  fontSearch: { zh: '搜索本机字体…', en: 'Search installed fonts…' },
+  fontNoMatch: { zh: '没有匹配的字体', en: 'No matching fonts' },
+  fontCounting: { zh: '正在读取本机字体…', en: 'Reading installed fonts…' },
+  fontLoadedCount: { zh: '已读取本机 {n} 款字体', en: '{n} fonts found on this machine' },
+  fontScanFail: { zh: '未能读取本机字体清单，先列出常用预设', en: 'Could not read the font list — showing the common presets' },
+  fontScanDenied: { zh: '本机字体访问被拒绝，浏览器地址栏授权后再试；先列出常用预设', en: 'Font access was denied — allow it in the browser, then retry; showing the common presets' },
+  fontScanUnsupported: { zh: '当前环境不支持读取本机字体清单，先列出常用预设', en: 'This environment cannot list installed fonts — showing the common presets' },
+  fontScanEmpty: { zh: '没读到本机字体清单，先列出常用预设', en: 'The font list came back empty — showing the common presets' },
+  fontRetry: { zh: '重试', en: 'Retry' },
   themeSection: { zh: '选择主题', en: 'Themes' },
   themeCount: { zh: '38 款 · 按色系分组', en: '38 · by color family' },
   search: { zh: '搜索主题…', en: 'Search themes…' },
@@ -9834,6 +10113,24 @@ const isFontAvailable = createFontAvailability(
   () => (typeof document === 'undefined' ? undefined : document),
   BUNDLED_FONTS
 )
+
+// ── 本机字体清单（枚举 → 去重 → 等宽置顶 → 候选分级）──
+// 缓存：一次会话只读一次本机清单（同一次枚举的结论对面板多次开合都成立）；
+// 面板侧只在「读不到」时给「重试」入口，重试才强制重读。
+let localFontsCache = null
+function collectFontCandidates() {
+  const scope = typeof window === 'undefined' ? null : window
+  return collectLocalFonts(scope).then(function (res) {
+    const candidates = buildFontCandidates(res.ok ? res.fonts : [], isFontAvailable, res.mono, Object.keys(FONTS), BUNDLED_FONTS)
+    localFontsCache = {
+      candidates: candidates,
+      count: res.ok ? res.fonts.length : 0,
+      reason: res.reason || null,
+      ok: !!res.ok,
+    }
+    return localFontsCache
+  })
+}
 
 // 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
 // 未知环境（SSR/旧宿主/mock 缺 body）回退 true = 保持现有深色视觉，绝不误伤深色主题
@@ -10007,6 +10304,12 @@ function createClient(slotTarget) {
         const h = react.createElement
         const [query, setQuery] = react.useState('')
         const [fontOpen, setFontOpen] = react.useState(false)
+        // 字体下拉：本机清单（枚举缓存）+ 搜索词 + 进行中标志
+        const [fontList, setFontList] = react.useState(localFontsCache)
+        const [fontQuery, setFontQuery] = react.useState('')
+        const [fontBusy, setFontBusy] = react.useState(false)
+        // 一次会话只自动读一次本机清单；「重试」显式复位后才允许再读
+        const fontTriedRef = react.useRef(localFontsCache !== null)
         const [sizeOpen, setSizeOpen] = react.useState(false)
         const fontRef = react.useRef(null)
         const sizeRef = react.useRef(null)
@@ -10026,6 +10329,22 @@ function createClient(slotTarget) {
           document.addEventListener('mousedown', onDoc)
           return function () { document.removeEventListener('mousedown', onDoc) }
         }, [fontOpen, sizeOpen])
+
+        // 本机字体清单：**只有用户真的点开下拉才读**（queryLocalFonts 要用户手势 + 可能弹授权），
+        // 打开面板时不读。读不到也不影响控件：候选恒含预设兜底。
+        react.useEffect(function () {
+          if (!fontOpen) return
+          if (fontList !== null || fontBusy || fontTriedRef.current) return
+          fontTriedRef.current = true
+          setFontBusy(true)
+          collectFontCandidates().then(function (res) {
+            setFontList(res)
+            setFontBusy(false)
+          }, function () {
+            setFontList({ candidates: buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS), count: 0, reason: 'failed', ok: false })
+            setFontBusy(false)
+          })
+        }, [fontOpen, fontList, fontBusy])
 
         // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
         react.useEffect(function () {
@@ -10095,7 +10414,7 @@ function createClient(slotTarget) {
               }, opt.label)
             }))
         }
-        // 通用下拉（字号 / 代码字体）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
+        // 通用下拉（字号）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
         const dd = function (open, setOpen, ref, labelNode, items) {
           return h('div', { ref: ref, style: { position: 'relative' } }, [
             h('button', {
@@ -10118,6 +10437,122 @@ function createClient(slotTarget) {
         }
         const dot = function (color, size) {
           return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || dotFallback, display: 'inline-block', flex: 'none' } })
+        }
+
+        // ── 代码字体下拉：常用预设（置顶）+ 本机字体（等宽置顶，可搜索）──
+        // 候选缺省只有预设：本机清单读不到时控件照常可用（绝不出现空下拉）。
+        const fallbackCandidates = buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS)
+        const candidates = fontList && fontList.candidates ? fontList.candidates : fallbackCandidates
+
+        // 读不到清单的原因 → 人话提示（区分「没授权」与「没读到」，别都说成没字体）
+        const fontHint = function () {
+          if (fontBusy) return { text: tr('fontCounting'), retry: false }
+          if (!fontList) return null
+          if (fontList.ok) return { text: trf('fontLoadedCount', { n: fontList.count }), retry: false }
+          const key = fontList.reason === 'denied' ? 'fontScanDenied'
+            : fontList.reason === 'unavailable' ? 'fontScanUnsupported'
+              : fontList.reason === 'empty' ? 'fontScanEmpty' : 'fontScanFail'
+          return { text: tr(key), retry: true }
+        }
+        const retryFonts = function () {
+          fontTriedRef.current = false
+          localFontsCache = null
+          setFontList(null)
+        }
+        // 候选行：族名按自己的字体渲染（预览即所得）；未装灰显标注，确实装在本机的标「已装」/「等宽」
+        const fontItem = function (k) {
+          const on = k.key === st.fontKey
+          const suffix = k.ok && k.installed ? '(' + (k.mono ? tr('fontMono') : tr('fontLocal')) + ')' : (k.ok ? '' : '(' + tr('fontNotInstalled') + ')')
+          return h('div', {
+            key: k.key,
+            onClick: function () {
+              props.refresh(st.mode, st.size, k.key)
+              setUi(props.getState())
+              setFontOpen(false)
+            },
+            title: k.ok ? (k.installed ? tr('fontLocal') : '') : tr('fontNotInstalled'),
+            style: {
+              padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
+              background: on ? ddItemOnBg : 'transparent',
+              color: on ? base : muted,
+              opacity: k.ok ? 1 : 0.45,
+            },
+          }, h('span', { style: { fontFamily: k.stack || codeFontStack(k.key), whiteSpace: 'nowrap' } }, k.key + suffix))
+        }
+        const hint = fontHint()
+        const hintNode = hint
+          ? h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 7px', fontSize: 11, color: muted, borderBottom: '1px solid var(--dsw-alias-border-l1)' } }, [
+            h('span', { style: { flex: '1 1 auto' } }, hint.text),
+            hint.retry ? h('span', {
+              onClick: function () { retryFonts() },
+              style: { cursor: 'pointer', color: 'var(--dsw-alias-brand-primary)', flex: 'none' },
+            }, tr('fontRetry')) : null,
+          ])
+          : null
+        const menuItem = function (key, label, onClick) {
+          return h('div', {
+            key: key,
+            onClick: onClick,
+            style: { padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer', color: base },
+          }, label)
+        }
+        const fontMenu = function () {
+          const q = fontQuery.trim().toLowerCase()
+          const match = function (k) { return q === '' || k.key.toLowerCase().indexOf(q) >= 0 }
+          const presets = candidates.filter(function (k) { return k.isPreset && match(k) })
+          // 枚举到的本机字体已按「等宽置顶 + 字母序」排好，这里只做过滤与截断（大清单别一次铺满 DOM）
+          const all = candidates.filter(function (k) { return !k.isPreset && match(k) })
+          const locals = all.slice(0, 400)
+          const rows = []
+          if (presets.length > 0) {
+            rows.push(menuItem('sec-presets', tr('fontPresets'), function () {}))
+            for (const k of presets) rows.push(fontItem(k))
+          }
+          if (locals.length > 0) {
+            rows.push(menuItem('sec-locals', tr('fontLocals') + ' · ' + all.length, function () {}))
+            for (const k of locals) rows.push(fontItem(k))
+          }
+          if (rows.length === 0) rows.push(menuItem('no-match', tr('fontNoMatch'), function () {}))
+          return h('div', null, [
+            h('input', {
+              value: fontQuery,
+              onChange: function (e) { setFontQuery(e.target.value) },
+              onClick: function (e) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
+              placeholder: tr('fontSearch'),
+              style: {
+                width: '100%', boxSizing: 'border-box', background: 'var(--dsw-alias-bg-layer-2)',
+                border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: '6px 10px',
+                fontSize: 12, outline: 'none', color: base, fontFamily: 'var(--dsw-font-family)', marginBottom: 4,
+              },
+            }),
+            hintNode,
+            h('div', { style: { maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
+          ])
+        }
+        const fontPicker = function () {
+          return h('div', { ref: fontRef, style: { position: 'relative' } }, [
+            h('button', {
+              // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
+              onClick: function () { setFontOpen(!fontOpen); setFontQuery('') },
+              style: {
+                display: 'flex', alignItems: 'center', gap: 8,
+                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+                color: base, fontFamily: 'var(--dsw-font-family)',
+              },
+            }, [
+              h('span', { style: { fontFamily: codeFontStack(st.fontKey) } }, st.fontKey),
+              h('span', { style: { color: muted } }, '▾'),
+            ]),
+            fontOpen ? h('div', {
+              key: 'font-menu',
+              style: {
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
+                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
+                borderRadius: 8, minWidth: 240, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
+              },
+            }, [fontMenu()]) : null,
+          ])
         }
 
         // 主题 mini 芯片（组合 1）
@@ -10391,29 +10826,7 @@ function createClient(slotTarget) {
                   },
                 }, String(s) + 'px')
               })),
-            dd(fontOpen, setFontOpen, fontRef,
-              h('span', { style: { fontFamily: FONTS[st.fontKey] || FONTS['JetBrains Mono'] } }, st.fontKey),
-              Object.keys(FONTS).map(function (k) {
-                const on = k === st.fontKey
-                const ok = isFontAvailable(k)
-                const bundled = BUNDLED_FONTS && BUNDLED_FONTS.indexOf(k) >= 0
-                const suffix = bundled ? '' : '(' + (ok ? tr('fontLocal') : tr('fontNotInstalled')) + ')'
-                return h('div', {
-                  key: k,
-                  onClick: function () {
-                    props.refresh(st.mode, st.size, k)
-                    setUi(props.getState())
-                    setFontOpen(false)
-                  },
-                  title: ok ? '' : tr('fontNotInstalled'),
-                  style: {
-                    padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                    background: on ? ddItemOnBg : 'transparent',
-                    color: on ? base : muted,
-                    opacity: ok ? 1 : 0.45,
-                  },
-                }, h('span', { style: { fontFamily: FONTS[k], whiteSpace: 'nowrap' } }, k + suffix))
-              })),
+            fontPicker(),
           ]),
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [
@@ -10459,6 +10872,10 @@ function createClient(slotTarget) {
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
           log: clientLog,
+          // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
+          collectFonts: collectFontCandidates,
+          // 面板文案（测试/调试用，走同一份双语表）
+          text: function (key, vars) { return vars ? trf(key, vars) : tr(key) },
           groups: function () { return themeGroups() },
           subscribeLocale: function (fn) {
             localeListeners.push(fn)

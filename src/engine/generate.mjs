@@ -2,6 +2,7 @@
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
 import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } from './map-dsh.mjs'
 import { FONT_FACE_CSS } from './font-face.mjs'
+import { quoteFontFamily } from './font-names.mjs'
 import { withAlpha } from './resolve.mjs'
 
 const TRANSPARENT = 'transparent'
@@ -38,13 +39,22 @@ export function buildTokens(colors) {
   return tokens
 }
 
+// 代码字体栈：fontKey 是预设名 → 查预设表；是任意族名（本机字体现选）→ 把该族名安全包裹后
+// 夹在默认预设栈最前（用户字体 → 随包 OFL 字体 → 系统 → CJK），缺字不断行；
+// 名字非法（含 {} ; < 等能逃出注入 <style> 的字符）→ 一律落到默认栈，绝不把原始输入拼进 CSS。
+export function codeFontStack(fontKey) {
+  if (FONTS[fontKey]) return FONTS[fontKey]
+  const quoted = quoteFontFamily(fontKey)
+  return quoted ? quoted + ',' + FONTS['JetBrains Mono'] : FONTS['JetBrains Mono']
+}
+
 // 排印 CSS（与主题无关，system 模式也输出）
 export function buildTypographyCss(typography) {
   const size = (typography && typography.size) || 13
   const mode = (typography && typography.mode) || 'mono'
   const fontKey = (typography && typography.fontKey) || 'JetBrains Mono'
-  const bodyFont = mode === 'mono' ? (FONTS[fontKey] || FONTS['JetBrains Mono']) : SANS_STACK
-  const codeFont = FONTS[fontKey] || FONTS['JetBrains Mono']
+  const codeFont = codeFontStack(fontKey)
+  const bodyFont = mode === 'mono' ? codeFont : SANS_STACK
   const lh = size + 9
   const small = size - 1
   return [FONT_FACE_CSS,
