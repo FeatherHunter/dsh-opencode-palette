@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原型 · README 视觉重做（胶囊行 + theme-stories）— #29</title>
+<!--
+  ══════════════════════════════════════════════════════════════════════════
+  抛弃式原型 —— 不进 main / 不发布 / 不写测试。
+  题：#29 视觉重做：顶部胶囊行 + theme-stories（中英），并定 assets/ 存量去留
+  分支：UI（"界面应该长什么样"）→ 单页多变体 + ?变体= + 底部悬浮切换条
+  载体：单文件 HTML，双击即开，零安装零构建（本仓无 Web 路由，沿用 prototypes/ 惯例）
+  用法：?badges=a|b|c  ?figure=A|B|C  ?lang=zh|en  ?view=one|all
+  收尾：胜出方案落进 scripts/generate-assets.mjs（票 #31），本文件搬 throwaway 分支
+  ══════════════════════════════════════════════════════════════════════════
+-->
+<style>
+  :root{
+    --bg:#0b0b0e; --panel:#131317; --panel2:#17171c; --line:#26262d;
+    --fg:#e9e9ef; --dim:#9a9aa6; --dim2:#6f6f7a;
+    --accent:#FAB283; --accent2:#9D7CD8; --ok:#7FD88F; --bad:#E06C75;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg)}
+  body{
+    font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    padding:0 0 180px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+  a{color:var(--accent)}
+  code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+
+  /* ── 抛弃式声明 ───────────────────────────────────────────── */
+  .proto{
+    background:linear-gradient(90deg,#3a1d0c,#2a1a3d);border-bottom:1px solid #4a3a2a;
+    padding:9px 22px;font-size:12.5px;color:#ffd9b8;letter-spacing:.2px;
+  }
+  .proto b{color:#fff}
+
+  header.top{padding:26px 0 6px}
+  h1{font-size:23px;margin:0 0 10px;letter-spacing:.3px}
+  .q{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:8px;padding:13px 16px;margin:0 0 16px;font-size:13.5px;color:#d6d6de
+  }
+  .q b{color:var(--accent)}
+  .q p{margin:0 0 8px}
+  .q p:last-child{margin:0}
+
+  .ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 20px}
+  .ctrls .grp{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px}
+  .ctrls .grp>span{font-size:11.5px;color:var(--dim2)}
+  .ctrls button{
+    background:#20202a;border:1px solid #33333f;color:#d8d8e2;border-radius:6px;
+    padding:3px 9px;font-size:12px;cursor:pointer;font-family:inherit
+  }
+  .ctrls button:hover{border-color:#4a4a5a}
+  .ctrls button.on{background:var(--accent);border-color:var(--accent);color:#1a1208;font-weight:700}
+
+  h2{font-size:16.5px;margin:34px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
+  h2 .num{color:var(--accent);font-family:ui-monospace,monospace;margin-right:8px}
+  h2 .tag{font-size:11px;color:var(--dim2);font-weight:400;margin-left:8px}
+  .lead{color:var(--dim);font-size:13px;margin:0 0 14px;max-width:900px}
+  h3{font-size:13.5px;margin:20px 0 8px;color:#cfcfd8}
+
+  /* ── 事实面板 ─────────────────────────────────────────────── */
+  .facts{display:grid;grid-template-columns:repeat(auto-fill,minmax(178px,1fr));gap:9px;margin:0 0 6px}
+  .fact{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+  .fact .k{font-size:10.5px;color:var(--dim2);letter-spacing:.4px;text-transform:uppercase}
+  .fact .v{font-size:15px;font-weight:700;margin-top:2px;font-family:ui-monospace,monospace}
+  .fact .n{font-size:11px;color:var(--dim);margin-top:3px}
+  .fact.warn{border-color:#4a2a2a}
+  .fact.warn .v{color:var(--bad)}
+
+  /* ── 舞台 ─────────────────────────────────────────────────── */
+  .stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:0 0 12px}
+  .stage .cap{font-size:11.5px;color:var(--dim2);margin:0 0 12px}
+  .stage .cap b{color:#cfcfd8}
+
+  .rowbox{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 12px;text-align:center}
+  .rowbox.two{padding:14px 12px}
+  .bline{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center}
+  .bline+.bline{margin-top:8px}
+  .bgap{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;align-items:center;padding:5px 10px;border:1px dashed #2c313a;border-radius:7px}
+  .bgap .glab{font-size:10.5px;color:#6e7681;margin-right:2px;letter-spacing:.3px}
+  .bd{display:inline-flex;align-items:center;text-decoration:none}
+  .bd img{display:block;height:20px}
+  .bd.broken img{display:none}
+  /* 取不到图时用本地模拟顶上（形状按 shields flat 复刻），并标红下划线说明「这枚没加载出来」 */
+  .bd.broken::after{
+    content:"";position:absolute;left:0;right:0;bottom:-3px;height:2px;background:#8b2f36;border-radius:1px
+  }
+  .bd.broken{position:relative}
+  .mock{display:inline-flex;height:20px;border-radius:3px;overflow:hidden;
+    font:11px/20px Verdana,Geneva,DejaVu Sans,sans-serif;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+  .mock b{font-weight:400;color:#fff;padding:0 6px;text-shadow:0 1px 0 rgba(0,0,0,.2)}
+  .loadbar{display:flex;gap:14px;align-items:center;font-size:11.5px;color:var(--dim);margin:10px 0 0}
+  .loadbar b{font-family:ui-monospace,monospace;color:#d8d8e2}
+  .loadbar button{background:#20202a;border:1px solid #33333f;color:#d8d8e2;border-radius:6px;padding:2px 8px;font-size:11.5px;cursor:pointer;font-family:inherit}
+
+  /* ── 图稿预览 ─────────────────────────────────────────────── */
+  .prev{background:#0d0d0d;border:1px solid #2a2a30;border-radius:8px;padding:0;overflow:hidden}
+  .prevbox{position:relative;overflow:hidden;margin:0 auto}
+  .canvas{position:absolute;left:0;top:0;transform-origin:top left;background:#0d0d0d;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif}
+  .canvas *{position:absolute}
+  .sw{display:block}
+  .chess{
+    background-color:#161616;
+    background-image:linear-gradient(45deg,#242424 25%,transparent 25%),linear-gradient(-45deg,#242424 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#242424 75%),linear-gradient(-45deg,transparent 75%,#242424 75%);
+    background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0
+  }
+
+  /* ── 状态面板 ─────────────────────────────────────────────── */
+  .state{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:0 0 12px}
+  .state h4{margin:0 0 10px;font-size:12.5px;color:#cfcfd8;letter-spacing:.3px}
+  .state h4:not(:first-child){margin-top:18px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{text-align:left;padding:6px 9px;border-bottom:1px solid #202027;vertical-align:top}
+  th{color:var(--dim2);font-weight:600;font-size:11px;letter-spacing:.3px;border-bottom-color:#2c2c34}
+  td code{font-size:11px;color:#c9c9d4;word-break:break-all}
+  .pill{display:inline-block;padding:1px 7px;border-radius:20px;font-size:10.5px;font-weight:700;white-space:nowrap}
+  .pill.dyn{background:#1d3a2a;color:var(--ok);border:1px solid #2c5a3f}
+  .pill.sta{background:#2a2a33;color:#b9b9c6;border:1px solid #3a3a46}
+  .pill.keep{background:#1d3a2a;color:var(--ok);border:1px solid #2c5a3f}
+  .pill.drop{background:#3a1d1d;color:var(--bad);border:1px solid #5a2c2c}
+  .pill.redo{background:#3a2f1d;color:var(--accent);border:1px solid #5a4a2c}
+  .pill.orph{background:#2a2a33;color:#8b8b95;border:1px solid #3a3a46}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 14px;font-size:12.2px}
+  .kv dt{color:var(--dim2)}
+  .kv dd{margin:0;color:#d2d2dc;font-family:ui-monospace,monospace;font-size:11.5px}
+  pre{margin:8px 0 0;background:#0e0e12;border:1px solid #26262d;border-radius:8px;padding:11px 13px;overflow:auto;max-height:280px}
+  pre code{font-size:11px;color:#c8c8d4;white-space:pre;line-height:1.65}
+  .cp{background:#20202a;border:1px solid #33333f;color:#d8d8e2;border-radius:6px;padding:3px 10px;font-size:11.5px;cursor:pointer;font-family:inherit;margin-left:8px}
+  .note{font-size:11.8px;color:var(--dim);margin:9px 0 0}
+  .note b{color:var(--accent)}
+  .verdict{background:#141a14;border:1px solid #2c4a2c;border-radius:8px;padding:11px 14px;margin:10px 0 0;font-size:12.5px;color:#cfe6cf}
+  .verdict b{color:var(--ok)}
+
+  /* ── 底部悬浮切换条（明显不属于被评审的设计） ─────────────── */
+  #bar{
+    position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:99;
+    background:#08080b;border:1px solid #4a4a5a;border-radius:12px;
+    box-shadow:0 10px 34px rgba(0,0,0,.65),0 0 0 1px rgba(250,178,131,.14);
+    padding:7px 9px;min-width:520px
+  }
+  #bar .brow{display:flex;align-items:center;gap:8px;padding:3px 4px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+  #bar .brow.active{background:#131317;border-color:#3a3a48}
+  #bar .brow .axis{font-size:11px;color:var(--dim2);min-width:52px}
+  #bar .brow.active .axis{color:var(--accent)}
+  #bar .brow button.arrow{
+    background:#20202a;border:1px solid #3a3a46;color:#e2e2ea;border-radius:6px;
+    width:26px;height:22px;line-height:1;cursor:pointer;font-size:12px;padding:0;font-family:inherit
+  }
+  #bar .brow button.arrow:hover{background:#2b2b36}
+  #bar .brow .lab{flex:1;text-align:center;font-size:12px;color:#e6e6ee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #bar .brow.active .lab{font-weight:700}
+  #bar .hint{font-size:10.5px;color:#5f5f6c;text-align:center;margin-top:4px;letter-spacing:.2px}
+  kbd{background:#20202a;border:1px solid #3a3a46;border-radius:4px;padding:0 4px;font-size:10px}
+</style>
+</head>
+<body>
+
+<div class="proto">
+  ⚠️ <b>抛弃式原型</b>（#29）—— 此文件不进 main、不发布、无测试。评审完：胜出方案落进
+  <code>scripts/generate-assets.mjs</code>（票 #31），本文件搬 throwaway 分支当一次证据。
+</div>
+
+<div class="wrap">
+
+<header class="top">
+  <h1>README 视觉重做 · 可评审候选</h1>
+
+  <div class="q">
+    <p><b>这个原型回答两个问题：</b></p>
+    <p>① <b>顶部胶囊行</b>：五枚信号（词与数量已由 #28/#34 定稿）用什么视觉形态？哪些走 shields.io 动态接口、哪些写死？在 README 宽度下排一行好看吗、断了怎么办？</p>
+    <p>② <b>theme-stories 图</b>：这插件卖的是颜色，而现在的图是「黑底 + 一堆近黑卡片 + 5 个小圆点」。重做成什么样，颜色才是主角？压成一张还是拆两张？</p>
+    <p>③ 顺带把 <b>assets/ 存量</b>（12 张 SVG 里 10 张无人引用）的处置结论贴出来。</p>
+  </div>
+
+  <div class="ctrls">
+    <div class="grp"><span>语言</span>
+      <button data-set="lang" data-val="zh">中文</button>
+      <button data-set="lang" data-val="en">English</button>
+    </div>
+    <div class="grp"><span>视图</span>
+      <button data-set="view" data-val="one">单看</button>
+      <button data-set="view" data-val="all">三候选并排</button>
+    </div>
+    <div class="grp"><span>预览宽度</span>
+      <button data-set="pw" data-val="640">640（窄）</button>
+      <button data-set="pw" data-val="860">860（GitHub 桌面内容宽）</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ 事实 ═══════════ -->
+<h2><span class="num">00</span>事实与数据来源<span class="tag">决定「动态 vs 写死」的依据</span></h2>
+<p class="lead">胶囊行上的数字要么去第三方接口取（动态），要么发版时手写（写死）。下面是本原型里所有真实数字，取数时间 2026-09-17。</p>
+<div class="facts" id="facts"></div>
+<p class="note">动态接口的三个来源：<code>registry.npmjs.org</code>（版本）、<code>api.npmjs.org/downloads</code>（下载量）、<code>api.github.com</code>（最近更新）。三者都经 shields.io 转发成图片；任一环节挂了，README 上就是一张裂图。</p>
+
+<!-- ═══════════ ① 胶囊行 ═══════════ -->
+<h2><span class="num">01</span>顶部胶囊行<span class="tag">三候选 · 数量与词已定稿，这里只比重做形态</span></h2>
+<p class="lead">五枚已定稿的信号：版本 / 下载量(月) / 最近更新 / 主题包 opencode·38 / 期待你参与。三候选的差别不在「放哪几枚」，而在<b>哪几枚自己会动</b>与<b>怎么排</b>。</p>
+<div id="badgeStage"></div>
+<div id="badgeState"></div>
+
+<!-- ═══════════ ② theme-stories ═══════════ -->
+<h2><span class="num">02</span>theme-stories 图重做<span class="tag">三候选 · 中英同步产出</span></h2>
+<p class="lead">现在的图（下方「现状」）病根：26 款里画出来 25 张近黑明信片、颜色只剩 5 个 6px 圆点、卡片右侧近一半是空的、没有分组也没有图例。</p>
+
+<h3>现状（对照）</h3>
+<div class="prev" id="oldPrev"></div>
+<p class="note">现状 SVG 设计宽 1274px，在 GitHub 上被压到容器宽（桌面约 860）显示 → <b>所有字号乘 0.675</b>：26px 的中文名实际只有 17.6px，13px 的主题 id 实际 8.8px。这是「看不清」的第二层原因，不只是配色问题。</p>
+
+<h3>候选</h3>
+<div id="figureStage"></div>
+<div id="figureState"></div>
+
+<!-- ═══════════ ③ assets 存量 ═══════════ -->
+<h2><span class="num">03</span>assets/ 存量去留<span class="tag">结论：B</span></h2>
+<p class="lead">12 张 SVG 全部由 <code>scripts/generate-assets.mjs</code> 生成；README 与 docs 真正消费的只有 <code>theme-stories-{zh,en}.svg</code> 与 <code>feishu-qr.png</code>。</p>
+<div id="assetsTable"></div>
+<div class="verdict">
+  <b>已拍板：B —— 只重做 theme-stories，其余 10 张连同生成段一起清掉。</b><br>
+  理由：README 不消费的东西留着只会腐坏（8 张已经印着过期的「34 款」而没人发现，正是腐坏的证据）；清掉后 <code>generate-assets.mjs</code> 从 12 个产出降到 2 个，维护面直接砍掉 5/6。<br>
+  反悔通道：删之前先把 10 个文件搬进 <code>.scratch/assets-retired/</code>，本轮内不看就随分支丢弃。
+</div>
+
+</div><!-- /wrap -->
+
+<div id="bar">
+  <div class="brow" data-axis="badges">
+    <button class="arrow" data-dir="-1">◀</button>
+    <span class="axis">① 胶囊行</span>
+    <span class="lab" id="labBadges"></span>
+    <button class="arrow" data-dir="1">▶</button>
+  </div>
+  <div class="brow" data-axis="figure">
+    <button class="arrow" data-dir="-1">◀</button>
+    <span class="axis">② 故事图</span>
+    <span class="lab" id="labFigure"></span>
+    <button class="arrow" data-dir="1">▶</button>
+  </div>
+  <div class="hint"><kbd>←</kbd><kbd>→</kbd> 切换「当前轴」（点某一行即可把它设为当前轴） · 也可直接改地址栏 <code>?badges=&amp;figure=&amp;lang=</code></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════════════
+   数据（取数 2026-09-17）
+   ══════════════════════════════════════════════════════════════════════════ */
+/* 注意：字体栈必须用单引号 —— 这些值会被拼进 style="..." 属性，
+   里面出现双引号会让属性提前闭合，font-size / width / overflow 全部失效。 */
+var SANS = "-apple-system,BlinkMacSystemFont,'Segoe UI','Microsoft YaHei','PingFang SC',sans-serif";
+var MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace';
+
+var FACTS = [
+  ['npm latest','1.7.1','2026-09-07 发布 · 从未发过 1.7.2',0],
+  ['月下载量','2303','2026-08-13 → 2026-09-11',0],
+  ['Star','29','fork 1 · open issue 6',0],
+  ['主题数','38','37 个上游 JSON + system',0],
+  ['测试','83/83','npm test 全绿',0],
+  ['最近提交','b121709','2026-09-17',0],
+  ['PR 数','0','外部 issue 贡献者 3 位',0],
+  ['README 里过期的数字','tests-38/38','真实 83/83（本轮要拆掉的那枚）',1]
+];
+
+/* [id, 中文名, 色系组, 背景, 文字, 主色, 强调, 错误, 警告, 成功] */
+var THEMES = [
+["amoled","AMOLED","violet","#000000","#FFFFFF","#B388FF","#FF4081","#FF1744","#FFEA00","#00FF88"],
+["aura","光环","violet","#0F0F0F","#EDECEE","#A277FF","#A277FF","#FF6767","#FFCA85","#61FFCA"],
+["ayu","鮎","cool-blue","#0B0E14","#BFBDB6","#59C2FF","#E6B450","#D95757","#E6B673","#7FD962"],
+["carbonfox","碳狐","cool-blue","#161616","#F2F4F8","#33B1FF","#FF7EB6","#EE5396","#F1C21B","#25BE6A"],
+["catppuccin","卡布奇诺","cool-blue","#1E1E2E","#CDD6F4","#89B4FA","#F5C2E7","#F38BA8","#F9E2AF","#A6E3A1"],
+["catppuccin-frappe","卡布奇诺·冰沙","cool-blue","#303446","#C6D0F5","#8DA4E2","#F4B8E4","#E78284","#E5C890","#A6D189"],
+["catppuccin-macchiato","卡布奇诺·玛奇朵","cool-blue","#24273A","#CAD3F5","#8AADF4","#F5BDE6","#ED8796","#EED49F","#A6DA95"],
+["cobalt2","钴蓝","cool-blue","#193549","#FFFFFF","#0088FF","#2AFFDF","#FF0088","#FFC600","#9EFF80"],
+["cursor","Cursor","cyan-blue","#181818","#E4E4E4","#88C0D0","#88C0D0","#E34671","#F1B467","#3FA266"],
+["dracula","德古拉","violet","#282A36","#F8F8F2","#BD93F9","#8BE9FD","#FF5555","#F1FA8C","#50FA7B"],
+["everforest","常青森林","yellow-green","#2D353B","#D3C6AA","#A7C080","#D699B6","#E67E80","#E69875","#A7C080"],
+["flexoki","纸墨","warm","#100F0F","#CECDC3","#DA702C","#8B7EC8","#D14D41","#DA702C","#879A39"],
+["github","GitHub","cool-blue","#0D1117","#C9D1D9","#58A6FF","#39C5CF","#F85149","#E3B341","#3FB950"],
+["gruvbox","复古凹槽","teal","#282828","#EBDBB2","#83A598","#8EC07C","#FB4934","#FE8019","#B8BB26"],
+["kanagawa","神奈川","cool-blue","#1F1F28","#DCD7BA","#7E9CD8","#D27E99","#E82424","#D7A657","#98BB6C"],
+["lucent-orng","透光橙","transparent",null,"#EEEEEE","#EC5B2B","#FFF7F1","#E06C75","#EC5B2B","#6BA1E6"],
+["material","材料设计","cool-blue","#263238","#EEFFFF","#82AAFF","#89DDFF","#F07178","#FFCB6B","#C3E88D"],
+["matrix","黑客帝国","teal","#0A0E0A","#62FF94","#2EFF6A","#C770FF","#FF4B4B","#E6FF57","#62FF94"],
+["mercury","水星","cool-blue","#171721","#DDDDE5","#8DA4F5","#8DA4F5","#FC92B4","#FC9B6F","#77C599"],
+["monokai","Monokai","cyan-blue","#272822","#F8F8F2","#66D9EF","#A6E22E","#F92672","#E6DB74","#A6E22E"],
+["nightowl","夜猫子","cool-blue","#011627","#D6DEEB","#82AAFF","#C792EA","#EF5350","#ECC48D","#C5E478"],
+["nord","北极","cyan-blue","#2E3440","#ECEFF4","#88C0D0","#8FBCBB","#BF616A","#D08770","#A3BE8C"],
+["oc-2","OC 2","warm","#1F1F1F","#EDEDED","#FAB283","#034CFF","#FC533A","#FCD53A","#12C905"],
+["one-dark","One Dark","cool-blue","#282C34","#ABB2BF","#61AFEF","#56B6C2","#E06C75","#E5C07B","#98C379"],
+["onedarkpro","One Dark Pro","cool-blue","#1E222A","#ABB2BF","#61AFEF","#E06C75","#E06C75","#E5C07B","#98C379"],
+["opencode","opencode","warm","#0A0A0A","#EEEEEE","#FAB283","#9D7CD8","#E06C75","#F5A742","#7FD88F"],
+["orng","纯橙","warm","#0A0A0A","#EEEEEE","#EC5B2B","#FFF7F1","#E06C75","#EC5B2B","#6BA1E6"],
+["osaka-jade","大阪翡翠","cyan-blue","#111C18","#C1C497","#2DD5B7","#549E6A","#FF5345","#E5C736","#549E6A"],
+["palenight","苍白之夜","cool-blue","#292D3E","#A6ACCD","#82AAFF","#89DDFF","#F07178","#FFCB6B","#C3E88D"],
+["rosepine","玫瑰松林","cyan-blue","#191724","#E0DEF4","#9CCFD8","#EBBCBA","#EB6F92","#F6C177","#31748F"],
+["shadesofpurple","紫影","violet","#1A102B","#F5F0FF","#C792FF","#FF7AC6","#FF7AC6","#FFD580","#7BE0B0"],
+["solarized","日光浴","cool-blue","#002B36","#839496","#268BD2","#2AA198","#DC322F","#B58900","#859900"],
+["synthwave84","合成波 84","cyan-blue","#262335","#FFFFFF","#36F9F6","#B084EB","#FE4450","#FEDE5D","#72F1B8"],
+["system","跟随系统","special",null,null,null,null,null,null,null],
+["tokyonight","东京之夜","cool-blue","#1A1B26","#C8D3F5","#82AAFF","#FF966C","#FF757F","#FF966C","#C3E88D"],
+["vercel","Vercel","cool-blue","#000000","#EDEDED","#0070F3","#8E4EC6","#E5484D","#FFB224","#46A758"],
+["vesper","黄昏星","warm","#101010","#FFF","#FFC799","#FFC799","#FF8080","#FFC799","#99FFE4"],
+["zenburn","禅燃","cool-blue","#3F3F3F","#DCDCCC","#8CD0D3","#93E0E3","#CC9393","#F0DFAF","#7F9F7F"]
+];
+
+var IDX = {};
+for (var i=0;i<THEMES.length;i++) IDX[THEMES[i][0]] = THEMES[i];
+
+/* 有来历的 26 款（生成器原名单，rose-pine → rosepine 键已修正） */
+var CURATED = ['tokyonight','dracula','gruvbox','matrix','rosepine','catppuccin','catppuccin-frappe',
+  'catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight',
+  'ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng'];
+
+var STORY = {
+  tokyonight:['东京夜景的深蓝与霓虹紫','The deep blues and neon violets of Tokyo at night'],
+  dracula:['吸血鬼风格的暗紫，经典中的经典','The classic vampire-purple, a community icon'],
+  gruvbox:['致敬 80 年代 CRT 与合成器的复古暖色','Retro warm tones honoring 80s CRTs and synths'],
+  matrix:['数字雨的荧光绿，一键进入 Matrix','The glowing green of digital rain'],
+  rosepine:['玫瑰粉与松林绿的低饱和温柔','Low-saturation rose and pine, soft and calm'],
+  catppuccin:['拿铁般的柔和（Mocha 摩卡 / Frappé 冰沙 / Macchiato 玛奇朵）','Latte-soft pastels (Mocha / Frappé / Macchiato)'],
+  'catppuccin-frappe':['卡布奇诺家族更轻盈的灰调','The lighter, cooler sibling of Catppuccin'],
+  'catppuccin-macchiato':['卡布奇诺家族更浓郁的层次','The deeper, richer sibling of Catppuccin'],
+  solarized:['按太阳光谱精确设计的护眼配色','Sun-spectrum colors designed precisely around CIELAB'],
+  synthwave84:['80 年代合成波的霓虹粉青','80s synthwave neon pink and cyan'],
+  everforest:['森林绿的护眼配色','Forest-green tones, easy on the eyes'],
+  nord:['北欧极地的冷静蓝灰','The cool blue-grays of the Nordic arctic'],
+  kanagawa:['取自浮世绘《神奈川冲浪里》','Named after the ukiyo-e print "The Great Wave off Kanagawa"'],
+  nightowl:['深夜编程的蓝紫','Late-night coding blues and violets'],
+  palenight:['Material 的深紫蓝变体','Material\u2019s deep purple-blue variant'],
+  ayu:['日语「香鱼」的温暖橙黄','Japanese for \u201csweetfish\u201d \u2014 warm orange'],
+  carbonfox:['IBM Carbon 设计语言','From the Nightfox family, built on IBM Carbon'],
+  cobalt2:['化学元素钴的蓝（Wes Bos 出品）','The blue of the element cobalt (by Wes Bos)'],
+  aura:['紫色霓虹光环','Purple neon aura'],
+  flexoki:['暖纸上的墨色（kepano 出品）','Ink on warm paper (by kepano)'],
+  zenburn:['Vim 经典低对比','The classic low-contrast Vim theme'],
+  mercury:['薰衣草紫（opencode 定制）','Lavender violet (opencode original)'],
+  'osaka-jade':['和风玉石绿（opencode 定制）','Jade green, Japanese-style (opencode original)'],
+  vesper:['暖橙香槟（opencode 定制）','Warm champagne orange (opencode original)'],
+  'lucent-orng':['透明底色 + 活力橙','Vivid orange on a transparent base'],
+  orng:['热烈直白的橙','Straightforward, vivid orange']
+};
+
+var GROUP_ORDER = ['warm','yellow-green','teal','cyan-blue','cool-blue','violet','transparent'];
+var GROUPS = {
+  warm:['暖橙','Warm','#FAB283'], 'yellow-green':['黄绿','Yellow-green','#A7C080'],
+  teal:['青绿','Teal','#2DD5B7'], 'cyan-blue':['青蓝','Cyan-blue','#88C0D0'],
+  'cool-blue':['冷蓝','Cool-blue','#82AAFF'], violet:['蓝紫','Violet','#C4A7E7'],
+  transparent:['透明','Transparent','#8B8B95'], special:['特殊','Special','#8B8B95']
+};
+var SLOTS = { zh:['背景','文字','主色','强调','错误','警告','成功'],
+              en:['background','text','primary','accent','error','warning','success'] };
+
+/* ══════════════════════════════════════════════════════════════════════════
+   小工具
+   ══════════════════════════════════════════════════════════════════════════ */
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function measure(s,size){
+  var w=0; s=String(s);
+  for (var i=0;i<s.length;i++){
+    var c=s.codePointAt(i);
+    if ((c>=0x2e80&&c<=0x9fff)||(c>=0xff00&&c<=0xffef)||c===0x3000) w+=size;
+    else if (s[i]===' ') w+=size*0.3;
+    else w+=size*0.56;
+  }
+  return Math.ceil(w);
+}
+function abs(x,y,w,h,css){ return '<i style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;'+css+'"></i>'; }
+function swatch(c,x,y,w,h,r){
+  if (c) return '<i class="sw" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;background:'+c+';border-radius:'+r+'px"></i>';
+  return '<i class="sw chess" style="left:'+x+'px;top:'+y+'px;width:'+w+'px;height:'+h+'px;border-radius:'+r+'px"></i>';
+}
+function txt(x,y,s,size,color,css){
+  return '<span style="display:block;left:'+x+'px;top:'+y+'px;font-family:'+SANS+';font-size:'+size+'px;line-height:'+Math.round(size*1.25)+'px;color:'+color+';'+(css||'')+'">'+esc(s)+'</span>';
+}
+function mtxt(x,y,s,size,color,css){
+  return '<span style="display:block;left:'+x+'px;top:'+y+'px;font-family:'+MONO+';font-size:'+size+'px;line-height:'+Math.round(size*1.25)+'px;color:'+color+';'+(css||'')+'">'+esc(s)+'</span>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ① 胶囊行 —— 三候选
+   ══════════════════════════════════════════════════════════════════════════ */
+function capsuleDefs(lang){
+  var enc = encodeURIComponent;
+  var seg = function(s){ return enc(s).replace(/-/g,'--'); };   // shields 里 '-' 要写成 '--'
+  var L = lang==='zh'
+    ? {ver:'版本', dl:'下载量', lc:'最近更新', th:'主题包', pr:'期待你参与', suf:'/月'}
+    : {ver:'npm', dl:'downloads', lc:'last-commit', th:'themes', pr:'PRs welcome', suf:'/mo'};
+  var H = {
+    npm:'https://www.npmjs.com/package/dsh-opencode-palette',
+    commits:'https://github.com/FeatherHunter/dsh-opencode-palette/commits/main',
+    upstream:'https://github.com/anomalyco/opencode',
+    issues:'https://github.com/FeatherHunter/dsh-opencode-palette/issues'
+  };
+  var dlApi = 'https://api.npmjs.org/downloads/point/last-month/dsh-opencode-palette';
+  var dyn = {
+    ver:'https://img.shields.io/npm/v/dsh-opencode-palette?label='+enc(L.ver),
+    dl:'https://img.shields.io/badge/dynamic/json?url='+enc(dlApi)+'&query='+enc('$.downloads')+'&label='+enc(L.dl)+'&suffix='+enc(L.suf)+'&color=brightgreen',
+    lc:'https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label='+enc(L.lc)+'&color=FE7D37',
+    th:'https://img.shields.io/badge/'+seg(L.th)+'-'+seg('opencode\u00b738')+'-9D7CD8',
+    pr:'https://img.shields.io/badge/'+seg(L.pr)+'-brightgreen'
+  };
+  var sta = {
+    ver:'https://img.shields.io/badge/'+seg(L.ver)+'-'+seg('1.7.1')+'-007EC6',
+    dl:'https://img.shields.io/badge/'+seg(L.dl)+'-'+seg('2303'+L.suf)+'-brightgreen',
+    lc:'https://img.shields.io/badge/'+seg(L.lc)+'-'+seg('2026-09-17')+'-FE7D37',
+    th:dyn.th, pr:dyn.pr
+  };
+  /* name = 状态面板里的中文/英文名；label = badge 左段的字（「期待你参与」是单段 badge，所以 label 为空） */
+  var meta = [
+    ['ver', L.ver, L.ver, 'v1.7.1',        '1.7.1',        '#007ec6', H.npm,     'shields npm/v \u2192 registry.npmjs.org', 'invalid'],
+    ['dl',  L.dl,  L.dl,  '2303'+L.suf,    '2303'+L.suf,   '#4c1',    H.npm,     'shields dynamic/json \u2192 api.npmjs.org', 'invalid'],
+    ['lc',  L.lc,  L.lc,  '2026-09-17',    '2026-09-17',   '#FE7D37', H.commits, 'shields github/last-commit \u2192 api.github.com', 'invalid'],
+    ['th',  L.th,  L.th,  'opencode\u00b738','opencode\u00b738','#9D7CD8', H.upstream,'写死字符串（上游没有可查的接口）', '永不失败'],
+    ['pr',  L.pr,  '',    L.pr,            L.pr,           '#4c1',    H.issues,  '写死字符串（0 PR 是邀请不是计分板）', '永不失败']
+  ];
+  var out = {};
+  meta.forEach(function(m){
+    out[m[0]] = {key:m[0], name:m[1], label:m[2], val:m[3], valSta:m[4], color:m[5],
+                 href:m[6], src:m[7], fail:m[8], dyn:dyn[m[0]], sta:sta[m[0]]};
+  });
+  return {caps:out, order:['ver','dl','lc','th','pr']};
+}
+
+var BADGE_CANDS = [
+  {id:'a', name:['甲 — deck 同款（动态优先，一行）','A — deck-style (dynamic first, one line)'],
+   desc:'三枚真动态 + 两枚写死，一行排开。版本/下载量/最近更新自己会动，发版不用手改；代价是依赖 shields 转发的三个外部接口。'},
+  {id:'b', name:['乙 — 全部写死（零外部请求）','B — all static (zero third-party calls)'],
+   desc:'五枚全是 shields 的静态 badge：不查任何接口，永不裂图，也不会哪天悄悄变成 invalid。代价是版本/下载量/最近更新变成发版清单上的三条手写项。'},
+  {id:'c', name:['丙 — 双行分组（数据行 / 行动行）','C — two lines (data row / action row)'],
+   desc:'上行三枚全是动态（这个项目还活着吗），下行两枚静态（它是什么、我能做什么）。语义更清楚，但 README 顶部多占一行。'}
+];
+
+function renderBadgeRow(candId, lang){
+  var d = capsuleDefs(lang), kind = (candId==='b') ? 'sta' : 'dyn';
+  function line(keys){
+    return '<div class="bline">'+keys.map(function(k){
+      var c=d.caps[k];
+      return '<a class="bd" href="'+c.href+'" target="_blank" rel="noopener">'
+           + '<img src="'+c[kind]+'" alt="'+esc(c.label||c.name)+'" data-l="'+esc(c.label)+'"'
+           + ' data-v="'+esc(kind==='sta'?c.valSta:c.val)+'" data-c="'+c.color+'"'
+           + ' onload="bdOk(this)" onerror="bdErr(this)"></a>';
+    }).join('')+'</div>';
+  }
+  if (candId==='c'){
+    return '<div class="rowbox two">'
+      + '<div class="bgap"><span class="glab">'+ (lang==='zh'?'数据 \u00b7 \u81ea\u52a8':'data \u00b7 automatic') +'</span></div>'
+      + line(['ver','dl','lc'])
+      + '<div class="bgap" style="margin-top:8px"><span class="glab">'+ (lang==='zh'?'行动 \u00b7 \u5199\u6b7b':'action \u00b7 static') +'</span></div>'
+      + line(['th','pr'])
+      + '</div>';
+  }
+  return '<div class="rowbox">'+line(d.order)+'</div>';
+}
+
+/* 图片加载状态（动态 badge 的失败模式要看得见） */
+var bdStat = {ok:0, err:0};
+function bdOk(){ bdStat.ok++; paintLoad(); }
+function bdErr(img){
+  bdStat.err++;
+  var a = img.parentNode;
+  if (a && a.classList){
+    var l = img.getAttribute('data-l') || '';
+    var v = img.getAttribute('data-v') || '';
+    var c = img.getAttribute('data-c') || '#555';
+    a.innerHTML = '<span class="mock">'
+      + (l ? '<b style="background:#555">'+l+'</b>' : '')
+      + '<b style="background:'+c+'">'+v+'</b></span>';
+    a.classList.add('broken');
+  }
+  paintLoad();
+}
+function paintLoad(){
+  var el = document.getElementById('loadStat');
+  if (!el) return;
+  var broken = document.querySelectorAll('#badgeStage .bd.broken').length;
+  el.innerHTML = '本次渲染：<b>'+(bdStat.ok+bdStat.err)+'</b> 枚 \u00b7 真实图 <b style="color:var(--ok)">'+bdStat.ok+'</b> \u00b7 取不到 <b style="color:var(--bad)">'+bdStat.err+'</b>'
+    + (bdStat.err ? ' \u2014 <span style="color:var(--bad)">带红下划线的那几枚没取到真图，已用本地模拟顶上（形状与 shields 一致，值取自有网络时的真数）</span>' : '');
+}
+function reloadBadges(){ go(); }
+
+function badgeMarkdown(candId, lang){
+  var d = capsuleDefs(lang), kind = (candId==='b') ? 'sta' : 'dyn';
+  function md(k){ var c=d.caps[k]; return '[!['+(c.label||c.name)+']('+c[kind]+')]('+c.href+')'; }
+  if (candId==='c') return md('ver')+'\n'+md('dl')+'\n'+md('lc')+'\n\n'+md('th')+'\n'+md('pr');
+  return d.order.map(md).join('\n');
+}
+
+function badgeStateHTML(candId, lang){
+  var d = capsuleDefs(lang), kind = (candId==='b') ? 'sta' : 'dyn';
+  var c = BADGE_CANDS.filter(function(x){return x.id===candId;})[0];
+  var rows = d.order.map(function(k){
+    var cap = d.caps[k];
+    var isDyn = (kind==='dyn' && k!=='th' && k!=='pr');
+    var src = isDyn ? cap.src : (k==='th'||k==='pr' ? cap.src : '写死：发版时手改（当前 1.7.1 / 2303 月 / 2026-09-17）');
+    return '<tr><td><b>'+esc(cap.name)+'</b></td>'
+      + '<td>'+(isDyn?'<span class="pill dyn">动态</span>':'<span class="pill sta">写死</span>')+'</td>'
+      + '<td>'+esc(src)+'</td>'
+      + '<td>'+(isDyn ? '<span style="color:var(--bad)">'+esc(cap.fail)+'</span>' : esc(cap.fail))+'</td>'
+      + '<td><a href="'+cap.href+'" target="_blank" rel="noopener">'+esc(cap.href.replace('https://','').slice(0,42))+'</a></td></tr>';
+  }).join('');
+  return '<div class="state">'
+    + '<h4>当前候选：'+esc(c.name[lang==='zh'?0:1])+'</h4>'
+    + '<p class="note" style="margin:0 0 10px">'+esc(c.desc)+'</p>'
+    + '<table><thead><tr><th>胶囊</th><th>取值方式</th><th>来源</th><th>失败时</th><th>链接目标</th></tr></thead><tbody>'+rows+'</tbody></table>'
+    + '<div class="loadbar" id="loadStat"></div>'
+    + '<button class="cp" onclick="reloadBadges()">重新加载这五枚</button>'
+    + '<h4>直接贴进 README 的原文（当前候选 \u00b7 '+(lang==='zh'?'中文页':'英文页')+'）'
+    + '<button class="cp" onclick="copyMd()">复制</button></h4>'
+    + '<pre><code id="mdOut">'+esc(badgeMarkdown(candId, lang))+'</code></pre>'
+    + '<p class="note">写死的两枚（主题包 / 期待你参与）在三候选里完全一样 \u2014 上游没有可查接口，0 PR 也不该做成计分板。</p>'
+    + '</div>';
+}
+function copyMd(){
+  var t = document.getElementById('mdOut');
+  if (t && navigator.clipboard) navigator.clipboard.writeText(t.textContent);
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ② 图稿 —— 三候选（画布固定像素，按预览宽等比缩放 = 等价于 SVG 被缩放）
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 候选 A：色带基线（一行一款：名字 + 由来 + 7 格色带，按色系分组 + 列图例） */
+function figA(lang){
+  var W=860, PAD=20, TXTW=320, BX=PAD+TXTW+16, CELL=64, CG=6, CH=30, ROW=54, GH=30, GG=10;
+  var out=[], slots=SLOTS[lang];
+  out.push(txt(PAD,30, lang==='zh'?'每个主题，逐一拆解':'Every theme, decomposed', 22, '#f0f0f0','font-weight:800'));
+  out.push(txt(PAD,60, lang==='zh'?'背景 \u00b7 文字 \u00b7 主色 \u00b7 强调 \u00b7 错误 \u00b7 警告 \u00b7 成功 \u2014\u2014 定义每个主题气质的 7 种颜色'
+                                :'bg \u00b7 text \u00b7 primary \u00b7 accent \u00b7 error \u00b7 warning \u00b7 success \u2014 the 7 colors that define each theme',
+                                12.5, '#8b8b95'));
+  slots.forEach(function(s,j){
+    var x=BX+j*(CELL+CG);
+    out.push(abs(x,74,CELL,14,'background:#232326;border-radius:3px'));
+    out.push(txt(x,90,s,10.5,'#8b8b95','width:'+CELL+'px;text-align:center'));
+  });
+  var y=112;
+  GROUP_ORDER.forEach(function(g){
+    var items = CURATED.filter(function(id){ return IDX[id][2]===g; });
+    if (!items.length) return;
+    var gn = GROUPS[g][lang==='zh'?0:1];
+    out.push(abs(PAD,y+9,8,8,'background:'+GROUPS[g][2]+';border-radius:4px'));
+    out.push(txt(PAD+16,y+6,gn,13,'#e8e8ee','font-weight:700'));
+    out.push(txt(PAD+16+measure(gn,13)+10,y+8, items.length+(lang==='zh'?' 款':' themes'), 10.5,'#6f6f78'));
+    out.push(abs(PAD,y+GH-2,W-PAD*2,1,'background:#232326'));
+    y += GH+GG;
+    items.forEach(function(id){
+      var r=IDX[id], cols=r.slice(3), story=STORY[id][lang==='zh'?0:1];
+      out.push(txt(PAD,y+4,r[1],16,cols[2],'font-weight:700'));
+      out.push(mtxt(PAD+measure(r[1],16)+10,y+7,id,11,'#8b8b95'));
+      out.push(txt(PAD,y+24,story,12.5,'#a1a1aa','width:'+TXTW+'px;height:32px;overflow:hidden'));
+      for (var j=0;j<cols.length;j++) out.push(swatch(cols[j],BX+j*(CELL+CG),y+12,CELL,CH,4));
+      y += ROW;
+    });
+  });
+  return {w:W,h:y+16,html:out.join('')};
+}
+
+/* 候选 B：明信片改进（两列卡片，色带满宽通底，卡片不再有死空间，加分组与图例） */
+function figB(lang){
+  var W=860, PAD=20, GAP=12, CW=(W-PAD*2-GAP)/2, CH=108, VG=12, Y0=112;
+  var out=[], slots=SLOTS[lang], rows=Math.ceil(CURATED.length/2);
+  out.push(txt(PAD,30, lang==='zh'?'有来历的 26 款':'26 names with stories', 22,'#f0f0f0','font-weight:800'));
+  out.push(txt(PAD,60, lang==='zh'?'从 38 款里挑出真正有来历的；色带满宽通底，7 色一个不少':'Picked from all 38 \u2014 the ones with real stories; one full-width band, all 7 colors', 12.5,'#8b8b95'));
+  slots.forEach(function(s,j){
+    var x=PAD+j*70;
+    out.push(abs(x,80,60,12,'background:#232326;border-radius:3px'));
+    out.push(txt(x,94,s,10,'#8b8b95','width:60px;text-align:center'));
+  });
+  CURATED.forEach(function(id,i){
+    var col=i%2, row=Math.floor(i/2);
+    var x=PAD+col*(CW+GAP), y=Y0+row*(CH+VG);
+    var r=IDX[id], cols=r.slice(3), bg=cols[0]||'#141414', story=STORY[id][lang==='zh'?0:1];
+    var band = cols.map(function(c,k){
+      return '<i class="sw'+(c?'':' chess')+'" style="position:relative;flex:1;'+(c?'background:'+c+';':'')+(k<6?'margin-right:2px;':'')+'height:100%"></i>';
+    }).join('');
+    out.push('<div style="left:'+x+'px;top:'+y+'px;width:'+CW+'px;height:'+CH+'px;background:'+bg
+      +';border:1px solid rgba(255,255,255,.09);border-radius:12px;overflow:hidden">'
+      + '<span style="display:block;left:14px;top:11px;font-family:'+SANS+';font-size:17px;line-height:20px;font-weight:700;color:'+cols[2]+'">'+esc(r[1])+'</span>'
+      + '<span style="display:block;left:'+(14+measure(r[1],17)+10)+'px;top:15px;font-family:'+MONO+';font-size:10.5px;line-height:16px;color:rgba(255,255,255,.42)">'+esc(id)+'</span>'
+      + '<span style="display:block;left:14px;top:36px;width:'+(CW-28)+'px;height:28px;overflow:hidden;font-family:'+SANS+';font-size:11.5px;line-height:14px;color:rgba(255,255,255,.72)">'+esc(story)+'</span>'
+      + '<div style="left:0;right:0;bottom:0;height:28px;display:flex">'+band+'</div>'
+      + '</div>');
+  });
+  return {w:W,h:Y0+rows*(CH+VG)-VG+16,html:out.join('')};
+}
+
+/* 候选 C-主：画廊（暖 / 冷 / 特殊三段，每款一个大色块，色块下压一句由来） */
+function figC(lang){
+  var W=860, BW=88, GAP=12, PER=8;
+  var IW = PER*BW + (PER-1)*GAP, PAD = Math.round((W-IW)/2);
+  var COLD = GROUP_ORDER.filter(function(g){ return g==='teal'||g==='cyan-blue'||g==='cool-blue'||g==='violet'; });
+  function pick(gs){ var a=[]; gs.forEach(function(g){ CURATED.forEach(function(id){ if(IDX[id][2]===g) a.push(id); }); }); return a; }
+  var SECTIONS = [
+    {ids:pick(['warm','yellow-green']), zh:'暖色系', en:'Warm tones'},
+    {ids:pick(COLD),                    zh:'冷色系', en:'Cool tones'},
+    {ids:pick(['transparent']),         zh:'特殊',   en:'Special'}
+  ];
+  var out=[], slots=SLOTS[lang];
+  out.push(txt(PAD,30, lang==='zh'?'颜色先说话':'Color first', 22,'#f0f0f0','font-weight:800'));
+  out.push(txt(PAD,60, lang==='zh'?'按色温分三段，每款一个大色块 \u2014\u2014 先看颜色，再看名字'
+                                :'Three temperature bands, one big block per theme \u2014 see the color, then the name', 12.5,'#8b8b95'));
+  slots.forEach(function(s,j){
+    var x=PAD+j*70;
+    out.push(abs(x,80,60,12,'background:#232326;border-radius:3px'));
+    out.push(txt(x,94,s,10,'#8b8b95','width:60px;text-align:center'));
+  });
+  var y=124;
+  SECTIONS.forEach(function(sec){
+    if (!sec.ids.length) return;
+    out.push(txt(PAD,y+2, sec.zh&&lang==='zh'?sec.zh:sec.en, 13,'#e8e8ee','font-weight:700'));
+    out.push(txt(PAD+measure(sec.zh&&lang==='zh'?sec.zh:sec.en,13)+10,y+4, sec.ids.length+(lang==='zh'?' 款':' themes'), 10.5,'#6f6f78'));
+    out.push(abs(PAD,y+22,W-PAD*2,1,'background:#232326'));
+    y += 34;
+    sec.ids.forEach(function(id,i){
+      var col=i%PER, row=Math.floor(i/PER);
+      var x=PAD+col*(BW+GAP), yy=y+row*146;
+      var r=IDX[id], cols=r.slice(3), story=STORY[id][lang==='zh'?0:1];
+      out.push(txt(x,yy,r[1],12,cols[2],'font-weight:700;width:'+BW+'px;height:16px;overflow:hidden;white-space:nowrap'));
+      out.push(mtxt(x,yy+15,id,9,'#6f6f78','width:'+BW+'px;height:14px;overflow:hidden;white-space:nowrap'));
+      for (var j=0;j<cols.length;j++) out.push(swatch(cols[j],x,yy+30+j*12,BW,12,j===0?3:(j===6?3:0)));
+      out.push(txt(x,yy+118,story,10.5,'#a1a1aa','width:'+BW+'px;height:26px;overflow:hidden'));
+    });
+    y += Math.ceil(sec.ids.length/PER)*146 + 10;
+  });
+  return {w:W,h:y+16,html:out.join('')};
+}
+
+/* 候选 C-副：38 款色墙（一行 38 条，纯颜色，只标色系） */
+function figC2(lang){
+  var W=860, BW=19, GAP=2, N=THEMES.length;
+  var TW = N*BW+(N-1)*GAP, PAD = Math.round((W-TW)/2);
+  var out=[], x=PAD, y=64;
+  out.push(txt(PAD,26, lang==='zh'?'38 款，一条一款':'All 38, one bar each', 19,'#f0f0f0','font-weight:800'));
+  out.push(txt(PAD,48, lang==='zh'?'每条从上到下就是这款主题的 7 种颜色':'Each bar is that theme\u2019s 7 colors, top to bottom', 11.5,'#8b8b95'));
+  var spans = {};
+  THEMES.forEach(function(r){
+    var g=r[2];
+    var cols=r.slice(3);
+    for (var j=0;j<cols.length;j++) out.push(swatch(cols[j],x,y+j*16,BW,16,0));
+    if (!spans[g]) spans[g]=[x,x+BW]; else spans[g][1]=x+BW;
+    x += BW+GAP;
+  });
+  var gy = y+7*16+10;
+  Object.keys(spans).forEach(function(g){
+    var a=spans[g][0], b=spans[g][1];
+    if (b-a < 26) return;
+    out.push(txt(Math.round((a+b)/2), gy, GROUPS[g][lang==='zh'?0:1], 9.5,'#7d7d88','transform:translateX(-50%);white-space:nowrap'));
+    out.push(abs(Math.round((a+b)/2)-9, gy+14, 18, 1, 'background:'+GROUPS[g][2]+';opacity:.6'));
+  });
+  return {w:W,h:gy+26,html:out.join('')};
+}
+
+var FIG_CANDS = [
+  {id:'A', name:['A — 色带基线（一张）','A — color-strip baseline (one image)'],
+   desc:'以仓库里那个没人引用但更有设计感的 palette-strips 为基线收敛：一行一款，左边名字与由来、右边 7 格色带，顶部给列图例，按色系分组。信息密度最高，颜色从「5 个小圆点」变成「7 个 68\u00d730 的色块」。',
+   build:function(lang){ return [figA(lang)]; },
+   spec:function(lang){ return [
+     ['画布','860 \u00d7 ~1812'],
+     ['张数','1 张'],
+     ['一行 =','中文名 + 主题 id + 一句由来（最多 2 行）+ 7 格色带（每格 64\u00d730）'],
+     ['分组', '7 组（暖橙 / 黄绿 / 青绿 / 青蓝 / 冷蓝 / 蓝紫 / 透明）'],
+     ['图例','有 \u2014 色带正上方一列 7 个名字，读一次就懂'],
+     ['最小字号','主题 id 11px（860 宽下仍是 11px）']
+   ];},
+   diff:'修掉「颜色只剩 5 个小圆点」与「没有图例、没有分组」；画布收窄到 868，字不再被缩到 67%。'
+  },
+  {id:'B', name:['B — 明信片改进（一张）','B — improved postcards (one image)'],
+   desc:'保留明信片卡片的熟悉感，但把病根逐个修掉：色带从 5 个圆点变成满宽通底的 7 色带、卡片右侧不再留死空间（名字/由来/色带都吃满宽度）、顶部补图例与分组、卡片底色用主题自己的背景色。',
+   build:function(lang){ return [figB(lang)]; },
+   spec:function(lang){ return [
+     ['画布','860 \u00d7 ~1620'],
+     ['张数','1 张'],
+     ['一格 =','卡片 404\u00d7108：中文名 + id + 一句由来（最多 2 行）+ 满宽 7 色带'],
+     ['分组','按策展顺序（可挂分组小标题）'],
+     ['图例','有 \u2014 顶部 7 个名字'],
+     ['最小字号','由来 11.5px（860 宽下仍是 11.5px）']
+   ];},
+   diff:'保留卡片观感，但「卡片右侧近一半死空间」与「颜色只有 5 个小点」都消掉；画布 1284\u2192860，字号不再缩水。'
+  },
+  {id:'C', name:['C — 画廊（两张：大色块 + 38 款色墙）','C — gallery (two images: big blocks + 38-bar wall)'],
+   desc:'职责拆开：第一张按色温分三段，每款给一个大色块（颜色是主角），色块下一句由来；第二张把全部 38 款压成一行 38 条纯色条，只标色系 \u2014\u2014 回答「压成一张还是拆两张」。冲击力最强，单张信息量最低。',
+   build:function(lang){ return [figC(lang), figC2(lang)]; },
+   spec:function(lang){ return [
+     ['画布','主图 860 \u00d7 ~980 \u00b7 副图 860 \u00d7 ~250'],
+     ['张数','2 张（这是候选 C 的核心主张）'],
+     ['一格 =','88\u00d784 的大色块（7 色各 12px 高）+ 名字 + 一句由来'],
+     ['分组','3 段（暖色系 / 冷色系 / 特殊）'],
+     ['图例','有 \u2014 两图顶部各一列'],
+     ['最小字号','副图色系标 9.5px \u2014\u2014 副图是海报，不承担阅读']
+   ];},
+   diff:'把「颜色」和「名字」拆成两张图各司其职；代价是 README 里多一个图位，且副图不承担阅读。'
+  }
+];
+
+function renderFigure(candId, lang, pw){
+  var cand = FIG_CANDS.filter(function(c){ return c.id===candId; })[0];
+  var figs = cand.build(lang);
+  var html = '';
+  figs.forEach(function(f, i){
+    var scale = pw / f.w;
+    var boxH = Math.round(f.h * scale);
+    var cap = figs.length>1 ? (i===0?(lang==='zh'?'副图 1 \u00b7 主图':'image 1 \u00b7 main'):(lang==='zh'?'副图 2 \u00b7 色墙':'image 2 \u00b7 wall')) : '';
+    html += '<div class="stage">'
+      + '<div class="cap"><b>候选 '+cand.id+'</b> \u00b7 '+esc(cand.name[lang==='zh'?0:1])+(cap?' \u00b7 '+cap:'')
+      + ' \u00b7 设计宽 <b>'+f.w+'px</b> \u00b7 高 '+f.h+'px \u00b7 当前预览 '+pw+'px \u2192 缩放 <b>'+scale.toFixed(3)+'</b></div>'
+      + '<div class="prev"><div class="prevbox" style="width:'+pw+'px;height:'+boxH+'px">'
+      + '<div class="canvas" style="width:'+f.w+'px;height:'+f.h+'px;transform:scale('+scale.toFixed(5)+')">'+f.html+'</div>'
+      + '</div></div></div>';
+  });
+  if (figs.length>1){
+    html += '<div class="state"><h4>两张一起看（缩到 860 宽）</h4><p class="note">主图与副图在 README 里上下相邻，合起来的观感是这样：</p></div>';
+  }
+  return html;
+}
+
+function figureStateHTML(candId, lang, pw){
+  var cand = FIG_CANDS.filter(function(c){ return c.id===candId; })[0];
+  var figs = cand.build(lang);
+  var kv = cand.spec(lang).map(function(p){ return '<dt>'+esc(p[0])+'</dt><dd>'+esc(p[1])+'</dd>'; }).join('');
+  var fs = figs.map(function(f,i){
+    var k = pw/f.w;
+    return '<tr><td>'+(figs.length>1?('图 '+(i+1)):'全图')+'</td><td><code>'+f.w+' \u00d7 '+f.h+'</code></td>'
+      + '<td>'+k.toFixed(3)+'</td>'
+      + '<td>12.5px \u2192 <b>'+ (12.5*k).toFixed(1) +'px</b></td>'
+      + '<td>11px \u2192 <b>'+(11*k).toFixed(1)+'px</b></td></tr>';
+  }).join('');
+  return '<div class="state">'
+    + '<h4>当前候选：'+esc(cand.name[lang==='zh'?0:1])+'</h4>'
+    + '<p class="note" style="margin:0 0 10px">'+esc(cand.desc)+'</p>'
+    + '<dl class="kv">'+kv+'</dl>'
+    + '<h4>在 README 宽度下的实际可读性</h4>'
+    + '<table><thead><tr><th></th><th>设计尺寸</th><th>缩放</th><th>一句由来（设计 12.5px）</th><th>主题 id（设计 11px）</th></tr></thead><tbody>'+fs+'</tbody></table>'
+    + '<p class="note">现状那张 SVG 是 <code>1274 \u00d7 2282</code>，在 860 宽下缩放 0.675 \u2014\u2014 设计 13px 的主题 id 实际只有 <b>8.8px</b>。这就是「渲染出来逐张看过、判定缺乏设计感」之外的第二层病根：<b>画布画太宽，等于把所有字自动缩小三分之一</b>。三个候选都收在 860 宽，在桌面 GitHub 上按 1:1 显示，字号所见即所得。</p>'
+    + '<h4>与现状的差异</h4><p class="note" style="margin:0">'+esc(cand.diff)+'</p>'
+    + '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   ③ assets 存量
+   ══════════════════════════════════════════════════════════════════════════ */
+var ASSETS = [
+  ['theme-stories-zh.svg','themeStoriesDoc(\'zh\')',1,1,'redo','重做成候选 A/B/C 之一'],
+  ['theme-stories-en.svg','themeStoriesDoc(\'en\')',1,1,'redo','与中文版同款同尺寸'],
+  ['hero-zh.svg','heroDoc(\'zh\')',0,1,'drop','印着「34 种」；无人引用'],
+  ['hero-en.svg','heroDoc(\'en\')',0,1,'drop','印着「34 looks」；无人引用'],
+  ['palette-matrix-zh.svg','matrixDoc(\'zh\')',0,1,'drop','印着「34 款」；无人引用'],
+  ['palette-matrix-en.svg','matrixDoc(\'en\')',0,1,'drop','印着「All 34」；无人引用'],
+  ['palette-strips-zh.svg','stripsDoc(\'zh\')',0,0,'drop','数字对但无人引用 \u2014\u2014 只把它当设计基线借用'],
+  ['palette-strips-en.svg','stripsDoc(\'en\')',0,0,'drop','数字对但无人引用'],
+  ['setup-panel-zh.svg','setupDoc(\'zh\')',0,1,'drop','印着「34 款 / 共 34」；无人引用'],
+  ['setup-panel-en.svg','setupDoc(\'en\')',0,1,'drop','印着「34 official / 34 themes」；无人引用'],
+  ['theme-switch-zh.svg','switchDoc(\'zh\')',0,0,'drop','数字对但无人引用'],
+  ['theme-switch-en.svg','switchDoc(\'en\')',0,0,'drop','数字对但无人引用']
+];
+
+function renderAssets(){
+  var rows = ASSETS.map(function(a){
+    var pill = a[4]==='redo' ? '<span class="pill redo">重做</span>' : '<span class="pill drop">清掉</span>';
+    return '<tr><td><code>assets/'+a[0]+'</code></td><td><code>'+a[1]+'</code></td>'
+      + '<td>'+(a[2]?'<span class="pill keep">被引用</span>':'<span class="pill orph">无人引用</span>')+'</td>'
+      + '<td>'+(a[3]?'<span class="pill drop">印着 34</span>':'<span class="pill keep">数字对</span>')+'</td>'
+      + '<td>'+pill+'</td><td style="color:var(--dim)">'+esc(a[5])+'</td></tr>';
+  }).join('');
+  var extra = '<tr><td><code>assets/feishu-qr.png</code></td><td>手工</td><td><span class="pill keep">被引用</span></td>'
+    + '<td><span class="pill keep">\u2014</span></td><td><span class="pill keep">保留</span></td>'
+    + '<td style="color:var(--dim)">CONNECT 区的飞书码</td></tr>'
+    + '<tr><td><code>assets/teach.css</code></td><td>手工</td><td><span class="pill orph">无人引用</span></td>'
+    + '<td><span class="pill keep">\u2014</span></td><td><span class="pill drop">待定</span></td>'
+    + '<td style="color:var(--dim)">非 SVG，但同样零引用 \u2014\u2014 顺手确认一次是否也该搬走</td></tr>';
+  return '<div class="state">'
+    + '<h4>12 张 SVG 的逐张账（生成函数名与 <code>scripts/generate-assets.mjs</code> 一一对应）</h4>'
+    + '<table><thead><tr><th>文件</th><th>生成函数</th><th>README/docs 引用</th><th>数字</th><th>B 方案处置</th><th>备注</th></tr></thead>'
+    + '<tbody>'+rows+extra+'</tbody></table>'
+    + '<h4>两处顺手查出来的腐坏（都不在原票面上）</h4>'
+    + '<table><tbody>'
+    + '<tr><td><b>1</b></td><td>印着「34」的不是 6 张 \u2014\u2014 <b>是 8 张</b>：hero-{en,zh} 用的是「34 looks / 34 种」，与另外 6 张的「34 款 / All 34」措辞不同，所以按「34 款」搜只数得到 6 张。</td></tr>'
+    + '<tr><td><b>2</b></td><td>现在的 theme-stories 里其实是 <b>25 张卡而不是 26 张</b>：<code>STORY_PICKS</code> 写的是 <code>rose-pine</code>，而主题注册表里的键是 <code>rosepine</code>，<b>玫瑰松林被静默丢掉了</b>（同一处键错也让 <code>THEME_ZH</code> 里查不到中文名，面板与生成器都会退回英文 id）。</td></tr>'
+    + '</tbody></table>'
+    + '<p class="note">第 2 条决定了一件事：<b>重做 theme-stories 时必须顺手修键</b>，否则新图仍然只有 25 款；修好之后中文页才会出现「玫瑰松林」。</p>'
+    + '</div>';
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   状态 & 路由
+   ══════════════════════════════════════════════════════════════════════════ */
+var S = {badges:'a', figure:'A', lang:'zh', view:'one', pw:860, axis:'figure'};
+
+function readURL(){
+  var p = new URLSearchParams(location.search);
+  ['badges','figure','lang','view','pw'].forEach(function(k){
+    if (p.get(k)) S[k] = (k==='pw') ? parseInt(p.get(k),10) : p.get(k);
+  });
+  if (!/^[abc]$/.test(S.badges)) S.badges='a';
+  if (!/^[ABC]$/.test(S.figure)) S.figure='A';
+  if (S.lang!=='en') S.lang='zh';
+  if (S.view!=='all') S.view='one';
+  if (S.pw!==640 && S.pw!==860) S.pw=860;
+}
+function writeURL(){
+  var p = new URLSearchParams();
+  p.set('badges',S.badges); p.set('figure',S.figure); p.set('lang',S.lang);
+  if (S.view!=='one') p.set('view',S.view);
+  if (S.pw!==860) p.set('pw',String(S.pw));
+  history.replaceState(null,'','?'+p.toString());
+}
+function cycle(axis,dir){
+  if (axis==='badges'){
+    var ids=BADGE_CANDS.map(function(c){return c.id;});
+    var i=ids.indexOf(S.badges); S.badges=ids[(i+dir+ids.length)%ids.length];
+  } else {
+    var fids=FIG_CANDS.map(function(c){return c.id;});
+    var j=fids.indexOf(S.figure); S.figure=fids[(j+dir+fids.length)%fids.length];
+  }
+}
+
+function render(){
+  document.documentElement.lang = S.lang==='zh'?'zh':'en';
+
+  /* 事实 */
+  document.getElementById('facts').innerHTML = FACTS.map(function(f){
+    return '<div class="fact'+(f[3]?' warn':'')+'"><div class="k">'+esc(f[0])+'</div><div class="v">'+esc(f[1])+'</div><div class="n">'+esc(f[2])+'</div></div>';
+  }).join('');
+
+  /* ① 胶囊行 */
+  var bHtml='', bState='';
+  if (S.view==='all'){
+    BADGE_CANDS.forEach(function(c){
+      bHtml += '<div class="stage"><div class="cap"><b>'+esc(c.name[0])+'</b> \u00b7 '+esc(c.desc)+'</div>'+renderBadgeRow(c.id,S.lang)+'</div>';
+    });
+    bState = badgeStateHTML(S.badges, S.lang);
+  } else {
+    var bc = BADGE_CANDS.filter(function(c){return c.id===S.badges;})[0];
+    bHtml = '<div class="stage"><div class="cap">'+esc(bc.name[S.lang==='zh'?0:1])+'</div>'+renderBadgeRow(S.badges,S.lang)+'</div>';
+    bState = badgeStateHTML(S.badges, S.lang);
+  }
+  document.getElementById('badgeStage').innerHTML = bHtml;
+  document.getElementById('badgeState').innerHTML = bState;
+  bdStat={ok:0,err:0}; paintLoad();
+
+  /* 现状对照 */
+  document.getElementById('oldPrev').innerHTML =
+    '<div class="prevbox" style="width:'+S.pw+'px;height:'+Math.round(2282*(S.pw/1274))+'px">'
+    + '<img src="../assets/theme-stories-'+(S.lang==='zh'?'zh':'en')+'.svg" style="width:1274px;height:2282px;transform:scale('+(S.pw/1274).toFixed(5)+');transform-origin:top left;display:block" alt="现状">'
+    + '</div>';
+
+  /* ② 图 */
+  var fHtml='', fState='';
+  if (S.view==='all'){
+    FIG_CANDS.forEach(function(c){
+      fHtml += '<div class="stage"><div class="cap"><b>'+esc(c.name[0])+'</b> \u00b7 '+esc(c.desc)+'</div></div>' + renderFigure(c.id,S.lang,S.pw);
+    });
+    fState = figureStateHTML(S.figure,S.lang,S.pw);
+  } else {
+    fHtml = renderFigure(S.figure,S.lang,S.pw);
+    fState = figureStateHTML(S.figure,S.lang,S.pw);
+  }
+  document.getElementById('figureStage').innerHTML = fHtml;
+  document.getElementById('figureState').innerHTML = fState;
+
+  /* ③ assets */
+  document.getElementById('assetsTable').innerHTML = renderAssets();
+
+  /* 切换条 */
+  var bc2 = BADGE_CANDS.filter(function(c){return c.id===S.badges;})[0];
+  var fc2 = FIG_CANDS.filter(function(c){return c.id===S.figure;})[0];
+  document.getElementById('labBadges').textContent = bc2.name[S.lang==='zh'?0:1];
+  document.getElementById('labFigure').textContent = fc2.name[S.lang==='zh'?0:1];
+  Array.prototype.forEach.call(document.querySelectorAll('#bar .brow'), function(b){
+    b.classList.toggle('active', b.getAttribute('data-axis')===S.axis);
+  });
+  /* 控制条高亮 */
+  Array.prototype.forEach.call(document.querySelectorAll('.ctrls button'), function(btn){
+    var k=btn.getAttribute('data-set'), v=btn.getAttribute('data-val');
+    var cur = (k==='pw') ? String(S.pw) : S[k];
+    btn.classList.toggle('on', v===cur);
+  });
+}
+
+function go(){ writeURL(); render(); }
+
+document.addEventListener('click', function(e){
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var dir = t.getAttribute('data-dir');
+  if (dir){
+    var brow = t.closest ? t.closest('.brow') : null;
+    if (brow) S.axis = brow.getAttribute('data-axis');
+    cycle(S.axis, parseInt(dir,10)); go(); return;
+  }
+  var brow2 = t.closest ? t.closest('.brow') : null;
+  if (brow2 && !dir){ S.axis = brow2.getAttribute('data-axis'); render(); return; }
+  var k = t.getAttribute('data-set');
+  if (k){
+    var v = t.getAttribute('data-val');
+    S[k] = (k==='pw') ? parseInt(v,10) : v;
+    go(); return;
+  }
+});
+
+document.addEventListener('keydown', function(e){
+  var el = document.activeElement;
+  if (el && (el.tagName==='INPUT'||el.tagName==='TEXTAREA'||el.isContentEditable)) return;
+  if (e.key==='ArrowLeft'){ cycle(S.axis,-1); go(); e.preventDefault(); }
+  else if (e.key==='ArrowRight'){ cycle(S.axis,1); go(); e.preventDefault(); }
+});
+
+readURL();
+go();
+</script>
+</body>
+</html>
