@@ -53,33 +53,25 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**① 装。** 需要 DSH CLI，执行上面两行命令；装完重启 DSH（或刷新浏览器页面）即生效，**零配置**，默认启用官方 `opencode` 主题。
+**① 装。** 上面两行把插件装进你的 profile。重启 DSH（或刷新浏览器页面）——DSH 在启动时读插件，所以这一步是「生效」，不是「可选」。
 
-**② 打开面板。** 进入 **设置 → 插件 → OpenCode 调色板**。
+**② 打开面板。** 进入 **设置 → 插件 → opencode调色板**。
 
 **③ 点一个主题。** 点任意色块即时换色，多试几款找到最养眼的那套。
 
-<h2 align="center"><sub>THEMES</sub><br>主题一览</h2>
+<h2 align="center"><sub>THEMES</sub><br>主题</h2>
 
-<div align="center">
-
-38 个入口在设置面板里按色系分组、一搜即切：其中 37 款忠实上游，另有一个只留排印的原生外观。每个名字背后都有一段来历，下图一次看全。
-
-</div>
+38 个入口按色系分组，一搜即切。下图每一格都是一种配色。
 
 ![theme stories](assets/theme-stories-zh.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>在 opencode 主题之上，我们加了什么</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>opencode 主题之外</h2>
 
-<div align="center">
+点一下换配色，不用重调字号和字体。
 
-主题颜色照抄上游的 37 款，我们加的功夫落在三件事上：**字顺眼、随时反悔、面板好找。**
-
-- **字顺眼。** 排印是一个独立维度：作用到全部文字或仅代码、字号 11–18 px、代码字体随你挑，与颜色互不干扰，重启不丢。
-- **随时反悔。** 原生外观一键回到 DSH 原生：不碰任何颜色，只留你的排印设置。
+- **字号与字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–18 px、代码字体随你挑，与颜色互不干扰，重启不丢。
+- **随时反悔。** 「原生外观」一键回到 DSH 原生：不碰任何颜色，只留你的排印设置。
 - **面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
-
-</div>
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
@@ -89,29 +81,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
-不想敲命令就用面板：打开「设置 → OpenCode 调色板」，标题行右侧有 **检查更新** 按钮。它点一下才联网；有新版本时就地变成「更新至 vX.Y.Z」，点开可直接升级，走不通还会给一条可复制的手工命令。装完记得重启 DSH——重启前面板顶部会一直挂着提醒横幅。
-
-反馈问题时请附上日志：
-
-<div align="center">
-
-<details>
-<summary>日志在哪、记了什么</summary>
-
-- 目录：`<DSH_HOME>/logs/dsh-opencode-palette/`（`DSH_HOME` 默认 `~/.dsh`），按天一个 `YYYY-MM-DD.log`。
-- 错误与告警**一直**记；信息与调试默认不记，要把 `~/.dsh/logs/log-switch-dsh-opencode-palette.json` 里的 `enabled` 改成 `true` 才记。
-- 日志只记枚举与散列（电话名、结果、失败散列），不记命令原文与真实路径。
-
-</details>
-
-<details>
-<summary>从 1.4.x 及更早版本升级</summary>
-
-旧版本通过 postinstall 在 `~/.dsh/profiles/web/cordis.patch.yml` 里写过注册块。升级前请删除其中的 `opencode-palette` 注册块（bundle 装配后残留会导致重复注册），再执行上面的 `update`。
-
-</details>
-
-</div>
+不想敲命令就点面板：「设置 → 插件 → opencode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「更新至 vX.Y.Z」，点开即升级。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
 
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 
@@ -131,15 +101,15 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 <div align="left">
 
-感谢每一位提交 Issue、参与讨论的朋友，是你们让这个插件一点点变好。
+提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。
 
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
 
-[@xiSage](https://github.com/xiSage) — #11 要任意系统字体（已落地：点开即列本机字体）
+[@xiSage](https://github.com/xiSage) — #11 要任意系统字体，点开即列本机字体 🌹
 
-[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽（已落地）
+[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽 🌹
 
-PR 虚位以待：修 Bug、加主题、改顺文案都欢迎，下一个被点名的就是你。
+[@anupamme](https://github.com/anupamme) — #32 指出主题下载缺一道校验 🌹
 
 </div>
 

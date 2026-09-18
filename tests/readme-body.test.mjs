@@ -94,31 +94,41 @@ test('主体小标题与定稿一致：GUIDE 退役，INSTALL 即三步', () => 
   }
 })
 
-// ── 5 · 口径定稿：38 个入口 = 37 上游 + 原生外观；排印只讲一次 ──
-test('口径：37 款忠实上游 + 只留排印的原生外观 = 38 个入口', () => {
-  assert.ok(ZH.includes('38 个入口在设置面板里按色系分组、一搜即切：其中 37 款忠实上游，另有一个只留排印的原生外观。'),
-    '中文数据句应为定稿原文')
-  assert.ok(EN.includes('38 entries live in the settings panel, grouped by color family and switchable with a search: 37 stay faithful to upstream, plus one native look that keeps only your typography.'),
-    '英文数据句应为定稿原文')
+// ── 5 · 口径定稿：38 = 37 上游 + 原生外观由「图」承担；排印只讲一次 ──
+// 用户 2026-09-17 复稿：THEMES 首句精简成一句，不再在正文里铺 37/原生 的口径
+// （口径改由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
+test('口径：THEMES 正文只留一句，不再复述 37 上游 / 原生外观', () => {
+  assert.ok(ZH.includes('38 个入口按色系分组，一搜即切。下图每一格都是一种配色。'),
+    '中文数据句应为复稿原文')
+  assert.ok(EN.includes('38 entries, grouped by color family and one search away. Every cell in the picture below is a palette.'),
+    '英文数据句应为复稿原文')
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('（默认）'), false, `${name} 不应再给 system 标「默认」`)
   }
 })
 
-test('排印只讲一次：EXTENSIONS 之外只允许 THEMES 那句「只留排印」豁免', () => {
+test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
   const ext = (t) => t.indexOf('<sub>EXTENSIONS</sub>')
   for (const [name, doc, word] of [['中文页', ZH, '排印'], ['英文页', EN, 'typography']]) {
-    const before = doc.slice(0, ext(doc))
-    const hits = count(before, word)
-    assert.equal(hits, 1, `${name} 在 EXTENSIONS 之前只允许 1 处「${word}」（THEMES 的豁免半句），实为 ${hits}`)
+    assert.equal(count(doc.slice(0, ext(doc)), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
     assert.ok(count(doc.slice(ext(doc)), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
-    assert.ok(/只留排印|only your typography/.test(before), `${name} 的唯一豁免应为「只留排印」半句`)
   }
   // 排印三属性（字体 / 字号 11–18 / 作用范围）只在 EXTENSIONS 第一条出现
   for (const [name, doc, needle] of [['中文页', ZH, '字号 11–18'], ['英文页', EN, '11–18 px']]) {
     assert.equal(count(doc, needle), 1, `${name}「${needle}」应只出现一次`)
     assert.ok(doc.slice(ext(doc)).includes(needle), `${name}「${needle}」应落在 EXTENSIONS 段内`)
   }
+})
+
+test('EXTENSIONS：首句不复述上游、不出现「照抄 / 我们加的」这类自贬或卖方口吻', () => {
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
+    assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
+    assert.equal(doc.includes('我们加的'), false, `${name} 不应再出现「我们加的」`)
+    assert.equal(doc.includes('What we add'), false, `${name} 不应再出现 "What we add"`)
+  }
+  assert.ok(ZH.includes('点一下换配色，不用重调字号和字体。'), '中文 EXTENSIONS 首句应为复稿原文')
+  assert.ok(EN.includes('One click swaps the palette; your font size and font stay where you put them.'),
+    '英文 EXTENSIONS 首句应为复稿原文')
 })
 
 // ── 6 · 中英镜像：主体逐块同形，任一侧多一句就红 ──
@@ -149,9 +159,20 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
   assert.equal(zh.filter((x) => x === 'IMG').length, 3, 'showcase 应恰好三张真机截图')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
-  assert.equal(zh.filter((x) => x === 'BULLET').length, 6, 'EXTENSIONS 三条 + UPGRADE 日志三条')
-  assert.equal(count(ZH, '<details>'), 2, 'UPGRADE 两个 details（日志 / 1.4.x 升级）')
-  assert.equal(count(EN, '<details>'), 2, '英文页同样两个 details')
+  assert.equal(zh.filter((x) => x === 'BULLET').length, 3, 'EXTENSIONS 三条 bullet')
+  assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
+  assert.equal(count(EN, '<details>'), 0, '英文页同样没有 details')
+})
+
+test('EXTENSIONS 与 THEMES：两段都居左（不再包 align="center" 的 div）', () => {
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
+    const themes = doc.indexOf('<sub>THEMES</sub>')
+    const ext = doc.indexOf('<sub>EXTENSIONS</sub>')
+    const upgrade = doc.indexOf('<sub>UPGRADE</sub>')
+    assert.ok(themes > -1 && ext > themes && upgrade > ext, `${name} 段落顺序应为 THEMES → EXTENSIONS → UPGRADE`)
+    const block = doc.slice(themes, upgrade)
+    assert.equal(block.includes('<div'), false, `${name} 的 THEMES + EXTENSIONS 不应再包 div（要居左）`)
+  }
 })
 
 test('showcase：中英用同一组三张图，英文 alt 不再带过期的 34 themes', () => {

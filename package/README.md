@@ -29,33 +29,25 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**① Install.** Requires the DSH CLI — run the two commands above, then restart DSH (or refresh the browser page) and it just works, **zero configuration**, with the official `opencode` theme on by default.
+**① Install.** The two lines above put the plugin into your profile. Restart DSH (or refresh the page) — DSH reads plugins at startup, so this step is what makes it live, not an optional extra.
 
-**② Open the panel.** Go to **Settings → Plugins → Opencode Palette**.
+**② Open the panel.** Go to **Settings → Plugins → opencode调色板**.
 
 **③ Pick a theme.** Click any chip to re-skin instantly — try a few and find the kindest one.
 
 <h2 align="center"><sub>THEMES</sub><br>Themes</h2>
 
-<div align="center">
-
-38 entries live in the settings panel, grouped by color family and switchable with a search: 37 stay faithful to upstream, plus one native look that keeps only your typography. Every name has a story behind it — the picture below shows them all at once.
-
-</div>
+38 entries, grouped by color family and one search away. Every cell in the picture below is a palette.
 
 ![theme stories](../assets/theme-stories-en.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>What we add on top of the opencode themes</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>Beyond the opencode themes</h2>
 
-<div align="center">
+One click swaps the palette; your font size and font stay where you put them.
 
-Colors stay faithful to the 37 upstream themes; all our work goes into three things: **type that reads well, an easy way back, a panel you can find.**
-
-- **Type that reads well.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
-- **An easy way back.** The native look restores DSH in one click: it overrides no colors, it only keeps your typography setup.
+- **Size and font.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
+- **An easy way back.** “Native look” restores DSH in one click: it overrides no colors, it only keeps your typography setup.
 - **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
-
-</div>
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
@@ -65,29 +57,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Open Settings → Opencode Palette: there is a **Check for updates** button at the right of the title row. It only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades, and if that cannot go through it hands you a copy-paste command instead. Then restart DSH to apply: until you do, a reminder banner stays at the top of the panel.
-
-Attach the logs when filing an issue:
-
-<div align="center">
-
-<details>
-<summary>Where the logs are, what they hold</summary>
-
-- Directory: `<DSH_HOME>/logs/dsh-opencode-palette/` (`DSH_HOME` defaults to `~/.dsh`), one `YYYY-MM-DD.log` per day.
-- Errors and warnings are **always** written; info and debug are off until you set `enabled` to `true` in `~/.dsh/logs/log-switch-dsh-opencode-palette.json`.
-- Lines carry enums and hashes only (phone names, outcomes, failure hashes) — never command text or real paths.
-
-</details>
-
-<details>
-<summary>Upgrading from 1.4.x or earlier</summary>
-
-Old versions wrote a registration block into `~/.dsh/profiles/web/cordis.patch.yml` via postinstall. Delete the `opencode-palette` block from that file first (a leftover would duplicate the bundle registration), then run `update` above.
-
-</details>
-
-</div>
+Prefer a button? Go to Settings → Plugins → opencode调色板: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
@@ -107,15 +77,15 @@ If you like this plugin, you might also like:
 
 <div align="left">
 
-Thanks to everyone who filed issues and joined discussions — you make this plugin better bit by bit.
+Every issue gets a 🌹 — everything asked for below is already shipped.
 
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
 
-[@xiSage](https://github.com/xiSage) — #11 asked for any system font (shipped)
+[@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
 
-[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK (shipped)
+[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK 🌹
 
-PRs wanted: fix, theme, or words — open a PR and you'll be named next.
+[@anupamme](https://github.com/anupamme) — #32 flagged a missing check on theme downloads 🌹
 
 </div>
 

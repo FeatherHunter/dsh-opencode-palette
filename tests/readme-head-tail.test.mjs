@@ -61,7 +61,7 @@ const REMOVED_CAPSULES = [
   'ROADMAP',
 ]
 
-const CONTRIBUTORS = ['the-beating-light-of-the-nail', 'xiSage', 'Number444']
+const CONTRIBUTORS = ['the-beating-light-of-the-nail', 'xiSage', 'Number444', 'anupamme']
 
 // ── 1 · 五枚胶囊在场，且顺序与链接目标与定稿一致 ──
 for (const [lang, table] of Object.entries(CAPSULES)) {
@@ -127,8 +127,10 @@ test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () 
   }
 })
 
-// ── 5 · THANKS：三位贡献者点名 + PR 邀请句 ──
-test('THANKS：三位 issue 贡献者按时间序点名，且收在 PR 邀请句上', () => {
+// ── 5 · THANKS：四位贡献者（三位 issue + 一位 PR）逐条带 🌹 ──
+// 用户 2026-09-17 复稿：「提交一个 Issue，就记一个 🌹」；顺带把唯一的外部 PR 作者记进来，
+// 旧口径「0 个 PR / PR 虚位以待」作废，邀请句整句删除。
+test('THANKS：四位贡献者按时间序点名，且每人一句 🌹', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(thanks > -1, `${name} 应有 THANKS 段`)
@@ -138,14 +140,19 @@ test('THANKS：三位 issue 贡献者按时间序点名，且收在 PR 邀请句
       assert.ok(doc.slice(thanks).includes(`[@${handle}](https://github.com/${handle})`),
         `${name} 应点名 @${handle}`)
     }
-    // 时间序 #3 → #11 → #12
-    const seq = ['#3', '#11', '#12'].map((n) => doc.slice(thanks).indexOf(` — ${n} `))
-    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 应保持 #3 → #11 → #12 时间序`)
-    // 段内不出现玫瑰（定稿：无 🌹）
-    assert.equal(doc.slice(thanks).includes('🌹'), false, `${name} 的 THANKS 不应有玫瑰`)
+    // 时间序：三条 issue #3 → #11 → #12，PR #32 收尾
+    const seq = ['#3 ', '#11 ', '#12 ', '#32 '].map((n) => doc.slice(thanks).indexOf(` ${n}`))
+    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 应保持 #3 → #11 → #12 → #32 时间序`)
+    // 段内每条贡献都带 🌹
+    assert.equal(count(doc.slice(thanks), '🌹'), CONTRIBUTORS.length + 1, `${name} 的 THANKS 应每条一句 🌹（含首句）`)
+    // 旧口径不许回来：PR 邀请句已整句删除
+    assert.equal(doc.includes('PR 虚位以待'), false, `${name} 不应再有「PR 虚位以待」`)
+    assert.equal(doc.includes('PRs wanted'), false, `${name} 不应再有 "PRs wanted"`)
   }
-  assert.ok(ZH.slice(ZH.indexOf('<sub>THANKS</sub>')).includes('PR 虚位以待：修 Bug、加主题、改顺文案都欢迎，下一个被点名的就是你。'), '中文 PR 邀请句在场')
-  assert.ok(EN.slice(EN.indexOf('<sub>THANKS</sub>')).includes("PRs wanted: fix, theme, or words — open a PR and you'll be named next."), '英文 PR 邀请句在场')
+  assert.ok(ZH.slice(ZH.indexOf('<sub>THANKS</sub>')).includes('提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。'),
+    '中文首句应为复稿原文')
+  assert.ok(EN.slice(EN.indexOf('<sub>THANKS</sub>')).includes('Every issue gets a 🌹 — everything asked for below is already shipped.'),
+    '英文首句应为复稿原文')
 })
 
 // ── 6 · CONNECT：issue 入口 + 飞书码 + 备注词（沿用，不新增渠道） ──
