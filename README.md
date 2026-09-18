@@ -65,13 +65,11 @@ dsh plugin --profile web add dsh-opencode-palette
 
 ![theme stories](assets/theme-stories-zh.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>opencode 主题之外</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>opencode 主题之外提供的功能</h2>
 
-点一下换配色，不用重调字号和字体。
+**丰富的字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–18 px、代码字体随你挑，与颜色互不干扰，重启不丢。
 
-- **字号与字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–18 px、代码字体随你挑，与颜色互不干扰，重启不丢。
-- **随时反悔。** 「原生外观」一键回到 DSH 原生：不碰任何颜色，只留你的排印设置。
-- **面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
+**面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 

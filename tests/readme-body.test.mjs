@@ -131,9 +131,11 @@ test('口径：THEMES 正文只留一句，不再复述 37 上游 / 原生外观
 
 test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
   const ext = (t) => t.indexOf('<sub>EXTENSIONS</sub>')
+  // 英文页原文是句首的 "Typography"（大写），所以这里统一小写后比，避免被大小写绊倒
   for (const [name, doc, word] of [['中文页', ZH, '排印'], ['英文页', EN, 'typography']]) {
-    assert.equal(count(doc.slice(0, ext(doc)), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
-    assert.ok(count(doc.slice(ext(doc)), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
+    const lower = (t) => t.toLowerCase()
+    assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
+    assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
   }
   // 排印三属性（字体 / 字号 11–18 / 作用范围）只在 EXTENSIONS 第一条出现
   for (const [name, doc, needle] of [['中文页', ZH, '字号 11–18'], ['英文页', EN, '11–18 px']]) {
@@ -142,15 +144,28 @@ test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
   }
 })
 
-test('EXTENSIONS：首句不复述上游、不出现「照抄 / 我们加的」这类自贬或卖方口吻', () => {
+test('EXTENSIONS：不自贬也不摆卖方口吻，且只剩「丰富的字体」+「面板好找」两条', () => {
+  const extBlock = (t) => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
     assert.equal(doc.includes('我们加的'), false, `${name} 不应再出现「我们加的」`)
     assert.equal(doc.includes('What we add'), false, `${name} 不应再出现 "What we add"`)
+    // 2026-09-18 用户删掉了「点一下换配色…」那句与「随时反悔」那条。
+    // 注意：只在 EXTENSIONS 段内断言 —— SHOWCASE 里讲上游「原生外观」那一处是合法提及，
+    // 全页禁止会误伤（第一版就误判过一次）。
+    const block = extBlock(doc)
+    assert.equal(block.includes('点一下换配色'), false, `${name} 不应再有「点一下换配色…」这句`)
+    assert.equal(block.includes('One click swaps the palette'), false, `${name} 不应再有该句英文`)
+    assert.equal(block.includes('随时反悔'), false, `${name}「随时反悔」应已删除`)
+    assert.equal(/native look/i.test(block), false, `${name} 的 EXTENSIONS 不应再有 "native look" 那条`)
   }
-  assert.ok(ZH.includes('点一下换配色，不用重调字号和字体。'), '中文 EXTENSIONS 首句应为复稿原文')
-  assert.ok(EN.includes('One click swaps the palette; your font size and font stay where you put them.'),
-    '英文 EXTENSIONS 首句应为复稿原文')
+  assert.ok(ZH.includes('<sub>EXTENSIONS</sub><br>opencode 主题之外提供的功能'), '中文小标题应为复稿原文')
+  assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the opencode themes come with'), '英文小标题应为复稿原文')
+  assert.ok(ZH.includes('**丰富的字体。** 排印是独立维度：'), '中文首条应为「丰富的字体」')
+  assert.ok(EN.includes('**Plenty of fonts.** Typography is its own dimension:'), '英文首条应为 "Plenty of fonts"')
+  // 只剩两条：字体 + 面板好找
+  assert.equal(count(extBlock(ZH), '**面板好找。**'), 1, '中文应保留「面板好找」一条')
+  assert.equal(count(extBlock(EN), '**A panel you can find.**'), 1, '英文应保留该条')
 })
 
 // ── 6 · 中英镜像：主体逐块同形，任一侧多一句就红 ──
@@ -181,7 +196,7 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
   assert.equal(zh.filter((x) => x === 'IMG').length, 3, 'showcase 应恰好三张真机截图')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
-  assert.equal(zh.filter((x) => x === 'BULLET').length, 3, 'EXTENSIONS 三条 bullet')
+  assert.equal(zh.filter((x) => x === 'BULLET').length, 0, 'EXTENSIONS 与 UPGRADE 都已不用 bullet（2026-09-18 起主体内应无 `- ` 列表项）')
   assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
   assert.equal(count(EN, '<details>'), 0, '英文页同样没有 details')
 })

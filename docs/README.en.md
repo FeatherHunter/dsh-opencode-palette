@@ -65,13 +65,11 @@ dsh plugin --profile web add dsh-opencode-palette
 
 ![theme stories](../assets/theme-stories-en.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>Beyond the opencode themes</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>What the opencode themes come with</h2>
 
-One click swaps the palette; your font size and font stay where you put them.
+**Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
 
-- **Size and font.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
-- **An easy way back.** “Native look” restores DSH in one click: it overrides no colors, it only keeps your typography setup.
-- **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
+**A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
