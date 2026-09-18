@@ -53,11 +53,11 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**① 装。** 上面两行把插件装进你的 profile。重启 DSH（或刷新浏览器页面）——DSH 在启动时读插件，所以这一步是「生效」，不是「可选」。
+**① 装好。** 需要有 DSH CLI（上面前两行，已经装了跳到第二段命令）。跑完重启 DSH —— 重启后插件才被加载，这时它还不会改变任何颜色。
 
-**② 打开面板。** 进入 **设置 → 插件 → opencode调色板**。
+**② 打开「opencode调色板」。** 设置 → 插件 → 点这一行。
 
-**③ 点一个主题。** 点任意色块即时换色，多试几款找到最养眼的那套。
+**③ 点一个颜色。** 界面立刻整片换色，不用保存、不用重启。多试几款挑最顺眼的。
 
 <h2 align="center"><sub>THEMES</sub><br>主题</h2>
 

@@ -53,11 +53,11 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**① Install.** The two lines above put the plugin into your profile. Restart DSH (or refresh the page) — DSH reads plugins at startup, so this step is what makes it live, not an optional extra.
+**① Install it.** You need the DSH CLI (the first two lines above — skip to the second command if you already have it). Then restart DSH: the plugin is only loaded on startup, and at that point it still changes no colors.
 
-**② Open the panel.** Go to **Settings → Plugins → opencode调色板**.
+**② Open “opencode调色板”.** Settings → Plugins → click that row.
 
-**③ Pick a theme.** Click any chip to re-skin instantly — try a few and find the kindest one.
+**③ Click a color.** The whole interface re-skins instantly — nothing to save, no restart. Try a few and keep the one that reads best.
 
 <h2 align="center"><sub>THEMES</sub><br>Themes</h2>
 
