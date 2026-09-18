@@ -29,7 +29,7 @@ npm install -g @deepseek-ai/dsh
 dsh plugin --profile web add dsh-opencode-palette
 ```
 
-**① Install the plugin.** You need the DSH CLI (the first two lines above — skip to the second command if you already have it). Then restart DSH: the plugin is only loaded on startup, and at that point it still changes no colors.
+**① Install the plugin.**
 
 **② Open “opencode调色板”.** Settings → Plugins → opencode调色板
 
