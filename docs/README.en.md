@@ -35,9 +35,9 @@ opencode's 37 classic themes are loved by developers everywhere, plus a native l
 
 <img src="../showcase/settings-opencode-en.png" width="640" alt="Opencode Palette — settings panel (grouped by color family)" style="border:1px solid #30363d;border-radius:6px">
 
-**👇 Light-theme users: full light coverage included.**
+**👇 How another theme feels.**
 
-<img src="../showcase/overview-tokyonight-en.png" width="640" alt="Opencode Palette — light theme overview" style="border:1px solid #30363d;border-radius:6px">
+<img src="../showcase/overview-tokyonight-en.png" width="640" alt="Opencode Palette — overview (Tokyo Night theme)" style="border:1px solid #30363d;border-radius:6px">
 
 </div>
 

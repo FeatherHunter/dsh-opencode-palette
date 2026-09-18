@@ -35,9 +35,9 @@ opencode 的 37 套经典配色深受开发者喜爱，另有一个不碰颜色�
 
 <img src="showcase/opencode调色板设置页面-zh.png" width="640" alt="OpenCode 调色板 — 设置面板（按色系分组）" style="border:1px solid #30363d;border-radius:6px">
 
-**👇 白天党放心：浅色主题同样完整覆盖。**
+**👇 另一款主题的观感。**
 
-<img src="showcase/overview-tokyonight-zh.png" width="640" alt="OpenCode 调色板 — 浅色主题概览" style="border:1px solid #30363d;border-radius:6px">
+<img src="showcase/overview-github-light-zh.png" width="640" alt="OpenCode 调色板 — 主界面概览（GitHub 主题）" style="border:1px solid #30363d;border-radius:6px">
 
 </div>
 

@@ -9,8 +9,8 @@
 
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync } from 'node:fs'
-import { join, dirname } from 'node:path'
+import { readFileSync, readdirSync, existsSync } from 'node:fs'
+import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -94,6 +94,28 @@ test('主体小标题与定稿一致：GUIDE 退役，INSTALL 即三步', () => 
   }
 })
 
+// ── 4b · 所有图片引用都必须在磁盘上真实存在（门禁盲区补丁）──
+// 复现过的真实事故：7729916 把中文页第 3 张图改引到 showcase/overview-tokyonight-zh.png，
+// 而那个文件从未存在过 → GitHub 上直接裂图。原来的门禁只校验 assets/ 的引用，
+// showcase/ 从来没被校验，所以这条坏引用一路放行。这里改成「按文档逐条解析并 stat」。
+test('图片引用存在性：三份文档里的每个 <img src> / ![..]() 都必须落地到真实文件', () => {
+  const DOCS = [['README.md', ZH], ['docs/README.en.md', EN], ['package/README.md', PKG]]
+  const refs = []
+  for (const [docPath, text] of DOCS) {
+    const dir = dirname(join(ROOT, docPath))
+    for (const m of text.matchAll(/<img\s+src="([^"]+)"/g)) refs.push({ docPath, raw: m[1], dir })
+    for (const m of text.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) refs.push({ docPath, raw: m[1], dir })
+  }
+  assert.ok(refs.length >= 6, `应解析出至少 6 条图片引用，实为 ${refs.length}（正则失效会静默放过坏引用）`)
+  const missing = []
+  for (const { docPath, raw, dir } of refs) {
+    if (/^https?:\/\//.test(raw)) continue
+    const abs = resolve(dir, raw)
+    if (!existsSync(abs)) missing.push(`${docPath} → ${raw}`)
+  }
+  assert.deepEqual(missing, [], '以下图片引用指向不存在的文件（GitHub 上会裂图）：\n' + missing.join('\n'))
+})
+
 // ── 5 · 口径定稿：38 = 37 上游 + 原生外观由「图」承担；排印只讲一次 ──
 // 用户 2026-09-17 复稿：THEMES 首句精简成一句，不再在正文里铺 37/原生 的口径
 // （口径改由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
@@ -175,16 +197,22 @@ test('EXTENSIONS 与 THEMES：两段都居左（不再包 align="center" 的 div
   }
 })
 
-test('showcase：中英用同一组三张图，英文 alt 不再带过期的 34 themes', () => {
+// 2026-09-18 修正：第 3 张原引 `overview-tokyonight-zh.png` —— 该文件从未存在过（裂图），
+// 且原 caption 自称「浅色主题」而现有两张同位置截图实测主色都是深色（#081010 / #181820）。
+// 现在改引真实存在的中文 GitHub 图，caption 去掉不成立的「浅色」claim。
+test('showcase：中英各三张且都真实存在，第 3 张不再自称浅色概览', () => {
   const zhImgs = [...ZH.matchAll(/<img src="(showcase\/[^"]+)"/g)].map((m) => m[1])
   const enImgs = [...EN.matchAll(/<img src="\.\.\/(showcase\/[^"]+)"/g)].map((m) => m[1])
   assert.equal(zhImgs.length, 3, '中文页 showcase 应三张')
   assert.equal(enImgs.length, 3, '英文页 showcase 应三张')
-  // 第 1 张主界面与第 3 张浅色概览：中英分别为对应版本的截图
+  // 第 1 张主界面：中英分别为对应版本的截图
   assert.ok(zhImgs[0].includes('overview-opencode-zh') && enImgs[0].includes('主页面-en'),
     '第 1 张应各是主界面截图')
-  assert.ok(zhImgs[2].includes('overview-tokyonight-zh') && enImgs[2].includes('overview-tokyonight-en'),
-    '第 3 张中英应同为 tokyonight 浅色概览')
+  // 第 3 张：各自语言侧的截图，且必须真在 showcase/ 里（防复现裂图）
+  assert.equal(zhImgs[2], 'showcase/overview-github-light-zh.png', '中文第 3 张应为存在的那张中文图')
+  assert.equal(enImgs[2], 'showcase/overview-tokyonight-en.png', '英文第 3 张应为存在的那张英文图')
+  assert.equal(ZH.includes('浅色主题同样完整覆盖'), false, '中文页不应再自称浅色概览（现有截图是深色）')
+  assert.equal(EN.includes('full light coverage included'), false, '英文页不应再自称 full light coverage')
   assert.equal(/34 themes/.test(EN), false, '英文页不应再出现过期的 34 themes')
   assert.equal(/38 款同款|38 themes\)/.test(ZH), false, '中文页不应再有冗余的「38 款同款」')
 })
