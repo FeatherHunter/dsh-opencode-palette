@@ -51,6 +51,8 @@ npm install -g @deepseek-ai/dsh
 
 # 2. add the plugin to your profile
 dsh plugin --profile web add dsh-opencode-palette
+
+# 3. restart DSH when done (or refresh the browser page)
 ```
 
 **① Install the plugin.**
