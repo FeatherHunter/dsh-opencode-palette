@@ -322,6 +322,37 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
       written = existsSync(logDir) && readdirSync(logDir).some((n) => n.endsWith('.log') && readFileSync(join(logDir, n), 'utf8').indexOf('host.call.fail') >= 0)
     }
     assert.equal(written, true, '日志必须落到 <DSH_HOME>/logs/dsh-opencode-palette/ 下的当天文件里')
+
+    // 开关文件必须在装配时就落盘（2026-09-19 修）：否则 dsh-log 的 loadSwitch() 把
+    // 「文件不存在」当读取失败，首次运行的每次读开关都记一条 log.persist.fail/readBack 误报
+    // ——真机两天日志里除它之外什么都没有，等于日志系统没真正跑起来。
+    const switchFile = join(home, 'logs', 'log-switch-dsh-opencode-palette.json')
+    assert.equal(existsSync(switchFile), true, '装配后开关文件必须已落盘（缺省值物化）')
+    assert.deepEqual(JSON.parse(readFileSync(switchFile, 'utf8')), { enabled: false, sampleRate: 1 },
+      '缺省态应为 { enabled: false, sampleRate: 1 }')
+
+    // 读开关不得再产生 readBack 误报
+    const switchRead = await call('palette.logGetSwitch', {})
+    assert.equal(switchRead.result.ok, true, '读开关必须回成功')
+    await call('palette.logBatch', { entries: [{ ts: Date.now(), level: 'warn', event: 'host.channel.fail', fields: { stage: 's', path: '/api/opencode-palette', reason: 'r' } }] })
+    const logText = () => readdirSync(logDir)
+      .filter((n) => n.endsWith('.log'))
+      .map((n) => readFileSync(join(logDir, n), 'utf8'))
+      .join('\n')
+    let logNow = ''
+    for (let i = 0; i < 30 && logNow.indexOf('host.channel.fail') < 0; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      logNow = logText()
+    }
+    assert.equal(logNow.includes('log.persist.fail'), false,
+      '开关文件已物化后，不得再出现 log.persist.fail（readBack 误报）')
+
+    // 开关往返：写进去能读回来，且文件里是真的
+    const setReply = await call('palette.logSetSwitch', { enabled: true, sampleRate: 0.5 })
+    assert.equal(setReply.result.ok, true, '设置开关必须回成功')
+    const state = setReply.result.value.switch || setReply.result.value
+    assert.equal(state.enabled, true, '设置后读回的开关应为 true')
+    assert.equal(JSON.parse(readFileSync(switchFile, 'utf8')).enabled, true, '开关必须落到磁盘文件里')
   } finally {
     if (previousHome === undefined) delete process.env.DSH_HOME
     else process.env.DSH_HOME = previousHome

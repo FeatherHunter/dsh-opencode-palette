@@ -19,7 +19,7 @@
  * 把它的 dist 原样放进本包 lib/vendor/ 下，import.meta.url 就落在本包内，两条判定都成立。
  * vendor 副本由构建从 npm 包复制（见 scripts/build-client.mjs），门禁断言与 npm 包逐字节一致。
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -39,6 +39,32 @@ const LOG_DIR_NAME = PLUGIN_ID
 const SWITCH_FILE_NAME = 'log-switch-' + PLUGIN_ID + '.json'
 const RPC_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/
 const ENDPOINT_PATTERN = /^[A-Za-z0-9_$.-]+$/
+
+/**
+ * 装配时先把日志目录建好、把开关文件用缺省值物化（2026-09-19 修，真机噪声两则）。
+ *
+ * 现象：两天日志里除 `log.persist.fail / readBack / read-fail` 之外什么都没有 —— 等于日志系统
+ * 没真正跑起来，还会带偏排障。
+ *
+ * 根因（本地插桩实测，非推断）：
+ *   1. `dsh-log` 的 `persistSwitch()` 只调 `writeText`，**不会建父目录**；而写日志那条路
+ *      （`writeBatch`）自己会先 `mkdir`。所以"没写过日志之前" `<DSH_HOME>/logs` 并不存在。
+ *   2. `loadSwitch()` 把「开关文件不存在」和「读坏了」归成同一条错误路径：`readText` 在目录
+ *      不存在时抛 ENOENT → 落 catch → 记一条 `readBack / read-fail` warn。
+ *   3. 于是**每次启动读开关都记一条误报**，且首次 `setSwitch()` 也会失败 —— 更糟的是
+ *      `persistSwitch()` 把异常吞掉（调用方拿到"成功"，磁盘上什么都没有）。
+ *
+ * 修法：装配时 `mkdir` 日志目录（recursive），再让 store 用**自己的 API**把缺省开关写下去。
+ * 不自己拼路径写 JSON：开关文件的落点与形状归 store 管，自己写会变成第二份真源。
+ */
+async function prepareLogHome(store, cacheDir) {
+  if (!cacheDir) return
+  await mkdir(join(cacheDir), { recursive: true })
+  const file = join(cacheDir, store.config.switchFileName)
+  if (existsSync(file)) return
+  const defaults = store.getSwitchState()
+  await store.setSwitch(defaults.enabled, defaults.sampleRate)
+}
 
 const PACKAGE_DIR = dirname(dirname(fileURLToPath(import.meta.url)))
 
@@ -103,6 +129,14 @@ export function apply(ctx) {
 
   const registry = new Map()
   registerHostLogPhones(registry, hostLog)
+
+  // 日志目录 + 开关文件在装配时就备好：不做的话，首次运行读开关会记一条 readBack 误报，
+  // 且首次 setSwitch 会因父目录不存在而静默失败（详见 prepareLogHome 注释）
+  const logCacheDir = join(homeDir, 'logs')
+  const logHomeReady = prepareLogHome(hostLog.store, logCacheDir)
+  if (logHomeReady && typeof logHomeReady.catch === 'function') {
+    logHomeReady.catch(function () { /* 备目录失败不阻断装配：store 自己会记 persistSwitch/write-fail */ })
+  }
 
   const update = createHostUpdate(
     { ctx: ctx, logCtx: { fire: function (level, event, fields) { return hostLog.store.log(level, event, fields) } }, readerOverrides: { runningVersion: runningVersion } },
