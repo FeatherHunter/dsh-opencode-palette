@@ -293,6 +293,11 @@ async function main() {
     // 宿主半运行时依赖：日志系统（dsh-log）。更新系统不进 dependencies——它的 dist 已随包 vendor
     // 到 lib/vendor/dsh-plugin-update（原因见该目录头部注释），再声明一份只会装一份用不到的东西。
     dependencies: { 'dsh-log': '0.2.1' },
+    // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
+    // 下界 = 本仓开源当天的 DSH 现行版（0.1.0-rc.6，2026-08-13 发布；本仓首提交 2026-08-15），
+    // 上界钉在 0.1.x 线。npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
+    // 市场侧用 includePrerelease 判定，故 0.1.x 的预发布版（含 0.1.5-rc.1）都在范围内。
+    engines: { dsh: '>=0.1.0-rc.6 <0.2.0-0' },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
       client: {
