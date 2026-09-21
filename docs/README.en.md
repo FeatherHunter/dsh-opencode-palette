@@ -29,15 +29,15 @@ opencode's 37 classic themes are loved by developers everywhere, plus a native l
 
 **👇 This is what it looks like after install and restart (opencode theme).**
 
-<img src="../showcase/opencode调色板opencode风格主页面-en.png" width="640" alt="Opencode Palette — overview (opencode theme)" style="border:1px solid #30363d;border-radius:6px">
+![Opencode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png)
 
 **👇 Settings panel: 38 themes grouped by color family, search and switch.**
 
-<img src="../showcase/settings-opencode-en.png" width="640" alt="Opencode Palette — settings panel (grouped by color family)" style="border:1px solid #30363d;border-radius:6px">
+![Opencode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png)
 
 **👇 How another theme feels.**
 
-<img src="../showcase/overview-tokyonight-en.png" width="640" alt="Opencode Palette — overview (Tokyo Night theme)" style="border:1px solid #30363d;border-radius:6px">
+![Opencode Palette — overview (Tokyo Night theme)](../showcase/overview-tokyonight-en.png)
 
 </div>
 

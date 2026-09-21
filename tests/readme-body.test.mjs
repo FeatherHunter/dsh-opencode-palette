@@ -194,7 +194,8 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   const en = bodyShape(EN)
   assert.deepEqual(zh, en, '中英主体结构应逐块同形，一侧多一句就红')
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
-  assert.equal(zh.filter((x) => x === 'IMG').length, 3, 'showcase 应恰好三张真机截图')
+  assert.equal(zh.filter((x) => x === 'IMG').length, 0, 'showcase 截图必须走 markdown 语法：市场详情页的渲染器把原始 HTML 整段丢弃，<img> 在那边一张都不显示')
+  assert.equal(zh.filter((x) => x === 'FIG').length, 4, 'showcase 应恰好三张真机截图 + THEMES 一张色带图')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
   assert.equal(zh.filter((x) => x === 'BULLET').length, 0, 'EXTENSIONS 与 UPGRADE 都已不用 bullet（2026-09-18 起主体内应无 `- ` 列表项）')
   assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
@@ -216,8 +217,8 @@ test('EXTENSIONS 与 THEMES：两段都居左（不再包 align="center" 的 div
 // 且原 caption 自称「浅色主题」而现有两张同位置截图实测主色都是深色（#081010 / #181820）。
 // 现在改引真实存在的中文 GitHub 图，caption 去掉不成立的「浅色」claim。
 test('showcase：中英各三张且都真实存在，第 3 张不再自称浅色概览', () => {
-  const zhImgs = [...ZH.matchAll(/<img src="(showcase\/[^"]+)"/g)].map((m) => m[1])
-  const enImgs = [...EN.matchAll(/<img src="\.\.\/(showcase\/[^"]+)"/g)].map((m) => m[1])
+  const zhImgs = [...ZH.matchAll(/!\[[^\]]*\]\((showcase\/[^)]+)\)/g)].map((m) => m[1])
+  const enImgs = [...EN.matchAll(/!\[[^\]]*\]\(\.\.\/(showcase\/[^)]+)\)/g)].map((m) => m[1])
   assert.equal(zhImgs.length, 3, '中文页 showcase 应三张')
   assert.equal(enImgs.length, 3, '英文页 showcase 应三张')
   // 第 1 张主界面：中英分别为对应版本的截图
