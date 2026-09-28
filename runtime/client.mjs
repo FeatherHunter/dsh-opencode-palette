@@ -130,6 +130,7 @@ const I18N = {
   'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
   // ── 检查更新（面板头行按钮 + 升级弹窗 + 待重启横幅）──
   updateCheck: { zh: '检查更新', en: 'Check for updates' },
+  updateHasNew: { zh: '有新版本', en: 'New version' },
   updateChecking: { zh: '检查中…', en: 'Checking…' },
   updateInstalling: { zh: '正在升级…', en: 'Updating…' },
   updateToVersion: { zh: '更新至 v{v}', en: 'Update to v{v}' },
@@ -718,8 +719,10 @@ export function createClient(slotTarget) {
           if (!props.update) return undefined
           setUpd(props.update.getState())
           const unsub = props.update.subscribe(function () { setUpd(props.update.getState()) })
-          // 打开面板静默读一次本地状态：只读、不联网（联网只在用户点按钮时发生）
-          props.update.readStatus()
+          // 打开面板自动联网检查一次（静默：只变按钮，不自动弹窗；失败静默保持原样）
+          // 待重启/安装中时控制器内部会跳过联网
+          if (typeof props.update.autoCheckOnOpen === 'function') props.update.autoCheckOnOpen()
+          else props.update.readStatus()
           return unsub
         }, [])
         const updState = upd
@@ -732,9 +735,9 @@ export function createClient(slotTarget) {
         const updLabel = function (s) {
           const which = buttonState(s)
           if (which === 'installing') return tr('updateInstalling')
-          if (which === 'checking') return tr('updateChecking')
           if (which === 'pending') return tr('updateRestart')
-          if (which === 'hasNew') return trf('updateToVersion', { v: s.latest })
+          if (which === 'hasNew') return tr('updateHasNew')
+          if (which === 'checking') return tr('updateChecking')
           return tr('updateCheck')
         }
         const copyManual = function () {
@@ -750,10 +753,10 @@ export function createClient(slotTarget) {
               disabled: !!(updState.checking || updState.installing),
               title: tr('updateCheck'),
               style: {
-                border: '1px solid ' + (updState.hasNew ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
+                border: '1px solid ' + (updState.hasNew ? 'var(--dsw-alias-state-error-primary)' : 'var(--dsw-alias-border-l1)'),
                 borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
-                background: updState.hasNew ? segOnBg : 'transparent',
-                color: updState.hasNew ? 'var(--dsw-alias-brand-primary)' : muted,
+                background: 'transparent',
+                color: updState.hasNew ? 'var(--dsw-alias-state-error-primary)' : muted,
                 fontFamily: 'var(--dsw-font-family)', whiteSpace: 'nowrap',
               },
             }, updLabel(updState))

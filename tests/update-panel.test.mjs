@@ -184,7 +184,63 @@ test('状态机：宿主不可用时整块降级，调用不抛错', async () =>
   assert.equal(panel.getState().available, false)
   assert.equal(await panel.readStatus(), null)
   assert.equal(await panel.check(), 'failed')
+  assert.equal(await panel.checkSilently(), 'failed')
+  assert.equal(await panel.autoCheckOnOpen(), null)
   assert.equal(await panel.install(), false)
+})
+
+test('状态机（#41）：静默检查有新版只变按钮、不自动弹窗', async () => {
+  const host = stubHost({
+    [PHONES.updateCheck]: reply(
+      snapshotOf({ latestVersion: '1.8.0', canInstall: true }),
+      { receipt: { checkId: 'chk-silent' } }
+    ),
+  })
+  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
+  const outcome = await panel.checkSilently()
+  assert.equal(outcome, 'new')
+  const state = panel.getState()
+  assert.equal(state.dialogOpen, false, '静默检查不得自动弹窗')
+  assert.equal(state.hasNew, true)
+  assert.equal(buttonState(state), 'hasNew')
+})
+
+test('状态机（#41）：静默检查失败静默、无新版不弹窗', async () => {
+  const failHost = stubHost({ [PHONES.updateCheck]: { ok: false, error: 'net-fail' } })
+  const failPanel = createUpdateController({ call: failHost.call, phones: PHONES, pollMs: 1000 })
+  assert.equal(await failPanel.checkSilently(), 'failed')
+  assert.equal(failPanel.getState().dialogOpen, false)
+  assert.equal(buttonState(failPanel.getState()), 'idle')
+
+  const latestHost = stubHost({
+    [PHONES.updateStatus]: reply(snapshotOf()),
+    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.7.2' })),
+  })
+  const panel2 = createUpdateController({ call: latestHost.call, phones: PHONES, pollMs: 1000 })
+  const outcome2 = await panel2.autoCheckOnOpen()
+  assert.equal(outcome2, 'latest')
+  assert.equal(panel2.getState().dialogOpen, false)
+})
+
+test('状态机（#41）：autoCheckOnOpen 先本地读再联网，待重启时跳过联网', async () => {
+  const host = stubHost({
+    [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', runningVersion: '1.7.2', blockedReason: 'pending-restart' })),
+    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'chk-nope' } }),
+  })
+  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
+  const outcome = await panel.autoCheckOnOpen()
+  assert.equal(outcome, null, '待重启时应跳过联网')
+  assert.equal(host.calls.filter((c) => c.phone === PHONES.updateCheck).length, 0, '待重启不得调联网电话')
+  assert.equal(panel.getState().pending, true)
+  assert.equal(buttonState(panel.getState()), 'pending')
+})
+
+test('纯函数（#41）：按钮优先级 正在升级 > 待重启 > 有新版本 > 检查中 > 空闲', () => {
+  assert.equal(buttonState({ installing: true, pending: true, hasNew: true, checking: true }), 'installing')
+  assert.equal(buttonState({ installing: false, pending: true, hasNew: true, checking: true }), 'pending')
+  assert.equal(buttonState({ installing: false, pending: false, hasNew: true, checking: true }), 'hasNew')
+  assert.equal(buttonState({ installing: false, pending: false, hasNew: false, checking: true }), 'checking')
+  assert.equal(buttonState({ installing: false, pending: false, hasNew: false, checking: false }), 'idle')
 })
 
 test('状态机：传输异常只记失败散列，不改状态机可用性', async () => {
@@ -447,7 +503,7 @@ test('渲染：宿主不可用时不渲染按钮（主题面板本身照常）',
   assert.ok(html.includes('opencode调色板'), '主题面板本身不受影响')
 })
 
-test('渲染：有新版 → 按钮变「更新至 v1.8.0」并弹出升级弹窗（含手工命令与复制）', async () => {
+test('渲染：有新版 → 按钮变红字「有新版本」并弹出升级弹窗（含手工命令与复制）', async () => {
   const panel = renderPanel({
     connection: fakeConnection({
       [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), {
@@ -458,7 +514,7 @@ test('渲染：有新版 → 按钮变「更新至 v1.8.0」并弹出升级弹�
   })
   await panel.controller.check()
   const html = panel.render()
-  assert.ok(html.includes('更新至 v1.8.0'), '按钮应显示目标版本')
+  assert.ok(html.includes('有新版本'), '按钮应变为红字“有新版本”')
   assert.ok(html.includes('发现新版本 v1.8.0'), '缺弹窗标题')
   assert.ok(html.includes('当前版本 v1.7.2 → 最新版本 v1.8.0'), '缺版本对照')
   assert.ok(html.includes('立即升级') && html.includes('稍后'), '缺动作按钮')

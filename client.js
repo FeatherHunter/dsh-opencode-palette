@@ -9697,10 +9697,11 @@ __mods["channel"] = { CHANNEL, ENDPOINT, ROUTE_PATH, PLUGIN_ID, PHONE_PREFIX, TA
 /**
  * runtime/update-panel.mjs — 面板「检查更新」的状态机（纯逻辑：不碰 React、不碰 DOM、不碰全局宿主）
  *
- * 三条口径（沿用更新包 README 与规格）：
+ * 三条口径（沿用更新包 README 与规格，#41 起进面板自动查一次）：
  *   1. 「待重启」只认宿主当场算出的原因码 pending-restart，不自己比较版本号；
- *   2. 打开面板只静默读一次本地状态（只读、不联网）；联网只在用户亲手点「检查更新」时发生一次；
- *   3. 有新版才开弹窗；无新版只回一句「已是最新」，不弹窗、不打扰。
+ *   2. 打开面板自动联网检查一次（静默：只变按钮，不自动弹窗）；失败/无新版静默保持原样；
+ *      用户亲手点「检查更新」/红色「有新版本」时才允许弹窗；
+ *   3. 有新版只变按钮（红字“有新版本”），点按钮才开弹窗；无新版只回一句「已是最新」，不弹窗、不打扰。
  *
  * 电话名与轮询间隔由调用方从更新包的客户端入口派生后传进来（本文件不写字面量）。
  */
@@ -9726,12 +9727,13 @@ function readSnapshot(res) {
   }
 }
 
-/** 按钮状态：UI 据此选词条，不在渲染里堆条件。 */
+/** 按钮状态：UI 据此选词条，不在渲染里堆条件。
+ * 优先级（#41 用户拍板）：正在升级 > 待重启 > 有新版本 > 检查中 > 空闲。 */
 function buttonState(state) {
   if (state.installing) return 'installing'
-  if (state.checking) return 'checking'
   if (state.pending) return 'pending'
   if (state.hasNew) return 'hasNew'
+  if (state.checking) return 'checking'
   return 'idle'
 }
 
@@ -9897,6 +9899,39 @@ function createUpdateController(deps) {
     }
   }
 
+  /** 进面板时的静默检查（联网一次，但只变按钮、不自动弹窗）。
+   * 回 'new' | 'latest' | 'failed' | 'busy'。失败静默：不弹窗、不置 failure 文案。 */
+  async function checkSilently() {
+    if (!state.available) return 'failed'
+    if (state.checking || state.installing) return 'busy'
+    // 磁盘已有新版（待重启）无需再联网；已有新版凭证也无需重复联网
+    if (state.pending) return 'latest'
+    if (state.hasNew && state.checkId) return 'new'
+    patch({ checking: true, failure: null })
+    try {
+      const res = await invoke(phones.updateCheck, {})
+      patch({ checking: false })
+      if (!res || res.ok !== true) return 'failed'
+      const facts = absorb(res)
+      if (facts.canInstall) return 'new'
+      return 'latest'
+    } catch (e) {
+      patch({ checking: false })
+      transportFail(phones.updateCheck, 'throw', e)
+      return 'failed'
+    }
+  }
+
+  /** 打开面板时调用：先本地读一次，再静默联网查一次（#41）。
+   * 待重启/安装中/检查中时跳过联网，避免打扰。 */
+  async function autoCheckOnOpen() {
+    await readStatus()
+    if (!state.available) return null
+    if (state.pending || state.installing || state.checking) return null
+    if (state.hasNew && state.checkId) return 'new'
+    return checkSilently()
+  }
+
   /** 弹窗里的「立即升级」。 */
   async function install() {
     if (!state.available || state.installing) return false
@@ -9934,6 +9969,8 @@ function createUpdateController(deps) {
     },
     readStatus: readStatus,
     check: check,
+    checkSilently: checkSilently,
+    autoCheckOnOpen: autoCheckOnOpen,
     install: install,
     openDialog: function () { patch({ dialogOpen: true }) },
     closeDialog: function () { patch({ dialogOpen: false, failure: null }) },
@@ -10088,6 +10125,7 @@ const I18N = {
   'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
   // ── 检查更新（面板头行按钮 + 升级弹窗 + 待重启横幅）──
   updateCheck: { zh: '检查更新', en: 'Check for updates' },
+  updateHasNew: { zh: '有新版本', en: 'New version' },
   updateChecking: { zh: '检查中…', en: 'Checking…' },
   updateInstalling: { zh: '正在升级…', en: 'Updating…' },
   updateToVersion: { zh: '更新至 v{v}', en: 'Update to v{v}' },
@@ -10676,8 +10714,10 @@ function createClient(slotTarget) {
           if (!props.update) return undefined
           setUpd(props.update.getState())
           const unsub = props.update.subscribe(function () { setUpd(props.update.getState()) })
-          // 打开面板静默读一次本地状态：只读、不联网（联网只在用户点按钮时发生）
-          props.update.readStatus()
+          // 打开面板自动联网检查一次（静默：只变按钮，不自动弹窗；失败静默保持原样）
+          // 待重启/安装中时控制器内部会跳过联网
+          if (typeof props.update.autoCheckOnOpen === 'function') props.update.autoCheckOnOpen()
+          else props.update.readStatus()
           return unsub
         }, [])
         const updState = upd
@@ -10690,9 +10730,9 @@ function createClient(slotTarget) {
         const updLabel = function (s) {
           const which = buttonState(s)
           if (which === 'installing') return tr('updateInstalling')
-          if (which === 'checking') return tr('updateChecking')
           if (which === 'pending') return tr('updateRestart')
-          if (which === 'hasNew') return trf('updateToVersion', { v: s.latest })
+          if (which === 'hasNew') return tr('updateHasNew')
+          if (which === 'checking') return tr('updateChecking')
           return tr('updateCheck')
         }
         const copyManual = function () {
@@ -10708,10 +10748,10 @@ function createClient(slotTarget) {
               disabled: !!(updState.checking || updState.installing),
               title: tr('updateCheck'),
               style: {
-                border: '1px solid ' + (updState.hasNew ? 'var(--dsw-alias-brand-primary)' : 'var(--dsw-alias-border-l1)'),
+                border: '1px solid ' + (updState.hasNew ? 'var(--dsw-alias-state-error-primary)' : 'var(--dsw-alias-border-l1)'),
                 borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
-                background: updState.hasNew ? segOnBg : 'transparent',
-                color: updState.hasNew ? 'var(--dsw-alias-brand-primary)' : muted,
+                background: 'transparent',
+                color: updState.hasNew ? 'var(--dsw-alias-state-error-primary)' : muted,
                 fontFamily: 'var(--dsw-font-family)', whiteSpace: 'nowrap',
               },
             }, updLabel(updState))
