@@ -514,3 +514,94 @@ test('候选分级：预设恒在（置顶 + 兜底），本机字体在后并�
   assert.deepEqual(fallback.map((c) => c.key), Object.keys(FONTS), '读不到清单时应退成预设列表')
   assert.ok(fallback.every((c) => c.isPreset), '回退态不含本机分区')
 })
+
+// ── DSH 0.1.7 双兼容修复（#39 按 #38/#40 落地）：只断言外部行为（tokens/css 文本），不断言内部循环 ──
+
+test('DSH 0.1.7 F1 链接：--dsw-alias-link 跟主题走且高特异度规则在场（老裸 a 保留）', () => {
+  const a = renderTheme('opencode', TYPO)
+  const b = renderTheme('dracula', TYPO)
+  assert.equal(a.tokens['--dsw-alias-link'].dark, '#FAB283', 'opencode 链接应为主题桃')
+  assert.equal(b.tokens['--dsw-alias-link'].dark, '#8BE9FD', 'dracula 链接应为主题青')
+  assert.notEqual(a.tokens['--dsw-alias-link'].dark, '#3B82F6', '不得回退宿主默认蓝')
+  assert.notEqual(
+    a.tokens['--dsw-alias-link'].dark, b.tokens['--dsw-alias-link'].dark, '切主题链接必须变化'
+  )
+  assert.ok(a.css.includes('a{color:'), '老裸 a 规则保留（老版继续命中）')
+  assert.ok(
+    a.css.includes('.markdown a, .markdown .fileLink{color:#FAB283;}'),
+    '高特异度链接规则缺失或色值不对'
+  )
+  assert.ok(a.tokens['--dsw-alias-label-primary-bluish'], '老 bluish 保留')
+  assert.ok(a.tokens['--shiki-token-link'], 'shiki-link 保留')
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const r = renderTheme(name, TYPO)
+    assert.ok(r.tokens['--dsw-alias-link'], name + ' 缺 --dsw-alias-link')
+  }
+})
+
+test('DSH 0.1.7 F2 新头部：--dsl-code-block-background 与横幅同源、与块底拉开台阶', () => {
+  const r = renderTheme('opencode', TYPO)
+  const t = (k) => r.tokens[k].dark
+  assert.equal(t('--dsl-code-block-background'), '#1E1E1E', '新头部应拿浮起层')
+  assert.equal(t('--dsw-alias-markdown-code-block-banner'), '#1E1E1E', '老横幅保留且同值')
+  assert.equal(t('--dsw-alias-markdown-code-block'), '#141414', '块底为中层')
+  assert.notEqual(t('--dsl-code-block-background'), t('--dsw-alias-markdown-code-block'), '头底台阶被压平')
+  // 透明主题：背景类一律跳过（含新头部），文字保留
+  const lucent = renderTheme('lucent-orng', TYPO)
+  assert.equal(lucent.tokens['--dsl-code-block-background'], undefined, '透明主题不得写新头部背景')
+  assert.equal(lucent.tokens['--dsw-alias-bg-base'], undefined, '透明主题不得写页面底')
+  assert.ok(lucent.tokens['--dsw-alias-label-primary'], '透明主题文字仍保留')
+})
+
+test('DSH 0.1.7 F3 菜单：不透明菜单退出，材料变量永不输出', () => {
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const r = renderTheme(name, TYPO)
+    assert.equal(r.tokens['--dsw-specific-menu'], undefined, name + ' 不应再输出不透明菜单底')
+    assert.equal(r.tokens['--dsw-menu-surface-fill'], undefined, name + ' 不得碰菜单材料')
+    assert.equal(r.tokens['--dsw-menu-backdrop-filter'], undefined, name + ' 不得碰毛玻璃滤镜')
+  }
+})
+
+test('DSH 0.1.7 F4 新卡片字号：随字号档缩放，默认还原上游密度', () => {
+  const css13 = buildTypographyCss({ mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
+  assert.ok(
+    css13.includes('--dsw-font-markdown-code-block:11px/19px var(--ds-font-family-code);'),
+    'size=13 默认应恰好还原上游 11px/19px'
+  )
+  const css11 = buildTypographyCss({ mode: 'mono', size: 11, fontKey: 'JetBrains Mono' })
+  assert.ok(css11.includes('--dsw-font-markdown-code-block:9px/17px var(--ds-font-family-code);'), 'size=11 应推导 9px/17px')
+  const css18 = buildTypographyCss({ mode: 'mono', size: 18, fontKey: 'JetBrains Mono' })
+  assert.ok(css18.includes('--dsw-font-markdown-code-block:16px/24px var(--ds-font-family-code);'), 'size=18 应推导 16px/24px')
+  const sys = renderTheme(SYSTEM_THEME, TYPO)
+  assert.ok(sys.css.includes('--dsw-font-markdown-code-block:11px/19px'), 'system 只排印也应带新卡片字号')
+})
+
+test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛异常', () => {
+  const r = renderTheme('opencode', TYPO)
+  const t = (k) => r.tokens[k] && r.tokens[k].dark
+  assert.equal(t('--dsw-alias-code-diff-added'), '#4FD6BE', 'code-diff-added 应直配 diffAdded')
+  assert.equal(t('--dsw-alias-code-diff-deleted'), '#C53B53', 'code-diff-deleted 应直配 diffRemoved')
+  assert.equal(t('--dsw-alias-file-diff-added-bg'), '#20303B', 'file-diff-added-bg 应直配 diffAddedBg')
+  assert.equal(t('--dsw-alias-file-diff-added-gutter'), '#1B2B34', 'file-diff-added-gutter 应直配行号槽')
+  assert.equal(t('--dsw-alias-file-diff-added-marker'), '#4FD6BE', 'file-diff-added-marker 复用前景')
+  assert.equal(t('--dsw-alias-file-diff-deleted-bg'), '#37222C', 'file-diff-deleted-bg 应直配 diffRemovedBg')
+  assert.equal(t('--dsw-alias-file-diff-deleted-gutter'), '#2D1F26', 'file-diff-deleted-gutter 应直配行号槽')
+  assert.equal(t('--dsw-alias-file-diff-deleted-marker'), '#C53B53', 'file-diff-deleted-marker 复用前景')
+  assert.equal(t('--dsw-alias-state-idle-primary'), '#5C9CF5', 'state-idle 应直配 secondary')
+  assert.equal(t('--dsw-alias-menu-icon'), '#808080', 'menu-icon 应直配 textMuted')
+  assert.equal(t('--dsw-alias-toast-label'), '#EEEEEE', 'toast-label 应直配 text')
+  assert.equal(t('--dsw-alias-tooltip-key-bg'), '#1E1E1E', 'tooltip-key-bg 应直配 backgroundElement')
+  // 缺槽主题（amoled 等 4 个无 diff/secondary）：跳过但不抛异常，中性项仍在
+  const am = renderTheme('amoled', TYPO)
+  assert.equal(am.tokens['--dsw-alias-code-diff-added'], undefined, '缺槽应跳过 diff，不产脏值')
+  assert.equal(am.tokens['--dsw-alias-state-idle-primary'], undefined, '缺 secondary 应跳过')
+  assert.ok(am.tokens['--dsw-alias-menu-icon'], '中性 menu-icon 缺槽主题仍应有')
+  assert.ok(am.tokens['--dsw-alias-toast-label'], '中性 toast-label 缺槽主题仍应有')
+  // 透明主题：透明源跳过，非透明中性保留
+  const lucent = renderTheme('lucent-orng', TYPO)
+  assert.equal(lucent.tokens['--dsw-alias-file-diff-added-bg'], undefined, '透明源应跳过')
+  assert.equal(lucent.tokens['--dsw-alias-tooltip-key-bg'], undefined, '透明浮起面应跳过')
+  assert.ok(lucent.tokens['--dsw-alias-menu-icon'], '透明主题中性图标仍保留')
+})

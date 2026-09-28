@@ -61,6 +61,8 @@ export function buildTypographyCss(typography) {
     'body,body[data-ds-dark-theme]{',
     '--dsw-font-family:' + bodyFont + ';',
     '--ds-font-family-code:' + codeFont + ';',
+    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–18 档）
+    '--dsw-font-markdown-code-block:' + (size - 2) + 'px/' + (size + 6) + 'px var(--ds-font-family-code);',
     '--dsw-font-markdown-base:' + size + 'px/' + lh + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-base-font-size:' + size + 'px;',
     '--dsw-font-markdown-base-line-height:' + lh + 'px;',

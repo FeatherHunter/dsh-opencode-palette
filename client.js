@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.0.2 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.0.3 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -961,7 +961,8 @@ const TOKEN_MAP = [
   ['--dsw-alias-bg-overlay', 'background'],
   ['--dsw-alias-bg-layer-3', 'background'],
   ['--dsw-specific-sidebar-fill', 'background'],
-  ['--dsw-specific-menu', 'background'],
+  // F3 退出：--dsw-specific-menu 不透明底杀毛玻璃（DSH 0.1.7 起半透明材料 + web-styling 禁止覆盖菜单材料）
+  // 老版影响为菜单回默认、可读，不算功能回归；菜单材料/滤镜变量永不输出。
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
   ['--dsw-alias-markdown-code-segment-selected', 'backgroundElement'],
   // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
@@ -980,6 +981,8 @@ const TOKEN_MAP = [
   ['--dsw-specific-login-input', 'backgroundPanel'],
   ['--dsw-alias-markdown-code-block', 'backgroundPanel'],
   ['--dsw-alias-markdown-code-block-banner', 'backgroundElement'],
+  // F2 新头部（DSH 0.1.7 CodeCard.header 只读此变量，不读 banner token；老横幅路径保留，老版继续命中）
+  ['--dsl-code-block-background', 'backgroundElement'],
   ['--dsw-alias-toast-bg', 'backgroundElement'],
   ['--dsw-alias-tooltip-bg', 'backgroundElement'],
   ['--dsw-alias-button-elevated-fill', 'backgroundPanel'],
@@ -991,6 +994,8 @@ const TOKEN_MAP = [
   ['--dsw-alias-label-tertiary', 'textMuted'],
   ['--dsw-alias-label-caption', 'textMuted'],
   ['--dsw-alias-label-primary-bluish', 'markdownLink'],
+  // F1 链接（上游 .markdown a 只读此变量；老 bluish/shiki-link/裸 a 规则全部保留，加法兼容）
+  ['--dsw-alias-link', 'markdownLink'],
   // 品牌与状态（含旧报告 R2/R3 修复后迁入派生的 invert/dimmed/ghost，见 §2）
   ['--dsw-alias-brand-primary', 'primary'],
   ['--dsw-alias-brand-text', 'primary'],
@@ -1009,6 +1014,20 @@ const TOKEN_MAP = [
   ['--dsw-alias-border-l3', 'borderActive'],
   ['--dsw-alias-border-l4', 'borderActive'],
   ['--dsw-alias-button-ghost-active-border', 'borderActive'],
+  // F5 新增缺口（DSH 0.1.7 rc.1/rc.2 design-platform diff 全量直配；缺槽/透明靠 usable() 跳过，不污染）
+  // diff 系取增/删前景与背景槽直配；state-idle 取中性次级（缺槽即跳过）；菜单/toast/tooltip 取中性直配。
+  ['--dsw-alias-code-diff-added', 'diffAdded'],
+  ['--dsw-alias-code-diff-deleted', 'diffRemoved'],
+  ['--dsw-alias-file-diff-added-bg', 'diffAddedBg'],
+  ['--dsw-alias-file-diff-added-gutter', 'diffAddedLineNumberBg'],
+  ['--dsw-alias-file-diff-added-marker', 'diffAdded'],
+  ['--dsw-alias-file-diff-deleted-bg', 'diffRemovedBg'],
+  ['--dsw-alias-file-diff-deleted-gutter', 'diffRemovedLineNumberBg'],
+  ['--dsw-alias-file-diff-deleted-marker', 'diffRemoved'],
+  ['--dsw-alias-state-idle-primary', 'secondary'],
+  ['--dsw-alias-menu-icon', 'textMuted'],
+  ['--dsw-alias-toast-label', 'text'],
+  ['--dsw-alias-tooltip-key-bg', 'backgroundElement'],
   // 内联代码无芯片（opencode TUI 风格，固定 transparent）
   ['--dsw-alias-markdown-inline-code', '__transparent__'],
 ]
@@ -1078,6 +1097,8 @@ const SHIKI_MAP = [
 const CSS_RULES = [
   { selector: 'body h1,body h2,body h3,body h4,body h5,body h6', prop: 'color', from: 'markdownHeading' },
   { selector: 'a', prop: 'color', from: 'markdownLink' },
+  // F1 链接：与上游 MarkdownText.module.css 选择器镜像（.markdown a 0,1,1 碾压裸 a 0,0,1；老 a 规则保留，老版继续命中）
+  { selector: '.markdown a, .markdown .fileLink', prop: 'color', from: 'markdownLink' },
   { selector: 'code:not(pre code)', prop: 'color', from: 'markdownCode' },
   { selector: 'em', prop: 'color', from: 'markdownEmph' },
   { selector: 'strong', prop: 'color', from: 'markdownStrong' },
@@ -1498,6 +1519,8 @@ function buildTypographyCss(typography) {
     'body,body[data-ds-dark-theme]{',
     '--dsw-font-family:' + bodyFont + ';',
     '--ds-font-family-code:' + codeFont + ';',
+    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–18 档）
+    '--dsw-font-markdown-code-block:' + (size - 2) + 'px/' + (size + 6) + 'px var(--ds-font-family-code);',
     '--dsw-font-markdown-base:' + size + 'px/' + lh + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-base-font-size:' + size + 'px;',
     '--dsw-font-markdown-base-line-height:' + lh + 'px;',
@@ -9953,7 +9976,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.2'
+const PALETTE_VERSION = '2.0.3'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
