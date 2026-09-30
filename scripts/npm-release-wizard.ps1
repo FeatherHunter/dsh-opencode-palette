@@ -1,4 +1,4 @@
-﻿# publish-wizard.ps1 — dsh-opencode-palette npm 官方源发布向导（人类交互终端前台运行）
+# publish-wizard.ps1 — dsh-opencode-palette npm 官方源发布向导（人类交互终端前台运行）
 #
 # 对应技能：D:\2Study\StudyNotes\SKILLS\npm-publish（SKILL.md §3→§4→§5）
 # AI 已完成：§0 前置三查、§1 包就绪检查、§2 dry-run、构建、测试、pack、tag 推送。
@@ -86,7 +86,10 @@ if ($pubCode -ne 0) {
   Fail "publish 退出码 $pubCode。先读报错码再动手："
   Say '  EOTP（无授权链接）→ 确认本窗口是交互终端、输出未被重定向；'
   Say '  E403 Two-factor…required → 走上方网页审批流，或 npm publish --otp=<6位码>；'
-  Say '  E403/E409 版本重复 → 升 version；E401/ENEEDAUTH → 回 Stage 1 重登录。'
+  Say '  E409 "previously staged version" → 上次传完没走完浏览器审批，版本被暂存（npm view 还看不到）。'
+  Say '       不必升版本号：直接重跑本向导，授权后记得回终端按回车；要清暂存用 npm unpublish <name>@<ver>。'
+  Say '  E403/E409 "previously published versions" → 该版本已正式发布过，这时才升 version；'
+  Say '  E401/ENEEDAUTH → 回 Stage 1 重登录。'
   exit 1
 }
 Ok "publish 命令成功（出现 + $Name@$Ver 即发布成功）。"

@@ -267,6 +267,205 @@ test('纯函数：readSnapshot 只认宿主当场算出的 pending-restart', () 
   assert.equal(readSnapshot(null).canInstall, false)
 })
 
+// ───────────────────────── 一·补 2.0.7：可见结果与关键节点日志 ─────────────────────────
+
+test('2.0.7 可见结果：手动查更新失败时给出弹窗外的可见提示（不再是点了没反应）', async () => {
+  const records = []
+  // 更新包的失败形状：error 是字符串码，不是对象
+  const host = stubHost({ [PHONES.updateCheck]: { ok: false, error: 'invalid-release', errorKind: 'invalid-release' } })
+  const panel = createUpdateController({
+    call: host.call, phones: PHONES, pollMs: 1000,
+    log: (level, event, fields) => records.push({ level, event, fields }),
+  })
+  assert.equal(await panel.check(), 'failed')
+  assert.equal(panel.getState().dialogOpen, false, '失败不弹窗')
+  assert.deepEqual(panel.getState().notice, { key: 'updateCheckFail', kind: 'error' }, '失败必须留下可见提示')
+  const fail = records.filter((r) => r.event === 'update.check.fail')
+  assert.equal(fail.length, 1)
+  assert.equal(fail[0].fields.code, 'invalid-release', '码要原样记，别记成 unknown')
+  assert.equal(fail[0].fields.trigger, 'manual')
+  assert.equal(fail[0].fields.errorHash, '5792c4da', '散列与真机日志同源（djb2 前 8 位）')
+  const ok = records.filter((r) => r.event === 'update.check.ok')
+  assert.equal(ok.length, 0, '失败不该记成功节点')
+})
+
+test('2.0.7 可见结果：自动检查失败保持静默（不打扰），但仍记关键节点', async () => {
+  const records = []
+  const host = stubHost({
+    [PHONES.updateStatus]: reply(snapshotOf()),
+    [PHONES.updateCheck]: { ok: false, error: 'check-failed', errorKind: 'check-failed' },
+  })
+  const panel = createUpdateController({
+    call: host.call, phones: PHONES, pollMs: 1000,
+    log: (level, event, fields) => records.push({ level, event, fields }),
+  })
+  await panel.readStatus()
+  assert.equal(await panel.checkSilently(), 'failed')
+  assert.equal(panel.getState().notice, null, '自动检查失败静默：不弹窗、不留提示')
+  const fail = records.filter((r) => r.event === 'update.check.fail')
+  assert.equal(fail.length, 1)
+  assert.equal(fail[0].fields.trigger, 'auto')
+  assert.equal(fail[0].fields.code, 'check-failed')
+})
+
+test('2.0.7 可见结果：升级失败留提示，成功但没进待重启也留提示', async () => {
+  const records = []
+  const failed = createUpdateController({
+    call: stubHost({ [PHONES.updateInstall]: { ok: false, error: 'install-failed', errorKind: 'install-failed' } }).call,
+    phones: PHONES, pollMs: 1000,
+    log: (level, event, fields) => records.push({ level, event, fields }),
+  })
+  failed.openDialog()
+  // 没有凭证时 install 直接返回 false，不该记节点
+  assert.equal(await failed.install(), false)
+  assert.equal(records.filter((r) => r.event === 'update.install.start').length, 0, '没凭证不该走到安装')
+
+  const host = stubHost({
+    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'ck-1' } }),
+    [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0' })),
+    [PHONES.updateInstall]: { ok: false, error: 'install-failed', errorKind: 'install-failed' },
+  })
+  const panel = createUpdateController({
+    call: host.call, phones: PHONES, pollMs: 1000,
+    log: (level, event, fields) => records.push({ level, event, fields }),
+  })
+  await panel.check()
+  assert.equal(await panel.install(), false)
+  assert.deepEqual(panel.getState().notice, { key: 'updateFailInstall', kind: 'error' })
+  assert.equal(records.filter((r) => r.event === 'update.install.start').length, 1)
+  const installFail = records.filter((r) => r.event === 'update.install.fail')
+  assert.equal(installFail.length, 1)
+  assert.equal(installFail[0].fields.code, 'install-failed')
+})
+
+test('2.0.7 可见结果：升级成功但没进待重启时，用兜底提示替掉「没动静」', async () => {
+  const records = []
+  const host = stubHost({
+    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'ck-1' } }),
+    // 装完仍是旧版在跑、且宿主没判 pending-restart（异常路径）：面板必须自己说句话
+    [PHONES.updateInstall]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', blockedReason: null })),
+  })
+  const panel = createUpdateController({
+    call: host.call, phones: PHONES, pollMs: 1000,
+    log: (level, event, fields) => records.push({ level, event, fields }),
+  })
+  await panel.check()
+  assert.equal(await panel.install(), true)
+  assert.deepEqual(panel.getState().notice, { key: 'updateRestartHint', kind: 'warn' })
+  const ok = records.filter((r) => r.event === 'update.install.ok')
+  assert.equal(ok.length, 1)
+  assert.equal(ok[0].fields.pending, false)
+})
+
+test('2.0.7 接线：探针阈值与更新包 service.js 的同名常量逐字一致（防两处走偏）', async () => {
+  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+  const vendored = read('runtime/vendor/dsh-plugin-update/service.js')
+  assert.ok(vendored.includes('const MAX_METADATA_BYTES = 256 * 1024;'), '更新包的体积上限变了：探针要跟着改')
+  assert.ok(vendored.includes('const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";'), '更新包的完整性正则变了：探针要跟着改')
+  assert.equal(hostModule.PROBE_LIMITS.maxBytes, 256 * 1024)
+  assert.equal(hostModule.PROBE_LIMITS.integrityPattern, '^sha512-[A-Za-z0-9+/]{86}==$')
+})
+
+test('2.0.7 探针：把 invalid-release 的真实原因还原成可读事实', async () => {
+  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+  const manifest = {
+    name: 'dsh-opencode-palette',
+    version: '2.0.7',
+    engines: { dsh: '>=0.2.0-rc.1' },
+    dist: {
+      tarball: 'https://registry.npmjs.org/dsh-opencode-palette/-/dsh-opencode-palette-2.0.7.tgz',
+      integrity: 'sha512-' + 'A'.repeat(86) + '==',
+    },
+  }
+  const fakeFetch = (body, init) => async () => ({
+    ok: true, status: 200,
+    headers: { get: () => null },
+    text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
+    ...(init || {}),
+  })
+
+  const good = await hostModule.probeRelease(fakeFetch(manifest), {})
+  assert.equal(good.reason, 'valid', '合规清单应判 valid')
+  assert.equal(good.stage, 'ok')
+  assert.ok(good.bytes > 0)
+
+  const truncated = await hostModule.probeRelease(fakeFetch('{"name":"dsh-opencode-palette","vers'), {})
+  assert.equal(truncated.reason, 'json-parse', '被截断的响应要认出来（这正是 invalid-release 的兜底来源）')
+  assert.equal(truncated.stage, 'json')
+
+  const mirrored = await hostModule.probeRelease(fakeFetch(Object.assign({}, manifest, {
+    dist: { tarball: 'https://registry.npmmirror.com/dsh-opencode-palette/-/dsh-opencode-palette-2.0.7.tgz', integrity: manifest.dist.integrity },
+  })), {})
+  assert.equal(mirrored.reason, 'tarball-origin', '换了源的 tarball 要认出是源不符')
+  assert.equal(mirrored.detail, 'https://registry.npmmirror.com')
+
+  const noIntegrity = await hostModule.probeRelease(fakeFetch(Object.assign({}, manifest, {
+    dist: { tarball: manifest.dist.tarball },
+  })), {})
+  assert.equal(noIntegrity.reason, 'integrity-missing')
+
+  const dead = await hostModule.probeRelease(async () => { throw new Error('getaddrinfo ENOTFOUND registry.npmjs.org') }, {})
+  assert.equal(dead.reason, 'fetch-threw', '取不到网络也要给一句人话')
+  assert.match(dead.detail, /ENOTFOUND/)
+
+  const notOk = await hostModule.probeRelease(fakeFetch(manifest, { ok: false, status: 503 }), {})
+  assert.equal(notOk.reason, 'not-ok')
+  assert.equal(notOk.httpStatus, 503)
+})
+
+test('2.0.7 重试：查更新失败自动重试一次，第二次成功就不再打扰用户', async () => {
+  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+  const records = []
+  let tries = 0
+  const handler = async () => {
+    tries += 1
+    if (tries === 1) return { ok: false, error: 'invalid-release', errorKind: 'invalid-release' }
+    return { ok: true, snapshot: { runningVersion: '2.0.6', canInstall: true, latestVersion: '2.0.7' } }
+  }
+  const wrapped = hostModule.wrapUpdateCheck(handler, {
+    log: (level, event, fields) => records.push({ level, event, fields }),
+    pluginId: 'dsh-opencode-palette',
+  })
+  const out = await wrapped({})
+  assert.equal(tries, 2, '必须重试一次')
+  assert.equal(out.ok, true, '第二次成功就回成功，用户不该看到失败')
+  const retry = records.filter((r) => r.event === 'update.check.retry')
+  assert.equal(retry.length, 2)
+  assert.deepEqual(retry.map((r) => r.fields.ok), [false, true])
+  assert.equal(retry[0].fields.reason, 'invalid-release', '码要原样带出，别写成 unknown')
+  assert.equal(records.filter((r) => r.event === 'update.check.probe').length, 0, '救回来了就不必跑探针')
+})
+
+test('2.0.7 重试：两次都失败才跑探针，并把现象落成日志', async () => {
+  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+  const records = []
+  const wrapped = hostModule.wrapUpdateCheck(async () => ({ ok: false, error: 'invalid-release', errorKind: 'invalid-release' }), {
+    log: (level, event, fields) => records.push({ level, event, fields }),
+    probe: async () => ({ stage: 'json', httpStatus: 200, bytes: 40, reason: 'json-parse', detail: '{"name":"dsh-open' }),
+    pluginId: 'dsh-opencode-palette',
+  })
+  const out = await wrapped({})
+  assert.equal(out.ok, false, '两次都失败照原样回失败')
+  const probe = records.filter((r) => r.event === 'update.check.probe')
+  assert.equal(probe.length, 1)
+  assert.equal(probe[0].fields.reason, 'json-parse')
+  assert.equal(probe[0].fields.httpStatus, 200)
+  assert.equal(probe[0].fields.stage, 'json')
+})
+
+test('2.0.7 重试：第一次就成功时不重试、不跑探针', async () => {
+  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+  const records = []
+  let tries = 0
+  const wrapped = hostModule.wrapUpdateCheck(async () => { tries += 1; return { ok: true, snapshot: {} } }, {
+    log: (level, event, fields) => records.push({ level, event, fields }),
+    probe: async () => { throw new Error('不该跑探针') },
+  })
+  await wrapped({})
+  assert.equal(tries, 1)
+  assert.equal(records.length, 0, '顺利路径一条多余日志都不该记')
+})
+
 // ───────────────────────── 二、接线一致性 ─────────────────────────
 
 test('接线：通道常量来自单一真源，两侧都引它', () => {
@@ -409,6 +608,22 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
     const state = setReply.result.value.switch || setReply.result.value
     assert.equal(state.enabled, true, '设置后读回的开关应为 true')
     assert.equal(JSON.parse(readFileSync(switchFile, 'utf8')).enabled, true, '开关必须落到磁盘文件里')
+
+    // 2.0.7：开关打开后，info 级的关键节点才落盘 —— 面板那个小开关就是为它存在的
+    // （warn/error 不受开关控制，这也是 2.0.7 之前真机上只剩失败散列的原因）
+    await call('palette.logSetSwitch', { enabled: true, sampleRate: 1 })
+    await call('palette.logBatch', {
+      entries: [{
+        ts: Date.now(), level: 'info', event: 'update.check.ok',
+        fields: { trigger: 'manual', hasNew: true, latest: '2.0.7', latencyMs: 12, pluginId: 'dsh-opencode-palette' },
+      }],
+    })
+    let infoWritten = false
+    for (let i = 0; i < 30 && !infoWritten; i += 1) {
+      await new Promise((resolve) => setTimeout(resolve, 200))
+      infoWritten = logText().indexOf('update.check.ok') >= 0
+    }
+    assert.equal(infoWritten, true, '开关打开后 info 级关键节点必须落盘')
   } finally {
     if (previousHome === undefined) delete process.env.DSH_HOME
     else process.env.DSH_HOME = previousHome
@@ -548,7 +763,12 @@ test('事件清单：形状与计数过检查器，且覆盖运行期真会发�
     assert.equal(check.ok, true, name + ' 的字段白名单检查不过：' + JSON.stringify(check))
   }
   // 运行期会发的事件名（宿主侧来自更新包与日志包，浏览器侧来自面板）
-  const emitted = ['host.call', 'host.call.fail', 'update.install.exec', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail', 'host.channel.fail']
+  const emitted = [
+    'host.call', 'host.call.fail', 'update.install.exec', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail', 'host.channel.fail',
+    // 2.0.7：更新链路的关键节点（失败级别恒落盘，info 靠面板的日志开关）
+    'update.check.start', 'update.check.ok', 'update.check.fail', 'update.check.retry', 'update.check.probe',
+    'update.install.start', 'update.install.ok', 'update.install.fail', 'log.switch.set',
+  ]
   for (const name of emitted) {
     assert.ok(manifest.events[name], '事件清单缺 ' + name)
   }

@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.6 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.7 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（vendor）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -9724,6 +9724,9 @@ __mods["channel"] = { CHANNEL, ENDPOINT, ROUTE_PATH, PLUGIN_ID, PHONE_PREFIX, TA
  * 电话名与轮询间隔由调用方从更新包的客户端入口派生后传进来（本文件不写字面量）。
  */
 
+/** 与 runtime/channel.mjs 的 PLUGIN_ID 同值：本文件是纯逻辑模块，不引运行时模块，故就地声明一次。 */
+const PLUGIN_ID = 'dsh-opencode-palette'
+
 /** 宿主回包 → 面板要的几个事实（纯函数，便于离线核对）。 */
 function readSnapshot(res) {
   const snap = res && res.snapshot ? res.snapshot : null
@@ -9805,6 +9808,9 @@ function createUpdateController(deps) {
     jobMessage: null,
     pending: false,
     failure: null,
+    // 弹窗外的可见结果（{key, kind} 或 null）：失败与「装好了但没进待重启」都走这里，
+    // 否则用户点一下没动静，看不出是成功、失败还是没反应（2026-09-30 真机反馈）。
+    notice: null,
   }
   let pollTimer = null
   const listeners = []
@@ -9820,6 +9826,14 @@ function createUpdateController(deps) {
   }
   function record(level, event, fields, latencyMs) {
     try { log(level, event, fields) } catch (e) { /* 忽略 */ }
+  }
+  /** 回包里的错误码（宿主半判词，如 invalid-release / check-failed）；取不到就退成 unknown。
+   *  更新包的失败形状是 {ok:false, error:'<code>', errorKind}——error 是字符串，不是对象。 */
+  function codeOf(res) {
+    const error = res && res.error !== undefined && res.error !== null ? res.error : null
+    if (typeof error === 'string') return error.slice(0, 40)
+    const code = error && (error.code || error.message) ? String(error.code || error.message) : 'unknown'
+    return code.slice(0, 40)
   }
   function stopPolling() {
     if (pollTimer !== null) {
@@ -9861,7 +9875,7 @@ function createUpdateController(deps) {
       method: phone,
       kind: kind,
       errorHash: hash8(String((error && error.message) || error || kind)),
-      pluginId: 'dsh-opencode-palette',
+      pluginId: PLUGIN_ID,
     })
   }
 
@@ -9874,7 +9888,7 @@ function createUpdateController(deps) {
         latencyMs: Date.now() - startedAt,
         ok: true,
         kind: String((args && args.kind) || phone),
-        pluginId: 'dsh-opencode-palette',
+        pluginId: PLUGIN_ID,
       })
     } else {
       transportFail(phone, 'not-ok', (res && res.error) || 'not-ok')
@@ -9900,19 +9914,34 @@ function createUpdateController(deps) {
     if (!state.available) return 'failed'
     if (state.checking || state.installing) return 'busy'
     // 已查到有新版且凭证还在：直接开弹窗，不重复联网
-    if (state.hasNew && state.checkId) { patch({ dialogOpen: true, failure: null }); return 'new' }
-    patch({ checking: true, failure: null })
+    if (state.hasNew && state.checkId) { patch({ dialogOpen: true, failure: null, notice: null }); return 'new' }
+    patch({ checking: true, failure: null, notice: null })
+    record('info', 'update.check.start', { trigger: 'manual', pluginId: PLUGIN_ID })
+    const startedAt = Date.now()
     try {
       const res = await invoke(phones.updateCheck, {})
       patch({ checking: false })
-      if (!res || res.ok !== true) { return 'failed' }
+      if (!res || res.ok !== true) {
+        const code = codeOf(res)
+        record('warn', 'update.check.fail', { trigger: 'manual', code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+        patch({ notice: { key: 'updateCheckFail', kind: 'error' } })
+        return 'failed'
+      }
       const facts = absorb(res)
+      record('info', 'update.check.ok', {
+        trigger: 'manual', hasNew: facts.canInstall, latest: facts.latest || '',
+        latencyMs: Date.now() - startedAt, pluginId: PLUGIN_ID,
+      })
       if (facts.canInstall) { patch({ dialogOpen: true }); return 'new' }
       if (facts.pending) return 'latest'
       return 'latest'
     } catch (e) {
       patch({ checking: false })
       transportFail(phones.updateCheck, 'throw', e)
+      record('warn', 'update.check.fail', {
+        trigger: 'manual', code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
+      patch({ notice: { key: 'updateCheckFail', kind: 'error' } })
       return 'failed'
     }
   }
@@ -9926,16 +9955,29 @@ function createUpdateController(deps) {
     if (state.pending) return 'latest'
     if (state.hasNew && state.checkId) return 'new'
     patch({ checking: true, failure: null })
+    record('info', 'update.check.start', { trigger: 'auto', pluginId: PLUGIN_ID })
+    const startedAt = Date.now()
     try {
       const res = await invoke(phones.updateCheck, {})
       patch({ checking: false })
-      if (!res || res.ok !== true) return 'failed'
+      if (!res || res.ok !== true) {
+        const code = codeOf(res)
+        record('warn', 'update.check.fail', { trigger: 'auto', code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+        return 'failed'
+      }
       const facts = absorb(res)
+      record('info', 'update.check.ok', {
+        trigger: 'auto', hasNew: facts.canInstall, latest: facts.latest || '',
+        latencyMs: Date.now() - startedAt, pluginId: PLUGIN_ID,
+      })
       if (facts.canInstall) return 'new'
       return 'latest'
     } catch (e) {
       patch({ checking: false })
       transportFail(phones.updateCheck, 'throw', e)
+      record('warn', 'update.check.fail', {
+        trigger: 'auto', code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
       return 'failed'
     }
   }
@@ -9954,23 +9996,38 @@ function createUpdateController(deps) {
   async function install() {
     if (!state.available || state.installing) return false
     if (!state.checkId) return false
-    patch({ installing: true, failure: null })
+    patch({ installing: true, failure: null, notice: null })
+    record('info', 'update.install.start', { latest: String(state.latest || ''), pluginId: PLUGIN_ID })
     const requestId = 'req-' + String(Date.now()) + '-' + String(Math.floor(Math.random() * 100000))
     try {
       const res = await invoke(phones.updateInstall, { checkId: state.checkId, requestId: requestId })
       patch({ installing: false })
       if (res && res.ok === true) {
-        absorb(res)
+        const facts = absorb(res)
         patch({ dialogOpen: false })
+        record('info', 'update.install.ok', {
+          latest: String((facts && facts.latest) || state.latest || ''),
+          pending: !!(facts && facts.pending),
+          pluginId: PLUGIN_ID,
+        })
+        // 待重启由常驻横幅承接；万一没进待重启，至少留一句「重启后生效」，别让用户对着没动静的按钮猜
+        if (!(facts && facts.pending)) patch({ notice: { key: 'updateRestartHint', kind: 'warn' } })
         return true
       }
       const facts = readSnapshot(res)
+      const code = codeOf(res)
       patch({ blocked: facts.blocked || state.blocked, failure: 'install-failed' })
+      record('warn', 'update.install.fail', { code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+      patch({ notice: { key: facts.blocked ? blockedReasonKey(facts.blocked) : 'updateFailInstall', kind: 'error' } })
       await readStatus()
       return false
     } catch (e) {
       patch({ installing: false, failure: 'install-failed' })
       transportFail(phones.updateInstall, 'throw', e)
+      record('warn', 'update.install.fail', {
+        code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
+      patch({ notice: { key: 'updateFailInstall', kind: 'error' } })
       try { await readStatus() } catch (e2) { /* 忽略 */ }
       return false
     }
@@ -9992,6 +10049,8 @@ function createUpdateController(deps) {
     install: install,
     openDialog: function () { patch({ dialogOpen: true }) },
     closeDialog: function () { patch({ dialogOpen: false, failure: null }) },
+    /** 面板其它部件（如日志开关）也能借这行可见提示，别让它们的失败静默掉。 */
+    setNotice: function (key, kind) { patch({ notice: key ? { key: key, kind: kind || 'error' } : null }) },
     dispose: function () { stopPolling(); listeners.length = 0 },
   }
 }
@@ -10031,7 +10090,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.6'
+const PALETTE_VERSION = '2.0.7'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -10175,6 +10234,14 @@ const I18N = {
   'blocked.incompatible-node': { zh: '新版要求的 Node 更高，先升级 Node', en: 'The new version needs a newer Node — upgrade it first' },
   'blocked.recovery-required': { zh: '上次安装被打断，重新点一次安装', en: 'The last install was interrupted — retry the install' },
   'blocked.unknown': { zh: '当前装不了：重开 DSH 再查一次', en: 'Cannot update right now — reopen DSH and try again' },
+  // 升级已写入但没进「待重启」时的兜底提示（正常路径由常驻横幅承接）
+  updateRestartHint: { zh: '升级已写入，重启 DSH 后生效', en: 'Update written — restart DSH to apply' },
+  // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
+  logSwitch: { zh: '日志', en: 'Log' },
+  logOn: { zh: '开', en: 'On' },
+  logOff: { zh: '关', en: 'Off' },
+  logSwitchHint: { zh: '打开后把关键节点写进 <DSH_HOME>/logs/dsh-opencode-palette/（排障用；失败级别的日志恒记，不受此开关控制）', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
+  logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
 }
 
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
@@ -10258,8 +10325,10 @@ function createClient(slotTarget) {
       pollMs: CLIENT_POLL.defaultMs,
       log: function (level, event, fields) { try { clientLog.log(level, event, fields) } catch (e) { /* 忽略 */ } },
     })
-    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错
-    try { clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
+    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
+    // 面板的日志开关复用这一次对账的结果，不重复打扰宿主（对账失败会记一条 watchdog warn）。
+    let logSwitchReady = null
+    try { logSwitchReady = clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
     try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
 
     // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
@@ -10864,12 +10933,52 @@ function createClient(slotTarget) {
             ]))
           : null
 
+        // ── 日志开关（排障用的小开关）──
+        // 状态以宿主为准；首帧先按本地缓存渲染，对账回来再校正。开关本体归 dsh-log 管，
+        // 这里只调它的 setLogSwitch，不自己写开关文件（否则会成第二份真源）。
+        const [logOn, setLogOn] = react.useState(!!(clientLog && clientLog.logSwitch && clientLog.logSwitch.enabled))
+        react.useEffect(function () {
+          let alive = true
+          Promise.resolve(props.reconcileLog()).then(function (res) {
+            if (!alive || !res) return
+            if (typeof res.enabled === 'boolean') setLogOn(res.enabled)
+          }, function () { /* 读不到就维持本地缓存值 */ })
+          return function () { alive = false }
+        }, [])
+        const flipLog = function () {
+          const next = !logOn
+          setLogOn(next)
+          Promise.resolve(props.log.setLogSwitch(next)).then(function (res) {
+            const ok = !!(res && res.ok)
+            if (res && typeof res.enabled === 'boolean') setLogOn(res.enabled)
+            else if (!ok) setLogOn(!next)
+            try {
+              props.log.log('info', 'log.switch.set', {
+                enabled: ok ? !!next : logOn,
+                ok: ok,
+                reason: ok ? 'ok' : String((res && res.error) || 'unknown').slice(0, 40),
+                pluginId: PLUGIN_ID,
+              })
+            } catch (e) { /* 忽略 */ }
+            if (!ok) props.update.setNotice('logSwitchFail')
+          }, function () { setLogOn(!next) })
+        }
+
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
           restartBanner,
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
             h('strong', null, '🎨 ' + tr('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
+              h('span', {
+                key: 'log',
+                onClick: flipLog,
+                title: tr('logSwitchHint'),
+                style: {
+                  fontSize: 11, cursor: 'pointer', userSelect: 'none',
+                  color: logOn ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-label-tertiary)',
+                },
+              }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
               h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
               updateButton,
               h('a', {
@@ -10920,6 +11029,18 @@ function createClient(slotTarget) {
           ]),
           h('div', { style: { fontSize: 12, color: muted } },
             tr('subtitle')),
+          // 弹窗之外的可见结果：检查/升级失败、以及「装好了但没进待重启」都在这里落地，
+          // 否则用户点一下没动静，分不清是成功、失败还是没反应。
+          (updState && updState.notice)
+            ? h('div', {
+                style: {
+                  fontSize: 12,
+                  color: updState.notice.kind === 'warn'
+                    ? 'var(--dsw-alias-state-warn-primary)'
+                    : 'var(--dsw-alias-state-error-primary)',
+                },
+              }, tr(updState.notice.key))
+            : null,
           // ── 排印调节（置顶）──
           h('div', { style: secTitle }, [
             h('span', null, tr('typography')),
@@ -10989,6 +11110,11 @@ function createClient(slotTarget) {
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
           log: clientLog,
+          // 日志开关的初始状态：复用启动时那次对账，别为显示一个开关再打扰一次宿主
+          reconcileLog: function () {
+            if (logSwitchReady && typeof logSwitchReady.then === 'function') return logSwitchReady
+            try { return clientLog.reconcileLogSwitch() } catch (e) { return Promise.resolve(null) }
+          },
           // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
           collectFonts: collectFontCandidates,
           // 面板文案（测试/调试用，走同一份双语表）

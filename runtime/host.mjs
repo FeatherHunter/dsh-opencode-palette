@@ -26,6 +26,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHostLog, registerHostLogPhones } from 'dsh-log/host'
 import { createHostUpdate } from './vendor/dsh-plugin-update/host.js'
+import { buildPhoneNames, DEFAULT_REGISTRY } from './vendor/dsh-plugin-update/config.js'
 import { PLUGIN_ID, PHONE_PREFIX, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.mjs'
 
 export const name = PLUGIN_ID
@@ -111,6 +112,189 @@ export function createLogFileService(readTextImpl, writeTextImpl, mkdirImpl, unl
   }
 }
 
+// ── 查更新的自检探针与重试（2026-09-30 加；起因：面板点「检查更新」静默无反应，日志只剩一个散列）──
+// 更新包把 fetch→校验链路里每一步失败都归成同一个 invalid-release（service.js 的兜底 catch），
+// 线上因此只剩 8 位散列，分不清是「响应被截断」还是「tarball 指向了别的源」。
+// 探针按同一条链路再走一遍，但一步一记、绝不抛错：把现象写进日志，而不是只给判词。
+// 重试一次：截断、抖动这类瞬时故障本会自愈，用户不该为它再看一次失败。
+/** 探针阈值：必须与更新包 service.js 里的同名常量一致（tests/update-panel.test.mjs 有门禁比对）。 */
+export const PROBE_LIMITS = {
+  maxBytes: 256 * 1024,
+  integrityPattern: '^sha512-[A-Za-z0-9+/]{86}==$',
+}
+
+/** 取一小段文本进日志：够定位就行，别把整份响应写进去。 */
+function probeBrief(value, limit) {
+  const text = value === null || value === undefined ? '' : String(value)
+  return text.length > limit ? text.slice(0, limit) : text
+}
+
+/**
+ * 按更新包的同一条链路重走一遍发布清单，把观察到的现象原样回给调用方（不抛错）。
+ * @returns {Promise<{stage: string, httpStatus: number|null, bytes: number, reason: string, detail: string}>}
+ */
+export async function probeRelease(fetchImpl, options) {
+  const opts = options || {}
+  const targetName = String(opts.targetPackageName || TARGET_PACKAGE_NAME)
+  const registry = String(opts.registryUrl || DEFAULT_REGISTRY)
+  const timeoutMs = typeof opts.timeoutMs === 'number' && opts.timeoutMs > 0 ? opts.timeoutMs : 10000
+  const limits = opts.limits || PROBE_LIMITS
+  const facts = { stage: 'fetch', httpStatus: null, bytes: 0, reason: 'fetch-threw', detail: '' }
+
+  let response = null
+  try {
+    const signal = typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function'
+      ? AbortSignal.timeout(timeoutMs)
+      : undefined
+    response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}/latest`, {
+      headers: { accept: 'application/json' },
+      redirect: 'error',
+      signal: signal,
+    })
+  } catch (e) {
+    facts.detail = probeBrief((e && e.message) || e, 120)
+    return facts
+  }
+
+  facts.stage = 'status'
+  facts.httpStatus = response && typeof response.status === 'number' ? response.status : null
+  if (!response || response.ok !== true) {
+    facts.reason = 'not-ok'
+    return facts
+  }
+
+  facts.stage = 'body'
+  let text = ''
+  try {
+    text = await response.text()
+  } catch (e) {
+    facts.reason = 'body-threw'
+    facts.detail = probeBrief((e && e.message) || e, 120)
+    return facts
+  }
+  facts.bytes = Buffer.byteLength(text, 'utf8')
+  if (facts.bytes > limits.maxBytes) {
+    facts.reason = 'body-too-large'
+    return facts
+  }
+
+  facts.stage = 'json'
+  let value = null
+  try {
+    value = JSON.parse(text)
+  } catch (e) {
+    facts.reason = 'json-parse'
+    facts.detail = probeBrief(text.slice(0, 60), 60)
+    return facts
+  }
+
+  facts.stage = 'name'
+  if (value.name !== targetName) {
+    facts.reason = 'name-mismatch'
+    facts.detail = probeBrief(value.name, 60)
+    return facts
+  }
+
+  facts.stage = 'version'
+  if (!(typeof value.version === 'string' && /^\d+\.\d+\.\d+$/.test(value.version))) {
+    facts.reason = 'version-invalid'
+    facts.detail = probeBrief(value.version, 40)
+    return facts
+  }
+
+  facts.stage = 'engines'
+  if (value.engines && value.engines.node !== undefined && typeof value.engines.node !== 'string') {
+    facts.reason = 'engines-node-type'
+    return facts
+  }
+
+  facts.stage = 'tarball'
+  let tarball = null
+  try {
+    tarball = new URL(String(value.dist && value.dist.tarball))
+  } catch (e) {
+    facts.reason = 'tarball-url'
+    facts.detail = probeBrief(value.dist && value.dist.tarball, 80)
+    return facts
+  }
+  const wantPath = `/${targetName}/-/${targetName}-${value.version}.tgz`
+  if (tarball.origin !== new URL(registry).origin) {
+    facts.reason = 'tarball-origin'
+    facts.detail = probeBrief(tarball.origin, 80)
+    return facts
+  }
+  if (tarball.pathname !== wantPath) {
+    facts.reason = 'tarball-path'
+    facts.detail = probeBrief(tarball.pathname, 80)
+    return facts
+  }
+
+  facts.stage = 'integrity'
+  const integrity = value.dist && value.dist.integrity
+  if (typeof integrity !== 'string') {
+    facts.reason = 'integrity-missing'
+    return facts
+  }
+  if (!new RegExp(limits.integrityPattern).test(integrity)) {
+    facts.reason = 'integrity-shape'
+    facts.detail = probeBrief(integrity, 40)
+    return facts
+  }
+
+  facts.stage = 'ok'
+  facts.reason = 'valid'
+  return facts
+}
+
+/** 从更新包的回包形状里取错误码（没有就退成 unknown）。
+ *  更新包的失败形状是 {ok:false, error:'<code>', errorKind}——error 是字符串，不是对象。 */
+function errorCodeOf(res) {
+  const error = res && res.error !== undefined && res.error !== null ? res.error : null
+  if (typeof error === 'string') return error.slice(0, 40)
+  const code = error && (error.code || error.message) ? String(error.code || error.message) : 'unknown'
+  return code.slice(0, 40)
+}
+
+/**
+ * 给「查更新」这条电话包一层：失败 → 重试一次 → 仍失败则跑探针并落日志。
+ * 只包这一条：查状态与装更新各自有明确的失败语义，重试它们只会拖长用户的等待。
+ */
+export function wrapUpdateCheck(handler, deps) {
+  const input = deps || {}
+  const log = typeof input.log === 'function' ? input.log : function () {}
+  const probe = typeof input.probe === 'function' ? input.probe : null
+  const pluginId = input.pluginId || PLUGIN_ID
+  return async function (args) {
+    const first = await handler(args)
+    if (first && first.ok === true) return first
+    const reason = errorCodeOf(first)
+    log('warn', 'update.check.retry', { attempt: 1, ok: false, reason: reason, pluginId: pluginId })
+    let second = null
+    try {
+      second = await handler(args)
+    } catch (e) {
+      second = null
+    }
+    const recovered = !!(second && second.ok === true)
+    log('warn', 'update.check.retry', { attempt: 2, ok: recovered, reason: reason, pluginId: pluginId })
+    if (recovered) return second
+    if (probe !== null) {
+      try {
+        const facts = await probe()
+        log('warn', 'update.check.probe', {
+          stage: facts.stage,
+          httpStatus: facts.httpStatus,
+          bytes: facts.bytes,
+          reason: facts.reason,
+          detail: facts.detail,
+          pluginId: pluginId,
+        })
+      } catch (e) { /* 探针自己失败不该改变回给面板的结果 */ }
+    }
+    return second || first
+  }
+}
+
 /** 宿主半装配入口：建日志库 → 建更新电话 → 合成电话表 → 注册通道。 */
 export function apply(ctx) {
   const homeDir = dshHomeDir(process.env, homedir())
@@ -143,6 +327,20 @@ export function apply(ctx) {
     { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, targetPackageName: TARGET_PACKAGE_NAME }
   )
   for (const phoneName of Object.keys(update.handlers)) registry.set(phoneName, update.handlers[phoneName])
+
+  // 查更新外面再包一层：失败重试一次，仍失败就跑探针把真实原因落日志。
+  // 电话名从更新包派生（本文件不写字面量），装更新与查状态两条保持原样。
+  const updateCheckPhone = buildPhoneNames(PHONE_PREFIX).updateCheck
+  const rawUpdateCheck = registry.get(updateCheckPhone)
+  if (typeof rawUpdateCheck === 'function') {
+    registry.set(updateCheckPhone, wrapUpdateCheck(rawUpdateCheck, {
+      log: function (level, event, fields) {
+        try { hostLog.store.log(level, event, fields) } catch (e) { /* 忽略 */ }
+      },
+      probe: function () { return probeRelease(globalThis.fetch, { targetPackageName: TARGET_PACKAGE_NAME }) },
+      pluginId: PLUGIN_ID,
+    }))
+  }
 
   const fail = function (stage, reason) {
     try { hostLog.store.log('error', 'host.channel.fail', { stage: stage, path: ROUTE_PATH, reason: String(reason).slice(0, 120) }) } catch (e) { /* 忽略 */ }

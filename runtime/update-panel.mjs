@@ -10,6 +10,9 @@
  * 电话名与轮询间隔由调用方从更新包的客户端入口派生后传进来（本文件不写字面量）。
  */
 
+/** 与 runtime/channel.mjs 的 PLUGIN_ID 同值：本文件是纯逻辑模块，不引运行时模块，故就地声明一次。 */
+const PLUGIN_ID = 'dsh-opencode-palette'
+
 /** 宿主回包 → 面板要的几个事实（纯函数，便于离线核对）。 */
 export function readSnapshot(res) {
   const snap = res && res.snapshot ? res.snapshot : null
@@ -91,6 +94,9 @@ export function createUpdateController(deps) {
     jobMessage: null,
     pending: false,
     failure: null,
+    // 弹窗外的可见结果（{key, kind} 或 null）：失败与「装好了但没进待重启」都走这里，
+    // 否则用户点一下没动静，看不出是成功、失败还是没反应（2026-09-30 真机反馈）。
+    notice: null,
   }
   let pollTimer = null
   const listeners = []
@@ -106,6 +112,14 @@ export function createUpdateController(deps) {
   }
   function record(level, event, fields, latencyMs) {
     try { log(level, event, fields) } catch (e) { /* 忽略 */ }
+  }
+  /** 回包里的错误码（宿主半判词，如 invalid-release / check-failed）；取不到就退成 unknown。
+   *  更新包的失败形状是 {ok:false, error:'<code>', errorKind}——error 是字符串，不是对象。 */
+  function codeOf(res) {
+    const error = res && res.error !== undefined && res.error !== null ? res.error : null
+    if (typeof error === 'string') return error.slice(0, 40)
+    const code = error && (error.code || error.message) ? String(error.code || error.message) : 'unknown'
+    return code.slice(0, 40)
   }
   function stopPolling() {
     if (pollTimer !== null) {
@@ -147,7 +161,7 @@ export function createUpdateController(deps) {
       method: phone,
       kind: kind,
       errorHash: hash8(String((error && error.message) || error || kind)),
-      pluginId: 'dsh-opencode-palette',
+      pluginId: PLUGIN_ID,
     })
   }
 
@@ -160,7 +174,7 @@ export function createUpdateController(deps) {
         latencyMs: Date.now() - startedAt,
         ok: true,
         kind: String((args && args.kind) || phone),
-        pluginId: 'dsh-opencode-palette',
+        pluginId: PLUGIN_ID,
       })
     } else {
       transportFail(phone, 'not-ok', (res && res.error) || 'not-ok')
@@ -186,19 +200,34 @@ export function createUpdateController(deps) {
     if (!state.available) return 'failed'
     if (state.checking || state.installing) return 'busy'
     // 已查到有新版且凭证还在：直接开弹窗，不重复联网
-    if (state.hasNew && state.checkId) { patch({ dialogOpen: true, failure: null }); return 'new' }
-    patch({ checking: true, failure: null })
+    if (state.hasNew && state.checkId) { patch({ dialogOpen: true, failure: null, notice: null }); return 'new' }
+    patch({ checking: true, failure: null, notice: null })
+    record('info', 'update.check.start', { trigger: 'manual', pluginId: PLUGIN_ID })
+    const startedAt = Date.now()
     try {
       const res = await invoke(phones.updateCheck, {})
       patch({ checking: false })
-      if (!res || res.ok !== true) { return 'failed' }
+      if (!res || res.ok !== true) {
+        const code = codeOf(res)
+        record('warn', 'update.check.fail', { trigger: 'manual', code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+        patch({ notice: { key: 'updateCheckFail', kind: 'error' } })
+        return 'failed'
+      }
       const facts = absorb(res)
+      record('info', 'update.check.ok', {
+        trigger: 'manual', hasNew: facts.canInstall, latest: facts.latest || '',
+        latencyMs: Date.now() - startedAt, pluginId: PLUGIN_ID,
+      })
       if (facts.canInstall) { patch({ dialogOpen: true }); return 'new' }
       if (facts.pending) return 'latest'
       return 'latest'
     } catch (e) {
       patch({ checking: false })
       transportFail(phones.updateCheck, 'throw', e)
+      record('warn', 'update.check.fail', {
+        trigger: 'manual', code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
+      patch({ notice: { key: 'updateCheckFail', kind: 'error' } })
       return 'failed'
     }
   }
@@ -212,16 +241,29 @@ export function createUpdateController(deps) {
     if (state.pending) return 'latest'
     if (state.hasNew && state.checkId) return 'new'
     patch({ checking: true, failure: null })
+    record('info', 'update.check.start', { trigger: 'auto', pluginId: PLUGIN_ID })
+    const startedAt = Date.now()
     try {
       const res = await invoke(phones.updateCheck, {})
       patch({ checking: false })
-      if (!res || res.ok !== true) return 'failed'
+      if (!res || res.ok !== true) {
+        const code = codeOf(res)
+        record('warn', 'update.check.fail', { trigger: 'auto', code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+        return 'failed'
+      }
       const facts = absorb(res)
+      record('info', 'update.check.ok', {
+        trigger: 'auto', hasNew: facts.canInstall, latest: facts.latest || '',
+        latencyMs: Date.now() - startedAt, pluginId: PLUGIN_ID,
+      })
       if (facts.canInstall) return 'new'
       return 'latest'
     } catch (e) {
       patch({ checking: false })
       transportFail(phones.updateCheck, 'throw', e)
+      record('warn', 'update.check.fail', {
+        trigger: 'auto', code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
       return 'failed'
     }
   }
@@ -240,23 +282,38 @@ export function createUpdateController(deps) {
   async function install() {
     if (!state.available || state.installing) return false
     if (!state.checkId) return false
-    patch({ installing: true, failure: null })
+    patch({ installing: true, failure: null, notice: null })
+    record('info', 'update.install.start', { latest: String(state.latest || ''), pluginId: PLUGIN_ID })
     const requestId = 'req-' + String(Date.now()) + '-' + String(Math.floor(Math.random() * 100000))
     try {
       const res = await invoke(phones.updateInstall, { checkId: state.checkId, requestId: requestId })
       patch({ installing: false })
       if (res && res.ok === true) {
-        absorb(res)
+        const facts = absorb(res)
         patch({ dialogOpen: false })
+        record('info', 'update.install.ok', {
+          latest: String((facts && facts.latest) || state.latest || ''),
+          pending: !!(facts && facts.pending),
+          pluginId: PLUGIN_ID,
+        })
+        // 待重启由常驻横幅承接；万一没进待重启，至少留一句「重启后生效」，别让用户对着没动静的按钮猜
+        if (!(facts && facts.pending)) patch({ notice: { key: 'updateRestartHint', kind: 'warn' } })
         return true
       }
       const facts = readSnapshot(res)
+      const code = codeOf(res)
       patch({ blocked: facts.blocked || state.blocked, failure: 'install-failed' })
+      record('warn', 'update.install.fail', { code: code, errorHash: hash8(code), pluginId: PLUGIN_ID })
+      patch({ notice: { key: facts.blocked ? blockedReasonKey(facts.blocked) : 'updateFailInstall', kind: 'error' } })
       await readStatus()
       return false
     } catch (e) {
       patch({ installing: false, failure: 'install-failed' })
       transportFail(phones.updateInstall, 'throw', e)
+      record('warn', 'update.install.fail', {
+        code: 'transport', errorHash: hash8(String((e && e.message) || e)), pluginId: PLUGIN_ID,
+      })
+      patch({ notice: { key: 'updateFailInstall', kind: 'error' } })
       try { await readStatus() } catch (e2) { /* 忽略 */ }
       return false
     }
@@ -278,6 +335,8 @@ export function createUpdateController(deps) {
     install: install,
     openDialog: function () { patch({ dialogOpen: true }) },
     closeDialog: function () { patch({ dialogOpen: false, failure: null }) },
+    /** 面板其它部件（如日志开关）也能借这行可见提示，别让它们的失败静默掉。 */
+    setNotice: function (key, kind) { patch({ notice: key ? { key: key, kind: kind || 'error' } : null }) },
     dispose: function () { stopPolling(); listeners.length = 0 },
   }
 }

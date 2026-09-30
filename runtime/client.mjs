@@ -162,6 +162,14 @@ const I18N = {
   'blocked.incompatible-node': { zh: '新版要求的 Node 更高，先升级 Node', en: 'The new version needs a newer Node — upgrade it first' },
   'blocked.recovery-required': { zh: '上次安装被打断，重新点一次安装', en: 'The last install was interrupted — retry the install' },
   'blocked.unknown': { zh: '当前装不了：重开 DSH 再查一次', en: 'Cannot update right now — reopen DSH and try again' },
+  // 升级已写入但没进「待重启」时的兜底提示（正常路径由常驻横幅承接）
+  updateRestartHint: { zh: '升级已写入，重启 DSH 后生效', en: 'Update written — restart DSH to apply' },
+  // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
+  logSwitch: { zh: '日志', en: 'Log' },
+  logOn: { zh: '开', en: 'On' },
+  logOff: { zh: '关', en: 'Off' },
+  logSwitchHint: { zh: '打开后把关键节点写进 <DSH_HOME>/logs/dsh-opencode-palette/（排障用；失败级别的日志恒记，不受此开关控制）', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
+  logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
 }
 
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
@@ -245,8 +253,10 @@ export function createClient(slotTarget) {
       pollMs: CLIENT_POLL.defaultMs,
       log: function (level, event, fields) { try { clientLog.log(level, event, fields) } catch (e) { /* 忽略 */ } },
     })
-    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错
-    try { clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
+    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
+    // 面板的日志开关复用这一次对账的结果，不重复打扰宿主（对账失败会记一条 watchdog warn）。
+    let logSwitchReady = null
+    try { logSwitchReady = clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
     try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
 
     // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
@@ -851,12 +861,52 @@ export function createClient(slotTarget) {
             ]))
           : null
 
+        // ── 日志开关（排障用的小开关）──
+        // 状态以宿主为准；首帧先按本地缓存渲染，对账回来再校正。开关本体归 dsh-log 管，
+        // 这里只调它的 setLogSwitch，不自己写开关文件（否则会成第二份真源）。
+        const [logOn, setLogOn] = react.useState(!!(clientLog && clientLog.logSwitch && clientLog.logSwitch.enabled))
+        react.useEffect(function () {
+          let alive = true
+          Promise.resolve(props.reconcileLog()).then(function (res) {
+            if (!alive || !res) return
+            if (typeof res.enabled === 'boolean') setLogOn(res.enabled)
+          }, function () { /* 读不到就维持本地缓存值 */ })
+          return function () { alive = false }
+        }, [])
+        const flipLog = function () {
+          const next = !logOn
+          setLogOn(next)
+          Promise.resolve(props.log.setLogSwitch(next)).then(function (res) {
+            const ok = !!(res && res.ok)
+            if (res && typeof res.enabled === 'boolean') setLogOn(res.enabled)
+            else if (!ok) setLogOn(!next)
+            try {
+              props.log.log('info', 'log.switch.set', {
+                enabled: ok ? !!next : logOn,
+                ok: ok,
+                reason: ok ? 'ok' : String((res && res.error) || 'unknown').slice(0, 40),
+                pluginId: PLUGIN_ID,
+              })
+            } catch (e) { /* 忽略 */ }
+            if (!ok) props.update.setNotice('logSwitchFail')
+          }, function () { setLogOn(!next) })
+        }
+
         return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
           restartBanner,
           // 头行：标题 + 状态开关（一个状态一个控制）
           h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
             h('strong', null, '🎨 ' + tr('panelName')),
             h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
+              h('span', {
+                key: 'log',
+                onClick: flipLog,
+                title: tr('logSwitchHint'),
+                style: {
+                  fontSize: 11, cursor: 'pointer', userSelect: 'none',
+                  color: logOn ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-label-tertiary)',
+                },
+              }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
               h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
               updateButton,
               h('a', {
@@ -907,6 +957,18 @@ export function createClient(slotTarget) {
           ]),
           h('div', { style: { fontSize: 12, color: muted } },
             tr('subtitle')),
+          // 弹窗之外的可见结果：检查/升级失败、以及「装好了但没进待重启」都在这里落地，
+          // 否则用户点一下没动静，分不清是成功、失败还是没反应。
+          (updState && updState.notice)
+            ? h('div', {
+                style: {
+                  fontSize: 12,
+                  color: updState.notice.kind === 'warn'
+                    ? 'var(--dsw-alias-state-warn-primary)'
+                    : 'var(--dsw-alias-state-error-primary)',
+                },
+              }, tr(updState.notice.key))
+            : null,
           // ── 排印调节（置顶）──
           h('div', { style: secTitle }, [
             h('span', null, tr('typography')),
@@ -976,6 +1038,11 @@ export function createClient(slotTarget) {
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
           log: clientLog,
+          // 日志开关的初始状态：复用启动时那次对账，别为显示一个开关再打扰一次宿主
+          reconcileLog: function () {
+            if (logSwitchReady && typeof logSwitchReady.then === 'function') return logSwitchReady
+            try { return clientLog.reconcileLogSwitch() } catch (e) { return Promise.resolve(null) }
+          },
           // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
           collectFonts: collectFontCandidates,
           // 面板文案（测试/调试用，走同一份双语表）

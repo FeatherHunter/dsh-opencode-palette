@@ -437,3 +437,20 @@ test('字体分组标题：不用“·”拼接，文本走主题色 + 数量徽
   assert.ok(code.includes("secHeader('sec-presets'"), '常用预设未走新分组标题')
   assert.ok(code.includes("secHeader('sec-locals'"), '本机字体未走新分组标题')
 })
+
+test('2.0.7 头行带日志开关（默认关）与落点提示', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(html.includes('日志 关'), '缺日志开关（默认应为关）')
+  assert.ok(html.includes('logs/dsh-opencode-palette'), '缺日志落点提示（hover 文案）')
+  // 开关走 dsh-log 的 setLogSwitch，面板自己不写开关文件
+  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  assert.ok(code.includes('setLogSwitch'), '面板没有调日志包的开关接口')
+  assert.ok(!code.includes('log-switch-dsh-opencode-palette.json'), '面板不得自己写开关文件（会成第二份真源）')
+})
+
+test('2.0.7 英文界面：日志开关也走双语', () => {
+  const locale = makeLocale('en')
+  const { html } = loadPanel({ locale })
+  assert.ok(html.includes('Log Off'), '缺英文日志开关')
+  assert.ok(!html.includes('日志 关'), '英文界面不该出现中文开关文案')
+})
