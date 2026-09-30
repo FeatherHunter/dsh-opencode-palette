@@ -34,6 +34,8 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 ### 坑
 
+- **随包依赖要主动查**：`dsh-plugin-update` 的 dist 是构建期 vendor 进本包的（见 [ADR 0001](docs/adr/0001-vendor-dsh-plugin-update.md)），上游发新版我们**不会自动拿到**，也没有任何东西会提醒。`npm run vendor:check` 报出「pin / 包内实际 / 上游 latest」三列；升级步骤、以及两处门禁查不出、必须人眼对照的本地契约（日志事件白名单、blocked 原因码）都写在该 ADR 的「如何升级」一节。
+
 - **发布是异步的**：本账号的 `npm publish` 回 **`202 Accepted`**，npm 自己会打印 `Your package is being processed and may take a few minutes to become available.`。命令成功 ≠ 立刻可查——版本要几分钟后才出现在 registry。所以验证必须轮询（向导已改成最多等 240 秒），查一次读到旧版**不是失败**。
 - `E409 Cannot publish over previously staged version`：同一版本早先已被受理（202），**仍在处理中**。等几分钟用 `npm view` 复查即可，**不必升版本号、也不要重发**；确实要清掉再发才用 `npm unpublish dsh-opencode-palette@<版本>`（清完仍可用同一版本号）。
 - `E409 previously published versions`：该版本已正式发布过，这时才需要升版本号。

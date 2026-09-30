@@ -41,3 +41,39 @@ Status: accepted
   `import { createHostLog } from 'dsh-log/host'`，并作为唯一运行时依赖写进 `dependencies`。
 - 同类插件（deck）早就是这么做的（`src/host/updatePkg/`），本 ADR 只是把它背后的原因写清楚，
   免得后来者把 vendor 当成冗余复制删掉。
+
+## 如何升级（上游发新版时）
+
+先看有没有新版：
+
+```bash
+npm run vendor:check
+```
+
+它对着 registry 报出「我们 pin 的 / 包内实际的 / 上游 latest」三列，有落后就打印升级步骤。真要升时按这个顺序走：
+
+1. 改 `package.json` 里 `devDependencies` 的版本号（`dsh-log` 见下一节，它另有写死处）。
+2. `npm install`：把新 dist 取进 `node_modules/dsh-plugin-update/`。
+3. `npm run build`：`scripts/build-client.mjs` 重新复制 dist 到 `runtime/vendor/` 与 `package/lib/vendor/`
+   （写入新的 `// vendor-source: <包>@<版本> dist/<文件>` 标记），并把客户端入口重新内联进 bundle。
+4. `npm test`：门禁断言副本与 npm 包逐字节一致、来源标记行格式正确、事件清单齐全。
+5. **对照上游补两处本地契约**——门禁查不出来，只能人看：
+   - **日志事件**：上游若新增事件名，补进 `runtime/event-list.json` 白名单。
+     （`tests/update-panel.test.mjs` 里那份 `emitted` 清单也是手写的，不会自动发现上游新增。）
+   - **装不了的原因码**：上游若新增 `blockedReason`，补进 `runtime/update-panel.mjs` 的
+     `blockedReasonKey()` 与 `runtime/client.mjs` 的 `blocked.<code>` 双语词条；
+     不补会静默退化成「当前装不了：重开 DSH 再查一次」。
+6. bump 本插件版本，走正常发布流程（发布工具链见 `AGENTS.md`）。
+
+**构建会替你硬失败的地方**：`scripts/build-client.mjs` 的 `VENDOR_PACKAGES` 声明了更新包客户端入口的
+模块划分与相对 import 映射。上游若改了模块文件名或依赖关系，构建会抛「引用了未声明的依赖」——
+这是设计好的报错，不是静默降级。
+
+### dsh-log 不一样：它是运行时依赖，版本号写死在三处
+
+`dsh-log` 不 vendor（它没有自锚定问题），以 `dependencies` 形态随包发出，用户装包时从 npm 取。
+所以升它要同时改三处，漏一处就会「装的是一版、声明的是另一版」：
+
+- `package.json` 的 `devDependencies`（构建期内联客户端入口用）
+- `scripts/build-client.mjs` 里产物 `dependencies` 的字面量
+- `tests/update-panel.test.mjs` 里那条 `deepEqual(pkg.dependencies, …)` 断言

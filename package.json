@@ -8,6 +8,7 @@
     "sync": "node scripts/sync-themes.mjs",
     "sync:update": "node scripts/sync-themes.mjs --update-baseline",
     "fonts": "node scripts/inline-fonts.mjs",
+    "vendor:check": "node scripts/check-vendor-updates.mjs",
     "build": "node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
     "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/release-scripts.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs tests/readme-body.test.mjs"
   },
