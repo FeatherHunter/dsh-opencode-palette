@@ -5,13 +5,13 @@
  *   一、面板状态机（桩宿主）：打开静默读、点检查才联网、有新版才弹窗、八种装不了原因、安装中轮询、待重启；
  *   二、接线一致性：通道常量单一真源、电话名从更新包派生（产物里不出现写死的电话名字面量）、轮询间隔来自包；
  *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.mjs → 路由注册对 → 电话分派能落到更新包与日志包，
- *      且日志真的落到 <DSH_HOME>/logs 下；vendor 副本与 npm 包逐字节一致；事件清单过三个检查器。
+ *      且日志真的落到 <DSH_HOME>/logs 下；更新包走真依赖（无 vendor 副本）；事件清单过三个检查器。
  *
  * 读产物、不读源码断言：这几条都是「发出去的东西对不对」。
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { readFileSync, readdirSync, existsSync, mkdtempSync, rmSync } from 'node:fs'
+import { readFileSync, readdirSync, existsSync, mkdtempSync, rmSync, mkdirSync, cpSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -359,9 +359,10 @@ test('2.0.7 可见结果：升级成功但没进待重启时，用兜底提示�
 
 test('2.0.7 接线：探针阈值与更新包 service.js 的同名常量逐字一致（防两处走偏）', async () => {
   const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  const vendored = read('runtime/vendor/dsh-plugin-update/service.js')
-  assert.ok(vendored.includes('const MAX_METADATA_BYTES = 256 * 1024;'), '更新包的体积上限变了：探针要跟着改')
-  assert.ok(vendored.includes('const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";'), '更新包的完整性正则变了：探针要跟着改')
+  // 更新包现在是**依赖**（不再是 vendor 副本），常量直接读 node_modules 里那份
+  const installed = read('node_modules/dsh-plugin-update/dist/service.js')
+  assert.ok(installed.includes('const MAX_METADATA_BYTES = 256 * 1024;'), '更新包的体积上限变了：探针要跟着改')
+  assert.ok(installed.includes('const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";'), '更新包的完整性正则变了：探针要跟着改')
   assert.equal(hostModule.PROBE_LIMITS.maxBytes, 256 * 1024)
   assert.equal(hostModule.PROBE_LIMITS.integrityPattern, '^sha512-[A-Za-z0-9+/]{86}==$')
 })
@@ -492,29 +493,27 @@ test('接线：电话名与轮询间隔从更新包派生，产物里不写死',
   }
 })
 
-test('接线：包版产物声明 connection 注入与 dsh-log 运行时依赖', () => {
+test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1' })
+  // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.2.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.2.0 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
 })
 
-test('接线：宿主半 vendor 副本与 npm 包逐字节一致（除头部注释）', () => {
-  const distDir = join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist')
-  const names = readdirSync(distDir).filter((n) => n.endsWith('.js')).sort()
-  assert.ok(names.length > 0)
-  for (const targetDir of [join(ROOT, 'runtime', 'vendor', 'dsh-plugin-update'), join(ROOT, 'package', 'lib', 'vendor', 'dsh-plugin-update')]) {
-    for (const name of names) {
-      const original = readFileSync(join(distDir, name), 'utf8')
-      const lines = readFileSync(join(targetDir, name), 'utf8').split('\n')
-      // 来源标记行之后必须与 npm 包一字不差（头部行数改了也不会让这条门禁失效）
-      const markerAt = lines.findIndex((line) => line.startsWith('// vendor-source: '))
-      assert.ok(markerAt >= 0, name + ' 缺来源标记行（重新 npm run build）')
-      assert.match(lines[markerAt], /^\/\/ vendor-source: dsh-plugin-update@\d+\.\d+\.\d+ dist\/.+\.js$/)
-      assert.equal(lines.slice(markerAt + 1).join('\n'), original, name + ' 的 vendor 副本与 npm 包不一致（重新 npm run build）')
-    }
-  }
+test('接线：宿主半不再 vendor 更新包 —— 走真依赖，产物里没有 vendor 目录', () => {
+  // 0.1.x 时代被迫把更新包 dist 复制进本包（自锚定缺陷）；0.2.0 起按包名解析，依赖形态直接可用。
+  assert.ok(!existsSync(join(ROOT, 'runtime', 'vendor')), 'runtime/vendor 应已删除')
+  assert.ok(!existsSync(join(ROOT, 'package', 'lib', 'vendor')), 'package/lib/vendor 应已删除')
+  const host = read('runtime/host.mjs')
+  assert.match(host, /from 'dsh-plugin-update'/, '宿主半应 import 真依赖')
+  assert.ok(host.indexOf('./vendor/') < 0, '宿主半不该再有 vendor 相对路径')
+  const built = read('package/lib/index.js')
+  assert.match(built, /from 'dsh-plugin-update'/, '发出去的宿主半也要 import 真依赖（用户侧从 node_modules 解析）')
+  // 电话名从更新包返回值读，不自己拼
+  assert.match(host, /update\.phoneNames\.updateCheck/, '电话名应从 update.phoneNames 读')
 })
 
 // ───────────────────────── 三、宿主半冒烟 ─────────────────────────
@@ -536,7 +535,22 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
         ? { fetch: { register: (r) => { route = r; return () => {} } } }
         : undefined),
     }
-    hostModule.apply(ctx)
+    // 假使用范围：开发态 checkout 下更新包按包名找不到本包（README §6.13 的情形），
+    // 按「<范围>/node_modules/<目标包名>」摆一份装好的包并把 targetPackageDir 指过去，
+    // 使用范围目录由更新包自己反推。摆的是 package/ 产物（自带 main/client/patch 入口，
+    // 版本与 runningVersion 一致，不进 pending-restart）。
+    const profileDir = join(home, 'fakeprofile')
+    const fakePkgDir = join(profileDir, 'node_modules', 'dsh-opencode-palette')
+    mkdirSync(join(fakePkgDir, 'lib'), { recursive: true })
+    cpSync(join(ROOT, 'package', 'lib'), join(fakePkgDir, 'lib'), { recursive: true })
+    cpSync(join(ROOT, 'package', 'package.json'), join(fakePkgDir, 'package.json'))
+    cpSync(join(ROOT, 'package', 'cordis.patch.yml'), join(fakePkgDir, 'cordis.patch.yml'))
+    writeFileSync(join(profileDir, 'package.json'), JSON.stringify({
+      name: 'fake-profile',
+      version: '0.0.0',
+      dependencies: { 'dsh-opencode-palette': '^0.2.0' },
+    }))
+    hostModule.apply(ctx, { readerOverrides: { targetPackageDir: fakePkgDir } })
     assert.ok(route, '必须注册通道路由')
     assert.equal(route.path, '/api/opencode-palette')
     assert.deepEqual(route.methods, ['POST'])

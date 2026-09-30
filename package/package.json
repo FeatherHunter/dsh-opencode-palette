@@ -33,9 +33,11 @@
     "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues"
   },
   "dependencies": {
-    "dsh-log": "0.2.1"
+    "dsh-log": "0.2.1",
+    "dsh-plugin-update": "^0.2.0"
   },
   "engines": {
+    "node": ">=22",
     "dsh": ">=0.2.0-rc.1"
   },
   "dsh": {

@@ -121,17 +121,19 @@ build-client.mjs 把 src/engine + src/themes + runtime 内联为一个
 外部引用）。同一份引擎同时产出「包版 lib/client.js」与「动态版 client.js」两个入口形状。
 不引入 esbuild/rollup：环境无网络依赖、产物确定、无版本漂移。
 
-同一个构建器还产出宿主半与 npm 包 vendor（v1.8.0 起）：
+同一个构建器还产出宿主半与 npm 包声明（v1.8.0 起 vendor，0.2.0 起解耦为真依赖）：
 
 - **宿主半**：`runtime/host.mjs` 原样复制成 `package/lib/index.js`（另带 `channel.mjs`、`event-list.json`
   两个随包文件）。宿主半是真插件：接日志落盘与更新三电话，并把电话经精确路由 `/api/opencode-palette`
-  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（现在只有 `dsh-log`）。
+  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（`dsh-log` + `dsh-plugin-update@^0.2.0`）。
 - **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/client` 在构建期从 npm 包读入、
   转成 bundle 模块内联（转换器支持多行 `import`/`export` 与 `as` 别名）。所以面板里的电话名与轮询间隔
   是**运行时从包的函数算出来的**，不是抄进源码的常量。
-- **更新包 dist 随包 vendor**：`runtime/vendor/dsh-plugin-update/` 与 `package/lib/vendor/dsh-plugin-update/`
-  由构建从 npm 包复制（带来源标记行，门禁断言逐字节一致）。为什么不能直接 `import 'dsh-plugin-update'`
-  见 `docs/adr/0001-vendor-dsh-plugin-update.md`。
+- **更新包不再 vendor**：0.1.x 时 `runtime/vendor/` 与 `package/lib/vendor/` 由构建从 npm 包复制
+  （自锚定缺陷的绕法）；0.2.0 起更新包按包名解析目标包，依赖形态直接可用，vendor 已全部删除。
+  前因后果见 `docs/adr/0001-vendor-dsh-plugin-update.md`（已 superseded）与 `0002-*.md`。
+  构建前 `node scripts/check-deps.mjs` 硬门禁保证本机装的是上游最新（范围内落后就拦，离线放行），
+  打出的 bundle 与用户装到的宿主依赖是同一版。
 - **换行归一**：仓库 `* text=auto`，Windows 新克隆检出为 CRLF；构建器在读取处统一成 LF，
   否则依赖「行首 import」的正则会全部失配（新克隆上构建静默产出 broken bundle）。
 

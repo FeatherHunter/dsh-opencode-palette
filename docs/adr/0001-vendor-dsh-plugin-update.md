@@ -1,6 +1,9 @@
 # 更新包（dsh-plugin-update）的 dist 随包 vendor，而不是运行时 import
 
-Status: accepted
+Status: superseded（被 0002 推翻；0.2.0 起解耦为真依赖，本文件只保留历史原因）
+
+> 0.2.0 起更新包改为**按包名解析**目标包，依赖形态直接可用，vendor 已全部删除。
+> 当前做法见 `0002-decoupled-dsh-plugin-update-0.2.0.md`。
 
 ## Context
 

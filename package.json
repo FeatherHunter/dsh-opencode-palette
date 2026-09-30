@@ -8,20 +8,24 @@
     "sync": "node scripts/sync-themes.mjs",
     "sync:update": "node scripts/sync-themes.mjs --update-baseline",
     "fonts": "node scripts/inline-fonts.mjs",
-    "vendor:check": "node scripts/check-vendor-updates.mjs",
-    "build": "node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
+    "deps:check": "node scripts/check-deps.mjs",
+    "deps:sync": "npm update dsh-plugin-update dsh-log --registry=https://registry.npmjs.org && node scripts/check-deps.mjs",
+    "vendor:check": "node scripts/check-deps.mjs",
+    "build": "node scripts/check-deps.mjs && node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
     "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/release-scripts.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs tests/readme-body.test.mjs"
   },
-  "engines": { "node": ">=20", "dsh": ">=0.2.0-rc.1" },
+  "engines": { "node": ">=22", "dsh": ">=0.2.0-rc.1" },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FeatherHunter/dsh-opencode-palette.git"
   },
   "homepage": "https://github.com/FeatherHunter/dsh-opencode-palette",
   "bugs": { "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues" },
+  "dependencies": {
+    "dsh-plugin-update": "^0.2.0"
+  },
   "devDependencies": {
     "dsh-log": "0.2.1",
-    "dsh-plugin-update": "0.1.1",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

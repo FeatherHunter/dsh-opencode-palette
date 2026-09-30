@@ -11,13 +11,12 @@
  * 走 DSH 公开的 /api 载体：宿主 connection.fetch.register 注册精确路由，客户端
  * connection.rpc.call('/api', 'opencode-palette', { method, payload })——与 deck、im-companion 同构。
  *
- * 更新包为什么走 ./vendor/ 相对路径而不是 import 'dsh-plugin-update'：
- * 更新包的读取器用 containingPackage(import.meta.url, 目标包名) 从【自己的文件位置】往上找目标包。
- * 以 npm 依赖形态安装时它住在 <profile>/node_modules/dsh-plugin-update，往上永远找不到
- * dsh-opencode-palette，于是：运行版本读不到（host 入口直接抛 unknown-profile），且环境判定里的
- * sameLoadedPackage 恒为假 → blockedReason 恒为 installation-changed → 一键升级永远不可用。
- * 把它的 dist 原样放进本包 lib/vendor/ 下，import.meta.url 就落在本包内，两条判定都成立。
- * vendor 副本由构建从 npm 包复制（见 scripts/build-client.mjs），门禁断言与 npm 包逐字节一致。
+ * 更新包以**普通依赖形态**接入（`import { createHostUpdate } from 'dsh-plugin-update'`，见 package.json
+ * 的 `dependencies`）。0.1.x 曾被迫把它的 dist vendor 进本包：那时它用 containingPackage(import.meta.url, …)
+ * 从【自己的文件位置】往上找目标包，以依赖形态安装时永远找不到本包 → unknown-profile，且
+ * sameLoadedPackage 恒假 → installation-changed → 一键升级永远不可用。
+ * 0.2.0 起改为**按包名解析**（清单直解 → 入口反查 → node_modules 步行 → 自锚定兜底），依赖形态直接可用，
+ * 于是 vendor 全部删除。历史决策与推翻过程见 docs/adr/0001-vendor-dsh-plugin-update.md。
  */
 import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
@@ -25,9 +24,11 @@ import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHostLog, registerHostLogPhones } from 'dsh-log/host'
-import { createHostUpdate } from './vendor/dsh-plugin-update/host.js'
-import { buildPhoneNames, DEFAULT_REGISTRY } from './vendor/dsh-plugin-update/config.js'
+import { createHostUpdate } from 'dsh-plugin-update'
 import { PLUGIN_ID, PHONE_PREFIX, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.mjs'
+
+/** 官方源。更新包不导出这个常量（它的默认值也是它），探针自用，故本地声明一次。 */
+const DEFAULT_REGISTRY = 'https://registry.npmjs.org/'
 
 export const name = PLUGIN_ID
 // 通道要 connection；subprocess / desktopProfiles / desktopPnpm 由更新包自己按需取（它内部注入），
@@ -295,8 +296,18 @@ export function wrapUpdateCheck(handler, deps) {
   }
 }
 
-/** 宿主半装配入口：建日志库 → 建更新电话 → 合成电话表 → 注册通道。 */
-export function apply(ctx) {
+/** 宿主半装配入口：建日志库 → 建更新电话 → 合成电话表 → 注册通道。
+ *
+ * 第二个参数只给测试用：`{ readerOverrides }` 会与默认的 `{ runningVersion }` 合并后
+ * 交给更新包。生产环境永远不传（更新包按包名自动解析目标包与使用范围）；
+ * 只有自动解析对不上时（开发态 checkout、hoisted、多副本）才显式给
+ * `targetPackageDir`——更新包 README §6.13 的逃生口，冒烟测试用它搭假使用范围。
+ * 绝不传 `environmentKind` / `profileDir` / `profileName`：那两处会挡住自动探测，
+ * 传了升级就要改代码（更新包 README「升级本包」一节）。 */
+export function apply(ctx, opts) {
+  const extraOverrides = (opts && opts.readerOverrides && typeof opts.readerOverrides === 'object')
+    ? opts.readerOverrides
+    : {}
   const homeDir = dshHomeDir(process.env, homedir())
   const eventList = readEventList()
 
@@ -323,14 +334,14 @@ export function apply(ctx) {
   }
 
   const update = createHostUpdate(
-    { ctx: ctx, logCtx: { fire: function (level, event, fields) { return hostLog.store.log(level, event, fields) } }, readerOverrides: { runningVersion: runningVersion } },
+    { ctx: ctx, logCtx: { fire: function (level, event, fields) { return hostLog.store.log(level, event, fields) } }, readerOverrides: Object.assign({ runningVersion: runningVersion }, extraOverrides) },
     { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, targetPackageName: TARGET_PACKAGE_NAME }
   )
   for (const phoneName of Object.keys(update.handlers)) registry.set(phoneName, update.handlers[phoneName])
 
   // 查更新外面再包一层：失败重试一次，仍失败就跑探针把真实原因落日志。
-  // 电话名从更新包派生（本文件不写字面量），装更新与查状态两条保持原样。
-  const updateCheckPhone = buildPhoneNames(PHONE_PREFIX).updateCheck
+  // 电话名从更新包的返回值读（update.phoneNames），不自己拼字符串 —— 拼法与包内同一份真源。
+  const updateCheckPhone = update.phoneNames.updateCheck
   const rawUpdateCheck = registry.get(updateCheckPhone)
   if (typeof rawUpdateCheck === 'function') {
     registry.set(updateCheckPhone, wrapUpdateCheck(rawUpdateCheck, {
