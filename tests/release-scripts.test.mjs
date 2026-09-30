@@ -36,8 +36,18 @@ test('发布脚本：向导的关键步骤与提示仍在（防误删/误改）'
   const wizard = readFileSync(join(DIR, 'npm-release-wizard.ps1'), 'utf8')
   assert.ok(wizard.includes('npm publish'), '缺发布动作')
   assert.ok(wizard.includes('npm whoami'), '缺登录态检查')
-  assert.ok(wizard.includes('previously staged version'), '缺 E409「已暂存」的正确指引（重跑而非升版本号）')
+  assert.ok(wizard.includes('previously staged version'), '缺 E409「已受理/处理中」的指引')
   assert.ok(wizard.includes('Authenticate your account at'), '缺 2FA 授权提示')
+})
+
+test('发布脚本：Stage 4 按异步发布轮询，不查一次就判失败', () => {
+  const wizard = readFileSync(join(DIR, 'npm-release-wizard.ps1'), 'utf8')
+  // npm 对这次发布回的是 202 Accepted（"being processed"），版本要几分钟后才可见。
+  // 查一次就报「发布失败」会把人逼去重发，而重发必然撞 E409（同一版本正在处理中）。
+  assert.ok(wizard.includes('Start-Sleep'), 'Stage 4 必须轮询等待，不能查一次就下结论')
+  assert.ok(wizard.includes('202'), '缺异步发布（202 Accepted）的说明')
+  assert.ok(wizard.includes('先别重发'), '缺「别重发」的明确劝阻')
+  assert.ok(!/\{0\}|\{1\}/.test(wizard), '有没被替换的 -f 占位符（曾把帮助命令原样打给用户）')
 })
 
 test('发布脚本：带日志向导用转录、不重定向 npm 输出（重定向会触发 EOTP）', () => {

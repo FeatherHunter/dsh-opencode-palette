@@ -86,24 +86,43 @@ if ($pubCode -ne 0) {
   Fail "publish 退出码 $pubCode。先读报错码再动手："
   Say '  EOTP（无授权链接）→ 确认本窗口是交互终端、输出未被重定向；'
   Say '  E403 Two-factor…required → 走上方网页审批流，或 npm publish --otp=<6位码>；'
-  Say '  E409 "previously staged version" → 上次传完没走完浏览器审批，版本被暂存（npm view 还看不到）。'
-  Say '       不必升版本号：直接重跑本向导，授权后记得回终端按回车；要清暂存用 npm unpublish <name>@<ver>。'
+  Say '  E409 "previously staged version" → 这个版本早先已被受理（PUT 202），仍在处理中。'
+  Say '       先等几分钟用 npm view 复查，别升版本号、也别急着重发；'
+  Say '       确实要清掉再发：npm unpublish <name>@<version>（仍可用同一版本号）。'
   Say '  E403/E409 "previously published versions" → 该版本已正式发布过，这时才升 version；'
   Say '  E401/ENEEDAUTH → 回 Stage 1 重登录。'
   exit 1
 }
-Ok "publish 命令成功（出现 + $Name@$Ver 即发布成功）。"
+Ok "publish 已受理（出现 + $Name@$Ver）。若 npm 提示 being processed，属正常：本账号的发布是异步的，几分钟后才会出现在 registry。"
 
-# ── Stage 4/4：验证 ────────────────────────────────────────────
+# ── Stage 4/4：验证（异步发布，轮询等待）────────────────────────
 Stage '验证（发布后必做）'
-$rv = npm view $Name version --registry=$Registry --prefer-online 2>$null
-if ($rv -and $rv.Trim() -eq $Ver) {
-  Ok "远端已是 $Ver，发布成功。"
+# 这里的发布是**异步**的：PUT 回 202 Accepted，npm 自己会打印
+#   "Your package is being processed and may take a few minutes to become available."
+# 所以「publish 命令成功」≠「立刻能查到」。查一次就判失败会误报（2026-09-30 真机：
+# 刚发完查到的是上一版，脚本报「发布失败」，差点让人重发 —— 而重发会撞
+# E409 "Cannot publish over previously staged version"，因为同一版本正在处理中）。
+$waitSeconds = 240
+$stepSeconds = 15
+$deadline = (Get-Date).AddSeconds($waitSeconds)
+$rv = ''
+while ($true) {
+  $rv = (npm view $Name version --registry=$Registry --prefer-online 2>$null | Out-String).Trim()
+  if ($rv -eq $Ver) { break }
+  if ((Get-Date) -ge $deadline) { break }
+  Say "  远端还是 $rv —— npm 正在处理，$stepSeconds 秒后再查（最多等 $waitSeconds 秒）…"
+  Start-Sleep -Seconds $stepSeconds
+}
+if ($rv -eq $Ver) {
+  Ok "远端已是 $Ver，发布完成。"
 } else {
-  Fail "远端版本为 '$rv'，与 $Ver 不符（可能镜像延迟或发布失败）。"
-  Say "  包主页：https://www.npmjs.com/package/$Name"
-  Say '  等 1 分钟重跑：npm view {0} version --registry={1} --prefer-online' -f $Name, $Registry
-  exit 1
+  Warn "publish 已被受理，但远端元数据还没刷到 $Ver。这不是失败。"
+  Say  '  npm 的发布是异步的：命令成功 ≠ 立刻可查，处理中会回 202 Accepted，通常几分钟内可见。'
+  Say  '  先别重发 —— 重发会撞 E409 "previously staged version"（同一版本正在处理中）。'
+  Say  '  手动复查（出现 ' + $Ver + ' 即完成）：'
+  Say  ('    npm view ' + $Name + ' version --registry=' + $Registry + ' --prefer-online')
+  Say  ('  包主页：https://www.npmjs.com/package/' + $Name)
+  exit 0
 }
 
 Clear-Host
