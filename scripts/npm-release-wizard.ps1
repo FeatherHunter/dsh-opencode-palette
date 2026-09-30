@@ -1,4 +1,4 @@
-# publish-wizard.ps1 — dsh-opencode-palette npm 官方源发布向导（人类交互终端前台运行）
+﻿# publish-wizard.ps1 — dsh-opencode-palette npm 官方源发布向导（人类交互终端前台运行）
 #
 # 对应技能：D:\2Study\StudyNotes\SKILLS\npm-publish（SKILL.md §3→§4→§5）
 # AI 已完成：§0 前置三查、§1 包就绪检查、§2 dry-run、构建、测试、pack、tag 推送。
