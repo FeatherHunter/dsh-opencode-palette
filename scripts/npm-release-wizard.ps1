@@ -2,7 +2,8 @@
 #
 # 对应技能：D:\2Study\StudyNotes\SKILLS\npm-publish（SKILL.md §3→§4→§5）
 # AI 已完成：§0 前置三查、§1 包就绪检查、§2 dry-run、构建、测试、pack、tag 推送。
-# 人只做：Stage 3 里按一次回车 → 浏览器完成 2FA 审批 → 回终端再按一次回车。其他全自动。
+# 人只做：在浏览器完成 2FA 审批。其余全自动 —— 本向导无任何「按回车继续」卡点，
+# 启动后一气推完 4 个阶段（中途只在浏览器点授权，不回终端）。
 #
 # 用法（在你自己的 PowerShell 窗口里粘贴执行，不要重定向输出——重定向会触发 EOTP）：
 #   powershell -ExecutionPolicy Bypass -File scripts/npm-release-wizard.ps1
@@ -22,9 +23,8 @@ function Banner($title) {
   Clear-Host
   Write-Host ''
   Write-Host "  $title" -ForegroundColor Blue
-  Write-Host "  共 $TOTAL 个阶段，你只需要在 Stage 3 按提示点一次浏览器授权" -ForegroundColor DarkGray
+  Write-Host "  共 $TOTAL 个阶段：启动后一气推完，你只需要在浏览器完成一次 2FA 授权（不回终端按回车）" -ForegroundColor DarkGray
   Write-Host '  随时 Ctrl+C 退出重跑（已完成的阶段可重复执行，无副作用）。' -ForegroundColor DarkGray
-  Read-Host '  准备好就按回车开始'
 }
 function Stage($title) {
   $script:StageNo++
@@ -70,14 +70,14 @@ if ($remote -match [regex]::Escape("'$Ver'")) {
 }
 Ok "远端无 $Ver，可发。"
 Say '包内容（dry-run 实测 5 文件 387KB）：README.md / cordis.patch.yml / lib/client.js / lib/index.js / package.json'
-Warn '发布即公开、72h 后不可删——确认无误再继续。'
-Read-Host '  确认发布请直接回车，取消请 Ctrl+C'
+Warn '发布即公开、72h 后不可删 —— 3 秒后自动继续，取消请现在 Ctrl+C。'
+Start-Sleep -Seconds 3
 
 # ── Stage 3/4：发布（2FA 网页审批）─────────────────────────────
 Stage '发布（2FA 在浏览器审批）'
-Say '执行 npm publish 后，npm 会打印授权链接：'
+Say '执行 npm publish 后如需 2FA，npm 会打印授权链接：'
 Say '  Authenticate your account at: https://www.npmjs.com/auth/cli/<id>'
-Say '  按回车 → 浏览器打开授权页 → 完成 2FA 审批 → 回终端再按回车。'
+Say '  在浏览器打开授权页完成 2FA 审批即可，命令会自动继续（不回终端按回车）。'
 Push-Location $PackageDir
 npm publish --registry=$Registry
 $pubCode = $LASTEXITCODE

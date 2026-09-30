@@ -27,7 +27,7 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
    ```powershell
    Start-Process powershell.exe -ArgumentList '-NoExit','-ExecutionPolicy','Bypass','-File','<repo>\scripts\npm-release-wizard.ps1'
    ```
-   向导 4 阶段：登录态 → 复核 → 发布 → 验证。授权后**回终端再按一次回车**，看到 `+ dsh-opencode-palette@<版本>` 才算完。令牌不进聊天、不进仓库；Agent 不碰令牌，发布动作由人在弹窗里完成。
+   向导 4 阶段一气推完（无按回车卡点，复核后 3 秒自动继续）：登录态 → 复核 → 发布 → 验证。人只在浏览器里完成 2FA，看到 `+ dsh-opencode-palette@<版本>` 即受理（本账号异步处理，验证阶段轮询）。令牌不进聊天、不进仓库；Agent 不碰令牌，发布动作由人在弹窗里完成。
 3. **对账**：`npm view dsh-opencode-palette version --registry=https://registry.npmjs.org --prefer-online` 等于本地版本，且线上 `dist.shasum` 等于本地 tgz 的 sha1。
 4. **GitHub Release**：`gh release create v<版本> --title "v<版本> — <一句话>" --notes-file <正文> package/dsh-opencode-palette-<版本>.tgz`。
 5. **市场条目同步**：`awesome-dsh-plugin` 里**只改** `data/plugins/FeatherHunter__dsh-opencode-palette.yml`（tarball 跟版本、描述跟事实），在 fork 上开分支提到上游。上游 contributing.md 的规矩：一个 PR 只交这一个文件，两份 README 由他们合并在 `main` 上重新生成 —— 不要手工改 README，也不要把本地重生成的 README 带进 PR（fork 的 main 往往落后上游上千个提交，带进去会删掉别人的条目）。自检用 `node scripts/check-submission.mjs --only-list <只列本条目文件名>`。
