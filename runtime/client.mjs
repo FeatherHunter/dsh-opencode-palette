@@ -555,6 +555,36 @@ export function createClient(slotTarget) {
             }, tr('fontRetry')) : null,
           ])
           : null
+        // 分组标题：非点击的分区线（替代旧“本机字体 · 90”文本分隔）。
+        // 文本用主题色 var(--dsw-alias-brand-primary)（随当前 opencode 主题走 primary），
+        // 数量做成描边徽章 + 中间细分割线，不再用“·”拼接字符串。
+        const secHeader = function (key, label, count) {
+          const badge = (count === null || count === undefined) ? null : h('span', {
+            key: 'n',
+            style: {
+              fontSize: 11, lineHeight: '16px', padding: '0 7px', borderRadius: 999,
+              border: '1px solid var(--dsw-alias-brand-primary)',
+              color: 'var(--dsw-alias-brand-primary)', background: 'transparent', flex: 'none',
+            },
+          }, String(count))
+          return h('div', {
+            key: key,
+            style: {
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '10px 10px 4px', cursor: 'default', userSelect: 'none',
+            },
+          }, [
+            h('span', {
+              key: 't',
+              style: {
+                fontSize: 11, fontWeight: 600, letterSpacing: '.08em', whiteSpace: 'nowrap',
+                color: 'var(--dsw-alias-brand-primary)',
+              },
+            }, label),
+            h('span', { key: 'l', style: { flex: '1 1 auto', height: 1, background: 'var(--dsw-alias-border-l1)', borderRadius: 1 } }),
+            badge,
+          ])
+        }
         const menuItem = function (key, label, onClick) {
           return h('div', {
             key: key,
@@ -571,11 +601,11 @@ export function createClient(slotTarget) {
           const locals = all.slice(0, 400)
           const rows = []
           if (presets.length > 0) {
-            rows.push(menuItem('sec-presets', tr('fontPresets'), function () {}))
+            rows.push(secHeader('sec-presets', tr('fontPresets'), presets.length))
             for (const k of presets) rows.push(fontItem(k))
           }
           if (locals.length > 0) {
-            rows.push(menuItem('sec-locals', tr('fontLocals') + ' · ' + all.length, function () {}))
+            rows.push(secHeader('sec-locals', tr('fontLocals'), all.length))
             for (const k of locals) rows.push(fontItem(k))
           }
           if (rows.length === 0) rows.push(menuItem('no-match', tr('fontNoMatch'), function () {}))
@@ -833,20 +863,26 @@ export function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: '你的 ⭐是我夜空中最亮的星 🌹',
-                style: { color: muted, display: 'inline-flex', cursor: 'pointer', fontSize: 15, lineHeight: 1, textDecoration: 'none' },
-              }, '🌟'),
-              // ISSUE 入口：消息气泡形态（信息图标认不出「提需求」，气泡才读得出是反馈）
+                style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
+              }, h('svg', {
+                width: 15, height: 15, viewBox: '0 0 24 24',
+                style: { display: 'block' },
+              }, h('path', {
+                d: 'M12 2.5l2.92 6.14 6.58.6-4.93 4.4 1.42 6.46L12 16.77l-5.99 3.33 1.42-6.46-4.93-4.4 6.58-.6L12 2.5z',
+                fill: '#FFC53D', stroke: '#B45309', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
+              }))),
+              // ISSUE 入口：彩色消息气泡（信息图标认不出「提需求」，气泡才读得出是反馈；浅底深底都可见的定值配色）
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: '任何功能需求、故障、建议、意见都可以提ISSUE',
-                style: { color: muted, display: 'inline-flex', cursor: 'pointer' },
+                style: { display: 'inline-flex', cursor: 'pointer' },
               }, h('svg', {
-                width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
-                stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                width: 14, height: 14, viewBox: '0 0 24 24',
                 style: { display: 'block' },
               }, h('path', {
                 d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+                fill: '#7DD3FC', stroke: '#0369A1', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
               }))),
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
@@ -882,7 +918,7 @@ export function createClient(slotTarget) {
             ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) }),
             dd(sizeOpen, setSizeOpen, sizeRef,
               h('span', null, tr('fontSize') + ' ' + st.size + 'px'),
-              [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) {
+              [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(function (s) {
                 const on = s === st.size
                 return h('div', {
                   key: String(s),

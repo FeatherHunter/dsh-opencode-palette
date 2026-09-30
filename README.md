@@ -69,7 +69,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>opencode 主题之外提供的功能</h2>
 
-**丰富的字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–18 px、代码字体随你挑，与颜色互不干扰，重启不丢。
+**丰富的字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–24 px、代码字体随你挑，与颜色互不干扰，重启不丢。
 
 **面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
 

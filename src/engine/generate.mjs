@@ -57,24 +57,32 @@ export function buildTypographyCss(typography) {
   const bodyFont = mode === 'mono' ? codeFont : SANS_STACK
   const lh = size + 9
   const small = size - 1
+  // 标题阶梯跟随 size（size=13 时恰好还原旧固定值 16/15/14，避免默认视觉漂移）：
+  // H1 = size+3 / lh+2，H2 = size+2 / lh，H3 = size+1 / lh-1
+  const h1 = size + 3
+  const h1lh = lh + 2
+  const h2 = size + 2
+  const h2lh = lh
+  const h3 = size + 1
+  const h3lh = lh - 1
   return [FONT_FACE_CSS,
     'body,body[data-ds-dark-theme]{',
     '--dsw-font-family:' + bodyFont + ';',
     '--ds-font-family-code:' + codeFont + ';',
-    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–18 档）
+    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–24 档）
     '--dsw-font-markdown-code-block:' + (size - 2) + 'px/' + (size + 6) + 'px var(--ds-font-family-code);',
     '--dsw-font-markdown-base:' + size + 'px/' + lh + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-base-font-size:' + size + 'px;',
     '--dsw-font-markdown-base-line-height:' + lh + 'px;',
-    '--dsw-font-markdown-h1:700 16px/24px var(--dsw-font-family);',
-    '--dsw-font-markdown-h1-font-size:16px;',
-    '--dsw-font-markdown-h1-line-height:24px;',
-    '--dsw-font-markdown-h2:700 15px/22px var(--dsw-font-family);',
-    '--dsw-font-markdown-h2-font-size:15px;',
-    '--dsw-font-markdown-h2-line-height:22px;',
-    '--dsw-font-markdown-h3:600 14px/21px var(--dsw-font-family);',
-    '--dsw-font-markdown-h3-font-size:14px;',
-    '--dsw-font-markdown-h3-line-height:21px;',
+    '--dsw-font-markdown-h1:700 ' + h1 + 'px/' + h1lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h1-font-size:' + h1 + 'px;',
+    '--dsw-font-markdown-h1-line-height:' + h1lh + 'px;',
+    '--dsw-font-markdown-h2:700 ' + h2 + 'px/' + h2lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h2-font-size:' + h2 + 'px;',
+    '--dsw-font-markdown-h2-line-height:' + h2lh + 'px;',
+    '--dsw-font-markdown-h3:600 ' + h3 + 'px/' + h3lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h3-font-size:' + h3 + 'px;',
+    '--dsw-font-markdown-h3-line-height:' + h3lh + 'px;',
     '--dsw-font-markdown-small:' + small + 'px/' + (small + 8) + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-small-font-size:' + small + 'px;',
     '--dsw-font-markdown-small-line-height:' + (small + 8) + 'px;',

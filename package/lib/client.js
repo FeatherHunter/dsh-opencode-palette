@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.5 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.6 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（vendor）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -1525,24 +1525,32 @@ function buildTypographyCss(typography) {
   const bodyFont = mode === 'mono' ? codeFont : SANS_STACK
   const lh = size + 9
   const small = size - 1
+  // 标题阶梯跟随 size（size=13 时恰好还原旧固定值 16/15/14，避免默认视觉漂移）：
+  // H1 = size+3 / lh+2，H2 = size+2 / lh，H3 = size+1 / lh-1
+  const h1 = size + 3
+  const h1lh = lh + 2
+  const h2 = size + 2
+  const h2lh = lh
+  const h3 = size + 1
+  const h3lh = lh - 1
   return [FONT_FACE_CSS,
     'body,body[data-ds-dark-theme]{',
     '--dsw-font-family:' + bodyFont + ';',
     '--ds-font-family-code:' + codeFont + ';',
-    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–18 档）
+    // F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–24 档）
     '--dsw-font-markdown-code-block:' + (size - 2) + 'px/' + (size + 6) + 'px var(--ds-font-family-code);',
     '--dsw-font-markdown-base:' + size + 'px/' + lh + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-base-font-size:' + size + 'px;',
     '--dsw-font-markdown-base-line-height:' + lh + 'px;',
-    '--dsw-font-markdown-h1:700 16px/24px var(--dsw-font-family);',
-    '--dsw-font-markdown-h1-font-size:16px;',
-    '--dsw-font-markdown-h1-line-height:24px;',
-    '--dsw-font-markdown-h2:700 15px/22px var(--dsw-font-family);',
-    '--dsw-font-markdown-h2-font-size:15px;',
-    '--dsw-font-markdown-h2-line-height:22px;',
-    '--dsw-font-markdown-h3:600 14px/21px var(--dsw-font-family);',
-    '--dsw-font-markdown-h3-font-size:14px;',
-    '--dsw-font-markdown-h3-line-height:21px;',
+    '--dsw-font-markdown-h1:700 ' + h1 + 'px/' + h1lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h1-font-size:' + h1 + 'px;',
+    '--dsw-font-markdown-h1-line-height:' + h1lh + 'px;',
+    '--dsw-font-markdown-h2:700 ' + h2 + 'px/' + h2lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h2-font-size:' + h2 + 'px;',
+    '--dsw-font-markdown-h2-line-height:' + h2lh + 'px;',
+    '--dsw-font-markdown-h3:600 ' + h3 + 'px/' + h3lh + 'px var(--dsw-font-family);',
+    '--dsw-font-markdown-h3-font-size:' + h3 + 'px;',
+    '--dsw-font-markdown-h3-line-height:' + h3lh + 'px;',
     '--dsw-font-markdown-small:' + small + 'px/' + (small + 8) + 'px var(--dsw-font-family);',
     '--dsw-font-markdown-small-font-size:' + small + 'px;',
     '--dsw-font-markdown-small-line-height:' + (small + 8) + 'px;',
@@ -10023,7 +10031,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.5'
+const PALETTE_VERSION = '2.0.6'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -10560,6 +10568,36 @@ function createClient(slotTarget) {
             }, tr('fontRetry')) : null,
           ])
           : null
+        // 分组标题：非点击的分区线（替代旧“本机字体 · 90”文本分隔）。
+        // 文本用主题色 var(--dsw-alias-brand-primary)（随当前 opencode 主题走 primary），
+        // 数量做成描边徽章 + 中间细分割线，不再用“·”拼接字符串。
+        const secHeader = function (key, label, count) {
+          const badge = (count === null || count === undefined) ? null : h('span', {
+            key: 'n',
+            style: {
+              fontSize: 11, lineHeight: '16px', padding: '0 7px', borderRadius: 999,
+              border: '1px solid var(--dsw-alias-brand-primary)',
+              color: 'var(--dsw-alias-brand-primary)', background: 'transparent', flex: 'none',
+            },
+          }, String(count))
+          return h('div', {
+            key: key,
+            style: {
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '10px 10px 4px', cursor: 'default', userSelect: 'none',
+            },
+          }, [
+            h('span', {
+              key: 't',
+              style: {
+                fontSize: 11, fontWeight: 600, letterSpacing: '.08em', whiteSpace: 'nowrap',
+                color: 'var(--dsw-alias-brand-primary)',
+              },
+            }, label),
+            h('span', { key: 'l', style: { flex: '1 1 auto', height: 1, background: 'var(--dsw-alias-border-l1)', borderRadius: 1 } }),
+            badge,
+          ])
+        }
         const menuItem = function (key, label, onClick) {
           return h('div', {
             key: key,
@@ -10576,11 +10614,11 @@ function createClient(slotTarget) {
           const locals = all.slice(0, 400)
           const rows = []
           if (presets.length > 0) {
-            rows.push(menuItem('sec-presets', tr('fontPresets'), function () {}))
+            rows.push(secHeader('sec-presets', tr('fontPresets'), presets.length))
             for (const k of presets) rows.push(fontItem(k))
           }
           if (locals.length > 0) {
-            rows.push(menuItem('sec-locals', tr('fontLocals') + ' · ' + all.length, function () {}))
+            rows.push(secHeader('sec-locals', tr('fontLocals'), all.length))
             for (const k of locals) rows.push(fontItem(k))
           }
           if (rows.length === 0) rows.push(menuItem('no-match', tr('fontNoMatch'), function () {}))
@@ -10838,20 +10876,26 @@ function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: '你的 ⭐是我夜空中最亮的星 🌹',
-                style: { color: muted, display: 'inline-flex', cursor: 'pointer', fontSize: 15, lineHeight: 1, textDecoration: 'none' },
-              }, '🌟'),
-              // ISSUE 入口：消息气泡形态（信息图标认不出「提需求」，气泡才读得出是反馈）
+                style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
+              }, h('svg', {
+                width: 15, height: 15, viewBox: '0 0 24 24',
+                style: { display: 'block' },
+              }, h('path', {
+                d: 'M12 2.5l2.92 6.14 6.58.6-4.93 4.4 1.42 6.46L12 16.77l-5.99 3.33 1.42-6.46-4.93-4.4 6.58-.6L12 2.5z',
+                fill: '#FFC53D', stroke: '#B45309', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
+              }))),
+              // ISSUE 入口：彩色消息气泡（信息图标认不出「提需求」，气泡才读得出是反馈；浅底深底都可见的定值配色）
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: '任何功能需求、故障、建议、意见都可以提ISSUE',
-                style: { color: muted, display: 'inline-flex', cursor: 'pointer' },
+                style: { display: 'inline-flex', cursor: 'pointer' },
               }, h('svg', {
-                width: 14, height: 14, viewBox: '0 0 24 24', fill: 'none',
-                stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                width: 14, height: 14, viewBox: '0 0 24 24',
                 style: { display: 'block' },
               }, h('path', {
                 d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+                fill: '#7DD3FC', stroke: '#0369A1', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
               }))),
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
@@ -10887,7 +10931,7 @@ function createClient(slotTarget) {
             ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) }),
             dd(sizeOpen, setSizeOpen, sizeRef,
               h('span', null, tr('fontSize') + ' ' + st.size + 'px'),
-              [11, 12, 13, 14, 15, 16, 17, 18].map(function (s) {
+              [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(function (s) {
                 const on = s === st.size
                 return h('div', {
                   key: String(s),

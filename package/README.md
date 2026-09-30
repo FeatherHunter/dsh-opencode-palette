@@ -45,7 +45,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the opencode themes come with</h2>
 
-**Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–18 px, your pick of code font — orthogonal to color, kept across restarts.
+**Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–24 px, your pick of code font — orthogonal to color, kept across restarts.
 
 **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
 

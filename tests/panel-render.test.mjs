@@ -428,3 +428,12 @@ test('本机字体枚举：读到的字体会进「本机字体」分区，等�
   assert.equal(locals[0].ok, true, '枚举到的字体恒判可用')
   assert.equal(locals[1].ok, true, '非等宽字体也判可用（可选用）')
 })
+
+test('字体分组标题：不用“·”拼接，文本走主题色 + 数量徽章 + 分割线', () => {
+  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  assert.ok(code.includes('secHeader('), '缺分组标题组件 secHeader')
+  assert.ok(!code.includes("tr('fontLocals') + ' · '"), '旧“本机字体 · N”拼接仍在')
+  assert.ok(code.includes('var(--dsw-alias-brand-primary)'), '分组标题未用主题色')
+  assert.ok(code.includes("secHeader('sec-presets'"), '常用预设未走新分组标题')
+  assert.ok(code.includes("secHeader('sec-locals'"), '本机字体未走新分组标题')
+})

@@ -137,8 +137,8 @@ test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
     assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
     assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
   }
-  // 排印三属性（字体 / 字号 11–18 / 作用范围）只在 EXTENSIONS 第一条出现
-  for (const [name, doc, needle] of [['中文页', ZH, '字号 11–18'], ['英文页', EN, '11–18 px']]) {
+  // 排印三属性（字体 / 字号 11–24 / 作用范围）只在 EXTENSIONS 第一条出现
+  for (const [name, doc, needle] of [['中文页', ZH, '字号 11–24'], ['英文页', EN, '11–24 px']]) {
     assert.equal(count(doc, needle), 1, `${name}「${needle}」应只出现一次`)
     assert.ok(doc.slice(ext(doc)).includes(needle), `${name}「${needle}」应落在 EXTENSIONS 段内`)
   }

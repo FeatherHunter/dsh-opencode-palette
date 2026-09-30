@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DSH 文字/字号项穷举清单 — 深度报告</title>
+<style>
+:root{color-scheme:light dark;--bg:#fff;--fg:#1a1a1a;--muted:#666;--line:#e5e5e5;--card:#f7f7f8;--accent:#0b5fff;--code:#f2f2f3}
+@media(prefers-color-scheme:dark){:root{--bg:#151517;--fg:#e8e8ea;--muted:#a7a7ad;--line:#2c2c2e;--card:#1e1e20;--accent:#7aaaff;--code:#232326}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 22px 80px}
+.hero{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:22px 22px 16px;margin-bottom:22px}
+.hero h1{margin:0 0 8px;font-size:24px;line-height:1.4}
+.meta{color:var(--muted);font-size:13px;display:flex;gap:14px;flex-wrap:wrap}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+.badge{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;background:var(--bg)}
+.badge b{font-size:14px}
+.toc{border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:18px 0;background:var(--bg)}
+.toc h2{font-size:15px;margin:0 0 8px}
+.toc ul{margin:6px 0;padding-left:20px}
+article h1{font-size:22px;border-bottom:2px solid var(--line);padding-bottom:8px;margin-top:34px}
+article h2{font-size:19px;margin-top:30px;border-bottom:1px solid var(--line);padding-bottom:6px}
+article h3{font-size:16px;margin-top:24px}
+article table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;line-height:1.6;display:block;overflow-x:auto}
+article thead th{position:sticky;top:0;background:var(--card);white-space:nowrap}
+article th,article td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+article tbody tr:nth-child(odd){background:rgba(127,127,127,.06)}
+article code{font-family:"SF Mono","JetBrains Mono","Fira Code",Consolas,Menlo,monospace;font-size:.86em;background:var(--code);padding:1px 6px;border-radius:6px;word-break:break-all}
+article pre{background:#0f0f11;color:#e8e8ea;border-radius:12px;padding:14px 16px;overflow:auto;font-size:12.5px;line-height:1.65}
+article pre code{background:transparent;color:inherit;padding:0}
+article blockquote{border-left:4px solid var(--accent);margin:14px 0;padding:8px 14px;background:var(--card);border-radius:0 10px 10px 0;color:inherit}
+.top{position:fixed;right:18px;bottom:18px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:8px 14px;font-size:13px;text-decoration:none}
+.foot{color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);margin-top:30px;padding-top:12px}
+a{color:var(--accent)}
+@media print{.top{display:none}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="hero">
+<h1>DSH 文字/字号项穷举清单 — 深度报告</h1>
+<div class="meta"><span>生成时间：2026-09-29 21:47</span><span>底稿：docs/research/dsh-text-fontsize-inventory.md</span><span>一手来源：DSH 安装包源码 + README + CSS/JS</span></div>
+<div class="badges"><span class="badge">官方可改 <b>14</b> 项</span><span class="badge">官方不可改 <b>12</b> 项</span><span class="badge">插件通道 <b>9</b> 项</span><span class="badge">合计 <b>35</b> 行</span></div>
+</div>
+<article>
+<h1 id="dsh">DSH 文字/字号项穷举清单（官方允许修改的每一项回溯到一手来源）</h1>
+<ul>
+<li>版本日期：2026-09-29（Asia/Shanghai）</li>
+<li>DSH 安装根：<code>D:\DSH NEXT\resources\app</code>（<code>package.json: name=dsh-desktop-next, version=2.0.15-next, main=lib/main.js</code>）</li>
+<li>本仓：<code>D:\dsh-plugin\dsh-opencode-palette</code>（<code>package.json: name=dsh-opencode-palette, version=2.0.5</code>）</li>
+<li>方法：只认一手来源（<code>README.zh.md</code> / <code>lib/*.js</code> / <code>lib/*.cjs</code> / <code>package.json</code> / <code>cordis.patch.yml</code> 原文）。下文每个结论都标注“文件 + 关键字符串”，不给编造的行号，不引用二手博客。</li>
+<li>缺失声明：<code>docs/web-styling.zh.md</code> 在安装包里不存在（已验证 <code>D:\DSH NEXT\resources\app\docs\web-styling.zh.md</code> 与 <code>node_modules/@deepseek-ai/dsh-client-ui-theme/docs/web-styling.zh.md</code> 均不存在）。<code>dsh-client-ui-theme/README.zh.md</code> 中多处引用 <code>../../../docs/web-styling.zh.md#...</code> 与 <code>../../../.agents/notes/...</code>，在发布包内无法落点，本文件对相关引用如实标注“源包引用但产物缺失”。</li>
+</ul>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#0-结论总表">0. 结论总表</a></li>
+<li><a href="#a-官方设置项-ui-themefontsize">A. 官方设置项 ui-theme.fontSize</a></li>
+<li><a href="#b-受---dsh-content-font-size-直接驱动的每一项">B. 受 --dsh-content-font-size 直接驱动的每一项</a></li>
+<li><a href="#c-明确不受官方字号影响的每一类">C. 明确不受官方字号影响的每一类</a></li>
+<li><a href="#d-本仓-opencode-palette-插件第二通道">D. 本仓 opencode-palette 插件第二通道</a></li>
+<li><a href="#e-全局手段的边界">E. 全局手段的边界</a></li>
+<li><a href="#附录grep-统计方法与复现命令">附录：grep 统计方法与复现命令</a></li>
+</ul>
+<h2 id="0">0. 结论总表</h2>
+<p>每一行格式：一项文字 | 官方可改否 | 调哪里 | 范围 | 来源。</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>一项文字</th>
+<th>官方可改否</th>
+<th>调哪里</th>
+<th>范围</th>
+<th>来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td>Markdown 正文 base（<code>--dsw-font-markdown-base*</code>）</td>
+<td>可改</td>
+<td>设置→通用→字号步进器 <code>ui-theme.fontSize</code> → <code>--dsh-content-font-size</code> → <code>--dsh-content-font-delta</code></td>
+<td>12~17px，步长1，默认14</td>
+<td><code>dsh-client-ui-theme/lib/index.js: FONT_SIZE_MIN/FONT_SIZE_MAX/DEFAULT_FONT_SIZE</code>；<code>lib/client.js: --dsw-font-markdown-base:var(--dsh-content-font-size,14px)...</code></td>
+</tr>
+<tr>
+<td>B2</td>
+<td>Markdown 加粗 base-strong</td>
+<td>可改</td>
+<td>同上</td>
+<td>同上（字号=设置值，weight 600）</td>
+<td><code>lib/client.js: --dsw-font-markdown-base-strong:600 var(--dsh-content-font-size,14px)...</code></td>
+</tr>
+<tr>
+<td>B3</td>
+<td>Markdown 斜体 base-italic / strong-italic</td>
+<td>可改</td>
+<td>同上</td>
+<td>同上（style italic，字号=设置值）</td>
+<td><code>lib/client.js: --dsw-font-markdown-base-italic:italic var(--dsh-content-font-size,14px)...</code>、<code>--dsw-font-markdown-base-strong-italic:italic 600 var(--dsh-content-font-size,14px)...</code></td>
+</tr>
+<tr>
+<td>B4</td>
+<td>Markdown H1</td>
+<td>可改</td>
+<td>同上</td>
+<td>默认 <code>21px+delta</code> / 行高 <code>30px+delta</code>（12→19px，17→24px）</td>
+<td><code>lib/client.js: --dsw-font-markdown-h1:700 calc(21px + var(--dsh-content-font-delta))...</code></td>
+</tr>
+<tr>
+<td>B5</td>
+<td>Markdown H2</td>
+<td>可改</td>
+<td>同上</td>
+<td>默认 <code>19px+delta</code> / <code>28px+delta</code></td>
+<td><code>lib/client.js: --dsw-font-markdown-h2:700 calc(19px + var(--dsh-content-font-delta))...</code></td>
+</tr>
+<tr>
+<td>B6</td>
+<td>Markdown H3</td>
+<td>可改</td>
+<td>同上</td>
+<td>默认 <code>18px+delta</code> / <code>26px+delta</code></td>
+<td><code>lib/client.js: --dsw-font-markdown-h3:700 calc(18px + var(--dsh-content-font-delta))...</code></td>
+</tr>
+<tr>
+<td>B7</td>
+<td>Markdown H4</td>
+<td>可改</td>
+<td>同上</td>
+<td>字号直接=设置值，行高 <code>24px+delta</code></td>
+<td><code>lib/client.js: --dsw-font-markdown-h4:600 var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta))...</code></td>
+</tr>
+<tr>
+<td>B8</td>
+<td>Markdown 表格 table</td>
+<td>可改（低一档）</td>
+<td>同上经 <code>--dsh-content-font-size-secondary</code></td>
+<td>默认13px；<code>&lt;=14时设置值-1</code>，<code>&gt;14时设置值-2</code></td>
+<td><code>lib/client.js: --dsw-font-markdown-table:var(--dsh-content-font-size-secondary,13px)/calc(22px + var(--dsh-content-font-delta-secondary,0px))...</code></td>
+</tr>
+<tr>
+<td>B9</td>
+<td>Markdown 表头 table-head</td>
+<td>可改（低一档）</td>
+<td>同上</td>
+<td>同 B8（weight 500）</td>
+<td><code>lib/client.js: --dsw-font-markdown-table-head:500 var(--dsh-content-font-size-secondary,13px)...</code></td>
+</tr>
+<tr>
+<td>B10</td>
+<td>Secondary 低一档正文（compactionTitle/retryRow/source/summary/hint/flowItem/timeStart 等）</td>
+<td>可改（低一档）</td>
+<td>同上</td>
+<td>默认13px，同 B8 公式</td>
+<td><code>dsh-client-ui-chat/lib/client.js: .VnbZpq_compactionTitle{font-size:var(--dsh-content-font-size-secondary,13px)</code> 等 18 处；<code>dsh-client-ui-conversation/lib/client.js: .JdJrwG_trigger{...font-size:var(--dsh-content-font-size-secondary,13px)</code>；<code>dsh-client-ui-tool/lib/client.js: .WXmFEW_summary{...font-size:var(--dsh-content-font-size-secondary,13px)</code> 等</td>
+</tr>
+<tr>
+<td>B11</td>
+<td>用户气泡正文（<code>VnbZpq_bubble</code>）</td>
+<td>可改（全档）</td>
+<td>同上</td>
+<td>字号=设置值，行高 <code>22px+delta</code></td>
+<td><code>dsh-client-ui-chat/lib/client.js: .VnbZpq_bubble{...font-size:var(--dsh-content-font-size,14px);line-height:calc(22px + var(--dsh-content-font-delta,0px))</code></td>
+</tr>
+<tr>
+<td>B12</td>
+<td>Composer 卡片/草稿（<code>Q7WfXG_card</code>）</td>
+<td>可改（全档）</td>
+<td>同上</td>
+<td>字号=设置值，行高 <code>24px+delta</code></td>
+<td><code>dsh-client-ui-conversation/lib/client.js: Q7WfXG_card{...font-size:var(--dsh-content-font-size,14px);line-height:calc(24px + var(--dsh-content-font-delta,0px))</code></td>
+</tr>
+<tr>
+<td>B13</td>
+<td>流内行标题/摘要/表格低一档再 -1（<code>RPey8G_trigger</code>、<code>K-8v-a_root</code>、<code>jo426G_timeEnd</code>）</td>
+<td>可改（低两档）</td>
+<td>同上</td>
+<td><code>calc(var(--dsh-content-font-size-secondary,13px) - 1px)</code>，默认12px</td>
+<td><code>dsh-client-ui-chat/lib/client.js: .RPey8G_trigger{...font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px)</code>；<code>.K-8v-a_root{...font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px)</code>；<code>.jo426G_timeEnd{font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px)</code></td>
+</tr>
+<tr>
+<td>B14</td>
+<td>文件差异统计低一档再 -2（<code>WXmFEW_diffStat</code>）</td>
+<td>可改（低三档）</td>
+<td>同上</td>
+<td><code>calc(var(--dsh-content-font-size-secondary,13px) - 2px)</code>，默认11px，<code>var(--ds-font-family-code)</code></td>
+<td><code>dsh-client-ui-tool/lib/client.js: .WXmFEW_diffStat{font-family:var(--ds-font-family-code);font-size:calc(var(--dsh-content-font-size-secondary,13px) - 2px)</code></td>
+</tr>
+<tr>
+<td>C1</td>
+<td>工作区/侧栏/文件列表/会话行（<code>ozLDBG_*</code>、<code>SJMXQW_*</code>）</td>
+<td>不可改</td>
+<td>无官方字号入口；硬编码</td>
+<td>10/12/13/14px 固定</td>
+<td><code>dsh-client-ui-workspace/lib/client.js: .ozLDBG_title{...font-size:14px</code>、<code>.ozLDBG_searchResultSnippet{...font-size:12px</code>、<code>.ozLDBG_time{...font-size:10px</code>、<code>.SJMXQW_searchInput{...font-size:13px</code>、<code>.SJMXQW_sessionOverflowButton{...font-size:12px</code> 等（该文件 <code>font-size:12px×10、14px×5、13px×5、10px×1</code>）</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>会话行 hover 浮层标题/时间/路径/状态</td>
+<td>不可改</td>
+<td>硬编码</td>
+<td>14/12px 固定</td>
+<td><code>dsh-client-ui-workspace/lib/client.js: .ozLDBG_hoverTitle{...font-size:14px</code>、<code>.ozLDBG_hoverPath{...font-size:12px</code>、<code>.ozLDBG_hoverTime{...font-size:12px</code>、<code>.ozLDBG_hoverStatus{...font-size:12px</code></td>
+</tr>
+<tr>
+<td>C3</td>
+<td>设置面板自身（通用外壳+外观/字号行文案）</td>
+<td>不可改</td>
+<td>硬编码（字号行只改会话，不改自己）</td>
+<td>标题14px、描述12px、值/单位14px</td>
+<td><code>dsh-client-ui-theme/lib/client.js: .RpkBcW_title{...font-size:14px</code>、<code>.RpkBcW_desc{...font-size:12px</code>、<code>.RpkBcW_value{...font-size:14px</code>、<code>.RpkBcW_unit{...font-size:14px</code>、<code>.OlZvdG_title{...font-size:14px</code>；<code>dsh-client-ui-settings-general/lib/client.js: .MI-_Aa_trigger{...font-size:14px</code>、<code>.MI-_Aa_navTitle{...font-size:16px</code>、<code>.MI-_Aa_navCell{...font-size:14px</code></td>
+</tr>
+<tr>
+<td>C4</td>
+<td>Toast / Tooltip 文字</td>
+<td>不可改</td>
+<td>只有颜色 token，无字号变量</td>
+<td>—</td>
+<td><code>dsh-client-ui-theme/lib/client.js: --dsw-alias-toast-bg/--dsw-alias-toast-label/--dsw-alias-tooltip-bg/--dsw-alias-tooltip-key-bg</code>（README 亦称“系统提示使用 --dsw-alias-toast-bg 和 --dsw-alias-toast-label…Tooltip 键帽使用 --dsw-alias-tooltip-key-bg”）；该包内无 <code>toast{font-size:var(--dsh-content...}</code> 命中</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>菜单图标</td>
+<td>不可改（仅颜色可主题化）</td>
+<td>图标尺寸 prop，非字号</td>
+<td><code>size: 14</code> 固定；颜色 <code>--dsw-alias-menu-icon</code></td>
+<td><code>dsh-client-ui-settings-general/lib/client.js: IconCloseOutlineRegular, { size: 14 }</code>、<code>IconDownloadOutlineRegular, { size: 14 }</code>（另有 <code>size: 14</code> 字面）；<code>dsh-client-ui-theme/README.zh.md: 菜单图标使用 --dsw-alias-menu-icon</code></td>
+</tr>
+<tr>
+<td>C6</td>
+<td>Scrollbar 滚动条</td>
+<td>不可改</td>
+<td>几何变量，与字号无关</td>
+<td><code>--dsh-scrollbar-width:5px</code>，thumb/border/track-margin</td>
+<td><code>dsh-client-ui-theme/lib/client.js: --dsh-scrollbar-width:5px</code>；README：<code>scrollbar.css 在 body 上把 --dsh-scrollbar-thumb 与 --dsh-scrollbar-thumb-hover 绑定到 l1…WebKit 系浏览器默认使用 5px 的 --dsh-scrollbar-width</code></td>
+</tr>
+<tr>
+<td>C7</td>
+<td>小号文本 small 全系</td>
+<td>不可改（固定）</td>
+<td>硬编码</td>
+<td>固定 <code>12px/20px</code></td>
+<td><code>dsh-client-ui-theme/lib/client.js: --dsw-font-markdown-small:12px/20px...</code>、<code>--dsw-font-markdown-small-font-size:12px</code>（+strong/italic 变体同为12px）</td>
+</tr>
+<tr>
+<td>C8</td>
+<td>代码 code / code-block / code-block-small</td>
+<td>不可改（固定）</td>
+<td>硬编码</td>
+<td>code <code>12px/19px</code>、code-block <code>11px/19px</code>、code-block-small <code>11px/16px</code>，<code>var(--ds-font-family-code)</code></td>
+<td><code>dsh-client-ui-theme/lib/client.js: --dsw-font-markdown-code:12px/19px...</code>、<code>--dsw-font-markdown-code-block:11px/19px...</code>、<code>--dsw-font-markdown-code-block-small:11px/16px...</code></td>
+</tr>
+<tr>
+<td>C9</td>
+<td>静态阶梯（xl-24/l-20/m-18/base-16/s-14/xs-13/xxs-12）</td>
+<td>不可改</td>
+<td>硬编码</td>
+<td>24/20/16/14/13/12px 固定</td>
+<td><code>dsh-client-ui-theme/lib/client.js: --dsw-font-xl-24:600 24px/32px...</code>、<code>--dsw-font-l-20:500 20px/28px...</code>、<code>--dsw-font-s-14:14px/22px...</code>、<code>--dsw-font-xs-13:13px/20px...</code>、<code>--dsw-font-xxs-12:12px/18px...</code> 等</td>
+</tr>
+<tr>
+<td>C10</td>
+<td>品牌字（Montserrat）/普通界面字体栈</td>
+<td>不可改（字号项不含字体选择）</td>
+<td>字体文件+栈，与字号旋钮无关</td>
+<td>—</td>
+<td><code>dsh-client-ui-theme/lib/client.js (base.css): --dsw-font-family:-apple-system, BlinkMacSystemFont, "Segoe UI"...</code>、<code>--dsw-font-family-brand:"Montserrat"...</code>、<code>--ds-font-family-code:"SF Mono", "JetBrains Mono"...</code>；<code>lib/styles/brand-font.css + montserrat-*.woff2</code>；README：<code>普通界面保留系统字体栈</code> / <code>普通界面仍使用系统字体栈</code></td>
+</tr>
+<tr>
+<td>C11</td>
+<td>shiki 语法色</td>
+<td>不可改</td>
+<td>仅颜色</td>
+<td>—</td>
+<td><code>dsh-client-ui-theme/README.zh.md: shiki.css 负责语法颜色</code></td>
+</tr>
+<tr>
+<td>C12</td>
+<td>Elevation/阴影/菜单毛玻璃</td>
+<td>不可改</td>
+<td>非文字</td>
+<td>—</td>
+<td><code>lib/client.js (gradient-shadow-text.css): --dsw-shadow-lv1/--dsw-elevation-panel/--dsw-menu-backdrop-filter:blur(40px) saturate(150%)</code></td>
+</tr>
+<tr>
+<td>P1</td>
+<td>插件通道：正文字体栈 <code>--dsw-font-family</code></td>
+<td>插件可改（官方通道之外）</td>
+<td>插件面板→字体字号→正文样式/字号/代码字体</td>
+<td><code>mode=mono</code> 时=代码栈，<code>mode=tui</code> 时=<code>SANS_STACK</code></td>
+<td><code>src/engine/generate.mjs: buildTypographyCss: '--dsw-font-family:' + bodyFont</code>；<code>bodyFont = mode === 'mono' ? codeFont : SANS_STACK</code></td>
+</tr>
+<tr>
+<td>P2</td>
+<td>插件通道：代码字体栈 <code>--ds-font-family-code</code></td>
+<td>插件可改</td>
+<td>同上（<code>fontKey</code> 预设或本机族名）</td>
+<td>预设 <code>FONTS</code> 或 <code>quoteFontFamily(fontKey)+FONTS['JetBrains Mono']</code></td>
+<td><code>src/engine/generate.mjs: codeFontStack(fontKey)</code>、<code>'--ds-font-family-code:' + codeFont</code>；<code>src/engine/map-dsh.mjs: FONTS</code>；<code>src/engine/font-names.mjs: quoteFontFamily</code></td>
+</tr>
+<tr>
+<td>P3</td>
+<td>插件通道：代码块 <code>--dsw-font-markdown-code-block</code></td>
+<td>插件可改</td>
+<td>同上（<code>size</code>）</td>
+<td><code>(size-2)px/(size+6)px</code>，size 默认13→11px/19px</td>
+<td><code>src/engine/generate.mjs: '--dsw-font-markdown-code-block:' + (size - 2) + 'px/' + (size + 6) + 'px...'</code></td>
+</tr>
+<tr>
+<td>P4</td>
+<td>插件通道：正文 <code>--dsw-font-markdown-base</code>（+font-size/line-height）</td>
+<td>插件可改</td>
+<td>同上</td>
+<td><code>size px / (size+9)px</code></td>
+<td><code>src/engine/generate.mjs: '--dsw-font-markdown-base:' + size + 'px/' + lh + 'px...'</code>、<code>lh = size + 9</code></td>
+</tr>
+<tr>
+<td>P5</td>
+<td>插件通道：H1</td>
+<td>插件可改（固定覆盖）</td>
+<td>同上（不跟 size）</td>
+<td>固定 <code>700 16px/24px</code></td>
+<td><code>src/engine/generate.mjs: '--dsw-font-markdown-h1:700 16px/24px...'</code></td>
+</tr>
+<tr>
+<td>P6</td>
+<td>插件通道：H2</td>
+<td>插件可改（固定覆盖）</td>
+<td>同上</td>
+<td>固定 <code>700 15px/22px</code></td>
+<td><code>src/engine/generate.mjs: '--dsw-font-markdown-h2:700 15px/22px...'</code></td>
+</tr>
+<tr>
+<td>P7</td>
+<td>插件通道：H3</td>
+<td>插件可改（固定覆盖）</td>
+<td>同上</td>
+<td>固定 <code>600 14px/21px</code></td>
+<td><code>src/engine/generate.mjs: '--dsw-font-markdown-h3:600 14px/21px...'</code></td>
+</tr>
+<tr>
+<td>P8</td>
+<td>插件通道：小号 <code>--dsw-font-markdown-small</code>（+font-size/line-height）</td>
+<td>插件可改</td>
+<td>同上</td>
+<td><code>(size-1)px/(size+7)px</code>（small+8）</td>
+<td><code>src/engine/generate.mjs: small = size - 1</code>、<code>'--dsw-font-markdown-small:' + small + 'px/' + (small + 8) + 'px...'</code></td>
+</tr>
+<tr>
+<td>P9</td>
+<td>插件通道：<code>body{font-size}</code></td>
+<td>插件可改</td>
+<td>同上</td>
+<td><code>size px</code>（默认13px）</td>
+<td><code>src/engine/generate.mjs: 'body{font-size:' + size + 'px;}'</code></td>
+</tr>
+</tbody>
+</table>
+<p>计数：官方可改 <strong>14 项</strong>（B1~B14）/ 官方不可改 <strong>12 项</strong>（C1~C12）/ 插件通道 <strong>9 项</strong>（P1~P9）。合计 35 行。</p>
+<hr>
+<h2 id="a-ui-themefontsize">A. 官方设置项 ui-theme.fontSize</h2>
+<h3 id="a1">A1. 字段名、命名空间、类型/步长/上下限/默认值</h3>
+<p>一手来源：</p>
+<ul>
+<li><code>node_modules/@deepseek-ai/dsh-client-ui-theme/lib/index.js</code>（host 入口，schema 即真相）：</li>
+<li>关键片段：<ul>
+<li><code>const THEME_SETTINGS_NAMESPACE = "ui-theme"</code></li>
+<li><code>const FONT_SIZE_FIELD = "fontSize"</code></li>
+<li><code>const FONT_SIZE_MIN = 12</code></li>
+<li><code>const FONT_SIZE_MAX = 17</code></li>
+<li><code>const DEFAULT_FONT_SIZE = 14</code></li>
+<li><code>z.object({ [THEME_PREFERENCE_FIELD]: z.union([...THEME_PREFERENCES]).default(DEFAULT_PREFERENCE), [FONT_SIZE_FIELD]: z.number().step(1).min(12).max(17).default(14) })</code></li>
+<li><code>const Config = z.object({ preference: ...volatile(), fontSize: z.number().step(1).min(12).max(17).default(14).volatile() })</code></li>
+</ul>
+</li>
+<li><code>node_modules/@deepseek-ai/dsh-client-ui-theme/lib/client.js</code>（浏览器入口，同 schema 复述）：</li>
+<li>关键片段：<code>[FONT_SIZE_FIELD]: Schema.number().step(1).min(12).max(17).default(14)</code></li>
+<li>初始 store：<code>createFontSizeRowStore(): init: () =&gt; ({ fontSize: 14, revision: -1 })</code></li>
+<li>步进器守卫：<code>disabled: fontSize &gt;= 17</code>（加）、<code>disabled: fontSize &lt;= 12</code>（减）、<code>setFontSize(fontSize + 1)</code> / <code>setFontSize(fontSize - 1)</code></li>
+<li><code>node_modules/@deepseek-ai/dsh-client-ui-theme/README.zh.md</code>：</li>
+<li>关键片段：<code>把会话正文字号设为 12 至 17 px</code></li>
+<li>关键片段：<code>步进器接受 12 至 17 px 的整数，默认值为 14 px</code></li>
+<li>关键片段：<code>它以相同增量调整会话标题与基础文本，包括用户气泡与 composer 草稿；流内行的标题、摘要与表格跟随比正文低一档的字号，小号文本和代码保持固定字号</code></li>
+</ul>
+<p>结论：命名空间 <code>ui-theme</code>，字段 <code>fontSize</code>（同包另有 <code>preference: light|dark|system</code>，默认 <code>system</code>），类型整数 number，步长 1，最小 12，最大 17，默认 14。<code>preference</code> 与 <code>fontSize</code> 是该包拥有的仅有的两个持久偏好。</p>
+<h3 id="a2-host-settings-api-dsh_home-cordispatchyml-localstorage">A2. 持久化路径（Host settings API / $DSH_HOME / cordis.patch.yml / localStorage 差异）</h3>
+<p>一手来源：</p>
+<ul>
+<li><code>dsh-client-ui-theme/README.zh.md</code>：</li>
+<li><code>回环客户端把两个值存入 ui-theme 设置命名空间，本地提供方默认将其持久化到 $DSH_HOME/cordis.patch.yml</code></li>
+<li><code>每次通过的变更都经 Host settings API 写入。连续快速变更按操作顺序携带命名空间 revision 串行写入，最新写入被拒时重新加载持久值</code></li>
+<li><code>非 loopback 页面把两个选择都保留在进程内</code></li>
+<li><code>在 loopback 浏览器上，服务先以 schema 默认值立即提供自身，随后加载 ui-theme 命名空间，并把每次通过的主题或字号变更经 Host settings API 写入。收到推送的设置变更时或重连后都会重新拉取该命名空间。非 loopback 页面不会创建该 Host-backed scope</code></li>
+<li><code>dsh-client-ui-theme/lib/client.js</code>：</li>
+<li><code>createFontSizeRowStore / createAppearanceRowStore</code> 的 <code>sync: (d, fontSize, revision) =&gt; { if (revision &lt;= d.revision) return; ... }</code> 即“携带命名空间 revision 串行写入”客户端侧。</li>
+<li>路径差异需如实记录的不一致：</li>
+<li>README 写的是 <code>$DSH_HOME/cordis.patch.yml</code>。</li>
+<li>但 <code>D:\DSH NEXT\resources\app\lib\main.js</code> 实际读取的是 <code>join(this.home, "profiles", profile, "cordis.patch.yml")</code>（<code>resolve(profile, fallback)</code> 中 <code>readPrivateFile(join(this.home, "profiles", profile, "cordis.patch.yml"))</code>），恢复入口另有 <code>join(home, "settings.yaml")</code> 与 <code>join(directory, "cordis.patch.yml")</code>（<code>open-settings-document / open-profile-patch</code>）。即 Desktop 实际按 profile 落盘，README 的 <code>$DSH_HOME/cordis.patch.yml</code> 是“本地提供方默认”简化说法，取证时以代码为准。</li>
+<li><code>D:\DSH NEXT\resources\app\cordis.patch.yml</code> 与 <code>host.cordis.patch.yml</code> 本体与字号无关（前者仅 <code>ui-sidebar-browser / desktop-next-capabilities / computer-use</code>，后者仅 <code>webserver host/port</code>），故字号持久化不在安装根这两个文件，而在用户数据目录的 profile patch。</li>
+<li>本仓插件对比（非官方）：</li>
+<li><code>runtime/client.mjs: const STORAGE_KEY = 'dsh.opencode-palette.v2'</code>、<code>const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'</code>、<code>loadState()/saveState()</code> 读写 <code>localStorage</code>。这是纯浏览器 <code>localStorage</code> 通道，与官方 Host settings 通道互不相通。</li>
+</ul>
+<p>结论：loopback 回环浏览器 → Host settings API → 本地文件（README 称 <code>$DSH_HOME/cordis.patch.yml</code>，代码实为 <code>$DSH_HOME/profiles/&lt;profile&gt;/cordis.patch.yml</code> + <code>settings.yaml</code>）；非 loopback（远程浏览器）→ 仅进程内，不创建 Host-backed scope，不跨重启。插件第二通道另走 <code>localStorage</code>，见 D 节。</p>
+<h3 id="a3">A3. 设置面板位置（通用分区外观行 + 字号步进器）</h3>
+<p>一手来源：</p>
+<ul>
+<li><code>dsh-client-ui-theme/README.zh.md</code>：<code>用户从设置（「通用」分区）的两行中切换配色方案与正文字号</code>；<code>插件在「通用」分区注册外观偏好方块与字号步进器</code></li>
+<li><code>dsh-client-ui-theme/lib/client.js</code>：</li>
+<li><code>Appearance preference row registered into the General section item slot</code></li>
+<li><code>Font-size preference row registered into the General section item slot: title + body-text-only description + stepper pill (centered value; hover reveals the up/down arrow column anchored to the pill's right edge) + a px unit label after the pill</code></li>
+<li>样式：<code>.RpkBcW_stepper{...min-width:72px;height:36px...}</code>、<code>.RpkBcW_value{...font-size:14px...}</code>、<code>.RpkBcW_unit{...font-size:14px...}</code>（面板自身的字号是硬编码，见 C3）</li>
+<li><code>dsh-client-ui-settings-general/README.zh.md</code>：</li>
+<li><code>「通用」分区承载内置的代码工作工具行与当前版本行，以及功能包注册进 settings.general.item 的行。每个注册方拥有自己的行文案与行为。例如「外观」行位于 ui-theme</code></li>
+<li><code>用户通过侧边栏底部的 Settings 控件进入外壳</code></li>
+</ul>
+<p>结论：入口为侧边栏底部 Settings → 通用分区 → 外观行（light/dark/system 三方块）+ 字号行（title + description + stepper pill + px 单位）。拥有方是 <code>dsh-client-ui-theme</code>，外壳是 <code>dsh-client-ui-settings-general</code>。</p>
+<h3 id="a4-bootthemebodyscript">A4. bootThemeBodyScript 首帧行为</h3>
+<p>一手来源：<code>dsh-client-ui-theme/lib/index.js</code> 全文（<code>boot-theme.js</code> 段）：</p>
+<ul>
+<li><code>function bootThemeBodyScript(preference, fontSize)</code> 返回：</li>
+<li><code>document.documentElement.dataset.dsThemeSource = preference</code></li>
+<li><code>document.body.toggleAttribute('data-ds-dark-theme', dark)</code>（其中 <code>system</code> 经 <code>matchMedia('(prefers-color-scheme: dark)')</code> 解析）</li>
+<li><code>document.body.style.setProperty('--dsh-content-font-size',</code>${fontSize}px<code>)</code></li>
+<li><code>function bootThemeInjections(preference = DEFAULT_PREFERENCE, fontSize = 14)</code> 返回 <code>[{kind:"style", text: bootThemeStyle(preference)}, {kind:"script", placement:"body", text: bootThemeBodyScript(...)}]</code></li>
+<li><code>apply(ctx, config)</code> 中 <code>ctx.on("webserver/index-inject", (table) =&gt; { table.push(...bootThemeInjections(config.preference.get(), config.fontSize.get())) }, { prepend: true })</code></li>
+<li>README 对应句：<code>当主机组合包含 HTTP 服务器时，宿主侧会把已注册的 ui-theme 设置或 schema 默认值嵌入每份 index 响应。head CSS 会在任何脚本运行前选择文档画布的配色方案…随后，body 脚本会在加载页面和应用脚本之前设置 body[data-ds-dark-theme] 与 --dsh-content-font-size，因此首帧绘制就采用所选调色板与字号</code></li>
+</ul>
+<p>结论：首帧=宿主在每次 index 响应注入 head style（画布底色，防闪白）+ body script（调色板选择器 + <code>--dsh-content-font-size: &lt;N&gt;px</code> 内联写在 <code>document.body.style</code>）。客户端 presenter 之后接管，但首帧已正确。</p>
+<hr>
+<h2 id="b-dsh-content-font-size">B. 受 --dsh-content-font-size 直接驱动的每一项</h2>
+<p>总公式（<code>dsh-client-ui-theme/lib/client.js</code> 内 <code>gradient-shadow-text.css</code> 编译后全文，变量名保留原文）：</p>
+<ul>
+<li><code>body{--dsh-content-font-delta:calc(var(--dsh-content-font-size,14px) - 14px);</code></li>
+<li><code>--dsh-content-font-size-secondary:min(calc(var(--dsh-content-font-size,14px) - 1px), max(13px, calc(var(--dsh-content-font-size,14px) - 2px)));</code></li>
+<li><code>--dsh-content-font-delta-secondary:calc(var(--dsh-content-font-size-secondary) - 13px);</code></li>
+</ul>
+<p>语义：<code>delta = 设置值 - 14</code>；<code>secondary = min(设置值-1, max(13, 设置值-2))</code>，即设置 <code>&lt;=14</code> 时 <code>设置值-1</code>，<code>&gt;14</code> 时 <code>设置值-2</code>；默认 14→13px。README 原话：<code>它同时派生低一档变量 --dsh-content-font-size-secondary（设置 ≤14 时为设置值 −1，&gt;14 时为设置值 −2；默认设置下为 13 px）及配套的 --dsh-content-font-delta-secondary</code>。</p>
+<h3 id="b1b3-base-base-strong-base-italic">B1~B3. base / base-strong / base-italic</h3>
+<ul>
+<li>来源：<code>dsh-client-ui-theme/lib/client.js</code>：</li>
+<li><code>--dsw-font-markdown-base:var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)</code></li>
+<li><code>--dsw-font-markdown-base-font-size:var(--dsh-content-font-size,14px)</code>、<code>--dsw-font-markdown-base-line-height:calc(24px + var(--dsh-content-font-delta))</code></li>
+<li><code>--dsw-font-markdown-base-strong:600 var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta)) ...</code></li>
+<li><code>--dsw-font-markdown-base-italic:italic var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta)) ...</code></li>
+<li><code>--dsw-font-markdown-base-strong-italic:italic 600 var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta)) ...</code></li>
+<li>效果：12→12px/22px 行高，14→14px/24px，17→17px/27px。</li>
+</ul>
+<h3 id="b4b7-h1h4">B4~B7. h1~h4</h3>
+<ul>
+<li>来源同上：</li>
+<li><code>--dsw-font-markdown-h1:700 calc(21px + var(--dsh-content-font-delta)) / calc(30px + var(--dsh-content-font-delta)) ...</code>（12→19px，17→24px）</li>
+<li><code>--dsw-font-markdown-h2:700 calc(19px + var(--dsh-content-font-delta)) / calc(28px + var(--dsh-content-font-delta)) ...</code></li>
+<li><code>--dsw-font-markdown-h3:700 calc(18px + var(--dsh-content-font-delta)) / calc(26px + var(--dsh-content-font-delta)) ...</code></li>
+<li><code>--dsw-font-markdown-h4:600 var(--dsh-content-font-size,14px) / calc(24px + var(--dsh-content-font-delta)) ...</code>（h4 字号直接等于设置值）</li>
+<li>README 佐证：<code>并以该增量移动 Markdown 标题与基础文本阶梯</code></li>
+</ul>
+<h3 id="b8b9-table-table-head">B8~B9. table / table-head</h3>
+<ul>
+<li>来源同上：</li>
+<li><code>--dsw-font-markdown-table:var(--dsh-content-font-size-secondary,13px)/calc(22px + var(--dsh-content-font-delta-secondary,0px)) var(--dsw-font-family)</code></li>
+<li><code>--dsw-font-markdown-table-head:500 var(--dsh-content-font-size-secondary,13px)/calc(22px + var(--dsh-content-font-delta-secondary,0px)) ...</code></li>
+<li>效果：走低一档，默认 13px/22px。</li>
+</ul>
+<h3 id="b10-secondary">B10. secondary 低一档正文群</h3>
+<p>直接消费 <code>--dsh-content-font-size-secondary</code> 的会话/工具/侧栏类（穷举代表，非全量粘贴；全量见附录复现命令）：</p>
+<ul>
+<li><code>dsh-client-ui-chat/lib/client.js</code>：</li>
+<li><code>.VnbZpq_compactionTitle{font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(24px + var(--dsh-content-font-delta,0px))</code></li>
+<li><code>.VnbZpq_retryRow{...font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px))}</code></li>
+<li><code>.VnbZpq_retryDetails{...font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(18px + var(--dsh-content-font-delta-secondary,0px))}</code></li>
+<li><code>._7xilXq_source{...font-size:var(--dsh-content-font-size-secondary,13px)</code>、<code>._48RFeq_summary{...font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px))</code></li>
+<li><code>.V0s2hW_hint{...font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(18px + var(--dsh-content-font-delta-secondary,0px))}</code></li>
+<li><code>.jo426G_timeStart{font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(24px + var(--dsh-content-font-delta,0px))</code></li>
+<li><code>dsh-client-ui-conversation/lib/client.js</code>：</li>
+<li><code>.JdJrwG_trigger{...font-size:var(--dsh-content-font-size-secondary,13px);...line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px))}</code></li>
+<li><code>dsh-client-ui-tool/lib/client.js</code>：</li>
+<li><code>.WXmFEW_summary{...font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(24px + var(--dsh-content-font-delta,0px))}</code></li>
+<li><code>.MISisG_title{font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(24px + var(--dsh-content-font-delta,0px))}</code></li>
+<li><code>dsh-client-ui-sidebar-files / sidebar-right / workflow-run / trajectory / skill / goal / layout / sidebar-documentpreview</code> 亦各有 1~7 处 <code>dsh-content-font-size-secondary</code> 引用（见附录包级计数）。</li>
+</ul>
+<h3 id="b11">B11. 用户气泡</h3>
+<ul>
+<li><code>dsh-client-ui-chat/lib/client.js</code>：</li>
+<li><code>.VnbZpq_bubble{...font-size:var(--dsh-content-font-size,14px);line-height:calc(22px + var(--dsh-content-font-delta,0px));...padding:10px 16px}</code></li>
+<li>README 佐证：<code>用户气泡与 composer 草稿直接读取正文字号变量对</code></li>
+</ul>
+<h3 id="b12-composer">B12. composer 草稿/卡片</h3>
+<ul>
+<li><code>dsh-client-ui-conversation/lib/client.js</code>：</li>
+<li><code>Q7WfXG_card{...font-size:var(--dsh-content-font-size,14px);line-height:calc(24px + var(--dsh-content-font-delta,0px));...}</code></li>
+<li>README 佐证同 B11。另 <code>IS3SeW_root{font-size:var(--dsh-content-font-size,14px);line-height:calc(24px + var(--dsh-content-font-delta,0px))}</code>（会话正文根）、<code>FPhpOa_title{...font-size:var(--dsh-content-font-size,14px)</code>（流内标题行，全档）亦直接读正文字号。</li>
+</ul>
+<h3 id="b13b14-1-2">B13~B14. 流内低一档再 -1 / -2</h3>
+<ul>
+<li><code>dsh-client-ui-chat/lib/client.js</code>：</li>
+<li><code>.RPey8G_trigger{...font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px);...line-height:calc(24px + var(--dsh-content-font-delta,0px))}</code>（默认 12px）</li>
+<li><code>.K-8v-a_root{...font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px))}</code></li>
+<li><code>.jo426G_timeEnd{font-size:calc(var(--dsh-content-font-size-secondary,13px) - 1px)</code>（结束时间比开始时间小 1px）</li>
+<li><code>dsh-client-ui-tool/lib/client.js</code>：</li>
+<li><code>.WXmFEW_diffStat{font-family:var(--ds-font-family-code);font-size:calc(var(--dsh-content-font-size-secondary,13px) - 2px);...}</code>（默认 11px）</li>
+<li>README 对这类阶梯的定性：<code>流内行的标题及摘要读取低一档变量对</code>；<code>供表格变体与比正文低一档的流内行使用</code>。</li>
+</ul>
+<h3 id="gradient-shadow-textcss-delta">gradient-shadow-text.css 的 delta 公式全文（去转义后）</h3>
+<blockquote>
+<p><code>body{--dsh-content-font-delta:calc(var(--dsh-content-font-size,14px) - 14px);--dsh-content-font-size-secondary:min(calc(var(--dsh-content-font-size,14px) - 1px), max(13px, calc(var(--dsh-content-font-size,14px) - 2px)));--dsh-content-font-delta-secondary:calc(var(--dsh-content-font-size-secondary) - 13px);...}</code>（后接 h1~code-block-small 定义，见 B1~B9 quote）</p>
+</blockquote>
+<hr>
+<h2 id="c">C. 明确不受官方字号影响的每一类</h2>
+<p>原则：凡 <code>font-size:&lt;N&gt;px</code> 硬编码、或只消费颜色/elevation/scrollbar token 而无 <code>dsh-content-font-*</code> 引用的类，均不受 <code>ui-theme.fontSize</code> 影响。以下每类均给硬编码 px 证据。</p>
+<h3 id="c1">C1. 工作区/侧栏/文件列表/会话行</h3>
+<ul>
+<li><code>dsh-client-ui-workspace/lib/client.js</code>（该文件 <code>font-size</code> 21 处，分布 <code>12px×10、14px×5、13px×5、10px×1</code>）：</li>
+<li><code>.ozLDBG_searchResultTitle{...font-size:14px</code> / <code>.ozLDBG_searchResultSnippet{...font-size:12px</code> / <code>.ozLDBG_title{...font-size:14px</code> / <code>.ozLDBG_renameInput{...font-size:14px</code> / <code>.ozLDBG_meta{...font-size:12px</code></li>
+<li><code>.SJMXQW_searchInput{...font-size:13px</code> / <code>.SJMXQW_searchStatus{...font-size:12px</code> / <code>.SJMXQW_sessionOverflowButton{...font-size:12px</code> / <code>.SJMXQW_empty{...font-size:13px</code> / <code>.SJMXQW_emptyState{...font-size:13px</code> / <code>.SJMXQW_renameInput{...font-size:14px</code> / <code>.SJMXQW_renameError{...font-size:12px</code></li>
+<li>该包内 <code>dsh-content-font-size-secondary/delta</code> 零命中（已验证），故与官方字号完全无关。</li>
+</ul>
+<h3 id="c2-hover">C2. 会话行 hover 浮层</h3>
+<ul>
+<li>同文件：</li>
+<li><code>.ozLDBG_time{...font-size:10px</code>（会话行时间，唯一 10px）</li>
+<li><code>.ozLDBG_hoverTitle{...font-size:14px</code> / <code>.ozLDBG_hoverPath{...font-size:12px</code> / <code>.ozLDBG_hoverTime{...font-size:12px</code> / <code>.ozLDBG_hoverStatus{...font-size:12px</code></li>
+</ul>
+<h3 id="c3">C3. 设置面板自身</h3>
+<ul>
+<li><code>dsh-client-ui-theme/lib/client.js</code>：</li>
+<li><code>.RpkBcW_title{...font-size:14px</code> / <code>.RpkBcW_desc{...font-size:12px</code> / <code>.RpkBcW_value{...font-size:14px</code> / <code>.RpkBcW_unit{...font-size:14px</code> / <code>.OlZvdG_title{...font-size:14px</code> / <code>.OlZvdG_themeCube{...font-size:14px</code></li>
+<li><code>dsh-client-ui-settings-general/lib/client.js</code>：</li>
+<li><code>.MI-_Aa_trigger{...font-size:14px</code> / <code>.MI-_Aa_navTitle{...font-size:16px</code> / <code>.MI-_Aa_navCell{...font-size:14px</code> / <code>.CFhF9W_title{font-size:14px}</code> / <code>.CFhF9W_description{...font-size:12px}</code> / <code>.hMlBZa_row{...font-size:14px}</code></li>
+<li>结论：字号步进器调的是会话，面板自己的 14/12/16px 不动。</li>
+</ul>
+<h3 id="c4-toast-tooltip">C4. toast / tooltip</h3>
+<ul>
+<li><code>dsh-client-ui-theme/lib/client.js</code> 内仅颜色 token：</li>
+<li><code>--dsw-alias-toast-bg</code>、<code>--dsw-alias-toast-label</code>、<code>--dsw-alias-tooltip-bg</code>、<code>--dsw-alias-tooltip-key-bg</code></li>
+<li><code>README.zh.md</code>：<code>系统提示使用 --dsw-alias-toast-bg 和 --dsw-alias-toast-label…Tooltip 键帽使用 --dsw-alias-tooltip-key-bg，由各主题的 tooltip 背景派生稍浅的填充</code></li>
+<li>反证：该包 <code>toast/tooltip</code> 附近无 <code>font-size:var(--dsh-content...</code> 引用；<code>tooltip 6 处、toast 4 处</code>命中均为颜色/结构，非字号。</li>
+</ul>
+<h3 id="c5-14px">C5. 菜单图标 14px</h3>
+<ul>
+<li><code>dsh-client-ui-settings-general/lib/client.js</code>：<code>IconCloseOutlineRegular, { size: 14 }</code>、<code>IconDownloadOutlineRegular, { size: 14 }</code></li>
+<li><code>dsh-client-ui-theme/README.zh.md</code>：<code>菜单图标使用 --dsw-alias-menu-icon：浅色模式为 neutral-bluish 800，深色模式为 label-primary-dimmed</code>（只定义颜色，不定义尺寸）</li>
+</ul>
+<h3 id="c6-scrollbar">C6. scrollbar</h3>
+<ul>
+<li><code>dsh-client-ui-theme/lib/client.js (scrollbar.css)</code>：<code>--dsh-scrollbar-width:5px</code>、<code>--dsh-scrollbar-thumb</code>、<code>--dsh-scrollbar-thumb-hover</code>、<code>--dsh-scrollbar-thumb-border</code>、<code>--dsh-scrollbar-track-margin</code></li>
+<li>README：<code>scrollbar.css 在 body 上把 --dsh-scrollbar-thumb 与 --dsh-scrollbar-thumb-hover 绑定到 l1 基础表面 token…WebKit 系浏览器默认使用 5px 的 --dsh-scrollbar-width</code></li>
+<li>另 <code>dsh-client-ui-conversation/README</code> 提及 <code>为 composer 席位消费 --dsh-scrollbar-width</code>（消费宽度，不消费字号）。</li>
+</ul>
+<h3 id="c7c8-small-code">C7~C8. small / code 固定字号（官方明确“保持固定”字样）</h3>
+<ul>
+<li>README 原话：<code>紧凑的小号文本与代码变体保持固定字号</code></li>
+<li><code>lib/client.js</code>：</li>
+<li><code>--dsw-font-markdown-small:12px/20px ...</code>、<code>--dsw-font-markdown-small-font-size:12px</code>（strong/italic 变体同 12px）</li>
+<li><code>--dsw-font-markdown-code:12px/19px var(--ds-font-family-code)</code>、<code>--dsw-font-markdown-code-block:11px/19px ...</code>、<code>--dsw-font-markdown-code-block-small:11px/16px ...</code></li>
+</ul>
+<h3 id="c9">C9. 静态阶梯（与设置无关的固定尺度）</h3>
+<ul>
+<li><code>lib/client.js</code>：</li>
+<li><code>--dsw-font-xl-24:600 24px/32px...</code>、<code>--dsw-font-l-20:500 20px/28px...</code>、<code>--dsw-font-m-18:500 16px/28px...</code>、<code>--dsw-font-base-16:16px/24px...</code>、<code>--dsw-font-s-14:14px/22px...</code>、<code>--dsw-font-xs-13:13px/20px...</code>、<code>--dsw-font-xxs-12:12px/18px...</code> 及其 strong 变体。全部无 <code>var(--dsh-content...)</code>。</li>
+</ul>
+<h3 id="c10c12-shiki">C10~C12. 品牌字/Shiki/阴影</h3>
+<ul>
+<li>品牌字：<code>base.css: --dsw-font-family:-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", ...</code>；<code>--dsw-font-family-brand:"Montserrat", var(--dsw-font-family)</code>；<code>--ds-font-family-code:"SF Mono", "JetBrains Mono", ...</code>；<code>lib/styles/brand-font.css + montserrat-light/regular/medium.woff2</code>；README：<code>普通界面保留系统字体栈</code>、<code>Desktop 将同一份样式表、字体和许可证打包，用于欢迎页品牌文字的离线显示；普通界面保留系统字体栈</code>。</li>
+<li>Shiki：README：<code>shiki.css 负责语法颜色</code>；<code>design-platform.css 还负责代码差异底色的别名及其静态透明度色阶</code>（颜色，非字号）。</li>
+<li>阴影/描边/毛玻璃：<code>--dsw-shadow-lv1/lv2/lv3</code>、<code>--dsw-elevation-stroke/panel/prominent/soft</code>、<code>--dsw-menu-backdrop-filter:blur(40px) saturate(150%)</code>。</li>
+</ul>
+<hr>
+<h2 id="d-opencode-palette">D. 本仓 opencode-palette 插件第二通道</h2>
+<h3 id="d1-state-default_state">D1. state 与 DEFAULT_STATE</h3>
+<ul>
+<li><code>runtime/client.mjs</code>：</li>
+<li><code>const STORAGE_KEY = 'dsh.opencode-palette.v2'</code></li>
+<li><code>const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'</code>（旧键命中即迁移到新键）</li>
+<li><code>const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }</code></li>
+<li><code>loadState()</code>：新键优先，旧键迁移，<code>{ ...DEFAULT_STATE, ...s }</code>；<code>saveState(state)</code> 写 <code>localStorage</code></li>
+<li>注意默认 13 与官方默认 14 不同：插件默认还原上游 11px/19px 代码块观感（见 D2 注释）。</li>
+</ul>
+<h3 id="d2-buildtypographycss-9">D2. buildTypographyCss 覆盖的 9 个变量</h3>
+<ul>
+<li><code>src/engine/generate.mjs: export function buildTypographyCss(typography)</code>：</li>
+<li><code>const size = (typography &amp;&amp; typography.size) || 13</code></li>
+<li><code>const mode = (typography &amp;&amp; typography.mode) || 'mono'</code></li>
+<li><code>const fontKey = (typography &amp;&amp; typography.fontKey) || 'JetBrains Mono'</code></li>
+<li><code>const codeFont = codeFontStack(fontKey)</code>；<code>const bodyFont = mode === 'mono' ? codeFont : SANS_STACK</code></li>
+<li><code>const lh = size + 9</code>；<code>const small = size - 1</code></li>
+<li>输出（<code>FONT_FACE_CSS +</code>）：<ol>
+<li><code>--dsw-font-family:</code> + bodyFont</li>
+<li><code>--ds-font-family-code:</code> + codeFont</li>
+<li><code>--dsw-font-markdown-code-block:</code> + <code>(size-2)px/(size+6)px</code>（注释：<code>F4 新卡片字号（DSH 0.1.7 CodeCard .card/.body 只读此变量；size=13 默认恰好还原上游 11px/19px，跟随 11–18 档）</code>）</li>
+<li><code>--dsw-font-markdown-base:</code> + <code>size px / lh px</code>（+ <code>--dsw-font-markdown-base-font-size</code> / <code>-line-height</code>）</li>
+<li><code>--dsw-font-markdown-h1:700 16px/24px</code>（+font-size/line-height；固定，不跟 size）</li>
+<li><code>--dsw-font-markdown-h2:700 15px/22px</code>（固定）</li>
+<li><code>--dsw-font-markdown-h3:600 14px/21px</code>（固定）</li>
+<li><code>--dsw-font-markdown-small:</code> + <code>small px / (small+8)px</code>（+font-size/line-height）</li>
+<li><code>body{font-size:</code> + <code>size px;}</code></li>
+</ol>
+</li>
+<li>注入双层（<code>runtime/client.mjs: createClient(slotTarget) -&gt; apply(ctx)</code>）：</li>
+<li><code>const theme = ctx.get('theme')</code>（依赖 <code>dsh-client-ui-theme</code> 的 <code>theme</code> 服务）</li>
+<li><code>render = renderTheme(safeThemeName(state.theme), { mode: state.mode, size: state.size, fontKey: state.fontKey })</code></li>
+<li><code>tokenDispose = theme.overrideTokens('opencode-palette', render.tokens)</code>（token 层，<code>{light,dark}</code> 同值）</li>
+<li><code>&lt;style data-plugin="dsh-opencode-palette"&gt;</code> + <code>styleTag.textContent = render.css</code>（style 层，幂等先清后注入；<code>clearStyle()</code> 反注册）</li>
+<li>档位：<code>runtime/client.mjs</code> 面板 <code>[11, 12, 13, 14, 15, 16, 17, 18].map(...)</code>（8 档，默认 13），比官方 12~17 多出 11 与 18 两档。</li>
+</ul>
+<h3 id="d3-mode-mono-tui">D3. mode mono / tui 差异</h3>
+<ul>
+<li>面板文案（<code>runtime/client.mjs: I18N</code>）：</li>
+<li><code>mono: { zh: '全部文字', en: 'All text' }</code>、<code>sans: { zh: '仅代码', en: 'Code only' }</code>、<code>typography/bodyStyle/fontSize/codeFont</code></li>
+<li>分段器：<code>seg(st.mode, [{ value: 'mono', label: tr('mono') }, { value: 'tui', label: tr('sans') }], ...)</code>。即 UI 第二项 value 为 <code>'tui'</code>，label 复用 <code>sans（仅代码）</code>。</li>
+<li>引擎语义（<code>src/engine/generate.mjs</code>）：</li>
+<li><code>bodyFont = mode === 'mono' ? codeFont : SANS_STACK</code>。故 <code>'tui'</code> 走 else 分支 = <code>SANS_STACK</code>（<code>src/engine/map-dsh.mjs: SANS_STACK = "'Inter',-apple-system,'BlinkMacSystemFont','Segoe UI','PingFang SC',...</code>）。</li>
+<li>效果：<code>mono</code>=正文与代码同用代码栈（全部文字等宽）；<code>tui</code>（面板称“仅代码”）=正文回 SANS，仅代码保留 <code>fontKey</code> 栈。命名上 <code>tui</code> 是历史值，功能等价于 <code>sans</code>，取证以代码为准。</li>
+<li>字体：<code>codeFontStack(fontKey)</code> 查 <code>FONTS</code> 预设（JetBrains Mono / Cascadia Code / Fira Code / IBM Plex Mono / Maple Mono NF CN / SF Mono 等），任意本机族名经 <code>quoteFontFamily</code> 安全包裹后置于默认栈最前；非法名（含 <code>{};&lt;</code> 等）落默认栈，绝不拼原始输入进 CSS。</li>
+</ul>
+<h3 id="d4-system">D4. system 主题只出排印不碰颜色</h3>
+<ul>
+<li><code>src/engine/index.mjs: renderTheme</code>：<code>if (isSystem(name)) { return generateTheme(null, typography || {}, SYSTEM_THEME) }</code></li>
+<li><code>src/engine/generate.mjs: generateTheme</code>：<code>const css = [buildTypographyCss(typography)]; let tokens = {}; if (colors) { tokens = buildTokens(colors); css.push(buildColorCss(colors, tokens)) }</code>。<code>colors=null</code> 时只返回排印 CSS，<code>tokens={}</code>。</li>
+<li>文件头不变式：<code>// 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色</code>；<code>// 总入口：themeName='system' → colors=null</code>。</li>
+</ul>
+<hr>
+<h2 id="e">E. 全局手段的边界</h2>
+<h3 id="e1-zoomctrl-0wheel">E1. 浏览器 zoom（Ctrl +/-/0/wheel）</h3>
+<ul>
+<li>一手来源缺口：安装包 <code>lib/</code> 内未提供 zoom 快捷键持久化实现。已查：</li>
+<li><code>lib/main.js</code>：<code>zoomFactor</code> 零命中，<code>zoom</code> 仅 4 处且唯一功能性命中是 <code>const zoom = window.webContents.getZoomFactor()</code> 用于右键菜单 <code>Menu.buildFromTemplate(items).popup({ window, x: Math.round(x * zoom), y: Math.round(y * zoom) })</code>（坐标换算，非字号功能）。</li>
+<li><code>lib/webserver.js</code>：<code>zoom</code> 零命中。</li>
+<li><code>lib/preload-app.cjs</code> / <code>lib/preload-shell.cjs</code>：<code>zoom</code> 零命中（preload-app 唯一 <code>font-size</code> 1 处与 zoom 无关）。</li>
+<li><code>lib/keybindings.js</code>：仅快捷键持久化到 <code>userData/keybindings.json</code>，无 zoom。</li>
+<li>结论：Chromium/Electron 原生 <code>Ctrl +/-/0</code> 与 <code>Ctrl+wheel</code> 缩放仍可用（渲染器级整页缩放，能动“任何文字”包括硬编码 px），但<strong>未在上述一手来源中找到持久化/配置项</strong>，如实记为“未提供”。跨重启是否保留取决于 Chromium 会话行为，不在官方字号承诺内。</li>
+</ul>
+<h3 id="e2-os">E2. OS 缩放</h3>
+<ul>
+<li>未在安装包上述来源中找到 DSH 自有的 OS 缩放接管；OS 级 DPI/显示缩放作用于整个窗口（含全部硬编码 px），与 DSH 字号旋钮正交。如需作为全局手段使用，以操作系统设置为准，DSH 侧无对应字段。</li>
+</ul>
+<h3 id="e3-css-zoom">E3. CSS zoom 属性为何是唯一能动“任何文字”的</h3>
+<ul>
+<li>实测产物全为 px 体系：全包 <code>lib/client.js</code> 69 个包合计约 <code>5003 个 px、646 处 font-size</code>（复现命令见附录）；<code>rem</code> 命中约 610 处经抽查均为 <code>remove/removeEventListener/removed</code> 等英文子串误命中，无 <code>font-size:&lt;N&gt;rem</code> 排印用法。上一轮“599px/0rem/56font-size”应为单产物（<code>dsh-web-frontend/dist/assets/index-*</code>）口径；本轮在安装包内未找到名为 <code>dsh-web-frontend</code> 的独立包/ <code>dist/assets/index-*</code>（<code>node_modules/*dsh-web-frontend*</code> 无命中，Web 文档由 <code>lib/web-document.js: serveWebDocument</code> 从打包 Web 根 serve，<code>dsh-app://app</code>），故以全包复测口径为准并保留口径差异说明。</li>
+<li>在此 px 体系下：<code>html{font-size}</code> 只影响 <code>rem</code>，对 <code>px</code> 文本无效，故调根字号动不了 DSH 文字；而 CSS <code>zoom</code> 属性（非标准但 Chromium 支持）按比例缩放布局与 px 文本，是纯 CSS 层唯一能动全部硬编码 px 文字的手段。本仓插件未使用 <code>zoom</code>（使用变量覆盖+<code>body{font-size}</code>），故插件也动不了 C 类硬编码。</li>
+<li>Electron <code>zoomFactor</code> 若由宿主提供本可持久化整页缩放，但如 E1 所示<strong>未提供</strong>，故“全局手段”均在官方承诺之外。</li>
+</ul>
+<hr>
+<h2 id="grep">附录：grep 统计方法与复现命令</h2>
+<p>以下命令均在 Windows <code>pwsh</code> 执行，路径含空格需引号。统计口径为“产物 <code>lib/client.js</code> 原文”，避免读源码 <code>src/</code> 与产物混淆。</p>
+<pre><code class="language-powershell"># 1) 主题包文件清单
+Get-ChildItem 'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-theme' -Recurse -File |
+  Select-Object FullName,Length
+
+# 2) 全包字体变量消费（哪个包读了官方字号）
+python -c &quot;
+import re,os
+root=r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai'
+for d in sorted(os.listdir(root)):
+  fp=os.path.join(root,d,'lib','client.js')
+  if os.path.exists(fp):
+    data=open(fp,encoding='utf-8',errors='ignore').read()
+    if 'dsh-content-font-size' in data or 'dsw-font-markdown' in data:
+      from collections import Counter
+      print(d, dict(Counter(re.findall(r'dsh-content-font-size[a-z\-]*|dsw-font-markdown-[a-z\-]+',data))))
+&quot;
+
+# 3) gradient-shadow 公式原文（去转义查看）
+python -c &quot;data=open(r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-theme\lib\client.js',encoding='utf-8',errors='ignore').read(); idx=data.find('gradient-shadow'); print(repr(data[idx:idx+6000][:6000]))&quot;
+
+# 4) 气泡/草稿/低一档证据
+python -c &quot;
+import re
+for fp,name in [(r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-chat\lib\client.js','chat'),(r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-conversation\lib\client.js','conv'),(r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-tool\lib\client.js','tool')]:
+  data=open(fp,encoding='utf-8',errors='ignore').read()
+  print('=====',name,'=====')
+  [print(m.group(0).replace(chr(10),' ')[:560]+chr(10)+'---') for m in re.finditer(r'.{0,280}dsh-content-font-size.{0,280}',data)]
+&quot;
+
+# 5) workspace 硬编码分布
+python -c &quot;
+import re
+data=open(r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-workspace\lib\client.js',encoding='utf-8',errors='ignore').read()
+from collections import Counter
+print(Counter(re.findall(r'font-size:(\d+)px',data)))
+print('px',len(re.findall(r'\d+px',data)),'font-size',len(re.findall(r'font-size',data,re.I)))
+&quot;
+
+# 6) 全产物 px/rem/font-size 总量（注意 rem 需人工排除 remove* 误命中）
+python -c &quot;
+import re,os
+root=r'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai'
+px=rem=fs=0
+for d in sorted(os.listdir(root)):
+  fp=os.path.join(root,d,'lib','client.js')
+  if os.path.exists(fp):
+    data=open(fp,encoding='utf-8',errors='ignore').read()
+    px+=len(re.findall(r'\d+px',data)); rem+=len(re.findall(r'[0-9.]+rem',data)); fs+=len(re.findall(r'font-size',data,re.I))
+print('px',px,'rem(含误命中)',rem,'font-size',fs)
+&quot;
+
+# 7) Electron zoom 持久化核查
+python -c &quot;
+import re
+for fp in [r'D:\DSH NEXT\resources\app\lib\main.js', r'D:\DSH NEXT\resources\app\lib\webserver.js']:
+  data=open(fp,encoding='utf-8',errors='ignore').read()
+  print(fp, 'zoomFactor',len(re.findall(r'zoomFactor',data)), 'zoom',len(re.findall(r'zoom',data,re.I)))
+&quot;
+python -c &quot;
+import re
+for fp in [r'D:\DSH NEXT\resources\app\lib\preload-app.cjs', r'D:\DSH NEXT\resources\app\lib\preload-shell.cjs', r'D:\DSH NEXT\resources\app\lib\web-document.js']:
+  data=open(fp,encoding='utf-8',errors='ignore').read()
+  print(fp, 'zoom',len(re.findall(r'zoom',data,re.I)))
+&quot;
+
+# 8) 缺失文件验证
+Test-Path 'D:\DSH NEXT\resources\app\docs\web-styling.zh.md'
+Test-Path 'D:\DSH NEXT\resources\app\node_modules\@deepseek-ai\dsh-client-ui-theme\docs\web-styling.zh.md'
+Get-ChildItem 'D:\DSH NEXT\resources\app\node_modules\*dsh-web-frontend*' -Recurse -ErrorAction SilentlyContinue
+
+# 9) 本仓插件第二通道
+Select-String -Path 'D:\dsh-plugin\dsh-opencode-palette\src\engine\generate.mjs' -Pattern 'buildTypographyCss|dsw-font|body\{font-size|size - 2|size \+ 9|small \+ 8'
+Select-String -Path 'D:\dsh-plugin\dsh-opencode-palette\runtime\client.mjs' -Pattern 'DEFAULT_STATE|STORAGE_KEY|overrideTokens|styleTag|seg\(st.mode|\[11, 12, 13'
+</code></pre>
+<p>复测要点：</p>
+<ul>
+<li><code>rem</code> 必须人工复核：本轮 610 处 <code>rem</code> 全为 <code>removeEventListener/remove/removed/previewColors</code> 等子串，无排印 <code>font-size:..rem</code>，故“0 个 rem（排印意义）”与上一轮一致，数字差异是匹配口径差异。</li>
+<li><code>workspace</code> 的 <code>10/12/13/14px</code> 分布以 <code>Counter(re.findall(r'font-size:(\d+)px',data))</code> 为准：<code>{'12':10,'14':5,'13':5,'10':1}</code>。</li>
+<li><code>dsh-web-frontend/dist/assets/index-*</code> 在本安装根无独立落点，Web 由 <code>lib/web-document.js</code> + <code>dsh-app://app</code> 提供；上一轮该口径数字保留但需注明包位置差异。</li>
+</ul>
+</article>
+<div class="foot">底稿 Markdown 与本 HTML 同目录保存；打印/另存 PDF可直接用浏览器打印。本报告每条结论均回溯到 D:\DSH NEXT\resources\app 内一手文件，缺失项已如实标注。</div>
+</div>
+<a class="top" href="#">回到顶部</a>
+</body>
+</html>
