@@ -325,9 +325,20 @@ export function apply(ctx, opts) {
   const registry = new Map()
   registerHostLogPhones(registry, hostLog)
 
+  const logCacheDir = join(homeDir, 'logs')
+  // 写开关前确保目录存在：dsh-log 的 persistSwitch 不建目录且吞错，
+  // 运行时目录被删后写会静默丢（内存 true、磁盘无），重启即回关（issue 42 次要链路）。
+  const logSetPhone = hostLog.phoneNames.logSetSwitch
+  const rawLogSet = registry.get(logSetPhone)
+  if (typeof rawLogSet === 'function') {
+    registry.set(logSetPhone, async function (args) {
+      try { await mkdir(logCacheDir, { recursive: true }) } catch (e) { /* store 自己会记 fail */ }
+      return rawLogSet(args)
+    })
+  }
+
   // 日志目录 + 开关文件在装配时就备好：不做的话，首次运行读开关会记一条 readBack 误报，
   // 且首次 setSwitch 会因父目录不存在而静默失败（详见 prepareLogHome 注释）
-  const logCacheDir = join(homeDir, 'logs')
   const logHomeReady = prepareLogHome(hostLog.store, logCacheDir)
   if (logHomeReady && typeof logHomeReady.catch === 'function') {
     logHomeReady.catch(function () { /* 备目录失败不阻断装配：store 自己会记 persistSwitch/write-fail */ })

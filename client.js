@@ -10327,7 +10327,8 @@ function createClient(slotTarget) {
       log: function (level, event, fields) { try { clientLog.log(level, event, fields) } catch (e) { /* 忽略 */ } },
     })
     // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
-    // 面板的日志开关复用这一次对账的结果，不重复打扰宿主（对账失败会记一条 watchdog warn）。
+    // 首帧渲染可先用这一次对账的本地快照，但面板每次挂载的校正必须 fresh 查询——
+    // 复用启动快照会在写成功后把新值覆回旧值（issue 42：打开后重进被关闭）。
     let logSwitchReady = null
     try { logSwitchReady = clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
     try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
@@ -11111,9 +11112,10 @@ function createClient(slotTarget) {
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
           log: clientLog,
-          // 日志开关的初始状态：复用启动时那次对账，别为显示一个开关再打扰一次宿主
+          // 日志开关的初始状态：每次挂载都向宿主 fresh 对账，以宿主为准；
+          // 启动快照只作首帧兜底（宿主不可用时 dsh-log 回本地缓存，不抛错）。
+          // 不得复用启动时的旧 promise——写成功后它仍是旧值，重进会覆回（issue 42）。
           reconcileLog: function () {
-            if (logSwitchReady && typeof logSwitchReady.then === 'function') return logSwitchReady
             try { return clientLog.reconcileLogSwitch() } catch (e) { return Promise.resolve(null) }
           },
           // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
