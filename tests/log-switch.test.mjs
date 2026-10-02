@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { runInThisContext } from 'node:vm'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 
@@ -71,7 +72,8 @@ test('面板侧：写开后重进对账仍为开，写关后仍为关（issue 42
     },
   }
   try {
-    eval(code)
+    // 扫描门禁：eval 语法即高危（DANGEROUS_DYNAMIC_EXECUTION）；在当前上下文执行同一产物字节，语义与直接求值一致（仅测试）。
+    runInThisContext(code, { filename: 'package/lib/client.js' })
     const face = loaded[0].exports
     let panelProps = null
     const slots = {

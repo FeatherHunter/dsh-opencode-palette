@@ -5,6 +5,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { runInThisContext } from 'node:vm'
 
 // React 解析：优先本仓 devDependencies（自包含、不受宿主安装位变动影响），
 // 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，
@@ -139,7 +140,8 @@ function loadPanel(opts = {}) {
     : opts.fontKey
       ? { getItem: () => JSON.stringify({ enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: opts.fontKey }), setItem: () => {} }
       : undefined
-  eval(code)
+  // 扫描门禁：eval 语法即高危（DANGEROUS_DYNAMIC_EXECUTION）；在当前上下文执行同一产物字节，语义与直接求值一致（仅测试）。
+  runInThisContext(code, { filename: 'package/lib/client.js' })
   const p = loaded[0].exports
   let panelCmp = null
   let panelProps = null

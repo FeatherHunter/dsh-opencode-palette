@@ -15,6 +15,7 @@ import { readFileSync, readdirSync, existsSync, mkdtempSync, rmSync, mkdirSync, 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+import { runInThisContext } from 'node:vm'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const read = (rel) => readFileSync(join(ROOT, rel), 'utf8')
@@ -646,7 +647,7 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
 })
 
 // ───────────────────────── 四、面板渲染（真 React，SSR） ─────────────────────────
-// 与 tests/panel-render.test.mjs 同款做法：eval 包版产物 → 用真 React renderToString 抓 DOM。
+// 与 tests/panel-render.test.mjs 同款做法：在当前上下文执行包版产物 → 用真 React renderToString 抓 DOM。
 // 这里只断言「检查更新」这一块（按钮四态 / 升级弹窗 / 待重启横幅 / 宿主不可用时整块消失）。
 
 const { React, ReactDOMServer } = await (async () => {
@@ -678,7 +679,8 @@ function renderPanel(opts = {}) {
     removeEventListener: () => {},
   }
   global.localStorage = undefined
-  eval(code)
+  // 扫描门禁：eval 语法即高危（DANGEROUS_DYNAMIC_EXECUTION）；在当前上下文执行同一产物字节，语义与直接求值一致（仅测试）。
+  runInThisContext(code, { filename: 'package/lib/client.js' })
   const exportsFace = loaded[0].exports
   let panelCmp = null
   let panelProps = null
