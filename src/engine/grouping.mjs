@@ -52,13 +52,14 @@ export function groupOf(name, colors) {
 }
 
 // 解析单个主题的预览关键色（transparent → null）
-export function resolvePreview(name) {
+// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+export function resolvePreview(name, mode) {
   if (isSystem(name)) {
     return { background: null, text: null, primary: null, accent: null, error: null, warning: null, success: null }
   }
   const json = getThemeJson(name)
   if (!json) return null
-  const c = resolveThemeColors(json, 'dark')
+  const c = resolveThemeColors(json, mode || 'dark')
   const pick = (k) => {
     const v = c[k]
     if (v && typeof v === 'object' && v.__error) return null
@@ -76,10 +77,11 @@ export function resolvePreview(name) {
 }
 
 // 完整分组结果：按 GROUP_ORDER 输出非空组，组内含每主题预览色
-export function themeGroups() {
+// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+export function themeGroups(mode) {
   const buckets = {}
   for (const name of listThemes()) {
-    const colors = resolvePreview(name)
+    const colors = resolvePreview(name, mode || 'dark')
     const g = groupOf(name, colors)
     ;(buckets[g] = buckets[g] || []).push({ name: name, colors: colors })
   }

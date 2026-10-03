@@ -3,7 +3,7 @@
 import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } from './map-dsh.mjs'
 import { FONT_FACE_CSS } from './font-face.mjs'
 import { quoteFontFamily } from './font-names.mjs'
-import { withAlpha } from './resolve.mjs'
+import { withAlpha, isDelegatedSurface } from './resolve.mjs'
 
 const TRANSPARENT = 'transparent'
 
@@ -18,23 +18,40 @@ function usable(colors, from) {
 }
 
 // token 层：overrideTokens 需要的 { light, dark } 对象
-export function buildTokens(colors) {
+// issue 45：自持画布维持深色同值（零回归）；委托画布按外观取作者值，
+// 缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
+// 单参调用保持 legacy 语义（同一套色值写两半），存量调用方兼容。
+export function buildTokens(darkColors, lightColors, delegated) {
+  const light = (lightColors === undefined) ? darkColors : lightColors
+  const del = (lightColors === undefined) ? false : !!delegated
   const tokens = {}
-  const put = (name, value) => {
-    if (value !== null && value !== undefined) tokens[name] = { light: value, dark: value }
+  const put2 = (name, lv, dv) => {
+    const lok = lv !== null && lv !== undefined
+    const dok = dv !== null && dv !== undefined
+    if (!lok && !dok) return
+    if (!del) {
+      if (dok) tokens[name] = { light: dv, dark: dv }
+      return
+    }
+    if (lok && dok) tokens[name] = { light: lv, dark: dv }
+    else if (dok) tokens[name] = { dark: dv }
+    else tokens[name] = { light: lv }
   }
   for (const [dshVar, from] of TOKEN_MAP) {
-    if (from === '__transparent__') { put(dshVar, TRANSPARENT); continue }
-    put(dshVar, usable(colors, from))
+    if (from === '__transparent__') { put2(dshVar, TRANSPARENT, TRANSPARENT); continue }
+    put2(dshVar, usable(light, from), usable(darkColors, from))
   }
   for (const [dshVar, fn] of DERIVED_TOKENS) {
-    try {
-      const v = fn(colors)
-      if (v !== null && v !== undefined && v !== TRANSPARENT) put(dshVar, v)
-    } catch (e) { /* 派生失败跳过（如缺色位） */ }
+    let lv
+    try { lv = fn(light) } catch (e) { lv = undefined }
+    let dv
+    try { dv = fn(darkColors) } catch (e) { dv = undefined }
+    if (lv === TRANSPARENT) lv = null
+    if (dv === TRANSPARENT) dv = null
+    put2(dshVar, lv, dv)
   }
   for (const [dshVar, from] of SHIKI_MAP) {
-    put(dshVar, usable(colors, from))
+    put2(dshVar, usable(light, from), usable(darkColors, from))
   }
   return tokens
 }
@@ -92,34 +109,62 @@ export function buildTypographyCss(typography) {
 }
 
 // 颜色 CSS（仅主题模式；system 不调用）
-export function buildColorCss(colors, tokens) {
-  const decls = []
-  for (const name of Object.keys(tokens)) {
-    const v = tokens[name] && tokens[name].dark
-    if (v && v !== TRANSPARENT) decls.push(name + ':' + v + ';')
+// issue 45：自持画布走 legacy 联合选择器（字节一致）；委托画布按外观分区发射，
+// 浅色走宿主默认作用域，深色走宿主深色作用域。
+export function buildColorCss(darkColors, lightColors, tokens, delegated) {
+  if (!delegated) {
+    const decls = []
+    for (const name of Object.keys(tokens)) {
+      const v = tokens[name] && tokens[name].dark
+      if (v && v !== TRANSPARENT) decls.push(name + ':' + v + ';')
+    }
+    const rules = []
+    for (const rule of CSS_RULES) {
+      const v = usable(darkColors, rule.from)
+      if (v === null) continue
+      rules.push(rule.selector + '{' + rule.prop + ':' + v + ';}')
+    }
+    // 内联代码无芯片背景（固定规则，opencode TUI 同款）
+    rules.push('code:not(pre code){background:transparent;}')
+    return 'body,body[data-ds-dark-theme]{' + decls.join('') + '}' + rules.join('')
   }
-  const rules = []
-  for (const rule of CSS_RULES) {
-    const v = usable(colors, rule.from)
-    if (v === null) continue
-    rules.push(rule.selector + '{' + rule.prop + ':' + v + ';}')
+  const declsFor = (mode) => {
+    const out = []
+    for (const name of Object.keys(tokens)) {
+      const v = tokens[name] && tokens[name][mode]
+      if (v && v !== TRANSPARENT) out.push(name + ':' + v + ';')
+    }
+    return out.join('')
   }
-  // 内联代码无芯片背景（固定规则，opencode TUI 同款）
-  rules.push('code:not(pre code){background:transparent;}')
-  return 'body,body[data-ds-dark-theme]{' + decls.join('') + '}' + rules.join('')
+  const scopeSel = (sel, prefix) => (/^body\b/.test(sel) ? sel.replace(/^body\b/, prefix) : prefix + ' ' + sel)
+  const rulesFor = (colors, prefix) => {
+    const out = []
+    for (const rule of CSS_RULES) {
+      const v = usable(colors, rule.from)
+      if (v === null) continue
+      out.push(scopeSel(rule.selector, prefix) + '{' + rule.prop + ':' + v + ';}')
+    }
+    return out.join('')
+  }
+  return 'body{' + declsFor('light') + '}' +
+    'body[data-ds-dark-theme]{' + declsFor('dark') + '}' +
+    rulesFor(lightColors, 'body') +
+    rulesFor(darkColors, 'body[data-ds-dark-theme]') +
+    'code:not(pre code){background:transparent;}'
 }
 
-// 总入口：themeName='system' → colors=null
-export function generateTheme(colors, typography, themeName) {
+// 总入口：themeName='system' → modes=null
+export function generateTheme(modes, typography, themeName) {
   const css = [buildTypographyCss(typography)]
   let tokens = {}
-  if (colors) {
-    tokens = buildTokens(colors)
-    css.push(buildColorCss(colors, tokens))
+  if (modes) {
+    const delegated = isDelegatedSurface(modes.dark, modes.light)
+    tokens = buildTokens(modes.dark, modes.light, delegated)
+    css.push(buildColorCss(modes.dark, modes.light, tokens, delegated))
   }
   return {
     tokens: tokens,
     css: css.join(''),
-    meta: { theme: themeName || (colors ? 'theme' : 'system'), typography: typography || {} },
+    meta: { theme: themeName || (modes ? 'theme' : 'system'), typography: typography || {} },
   }
 }

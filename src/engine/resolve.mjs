@@ -112,3 +112,12 @@ export function collectErrors(colors) {
   }
   return out
 }
+
+// 画布归属（issue 45）：主要背景槽位在两套外观下均为 transparent → 主题不拥有画布，
+// 底色归宿主；其上的文字不得再假设深色底。按槽位判定，不按主题名硬编码。
+const SURFACE_SLOTS = ['background', 'backgroundPanel', 'backgroundElement']
+export function isDelegatedSurface(darkColors, lightColors) {
+  const d = darkColors || {}
+  const l = lightColors || {}
+  return SURFACE_SLOTS.every((k) => d[k] === 'transparent' && l[k] === 'transparent')
+}

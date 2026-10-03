@@ -2,7 +2,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  themeNames, themeStats, previewColors, renderTheme, auditAll,
+  themeNames, themeStats, previewColors, renderTheme, auditAll, delegatesBackground,
 } from '../src/engine/index.mjs'
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
@@ -182,7 +182,7 @@ test('shiki 语法色映射完整性（10 个变量全覆盖）', () => {
 
 test('generate: buildTokens 对缺失色位容错（不抛异常）', () => {
   const colors = { background: '#000000', text: '#FFFFFF' }
-  const tokens = buildTokens(colors)
+  const tokens = buildTokens(colors, colors, false)
   assert.ok(tokens['--dsw-alias-bg-base'])
   assert.equal(tokens['--dsw-alias-state-error-primary'], undefined) // 缺失 → 跳过
 })
@@ -612,4 +612,80 @@ test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛�
   assert.equal(lucent.tokens['--dsw-alias-file-diff-added-bg'], undefined, '透明源应跳过')
   assert.equal(lucent.tokens['--dsw-alias-tooltip-key-bg'], undefined, '透明浮起面应跳过')
   assert.ok(lucent.tokens['--dsw-alias-menu-icon'], '透明主题中性图标仍保留')
+})
+
+// issue 45：画布归属按槽位判定（双外观三主槽全透明 → 委托给宿主）
+test('画布归属：仅 lucent-orng 委托背景', () => {
+  assert.equal(delegatesBackground('lucent-orng'), true)
+  assert.equal(delegatesBackground('opencode'), false)
+  assert.equal(delegatesBackground('orng'), false)
+  assert.equal(delegatesBackground('system'), false)
+  for (const name of themeNames()) {
+    if (name === 'system' || name === 'lucent-orng') continue
+    assert.equal(delegatesBackground(name), false, name + ' 不应被判定为委托画布')
+  }
+})
+
+// issue 45：委托画布主题的文字两半按外观取作者值（WCAG AA 的前提）
+test('委托画布主题：文字两半按外观取作者值', () => {
+  const r = renderTheme('lucent-orng', TYPO)
+  assert.equal(r.tokens['--dsw-alias-label-primary'].light, '#1A1A1A')
+  assert.equal(r.tokens['--dsw-alias-label-primary'].dark, '#EEEEEE')
+  assert.equal(r.tokens['--shiki-foreground'].light, '#1A1A1A')
+  assert.equal(r.tokens['--dsw-alias-bg-base'], undefined) // 背景仍跳过，底色归宿主
+})
+
+// issue 45：自持画布主题零回归（两半维持深色同值）
+test('自持画布主题：两半维持深色同值', () => {
+  for (const name of themeNames()) {
+    if (isSystem(name) || delegatesBackground(name)) continue
+    const r = renderTheme(name, TYPO)
+    for (const [k, v] of Object.entries(r.tokens)) {
+      assert.equal(v.light, v.dark, name + ' ' + k + ' 两半必须一致')
+    }
+  }
+})
+
+// issue 45：颜色 CSS 按画布归属分区（委托分开发射，自持维持联合选择器）
+test('颜色 CSS：委托按外观分区，自持维持联合选择器', () => {
+  const l = renderTheme('lucent-orng', TYPO).css
+  const lightText = (l.match(/body\{[^}]*?--dsw-alias-label-primary:([^;]+);/) || [])[1]
+  assert.equal(lightText, '#1A1A1A', '浅色声明缺失')
+  const darkText = (l.match(/body\[data-ds-dark-theme\]\{[^}]*?--dsw-alias-label-primary:([^;]+);/) || [])[1]
+  assert.equal(darkText, '#EEEEEE', '深色声明缺失')
+  assert.ok(!l.includes('body,body[data-ds-dark-theme]{--dsw-alias-label-primary'), '委托主题不得再联合硬灌文字色')
+  assert.ok(l.includes('blockquote{color:#B0851F'), '委托主题浅色引用块应取作者浅色')
+  assert.ok(l.includes('body[data-ds-dark-theme] blockquote{color:#FFF7F1'), '委托主题深色引用块保持原值')
+  const o = renderTheme('opencode', TYPO).css
+  assert.ok(o.includes('body,body[data-ds-dark-theme]{'), '自持主题保持联合选择器')
+})
+
+// issue 45：委托主题浅色正文对比度达标（AA 4.5:1）
+function relLum(hex) {
+  const n = parseInt(String(hex).slice(1), 16)
+  const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
+    v /= 255
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
+}
+function contrastRatio(a, b) {
+  const [x, y] = [relLum(a), relLum(b)].sort((p, q) => q - p)
+  return (x + 0.05) / (y + 0.05)
+}
+test('委托主题浅色正文对比度达标', () => {
+  const r = renderTheme('lucent-orng', TYPO)
+  const fg = r.tokens['--dsw-alias-label-primary'].light
+  assert.ok(contrastRatio(fg, '#FFFFFF') >= 4.5, 'vs 纯白底未达 AA: ' + fg)
+  assert.ok(contrastRatio(fg, '#FAFAFA') >= 4.5, 'vs 浅灰底未达 AA: ' + fg)
+})
+
+// issue 45：预览支持外观参数，缺省保持深色（调用方兼容）
+test('previewColors/themeGroups 支持外观参数', () => {
+  assert.equal(previewColors('lucent-orng').text, '#EEEEEE')
+  assert.equal(previewColors('lucent-orng', 'light').text, '#1A1A1A')
+  assert.equal(previewColors('lucent-orng', 'light').background, null)
+  const g = themeGroups('light')
+  const t = g.flatMap((x) => x.themes).find((x) => x.name === 'lucent-orng')
+  assert.equal(t.colors.text, '#1A1A1A')
 })

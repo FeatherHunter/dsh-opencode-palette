@@ -956,7 +956,16 @@ function collectErrors(colors) {
   }
   return out
 }
-__mods["resolve"] = { ansiToHex, rgbToHex, hexToRgb, shade, withAlpha, contrastText, resolveColor, resolveThemeColors, collectErrors }
+
+// 画布归属（issue 45）：主要背景槽位在两套外观下均为 transparent → 主题不拥有画布，
+// 底色归宿主；其上的文字不得再假设深色底。按槽位判定，不按主题名硬编码。
+const SURFACE_SLOTS = ['background', 'backgroundPanel', 'backgroundElement']
+function isDelegatedSurface(darkColors, lightColors) {
+  const d = darkColors || {}
+  const l = lightColors || {}
+  return SURFACE_SLOTS.every((k) => d[k] === 'transparent' && l[k] === 'transparent')
+}
+__mods["resolve"] = { ansiToHex, rgbToHex, hexToRgb, shade, withAlpha, contrastText, resolveColor, resolveThemeColors, collectErrors, isDelegatedSurface }
 })();
 (function () {
 // map-dsh.mjs — ★ 单一真相源：opencode 主题语义色位 → DSH 界面 CSS 变量/元素规则
@@ -1482,7 +1491,7 @@ __mods["local-fonts"] = { MONO_PROBE_TEXT, MONO_PROBE_SIZE, MONO_MEASURE_LIMIT, 
 const { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } = __mods["map-dsh"]
 const { FONT_FACE_CSS } = __mods["font-face"]
 const { quoteFontFamily } = __mods["font-names"]
-const { withAlpha } = __mods["resolve"]
+const { withAlpha, isDelegatedSurface } = __mods["resolve"]
 
 const TRANSPARENT = 'transparent'
 
@@ -1497,23 +1506,40 @@ function usable(colors, from) {
 }
 
 // token 层：overrideTokens 需要的 { light, dark } 对象
-function buildTokens(colors) {
+// issue 45：自持画布维持深色同值（零回归）；委托画布按外观取作者值，
+// 缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
+// 单参调用保持 legacy 语义（同一套色值写两半），存量调用方兼容。
+function buildTokens(darkColors, lightColors, delegated) {
+  const light = (lightColors === undefined) ? darkColors : lightColors
+  const del = (lightColors === undefined) ? false : !!delegated
   const tokens = {}
-  const put = (name, value) => {
-    if (value !== null && value !== undefined) tokens[name] = { light: value, dark: value }
+  const put2 = (name, lv, dv) => {
+    const lok = lv !== null && lv !== undefined
+    const dok = dv !== null && dv !== undefined
+    if (!lok && !dok) return
+    if (!del) {
+      if (dok) tokens[name] = { light: dv, dark: dv }
+      return
+    }
+    if (lok && dok) tokens[name] = { light: lv, dark: dv }
+    else if (dok) tokens[name] = { dark: dv }
+    else tokens[name] = { light: lv }
   }
   for (const [dshVar, from] of TOKEN_MAP) {
-    if (from === '__transparent__') { put(dshVar, TRANSPARENT); continue }
-    put(dshVar, usable(colors, from))
+    if (from === '__transparent__') { put2(dshVar, TRANSPARENT, TRANSPARENT); continue }
+    put2(dshVar, usable(light, from), usable(darkColors, from))
   }
   for (const [dshVar, fn] of DERIVED_TOKENS) {
-    try {
-      const v = fn(colors)
-      if (v !== null && v !== undefined && v !== TRANSPARENT) put(dshVar, v)
-    } catch (e) { /* 派生失败跳过（如缺色位） */ }
+    let lv
+    try { lv = fn(light) } catch (e) { lv = undefined }
+    let dv
+    try { dv = fn(darkColors) } catch (e) { dv = undefined }
+    if (lv === TRANSPARENT) lv = null
+    if (dv === TRANSPARENT) dv = null
+    put2(dshVar, lv, dv)
   }
   for (const [dshVar, from] of SHIKI_MAP) {
-    put(dshVar, usable(colors, from))
+    put2(dshVar, usable(light, from), usable(darkColors, from))
   }
   return tokens
 }
@@ -1571,35 +1597,63 @@ function buildTypographyCss(typography) {
 }
 
 // 颜色 CSS（仅主题模式；system 不调用）
-function buildColorCss(colors, tokens) {
-  const decls = []
-  for (const name of Object.keys(tokens)) {
-    const v = tokens[name] && tokens[name].dark
-    if (v && v !== TRANSPARENT) decls.push(name + ':' + v + ';')
+// issue 45：自持画布走 legacy 联合选择器（字节一致）；委托画布按外观分区发射，
+// 浅色走宿主默认作用域，深色走宿主深色作用域。
+function buildColorCss(darkColors, lightColors, tokens, delegated) {
+  if (!delegated) {
+    const decls = []
+    for (const name of Object.keys(tokens)) {
+      const v = tokens[name] && tokens[name].dark
+      if (v && v !== TRANSPARENT) decls.push(name + ':' + v + ';')
+    }
+    const rules = []
+    for (const rule of CSS_RULES) {
+      const v = usable(darkColors, rule.from)
+      if (v === null) continue
+      rules.push(rule.selector + '{' + rule.prop + ':' + v + ';}')
+    }
+    // 内联代码无芯片背景（固定规则，opencode TUI 同款）
+    rules.push('code:not(pre code){background:transparent;}')
+    return 'body,body[data-ds-dark-theme]{' + decls.join('') + '}' + rules.join('')
   }
-  const rules = []
-  for (const rule of CSS_RULES) {
-    const v = usable(colors, rule.from)
-    if (v === null) continue
-    rules.push(rule.selector + '{' + rule.prop + ':' + v + ';}')
+  const declsFor = (mode) => {
+    const out = []
+    for (const name of Object.keys(tokens)) {
+      const v = tokens[name] && tokens[name][mode]
+      if (v && v !== TRANSPARENT) out.push(name + ':' + v + ';')
+    }
+    return out.join('')
   }
-  // 内联代码无芯片背景（固定规则，opencode TUI 同款）
-  rules.push('code:not(pre code){background:transparent;}')
-  return 'body,body[data-ds-dark-theme]{' + decls.join('') + '}' + rules.join('')
+  const scopeSel = (sel, prefix) => (/^body\b/.test(sel) ? sel.replace(/^body\b/, prefix) : prefix + ' ' + sel)
+  const rulesFor = (colors, prefix) => {
+    const out = []
+    for (const rule of CSS_RULES) {
+      const v = usable(colors, rule.from)
+      if (v === null) continue
+      out.push(scopeSel(rule.selector, prefix) + '{' + rule.prop + ':' + v + ';}')
+    }
+    return out.join('')
+  }
+  return 'body{' + declsFor('light') + '}' +
+    'body[data-ds-dark-theme]{' + declsFor('dark') + '}' +
+    rulesFor(lightColors, 'body') +
+    rulesFor(darkColors, 'body[data-ds-dark-theme]') +
+    'code:not(pre code){background:transparent;}'
 }
 
-// 总入口：themeName='system' → colors=null
-function generateTheme(colors, typography, themeName) {
+// 总入口：themeName='system' → modes=null
+function generateTheme(modes, typography, themeName) {
   const css = [buildTypographyCss(typography)]
   let tokens = {}
-  if (colors) {
-    tokens = buildTokens(colors)
-    css.push(buildColorCss(colors, tokens))
+  if (modes) {
+    const delegated = isDelegatedSurface(modes.dark, modes.light)
+    tokens = buildTokens(modes.dark, modes.light, delegated)
+    css.push(buildColorCss(modes.dark, modes.light, tokens, delegated))
   }
   return {
     tokens: tokens,
     css: css.join(''),
-    meta: { theme: themeName || (colors ? 'theme' : 'system'), typography: typography || {} },
+    meta: { theme: themeName || (modes ? 'theme' : 'system'), typography: typography || {} },
   }
 }
 __mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColorCss, generateTheme }
@@ -9606,13 +9660,14 @@ function groupOf(name, colors) {
 }
 
 // 解析单个主题的预览关键色（transparent → null）
-function resolvePreview(name) {
+// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+function resolvePreview(name, mode) {
   if (isSystem(name)) {
     return { background: null, text: null, primary: null, accent: null, error: null, warning: null, success: null }
   }
   const json = getThemeJson(name)
   if (!json) return null
-  const c = resolveThemeColors(json, 'dark')
+  const c = resolveThemeColors(json, mode || 'dark')
   const pick = (k) => {
     const v = c[k]
     if (v && typeof v === 'object' && v.__error) return null
@@ -9630,10 +9685,11 @@ function resolvePreview(name) {
 }
 
 // 完整分组结果：按 GROUP_ORDER 输出非空组，组内含每主题预览色
-function themeGroups() {
+// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+function themeGroups(mode) {
   const buckets = {}
   for (const name of listThemes()) {
-    const colors = resolvePreview(name)
+    const colors = resolvePreview(name, mode || 'dark')
     const g = groupOf(name, colors)
     ;(buckets[g] = buckets[g] || []).push({ name: name, colors: colors })
   }
@@ -9647,30 +9703,41 @@ __mods["grouping"] = { GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview
 (function () {
 // index.mjs — ThemeEngine 门面：注册表 + 解析 + 生成 的对外唯一入口
 const { listThemes, getThemeJson, isSystem, SYSTEM_THEME, countStatic } = __mods["registry"]
-const { resolveThemeColors, collectErrors } = __mods["resolve"]
+const { resolveThemeColors, collectErrors, isDelegatedSurface } = __mods["resolve"]
 const { generateTheme } = __mods["generate"]
 const { themeGroups, GROUP_ORDER, GROUP_COLORS, resolvePreview } = __mods["grouping"]
 
 const DARK = 'dark'
 
 // 渲染一个主题 → { tokens, css, meta }
+// issue 45：两套外观 palettes 同时解析；画布归属由 generate 按槽位判定
 function renderTheme(name, typography) {
   if (isSystem(name)) {
     return generateTheme(null, typography || {}, SYSTEM_THEME)
   }
   const json = getThemeJson(name)
   if (!json) throw new Error('未知主题: ' + String(name))
-  const colors = resolveThemeColors(json, DARK)
-  const errors = collectErrors(colors)
+  const dark = resolveThemeColors(json, DARK)
+  const light = resolveThemeColors(json, 'light')
+  const errors = collectErrors(dark).concat(collectErrors(light))
   if (errors.length > 0) {
     console.warn('[dsh-opencode-palette] ' + name + ' 有 ' + errors.length + ' 个色位解析失败:', errors)
   }
-  return generateTheme(colors, typography || {}, name)
+  return generateTheme({ dark, light }, typography || {}, name)
 }
 
 // 解析主题的关键色（面板预览用）：透明 → null（实现收敛到 grouping.resolvePreview）
-function previewColors(name) {
-  return resolvePreview(name)
+// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark
+function previewColors(name, mode) {
+  return resolvePreview(name, mode || 'dark')
+}
+
+// 画布归属（issue 45）：主题是否把主要背景委托给宿主（面板提示与测试用）
+function delegatesBackground(name) {
+  if (isSystem(name)) return false
+  const json = getThemeJson(name)
+  if (!json) return false
+  return isDelegatedSurface(resolveThemeColors(json, DARK), resolveThemeColors(json, 'light'))
 }
 
 function themeNames() { return listThemes() }
@@ -9682,14 +9749,14 @@ function auditAll() {
   for (const name of listThemes()) {
     if (isSystem(name)) { report.ok.push(name); continue }
     const json = getThemeJson(name)
-    const colors = resolveThemeColors(json, DARK)
-    const errors = collectErrors(colors)
+    const errors = collectErrors(resolveThemeColors(json, DARK))
+      .concat(collectErrors(resolveThemeColors(json, 'light')))
     if (errors.length > 0) report.broken.push(name + ': ' + errors.join(' | '))
     else report.ok.push(name)
   }
   return report
 }
-__mods["index"] = { renderTheme, previewColors, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
+__mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
 })();
 (function () {
 /**
@@ -10084,7 +10151,7 @@ __mods["update-panel"] = { readSnapshot, buttonState, blockedReasonKey, createUp
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-const { renderTheme, previewColors, themeNames, themeGroups } = __mods["index"]
+const { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground } = __mods["index"]
 const { FONTS } = __mods["map-dsh"]
 const { BUNDLED_FONTS } = __mods["font-face"]
 const { createFontAvailability } = __mods["font-avail"]
@@ -10196,6 +10263,7 @@ const I18N = {
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
   systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
+  translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
   'group.teal': { zh: '青绿', en: 'Teal' },
@@ -10401,7 +10469,7 @@ function createClient(slotTarget) {
         console.error('[dsh-opencode-palette] 渲染失败，回退默认主题:', e)
         render = renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
       }
-      // 3) token 层（{light,dark} 同值 = 强制深色终端观感）
+      // 3) token 层（issue 45：自持画布两半同值=深色观感；委托画布按外观取作者值）
       tokenDispose = theme.overrideTokens('opencode-palette', render.tokens)
       // 4) <style> 层
       if (styleTag === null && typeof document !== 'undefined') {
@@ -10522,11 +10590,12 @@ function createClient(slotTarget) {
           return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
-        // 搜索过滤（命中组保留，空组隐藏）
+        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析，issue 45）
         const q = query.trim().toLowerCase()
+        const previewMode = hostDark ? 'dark' : 'light'
         const shown = q === ''
-          ? props.groups()
-          : props.groups()
+          ? props.groups(previewMode)
+          : props.groups(previewMode)
               .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return (t.name + ' ' + (THEME_ZH[t.name] || '')).toLowerCase().indexOf(q) >= 0 }) } })
               .filter(function (g) { return g.themes.length > 0 })
 
@@ -10551,9 +10620,10 @@ function createClient(slotTarget) {
         const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
         // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
         const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
-        // 透明底芯片背景回退到浅色面，沿用主题浅色字会被洗白（如透光橙），浅色下改用主文字色
+        // issue 45：预览色已按宿主外观解析，直接取主题文字色；
+        // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
         const chipText = function (colors) {
-          if (colors && colors.text && (hostDark || colors.background)) return colors.text
+          if (colors && colors.text) return colors.text
           return base
         }
 
@@ -10745,13 +10815,15 @@ function createClient(slotTarget) {
           ])
         }
 
-        // 主题 mini 芯片（组合 1）
+        // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
         const chip = function (t) {
           const isCur = t.name === st.theme
           const c = t.colors
+          const translucent = t.name !== 'system' && delegatesBackground(t.name)
           return h('button', {
             key: t.name,
             onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
+            title: translucent ? tr('translucentNote') : undefined,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: c && c.background ? c.background : 'var(--dsw-alias-bg-layer-2)',
@@ -11132,7 +11204,7 @@ function createClient(slotTarget) {
           collectFonts: collectFontCandidates,
           // 面板文案（测试/调试用，走同一份双语表）
           text: function (key, vars) { return vars ? trf(key, vars) : tr(key) },
-          groups: function () { return themeGroups() },
+          groups: function (mode) { return themeGroups(mode || 'dark') },
           subscribeLocale: function (fn) {
             localeListeners.push(fn)
             return function () {

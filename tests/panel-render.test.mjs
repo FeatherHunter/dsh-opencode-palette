@@ -238,7 +238,10 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
   assert.ok(html.includes('background:#FFFFFF'), '停用开关钮色浅色可见')
   assert.ok(html.includes('0 1px 3px rgba(0,0,0,0.25)'), '预览芯片浅色分离阴影')
   const translucent = chipSegment(html, '透光橙')
-  assert.ok(translucent.includes('color:var(--dsw-alias-label-primary)'), '透明底芯片浅色下用主文字色（不洗白）')
+  assert.ok(translucent.includes('color:#1A1A1A'), '透明底芯片浅色下取主题浅色字（不洗白）')
+  assert.ok(translucent.includes('title="透光主题'), '委托画布芯片应带透光提示')
+  const opaque = chipSegment(html, 'opencode')
+  assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
 })
 
 // 取某主题芯片 button 片段（断言其行内样式用）
@@ -258,6 +261,14 @@ test('深色回退（未知宿主）：深色硬编码原样保留', () => {
   assert.ok(!html.includes('0 1px 3px rgba(0,0,0,0.25)'), '深色不加分离阴影')
   const translucent = chipSegment(html, '透光橙')
   assert.ok(!translucent.includes('color:var(--dsw-alias-label-primary)'), '透明底芯片深色保持主题字色')
+})
+
+test('透光提示：深色英文界面下委托芯片带英文提示，自持芯片无', () => {
+  const { html } = loadPanel({ lang: 'en', disabled: true })
+  const translucent = chipSegment(html, 'lucent-orng')
+  assert.ok(translucent.includes('title="Translucent theme'), '委托画布芯片应带英文透光提示')
+  const opaque = chipSegment(html, 'opencode')
+  assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
 })
 
 test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', () => {

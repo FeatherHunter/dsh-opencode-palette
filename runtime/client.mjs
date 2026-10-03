@@ -1,7 +1,7 @@
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-import { renderTheme, previewColors, themeNames, themeGroups } from './engine/index.mjs'
+import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground } from './engine/index.mjs'
 import { FONTS } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
@@ -113,6 +113,7 @@ const I18N = {
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
   systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
+  translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
   'group.teal': { zh: '青绿', en: 'Teal' },
@@ -318,7 +319,7 @@ export function createClient(slotTarget) {
         console.error('[dsh-opencode-palette] 渲染失败，回退默认主题:', e)
         render = renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
       }
-      // 3) token 层（{light,dark} 同值 = 强制深色终端观感）
+      // 3) token 层（issue 45：自持画布两半同值=深色观感；委托画布按外观取作者值）
       tokenDispose = theme.overrideTokens('opencode-palette', render.tokens)
       // 4) <style> 层
       if (styleTag === null && typeof document !== 'undefined') {
@@ -439,11 +440,12 @@ export function createClient(slotTarget) {
           return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
-        // 搜索过滤（命中组保留，空组隐藏）
+        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析，issue 45）
         const q = query.trim().toLowerCase()
+        const previewMode = hostDark ? 'dark' : 'light'
         const shown = q === ''
-          ? props.groups()
-          : props.groups()
+          ? props.groups(previewMode)
+          : props.groups(previewMode)
               .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return (t.name + ' ' + (THEME_ZH[t.name] || '')).toLowerCase().indexOf(q) >= 0 }) } })
               .filter(function (g) { return g.themes.length > 0 })
 
@@ -468,9 +470,10 @@ export function createClient(slotTarget) {
         const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
         // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
         const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
-        // 透明底芯片背景回退到浅色面，沿用主题浅色字会被洗白（如透光橙），浅色下改用主文字色
+        // issue 45：预览色已按宿主外观解析，直接取主题文字色；
+        // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
         const chipText = function (colors) {
-          if (colors && colors.text && (hostDark || colors.background)) return colors.text
+          if (colors && colors.text) return colors.text
           return base
         }
 
@@ -662,13 +665,15 @@ export function createClient(slotTarget) {
           ])
         }
 
-        // 主题 mini 芯片（组合 1）
+        // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
         const chip = function (t) {
           const isCur = t.name === st.theme
           const c = t.colors
+          const translucent = t.name !== 'system' && delegatesBackground(t.name)
           return h('button', {
             key: t.name,
             onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
+            title: translucent ? tr('translucentNote') : undefined,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: c && c.background ? c.background : 'var(--dsw-alias-bg-layer-2)',
@@ -1049,7 +1054,7 @@ export function createClient(slotTarget) {
           collectFonts: collectFontCandidates,
           // 面板文案（测试/调试用，走同一份双语表）
           text: function (key, vars) { return vars ? trf(key, vars) : tr(key) },
-          groups: function () { return themeGroups() },
+          groups: function (mode) { return themeGroups(mode || 'dark') },
           subscribeLocale: function (fn) {
             localeListeners.push(fn)
             return function () {
