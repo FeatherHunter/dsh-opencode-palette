@@ -497,8 +497,8 @@ test('接线：电话名与轮询间隔从更新包派生，产物里不写死',
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.2.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.2.0 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.3.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.3.0 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')

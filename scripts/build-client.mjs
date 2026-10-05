@@ -50,7 +50,11 @@ const INLINE_PACKAGES = [
     modules: [
       { key: 'upd-config', file: 'dist/config.js', deps: {} },
       { key: 'upd-commands', file: 'dist/commands.js', deps: {} },
-      { key: 'upd-client', file: 'dist/client.js', deps: { './config.js': 'upd-config', './commands.js': 'upd-commands' } },
+      { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
+      { key: 'upd-batch', file: 'dist/batch.js', deps: {} },
+      { key: 'upd-service', file: 'dist/service.js', deps: {} },
+      { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './service.js': 'upd-service' } },
+      { key: 'upd-client', file: 'dist/client.js', deps: { './config.js': 'upd-config', './commands.js': 'upd-commands', './queue.js': 'upd-queue', './batch.js': 'upd-batch', './changelog.js': 'upd-changelog' } },
     ],
   },
 ]
@@ -67,7 +71,7 @@ function inlineModuleFor(key) {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER = [
-  'upd-config', 'upd-commands', 'upd-client',
+  'upd-config', 'upd-commands', 'upd-queue', 'upd-batch', 'upd-service', 'upd-changelog', 'upd-client',
   'log-config', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index',
   'channel', 'update-panel', 'client',
@@ -267,10 +271,10 @@ async function main() {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按范围取。
-    // 更新系统用 `^0.2.0`：0.2.x 的补丁用户自动跟上；上游发 0.3.0 就必须我们改范围重发（check-deps 负责提醒）。
+    // 更新系统用 `^0.3.0`：0.3.x 的补丁用户自动跟上；上游发 0.4.0/1.x 就必须我们改范围重发（check-deps 负责提醒）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.mjs` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.2.0' },
+    dependencies: { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.3.0' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

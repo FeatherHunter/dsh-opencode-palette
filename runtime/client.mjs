@@ -440,7 +440,7 @@ export function createClient(slotTarget) {
           return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
-        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析，issue 45）
+        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析 issue 45，分组键恒用 dark 基线 issue 47）
         const q = query.trim().toLowerCase()
         const previewMode = hostDark ? 'dark' : 'light'
         const shown = q === ''

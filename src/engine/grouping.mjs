@@ -77,12 +77,14 @@ export function resolvePreview(name, mode) {
 }
 
 // 完整分组结果：按 GROUP_ORDER 输出非空组，组内含每主题预览色
-// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+// mode 缺省 dark（调用方兼容）；mode 只决定芯片预览色，分组键恒用 dark 基线（issue 47：菜单不得随宿主明暗漂移）
 export function themeGroups(mode) {
+  const m = mode || 'dark'
   const buckets = {}
   for (const name of listThemes()) {
-    const colors = resolvePreview(name, mode || 'dark')
-    const g = groupOf(name, colors)
+    const colors = resolvePreview(name, m)
+    const groupKey = m === 'dark' ? colors : resolvePreview(name, 'dark')
+    const g = groupOf(name, groupKey)
     ;(buckets[g] = buckets[g] || []).push({ name: name, colors: colors })
   }
   return GROUP_ORDER

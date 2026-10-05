@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.13 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.14 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -22,6 +22,8 @@ const LEGACY_DIR_SEGMENT = "updates";
 const STATE_FILE = "state.json";
 const LOCK_FILE = "install.lock";
 const BACKUP_FILE = "before.json";
+const SKIPPED_FILE = "skipped.json";
+const RELEASE_CHANNELS = ["stable", "prerelease"];
 const DEFAULT_CHECK_TIMEOUT_MS = 1e4;
 const DEFAULT_CONFIRMATION_TTL_MS = 10 * 6e4;
 const DEFAULT_INSTALL_TIMEOUT_MS = 15 * 6e4;
@@ -74,7 +76,11 @@ function resolveUpdateConfig(input) {
   if (panelPollMs < MIN_PANEL_POLL_MS) {
     throw new Error("[dsh-plugin-update] \u9762\u677F\u8F6E\u8BE2 panelPollMs \u975E\u6CD5\uFF1A\u4E0D\u5F97\u5C0F\u4E8E 250 \u6BEB\u79D2\uFF08\u6536\u5230 " + JSON.stringify(input.panelPollMs) + "\uFF09");
   }
-  return { pluginId, prefix, targetPackageName, registryUrl, homeDir, checkTimeoutMs, confirmationTtlMs, installTimeoutMs, panelPollMs };
+  const releaseChannel = input.releaseChannel === void 0 ? "stable" : input.releaseChannel;
+  if (releaseChannel !== "stable" && releaseChannel !== "prerelease") {
+    throw new Error("[dsh-plugin-update] \u7248\u672C\u901A\u9053 releaseChannel \u975E\u6CD5\uFF1A\u53EA\u6536 stable \u6216 prerelease\uFF08\u6536\u5230 " + JSON.stringify(input.releaseChannel) + "\uFF09");
+  }
+  return { pluginId, prefix, targetPackageName, registryUrl, homeDir, checkTimeoutMs, confirmationTtlMs, installTimeoutMs, panelPollMs, releaseChannel };
 }
 function buildPhoneNames(prefix) {
   const checked = assertPrefix(prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix");
@@ -87,7 +93,7 @@ function buildPhoneNames(prefix) {
 function buildPhoneName(prefix, action) {
   return buildPhoneNames(prefix)[action];
 }
-__mods["upd-config"] = { BACKUP_FILE, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, STATE_FILE, assertPluginId, assertPrefix, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
+__mods["upd-config"] = { BACKUP_FILE, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, RELEASE_CHANNELS, SKIPPED_FILE, STATE_FILE, assertPluginId, assertPrefix, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
 
 })();
 (function () {
@@ -98,6 +104,27 @@ const MANAGER_TARGET_RE = /^(?:@[a-z0-9][a-z0-9._~-]*\/)?[a-z0-9][a-z0-9._~-]*$/
 const INSTALL_TIMEOUT_MS = 15 * 6e4;
 function validVersion(v) {
   return typeof v === "string" && /^\d+\.\d+\.\d+$/.test(v);
+}
+function validPrereleaseIds(ids) {
+  if (typeof ids !== "string" || !ids) return false;
+  const parts = ids.split(".");
+  if (parts.length === 0) return false;
+  for (const p of parts) {
+    if (!p || !/^[0-9A-Za-z-]+$/.test(p)) return false;
+    if (/^\d+$/.test(p) && p.length > 1 && p.startsWith("0")) return false;
+  }
+  return true;
+}
+function validReleaseVersion(v) {
+  if (typeof v !== "string" || !v) return false;
+  const dash = v.indexOf("-");
+  if (dash < 0) return validVersion(v);
+  if (v.slice(dash + 1).includes("+")) return false;
+  return validVersion(v.slice(0, dash)) && validPrereleaseIds(v.slice(dash + 1));
+}
+function versionAllowed(version, channel) {
+  if (channel === "prerelease") return validReleaseVersion(version);
+  return validVersion(version);
 }
 function parseTriple(v) {
   const parts = String(v).split(".");
@@ -122,6 +149,39 @@ function compareVersions(a, b) {
   }
   return 0;
 }
+function compareReleaseVersions(a, b) {
+  if (!validReleaseVersion(a) || !validReleaseVersion(b)) throw new Error("invalid-release");
+  const dashA = a.indexOf("-");
+  const dashB = b.indexOf("-");
+  const coreA = dashA < 0 ? a : a.slice(0, dashA);
+  const coreB = dashB < 0 ? b : b.slice(0, dashB);
+  const order = compareVersions(coreA, coreB);
+  if (order !== 0) return order;
+  const preA = dashA < 0 ? null : a.slice(dashA + 1).split(".");
+  const preB = dashB < 0 ? null : b.slice(dashB + 1).split(".");
+  if (preA === null && preB === null) return 0;
+  if (preA === null) return 1;
+  if (preB === null) return -1;
+  const width = Math.max(preA.length, preB.length);
+  for (let i = 0; i < width; i++) {
+    const x = preA[i];
+    const y = preB[i];
+    if (x === void 0) return -1;
+    if (y === void 0) return 1;
+    const xn = /^\d+$/.test(x) ? Number(x) : null;
+    const yn = /^\d+$/.test(y) ? Number(y) : null;
+    if (xn !== null && yn !== null) {
+      if (xn < yn) return -1;
+      if (xn > yn) return 1;
+      continue;
+    }
+    if (xn !== null) return -1;
+    if (yn !== null) return 1;
+    if (x < y) return -1;
+    if (x > y) return 1;
+  }
+  return 0;
+}
 function usableProfileName(raw) {
   const name = typeof raw === "string" ? raw.trim() : "";
   if (!name || name.length > 255 || name.startsWith("-")) return null;
@@ -131,7 +191,8 @@ function usableProfileName(raw) {
 function installRecipe(input) {
   const name = usableProfileName(input?.profileName);
   const version = input?.version;
-  if (!name || !validVersion(version)) return null;
+  const channel = input?.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  if (!name || !versionAllowed(version, channel)) return null;
   const kind = input?.environmentKind;
   if (kind !== "desktop" && kind !== "desktop-manager" && kind !== "cli") return null;
   const targetName = input?.targetPackageName ?? PACKAGE_NAME;
@@ -164,14 +225,15 @@ function manualCommand(input) {
   const targetName = input.targetPackageName ?? PACKAGE_NAME;
   const registry = input.registryUrl ?? NPM_REGISTRY;
   if (!targetName || !registry) return null;
+  const channel = input.releaseChannel === "prerelease" ? "prerelease" : "stable";
   const arg = /^[A-Za-z0-9_.-]+$/.test(name) ? name : JSON.stringify(name);
-  const picks = [input.latestVersion, input.jobTargetVersion, input.installedVersion].filter(validVersion);
+  const picks = [input.latestVersion, input.jobTargetVersion, input.installedVersion].filter((v) => versionAllowed(v, channel));
   let version = picks.length > 0 ? picks[0] : "latest";
   try {
-    const ranked = picks.filter((v) => compareVersions(v, input.runningVersion) >= 0);
+    const ranked = picks.filter((v) => compareReleaseVersions(v, input.runningVersion) >= 0);
     if (ranked.length > 0) {
       version = ranked[0];
-      for (const v of ranked) if (compareVersions(v, version) === 1) version = v;
+      for (const v of ranked) if (compareReleaseVersions(v, version) === 1) version = v;
     }
   } catch {
   }
@@ -181,10 +243,1063 @@ __mods["upd-commands"] = { INSTALL_TIMEOUT_MS, installRecipe, manualCommand };
 
 })();
 (function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/queue.ts
+const QUEUE_INTENT_TTL_MS = 10 * 6e4;
+function emptyQueueState() {
+  return { version: 1, owner: null, waiting: [] };
+}
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+function asMillis(value, fallback) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+function normalizeQueueState(raw) {
+  try {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return emptyQueueState();
+    const input = raw;
+    if (input["version"] !== 1) return emptyQueueState();
+    let owner = null;
+    const rawOwner = input["owner"];
+    if (rawOwner && typeof rawOwner === "object" && !Array.isArray(rawOwner)) {
+      const o = rawOwner;
+      if (isNonEmptyString(o["pluginId"]) && isNonEmptyString(o["jobId"])) {
+        owner = {
+          pluginId: o["pluginId"],
+          jobId: o["jobId"],
+          requestId: typeof o["requestId"] === "string" ? o["requestId"] : null,
+          targetVersion: typeof o["targetVersion"] === "string" ? o["targetVersion"] : null,
+          startedAt: asMillis(o["startedAt"], 0)
+        };
+      }
+    }
+    const waiting = [];
+    const rawWaiting = input["waiting"];
+    if (Array.isArray(rawWaiting)) {
+      for (const item of rawWaiting) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+        const e = item;
+        if (!isNonEmptyString(e["pluginId"])) continue;
+        waiting.push({
+          pluginId: e["pluginId"],
+          requestId: typeof e["requestId"] === "string" ? e["requestId"] : null,
+          targetVersion: typeof e["targetVersion"] === "string" ? e["targetVersion"] : null,
+          enqueuedAt: asMillis(e["enqueuedAt"], 0)
+        });
+      }
+    }
+    return { version: 1, owner, waiting };
+  } catch {
+    return emptyQueueState();
+  }
+}
+function sameIntent(a, b) {
+  return a.pluginId === b.pluginId && (a.requestId ?? null) === (b.requestId ?? null);
+}
+function pruneExpiredIntents(state, nowMs, ttlMs = QUEUE_INTENT_TTL_MS) {
+  const now = asMillis(nowMs, 0);
+  const ttl = typeof ttlMs === "number" && Number.isFinite(ttlMs) && ttlMs > 0 ? ttlMs : QUEUE_INTENT_TTL_MS;
+  const waiting = state.waiting.filter((e) => now - asMillis(e.enqueuedAt, now) < ttl);
+  if (waiting.length === state.waiting.length) return state;
+  return { version: 1, owner: state.owner, waiting };
+}
+function enqueueInQueue(state, entry) {
+  const base = normalizeQueueState(state);
+  if (!isNonEmptyString(entry.pluginId)) return { state: base, position: null };
+  const key = { pluginId: entry.pluginId, requestId: entry.requestId ?? null };
+  if (base.owner && sameIntent(base.owner, key)) return { state: base, position: 0 };
+  const at = base.waiting.findIndex((e) => sameIntent(e, key));
+  if (at >= 0) return { state: base, position: at + 1 };
+  const next = {
+    pluginId: entry.pluginId,
+    requestId: entry.requestId ?? null,
+    targetVersion: typeof entry.targetVersion === "string" ? entry.targetVersion : null,
+    enqueuedAt: asMillis(entry.enqueuedAt, 0)
+  };
+  const waiting = [...base.waiting, next];
+  return { state: { version: 1, owner: base.owner, waiting }, position: waiting.length };
+}
+function cancelEnqueuedInQueue(state, pluginId, requestId) {
+  const base = normalizeQueueState(state);
+  if (!isNonEmptyString(pluginId)) return { state: base, removed: false };
+  const key = { pluginId, requestId: requestId ?? null };
+  if (base.owner && sameIntent(base.owner, key)) return { state: base, removed: false };
+  const at = base.waiting.findIndex((e) => sameIntent(e, key));
+  if (at < 0) return { state: base, removed: false };
+  const waiting = [...base.waiting.slice(0, at), ...base.waiting.slice(at + 1)];
+  return { state: { version: 1, owner: base.owner, waiting }, removed: true };
+}
+function releaseOwnerInQueue(state, pluginId, jobId) {
+  const base = normalizeQueueState(state);
+  if (!isNonEmptyString(pluginId) || !isNonEmptyString(jobId)) return { state: base, released: false };
+  if (!base.owner || base.owner.pluginId !== pluginId || base.owner.jobId !== jobId) {
+    return { state: base, released: false };
+  }
+  return { state: { version: 1, owner: null, waiting: base.waiting }, released: true };
+}
+function promoteHeadToOwner(state, args) {
+  const base = normalizeQueueState(state);
+  if (base.owner || base.waiting.length === 0) return { state: base, promoted: false };
+  if (!isNonEmptyString(args.jobId)) return { state: base, promoted: false };
+  const [head, ...rest] = base.waiting;
+  const owner = {
+    pluginId: head.pluginId,
+    jobId: args.jobId,
+    requestId: head.requestId,
+    targetVersion: head.targetVersion,
+    startedAt: asMillis(args.startedAt, 0)
+  };
+  return { state: { version: 1, owner, waiting: rest }, promoted: true };
+}
+function setOwnerIfFree(state, owner) {
+  const base = normalizeQueueState(state);
+  if (base.owner) return { state: base, set: false };
+  if (!isNonEmptyString(owner.pluginId) || !isNonEmptyString(owner.jobId)) return { state: base, set: false };
+  return {
+    state: {
+      version: 1,
+      owner: {
+        pluginId: owner.pluginId,
+        jobId: owner.jobId,
+        requestId: owner.requestId ?? null,
+        targetVersion: typeof owner.targetVersion === "string" ? owner.targetVersion : null,
+        startedAt: asMillis(owner.startedAt, 0)
+      },
+      // 抢到锁即消费自己的队首意向（若有），不留僵尸占位。
+      waiting: base.waiting.filter((e) => !sameIntent(e, { pluginId: owner.pluginId, requestId: owner.requestId ?? null }))
+    },
+    set: true
+  };
+}
+function queuePositionOf(state, pluginId, requestId) {
+  const base = normalizeQueueState(state);
+  if (!isNonEmptyString(pluginId)) return null;
+  const key = { pluginId, requestId: requestId ?? null };
+  if (base.owner && sameIntent(base.owner, key)) return 0;
+  const at = base.waiting.findIndex((e) => sameIntent(e, key));
+  return at >= 0 ? at + 1 : null;
+}
+function isHeadOfQueue(state, pluginId, requestId) {
+  const base = normalizeQueueState(state);
+  if (!isNonEmptyString(pluginId)) return false;
+  if (base.waiting.length === 0) return true;
+  const head = base.waiting[0];
+  return head.pluginId === pluginId && (head.requestId ?? null) === (requestId ?? null);
+}
+function isQueueBusy(state) {
+  return normalizeQueueState(state).owner !== null;
+}
+function visibleQueueFor(state, viewerPluginId, showOthers = false, requestId) {
+  const base = normalizeQueueState(state);
+  const rid = requestId === void 0 ? derivedRequestId(base, viewerPluginId) : requestId ?? null;
+  const position = isNonEmptyString(viewerPluginId) ? queuePositionOf(base, viewerPluginId, rid) : null;
+  if (showOthers === true) {
+    return { busy: base.owner !== null, owner: base.owner, waiting: [...base.waiting], position };
+  }
+  const mine = isNonEmptyString(viewerPluginId) ? base.waiting.filter((e) => e.pluginId === viewerPluginId) : [];
+  let owner = null;
+  if (base.owner) {
+    if (base.owner.pluginId === viewerPluginId) owner = base.owner;
+    else owner = { pluginId: null, busy: true };
+  }
+  return { busy: base.owner !== null, owner, waiting: mine, position };
+}
+function derivedRequestId(state, viewerPluginId) {
+  const mine = state.waiting.filter((e) => e.pluginId === viewerPluginId);
+  if (state.owner && state.owner.pluginId === viewerPluginId) return state.owner.requestId;
+  if (mine.length === 0) return null;
+  return mine[0].requestId;
+}
+__mods["upd-queue"] = { QUEUE_INTENT_TTL_MS, cancelEnqueuedInQueue, emptyQueueState, enqueueInQueue, isHeadOfQueue, isQueueBusy, normalizeQueueState, promoteHeadToOwner, pruneExpiredIntents, queuePositionOf, releaseOwnerInQueue, setOwnerIfFree, visibleQueueFor };
+
+})();
+(function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/batch.ts
+const BATCH_SESSION_VERSION = 1;
+function isTerminalPhase(phase) {
+  return phase === "done" || phase === "failed" || phase === "skipped" || phase === "current";
+}
+function asMillis(value, fallback) {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : fallback;
+}
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+const PHASES = ["pending", "checking", "ready", "installing", "current", "done", "failed", "skipped"];
+function asPhase(value) {
+  return typeof value === "string" && PHASES.includes(value) ? value : "pending";
+}
+function orderTargets(keys, selfKey) {
+  const seen = /* @__PURE__ */ new Set();
+  const others = [];
+  let self = null;
+  for (const key of keys) {
+    if (!isNonEmptyString(key) || seen.has(key)) continue;
+    seen.add(key);
+    if (selfKey && key === selfKey) self = key;
+    else others.push(key);
+  }
+  return self ? [...others, self] : others;
+}
+function batchRequestId(sessionId, key) {
+  return "batch:" + sessionId + ":" + key;
+}
+function createBatchSession(args) {
+  const id = isNonEmptyString(args.id) ? args.id : "batch";
+  const selfKey = isNonEmptyString(args.selfKey) ? args.selfKey : null;
+  const order = orderTargets(args.keys, selfKey);
+  const now = asMillis(args.now, 0);
+  const entries = order.map((key) => ({
+    key,
+    phase: "pending",
+    requestId: batchRequestId(id, key),
+    targetVersion: null,
+    restartRequired: false,
+    error: null,
+    updatedAt: now
+  }));
+  return {
+    version: BATCH_SESSION_VERSION,
+    id,
+    selfKey,
+    stopOnFailure: args.stopOnFailure === true,
+    order,
+    entries,
+    createdAt: now,
+    updatedAt: now
+  };
+}
+function emptyBatchSession() {
+  return {
+    version: BATCH_SESSION_VERSION,
+    id: "",
+    selfKey: null,
+    stopOnFailure: false,
+    order: [],
+    entries: [],
+    createdAt: 0,
+    updatedAt: 0
+  };
+}
+function normalizeBatchSession(raw) {
+  try {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return emptyBatchSession();
+    const input = raw;
+    if (input["version"] !== BATCH_SESSION_VERSION) return emptyBatchSession();
+    const id = isNonEmptyString(input["id"]) ? input["id"] : "";
+    const selfKey = isNonEmptyString(input["selfKey"]) ? input["selfKey"] : null;
+    const entries = [];
+    const seen = /* @__PURE__ */ new Set();
+    const rawEntries = input["entries"];
+    if (Array.isArray(rawEntries)) {
+      for (const item of rawEntries) {
+        if (!item || typeof item !== "object" || Array.isArray(item)) continue;
+        const e = item;
+        const key = e["key"];
+        if (!isNonEmptyString(key) || seen.has(key)) continue;
+        seen.add(key);
+        const requestId = isNonEmptyString(e["requestId"]) ? e["requestId"] : batchRequestId(id, key);
+        entries.push({
+          key,
+          phase: asPhase(e["phase"]),
+          requestId,
+          targetVersion: isNonEmptyString(e["targetVersion"]) ? e["targetVersion"] : null,
+          restartRequired: e["restartRequired"] === true,
+          error: isNonEmptyString(e["error"]) ? e["error"] : null,
+          updatedAt: asMillis(e["updatedAt"], 0)
+        });
+      }
+    }
+    const order = entries.map((e) => e.key);
+    return {
+      version: BATCH_SESSION_VERSION,
+      id,
+      selfKey: selfKey && seen.has(selfKey) ? selfKey : null,
+      stopOnFailure: input["stopOnFailure"] === true,
+      order,
+      entries,
+      createdAt: asMillis(input["createdAt"], 0),
+      updatedAt: asMillis(input["updatedAt"], 0)
+    };
+  } catch {
+    return emptyBatchSession();
+  }
+}
+function batchEntryOf(session, key) {
+  return session.entries.find((e) => e.key === key) ?? null;
+}
+function nextBatchKey(session) {
+  if (session.stopOnFailure && session.entries.some((e) => e.phase === "failed")) return null;
+  for (const key of session.order) {
+    const entry = session.entries.find((e) => e.key === key);
+    if (entry && !isTerminalPhase(entry.phase)) return key;
+  }
+  return null;
+}
+function markBatchEntry(session, key, patch, now) {
+  const at = session.entries.findIndex((e) => e.key === key);
+  if (at < 0) return { session, changed: false };
+  const next = { ...session.entries[at], ...patch, key: session.entries[at].key, requestId: session.entries[at].requestId, updatedAt: asMillis(now, session.entries[at].updatedAt) };
+  const entries = [...session.entries.slice(0, at), next, ...session.entries.slice(at + 1)];
+  return { session: { ...session, entries, updatedAt: next.updatedAt }, changed: true };
+}
+function batchProgress(session) {
+  const total = session.entries.length;
+  let done = 0;
+  let failed = 0;
+  let skipped = 0;
+  let current = 0;
+  let pending = 0;
+  for (const entry of session.entries) {
+    if (entry.phase === "done" || entry.phase === "current") done += 1;
+    else if (entry.phase === "failed") failed += 1;
+    else if (entry.phase === "skipped") skipped += 1;
+    else if (entry.phase === "installing" || entry.phase === "checking" || entry.phase === "ready") current += 1;
+    else pending += 1;
+  }
+  return { total, done, failed, skipped, current, pending, finished: isBatchFinished(session) };
+}
+function isBatchFinished(session) {
+  return session.entries.length > 0 && session.entries.every((e) => isTerminalPhase(e.phase));
+}
+function needsRestartKeys(session) {
+  return session.entries.filter((e) => e.restartRequired).map((e) => e.key);
+}
+function failedKeys(session) {
+  return session.entries.filter((e) => e.phase === "failed").map((e) => e.key);
+}
+function resumeBatchSession(session, now) {
+  const at = asMillis(now, session.updatedAt);
+  let changed = false;
+  const entries = session.entries.map((entry) => {
+    if (entry.phase === "checking" || entry.phase === "installing") {
+      changed = true;
+      return { ...entry, phase: "pending", error: null, updatedAt: at };
+    }
+    return entry;
+  });
+  return changed ? { ...session, entries, updatedAt: at } : session;
+}
+__mods["upd-batch"] = { BATCH_SESSION_VERSION, batchEntryOf, batchProgress, batchRequestId, createBatchSession, emptyBatchSession, failedKeys, isBatchFinished, isTerminalPhase, markBatchEntry, needsRestartKeys, nextBatchKey, normalizeBatchSession, orderTargets, resumeBatchSession };
+
+})();
+(function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/service.ts
+const PACKAGE_NAME = "dsh-mattpocock-skills-deck";
+const NPM_REGISTRY = "https://registry.npmjs.org/";
+const CHECK_TIMEOUT_MS = 1e4;
+const CONFIRMATION_TTL_MS = 10 * 6e4;
+const RECHECK_WINDOW_MS = 2e3;
+const MAX_METADATA_BYTES = 256 * 1024;
+const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";
+function validRequestId(v) {
+  if (typeof v !== "string") return false;
+  const id = v.trim();
+  if (id.length < 1 || id.length > 128) return false;
+  if (!/^[A-Za-z0-9._~-]+$/.test(id)) return false;
+  if (/^(npm_|gh[pousr]_|github_pat_|sk-|bearer)/i.test(id)) return false;
+  return true;
+}
+function updateError(code) {
+  return Object.assign(new Error(code), { code });
+}
+function validVersion(v) {
+  return typeof v === "string" && /^\d+\.\d+\.\d+$/.test(v);
+}
+const RELEASE_CHANNELS = ["stable", "prerelease"];
+function validReleaseChannel(v) {
+  return v === "stable" || v === "prerelease";
+}
+function validPrereleaseIds(ids) {
+  if (typeof ids !== "string" || !ids) return false;
+  const parts = ids.split(".");
+  if (parts.length === 0) return false;
+  for (const p of parts) {
+    if (!p || !/^[0-9A-Za-z-]+$/.test(p)) return false;
+    if (/^\d+$/.test(p) && p.length > 1 && p.startsWith("0")) return false;
+  }
+  return true;
+}
+function validReleaseVersion(v) {
+  if (typeof v !== "string" || !v) return false;
+  const dash = v.indexOf("-");
+  if (dash < 0) return validVersion(v);
+  const core = v.slice(0, dash);
+  const ids = v.slice(dash + 1);
+  if (!validVersion(core) || !validPrereleaseIds(ids)) return false;
+  if (ids.includes("+")) return false;
+  return true;
+}
+function isPrereleaseVersion(v) {
+  return validReleaseVersion(v) && !validVersion(v);
+}
+function isVersionAllowedInChannel(version, channel = "stable") {
+  if (channel === "prerelease") return validReleaseVersion(version);
+  return validVersion(version);
+}
+function parseTriple(v) {
+  const parts = String(v).split(".");
+  if (parts.length > 3) return null;
+  const nums = [];
+  for (const p of parts) {
+    if (!/^\d+$/.test(p)) return null;
+    const n = Number(p);
+    if (!Number.isSafeInteger(n)) return null;
+    nums.push(n);
+  }
+  while (nums.length < 3) nums.push(0);
+  return [nums[0], nums[1], nums[2]];
+}
+function compareVersions(a, b) {
+  const pa = parseTriple(a);
+  const pb = parseTriple(b);
+  if (!pa || !pb) throw updateError("invalid-release");
+  for (let i = 0; i < 3; i++) {
+    if (pa[i] < pb[i]) return -1;
+    if (pa[i] > pb[i]) return 1;
+  }
+  return 0;
+}
+function parseReleaseIds(ids) {
+  return ids.split(".").map((p) => /^\d+$/.test(p) ? Number(p) : p);
+}
+function compareReleaseVersions(a, b) {
+  if (!validReleaseVersion(a) || !validReleaseVersion(b)) throw updateError("invalid-release");
+  const dashA = String(a).indexOf("-");
+  const dashB = String(b).indexOf("-");
+  const coreA = dashA < 0 ? String(a) : String(a).slice(0, dashA);
+  const coreB = dashB < 0 ? String(b) : String(b).slice(0, dashB);
+  const order = compareVersions(coreA, coreB);
+  if (order !== 0) return order;
+  const preA = dashA < 0 ? null : parseReleaseIds(String(a).slice(dashA + 1));
+  const preB = dashB < 0 ? null : parseReleaseIds(String(b).slice(dashB + 1));
+  if (preA === null && preB === null) return 0;
+  if (preA === null) return 1;
+  if (preB === null) return -1;
+  const width = Math.max(preA.length, preB.length);
+  for (let i = 0; i < width; i++) {
+    const x = preA[i];
+    const y = preB[i];
+    if (x === void 0) return -1;
+    if (y === void 0) return 1;
+    if (typeof x === "number" && typeof y === "number") {
+      if (x < y) return -1;
+      if (x > y) return 1;
+      continue;
+    }
+    if (typeof x === "number") return -1;
+    if (typeof y === "number") return 1;
+    if (x < y) return -1;
+    if (x > y) return 1;
+  }
+  return 0;
+}
+function compareOne(node, op, target) {
+  const order = compareTriple(node, target);
+  if (op === "=" || op === "") return order === 0;
+  if (op === ">") return order === 1;
+  if (op === ">=") return order >= 0;
+  if (op === "<") return order === -1;
+  if (op === "<=") return order <= 0;
+  return true;
+}
+function compareTriple(a, b) {
+  for (let i = 0; i < 3; i++) {
+    if (a[i] < b[i]) return -1;
+    if (a[i] > b[i]) return 1;
+  }
+  return 0;
+}
+function upperBound(t, kind, kept) {
+  if (kind === "^") {
+    if (kept >= 1) return [t[0] + 1, 0, 0];
+    return [0, t[1] + 1, 0];
+  }
+  if (kept >= 2) return [t[0], t[1] + 1, 0];
+  return [t[0] + 1, 0, 0];
+}
+function satisfiesNodeRange(nodeVersion, range) {
+  if (range === void 0 || range === null) return true;
+  const text = String(range).trim();
+  if (text === "" || text === "*") return true;
+  const node = parseTriple(String(nodeVersion).replace(/^v/, ""));
+  if (!node) return true;
+  if (text.includes("||")) return true;
+  const parts = text.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return true;
+  for (const part of parts) {
+    const m = part.match(/^(\^|~|>=|<=|>|<|=)?(.+)$/);
+    if (!m) return true;
+    const op = m[1] || "";
+    const target = parseTriple(m[2]);
+    if (!target) return true;
+    if (op === "^" || op === "~") {
+      const kept = m[2].split(".").length;
+      if (compareTriple(node, target) < 0) return false;
+      if (compareTriple(node, upperBound(target, op, kept)) >= 0) return false;
+      continue;
+    }
+    if (!compareOne(node, op, target)) return false;
+  }
+  return true;
+}
+function byteLength(text) {
+  try {
+    return new TextEncoder().encode(text).length;
+  } catch {
+    return text.length;
+  }
+}
+function timeoutSignal(ms) {
+  try {
+    const ctor = globalThis.AbortSignal;
+    if (ctor && typeof ctor.timeout === "function") return ctor.timeout(ms);
+  } catch {
+  }
+  return void 0;
+}
+function httpStatusOf(response) {
+  const raw = response?.status;
+  return typeof raw === "number" && Number.isInteger(raw) && raw >= 100 && raw <= 599 ? raw : null;
+}
+function checkFailedWithStatus(response) {
+  const err = updateError("check-failed");
+  const status = httpStatusOf(response);
+  if (status !== null) err.httpStatus = status;
+  return err;
+}
+async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
+  const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
+  const registry = opts?.registryUrl ?? NPM_REGISTRY;
+  const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  let response = null;
+  try {
+    response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}/latest`, {
+      headers: { accept: "application/json" },
+      redirect: "error",
+      signal: timeoutSignal(timeoutMs)
+    });
+  } catch {
+    throw updateError("check-failed");
+  }
+  try {
+    if (!response.ok) throw checkFailedWithStatus(response);
+    const declared = Number(response.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    const text = await response.text();
+    if (byteLength(text) > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    const value = JSON.parse(text);
+    if (value.name !== targetName || !isVersionAllowedInChannel(value.version, channel)) throw updateError("invalid-release");
+    const version = value.version;
+    const nodeRange = value.engines?.node;
+    if (nodeRange !== void 0 && typeof nodeRange !== "string") throw updateError("invalid-release");
+    const tarballText = value.dist?.tarball;
+    const integrity = value.dist?.integrity;
+    let tarball;
+    try {
+      tarball = new URL(String(tarballText));
+    } catch {
+      throw updateError("invalid-release");
+    }
+    const registryOrigin = new URL(registry).origin;
+    const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname === `/${targetName}/-/${targetName}-${version}.tgz` && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
+    if (!shapeOk) throw updateError("invalid-release");
+    return { version, nodeRange: typeof nodeRange === "string" ? nodeRange : "*", integrity, tarball: tarball.href };
+  } catch (error) {
+    if (error?.code === "check-failed") throw error;
+    if (error?.code === "invalid-release") throw error;
+    if (response !== null && response.ok) throw updateError("invalid-release");
+    throw checkFailedWithStatus(response);
+  }
+}
+function createUpdateCore(ports) {
+  const checkTimeoutMs = ports.checkTimeoutMs ?? CHECK_TIMEOUT_MS;
+  const confirmationTtlMs = ports.confirmationTtlMs ?? CONFIRMATION_TTL_MS;
+  const targetPackageName = ports.targetPackageName ?? PACKAGE_NAME;
+  const registryUrl = ports.registryUrl ?? NPM_REGISTRY;
+  const releaseChannel = ports.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  function fetchRelease() {
+    return fetchNpmRelease(ports.fetchImpl, checkTimeoutMs, { targetPackageName, registryUrl, releaseChannel });
+  }
+  let checked = null;
+  let checking = null;
+  let lastCheckAt = -Infinity;
+  let activeJobId = null;
+  let memJob = null;
+  let memLock = null;
+  async function loadJob() {
+    try {
+      return ports.readJob ? await ports.readJob() ?? null : memJob;
+    } catch {
+      throw updateError("install-failed");
+    }
+  }
+  async function saveJob(job) {
+    try {
+      if (ports.writeJob) await ports.writeJob(job);
+      else memJob = job;
+    } catch {
+      throw updateError("install-failed");
+    }
+  }
+  async function acquire(lockId) {
+    try {
+      if (ports.tryAcquireLock) return await ports.tryAcquireLock(lockId);
+    } catch {
+      return false;
+    }
+    if (memLock !== null) return false;
+    memLock = lockId;
+    return true;
+  }
+  async function release(lockId) {
+    try {
+      if (ports.releaseLock) await ports.releaseLock(lockId);
+      else if (memLock === lockId) memLock = null;
+    } catch {
+    }
+  }
+  function healJob(job, env) {
+    if (!job) return null;
+    if (job.state === "installing" || job.state === "verifying") {
+      return job.id === activeJobId ? job : { ...job, state: "interrupted", message: "recovery-required", requestId: job.requestId ?? null };
+    }
+    if (job.state === "restart-required" || job.state === "completed") {
+      if (!job.targetVersion || env.installedVersion !== job.targetVersion) {
+        return { ...job, state: "interrupted", message: "installation-changed", requestId: job.requestId ?? null };
+      }
+      const runningVersion = ports.readRunningVersion();
+      return { ...job, state: runningVersion === job.targetVersion ? "completed" : "restart-required", requestId: job.requestId ?? null };
+    }
+    return job;
+  }
+  function buildSnapshot(env, job) {
+    let blockedReason = env.blockedReason ?? checked?.blockedReason ?? null;
+    if (job?.state === "interrupted" || job?.state === "failed") {
+      if (env.installedVersion !== ports.readRunningVersion()) blockedReason = "recovery-required";
+    } else if (job?.state === "restart-required" || env.installedVersion && env.installedVersion !== ports.readRunningVersion()) {
+      blockedReason = "pending-restart";
+    }
+    const busy = job?.state === "installing" || job?.state === "verifying";
+    const fresh = checked !== null && checked.checkId !== null && ports.now() < checked.expiresAt;
+    const runningVersion = ports.readRunningVersion();
+    let newer = false;
+    try {
+      newer = isVersionAllowedInChannel(runningVersion, releaseChannel) && !!checked?.release && isVersionAllowedInChannel(checked.release.version, releaseChannel) && compareReleaseVersions(checked.release.version, runningVersion) === 1;
+    } catch {
+      newer = false;
+    }
+    const canInstall = Boolean(
+      env.eligible && !blockedReason && !busy && fresh && checked?.installationKey === env.installationKey && newer
+    );
+    return {
+      runningVersion,
+      installedVersion: env.installedVersion ?? null,
+      latestVersion: checked?.release.version ?? null,
+      canInstall,
+      blockedReason,
+      job
+    };
+  }
+  async function status() {
+    const env = await ports.readInstalled();
+    const job = healJob(await loadJob(), env);
+    return buildSnapshot(env, job);
+  }
+  async function check() {
+    if (checking) return checking;
+    if (checked?.checkId && ports.now() - lastCheckAt < RECHECK_WINDOW_MS) {
+      const env = await ports.readInstalled();
+      const snapshot = buildSnapshot(env, healJob(await loadJob(), env));
+      return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
+    }
+    lastCheckAt = ports.now();
+    checking = (async () => {
+      try {
+        const env = await ports.readInstalled();
+        const release2 = await fetchRelease();
+        checked = {
+          release: release2,
+          checkId: ports.randomId(),
+          checkedAt: ports.now(),
+          expiresAt: ports.now() + confirmationTtlMs,
+          installationKey: env.installationKey,
+          blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? null : "incompatible-node"
+        };
+        const snapshot = buildSnapshot(env, healJob(await loadJob(), env));
+        return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
+      } catch (error) {
+        if (checked) checked = { ...checked, checkId: null, expiresAt: 0 };
+        throw error;
+      } finally {
+        checking = null;
+      }
+    })();
+    return checking;
+  }
+  function toReceipt() {
+    if (!checked?.checkId) return null;
+    return { checkId: checked.checkId, checkedAt: checked.checkedAt, expiresAt: checked.expiresAt };
+  }
+  async function runBackground(job, envAtStart) {
+    try {
+      if (ports.runInstall) await ports.runInstall({ version: job.targetVersion, profileName: envAtStart.profileName, environmentKind: envAtStart.environmentKind });
+      else throw updateError("unsupported");
+      const doing = { ...job, state: "verifying", message: null };
+      activeJobId = doing.id;
+      await saveJob(doing);
+      const env = await ports.readInstalled();
+      if (env.installedVersion !== job.targetVersion) {
+        throw Object.assign(updateError("install-failed"), {
+          detail: `\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1A\u78C1\u76D8\u4E0A\u662F ${env.installedVersion ?? "\u672A\u77E5"}\uFF0C\u76EE\u6807\u662F ${job.targetVersion ?? "\u672A\u77E5"}`
+        });
+      }
+      if (env.blockedReason && env.blockedReason !== "pending-restart") {
+        throw Object.assign(updateError("install-failed"), { detail: `\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1A\u73AF\u5883\u62A5\u544A ${env.blockedReason}` });
+      }
+      const done = { ...doing, state: "restart-required", message: null };
+      await saveJob(done);
+    } catch (error) {
+      const code = error?.code;
+      const base = code === "installation-changed" || code === "registry-conflict" || code === "install-failed" ? String(code) : "install-failed";
+      const detail = error?.detail;
+      const message = typeof detail === "string" && detail ? `${base}: ${detail}` : base;
+      const failedJob = { ...job, state: "failed", message, requestId: job.requestId ?? null };
+      try {
+        await saveJob(failedJob);
+      } catch {
+        memJob = failedJob;
+      }
+    } finally {
+      await release(job.id);
+      if (activeJobId === job.id) activeJobId = null;
+    }
+  }
+  async function install(args) {
+    const checkId = typeof args?.checkId === "string" ? args.checkId : "";
+    const requestId = typeof args?.requestId === "string" ? args.requestId : "";
+    if (!checkId || !validRequestId(requestId)) throw updateError("check-expired");
+    let env = await ports.readInstalled();
+    let previous = healJob(await loadJob(), env);
+    if (previous?.requestId === requestId) return buildSnapshot(env, previous);
+    if (previous?.state === "installing" || previous?.state === "verifying" || previous?.state === "restart-required") {
+      throw updateError("update-busy");
+    }
+    if (!checked || !checked.checkId || checked.checkId !== checkId || ports.now() >= checked.expiresAt) {
+      throw updateError("check-expired");
+    }
+    if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
+    if (!buildSnapshot(env, previous).canInstall) {
+      throw updateError(env.blockedReason ?? checked.blockedReason ?? "update-busy");
+    }
+    const job = {
+      id: ports.randomId(),
+      state: "installing",
+      targetVersion: checked.release.version,
+      message: null,
+      requestId
+    };
+    if (!await acquire(job.id)) throw updateError("update-busy");
+    try {
+      const current = await fetchRelease();
+      if (JSON.stringify(current) !== JSON.stringify(checked.release)) throw updateError("check-expired");
+      env = await ports.readInstalled();
+      if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
+      if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
+      if (ports.backupJob) await ports.backupJob(job);
+      await saveJob(job);
+      activeJobId = job.id;
+    } catch (error) {
+      await release(job.id);
+      throw error;
+    }
+    void runBackground(job, env).catch(() => {
+    });
+    return buildSnapshot(env, job);
+  }
+  return { status, check, install };
+}
+__mods["upd-service"] = { CHECK_TIMEOUT_MS, CONFIRMATION_TTL_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY, PACKAGE_NAME, RECHECK_WINDOW_MS, RELEASE_CHANNELS, compareReleaseVersions, compareVersions, createUpdateCore, fetchNpmRelease, isPrereleaseVersion, isVersionAllowedInChannel, satisfiesNodeRange, updateError, validReleaseChannel, validReleaseVersion, validRequestId, validVersion };
+
+})();
+(function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/changelog.ts
+const { compareReleaseVersions, validReleaseVersion } = __mods["upd-service"];
+const CHANGELOG_FILENAME = "CHANGELOG.md";
+const CHANGELOG_NEUTRAL_HINT = "\u4F5C\u8005\u672A\u63D0\u4F9B\u66F4\u65B0\u8BF4\u660E";
+const CHANGELOG_NEUTRAL_LINE = "\u4F5C\u8005\u672A\u63D0\u4F9B\u66F4\u65B0\u8BF4\u660E\uFF0C\u5B89\u88C5\u4E0D\u53D7\u5F71\u54CD\u3002";
+const CHANGELOG_MAX_CHARS = 64 * 1024;
+const CHANGELOG_MAX_ENTRIES = 100;
+const CHANGELOG_MAX_BULLETS_PER_SECTION = 200;
+const CHANGELOG_MAX_BULLET_CHARS = 500;
+const CHANGELOG_ALL_CATEGORIES = [
+  "Added",
+  "Fixed",
+  "Changed",
+  "Deprecated",
+  "Removed",
+  "Security"
+];
+const CHANGELOG_MUST_SHOW = ["Added", "Fixed", "Changed"];
+const CHANGELOG_FOLDED = ["Deprecated", "Removed", "Security"];
+const CHANGELOG_CATEGORY_ZH = {
+  Added: "\u65B0\u589E",
+  Fixed: "\u4FEE\u590D",
+  Changed: "\u53D8\u66F4",
+  Deprecated: "\u5F03\u7528\u9884\u544A",
+  Removed: "\u79FB\u9664",
+  Security: "\u5B89\u5168"
+};
+function emptySections() {
+  return { Added: [], Fixed: [], Changed: [], Deprecated: [], Removed: [], Security: [] };
+}
+function isCategoryName(v) {
+  return CHANGELOG_ALL_CATEGORIES.includes(v);
+}
+function normalizeCategory(raw) {
+  const t = String(raw || "").trim().toLowerCase();
+  if (t === "added") return "Added";
+  if (t === "fixed") return "Fixed";
+  if (t === "changed") return "Changed";
+  if (t === "deprecated") return "Deprecated";
+  if (t === "removed") return "Removed";
+  if (t === "security") return "Security";
+  return null;
+}
+function isUnreleasedVersion(v) {
+  return typeof v === "string" && v.trim().toLowerCase() === "unreleased";
+}
+function extractVersionDateAndYanked(title) {
+  const t = String(title || "").trim();
+  if (!t) return { version: null, date: null, yanked: false };
+  const yanked = /\[YANKED\]/i.test(t);
+  if (/unreleased/i.test(t)) return { version: "Unreleased", date: null, yanked };
+  const vm = t.match(/(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
+  if (!vm) return { version: null, date: null, yanked: false };
+  const dm = t.match(/(\d{4}-\d{2}-\d{2})/);
+  return { version: vm[1], date: dm ? dm[1] : null, yanked };
+}
+function truncateBullet(text) {
+  const t = String(text || "").replace(/\s+/g, " ").trim();
+  if (!t) return "";
+  if (t.length <= CHANGELOG_MAX_BULLET_CHARS) return t;
+  return `${t.slice(0, CHANGELOG_MAX_BULLET_CHARS - 1)}\u2026`;
+}
+function parseChangelog(markdown) {
+  try {
+    if (typeof markdown !== "string" || !markdown.trim()) return [];
+    let text = markdown.replace(/\r\n/g, "\n");
+    if (text.length > CHANGELOG_MAX_CHARS) text = text.slice(0, CHANGELOG_MAX_CHARS);
+    const lines = text.split("\n");
+    const entries = [];
+    let cur = null;
+    let curCat = null;
+    let inFence = false;
+    const pushCurrent = () => {
+      if (!cur) return;
+      const hasAny = CHANGELOG_ALL_CATEGORIES.some(
+        (c) => cur.sections[c].length > 0
+      );
+      if (!hasAny) return;
+      for (const c of CHANGELOG_ALL_CATEGORIES) {
+        const list = cur.sections[c];
+        if (list.length > CHANGELOG_MAX_BULLETS_PER_SECTION) {
+          cur.sections[c] = list.slice(0, CHANGELOG_MAX_BULLETS_PER_SECTION);
+        }
+      }
+      entries.push(cur);
+    };
+    for (const rawLine of lines) {
+      const line = String(rawLine ?? "");
+      if (/^\s*(```|~~~)/.test(line)) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
+      const versionHeading = line.match(/^##(?!#)\s*(.+?)\s*$/);
+      if (versionHeading) {
+        pushCurrent();
+        cur = null;
+        curCat = null;
+        const title = (versionHeading[1] ?? "").trim();
+        const { version, date, yanked } = extractVersionDateAndYanked(title);
+        if (!version) continue;
+        cur = { version, date, yanked, sections: emptySections() };
+        continue;
+      }
+      const catMatch = line.match(/^###\s*(.+?)\s*$/);
+      if (catMatch) {
+        const cat = normalizeCategory(catMatch[1] ?? "");
+        curCat = cur && cat && isCategoryName(cat) ? cat : null;
+        continue;
+      }
+      const bullet = line.match(/^\s*[-*+]\s+(.+?)\s*$/);
+      if (bullet && cur && curCat) {
+        const item = truncateBullet(bullet[1] ?? "");
+        if (item) cur.sections[curCat].push(item);
+        continue;
+      }
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#") && /^\s/.test(line) && cur && curCat) {
+        const list = cur.sections[curCat];
+        if (list.length > 0) {
+          const merged = truncateBullet(`${list[list.length - 1]} ${trimmed}`);
+          if (merged) list[list.length - 1] = merged;
+        }
+        continue;
+      }
+    }
+    pushCurrent();
+    return entries.slice(0, CHANGELOG_MAX_ENTRIES);
+  } catch {
+    return [];
+  }
+}
+function hasVisibleSections(entry) {
+  if (!entry || typeof entry !== "object") return false;
+  try {
+    return CHANGELOG_ALL_CATEGORIES.some((c) => Array.isArray(entry.sections?.[c]) && entry.sections[c].length > 0);
+  } catch {
+    return false;
+  }
+}
+function compareReleaseSafe(a, b) {
+  try {
+    return compareReleaseVersions(a, b);
+  } catch {
+    return null;
+  }
+}
+function selectChangelogEntries(entries, fromExclusive, toInclusive) {
+  try {
+    if (!Array.isArray(entries) || entries.length === 0) return [];
+    const to = typeof toInclusive === "string" ? toInclusive.trim() : "";
+    if (!to || !validReleaseVersion(to)) return [];
+    const from = typeof fromExclusive === "string" ? fromExclusive.trim() : "";
+    const fromValid = from && validReleaseVersion(from) ? from : null;
+    const out = [];
+    for (const e of entries) {
+      if (!e || typeof e !== "object") continue;
+      const v = typeof e.version === "string" ? String(e.version) : "";
+      if (!v || isUnreleasedVersion(v) || !validReleaseVersion(v)) continue;
+      if (!hasVisibleSections(e)) continue;
+      const leTo = compareReleaseSafe(v, to);
+      if (leTo === null || leTo > 0) continue;
+      if (fromValid) {
+        const gtFrom = compareReleaseSafe(v, fromValid);
+        if (gtFrom === null || gtFrom <= 0) continue;
+      }
+      out.push(e);
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+function changelogForUpdate(entries, runningVersion, latestVersion, installedVersion) {
+  try {
+    const to = typeof latestVersion === "string" ? latestVersion.trim() : "";
+    if (!to || !validReleaseVersion(to)) return [];
+    const run = typeof runningVersion === "string" ? runningVersion.trim() : "";
+    const inst = typeof installedVersion === "string" ? installedVersion.trim() : "";
+    const from = run && validReleaseVersion(run) ? run : inst && validReleaseVersion(inst) ? inst : "";
+    if (!from) return [];
+    const order = compareReleaseSafe(to, from);
+    if (order === null || order <= 0) return [];
+    return selectChangelogEntries(entries, from, to);
+  } catch {
+    return [];
+  }
+}
+function escapeChangelogHtml(text) {
+  return String(text ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+function renderChangelogSection(entry) {
+  try {
+    if (!entry || typeof entry !== "object") return "";
+    const version = String(entry.version ?? "").trim();
+    if (!version || isUnreleasedVersion(version)) return "";
+    if (!hasVisibleSections(entry)) return "";
+    const date = typeof entry.date === "string" ? String(entry.date) : "";
+    const yankedSuffix = entry.yanked === true ? " \xB7 \u5DF2\u64A4\u56DE" : "";
+    const title = (date ? `${version} \xB7 ${date}` : version) + yankedSuffix;
+    const parts = [];
+    parts.push(`<div class="dsh-upd-changelog-version" data-version="${escapeChangelogHtml(version)}">`);
+    parts.push(`<div class="dsh-upd-changelog-title">${escapeChangelogHtml(title)}</div>`);
+    for (const cat of CHANGELOG_MUST_SHOW) {
+      const items = Array.isArray(entry.sections?.[cat]) ? entry.sections[cat] : [];
+      if (items.length === 0) continue;
+      const label = `${cat} \xB7 ${CHANGELOG_CATEGORY_ZH[cat]}`;
+      parts.push(`<div class="dsh-upd-changelog-cat" data-cat="${cat}">`);
+      parts.push(`<div class="dsh-upd-changelog-catname">${escapeChangelogHtml(label)}</div>`);
+      parts.push("<ul>");
+      for (const item of items) {
+        if (!item) continue;
+        parts.push(`<li>${escapeChangelogHtml(item)}</li>`);
+      }
+      parts.push("</ul></div>");
+    }
+    for (const cat of CHANGELOG_FOLDED) {
+      const items = Array.isArray(entry.sections?.[cat]) ? entry.sections[cat] : [];
+      if (items.length === 0) continue;
+      const label = `${cat} \xB7 ${CHANGELOG_CATEGORY_ZH[cat]}\uFF08${items.length}\uFF09`;
+      parts.push(`<details class="dsh-upd-changelog-fold" data-cat="${cat}">`);
+      parts.push(`<summary>${escapeChangelogHtml(label)}</summary>`);
+      parts.push("<ul>");
+      for (const item of items) {
+        if (!item) continue;
+        parts.push(`<li>${escapeChangelogHtml(item)}</li>`);
+      }
+      parts.push("</ul></details>");
+    }
+    parts.push("</div>");
+    return parts.join("\n");
+  } catch {
+    return "";
+  }
+}
+function renderChangelogNeutral() {
+  return `<div class="dsh-upd-changelog-neutral">${escapeChangelogHtml(CHANGELOG_NEUTRAL_LINE)}</div>`;
+}
+function renderChangelogHTML(entries, opts) {
+  try {
+    if (!Array.isArray(entries) || entries.length === 0) return renderChangelogNeutral();
+    const from = opts && typeof opts.from === "string" ? opts.from : null;
+    const to = opts && typeof opts.to === "string" ? opts.to : null;
+    let ranged;
+    if (from !== null || to !== null) {
+      ranged = selectChangelogEntries(entries, from, to);
+    } else {
+      ranged = entries.filter((e) => {
+        try {
+          const v = String(e.version ?? "");
+          return !!v && !isUnreleasedVersion(v) && hasVisibleSections(e);
+        } catch {
+          return false;
+        }
+      });
+    }
+    if (ranged.length === 0) return renderChangelogNeutral();
+    const blocks = ranged.map((e) => renderChangelogSection(e)).filter((s) => !!s);
+    if (blocks.length === 0) return renderChangelogNeutral();
+    return `<div class="dsh-upd-changelog">
+${blocks.join("\n")}
+</div>`;
+  } catch {
+    return renderChangelogNeutral();
+  }
+}
+__mods["upd-changelog"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_CATEGORY_ZH, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate, hasVisibleSections, isUnreleasedVersion, parseChangelog, renderChangelogHTML, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries };
+
+})();
+(function () {
 // AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/client.ts
 const { buildPhoneNames, DEFAULT_PANEL_POLL_MS, MIN_PANEL_POLL_MS } = __mods["upd-config"];
 const { buildPhoneName, buildPhoneNames: buildPhoneNames2 } = __mods["upd-config"];
 const { manualCommand: manualCommand2 } = __mods["upd-commands"];
+const { QUEUE_INTENT_TTL_MS, cancelEnqueuedInQueue, emptyQueueState, enqueueInQueue, isHeadOfQueue, isQueueBusy, normalizeQueueState, pruneExpiredIntents, queuePositionOf, releaseOwnerInQueue, setOwnerIfFree, visibleQueueFor } = __mods["upd-queue"];
+const { BATCH_SESSION_VERSION, batchEntryOf, batchProgress, batchRequestId, createBatchSession, emptyBatchSession, failedKeys, isBatchFinished, isTerminalPhase, markBatchEntry, needsRestartKeys, nextBatchKey, normalizeBatchSession, orderTargets, resumeBatchSession } = __mods["upd-batch"];
+const { CHANGELOG_FILENAME, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate, parseChangelog, renderChangelogHTML, selectChangelogEntries } = __mods["upd-changelog"];
 const CLIENT_POLL = {
   defaultMs: DEFAULT_PANEL_POLL_MS,
   minMs: MIN_PANEL_POLL_MS
@@ -198,7 +1313,7 @@ function assertPollInterval(ms) {
   }
   return ms;
 }
-__mods["upd-client"] = { CLIENT_POLL, assertPollInterval, buildClientPhoneNames, buildPhoneName, buildPhoneNames: buildPhoneNames2, manualCommand: manualCommand2 };
+__mods["upd-client"] = { BATCH_SESSION_VERSION, CHANGELOG_FILENAME, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, CLIENT_POLL, QUEUE_INTENT_TTL_MS, assertPollInterval, batchEntryOf, batchProgress, batchRequestId, buildClientPhoneNames, buildPhoneName, buildPhoneNames: buildPhoneNames2, cancelEnqueuedInQueue, changelogForUpdate, createBatchSession, emptyBatchSession, emptyQueueState, enqueueInQueue, failedKeys, isBatchFinished, isHeadOfQueue, isQueueBusy, isTerminalPhase, manualCommand: manualCommand2, markBatchEntry, needsRestartKeys, nextBatchKey, normalizeBatchSession, normalizeQueueState, orderTargets, parseChangelog, pruneExpiredIntents, queuePositionOf, releaseOwnerInQueue, renderChangelogHTML, resumeBatchSession, selectChangelogEntries, setOwnerIfFree, visibleQueueFor };
 
 })();
 (function () {
@@ -9685,12 +10800,14 @@ function resolvePreview(name, mode) {
 }
 
 // 完整分组结果：按 GROUP_ORDER 输出非空组，组内含每主题预览色
-// mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
+// mode 缺省 dark（调用方兼容）；mode 只决定芯片预览色，分组键恒用 dark 基线（issue 47：菜单不得随宿主明暗漂移）
 function themeGroups(mode) {
+  const m = mode || 'dark'
   const buckets = {}
   for (const name of listThemes()) {
-    const colors = resolvePreview(name, mode || 'dark')
-    const g = groupOf(name, colors)
+    const colors = resolvePreview(name, m)
+    const groupKey = m === 'dark' ? colors : resolvePreview(name, 'dark')
+    const g = groupOf(name, groupKey)
     ;(buckets[g] = buckets[g] || []).push({ name: name, colors: colors })
   }
   return GROUP_ORDER
@@ -10168,7 +11285,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.13'
+const PALETTE_VERSION = '2.0.14'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -10590,7 +11707,7 @@ function createClient(slotTarget) {
           return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
-        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析，issue 45）
+        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析 issue 45，分组键恒用 dark 基线 issue 47）
         const q = query.trim().toLowerCase()
         const previewMode = hostDark ? 'dark' : 'light'
         const shown = q === ''

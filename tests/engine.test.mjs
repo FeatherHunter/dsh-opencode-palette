@@ -689,3 +689,22 @@ test('previewColors/themeGroups 支持外观参数', () => {
   const t = g.flatMap((x) => x.themes).find((x) => x.name === 'lucent-orng')
   assert.equal(t.colors.text, '#1A1A1A')
 })
+
+// issue 47：分组稳定性——明暗外观下分组归属一致，仅预览色跟随宿主
+test('分组稳定性（issue 47）：明暗外观下分组一致、预览色跟随', () => {
+  const dark = themeGroups('dark')
+  const light = themeGroups('light')
+  assert.deepEqual(light.map((g) => g.name), dark.map((g) => g.name), '组顺序/组集合不得随外观漂移')
+  const toMap = (groups) => {
+    const m = new Map()
+    for (const g of groups) for (const t of g.themes) m.set(t.name, g.name)
+    return m
+  }
+  const dm = toMap(dark)
+  const lm = toMap(light)
+  assert.deepEqual([...dm.keys()].sort(), [...lm.keys()].sort(), '主题集合不得随外观变化')
+  for (const [name, g] of dm) assert.equal(lm.get(name), g, name + ' 分组随外观漂移：' + g + ' → ' + lm.get(name))
+  const pick = (groups, n) => groups.flatMap((g) => g.themes).find((t) => t.name === n).colors
+  assert.notEqual(pick(light, 'opencode').primary, pick(dark, 'opencode').primary, 'opencode 明暗预览色应不同')
+  assert.equal(pick(light, 'lucent-orng').text, '#1A1A1A', '委托主题浅色文字仍须跟随')
+})
