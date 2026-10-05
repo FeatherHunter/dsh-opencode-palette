@@ -16,3 +16,7 @@ assets/teach.css
 
 # 本机 vision 工具链产物（截图/裁剪等临时文件，不属于插件）
 .dsh-vision-router/
+
+# Windows 变量名被当成字面量误建的目录（cmd 的 %VAR% 语法混进 pwsh 时产生，如 %SystemDrive%/），
+# 不属于插件；仓库内已跟踪路径无 % 字符，加此规则零误伤
+%*%
