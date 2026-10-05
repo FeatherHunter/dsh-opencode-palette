@@ -101,8 +101,6 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 <div align="left">
 
-提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。
-
 [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
 
 [@xiSage](https://github.com/xiSage) — #11 要任意系统字体，点开即列本机字体 🌹
@@ -110,6 +108,10 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 [@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽 🌹
 
 [@anupamme](https://github.com/anupamme) — #32 指出主题下载缺一道校验 🌹
+
+[@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
+
+[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半） 🌹
 
 </div>
 

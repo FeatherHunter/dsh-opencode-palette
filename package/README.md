@@ -77,8 +77,6 @@ If you like this plugin, you might also like:
 
 <div align="left">
 
-Every issue gets a 🌹 — everything asked for below is already shipped.
-
 [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
 
 [@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
@@ -86,6 +84,10 @@ Every issue gets a 🌹 — everything asked for below is already shipped.
 [@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK 🌹
 
 [@anupamme](https://github.com/anupamme) — #32 flagged a missing check on theme downloads 🌹
+
+[@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
+
+[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred) 🌹
 
 </div>
 

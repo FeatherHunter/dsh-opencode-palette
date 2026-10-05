@@ -61,7 +61,7 @@ const REMOVED_CAPSULES = [
   'ROADMAP',
 ]
 
-const CONTRIBUTORS = ['the-beating-light-of-the-nail', 'xiSage', 'Number444', 'anupamme']
+const CONTRIBUTORS = ['the-beating-light-of-the-nail', 'xiSage', 'Number444', 'anupamme', 'SRKBob', 'oopsdoes']
 
 // ── 1 · 五枚胶囊在场，且顺序与链接目标与定稿一致 ──
 for (const [lang, table] of Object.entries(CAPSULES)) {
@@ -127,10 +127,11 @@ test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () 
   }
 })
 
-// ── 5 · THANKS：四位贡献者（三位 issue + 一位 PR）逐条带 🌹 ──
-// 用户 2026-09-17 复稿：「提交一个 Issue，就记一个 🌹」；顺带把唯一的外部 PR 作者记进来，
-// 旧口径「0 个 PR / PR 虚位以待」作废，邀请句整句删除。
-test('THANKS：四位贡献者按时间序点名，且每人一句 🌹', () => {
+// ── 5 · THANKS：六位贡献者（五位 issue + 一位 PR）逐条带 🌹 ──
+// 用户 2026-09-17 复稿把唯一的外部 PR 作者记进来，旧口径「0 个 PR / PR 虚位以待」作废；
+// 2026-10-05 用户要求删掉首句「提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。」
+// （英文页同句一并删除），THANKS 段只剩贡献者逐条。
+test('THANKS：六位贡献者按时间序点名，且每人一句 🌹', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(thanks > -1, `${name} 应有 THANKS 段`)
@@ -140,19 +141,21 @@ test('THANKS：四位贡献者按时间序点名，且每人一句 🌹', () => 
       assert.ok(doc.slice(thanks).includes(`[@${handle}](https://github.com/${handle})`),
         `${name} 应点名 @${handle}`)
     }
-    // 时间序：三条 issue #3 → #11 → #12，PR #32 收尾
-    const seq = ['#3 ', '#11 ', '#12 ', '#32 '].map((n) => doc.slice(thanks).indexOf(` ${n}`))
-    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 应保持 #3 → #11 → #12 → #32 时间序`)
+    // 时间序：#3 → #11 → #12 → PR #32 → #43 → #46（新增者排到 PR 之后）
+    const seq = ['#3 ', '#11 ', '#12 ', '#32 ', '#43 ', '#46 '].map((n) => doc.slice(thanks).indexOf(` ${n}`))
+    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 应保持 #3 → #11 → #12 → #32 → #43 → #46 时间序`)
     // 段内每条贡献都带 🌹
-    assert.equal(count(doc.slice(thanks), '🌹'), CONTRIBUTORS.length + 1, `${name} 的 THANKS 应每条一句 🌹（含首句）`)
+    assert.equal(count(doc.slice(thanks), '🌹'), CONTRIBUTORS.length, `${name} 的 THANKS 应每位贡献者一句 🌹（首句已删，不再多算）`)
     // 旧口径不许回来：PR 邀请句已整句删除
     assert.equal(doc.includes('PR 虚位以待'), false, `${name} 不应再有「PR 虚位以待」`)
     assert.equal(doc.includes('PRs wanted'), false, `${name} 不应再有 "PRs wanted"`)
   }
-  assert.ok(ZH.slice(ZH.indexOf('<sub>THANKS</sub>')).includes('提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。'),
-    '中文首句应为复稿原文')
-  assert.ok(EN.slice(EN.indexOf('<sub>THANKS</sub>')).includes('Every issue gets a 🌹 — everything asked for below is already shipped.'),
-    '英文首句应为复稿原文')
+  // 2026-10-05 用户要求整句删除，三份文档同步
+  const THANKS = [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]
+  for (const [name, doc] of THANKS) {
+    assert.equal(doc.includes('提交一个 Issue，就记一个 🌹'), false, `${name} 不应再有中文首句`)
+    assert.equal(doc.includes('Every issue gets a 🌹'), false, `${name} 不应再有英文首句`)
+  }
 })
 
 // ── 6 · CONNECT：issue 入口 + 飞书码 + 备注词（沿用，不新增渠道） ──
