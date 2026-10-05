@@ -99,9 +99,15 @@ function loadPanel(opts = {}) {
   }
   // 本机已装字体（供宽度对比检测的 mock）：缺省只装 Consolas，对齐常见 Windows 环境
   const installedFonts = opts.installedFonts ?? ['Consolas']
+  const bodyAttrs = {}
+  if (opts.hostDark !== false) bodyAttrs['data-ds-dark-theme'] = ''
   const body = {
-    // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省/true → 深色
-    hasAttribute: () => opts.hostDark !== false,
+    // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省/true → 深色；
+    // 属性可写（set/remove 同步进 store），供外观跟随断言
+    hasAttribute: (k) => bodyAttrs[k] !== undefined,
+    getAttribute: (k) => (bodyAttrs[k] !== undefined ? bodyAttrs[k] : null),
+    setAttribute: (k, v) => { bodyAttrs[k] = String(v) },
+    removeAttribute: (k) => { delete bodyAttrs[k] },
     appendChild: (el) => { el.parentNode = body },
     removeChild: (el) => { el.parentNode = null },
   }
@@ -161,7 +167,7 @@ function loadPanel(opts = {}) {
   p.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
   const html = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts }
+  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs }
 }
 
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
@@ -238,7 +244,7 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
   assert.ok(html.includes('background:#FFFFFF'), '停用开关钮色浅色可见')
   assert.ok(html.includes('0 1px 3px rgba(0,0,0,0.25)'), '预览芯片浅色分离阴影')
   const translucent = chipSegment(html, '透光橙')
-  assert.ok(translucent.includes('color:#1A1A1A'), '透明底芯片浅色下取主题浅色字（不洗白）')
+  assert.ok(translucent.includes('color:#EEEEEE'), 'issue 48：芯片恒走深色基线，透明底芯片取深色字（迷你深色画布，不洗白）')
   assert.ok(translucent.includes('title="透光主题'), '委托画布芯片应带透光提示')
   const opaque = chipSegment(html, 'opencode')
   assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
@@ -459,6 +465,34 @@ test('2.0.7 头行带日志开关（默认关）与落点提示', () => {
   const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
   assert.ok(code.includes('setLogSwitch'), '面板没有调日志包的开关接口')
   assert.ok(!code.includes('log-switch-dsh-opencode-palette.json'), '面板不得自己写开关文件（会成第二份真源）')
+})
+
+test('芯片预览锁深色基线（issue 48）：浅色宿主下仍展示深色', () => {
+  const { html } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  assert.ok(html.includes('#0A0A0A'), '浅色宿主下 opencode 芯片应展示深色底 #0A0A0A')
+  assert.ok(!html.includes('#3B7DD8'), '浅色宿主下不应出现浅色变体主色 #3B7DD8')
+  assert.ok(html.includes('#EEEEEE'), '芯片文字应为深色基线 #EEEEEE')
+  assert.ok(html.includes('选中即切换 DSH 明暗'), '缺外观跟随开关文案')
+})
+
+test('选中即切换宿主明暗（issue 48）：深色/透光/system 三态', () => {
+  const { panelProps, bodyAttrs } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  // 启动即按已存主题对齐一次（缺省 opencode 深色 → 深色）
+  assert.ok('data-ds-dark-theme' in bodyAttrs, '启动应按已存深色主题切深色')
+  panelProps.setTheme('lucent-orng')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '选透光橙应切浅色')
+  panelProps.setTheme('matrix')
+  assert.ok('data-ds-dark-theme' in bodyAttrs, '选深色主题应切深色')
+  panelProps.setTheme('system')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '选跟随系统应释放回初始浅色')
+})
+
+test('跟随开关关闭后不再接管（issue 48）', () => {
+  const { panelProps, bodyAttrs } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  panelProps.setFollowAppearance(false)
+  panelProps.setTheme('matrix')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '开关关闭后选深色也不应切')
+  assert.equal(panelProps.getState().followAppearance, false, '开关状态应进 state')
 })
 
 test('2.0.7 英文界面：日志开关也走双语', () => {

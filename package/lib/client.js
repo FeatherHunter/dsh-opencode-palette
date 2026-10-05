@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.14 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.15 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -11283,9 +11283,9 @@ const { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } = __mods["channel"]
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
-const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
+const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.14'
+const PALETTE_VERSION = '2.0.15'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -11380,6 +11380,8 @@ const I18N = {
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
   systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
+  followAppearance: { zh: '选中即切换 DSH 明暗', en: 'Match DSH appearance on select' },
+  followAppearanceHint: { zh: '深色主题切深色、透明主题切浅色、跟随系统则释放', en: 'Dark themes switch DSH dark, translucent switches light, system releases control' },
   translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
@@ -11606,12 +11608,50 @@ function createClient(slotTarget) {
       styleTag = null
     }
 
+    // ── 外观跟随（issue 48）：宿主明暗是宿主拥有的状态，无官方写 API，
+    // 经 body[data-ds-dark-theme] 共享信号驱动。只在选中事件上动作一次（不持续对抗宿主），
+    // 会话级记住接管前的原始值，释放（system/停用/关闭开关）时原样恢复。
+    const DARK_ATTR = 'data-ds-dark-theme'
+    let appearanceManaged = false
+    let appearanceBefore = null
+    function forceAppearance(dark) {
+      try {
+        if (typeof document === 'undefined' || !document.body) return
+        if (!appearanceManaged) { appearanceManaged = true; try { appearanceBefore = isHostDark() } catch (e) { appearanceBefore = null } }
+        if (dark) document.body.setAttribute(DARK_ATTR, '')
+        else document.body.removeAttribute(DARK_ATTR)
+      } catch (e) { /* 宿主 DOM 不可写则静默跳过 */ }
+    }
+    function releaseAppearance() {
+      try {
+        if (!appearanceManaged) return
+        appearanceManaged = false
+        if (typeof document === 'undefined' || !document.body || appearanceBefore === null) return
+        if (appearanceBefore) document.body.setAttribute(DARK_ATTR, '')
+        else document.body.removeAttribute(DARK_ATTR)
+      } catch (e) { /* 忽略 */ }
+      appearanceBefore = null
+    }
+    function syncAppearanceForTheme(name) {
+      if (!state.followAppearance || !state.enabled) return
+      if (name === 'system') { releaseAppearance(); return }
+      let translucent = false
+      try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
+      forceAppearance(!translucent)
+    }
     // ── 面板 API（与 React 组件共享）──
     function getState() { return { ...state } }
     function setTheme(name) {
       state = { ...state, theme: safeThemeName(name) }
       saveState(state)
       if (state.enabled) applyStyle()
+      syncAppearanceForTheme(state.theme)
+    }
+    function setFollowAppearance(v) {
+      state = { ...state, followAppearance: !!v }
+      saveState(state)
+      if (state.followAppearance) syncAppearanceForTheme(state.theme)
+      else releaseAppearance()
     }
     function setTypography(next) {
       state = { ...state, ...next }
@@ -11621,14 +11661,14 @@ function createClient(slotTarget) {
     function toggle() {
       state = { ...state, enabled: !state.enabled }
       saveState(state)
-      if (state.enabled) applyStyle(); else clearStyle()
+      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) } else { clearStyle(); releaseAppearance() }
     }
     function refresh(nextMode, nextSize, nextFont) {
       setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont })
     }
 
-    // 启动：默认启用（与 v1.1.0 一致）
-    if (state.enabled) applyStyle()
+    // 启动：默认启用（与 v1.1.0 一致）；外观跟随只在选中事件与启动时对齐一次
+    if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) }
 
     // 调试钩子（控制台可用）
     if (typeof globalThis !== 'undefined') {
@@ -11707,12 +11747,12 @@ function createClient(slotTarget) {
           return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
         }, [])
 
-        // 搜索过滤（命中组保留，空组隐藏；预览色按宿主外观解析 issue 45，分组键恒用 dark 基线 issue 47）
+        // 搜索过滤（命中组保留，空组隐藏；issue 48：芯片是主题的投影不是宿主的镜像，
+        // 分组与预览色恒走深色基线，与宿主明暗无关；面板铬（阴影/描边回退）仍跟随宿主）
         const q = query.trim().toLowerCase()
-        const previewMode = hostDark ? 'dark' : 'light'
         const shown = q === ''
-          ? props.groups(previewMode)
-          : props.groups(previewMode)
+          ? props.groups('dark')
+          : props.groups('dark')
               .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return (t.name + ' ' + (THEME_ZH[t.name] || '')).toLowerCase().indexOf(q) >= 0 }) } })
               .filter(function (g) { return g.themes.length > 0 })
 
@@ -11737,7 +11777,9 @@ function createClient(slotTarget) {
         const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
         // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
         const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
-        // issue 45：预览色已按宿主外观解析，直接取主题文字色；
+        // issue 48：透光芯片的迷你深色画布（深色基线代表底 = opencode 深色底），不借宿主面板表面
+        const chipDarkSurface = '#0A0A0A'
+        // issue 48：预览色恒为深色基线，直接取主题文字色；
         // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
         const chipText = function (colors) {
           if (colors && colors.text) return colors.text
@@ -11943,7 +11985,7 @@ function createClient(slotTarget) {
             title: translucent ? tr('translucentNote') : undefined,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: c && c.background ? c.background : 'var(--dsw-alias-bg-layer-2)',
+              background: c && c.background ? c.background : chipDarkSurface,
               color: chipText(c),
               border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
               borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
@@ -12271,6 +12313,29 @@ function createClient(slotTarget) {
           h('div', { style: secTitle }, [
             h('span', null, tr('themeSection')),
             h('span', { style: countStyle }, tr('themeCount')),
+            h('span', {
+              key: 'follow',
+              onClick: function () { props.setFollowAppearance(!st.followAppearance); setUi(props.getState()) },
+              title: tr('followAppearanceHint'),
+              style: { marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer', userSelect: 'none' },
+            }, [
+              h('span', {
+                style: {
+                  position: 'relative', display: 'inline-block', width: 28, height: 16,
+                  borderRadius: 9, cursor: 'pointer',
+                  background: st.followAppearance ? 'rgba(250,178,131,0.4)' : switchOffTrack,
+                  transition: 'background .12s',
+                },
+              }, h('span', {
+                style: {
+                  position: 'absolute', top: 2, left: st.followAppearance ? 14 : 2,
+                  width: 12, height: 12, borderRadius: '50%',
+                  background: st.followAppearance ? '#FAB283' : switchOffKnob,
+                  transition: 'left .12s',
+                },
+              })),
+              h('span', { style: { fontSize: 11, color: st.followAppearance ? base : muted } }, tr('followAppearance')),
+            ]),
           ]),
           h('input', {
             placeholder: tr('search'),
@@ -12307,6 +12372,7 @@ function createClient(slotTarget) {
           toggle: toggle,
           refresh: refresh,
           setTheme: setTheme,
+          setFollowAppearance: setFollowAppearance,
           themeNames: themeNames,
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
