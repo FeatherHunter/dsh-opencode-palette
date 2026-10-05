@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.15 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.16 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -11285,7 +11285,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.15'
+const PALETTE_VERSION = '2.0.16'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -11608,36 +11608,127 @@ function createClient(slotTarget) {
       styleTag = null
     }
 
-    // ── 外观跟随（issue 48）：宿主明暗是宿主拥有的状态，无官方写 API，
-    // 经 body[data-ds-dark-theme] 共享信号驱动。只在选中事件上动作一次（不持续对抗宿主），
-    // 会话级记住接管前的原始值，释放（system/停用/关闭开关）时原样恢复。
+    // ── 外观跟随（issue 48）：正门是 ctx.theme.setTheme（与设置页同一条写入口，
+    // 经 ui-theme 设置作用域持久化并广播快照，宿主全量应用，设置页显示一致）。
+    // 无该 API 的旧宿主才降级走文档投影（与宿主 apply 快照同构：root color-scheme +
+    // 根 source 属性 + body 深色标记），会话级记住投影前原始值以便恢复。
+    // 只在选中/启停/开关事件上动作一次，不持续对抗宿主：用户在设置页改外观即最后写入者胜出。
     const DARK_ATTR = 'data-ds-dark-theme'
+    const SOURCE_ATTR = 'data-ds-theme-source'
     let appearanceManaged = false
     let appearanceBefore = null
-    function forceAppearance(dark) {
+    let appearanceProjected = null
+    let appearanceFallbackLogged = false
+    let lastOfficialPref = null
+    let officialBeforePref = null
+    let officialBeforeRecorded = false
+    function readHostPreference() {
       try {
-        if (typeof document === 'undefined' || !document.body) return
-        if (!appearanceManaged) { appearanceManaged = true; try { appearanceBefore = isHostDark() } catch (e) { appearanceBefore = null } }
-        if (dark) document.body.setAttribute(DARK_ATTR, '')
-        else document.body.removeAttribute(DARK_ATTR)
+        if (!theme || typeof theme.getTheme !== 'function') return undefined
+        const snap = theme.getTheme()
+        if (!snap) return undefined
+        const p = snap.preference !== undefined ? snap.preference : (snap.active && snap.active.preference)
+        return p === undefined ? undefined : p
+      } catch (e) { return undefined }
+    }
+    function verifyHostPreference(pref) {
+      const cur = readHostPreference()
+      if (cur === undefined) return true
+      return cur === pref
+    }
+    function restoreOfficialOnStop() {
+      if (lastOfficialPref === null || lastOfficialPref === undefined) return
+      const target = lastOfficialPref
+      lastOfficialPref = null
+      const cur = readHostPreference()
+      if (cur === undefined || cur !== target) return
+      const back = officialBeforePref
+      if (back === undefined || back === null || back === target) return
+      try { if (theme && typeof theme.setTheme === 'function') theme.setTheme(back) } catch (e) { /* 忽略 */ }
+    }
+    function logAppearanceFallback() {
+      if (appearanceFallbackLogged) return
+      appearanceFallbackLogged = true
+      try { clientLog.log('info', 'host.call', { method: 'appearance-fallback', latencyMs: 0, ok: true, kind: 'fallback', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
+    }
+    function snapshotDocument() {
+      try {
+        const de = typeof document !== 'undefined' ? document.documentElement : null
+        const body = typeof document !== 'undefined' ? document.body : null
+        return {
+          bodyDark: body && typeof body.hasAttribute === 'function' ? body.hasAttribute(DARK_ATTR) : null,
+          scheme: de && de.style ? (de.style.colorScheme || '') : null,
+          source: de && typeof de.getAttribute === 'function' ? de.getAttribute(SOURCE_ATTR) : null,
+        }
+      } catch (e) { return null }
+    }
+    function projectAppearance(dark) {
+      try {
+        if (typeof document === 'undefined' || !document.body || !document.documentElement) return
+        if (!appearanceManaged) { appearanceManaged = true; appearanceBefore = snapshotDocument() }
+        const scheme = dark ? 'dark' : 'light'
+        const de = document.documentElement
+        try { if (de.style) de.style.colorScheme = scheme } catch (e) { /* 忽略 */ }
+        try { if (typeof de.setAttribute === 'function') de.setAttribute(SOURCE_ATTR, scheme) } catch (e) { /* 忽略 */ }
+        try {
+          if (dark) document.body.setAttribute(DARK_ATTR, '')
+          else document.body.removeAttribute(DARK_ATTR)
+        } catch (e) { /* 忽略 */ }
+        appearanceProjected = { bodyDark: dark, scheme: scheme, source: scheme }
       } catch (e) { /* 宿主 DOM 不可写则静默跳过 */ }
     }
     function releaseAppearance() {
       try {
         if (!appearanceManaged) return
         appearanceManaged = false
-        if (typeof document === 'undefined' || !document.body || appearanceBefore === null) return
-        if (appearanceBefore) document.body.setAttribute(DARK_ATTR, '')
-        else document.body.removeAttribute(DARK_ATTR)
+        const prev = appearanceBefore
+        const projected = appearanceProjected
+        appearanceBefore = null
+        appearanceProjected = null
+        if (!prev || typeof document === 'undefined' || !document.body || !document.documentElement) return
+        const de = document.documentElement
+        // 只释放我们自己写的值：中途被宿主/用户改过的信号一律不动（陈旧快照不覆盖新写入）
+        const cur = snapshotDocument() || {}
+        const ours = function (key) { return projected && cur[key] === projected[key] }
+        try {
+          if (!de.style || !ours('scheme')) { /* 不是我们写的则不动 */ }
+          else if (prev.scheme) de.style.colorScheme = prev.scheme
+          else if (typeof de.style.removeProperty === 'function') de.style.removeProperty('color-scheme')
+          else de.style.colorScheme = ''
+        } catch (e) { /* 忽略 */ }
+        try {
+          if (typeof de.setAttribute !== 'function' || !ours('source')) { /* 跳过 */ }
+          else if (prev.source === null || prev.source === undefined) { if (typeof de.removeAttribute === 'function') de.removeAttribute(SOURCE_ATTR) }
+          else de.setAttribute(SOURCE_ATTR, prev.source)
+        } catch (e) { /* 忽略 */ }
+        try {
+          if (prev.bodyDark === null || prev.bodyDark === undefined || !ours('bodyDark')) { /* 未知或被改过则不动 */ }
+          else if (prev.bodyDark) document.body.setAttribute(DARK_ATTR, '')
+          else document.body.removeAttribute(DARK_ATTR)
+        } catch (e) { /* 忽略 */ }
       } catch (e) { /* 忽略 */ }
-      appearanceBefore = null
     }
     function syncAppearanceForTheme(name) {
       if (!state.followAppearance || !state.enabled) return
-      if (name === 'system') { releaseAppearance(); return }
-      let translucent = false
-      try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
-      forceAppearance(!translucent)
+      let pref
+      if (name === 'system') pref = 'system'
+      else {
+        let translucent = false
+        try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
+        pref = translucent ? 'light' : 'dark'
+      }
+      let official = false
+      try {
+        if (theme && typeof theme.setTheme === 'function') {
+          if (!officialBeforeRecorded) { officialBeforeRecorded = true; officialBeforePref = readHostPreference() }
+          theme.setTheme(pref)
+          official = verifyHostPreference(pref)
+        }
+      } catch (e) { official = false }
+      if (official) { appearanceManaged = false; appearanceBefore = null; appearanceProjected = null; lastOfficialPref = pref; return }
+      logAppearanceFallback()
+      if (pref === 'system') { releaseAppearance(); return }
+      projectAppearance(pref === 'dark')
     }
     // ── 面板 API（与 React 组件共享）──
     function getState() { return { ...state } }
@@ -11651,7 +11742,7 @@ function createClient(slotTarget) {
       state = { ...state, followAppearance: !!v }
       saveState(state)
       if (state.followAppearance) syncAppearanceForTheme(state.theme)
-      else releaseAppearance()
+      else { restoreOfficialOnStop(); releaseAppearance() }
     }
     function setTypography(next) {
       state = { ...state, ...next }
@@ -11661,14 +11752,15 @@ function createClient(slotTarget) {
     function toggle() {
       state = { ...state, enabled: !state.enabled }
       saveState(state)
-      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) } else { clearStyle(); releaseAppearance() }
+      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) } else { clearStyle(); restoreOfficialOnStop(); releaseAppearance() }
     }
     function refresh(nextMode, nextSize, nextFont) {
       setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont })
     }
 
-    // 启动：默认启用（与 v1.1.0 一致）；外观跟随只在选中事件与启动时对齐一次
-    if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) }
+    // 启动：默认启用（与 v1.1.0 一致）。外观跟随在启动时对齐一次，但存量 system 主题跳过：
+    // 启动是非手势路径，system 即无主张，不写偏好；点击 system 仍走官方写入口（显式手势）。
+    if (state.enabled) { applyStyle(); if (state.theme !== 'system') syncAppearanceForTheme(state.theme) }
 
     // 调试钩子（控制台可用）
     if (typeof globalThis !== 'undefined') {

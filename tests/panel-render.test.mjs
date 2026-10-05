@@ -136,12 +136,31 @@ function loadPanel(opts = {}) {
       }
       return el
     },
-    documentElement: { lang: lang },
+    // 文档根 mock：colorScheme 样式 + source 属性可写，供投影断言
+    documentElement: {
+      lang: lang,
+      style: {
+        colorScheme: '',
+        removeProperty(k) { if (k === 'color-scheme') this.colorScheme = '' },
+      },
+      _attrs: {},
+      hasAttribute(k) { return this._attrs[k] !== undefined },
+      getAttribute(k) { return this._attrs[k] !== undefined ? this._attrs[k] : null },
+      setAttribute(k, v) { this._attrs[k] = String(v) },
+      removeAttribute(k) { delete this._attrs[k] },
+    },
     addEventListener: () => {},
     removeEventListener: () => {},
   }
+  global.__docEl = global.document.documentElement
   // 注：Node 22 的 navigator 只读；getLang 以 document.documentElement.lang 为主信号源
-  global.localStorage = opts.disabled
+  // opts.savedTheme 预置存量主题（覆盖缺省 opencode），用于启动路径断言
+  const savedState = opts.savedTheme
+    ? { enabled: true, theme: opts.savedTheme, mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
+    : null
+  global.localStorage = savedState
+    ? { getItem: () => JSON.stringify(savedState), setItem: () => {} }
+    : opts.disabled
     ? { getItem: () => JSON.stringify({ enabled: false, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }), setItem: () => {} }
     : opts.fontKey
       ? { getItem: () => JSON.stringify({ enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: opts.fontKey }), setItem: () => {} }
@@ -155,9 +174,17 @@ function loadPanel(opts = {}) {
     inject: (slot, cb) => { cb(); return () => {} },
     register: (desc, cmp) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
   }
+  // theme mock：官方 setTheme 可用时记录调用并翻转 mock 偏好（模拟宿主）；
+  // opts.noOfficialSetTheme 模拟旧宿主走投影降级；opts.throwingSetTheme 模拟 facade 语义不符抛错；
+  // opts.stuckPref 让偏好恒为某值（模拟异步宿主未落地），触发 verify 失败走降级
+  const themeCalls = []
+  let mockPref = opts.stuckPref !== undefined ? opts.stuckPref : (opts.hostDark !== false ? 'dark' : 'light')
+  const themeSvc = { overrideTokens: () => () => {}, getTheme: () => ({ preference: mockPref }) }
+  if (opts.throwingSetTheme) themeSvc.setTheme = () => { throw new Error('facade mismatch') }
+  else if (!opts.noOfficialSetTheme) themeSvc.setTheme = (id) => { themeCalls.push(id); if (opts.stuckPref === undefined) mockPref = id }
   const ctx = {
     get: (k) => {
-      if (k === 'theme') return { overrideTokens: () => () => {} }
+      if (k === 'theme') return themeSvc
       if (k === 'slots') return slots
       if (k === 'locale' && locale) return locale
       return undefined
@@ -167,7 +194,7 @@ function loadPanel(opts = {}) {
   p.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
   const html = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs }
+  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs, themeCalls, docEl: global.document.documentElement }
 }
 
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
@@ -475,24 +502,61 @@ test('芯片预览锁深色基线（issue 48）：浅色宿主下仍展示深色
   assert.ok(html.includes('选中即切换 DSH 明暗'), '缺外观跟随开关文案')
 })
 
-test('选中即切换宿主明暗（issue 48）：深色/透光/system 三态', () => {
-  const { panelProps, bodyAttrs } = loadPanel({ lang: 'zh-CN', hostDark: false })
-  // 启动即按已存主题对齐一次（缺省 opencode 深色 → 深色）
-  assert.ok('data-ds-dark-theme' in bodyAttrs, '启动应按已存深色主题切深色')
+test('选中即切换宿主明暗（issue 48）：官方写入口三态', () => {
+  const { panelProps, themeCalls, bodyAttrs } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  // 启动即按已存主题对齐一次（缺省 opencode 深色 → dark）
+  assert.deepEqual(themeCalls, ['dark'], '启动应调官方 setTheme(dark)')
   panelProps.setTheme('lucent-orng')
-  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '选透光橙应切浅色')
+  assert.deepEqual(themeCalls, ['dark', 'light'], '选透光橙应调 light')
   panelProps.setTheme('matrix')
-  assert.ok('data-ds-dark-theme' in bodyAttrs, '选深色主题应切深色')
+  assert.deepEqual(themeCalls, ['dark', 'light', 'dark'], '选深色主题应调 dark')
   panelProps.setTheme('system')
-  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '选跟随系统应释放回初始浅色')
+  assert.deepEqual(themeCalls, ['dark', 'light', 'dark', 'system'], '选跟随系统应调 system（跟随 OS）')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '官方路径下不动 body（等宿主快照应用）')
+})
+
+test('旧宿主降级（issue 48）：无官方 API 时走文档投影', () => {
+  const { panelProps, themeCalls, bodyAttrs, docEl } = loadPanel({ lang: 'zh-CN', hostDark: false, noOfficialSetTheme: true })
+  assert.deepEqual(themeCalls, [], '旧宿主无官方调用')
+  assert.ok('data-ds-dark-theme' in bodyAttrs, '启动投影深色到 body')
+  assert.equal(docEl.style.colorScheme, 'dark', '投影 root color-scheme')
+  assert.equal(docEl.getAttribute('data-ds-theme-source'), 'dark', '投影 source 属性')
+  panelProps.setTheme('lucent-orng')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '透光投影浅色')
+  assert.equal(docEl.style.colorScheme, 'light', '投影 light')
+  panelProps.setTheme('system')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, 'system 释放回初始浅色')
+  assert.equal(docEl.style.colorScheme, '', 'color-scheme 恢复空')
+  assert.equal(docEl.getAttribute('data-ds-theme-source'), null, 'source 属性恢复移除')
+})
+
+test('官方抛错即降级（issue 48）：facade 不符不抛到面板', () => {
+  const { panelProps, bodyAttrs, docEl } = loadPanel({ lang: 'zh-CN', hostDark: false, throwingSetTheme: true })
+  panelProps.setTheme('matrix')
+  assert.ok('data-ds-dark-theme' in bodyAttrs, '抛错后应走投影兜底')
+  assert.equal(docEl.style.colorScheme, 'dark', '兜底投影应完整')
 })
 
 test('跟随开关关闭后不再接管（issue 48）', () => {
-  const { panelProps, bodyAttrs } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  const { panelProps, bodyAttrs, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false })
   panelProps.setFollowAppearance(false)
   panelProps.setTheme('matrix')
-  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '开关关闭后选深色也不应切')
+  assert.deepEqual(themeCalls, ['dark', 'light'], '关开关应把偏好恢复到接管前（light），之后不再写')
+  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '开关关闭后选深色也不应动 body')
   assert.equal(panelProps.getState().followAppearance, false, '开关状态应进 state')
+})
+
+test('用户中途改过则不恢复（issue 48）：只释放自己写的值', () => {
+  const { panelProps, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false, stuckPref: 'light' })
+  panelProps.setTheme('matrix')
+  assert.deepEqual(themeCalls, ['dark', 'dark'], '启动+选中各写一次，均未落地')
+  panelProps.setFollowAppearance(false)
+  assert.deepEqual(themeCalls, ['dark', 'dark'], '快照未落地（用户/宿主仍为 light），不盲目恢复')
+})
+
+test('启动跳过存量 system 主题（issue 48）：非手势不写偏好', () => {
+  const { themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false, savedTheme: 'system' })
+  assert.deepEqual(themeCalls, [], '存量 system 启动时不写（点击 system 仍写，见三态用例）')
 })
 
 test('2.0.7 英文界面：日志开关也走双语', () => {
