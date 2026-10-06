@@ -215,8 +215,29 @@ export function createClient(slotTarget) {
     )
     // ── 检查更新：新包入口件单点（最小集成）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包（默认主题＋全默认行为）。
-    // 宿主不可用时不挂载，主题面板照常。
+    // 语言跟随（更新包 0.5.8 locale 选项）：把本面板的语言信号（官方 locale 服务优先，
+    // html[lang] 回退）以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的
+    // dialog 面板都按同一语言单语渲染，切换即时重绘；入口件只挂载一次，不随语言重挂
+    //（unmount 时停订，不泄漏）。注意入口件挂载在渲染 effect 里，调用时下方的语言
+    // 基础设施均已就绪。宿主不可用时不挂载，主题面板照常。
+    // 尺寸开关（临时方案）：更新包暂无按钮尺寸参数（字号 13px/padding 4px 12px 写死在包内 CSS），
+    // 这里用容器 zoom 钉住当前视觉——改一个数即整体缩放，不碰包内类名（外部覆盖 .dsh-upd-entry-btn
+    // 会耦合上游内部实现）。=1 即现在检查更新按钮的大小；上游正式参数落地后切过去并删掉开关。
+    // 见上游 ISSUE：https://github.com/FeatherHunter/dsh-plugin-update/issues/69
+    const UPDATE_ENTRY_ZOOM = 1
     const mountedUpdateEntries = []
+    function updateLocaleSource() {
+      return {
+        getActive: function () { return currentLocale() },
+        subscribe: function (cb) {
+          localeListeners.push(cb)
+          return function () {
+            const i = localeListeners.indexOf(cb)
+            if (i >= 0) localeListeners.splice(i, 1)
+          }
+        },
+      }
+    }
     function mountUpdateButton(container) {
       if (!hostBridge || !container || typeof container.innerHTML !== 'string') return null
       try {
@@ -229,6 +250,7 @@ export function createClient(slotTarget) {
           autoCheck: 'mount',
           openOn: 'has-update',
           changelogMarkdown: null,
+          locale: updateLocaleSource(),
         })
         mountedUpdateEntries.push(entry)
         return entry
@@ -893,7 +915,7 @@ export function createClient(slotTarget) {
         // 新包入口件挂载容器：头行右侧原位；宿主不可用时 mountUpdateButton 回 null，不渲染。
         // data-update-entry 是产物级断言锚点（tests/update-panel.test.mjs），不是样式钩子。
         const updateButton = hostBridge
-          ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button' })
+          ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { zoom: UPDATE_ENTRY_ZOOM } })
           : null
 
 

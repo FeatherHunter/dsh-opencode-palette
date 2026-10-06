@@ -43,7 +43,7 @@ const INLINE_PACKAGES = [
       { key: 'log-client', file: 'dist/client.js', deps: { './config.js': 'log-config' } },
     ],
   },
-  // 更新系统只内联入口件闭包（entry → panel → config/redaction/service/changelog/queue/log-events/bilingual）：
+  // 更新系统只内联入口件闭包（entry → panel → config/redaction/service/changelog/queue/log-events/bilingual/lang）：
   // 浏览器 bundle 只要 mountUpdateEntry 这一条调用点；commands/batch/client（电话名派生/轮询常量）
   // 是旧自研控制器的输入，已随其删除而不再内联。deps 必须与包 dist 的实际 import 逐字对应，
   // 上游再加文件时构建按“引用未声明即抛”报错，按报错补声明即可。
@@ -59,9 +59,10 @@ const INLINE_PACKAGES = [
       { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './service.js': 'upd-service' } },
       { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
       { key: 'upd-log-events', file: 'dist/log-events.js', deps: {} },
-      { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: {} },
+      { key: 'upd-lang', file: 'dist/lang.js', deps: {} },
+      { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: { './lang.js': 'upd-lang' } },
       { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events' } },
-      { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual' } },
+      { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
     ],
   },
 ]
@@ -78,7 +79,7 @@ function inlineModuleFor(key) {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER = [
-  'upd-config', 'upd-redaction', 'upd-service', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-bilingual', 'upd-panel', 'upd-entry',
+  'upd-config', 'upd-redaction', 'upd-service', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-lang', 'upd-bilingual', 'upd-panel', 'upd-entry',
   'log-config', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index',
   'channel', 'client',

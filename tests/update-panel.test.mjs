@@ -160,6 +160,29 @@ test('入口件：有新版时按钮文案带版本号，待重启与失败各�
   failEntry.unmount()
 })
 
+test('入口件：语言跟随 locale 适配器（0.5.8 单语渲染），切换即时重绘、无需重挂', async () => {
+  const phones = buildPhoneNames('palette')
+  const host = stubHost({ [phones.updateStatus]: reply(snapshotOf({ latestVersion: '1.7.2' })) })
+  const container = stubContainer()
+  // 与 runtime/client.mjs 的 updateLocaleSource 同形：{ getActive, subscribe }，语言翻转即通知。
+  let lang = 'zh'
+  let notify = null
+  const entry = mountUpdateEntry(container, {
+    pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call,
+    locale: { getActive: () => lang, subscribe: (cb) => { notify = cb; return () => { notify = null } } },
+  })
+  await entry.refresh()
+  assert.ok(container.innerHTML.includes('检查更新'), '中文下按钮为中文单语')
+  assert.ok(!container.innerHTML.includes('Check for updates'), '中文下不应混入英文（单语渲染）')
+  lang = 'en'
+  notify()
+  await tick()
+  assert.ok(container.innerHTML.includes('Check for updates'), '切英文后按钮即时重绘为英文，无需重挂')
+  assert.ok(!container.innerHTML.includes('检查更新'), '英文下不应混入中文（单语渲染）')
+  entry.unmount()
+  assert.equal(notify, null, 'unmount 后应停订，不泄漏订阅')
+})
+
 // ───────────────────────── 二、接线一致性 ─────────────────────────
 
 test('接线：通道常量来自单一真源，两侧都引它', () => {
@@ -426,6 +449,7 @@ function fakeConnection(answers) {
 test('渲染：宿主可用时头行原位出现入口件挂载位，且无自研残留', () => {
   const { html } = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
   assert.ok(html.includes('data-update-entry'), '头行原位缺入口件挂载位')
+  assert.ok(html.includes('zoom:1'), '尺寸开关应渲染（临时方案：zoom 钉住当前按钮大小）')
   assert.ok(!html.includes('有新版本'), '不应再有自研红字按钮')
   assert.ok(!html.includes('立即升级'), '不应再有自研弹窗动作按钮')
   assert.ok(!html.includes('发现新版本'), '不应再有自研弹窗标题')
