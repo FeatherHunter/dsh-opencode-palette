@@ -532,6 +532,16 @@ test('换肤：真挂载入口件随 setThemeTokens 即时换肤（执行级，�
   }
 })
 
+test('换肤：入口去底只作用入口作用域，dialog 不受影响', () => {
+  const client = read('runtime/client.mjs')
+  const rule = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
+  assert.ok(client.includes(rule), '入口去底规则应存在（作用域限定 .dsh-upd-entry）')
+  assert.ok(!client.includes('.dsh-upd button{--dsh-update-button-bg'), '不得裸改 dialog 按钮底色')
+  for (const rel of ['client.js', 'package/lib/client.js']) {
+    assert.ok(read(rel).includes(rule), rel + ' 产物应带上入口去底规则')
+  }
+})
+
 test('换肤：入口件接线传 themeTokens + sizing，换主题经 setThemeTokens 同步', () => {
   const client = read('runtime/client.mjs')
   assert.match(client, /buildUpdateTokens/, '客户端应从主题派生 token')

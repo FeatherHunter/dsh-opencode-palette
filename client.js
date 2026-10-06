@@ -14538,6 +14538,9 @@ function createClient(slotTarget) {
     // 切换即时重绘；入口件只挂载一次，不随语言重挂（unmount 时停订，不泄漏）。宿主不可用时不挂载，主题面板照常。
     // 按钮尺寸走正式参数 sizing（取代旧容器 zoom 临时方案，上游 #69 已落地）：12px/2px 10px/6px/scale 1，
     // 容器再加 nowrap 防止“检查更新”折成两行；不碰包内类名。
+    // 入口按钮去底（头行是宿主地盘）：只覆盖入口作用域的 buttonBg 为透明——dialog 根 .dsh-upd
+    // 不在 .dsh-upd-entry 内故不受影响；按钮自身指定值胜过祖先 inline tokens 的继承值。上游改名则静默回退到主题色块。
+    const UPDATE_ENTRY_TRANSPARENT_BG = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
     const mountedUpdateEntries = []
     function currentUpdateTokens() {
       try {
@@ -14664,7 +14667,7 @@ function createClient(slotTarget) {
         styleTag.dataset.plugin = 'dsh-opencode-palette'
         document.head.appendChild(styleTag)
       }
-      if (styleTag) styleTag.textContent = render.css
+      if (styleTag) styleTag.textContent = render.css + UPDATE_ENTRY_TRANSPARENT_BG
       return render.meta
     }
 
