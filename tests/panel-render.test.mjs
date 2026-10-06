@@ -707,8 +707,9 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
   assert.ok(menu.includes("width: '100%'"), '字体菜单宽度应跟按钮走')
   assert.ok(!menu.includes('max-content'), '字体菜单不得再用 max-content')
   assert.ok(menu.includes("overflow: 'hidden'"), '字体菜单溢出应裁掉')
-  // 候选行：单行省略 + 全文 title（长族名截断后仍可悬停查看）
+  // 候选行：单行省略 + 全文 title（长族名截断后仍可悬停查看）+ 显式行高（宿主 UA 行高干扰直接压扁行的兜底）
   const item = code.slice(code.indexOf('const fontItem = function'), code.indexOf('const hint = fontHint()'))
   assert.ok(item.includes("textOverflow: 'ellipsis'"), '候选行应单行省略')
   assert.ok(item.includes('title: k.key + suffix'), '候选行 title 应为全文本')
+  assert.ok(item.includes("lineHeight: '20px'"), '候选行应锁行高（防宿主行高压扁）')
 })

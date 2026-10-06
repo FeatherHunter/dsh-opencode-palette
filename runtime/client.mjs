@@ -265,10 +265,10 @@ export function createClient(slotTarget) {
           call: function (phone, args) { return hostBridge.call(phone, args) },
           variant: 'button',
           theme: 'default',
+          openOn: 'always',
           themeTokens: currentUpdateTokens(),
           sizing: { fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 },
           autoCheck: 'mount',
-          openOn: 'has-update',
           changelogMarkdown: null,
           locale: updateLocaleSource(),
         })
@@ -718,7 +718,7 @@ export function createClient(slotTarget) {
             },
             title: k.key + suffix,
             style: {
-              padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
+              padding: '6px 10px', fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
               background: on ? ddItemOnBg : 'transparent',
               color: on ? base : muted,
               opacity: k.ok ? 1 : 0.45,
@@ -931,7 +931,7 @@ export function createClient(slotTarget) {
         ])
 
         // ── 检查更新：新包入口件挂载位（头行右侧原位；宿主不可用时不渲染）──
-        // 进面静默查一次只变按钮、点击先查后弹、无新版原地提示——全是包内行为，这里只给容器。
+        // 单按钮：openOn 'always'，点即查完开弹窗（无新版在弹窗内看“已是最新”，头行永不挂第二块）。
         const updMountRef = react.useRef ? react.useRef(null) : { current: null }
         const [logNotice, setLogNotice] = react.useState(false)
         react.useEffect(function () {

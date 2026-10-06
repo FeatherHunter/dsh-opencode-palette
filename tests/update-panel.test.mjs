@@ -532,6 +532,36 @@ test('换肤：真挂载入口件随 setThemeTokens 即时换肤（执行级，�
   }
 })
 
+test('单按钮：openOn always 下头行永远只有一个控件，弹窗按需开（防双块回归）', async () => {
+  const { mountUpdateEntry } = await import(
+    pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'entry.js')).href
+  )
+  const host = stubHost({
+    [PHONES.updateStatus]: reply(snapshotOf()),
+    [PHONES.updateCheck]: reply(snapshotOf()),
+  })
+  const container = stubContainer()
+  const entry = mountUpdateEntry(container, {
+    pluginId: 'dsh-opencode-palette',
+    prefix: 'palette',
+    call: host.call,
+    variant: 'button',
+    theme: 'default',
+    autoCheck: 'never',
+    openOn: 'always',
+  })
+  try {
+    const buttons = container.innerHTML.match(/<button/g) || []
+    assert.equal(buttons.length, 1, '头行应只有一个按钮控件（has-update 的原地小字第二块不应出现）')
+    assert.ok(!container.innerHTML.includes('data-dsh-upd-note'), 'always 模式下不应渲染原地小字元素（类名串在 <style> 里恒在，以元素属性为准）')
+    entry.open()
+    await tick(); await tick(); await tick()
+    assert.ok(container.innerHTML.includes('dsh-upd-overlay'), 'open 后应出现 dialog 弹窗（无新版在弹窗内看“已是最新”）')
+  } finally {
+    entry.unmount()
+  }
+})
+
 test('换肤：入口去底只作用入口作用域，dialog 不受影响', () => {
   const client = read('runtime/client.mjs')
   const rule = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
@@ -547,6 +577,7 @@ test('换肤：入口件接线传 themeTokens + sizing，换主题经 setThemeTo
   assert.match(client, /buildUpdateTokens/, '客户端应从主题派生 token')
   assert.match(client, /themeTokens: currentUpdateTokens\(\)/, '挂载时应传入当前主题的 token')
   assert.match(client, /sizing: \{ fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 \}/, '按钮尺寸走 0.7.0 正式 sizing 参数')
+  assert.match(client, /openOn: 'always'/, '单按钮：点即开弹窗，无新版不挂第二块（has-update 的原地小字已弃用）')
   assert.match(client, /setThemeTokens/, '换主题应经 setThemeTokens 即时换肤（含 dialog 透传）')
   const bundle = read('package/lib/client.js')
   assert.ok(bundle.indexOf('--dsh-update-text') >= 0, '产物应含 0.7.0 新变量名（0.6.0 已更名，旧 --dsh-upd-* 不应再出现）')
