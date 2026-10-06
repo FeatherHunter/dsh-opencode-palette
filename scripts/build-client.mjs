@@ -9,9 +9,9 @@
 //   package/README.md                 用户文档副本
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（`^0.2.0`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（`^0.5.2`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
-//     只有它的**客户端入口**仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
+//     只有它的**入口件闭包**（entry→panel→config/redaction/service/changelog/queue）仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
@@ -27,8 +27,8 @@ const THEMES_DIR = join(ROOT, 'src', 'themes')
 const RUNTIME_DIR = join(ROOT, 'runtime')
 const PKG_DIR = join(ROOT, 'package')
 
-// 运行时模块（runtime/*.mjs，除 client 外还有面板状态机与两侧共用常量）
-const RUNTIME_MODULE_FILES = { client: 'client.mjs', 'update-panel': 'update-panel.mjs', channel: 'channel.mjs' }
+// 运行时模块（runtime/*.mjs：面板主体 client 与两侧共用常量 channel；自研更新状态机已删）
+const RUNTIME_MODULE_FILES = { client: 'client.mjs', channel: 'channel.mjs' }
 
 // 构建期**内联**进浏览器 bundle 的 npm 包客户端入口（浏览器没有 node_modules，只能打进产物）。
 // 注意这与「宿主半的依赖」是两回事：宿主半那侧是真依赖，运行时从 node_modules 解析。
@@ -43,18 +43,22 @@ const INLINE_PACKAGES = [
       { key: 'log-client', file: 'dist/client.js', deps: { './config.js': 'log-config' } },
     ],
   },
+  // 更新系统只内联入口件闭包（entry → panel → config/redaction/service/changelog/queue）：
+  // 浏览器 bundle 只要 mountUpdateEntry 这一条调用点；commands/batch/client（电话名派生/轮询常量）
+  // 是旧自研控制器的输入，已随其删除而不再内联。deps 必须与包 dist 的实际 import 逐字对应，
+  // 上游再加文件时构建按“引用未声明即抛”报错，按报错补声明即可。
   {
-    spec: 'dsh-plugin-update/client',
+    spec: 'dsh-plugin-update/entry',
     pkg: 'dsh-plugin-update',
-    key: 'upd-client',
+    key: 'upd-entry',
     modules: [
       { key: 'upd-config', file: 'dist/config.js', deps: {} },
-      { key: 'upd-commands', file: 'dist/commands.js', deps: {} },
-      { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
-      { key: 'upd-batch', file: 'dist/batch.js', deps: {} },
+      { key: 'upd-redaction', file: 'dist/redaction.js', deps: {} },
       { key: 'upd-service', file: 'dist/service.js', deps: {} },
       { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './service.js': 'upd-service' } },
-      { key: 'upd-client', file: 'dist/client.js', deps: { './config.js': 'upd-config', './commands.js': 'upd-commands', './queue.js': 'upd-queue', './batch.js': 'upd-batch', './changelog.js': 'upd-changelog' } },
+      { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
+      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue' } },
+      { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel' } },
     ],
   },
 ]
@@ -71,10 +75,10 @@ function inlineModuleFor(key) {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER = [
-  'upd-config', 'upd-commands', 'upd-queue', 'upd-batch', 'upd-service', 'upd-changelog', 'upd-client',
+  'upd-config', 'upd-redaction', 'upd-service', 'upd-changelog', 'upd-queue', 'upd-panel', 'upd-entry',
   'log-config', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index',
-  'channel', 'update-panel', 'client',
+  'channel', 'client',
 ]
 
 const JSON_IMPORT_RE = /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/
@@ -271,14 +275,14 @@ async function main() {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按范围取。
-    // 更新系统用 `^0.3.0`：0.3.x 的补丁用户自动跟上；上游发 0.4.0/1.x 就必须我们改范围重发（check-deps 负责提醒）。
+    // 更新系统用 `^0.5.2`：0.5.x 的补丁用户自动跟上；上游发 0.6.0/1.x 就必须我们改范围重发（check-deps 负责提醒）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.mjs` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.3.0' },
+    dependencies: { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.5.2' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。
-    // node >=22：更新包 0.2.0 的 engines 要求（它按包名解析目标包，用到较新的 node:module 行为）
+    // node >=22：更新包 0.5.x 的 engines 要求（它按包名解析目标包，用到较新的 node:module 行为）
     engines: { node: '>=22', dsh: '>=0.2.0-rc.1' },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },

@@ -1,13 +1,18 @@
 /**
- * tests/update-panel.test.mjs — 检查更新 + 日志骨架的接线门禁
+ * tests/update-panel.test.mjs — 检查更新（新包入口件）+ 日志骨架的接线门禁
  *
- * 三块断言，缺一块都算没接好：
- *   一、面板状态机（桩宿主）：打开静默读、点检查才联网、有新版才弹窗、八种装不了原因、安装中轮询、待重启；
- *   二、接线一致性：通道常量单一真源、电话名从更新包派生（产物里不出现写死的电话名字面量）、轮询间隔来自包；
- *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.mjs → 路由注册对 → 电话分派能落到更新包与日志包，
- *      且日志真的落到 <DSH_HOME>/logs 下；更新包走真依赖（无 vendor 副本）；事件清单过三个检查器。
+ * 最小集成后只测外部行为（产物与电话行为），不测实现细节：
+ *   一、入口件行为（桩宿主＋替身容器）：文案唯一出处 entryLabelFor 五态、状态优先级、
+ *      14 码中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
+ *   二、接线一致性：通道常量单一真源、产物里不写死电话名、入口件闭包内联、无 vendor、
+ *      产物声明双写一致、宿主有几个电话注册几个；
+ *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.mjs → 路由注册对 → 电话分派能落到
+ *      更新包与日志包，且日志真的落到 <DSH_HOME>/logs 下；更新包走真依赖；事件清单过检查器。
+ *   四、面板渲染（真 React，SSR）：宿主可用时头行原位出现入口件挂载位、无自研残留；
+ *      宿主不可用时更新块消失、主题面板照常。
+ *   五、事件清单：形状与计数过检查器，且覆盖运行期真会发出的每个事件。
  *
- * 读产物、不读源码断言：这几条都是「发出去的东西对不对」。
+ * 读产物、不读源码断言（除“有几个注册几个”一条接线门禁外）：这几条都是「发出去的东西对不对」。
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -20,10 +25,18 @@ import { runInThisContext } from 'node:vm'
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
 const read = (rel) => readFileSync(join(ROOT, rel), 'utf8')
 
-const { createUpdateController, readSnapshot, buttonState, blockedReasonKey } = await import(
-  pathToFileURL(join(ROOT, 'runtime', 'update-panel.mjs')).href
+// 新包入口件与面板：文案与状态档的唯一出处（测试与接入方都读它，不各写一份）。
+const { mountUpdateEntry, entryLabelFor, entryStateKind } = await import(
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'entry.js')).href
 )
-const { buildClientPhoneNames, CLIENT_POLL } = await import(
+const { failureCopy, isKnownFailureCode } = await import(
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href
+)
+const { buildPhoneNames } = await import(
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'config.js')).href
+)
+// 电话名派生（两侧共用同一套拼法；浏览器 bundle 内由入口件现算，不写字面量）。
+const { buildClientPhoneNames } = await import(
   pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'client.js')).href
 )
 
@@ -57,415 +70,94 @@ function stubHost(answers) {
   }
 }
 
-// ───────────────────────── 一、面板状态机 ─────────────────────────
+/** 替身容器：只有 innerHTML（包内全走可选链，无 addEventListener 也可挂载与静默查）。 */
+function stubContainer() {
+  return { innerHTML: '' }
+}
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 
-test('状态机：打开面板只静默读一次本地状态，不联网', async () => {
-  const host = stubHost({ [PHONES.updateStatus]: reply(snapshotOf()) })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  await panel.readStatus()
-  assert.equal(host.calls.length, 1)
-  assert.equal(host.calls[0].phone, PHONES.updateStatus, '只该调查状态这条电话')
-  assert.equal(panel.getState().checking, false)
-  assert.equal(panel.getState().dialogOpen, false)
+// ───────────────────────── 一、入口件行为 ─────────────────────────
+
+test('入口件：状态优先级 活任务 > 待重启 > 失败 > 有新版 > 空闲', () => {
+  const base = snapshotOf({ latestVersion: '1.8.0', canInstall: true })
+  assert.equal(entryStateKind({ snapshot: Object.assign({}, base, { job: { state: 'installing' } }), error: 'check-failed' }), 'busy')
+  assert.equal(entryStateKind({ snapshot: Object.assign({}, base, { blockedReason: 'pending-restart' }), error: null }), 'restart')
+  assert.equal(entryStateKind({ snapshot: null, error: 'check-failed' }), 'failed')
+  assert.equal(entryStateKind({ snapshot: base, error: null }), 'update')
+  assert.equal(entryStateKind({ snapshot: snapshotOf({ latestVersion: '1.7.2' }), error: null }), 'idle')
+  assert.equal(entryStateKind({ snapshot: snapshotOf({ job: { state: 'verifying' } }), error: null }), 'busy')
+  assert.equal(entryStateKind({ snapshot: snapshotOf({ job: { state: 'restart-required' } }), error: null }), 'restart')
+  assert.equal(entryStateKind({ snapshot: snapshotOf({ job: { state: 'failed' } }), error: null }), 'failed')
 })
 
-test('状态机：无新版时不开弹窗、按钮回 idle', async () => {
-  const host = stubHost({
-    [PHONES.updateStatus]: reply(snapshotOf()),
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.7.2' }), { receipt: null }),
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  const outcome = await panel.check()
-  assert.equal(outcome, 'latest')
-  assert.equal(panel.getState().dialogOpen, false, '无新版不该弹窗')
-  assert.equal(buttonState(panel.getState()), 'idle')
+test('入口件：五态文案唯一出处（中文照包原文）', () => {
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.7.2' }), error: null }), '检查更新')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.8.0', canInstall: true }), error: null }), '有新版 1.8.0')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ job: { state: 'installing' } }), error: null }), '正在安装…')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ blockedReason: 'pending-restart' }), error: null }), '待重启')
+  assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，点此查看')
 })
 
-test('状态机：有新版才弹窗，且按钮进入 hasNew', async () => {
-  const host = stubHost({
-    [PHONES.updateCheck]: reply(
-      snapshotOf({ latestVersion: '1.8.0', canInstall: true }),
-      { receipt: { checkId: 'chk-1' } }
-    ),
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  const outcome = await panel.check()
-  assert.equal(outcome, 'new')
-  const state = panel.getState()
-  assert.equal(state.dialogOpen, true)
-  assert.equal(state.checkId, 'chk-1')
-  assert.equal(state.latest, '1.8.0')
-  assert.equal(buttonState(state), 'hasNew')
-})
-
-test('状态机：已查到有新版时再点按钮不重复联网，直接开弹窗', async () => {
-  const host = stubHost({
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'chk-2' } }),
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  await panel.check()
-  panel.closeDialog()
-  await panel.check()
-  assert.equal(host.calls.length, 1, '第二次点击应复用已有凭证，不再联网')
-  assert.equal(panel.getState().dialogOpen, true)
-})
-
-test('状态机：八种装不了原因逐个映射到人话词条，且都不给安装按钮', async () => {
+test('入口件：八种 blocked 都有中文 title＋action（用户该做什么）', () => {
   const codes = [
     'unknown-profile', 'source-install', 'invalid-installation', 'installation-changed',
     'pending-restart', 'registry-conflict', 'incompatible-node', 'recovery-required',
   ]
   for (const code of codes) {
-    assert.equal(blockedReasonKey(code), 'blocked.' + code)
-    const host = stubHost({ [PHONES.updateStatus]: reply(snapshotOf({ blockedReason: code })) })
-    const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-    await panel.readStatus()
-    const state = panel.getState()
-    assert.equal(state.blocked, code)
-    assert.equal(state.canInstall, false, code + ' 时不允许安装')
-    assert.equal(state.pending, code === 'pending-restart')
-    assert.equal(buttonState(state), code === 'pending-restart' ? 'pending' : 'idle')
+    assert.equal(isKnownFailureCode(code), true, code + ' 应为已知码')
+    const copy = failureCopy(code)
+    assert.ok(copy && typeof copy.zh === 'string' && copy.zh.length > 0, code + ' 缺中文标题')
+    const act = copy.act || copy.action
+    assert.ok(typeof act === 'string' && act.length > 0, code + ' 缺行动指引')
   }
 })
 
-test('状态机：安装中按轮询间隔刷新，装成功关弹窗', async () => {
-  let installs = 0
-  const timers = []
-  const host = stubHost({
-    [PHONES.updateStatus]: () => {
-      installs += 1
-      // 第一次查：任务正在装；之后的查：装好了，磁盘是新版
-      return reply(installs === 1
-        ? snapshotOf({ latestVersion: '1.8.0', canInstall: true, job: { state: 'installing', message: null } })
-        : snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', runningVersion: '1.7.2', blockedReason: 'pending-restart', job: { state: 'restart-required', message: null } }))
-    },
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'chk-3' } }),
-    [PHONES.updateInstall]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', blockedReason: 'pending-restart', job: { state: 'restart-required', message: null } })),
-  })
-  const panel = createUpdateController({
-    call: host.call,
-    phones: PHONES,
-    pollMs: 250,
-    setTimer: (fn, ms) => { timers.push(ms); return { id: timers.length } },
-    clearTimer: () => {},
-  })
-  await panel.readStatus() // 任务安装中 → 该起轮询
-  assert.deepEqual(timers, [250], '安装中应起一次轮询，间隔取自配置')
-  await panel.check()
-  const ok = await panel.install()
-  assert.equal(ok, true)
-  assert.equal(panel.getState().dialogOpen, false, '装成功要关弹窗')
-  assert.equal(panel.getState().pending, true, '装上但没重启 → 待重启')
-  assert.equal(buttonState(panel.getState()), 'pending')
-})
-
-test('状态机：安装失败给失败态、不吞异常', async () => {
-  const host = stubHost({
-    [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true })),
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'chk-fail' } }),
-    [PHONES.updateInstall]: { ok: false, error: 'install-failed', errorKind: 'install-failed' },
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  await panel.check()
-  const ok = await panel.install()
-  assert.equal(ok, false)
-  assert.equal(panel.getState().failure, 'install-failed')
-})
-
-test('状态机：没有检查凭证时不提交安装（先查再装）', async () => {
-  const host = stubHost({ [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true })) })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  await panel.readStatus()
-  assert.equal(await panel.install(), false)
-  assert.equal(host.calls.filter((c) => c.phone === PHONES.updateInstall).length, 0, '没凭证不该打安装电话')
-})
-
-test('状态机：宿主不可用时整块降级，调用不抛错', async () => {
-  const panel = createUpdateController({ call: null, phones: PHONES, pollMs: 1000 })
-  assert.equal(panel.getState().available, false)
-  assert.equal(await panel.readStatus(), null)
-  assert.equal(await panel.check(), 'failed')
-  assert.equal(await panel.checkSilently(), 'failed')
-  assert.equal(await panel.autoCheckOnOpen(), null)
-  assert.equal(await panel.install(), false)
-})
-
-test('状态机（#41）：静默检查有新版只变按钮、不自动弹窗', async () => {
-  const host = stubHost({
-    [PHONES.updateCheck]: reply(
-      snapshotOf({ latestVersion: '1.8.0', canInstall: true }),
-      { receipt: { checkId: 'chk-silent' } }
-    ),
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  const outcome = await panel.checkSilently()
-  assert.equal(outcome, 'new')
-  const state = panel.getState()
-  assert.equal(state.dialogOpen, false, '静默检查不得自动弹窗')
-  assert.equal(state.hasNew, true)
-  assert.equal(buttonState(state), 'hasNew')
-})
-
-test('状态机（#41）：静默检查失败静默、无新版不弹窗', async () => {
-  const failHost = stubHost({ [PHONES.updateCheck]: { ok: false, error: 'net-fail' } })
-  const failPanel = createUpdateController({ call: failHost.call, phones: PHONES, pollMs: 1000 })
-  assert.equal(await failPanel.checkSilently(), 'failed')
-  assert.equal(failPanel.getState().dialogOpen, false)
-  assert.equal(buttonState(failPanel.getState()), 'idle')
-
-  const latestHost = stubHost({
-    [PHONES.updateStatus]: reply(snapshotOf()),
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.7.2' })),
-  })
-  const panel2 = createUpdateController({ call: latestHost.call, phones: PHONES, pollMs: 1000 })
-  const outcome2 = await panel2.autoCheckOnOpen()
-  assert.equal(outcome2, 'latest')
-  assert.equal(panel2.getState().dialogOpen, false)
-})
-
-test('状态机（#41）：autoCheckOnOpen 先本地读再联网，待重启时跳过联网', async () => {
-  const host = stubHost({
-    [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', runningVersion: '1.7.2', blockedReason: 'pending-restart' })),
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'chk-nope' } }),
-  })
-  const panel = createUpdateController({ call: host.call, phones: PHONES, pollMs: 1000 })
-  const outcome = await panel.autoCheckOnOpen()
-  assert.equal(outcome, null, '待重启时应跳过联网')
-  assert.equal(host.calls.filter((c) => c.phone === PHONES.updateCheck).length, 0, '待重启不得调联网电话')
-  assert.equal(panel.getState().pending, true)
-  assert.equal(buttonState(panel.getState()), 'pending')
-})
-
-test('纯函数（#41）：按钮优先级 正在升级 > 待重启 > 有新版本 > 检查中 > 空闲', () => {
-  assert.equal(buttonState({ installing: true, pending: true, hasNew: true, checking: true }), 'installing')
-  assert.equal(buttonState({ installing: false, pending: true, hasNew: true, checking: true }), 'pending')
-  assert.equal(buttonState({ installing: false, pending: false, hasNew: true, checking: true }), 'hasNew')
-  assert.equal(buttonState({ installing: false, pending: false, hasNew: false, checking: true }), 'checking')
-  assert.equal(buttonState({ installing: false, pending: false, hasNew: false, checking: false }), 'idle')
-})
-
-test('状态机：传输异常只记失败散列，不改状态机可用性', async () => {
-  const records = []
-  const panel = createUpdateController({
-    call: async () => { throw new Error('socket closed') },
-    phones: PHONES,
-    pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  const outcome = await panel.check()
-  assert.equal(outcome, 'failed')
-  assert.equal(panel.getState().checking, false)
-  const failLine = records.filter((r) => r.event === 'host.call.fail')
-  assert.equal(failLine.length, 1)
-  assert.match(failLine[0].fields.errorHash, /^[0-9a-f]{8}$/, '失败只记 8 位散列')
-  assert.equal(failLine[0].fields.pluginId, 'dsh-opencode-palette')
-})
-
-test('纯函数：readSnapshot 只认宿主当场算出的 pending-restart', () => {
-  assert.equal(readSnapshot(reply(snapshotOf({ blockedReason: 'pending-restart' }))).pending, true)
-  assert.equal(readSnapshot(reply(snapshotOf({ installedVersion: '1.8.0', runningVersion: '1.7.2' }))).pending, false,
-    '不自己比较版本号：原因码没写 pending-restart 就不算待重启')
-  assert.equal(readSnapshot(null).canInstall, false)
-})
-
-// ───────────────────────── 一·补 2.0.7：可见结果与关键节点日志 ─────────────────────────
-
-test('2.0.7 可见结果：手动查更新失败时给出弹窗外的可见提示（不再是点了没反应）', async () => {
-  const records = []
-  // 更新包的失败形状：error 是字符串码，不是对象
-  const host = stubHost({ [PHONES.updateCheck]: { ok: false, error: 'invalid-release', errorKind: 'invalid-release' } })
-  const panel = createUpdateController({
-    call: host.call, phones: PHONES, pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  assert.equal(await panel.check(), 'failed')
-  assert.equal(panel.getState().dialogOpen, false, '失败不弹窗')
-  assert.deepEqual(panel.getState().notice, { key: 'updateCheckFail', kind: 'error' }, '失败必须留下可见提示')
-  const fail = records.filter((r) => r.event === 'update.check.fail')
-  assert.equal(fail.length, 1)
-  assert.equal(fail[0].fields.code, 'invalid-release', '码要原样记，别记成 unknown')
-  assert.equal(fail[0].fields.trigger, 'manual')
-  assert.equal(fail[0].fields.errorHash, '5792c4da', '散列与真机日志同源（djb2 前 8 位）')
-  const ok = records.filter((r) => r.event === 'update.check.ok')
-  assert.equal(ok.length, 0, '失败不该记成功节点')
-})
-
-test('2.0.7 可见结果：自动检查失败保持静默（不打扰），但仍记关键节点', async () => {
-  const records = []
-  const host = stubHost({
-    [PHONES.updateStatus]: reply(snapshotOf()),
-    [PHONES.updateCheck]: { ok: false, error: 'check-failed', errorKind: 'check-failed' },
-  })
-  const panel = createUpdateController({
-    call: host.call, phones: PHONES, pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  await panel.readStatus()
-  assert.equal(await panel.checkSilently(), 'failed')
-  assert.equal(panel.getState().notice, null, '自动检查失败静默：不弹窗、不留提示')
-  const fail = records.filter((r) => r.event === 'update.check.fail')
-  assert.equal(fail.length, 1)
-  assert.equal(fail[0].fields.trigger, 'auto')
-  assert.equal(fail[0].fields.code, 'check-failed')
-})
-
-test('2.0.7 可见结果：升级失败留提示，成功但没进待重启也留提示', async () => {
-  const records = []
-  const failed = createUpdateController({
-    call: stubHost({ [PHONES.updateInstall]: { ok: false, error: 'install-failed', errorKind: 'install-failed' } }).call,
-    phones: PHONES, pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  failed.openDialog()
-  // 没有凭证时 install 直接返回 false，不该记节点
-  assert.equal(await failed.install(), false)
-  assert.equal(records.filter((r) => r.event === 'update.install.start').length, 0, '没凭证不该走到安装')
-
-  const host = stubHost({
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'ck-1' } }),
-    [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0' })),
-    [PHONES.updateInstall]: { ok: false, error: 'install-failed', errorKind: 'install-failed' },
-  })
-  const panel = createUpdateController({
-    call: host.call, phones: PHONES, pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  await panel.check()
-  assert.equal(await panel.install(), false)
-  assert.deepEqual(panel.getState().notice, { key: 'updateFailInstall', kind: 'error' })
-  assert.equal(records.filter((r) => r.event === 'update.install.start').length, 1)
-  const installFail = records.filter((r) => r.event === 'update.install.fail')
-  assert.equal(installFail.length, 1)
-  assert.equal(installFail[0].fields.code, 'install-failed')
-})
-
-test('2.0.7 可见结果：升级成功但没进待重启时，用兜底提示替掉「没动静」', async () => {
-  const records = []
-  const host = stubHost({
-    [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), { receipt: { checkId: 'ck-1' } }),
-    // 装完仍是旧版在跑、且宿主没判 pending-restart（异常路径）：面板必须自己说句话
-    [PHONES.updateInstall]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', blockedReason: null })),
-  })
-  const panel = createUpdateController({
-    call: host.call, phones: PHONES, pollMs: 1000,
-    log: (level, event, fields) => records.push({ level, event, fields }),
-  })
-  await panel.check()
-  assert.equal(await panel.install(), true)
-  assert.deepEqual(panel.getState().notice, { key: 'updateRestartHint', kind: 'warn' })
-  const ok = records.filter((r) => r.event === 'update.install.ok')
-  assert.equal(ok.length, 1)
-  assert.equal(ok[0].fields.pending, false)
-})
-
-test('2.0.7 接线：探针阈值与更新包 service.js 的同名常量逐字一致（防两处走偏）', async () => {
-  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  // 更新包现在是**依赖**（不再是 vendor 副本），常量直接读 node_modules 里那份
-  const installed = read('node_modules/dsh-plugin-update/dist/service.js')
-  assert.ok(installed.includes('const MAX_METADATA_BYTES = 256 * 1024;'), '更新包的体积上限变了：探针要跟着改')
-  assert.ok(installed.includes('const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";'), '更新包的完整性正则变了：探针要跟着改')
-  assert.equal(hostModule.PROBE_LIMITS.maxBytes, 256 * 1024)
-  assert.equal(hostModule.PROBE_LIMITS.integrityPattern, '^sha512-[A-Za-z0-9+/]{86}==$')
-})
-
-test('2.0.7 探针：把 invalid-release 的真实原因还原成可读事实', async () => {
-  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  const manifest = {
-    name: 'dsh-opencode-palette',
-    version: '2.0.7',
-    engines: { dsh: '>=0.2.0-rc.1' },
-    dist: {
-      tarball: 'https://registry.npmjs.org/dsh-opencode-palette/-/dsh-opencode-palette-2.0.7.tgz',
-      integrity: 'sha512-' + 'A'.repeat(86) + '==',
-    },
+test('入口件：电话失败码与 internal 全中文，未来码兜底并带原码', () => {
+  for (const code of ['check-failed', 'invalid-release', 'check-expired', 'update-busy', 'install-failed', 'internal']) {
+    assert.equal(isKnownFailureCode(code), true, code + ' 应为已知码')
+    assert.ok(failureCopy(code).zh.length > 0, code + ' 缺中文')
   }
-  const fakeFetch = (body, init) => async () => ({
-    ok: true, status: 200,
-    headers: { get: () => null },
-    text: async () => (typeof body === 'string' ? body : JSON.stringify(body)),
-    ...(init || {}),
-  })
-
-  const good = await hostModule.probeRelease(fakeFetch(manifest), {})
-  assert.equal(good.reason, 'valid', '合规清单应判 valid')
-  assert.equal(good.stage, 'ok')
-  assert.ok(good.bytes > 0)
-
-  const truncated = await hostModule.probeRelease(fakeFetch('{"name":"dsh-opencode-palette","vers'), {})
-  assert.equal(truncated.reason, 'json-parse', '被截断的响应要认出来（这正是 invalid-release 的兜底来源）')
-  assert.equal(truncated.stage, 'json')
-
-  const mirrored = await hostModule.probeRelease(fakeFetch(Object.assign({}, manifest, {
-    dist: { tarball: 'https://registry.npmmirror.com/dsh-opencode-palette/-/dsh-opencode-palette-2.0.7.tgz', integrity: manifest.dist.integrity },
-  })), {})
-  assert.equal(mirrored.reason, 'tarball-origin', '换了源的 tarball 要认出是源不符')
-  assert.equal(mirrored.detail, 'https://registry.npmmirror.com')
-
-  const noIntegrity = await hostModule.probeRelease(fakeFetch(Object.assign({}, manifest, {
-    dist: { tarball: manifest.dist.tarball },
-  })), {})
-  assert.equal(noIntegrity.reason, 'integrity-missing')
-
-  const dead = await hostModule.probeRelease(async () => { throw new Error('getaddrinfo ENOTFOUND registry.npmjs.org') }, {})
-  assert.equal(dead.reason, 'fetch-threw', '取不到网络也要给一句人话')
-  assert.match(dead.detail, /ENOTFOUND/)
-
-  const notOk = await hostModule.probeRelease(fakeFetch(manifest, { ok: false, status: 503 }), {})
-  assert.equal(notOk.reason, 'not-ok')
-  assert.equal(notOk.httpStatus, 503)
+  assert.equal(isKnownFailureCode('SOME-FUTURE-CODE'), false, '未来码不应被当成已知码')
+  const fallback = failureCopy('SOME-FUTURE-CODE')
+  assert.ok(fallback.zh.length > 0, '未来码要有兜底中文')
+  assert.ok((fallback.act || '').includes('SOME-FUTURE-CODE') || JSON.stringify(fallback).includes('码'), '兜底应带上原码或提示带码')
 })
 
-test('2.0.7 重试：查更新失败自动重试一次，第二次成功就不再打扰用户', async () => {
-  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  const records = []
-  let tries = 0
-  const handler = async () => {
-    tries += 1
-    if (tries === 1) return { ok: false, error: 'invalid-release', errorKind: 'invalid-release' }
-    return { ok: true, snapshot: { runningVersion: '2.0.6', canInstall: true, latestVersion: '2.0.7' } }
+test('入口件：挂载默认进面静默查一次（只读 status），按钮文案随状态走', async () => {
+  const host = stubHost({ [buildPhoneNames('palette').updateStatus]: reply(snapshotOf({ latestVersion: '1.7.2' })) })
+  const container = stubContainer()
+  const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
+  await tick()
+  assert.ok(host.calls.some((c) => c.phone === buildPhoneNames('palette').updateStatus), '挂载默认 autoCheck mount：应静默查一次状态')
+  await entry.refresh()
+  assert.equal(entry.label(), '检查更新')
+  assert.ok(container.innerHTML.includes('检查更新'), '按钮应渲染当前文案')
+  assert.ok(container.innerHTML.includes('dsh-upd-entry'), '应渲染入口件骨架')
+  entry.unmount()
+})
+
+test('入口件：有新版时按钮文案带版本号，待重启与失败各有其态', async () => {
+  const phones = buildPhoneNames('palette')
+  for (const [snapshot, label] of [
+    [snapshotOf({ latestVersion: '1.8.0', canInstall: true }), '有新版 1.8.0'],
+    [snapshotOf({ blockedReason: 'pending-restart' }), '待重启'],
+    [snapshotOf({ job: { state: 'installing' } }), '正在安装…'],
+  ]) {
+    const host = stubHost({ [phones.updateStatus]: reply(snapshot) })
+    const container = stubContainer()
+    const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
+    await entry.refresh()
+    assert.equal(entry.label(), label)
+    assert.ok(container.innerHTML.includes(label))
+    entry.unmount()
   }
-  const wrapped = hostModule.wrapUpdateCheck(handler, {
-    log: (level, event, fields) => records.push({ level, event, fields }),
-    pluginId: 'dsh-opencode-palette',
-  })
-  const out = await wrapped({})
-  assert.equal(tries, 2, '必须重试一次')
-  assert.equal(out.ok, true, '第二次成功就回成功，用户不该看到失败')
-  const retry = records.filter((r) => r.event === 'update.check.retry')
-  assert.equal(retry.length, 2)
-  assert.deepEqual(retry.map((r) => r.fields.ok), [false, true])
-  assert.equal(retry[0].fields.reason, 'invalid-release', '码要原样带出，别写成 unknown')
-  assert.equal(records.filter((r) => r.event === 'update.check.probe').length, 0, '救回来了就不必跑探针')
-})
-
-test('2.0.7 重试：两次都失败才跑探针，并把现象落成日志', async () => {
-  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  const records = []
-  const wrapped = hostModule.wrapUpdateCheck(async () => ({ ok: false, error: 'invalid-release', errorKind: 'invalid-release' }), {
-    log: (level, event, fields) => records.push({ level, event, fields }),
-    probe: async () => ({ stage: 'json', httpStatus: 200, bytes: 40, reason: 'json-parse', detail: '{"name":"dsh-open' }),
-    pluginId: 'dsh-opencode-palette',
-  })
-  const out = await wrapped({})
-  assert.equal(out.ok, false, '两次都失败照原样回失败')
-  const probe = records.filter((r) => r.event === 'update.check.probe')
-  assert.equal(probe.length, 1)
-  assert.equal(probe[0].fields.reason, 'json-parse')
-  assert.equal(probe[0].fields.httpStatus, 200)
-  assert.equal(probe[0].fields.stage, 'json')
-})
-
-test('2.0.7 重试：第一次就成功时不重试、不跑探针', async () => {
-  const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
-  const records = []
-  let tries = 0
-  const wrapped = hostModule.wrapUpdateCheck(async () => { tries += 1; return { ok: true, snapshot: {} } }, {
-    log: (level, event, fields) => records.push({ level, event, fields }),
-    probe: async () => { throw new Error('不该跑探针') },
-  })
-  await wrapped({})
-  assert.equal(tries, 1)
-  assert.equal(records.length, 0, '顺利路径一条多余日志都不该记')
+  const failHost = stubHost({ [phones.updateStatus]: { ok: false, error: 'check-failed', errorKind: 'check-failed' } })
+  const failBox = stubContainer()
+  const failEntry = mountUpdateEntry(failBox, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: failHost.call })
+  await failEntry.refresh()
+  assert.equal(failEntry.label(), '更新失败，点此查看')
+  assert.ok(failBox.innerHTML.includes('更新失败，点此查看'))
+  failEntry.unmount()
 })
 
 // ───────────────────────── 二、接线一致性 ─────────────────────────
@@ -480,25 +172,31 @@ test('接线：通道常量来自单一真源，两侧都引它', () => {
   assert.ok(existsSync(join(ROOT, 'package', 'lib', 'channel.mjs')), '随包发出 channel.mjs')
 })
 
-test('接线：电话名与轮询间隔从更新包派生，产物里不写死', () => {
-  assert.deepEqual(Object.keys(PHONES).sort(), ['updateCheck', 'updateInstall', 'updateStatus'])
+test('接线：电话名从更新包派生，产物里不写死', () => {
+  // 0.5.x 起第 4 个电话 updateChangelog 由包派生、宿主全量注册自动纳入（#52：有几个注册几个，不手数）。
+  assert.deepEqual(Object.keys(PHONES).sort(), ['updateChangelog', 'updateCheck', 'updateInstall', 'updateStatus'])
   assert.equal(PHONES.updateStatus, 'palette.updateStatus')
-  assert.equal(CLIENT_POLL.defaultMs, 1000)
-  assert.ok(CLIENT_POLL.defaultMs >= CLIENT_POLL.minMs)
+  assert.equal(PHONES.updateChangelog, 'palette.updateChangelog')
   for (const rel of ['client.js', 'package/lib/client.js']) {
     const bundle = read(rel)
     assert.ok(bundle.indexOf("'palette.updateStatus'") < 0 && bundle.indexOf('"palette.updateStatus"') < 0,
-      rel + ' 里不该出现写死的电话名字面量（应从包的客户端入口派生）')
-    assert.ok(bundle.indexOf('buildClientPhoneNames') >= 0, rel + ' 里应有更新包的客户端入口')
+      rel + ' 里不该出现写死的电话名字面量（电话名由入口件从前缀现算）')
+    assert.ok(bundle.indexOf('mountUpdateEntry') >= 0, rel + ' 里应有更新包的入口件')
+    assert.ok(bundle.indexOf('mountUpdatePanel') >= 0, rel + ' 里应有更新包的面板内核')
+    assert.ok(bundle.indexOf('entryLabelFor') >= 0, rel + ' 里应有入口件文案函数（唯一出处）')
     assert.ok(bundle.indexOf('createClientLog') >= 0, rel + ' 里应有日志包的客户端入口')
+    assert.ok(bundle.indexOf('createUpdateController') < 0, rel + ' 里不应再有自研更新控制器')
+    assert.ok(bundle.indexOf('__mods["upd-entry"]') >= 0, rel + ' 里应内联入口件闭包')
+    assert.ok(bundle.indexOf('__mods["upd-client"]') < 0, rel + ' 里不应再内联旧自研闭包（commands/batch/client）')
+    assert.ok(bundle.indexOf('__mods["update-panel"]') < 0, rel + ' 里不应再有自研状态机模块')
   }
 })
 
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.3.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.3.0 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.5.2' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.5.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -513,13 +211,20 @@ test('接线：宿主半不再 vendor 更新包 —— 走真依赖，产物里�
   assert.ok(host.indexOf('./vendor/') < 0, '宿主半不该再有 vendor 相对路径')
   const built = read('package/lib/index.js')
   assert.match(built, /from 'dsh-plugin-update'/, '发出去的宿主半也要 import 真依赖（用户侧从 node_modules 解析）')
-  // 电话名从更新包返回值读，不自己拼
-  assert.match(host, /update\.phoneNames\.updateCheck/, '电话名应从 update.phoneNames 读')
+})
+
+test('接线：宿主有几个电话注册几个，不手数（新电话自动纳入）', () => {
+  // 薄胶水：for (handlers) 全注册；电话名只从包返回值读，不手写字面量。
+  assert.match(read('runtime/host.mjs'), /for \(const phoneName of Object\.keys\(update\.handlers\)\) registry\.set\(phoneName/,
+    '宿主必须全量注册包返回的电话处理器')
+  assert.ok(read('runtime/host.mjs').indexOf('wrapUpdateCheck') < 0, '不得再包探针/重试包装')
+  assert.ok(read('runtime/host.mjs').indexOf('probeRelease') < 0, '自研探针应已删除')
+  assert.ok(!existsSync(join(ROOT, 'runtime', 'update-panel.mjs')), '自研状态机文件应已删除')
 })
 
 // ───────────────────────── 三、宿主半冒烟 ─────────────────────────
 
-test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落盘与更新查状态', async () => {
+test('宿主半：装配出电话、注册精确路由、跑通日志落盘与更新查状态', async () => {
   const home = mkdtempSync(join(tmpdir(), 'palette-host-'))
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
@@ -571,7 +276,7 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
     assert.equal(logReply.type, 'server-response')
     assert.equal(logReply.result.ok, true)
 
-    // 更新电话：查状态回六字段快照，运行版本就是本包版本（证明 runningVersion 覆盖生效、没抛 unknown-profile）
+    // 更新电话：查状态回快照，运行版本就是本包版本（证明 runningVersion 覆盖生效、没抛 unknown-profile）
     const statusReply = await call('palette.updateStatus', {})
     assert.equal(statusReply.result.ok, true, '查状态必须回成功（unknown-profile 会在这里暴露）')
     const snapshot = statusReply.result.value.snapshot
@@ -648,7 +353,7 @@ test('宿主半：装配出 8 条电话、注册精确路由、跑通日志落�
 
 // ───────────────────────── 四、面板渲染（真 React，SSR） ─────────────────────────
 // 与 tests/panel-render.test.mjs 同款做法：在当前上下文执行包版产物 → 用真 React renderToString 抓 DOM。
-// 这里只断言「检查更新」这一块（按钮四态 / 升级弹窗 / 待重启横幅 / 宿主不可用时整块消失）。
+// 入口件挂载位只断言「有没有容器」（effect 在 SSR 下不跑，包按钮由浏览器里挂载后的 effect 接管）。
 
 const { React, ReactDOMServer } = await (async () => {
   const require = (await import('node:module')).createRequire(import.meta.url)
@@ -700,7 +405,7 @@ function renderPanel(opts = {}) {
   exportsFace.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
   const render = () => ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { render, controller: panelProps.update, html: render() }
+  return { render, html: render() }
 }
 
 /** 假 connection：rpc.call 按电话名回预设结果。 */
@@ -718,52 +423,27 @@ function fakeConnection(answers) {
   }
 }
 
-test('渲染：宿主可用时头行出现「检查更新」按钮（中英各一份文案）', () => {
-  const zh = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
-  assert.ok(zh.html.includes('检查更新'), '中文界面缺检查更新按钮')
-  assert.ok(zh.controller.getState().available, '宿主可用时控制器应可用')
-
-  const en = renderPanel({ lang: 'en', connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
-  assert.ok(en.html.includes('Check for updates'), '英文界面缺 Check for updates')
-})
-
-test('渲染：宿主不可用时不渲染按钮（主题面板本身照常）', () => {
-  const { html, controller } = renderPanel({ connection: null })
-  assert.equal(controller.getState().available, false)
-  assert.ok(!html.includes('检查更新'), '无宿主时不该出现按钮')
+test('渲染：宿主可用时头行原位出现入口件挂载位，且无自研残留', () => {
+  const { html } = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
+  assert.ok(html.includes('data-update-entry'), '头行原位缺入口件挂载位')
+  assert.ok(!html.includes('有新版本'), '不应再有自研红字按钮')
+  assert.ok(!html.includes('立即升级'), '不应再有自研弹窗动作按钮')
+  assert.ok(!html.includes('发现新版本'), '不应再有自研弹窗标题')
   assert.ok(html.includes('opencode调色板'), '主题面板本身不受影响')
 })
 
-test('渲染：有新版 → 按钮变红字「有新版本」并弹出升级弹窗（含手工命令与复制）', async () => {
-  const panel = renderPanel({
-    connection: fakeConnection({
-      [PHONES.updateCheck]: reply(snapshotOf({ latestVersion: '1.8.0', canInstall: true }), {
-        receipt: { checkId: 'chk-ui' },
-        manual: 'dsh plugin --profile web add --save-exact dsh-opencode-palette@1.8.0 --registry=https://registry.npmjs.org/',
-      }),
-    }),
-  })
-  await panel.controller.check()
-  const html = panel.render()
-  assert.ok(html.includes('有新版本'), '按钮应变为红字“有新版本”')
-  assert.ok(html.includes('发现新版本 v1.8.0'), '缺弹窗标题')
-  assert.ok(html.includes('当前版本 v1.7.2 → 最新版本 v1.8.0'), '缺版本对照')
-  assert.ok(html.includes('立即升级') && html.includes('稍后'), '缺动作按钮')
-  assert.ok(html.includes('dsh plugin --profile web add --save-exact'), '缺手工兜底命令')
-  assert.ok(html.includes('复制'), '缺复制按钮')
+test('渲染：宿主不可用时不渲染更新块（主题面板本身照常）', () => {
+  const { html } = renderPanel({ connection: null })
+  assert.ok(!html.includes('data-update-entry'), '无宿主时不该出现更新挂载位')
+  assert.ok(!html.includes('检查更新'), '无宿主时不该出现更新文案')
+  assert.ok(html.includes('opencode调色板'), '主题面板本身不受影响')
 })
 
-test('渲染：待重启 → 常驻横幅显眼出现，且不再给安装按钮', async () => {
-  const panel = renderPanel({
-    connection: fakeConnection({
-      [PHONES.updateStatus]: reply(snapshotOf({ latestVersion: '1.8.0', installedVersion: '1.8.0', runningVersion: '1.7.2', blockedReason: 'pending-restart' })),
-    }),
-  })
-  await panel.controller.readStatus()
-  const html = panel.render()
-  assert.ok(html.includes('新版 v1.8.0 已装好，重启 DSH 后生效'), '缺待重启横幅')
-  assert.ok(html.includes('待重启'), '按钮应进入待重启态')
-  assert.ok(!html.includes('立即升级'), '待重启期间不给安装按钮')
+test('渲染：中英文主题面板文案不受更新最小集成影响', () => {
+  const zh = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
+  assert.ok(zh.html.includes('选择主题'), '中文主题文案应照常')
+  const en = renderPanel({ lang: 'en', connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
+  assert.ok(en.html.includes('Themes'), '英文主题文案应照常')
 })
 
 
@@ -778,11 +458,11 @@ test('事件清单：形状与计数过检查器，且覆盖运行期真会发�
     const check = checkEventFields(manifest, name, entry.fields)
     assert.equal(check.ok, true, name + ' 的字段白名单检查不过：' + JSON.stringify(check))
   }
-  // 运行期会发的事件名（宿主侧来自更新包与日志包，浏览器侧来自面板）
+  // 运行期会发的事件名（宿主侧来自日志包；更新包 0.5.x 经 logCtx 不再自发事件；
+  // 自研重试/探针事件已随代码同删，其余更新/日志事件名保留为白名单口径）。
   const emitted = [
     'host.call', 'host.call.fail', 'update.install.exec', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail', 'host.channel.fail',
-    // 2.0.7：更新链路的关键节点（失败级别恒落盘，info 靠面板的日志开关）
-    'update.check.start', 'update.check.ok', 'update.check.fail', 'update.check.retry', 'update.check.probe',
+    'update.check.start', 'update.check.ok', 'update.check.fail',
     'update.install.start', 'update.install.ok', 'update.install.fail', 'log.switch.set',
   ]
   for (const name of emitted) {

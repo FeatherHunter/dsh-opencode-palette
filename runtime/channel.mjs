@@ -18,7 +18,7 @@ export const ROUTE_PATH = CHANNEL + '/' + ENDPOINT
 
 /** 插件标识（日志落盘目录、更新环境指纹、事件清单三处共用一个值）。 */
 export const PLUGIN_ID = 'dsh-opencode-palette'
-/** 电话名前缀：日志 5 条与更新 3 条共用，拼出的电话名形如 palette.updateStatus。 */
+/** 电话名前缀：日志电话与更新电话共用，电话名由两侧从包函数派生（产物里不写字面量，见接线门禁）。 */
 export const PHONE_PREFIX = 'palette'
 /** 要检查更新的那个包（本插件自己）。 */
 export const TARGET_PACKAGE_NAME = 'dsh-opencode-palette'

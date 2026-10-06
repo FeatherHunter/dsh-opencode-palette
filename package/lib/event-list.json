@@ -1,87 +1,145 @@
 {
   "version": 1,
   "pluginId": "dsh-opencode-palette",
-  "counts": { "resident": 16, "ondemand": 0, "selfmon": 0 },
+  "counts": {
+    "resident": 14,
+    "ondemand": 0,
+    "selfmon": 0
+  },
   "events": {
     "host.call": {
       "level": "info",
       "kind": "resident",
-      "fields": ["method", "latencyMs", "ok", "kind", "pluginId"]
+      "fields": [
+        "method",
+        "latencyMs",
+        "ok",
+        "kind",
+        "pluginId"
+      ]
     },
     "host.call.fail": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["method", "kind", "errorHash", "pluginId"]
+      "fields": [
+        "method",
+        "kind",
+        "errorHash",
+        "pluginId"
+      ]
     },
     "update.install.exec": {
       "level": "info",
       "kind": "resident",
-      "fields": ["route", "ok", "exitCode", "durationMs", "pluginId"]
+      "fields": [
+        "route",
+        "ok",
+        "exitCode",
+        "durationMs",
+        "pluginId"
+      ]
     },
     "update.check.start": {
       "level": "info",
       "kind": "resident",
-      "fields": ["trigger", "pluginId"]
+      "fields": [
+        "trigger",
+        "pluginId"
+      ]
     },
     "update.check.ok": {
       "level": "info",
       "kind": "resident",
-      "fields": ["trigger", "hasNew", "latest", "latencyMs", "pluginId"]
+      "fields": [
+        "trigger",
+        "hasNew",
+        "latest",
+        "latencyMs",
+        "pluginId"
+      ]
     },
     "update.check.fail": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["trigger", "code", "errorHash", "pluginId"]
-    },
-    "update.check.retry": {
-      "level": "warn",
-      "kind": "resident",
-      "fields": ["attempt", "ok", "reason", "pluginId"]
-    },
-    "update.check.probe": {
-      "level": "warn",
-      "kind": "resident",
-      "fields": ["stage", "httpStatus", "bytes", "reason", "detail", "pluginId"]
+      "fields": [
+        "trigger",
+        "code",
+        "errorHash",
+        "pluginId"
+      ]
     },
     "update.install.start": {
       "level": "info",
       "kind": "resident",
-      "fields": ["latest", "pluginId"]
+      "fields": [
+        "latest",
+        "pluginId"
+      ]
     },
     "update.install.ok": {
       "level": "info",
       "kind": "resident",
-      "fields": ["latest", "pending", "pluginId"]
+      "fields": [
+        "latest",
+        "pending",
+        "pluginId"
+      ]
     },
     "update.install.fail": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["code", "errorHash", "pluginId"]
+      "fields": [
+        "code",
+        "errorHash",
+        "pluginId"
+      ]
     },
     "log.switch.set": {
       "level": "info",
       "kind": "resident",
-      "fields": ["enabled", "ok", "reason", "pluginId"]
+      "fields": [
+        "enabled",
+        "ok",
+        "reason",
+        "pluginId"
+      ]
     },
     "log.forward.summary": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["droppedDelta", "totalDropped", "reason", "windowMs"]
+      "fields": [
+        "droppedDelta",
+        "totalDropped",
+        "reason",
+        "windowMs"
+      ]
     },
     "log.switch.watchdog": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["op", "timeoutMs", "stage"]
+      "fields": [
+        "op",
+        "timeoutMs",
+        "stage"
+      ]
     },
     "log.export.fail": {
       "level": "warn",
       "kind": "resident",
-      "fields": ["op", "reason", "errorHash"]
+      "fields": [
+        "op",
+        "reason",
+        "errorHash"
+      ]
     },
     "host.channel.fail": {
       "level": "error",
       "kind": "resident",
-      "fields": ["stage", "path", "reason"]
+      "fields": [
+        "stage",
+        "path",
+        "reason"
+      ]
     }
   }
 }
