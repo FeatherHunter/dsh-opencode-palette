@@ -674,7 +674,7 @@ export function createClient(slotTarget) {
             }, [labelNode, h('span', { style: { color: muted } }, '▾')]),
             open ? h('div', {
               style: {
-                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
                 borderRadius: 8, minWidth: 200, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
               },
@@ -716,14 +716,15 @@ export function createClient(slotTarget) {
               setUi(props.getState())
               setFontOpen(false)
             },
-            title: k.ok ? (k.installed ? tr('fontLocal') : '') : tr('fontNotInstalled'),
+            title: k.key + suffix,
             style: {
               padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
               background: on ? ddItemOnBg : 'transparent',
               color: on ? base : muted,
               opacity: k.ok ? 1 : 0.45,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             },
-          }, h('span', { style: { fontFamily: k.stack || codeFontStack(k.key), whiteSpace: 'nowrap' } }, k.key + suffix))
+          }, h('span', { style: { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: k.stack || codeFontStack(k.key), whiteSpace: 'nowrap' } }, k.key + suffix))
         }
         const hint = fontHint()
         const hintNode = hint
@@ -823,9 +824,10 @@ export function createClient(slotTarget) {
             fontOpen ? h('div', {
               key: 'font-menu',
               style: {
-                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 20,
+                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 240, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
+                borderRadius: 8, minWidth: 240, width: '100%', maxWidth: 'calc(100vw - 48px)',
+                boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
               },
             }, [fontMenu()]) : null,
           ])
