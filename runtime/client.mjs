@@ -7,6 +7,7 @@ import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
 import { codeFontStack } from './engine/generate.mjs'
 import { buildFontCandidates, collectLocalFonts } from './engine/local-fonts.mjs'
+import { computeMenuGeometry } from './engine/float-geometry.mjs'
 import { THEME_ZH, THEME_EN, themeSearchText } from './engine/zh-names.mjs'
 import { buildUpdateTokens } from './engine/update-tokens.mjs'
 import { createClientLog } from 'dsh-log/client'
@@ -551,6 +552,33 @@ export function createClient(slotTarget) {
         const [sizeOpen, setSizeOpen] = react.useState(false)
         const fontRef = react.useRef(null)
         const sizeRef = react.useRef(null)
+        const fontBtnRef = react.useRef(null)
+        const fontMenuRef = react.useRef(null)
+        // 悬浮锚点：fixed 菜单的视口坐标。fixed 逃的是祖先 overflow 裁剪
+        // （z-index 再高也逃不出去）；null = 菜单关闭
+        const [fontAnchor, setFontAnchor] = react.useState(null)
+        // 量一次锚点并定位：true = 已定位，false = 锚点不可见（调用方关菜单，不乱放）
+        const placeFontMenu = function (menuW, menuH) {
+          try {
+            if (typeof window === 'undefined' || !fontBtnRef.current || typeof fontBtnRef.current.getBoundingClientRect !== 'function') return false
+            const r = fontBtnRef.current.getBoundingClientRect()
+            const g = computeMenuGeometry(
+              { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width },
+              { width: window.innerWidth, height: window.innerHeight },
+              menuW === undefined ? null : menuW,
+              menuH === undefined ? null : menuH
+            )
+            if (!g) return false
+            setFontAnchor(g)
+            return true
+          } catch (e) { return false }
+        }
+        const openFontMenu = function () {
+          setFontQuery('')
+          if (fontOpen) { setFontOpen(false); setFontAnchor(null); return }
+          if (!placeFontMenu(null, null)) { setFontOpen(false); setFontAnchor(null); return }
+          setFontOpen(true)
+        }
         // UI 快照：所有引擎动作后 setUi(props.getState()) 重同步，避免受控控件显示值漂移
         const [ui, setUi] = react.useState(props.getState())
         const st = ui
@@ -567,6 +595,40 @@ export function createClient(slotTarget) {
           document.addEventListener('mousedown', onDoc)
           return function () { document.removeEventListener('mousedown', onDoc) }
         }, [fontOpen, sizeOpen])
+
+        // 悬浮锚点跟随：挂载后用实测菜单尺寸校正一次；页面滚动/窗口缩放时重定位
+        // （只有关闭是诚实的 fallback：锚点已出视野时关菜单，绝不乱放）
+        react.useEffect(function () {
+          if (!fontOpen) return
+          if (typeof window === 'undefined') return
+          function menuSize() {
+            try {
+              if (fontMenuRef.current && typeof fontMenuRef.current.getBoundingClientRect === 'function') {
+                const m = fontMenuRef.current.getBoundingClientRect()
+                return { w: m.width, h: m.height }
+              }
+            } catch (e) { /* 量不到就用估计值 */ }
+            return { w: null, h: null }
+          }
+          function reposition() {
+            const s = menuSize()
+            if (!placeFontMenu(s.w, s.h)) { setFontOpen(false); setFontAnchor(null) }
+          }
+          reposition()
+          function onScroll(e) {
+            try {
+              if (fontMenuRef.current && e && e.target && fontMenuRef.current.contains(e.target)) return
+            } catch (err) { /* 含不住就当外部滚动 */ }
+            reposition()
+          }
+          function onResize() { reposition() }
+          window.addEventListener('scroll', onScroll, true)
+          window.addEventListener('resize', onResize)
+          return function () {
+            window.removeEventListener('scroll', onScroll, true)
+            window.removeEventListener('resize', onResize)
+          }
+        }, [fontOpen])
 
         // 本机字体清单：**只有用户真的点开下拉才读**（queryLocalFonts 要用户手势 + 可能弹授权），
         // 打开面板时不读。读不到也不影响控件：候选恒含预设兜底。
@@ -812,8 +874,10 @@ export function createClient(slotTarget) {
         const fontPicker = function () {
           return h('div', { ref: fontRef, style: { position: 'relative' } }, [
             h('button', {
+              ref: fontBtnRef,
               // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
-              onClick: function () { setFontOpen(!fontOpen); setFontQuery('') },
+              // 顺带同步量按钮矩形定悬浮锚点（同一次 click，布局已稳定）
+              onClick: function () { openFontMenu() },
               style: {
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -826,10 +890,11 @@ export function createClient(slotTarget) {
             ]),
             fontOpen ? h('div', {
               key: 'font-menu',
+              ref: fontMenuRef,
               style: {
-                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
+                position: 'fixed', left: fontAnchor ? fontAnchor.left : 0, top: fontAnchor ? fontAnchor.top : 0, zIndex: 1000,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, width: 'max-content', minWidth: 'max(240px, 100%)', maxWidth: 'calc(100vw - 48px)',
+                borderRadius: 8, width: 'max-content', minWidth: fontAnchor ? fontAnchor.minW : 240, maxWidth: 'calc(100vw - 48px)',
                 boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
               },
             }, [fontMenu()]) : null,

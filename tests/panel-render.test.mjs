@@ -702,12 +702,17 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
   // 悬浮菜单统一最高层级（旧 zIndex 20 会被兄弟内容盖住）
   assert.ok(!code.includes('zIndex: 20'), '不应再有 zIndex: 20 的悬浮菜单')
   assert.ok(code.includes('zIndex: 1000'), '悬浮菜单应提至 1000')
-  // 字体菜单块（#69 follow-up）：宽度随内容撑开（下限按钮宽/240，上限视口），只纵滑不横滑
+  // 字体菜单块（锚定浮层）：fixed 逃宿主裁剪，坐标/下限走锚点 state
   const menu = code.slice(code.indexOf("key: 'font-menu'"), code.indexOf('[fontMenu()]'))
+  assert.ok(menu.includes("position: 'fixed'"), '悬浮菜单应 fixed 定位（逃出宿主裁剪）')
+  assert.ok(!menu.includes("'absolute'"), '悬浮菜单不得再用 absolute（逃不出裁剪）')
   assert.ok(menu.includes("width: 'max-content'"), '字体菜单宽度应随内容撑开')
-  assert.ok(menu.includes('100%'), '字体菜单至少跟按钮一样宽')
+  assert.ok(menu.includes('fontAnchor'), '菜单坐标/下限应走悬浮锚点 state')
   assert.ok(menu.includes("maxWidth: 'calc(100vw - 48px)'"), '字体菜单上限视口宽度')
   assert.ok(menu.includes("overflow: 'hidden'"), '字体菜单溢出应裁掉')
+  assert.ok(code.includes('computeMenuGeometry'), '锚点坐标应走 engine 纯函数（可单测）')
+  assert.ok(code.includes("window.addEventListener('scroll'"), '滚动时应重定位锚点')
+  assert.ok(code.includes("window.addEventListener('resize'"), '缩放时应重定位锚点')
   const scroller = code.slice(code.indexOf('maxHeight: 280'), code.indexOf('maxHeight: 280') + 200)
   assert.ok(scroller.includes("overflowY: 'auto'"), '纵滑容器应可上下滚动')
   assert.ok(scroller.includes("overflowX: 'hidden'"), '纵滑容器不得左右滑动')

@@ -82,7 +82,7 @@ function inlineModuleFor(key) {
 const MODULE_ORDER = [
   'upd-config', 'upd-redaction', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-panel', 'upd-entry',
   'log-config', 'log-client',
-  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'update-tokens',
+  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'update-tokens', 'float-geometry',
   'channel', 'client',
 ]
 
