@@ -8,7 +8,7 @@ import {
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
-import { THEME_ZH, THEME_EN, themeSearchText } from '../src/engine/zh-names.mjs'
+import { THEME_ZH, THEME_EN, THEME_ZH_LEGACY, themeSearchText } from '../src/engine/zh-names.mjs'
 import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.mjs'
 import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
 import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
@@ -255,6 +255,30 @@ test('搜索索引（#67）：内部 id / 中文名 / 英文官方名三者任�
   assert.ok(themeSearchText('tokyonight').toLowerCase().includes('东京之夜'), '中文名要在索引里（中英界面共用同一索引）')
   assert.ok(themeSearchText('tokyonight').toLowerCase().includes('tokyonight'), '内部 id 仍可搜（老用户按 slug 找）')
   assert.equal(themeSearchText('does-not-exist').trim(), 'does-not-exist', '缺键只留 id，不抛错、不出现 undefined')
+})
+
+test('旧名搜索别名（#66）：废生造四名只进索引、不进正名', () => {
+  // 四名对照（#60 R2 废案）：旧中文名 → 保留英文正名
+  const pairs = [['solarized', '日光浴'], ['gruvbox', '复古凹槽'], ['ayu', '鮎'], ['flexoki', '纸墨']]
+  assert.deepEqual(Object.keys(THEME_ZH_LEGACY).sort(), pairs.map((p) => p[0]).sort(), '别名表键集就是这四名（加名要先改票）')
+  for (const [key, old] of pairs) {
+    assert.deepEqual(THEME_ZH_LEGACY[key], [old], key + ' 的旧名对不上')
+    assert.ok(themeNames().includes(key), '别名键必须在注册表里：' + key)
+    assert.equal(THEME_ZH[key], THEME_EN[key], key + ' 正名应保留英文（中英同形）')
+    // 双向可达：内部 id / 正名 / 旧名，三者任一命中同一款（面板过滤＝themeSearchText().toLowerCase().indexOf(q)）
+    for (const q of [key, THEME_ZH[key], old]) {
+      assert.ok(themeSearchText(key).toLowerCase().includes(q.toLowerCase()), '搜不到「' + q + '」（' + key + '）')
+    }
+  }
+  // 不进正名：旧名不得出现在任何显示名里，也不得串进别款的索引
+  const display = [...Object.values(THEME_ZH), ...Object.values(THEME_EN)]
+  for (const [, old] of pairs) {
+    assert.ok(!display.includes(old), '旧名不得回到显示名：' + old)
+    assert.ok(!themeSearchText('dracula').toLowerCase().includes(old), '旧名串到别款索引：' + old)
+  }
+  // 无别名款仍是三源（旧名只加在四名上，不改变其余索引形态）
+  assert.equal(themeSearchText('dracula').trim(), 'dracula 德古拉 Dracula', '无别名款索引文本应仍为三源')
+  assert.equal(themeSearchText('does-not-exist').trim(), 'does-not-exist', '缺键只留 id')
 })
 
 test('词表单源对账（#67）：docs/i18n-glossary.md 的 en 列 / 中文终稿列 == 代码两表', () => {

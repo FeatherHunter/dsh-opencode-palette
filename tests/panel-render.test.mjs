@@ -343,6 +343,15 @@ test('构建产物：英文官方名表与搜索索引都在产物里（#67）',
   assert.ok(code.includes('themeSearchText(t.name)'), '产物搜索未走三源索引')
 })
 
+test('构建产物：旧中文名别名进搜索索引、未回退成显示名（#66）', () => {
+  const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
+  for (const old of ['日光浴', '复古凹槽', '鮎', '纸墨']) {
+    assert.ok(code.includes(old), '产物缺旧名别名（未重建？）：' + old)
+  }
+  assert.ok(code.includes('THEME_ZH_LEGACY'), '产物搜索索引未接旧名别名表')
+  assert.ok(code.includes('const THEME_ZH_LEGACY = {'), '别名表应随产物发出（不是只在源码里）')
+})
+
 test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', () => {
   const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
   assert.ok(code.includes('var(--dsw-alias-interactive-bg-hover)'), '下拉选中浅色分支缺失')

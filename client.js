@@ -4856,13 +4856,23 @@ const THEME_EN = {
   shadesofpurple: "Shades of Purple", system: "System",
 }
 
-// 搜索索引文本：内部 id ＋ 中文名 ＋ 英文官方名（面板搜索命中任一即算）。
-// 单列一处，中英界面共用；#66 的旧中文名别名索引也接这里。
-function themeSearchText(name) {
-  return name + ' ' + (THEME_ZH[name] || '') + ' ' + (THEME_EN[name] || '')
+// 旧中文名（v2.0.16 前随版本发出、后定为废案，源自 #60 R2）：**只进搜索索引，不进正名**。
+// 老用户按旧名仍搜得到，芯片标签恒为保留英文正名（THEME_ZH／THEME_EN 同形），显示不变。
+const THEME_ZH_LEGACY = {
+  solarized: ['日光浴'],
+  gruvbox: ['复古凹槽'],
+  ayu: ['鮎'],
+  flexoki: ['纸墨'],
 }
 
-__mods["zh-names"] = { THEME_ZH, THEME_EN, themeSearchText }
+// 搜索索引文本：内部 id ＋ 中文名 ＋ 英文官方名 ＋ 旧中文名别名（面板搜索命中任一即算）。
+// 单列一处，中英界面共用；索引与界面语言无关，英文界面同样能搜到旧中文名。
+function themeSearchText(name) {
+  const legacy = THEME_ZH_LEGACY[name]
+  return name + ' ' + (THEME_ZH[name] || '') + ' ' + (THEME_EN[name] || '') + (legacy ? ' ' + legacy.join(' ') : '')
+}
+
+__mods["zh-names"] = { THEME_ZH, THEME_EN, THEME_ZH_LEGACY, themeSearchText }
 })();
 (function () {
 // registry.mjs — 主题注册表：37 个静态主题（33 TUI vendored + 4 桌面 2.0 转换）+ system 特殊主题

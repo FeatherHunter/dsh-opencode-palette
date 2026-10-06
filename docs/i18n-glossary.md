@@ -78,6 +78,7 @@
 13 保留英文：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造：日光浴/复古凹槽/鮎/纸墨）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）；透光橙/纯橙对仗保留为范式；`system`＝跟随系统。
 
 - 2026-10-06 #67 落码：本表 **en 列即代码 `THEME_EN`**（与 `THEME_ZH` 同键集，`listThemes`／两表 38/38/38 三表对账 pin）；中英界面各取一表、实时切换，**两表都缺键才退回内部 id（slug 兜底）**；故事卡英文图与面板搜索索引（id／中文名／英文官方名三源）同源，词表两列由 `tests/engine.test.mjs` 逐行对账。
+- 2026-10-06 #66 落码：上表四名废生造（日光浴／复古凹槽／鮎／纸墨）**只进搜索索引、不进正名**——老用户按旧名仍搜得到，芯片标签恒为上表的保留英文正名；别名表 `THEME_ZH_LEGACY` 接在 `themeSearchText()` 上，中英界面同一索引（`tests/engine.test.mjs` 断「双向可达＋不进显示名」，产物侧断别名随包发出）。
 
 | key | kind | en | 中文终稿 |
 |---|---|---|---|
@@ -164,7 +165,7 @@
 
 - [x] 单源文件路径：本文件（`docs/i18n-glossary.md`）即答案，2026-10-06 用户认可后建立。
 - [x] 上游品牌拼写核对后冻结（2026-10-06 转正为 `OpenCode`／`OpenCode Palette`，全仓已落码，含徽章 `OpenCode·38`）。
-- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名（[#66](https://github.com/FeatherHunter/dsh-opencode-palette/issues/66) 待办）／R5 THEME_EN（[#67](https://github.com/FeatherHunter/dsh-opencode-palette/issues/67) 2026-10-06 已落码）／R6 青绿·青蓝·冷蓝并排（[#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 待办）。
+- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名（[#66](https://github.com/FeatherHunter/dsh-opencode-palette/issues/66) 2026-10-06 已落码：四名只进索引、不进正名）／R5 THEME_EN（[#67](https://github.com/FeatherHunter/dsh-opencode-palette/issues/67) 2026-10-06 已落码）／R6 青绿·青蓝·冷蓝并排（[#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 待办）。
 - [ ] SHOWCASE 对称三张重出图＋同步改 `readme-body` 会红断言（见 #62 下一步）。
 
 ## 来源
