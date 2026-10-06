@@ -15044,13 +15044,14 @@ function createClient(slotTarget) {
             },
             title: k.key + suffix,
             style: {
-              padding: '6px 10px', fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', height: '28px', padding: '0 10px',
+              fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
               background: on ? ddItemOnBg : 'transparent',
               color: on ? base : muted,
               opacity: k.ok ? 1 : 0.45,
-              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              overflow: 'hidden', whiteSpace: 'nowrap',
             },
-          }, h('span', { style: { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: k.stack || codeFontStack(k.key), whiteSpace: 'nowrap' } }, k.key + suffix))
+          }, h('span', { style: { flex: '1 1 auto', minWidth: '0', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '20px', fontFamily: k.stack || codeFontStack(k.key) } }, k.key + suffix))
         }
         const hint = fontHint()
         const hintNode = hint
