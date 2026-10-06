@@ -125,8 +125,9 @@ export const DERIVED_TOKENS = [
   ['--dsw-alias-interactive-bg-hover-accent', (c) => withAlpha(c.primary, 0.2)],
   ['--dsw-alias-interactive-bg-hover-danger', (c) => withAlpha(c.error, 0.15)],
   ['--dsw-alias-interactive-bg-hover-solid', (c) => c.backgroundElement],
-  ['--dsw-alias-border-inverted', (c) => withAlpha(c.text, 0.06)],
-  ['--dsw-alias-border-inverted2', (c) => withAlpha(c.text, 0.08)],
+  // issue 70：宿主用 inverted 做真实边框（dsh-prompt 实证无 fallback 直引）；text-alpha 无色相，与彩色 border 并置即橙灰混杂，故跟边框走（inverted=border，inverted2=borderActive，与 l1/l2 对齐）
+  ['--dsw-alias-border-inverted', (c) => c.border],
+  ['--dsw-alias-border-inverted2', (c) => c.borderActive],
   ['--dsw-alias-scrollbar-bg-l1', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-bg-l2', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-hover-l1', (c) => c.borderActive],
@@ -163,7 +164,8 @@ export const CSS_RULES = [
   { selector: 'em', prop: 'color', from: 'markdownEmph' },
   { selector: 'strong', prop: 'color', from: 'markdownStrong' },
   { selector: 'blockquote', prop: 'color', from: 'markdownBlockQuote' },
-  { selector: 'hr', prop: 'borderColor', from: 'markdownHorizontalRule' },
+  // issue 70：hr 跟边框走（桌面转换器惯例 markdownHorizontalRule=border；orng 数据里 hr 灰而 border 橙即混杂源）
+  { selector: 'hr', prop: 'borderColor', from: 'border' },
 ]
 
 // ── 5. 字体预设（主题无关维度；等宽栈尾部保留 CJK 字体避免 Windows 中文回退 SimSun）──

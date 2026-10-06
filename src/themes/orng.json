@@ -186,8 +186,8 @@
       "light": "#EC5B2B"
     },
     "markdownHorizontalRule": {
-      "dark": "darkStep11",
-      "light": "lightStep11"
+      "dark": "#EC5B2B",
+      "light": "#EC5B2B"
     },
     "markdownListItem": {
       "dark": "darkStep9",

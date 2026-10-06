@@ -351,6 +351,28 @@ test('tokens: R2/R3 recipes (invert/dimmed/ghost)', () => {
   assert.equal(dt['--dsw-alias-border-l3'].dark, colors.borderActive)
 })
 
+test('issue 70: 边框统一（纯橙无橙灰混杂）', () => {
+  const j = getThemeJson('orng')
+  const dark = resolveThemeColors(j, 'dark')
+  assert.equal(dark.border, '#EC5B2B')
+  const dt = buildTokens(dark)
+  // inverted 系与 l 系同走边框橙系（宿主用 inverted 做真实边框，无 fallback）
+  assert.equal(dt['--dsw-alias-border-inverted'].dark, dark.border)
+  assert.equal(dt['--dsw-alias-border-inverted2'].dark, dark.borderActive)
+  assert.equal(dt['--dsw-alias-border-l1'].dark, '#EC5B2B')
+  // hr 规则取 border：分隔线为橙而非银灰 #808080
+  const r = renderTheme('orng', TYPO)
+  assert.ok(r.css.includes('hr{borderColor:#EC5B2B'), 'orng hr 未跟边框走')
+  assert.ok(!r.css.includes('hr{borderColor:#808080'), 'orng hr 仍为银灰')
+  // 全主题：inverted 有来源且等于边框系（锁行为，无透明回落宿主灰）
+  for (const name of themeNames()) {
+    if (isSystem(name)) continue
+    const rr = renderTheme(name, TYPO)
+    assert.ok(rr.tokens['--dsw-alias-border-inverted'], name + ' 缺 inverted')
+    assert.ok(rr.tokens['--dsw-alias-border-inverted2'], name + ' 缺 inverted2')
+  }
+})
+
 test('tokens: new coverage present in all non-system themes', () => {
   const vars = ['--dsw-alias-border-l3', '--dsw-alias-border-l4', '--dsw-alias-brand-text', '--dsw-alias-button-contrast-fill', '--dsw-alias-bg-skeleton', '--dsw-alias-state-warn-label', '--dsw-alias-state-business-primary', '--dsw-alias-state-business-tertiary', '--dsw-alias-brand-primary-invert', '--dsw-alias-button-primary-dimmed', '--dsw-alias-button-ghost-active-fill']
   for (const name of themeNames()) {
