@@ -696,3 +696,19 @@ test('面板计数走 trf 派生（#60）：themeCount/subtitle 模板含 {n}，
   assert.equal(en.panelProps.text('themeCount', { n: 38 }), '38 themes · by color family')
   assert.equal(en.panelProps.text('subtitle', { n: 38 }), '38 official OpenCode themes — click to switch')
 })
+
+test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
+  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  // 悬浮菜单统一最高层级（旧 zIndex 20 会被兄弟内容盖住）
+  assert.ok(!code.includes('zIndex: 20'), '不应再有 zIndex: 20 的悬浮菜单')
+  assert.ok(code.includes('zIndex: 1000'), '悬浮菜单应提至 1000')
+  // 字体菜单块：宽度跟锚定按钮走（不再 max-content 撑爆面板），溢出裁掉
+  const menu = code.slice(code.indexOf("key: 'font-menu'"), code.indexOf('[fontMenu()]'))
+  assert.ok(menu.includes("width: '100%'"), '字体菜单宽度应跟按钮走')
+  assert.ok(!menu.includes('max-content'), '字体菜单不得再用 max-content')
+  assert.ok(menu.includes("overflow: 'hidden'"), '字体菜单溢出应裁掉')
+  // 候选行：单行省略 + 全文 title（长族名截断后仍可悬停查看）
+  const item = code.slice(code.indexOf('const fontItem = function'), code.indexOf('const hint = fontHint()'))
+  assert.ok(item.includes("textOverflow: 'ellipsis'"), '候选行应单行省略')
+  assert.ok(item.includes('title: k.key + suffix'), '候选行 title 应为全文本')
+})
