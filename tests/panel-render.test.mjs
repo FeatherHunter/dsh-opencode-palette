@@ -171,9 +171,11 @@ function loadPanel(opts = {}) {
   const p = loaded[0].exports
   let panelCmp = null
   let panelProps = null
+  // 入口注册记录：每次 register（含语言切换触发的重注册）都留一份 desc，供入口 label 跟随断言
+  const registrations = []
   const slots = {
     inject: (slot, cb) => { cb(); return () => {} },
-    register: (desc, cmp) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
+    register: (desc, cmp) => { registrations.push(desc); panelCmp = cmp; panelProps = desc.inject(); return () => {} },
   }
   // theme mock：官方 setTheme 可用时记录调用并翻转 mock 偏好（模拟宿主）；
   // opts.noOfficialSetTheme 模拟旧宿主走投影降级；opts.throwingSetTheme 模拟 facade 语义不符抛错；
@@ -195,7 +197,7 @@ function loadPanel(opts = {}) {
   p.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
   const html = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs, themeCalls, docEl: global.document.documentElement }
+  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs, themeCalls, docEl: global.document.documentElement, registrations }
 }
 
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
@@ -256,6 +258,52 @@ test('locale 服务切换实时生效：切到英文后重渲染即全英文', (
   assert.ok(!enHtml.includes('OpenCode调色板'), '切换后不应残留中文标题')
   assert.ok(!enHtml.includes('暖橙'), '切换后不应残留中文组名')
   assert.ok(!enHtml.includes('东京之夜'), '切换后不应残留中文主题名')
+})
+
+test('头行 star/issue 入口 title 跟随语言（英文无中文残留）', () => {
+  const locale = makeLocale('en')
+  const { html } = loadPanel({ locale })
+  assert.ok(html.includes('title="Star this project on GitHub"'), '缺 star 英文气泡')
+  assert.ok(html.includes('title="Report bugs or request features in Issues"'), '缺 issue 英文气泡')
+  assert.ok(!html.includes('夜空中最亮'), '英文界面不应出现中文求星气泡')
+  assert.ok(!html.includes('都可以提ISSUE'), '英文界面不应出现中文 issue 气泡')
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'starTitle'), '你的 ⭐是我夜空中最亮的星 🌹')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'starTitle'), 'Star this project on GitHub')
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'issueTitle'), '任何功能需求、故障、建议、意见都可以提ISSUE')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'issueTitle'), 'Report bugs or request features in Issues')
+})
+
+test('star/issue title 跟随语言切换实时改', () => {
+  const locale = makeLocale('zh')
+  const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
+  assert.ok(zhHtml.includes('夜空中最亮'), '初始中文求星气泡缺失')
+  assert.ok(zhHtml.includes('都可以提ISSUE'), '初始中文 issue 气泡缺失')
+  locale.setActive('en')
+  const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
+  assert.ok(enHtml.includes('Star this project on GitHub'), '切换后缺 star 英文气泡')
+  assert.ok(enHtml.includes('Report bugs or request features in Issues'), '切换后缺 issue 英文气泡')
+  assert.ok(!enHtml.includes('夜空中最亮'), '切换后不应残留中文求星气泡')
+  assert.ok(!enHtml.includes('都可以提ISSUE'), '切换后不应残留中文 issue 气泡')
+})
+
+test('入口 label 跟随语言切换：重注册后宿主读到新语言', () => {
+  const locale = makeLocale('zh')
+  const { registrations } = loadPanel({ locale })
+  assert.equal(registrations.length, 2, '初始应注册两个入口（tab＋section）')
+  assert.ok(registrations.every((d) => d.label() === 'OpenCode调色板'), '初始入口 label 应为中文')
+  locale.setActive('en')
+  assert.equal(registrations.length, 4, '语言切换后应重注册两个入口')
+  assert.ok(registrations.slice(2).every((d) => d.label() === 'OpenCode Palette'), '重注册后入口 label 应为英文')
+  locale.setActive('zh')
+  assert.equal(registrations.length, 6, '切回中文后应再次重注册')
+  assert.ok(registrations.slice(4).every((d) => d.label() === 'OpenCode调色板'), '切回后入口 label 应为中文')
+})
+
+test('引流卡片外链 title 冒号跟随语言（英文半角）', () => {
+  const locale = makeLocale('en')
+  const { html } = loadPanel({ locale })
+  assert.ok(html.includes('Open in new window: dsh-prompt'), '英文冒号应为半角 ": "')
+  assert.ok(!html.includes('Open in new window：'), '英文不应出现全角冒号')
 })
 
 test('面板双语表已注册进 locale 服务（opencode-palette 命名空间）', () => {

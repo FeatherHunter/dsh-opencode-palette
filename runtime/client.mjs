@@ -90,6 +90,9 @@ const I18N = {
   disabled: { zh: '已停用', en: 'Disabled' },
   disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
   enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
+  // 头行 star／issue 图标的悬浮气泡：此前硬编码中文未进词典，英文界面漏网（2026-10-06 补）
+  starTitle: { zh: '你的 ⭐是我夜空中最亮的星 🌹', en: 'Star this project on GitHub' },
+  issueTitle: { zh: '任何功能需求、故障、建议、意见都可以提ISSUE', en: 'Report bugs or request features in Issues' },
   typography: { zh: '字体字号', en: 'Typography' },
   bodyStyle: { zh: '正文样式', en: 'Body style' },
   mono: { zh: '全部文字', en: 'All text' },
@@ -292,6 +295,8 @@ export function createClient(slotTarget) {
     let localeUnsub = null
     let currentLang = localeSvc ? localeSvc.getLocale().active : getLang()
     const localeListeners = []
+    // 入口重注册钩：语言切换时让宿主重读入口 label（注册函数在面板段定义，此处只留钩位）
+    let reregisterEntries = null
     function currentLocale() { return localeSvc ? localeSvc.getLocale().active : getLang() }
     function tr(key) {
       const entry = I18N[key]
@@ -309,7 +314,10 @@ export function createClient(slotTarget) {
       const next = currentLocale()
       if (next === currentLang) return
       currentLang = next
-      for (const fn of localeListeners) { try { fn() } catch (e) { /* 忽略 */ } }
+      for (const fn of localeListeners.slice()) { try { fn() } catch (e) { /* 忽略 */ } }
+      // 入口 label 跟随：宿主只在注册时读一次 label，语言切换后需重注册才刷新入口；
+      // 面板内容已由上面的订阅重渲染，不受影响。宿主不支持重注册则保持旧入口。
+      try { if (reregisterEntries) reregisterEntries() } catch (e) { /* 忽略 */ }
     }
     // 监听语言变化：官方 locale 服务优先；无该服务的环境（如旧版 DSH/测试沙箱）回退监听 html[lang]
     let localeObserver = null
@@ -905,7 +913,7 @@ export function createClient(slotTarget) {
               key: p.repo,
               href: 'https://github.com/FeatherHunter/' + p.repo,
               target: '_blank', rel: 'noopener noreferrer',
-              title: tr('authorPluginOpen') + '：' + p.repo,
+              title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
               style: {
                 display: 'flex', alignItems: 'baseline', gap: 10,
                 padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
@@ -995,7 +1003,7 @@ export function createClient(slotTarget) {
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
-                title: '你的 ⭐是我夜空中最亮的星 🌹',
+                title: tr('starTitle'),
                 style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
               }, h('svg', {
                 width: 15, height: 15, viewBox: '0 0 24 24',
@@ -1008,7 +1016,7 @@ export function createClient(slotTarget) {
               h('a', {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
-                title: '任何功能需求、故障、建议、意见都可以提ISSUE',
+                title: tr('issueTitle'),
                 style: { display: 'inline-flex', cursor: 'pointer' },
               }, h('svg', {
                 width: 14, height: 14, viewBox: '0 0 24 24',
@@ -1134,30 +1142,39 @@ export function createClient(slotTarget) {
           previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
         }
       }
-      disposePanel = slots.inject(slotTarget, function () {
-        return slots.register({
-          name: slotTarget,
-          id: 'opencode-palette',
-          order: 30,
-          label: function () { return tr('panelName') },
-          inject: paletteApi,
-        }, Panel)
-      })
       // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
       // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
       let disposeSection = null
-      if (slotTarget === 'settings.plugins.tab') {
-        disposeSection = slots.inject('settings.section', function () {
+      // 入口 label 跟随语言：宿主只在注册时读一次 label（中文启动后切英文，入口仍中文），
+      // 故语言变化时 dispose 旧注册再重注一次，让宿主重读新语言 label。幂等，失败静默。
+      function registerEntries() {
+        try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
+        try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
+        disposePanel = slots.inject(slotTarget, function () {
           return slots.register({
-            name: 'settings.section',
+            name: slotTarget,
             id: 'opencode-palette',
-            order: 16,
+            order: 30,
             label: function () { return tr('panelName') },
             inject: paletteApi,
           }, Panel)
         })
+        disposeSection = null
+        if (slotTarget === 'settings.plugins.tab') {
+          disposeSection = slots.inject('settings.section', function () {
+            return slots.register({
+              name: 'settings.section',
+              id: 'opencode-palette',
+              order: 16,
+              label: function () { return tr('panelName') },
+              inject: paletteApi,
+            }, Panel)
+          })
+        }
+        disposeSection = disposeSection || null
       }
-      disposeSection = disposeSection || null
+      registerEntries()
+      reregisterEntries = function () { registerEntries() }
     }
 
     // 卸载清理（cordis 语义：effect fn 立即执行，返回值才是清理器）

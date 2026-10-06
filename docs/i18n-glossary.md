@@ -13,9 +13,9 @@
 - 语气分体裁：面板＝中性工具体（禁最高级/空话/无结果动词）；README＝实证劝服体（好处断言须有事实锚）。对等指信息对等（动作/对象/结果/条件），不强制句式/句数。
 - 品牌（2026-10-06 已按上游转正）：中文 `OpenCode调色板`、英文 `OpenCode Palette`；依据 opencode.ai `<title>OpenCode | …`＋description `OpenCode - …` 共 17 处 `OpenCode`、0 处裸 `opencode`（域名/URL 小写为技术规范，非品牌证据）。`OpenCode` 孤例即正体，无需改小写。
 
-## 面板 51 键（`runtime/client.mjs`，`{zh,en}` 结构、键名与语言跟随不变）
+## 面板 53 键（`runtime/client.mjs`，`{zh,en}` 结构、键名与语言跟随不变）
 
-冻结 40 / 待确认 2（已认可的 defer，占位非终稿）/ 转交 #60 9。上游外迁约 33 条（更新链路＋blocked 9）归上游包内，按地图 out-of-scope 本次不碰。
+冻结 42 / 待确认 2（已认可的 defer，占位非终稿）/ 转交 #60 9。上游外迁约 33 条（更新链路＋blocked 9）归上游包内，按地图 out-of-scope 本次不碰。
 
 | key | 定稿 zh | 定稿 en | 状态 |
 |---|---|---|---|
@@ -25,6 +25,8 @@
 | `disabled` | 已停用 | Disabled | 冻结 |
 | `disableTitle` | 点击停用主题 | Click to disable the theme | 冻结 |
 | `enableTitle` | 点击启用主题 | Click to enable the theme | 冻结 |
+| `starTitle` | 你的 ⭐是我夜空中最亮的星 🌹 | Star this project on GitHub | 冻结（2026-10-06 漏网补齐：头行 star 图标 `title` 此前硬编码中文未进词典） |
+| `issueTitle` | 任何功能需求、故障、建议、意见都可以提ISSUE | Report bugs or request features in Issues | 冻结（同上：issue 图标 `title`） |
 | `typography` | 字体字号 | Typography | 冻结 |
 | `bodyStyle` | 正文样式 | Body style | 冻结 |
 | `mono` | 全部文字 | All text | 冻结 |
@@ -72,6 +74,8 @@
 | `logSwitchFail` | 日志开关没能写入宿主，请重开面板再试 | The host did not accept the log switch — reopen the panel and retry | 冻结 |
 
 待确认 2 的 defer 含义：`translucentNote` 待 #60 用字统一（透光/透明二选一）；`authorPlugin.imCompanion` 待 `dsh-im-companion` 能力清单事实锚，不编造。
+
+- 2026-10-06 漏网补齐：`starTitle`／`issueTitle` 进词典走 `tr()`；入口 label 语言切换时重注册（宿主只在注册时读 label）；引流外链 `title` 冒号跟随语言（zh 全角 `：`／en 半角 `:`）。
 
 ## 主题 38＋分组 9（`src/engine/zh-names.mjs` 单一来源，矩阵/故事卡同源）
 
