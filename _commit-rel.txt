@@ -1,0 +1,5 @@
+chore(release): v2.0.17
+
+版本号 2.0.16 -> 2.0.17（patch），重建产物同步：client.js、package/lib/client.js、package/package.json。
+
+内容：dsh-plugin-update 0.5.7 -> 0.5.8（upd-lang 内联声明）；更新入口件经 locale 适配器跟随宿主语言；UPDATE_ENTRY_ZOOM = 1 临时尺寸开关；门禁测试 161 项全绿。
