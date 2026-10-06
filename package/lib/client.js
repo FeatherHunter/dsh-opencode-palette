@@ -1,5 +1,5 @@
 /**
- * dsh-opencode-palette v2.0.24 — 浏览器半（构建产物，勿手改）
+ * dsh-opencode-palette v2.0.25 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）
  * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
@@ -5518,8 +5518,9 @@ const DERIVED_TOKENS = [
   ['--dsw-alias-interactive-bg-hover-accent', (c) => withAlpha(c.primary, 0.2)],
   ['--dsw-alias-interactive-bg-hover-danger', (c) => withAlpha(c.error, 0.15)],
   ['--dsw-alias-interactive-bg-hover-solid', (c) => c.backgroundElement],
-  ['--dsw-alias-border-inverted', (c) => withAlpha(c.text, 0.06)],
-  ['--dsw-alias-border-inverted2', (c) => withAlpha(c.text, 0.08)],
+  // issue 70：宿主用 inverted 做真实边框（dsh-prompt 实证无 fallback 直引）；text-alpha 无色相，与彩色 border 并置即橙灰混杂，故跟边框走（inverted=border，inverted2=borderActive，与 l1/l2 对齐）
+  ['--dsw-alias-border-inverted', (c) => c.border],
+  ['--dsw-alias-border-inverted2', (c) => c.borderActive],
   ['--dsw-alias-scrollbar-bg-l1', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-bg-l2', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-hover-l1', (c) => c.borderActive],
@@ -5556,7 +5557,8 @@ const CSS_RULES = [
   { selector: 'em', prop: 'color', from: 'markdownEmph' },
   { selector: 'strong', prop: 'color', from: 'markdownStrong' },
   { selector: 'blockquote', prop: 'color', from: 'markdownBlockQuote' },
-  { selector: 'hr', prop: 'borderColor', from: 'markdownHorizontalRule' },
+  // issue 70：hr 跟边框走（桌面转换器惯例 markdownHorizontalRule=border；orng 数据里 hr 灰而 border 橙即混杂源）
+  { selector: 'hr', prop: 'borderColor', from: 'border' },
 ]
 
 // ── 5. 字体预设（主题无关维度；等宽栈尾部保留 CJK 字体避免 Windows 中文回退 SimSun）──
@@ -11747,8 +11749,8 @@ const orng = {
       "light": "#EC5B2B"
     },
     "markdownHorizontalRule": {
-      "dark": "darkStep11",
-      "light": "lightStep11"
+      "dark": "#EC5B2B",
+      "light": "#EC5B2B"
     },
     "markdownListItem": {
       "dark": "darkStep9",
@@ -14436,7 +14438,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.24'
+const PALETTE_VERSION = '2.0.25'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
