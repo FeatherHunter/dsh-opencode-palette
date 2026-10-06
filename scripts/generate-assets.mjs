@@ -1,7 +1,7 @@
 // scripts/generate-assets.mjs — 生成开源展示资产（真实主题色 SVG，中英双语）
 // 产出 assets/: theme-stories-{zh,en}.svg —— 「色带基线」版（票 #29 定案 A，票 #31 落地）：
 //   画布 860 × 1812（860 = GitHub 桌面内容宽，1:1 显示不缩字）；一行一款：
-//   中文名（该主题 primary 色）＋ 主题 id（mono）＋ 一句由来（最多 2 行，栏宽 320）；
+//   名称（zh 中文名 / en 官方名，该主题 primary 色）＋ 主题 id（mono）＋ 一句由来（最多 2 行，栏宽 320）；
 //   右侧 7 格色带（每格 64 × 30、间距 6、圆角 4），顺序固定
 //   背景 / 文字 / 主色 / 强调 / 错误 / 警告 / 成功；色带正上方一列 7 个列名。
 //   26 款策展名单（非全 38），按色系分组、组序与面板一致（GROUP_ORDER 去掉 neutral）。
@@ -10,7 +10,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { themeNames, previewColors } from '../src/engine/index.mjs'
 import { GROUP_ORDER, groupOf } from '../src/engine/grouping.mjs'
-import { THEME_ZH } from '../src/engine/zh-names.mjs'
+import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const OUT_DIR = join(ROOT, 'assets')
@@ -25,7 +25,7 @@ const SANS = '-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif'
 const MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'
 
 // ── 主题中文名与由来（双语）──
-// THEME_ZH 已下沉至 src/engine/zh-names.mjs（单一来源，面板与生成器共用）
+// 名表已下沉至 src/engine/zh-names.mjs（单一来源，面板与生成器共用）：zh 取 THEME_ZH、en 取 THEME_EN
 const THEME_STORY_ZH = {
   opencode: "官方默认主题：深黑底 + 橙 / 蓝 / 紫",
   tokyonight: "东京夜景的深蓝与霓虹紫",
@@ -215,7 +215,7 @@ function themeStoriesDoc(lang) {
     y += GH + GG
     for (const id of g.ids) {
       const c = data[id]
-      const label = (lang === 'zh' && THEME_ZH[id]) || id
+      const label = (lang === 'zh' ? THEME_ZH[id] : THEME_EN[id]) || id
       out.push(text(PAD, y + 17, label, 16, hex(c.primary), ' font-weight="700"'))
       out.push(monoText(PAD + measure(label, 16) + 10, y + 16, id, 11, '#8b8b95'))
       wrap(story[id] || '', 12.5, TXTW, 2).forEach((line, i) => {

@@ -77,6 +77,8 @@
 
 13 保留英文：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造：日光浴/复古凹槽/鮎/纸墨）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）；透光橙/纯橙对仗保留为范式；`system`＝跟随系统。
 
+- 2026-10-06 #67 落码：本表 **en 列即代码 `THEME_EN`**（与 `THEME_ZH` 同键集，`listThemes`／两表 38/38/38 三表对账 pin）；中英界面各取一表、实时切换，**两表都缺键才退回内部 id（slug 兜底）**；故事卡英文图与面板搜索索引（id／中文名／英文官方名三源）同源，词表两列由 `tests/engine.test.mjs` 逐行对账。
+
 | key | kind | en | 中文终稿 |
 |---|---|---|---|
 | `opencode` | theme | opencode | opencode |
@@ -153,7 +155,7 @@
 ## 测试门（断言清单，机检形态随落码落地）
 
 - 面板词典：术语命中率 100%、禁用零出现、占位符完好（`{n}` 全量替换）、信息对等抽查；locale 切换后中英各一遍。
-- 主题名表：专名保留、共识沿用、无生造；`listThemes() == THEME_ZH 键数 == 38`、`GROUP_ORDER 9/9` 对齐；面板计数经 `trf({n})` 取 `themeNames().length`（`n≥2` 恒复数，注释注明）。
+- 主题名表：专名保留、共识沿用、无生造；`listThemes() == THEME_ZH 键数 == THEME_EN 键数 == 38`、`GROUP_ORDER 9/9` 对齐；面板计数经 `trf({n})` 取 `themeNames().length`（`n≥2` 恒复数，注释注明）。#67 追加：英文名非空不重名、只有 opencode 与 id 同形；词表 en／中文终稿两列与代码两表逐行对账；搜索索引三源；中英**实渲染** 38 款无一退回内部 id。
 - 双 README：无残留中文面板名（EN 只留故意的中文镜像句与图片文件名）、断言有锚、选图对称、计数一致、五枚徽章对等（`欢迎提 Issue`／`Issues welcome`）。
 - 长度：真实容器不溢出、最小宽度冒烟、大字号不截断；`trf` 不调序。
 - 先例：状态机＋接线一致＋宿主冒烟的门禁写法；真实渲染抓错的面板渲染回归写法；纯文本断字符串与数值的 README 体写法。
@@ -162,7 +164,7 @@
 
 - [x] 单源文件路径：本文件（`docs/i18n-glossary.md`）即答案，2026-10-06 用户认可后建立。
 - [x] 上游品牌拼写核对后冻结（2026-10-06 转正为 `OpenCode`／`OpenCode Palette`，全仓已落码，含徽章 `OpenCode·38`）。
-- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名／R5 THEME_EN／R6 青绿·青蓝·冷蓝并排另起票（见 #60 关闭语）。
+- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名（[#66](https://github.com/FeatherHunter/dsh-opencode-palette/issues/66) 待办）／R5 THEME_EN（[#67](https://github.com/FeatherHunter/dsh-opencode-palette/issues/67) 2026-10-06 已落码）／R6 青绿·青蓝·冷蓝并排（[#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 待办）。
 - [ ] SHOWCASE 对称三张重出图＋同步改 `readme-body` 会红断言（见 #62 下一步）。
 
 ## 来源

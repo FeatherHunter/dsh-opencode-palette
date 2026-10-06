@@ -6,6 +6,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { runInThisContext } from 'node:vm'
+import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.mjs'
 
 // React 解析：优先本仓 devDependencies（自包含、不受宿主安装位变动影响），
 // 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，
@@ -200,8 +201,13 @@ function loadPanel(opts = {}) {
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
   const { html } = loadPanel({ lang: 'en' })
   assert.ok(html.includes('OpenCode Palette'), '缺英文品牌标题')
-  assert.ok(html.includes('tokyonight'), '缺主题芯片')
-  assert.ok(html.includes('system'), '缺 system 芯片')
+  // #67：英文界面显示官方名，不再 slug 裸奔（slug 只在两表都缺键时兜底）
+  assert.ok(html.includes('Tokyo Night'), '英文芯片应用官方名（tokyonight）')
+  assert.ok(html.includes('Shades of Purple'), '英文芯片应用官方名（多词官方名不得压成 slug）')
+  assert.ok(html.includes('Rosé Pine'), '英文芯片应用官方名（重音拼写按官方形态）')
+  assert.ok(!html.includes('tokyonight'), '英文界面不应再渲染内部 id（slug 裸奔）')
+  assert.ok(!html.includes('shadesofpurple'), '英文界面不应再渲染内部 id（shadesofpurple）')
+  assert.ok(html.includes('system (follow system)'), '缺 system 芯片')
   assert.ok(!html.includes('东京之夜'), 'DOM 回退英文界面不应出现中文主题名')
 })
 
@@ -246,8 +252,10 @@ test('locale 服务切换实时生效：切到英文后重渲染即全英文', (
   const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
   assert.ok(enHtml.includes('OpenCode Palette'), '切换后缺英文标题')
   assert.ok(enHtml.includes('Warm'), '切换后缺暖橙英译')
+  assert.ok(enHtml.includes('Tokyo Night'), '切换后主题名应实时换成英文官方名（#67）')
   assert.ok(!enHtml.includes('OpenCode调色板'), '切换后不应残留中文标题')
   assert.ok(!enHtml.includes('暖橙'), '切换后不应残留中文组名')
+  assert.ok(!enHtml.includes('东京之夜'), '切换后不应残留中文主题名')
 })
 
 test('面板双语表已注册进 locale 服务（opencode-palette 命名空间）', () => {
@@ -278,11 +286,16 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
   assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
 })
 
-// 取某主题芯片 button 片段（断言其行内样式用）
+// 取某主题芯片 button 片段（断言其行内样式用）。
+// 只在 <button>…</button> 段内认 label：页面别处也有同名子串（星标链接 URL 里就有 opencode），
+// 按 indexOf 取会静默测到别的按钮上。
 function chipSegment(html, label) {
-  const i = html.indexOf(label)
-  assert.ok(i >= 0, '缺芯片：' + label)
-  return html.slice(html.lastIndexOf('<button', i), html.indexOf('</button>', i))
+  const re = /<button[\s\S]*?<\/button>/g
+  let m
+  while ((m = re.exec(html))) {
+    if (m[0].includes(label)) return m[0]
+  }
+  assert.ok(false, '缺芯片：' + label)
 }
 
 test('深色回退（未知宿主）：深色硬编码原样保留', () => {
@@ -298,12 +311,36 @@ test('深色回退（未知宿主）：深色硬编码原样保留', () => {
   assert.ok(translucent.includes('color:#1A1A1A'), '深色宿主下透光芯片仍恒深字')
 })
 
+test('芯片名对账（#67 对抗）：中英两侧 38 款都走名表，内部 id 不作显示名', () => {
+  const cases = [
+    ['zh', loadPanel({ lang: 'zh-CN' }).html, THEME_ZH],
+    ['en', loadPanel({ lang: 'en' }).html, THEME_EN],
+  ]
+  for (const [lang, rawHtml, table] of cases) {
+    // React SSR 把文本里的撇号转义成 &#x27;（SynthWave '84），比对前还原
+    const html = rawHtml.replace(/&#x27;/g, "'")
+    const missing = Object.keys(table).filter((k) => k !== 'system' && !html.includes(table[k]))
+    assert.deepEqual(missing, [], lang + ' 面板缺名表显示名：' + missing.join(', '))
+    const leaked = Object.keys(table).filter((k) => k !== 'opencode' && html.includes('>' + k + '<'))
+    assert.deepEqual(leaked, [], lang + ' 面板仍把内部 id 当显示名：' + leaked.join(', '))
+  }
+})
+
 test('透光提示：深色英文界面下委托芯片带英文提示，自持芯片无', () => {
   const { html } = loadPanel({ lang: 'en', disabled: true })
-  const translucent = chipSegment(html, 'lucent-orng')
+  const translucent = chipSegment(html, 'Lucent Orange')
   assert.ok(translucent.includes('title="Translucent theme'), '委托画布芯片应带英文透光提示')
-  const opaque = chipSegment(html, 'opencode')
+  const opaque = chipSegment(html, 'Tokyo Night')
   assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
+})
+
+test('构建产物：英文官方名表与搜索索引都在产物里（#67）', () => {
+  const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
+  assert.ok(code.includes('Tokyo Night'), '产物缺 THEME_EN 官方名表（未重建？）')
+  assert.ok(code.includes('Shades of Purple'), '产物缺多词官方名')
+  assert.ok(code.includes('THEME_EN[name]'), '产物显示名未取英文官方名（slug 兜底路径缺失）')
+  assert.ok(code.includes('function themeSearchText'), '产物缺三源搜索索引（id/中文名/英文官方名）')
+  assert.ok(code.includes('themeSearchText(t.name)'), '产物搜索未走三源索引')
 })
 
 test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', () => {

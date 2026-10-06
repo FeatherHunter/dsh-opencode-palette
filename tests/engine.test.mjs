@@ -1,13 +1,14 @@
 // engine.test.mjs — 引擎单测（node --test tests/，无需浏览器）
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import {
   themeNames, themeStats, previewColors, renderTheme, auditAll, delegatesBackground,
 } from '../src/engine/index.mjs'
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
-import { THEME_ZH } from '../src/engine/zh-names.mjs'
+import { THEME_ZH, THEME_EN, themeSearchText } from '../src/engine/zh-names.mjs'
 import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.mjs'
 import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
 import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
@@ -217,16 +218,58 @@ test('色系分组: 特殊/透明主题归位，暖橙含 opencode', () => {
   assert.ok(by('cool-blue').includes('tokyonight'))
 })
 
-test('单源对账（#60）：listThemes 38 == THEME_ZH 38 键，GROUP_ORDER 9/9 对齐', () => {
+test('单源对账（#60/#67）：listThemes 38 == THEME_ZH 38 == THEME_EN 38 键，GROUP_ORDER 9/9 对齐', () => {
   const names = themeNames()
   const zhKeys = Object.keys(THEME_ZH)
+  const enKeys = Object.keys(THEME_EN)
   assert.equal(names.length, 38)
-  assert.deepEqual(zhKeys.length, 38)
+  assert.equal(zhKeys.length, 38)
+  assert.equal(enKeys.length, 38)
   assert.deepEqual([...zhKeys].sort(), [...names].sort(), 'THEME_ZH 键集应与注册表一致（差一键就会静默退回英文 id）')
+  assert.deepEqual([...enKeys].sort(), [...names].sort(), 'THEME_EN 键集应与注册表一致（差一键英文界面就 slug 裸奔）')
   assert.equal(GROUP_ORDER.length, 9)
   assert.deepEqual(Object.keys(GROUP_COLORS).sort(), [...GROUP_ORDER].sort(), 'GROUP_COLORS 键集应与 ORDER 9/9 对齐（缺一色组标题就没色点）')
   const groups = themeGroups()
   assert.ok(groups.every((g) => GROUP_ORDER.includes(g.name)))
+})
+
+test('THEME_EN（#67）：英文官方名成表——非空、无重名、只有 opencode 与 id 同形', () => {
+  const names = themeNames()
+  const values = names.map((n) => THEME_EN[n])
+  assert.ok(values.every((v) => typeof v === 'string' && v.length > 0), '每个主题都要有非空英文名')
+  assert.equal(new Set(values).size, 38, '英文名不得重名（重名则界面上分不出两款）')
+  assert.deepEqual(values.filter((v, i) => v === names[i]), ['opencode'], '只有 opencode 的官方名与内部 id 同形，其余不得再裸奔')
+  // 上游拼写抽查：空格分词（nightowl / osaka-jade）、撇号（synthwave84）、大小写（carbonfox）、派生后缀（shadesofpurple）
+  assert.equal(THEME_EN.tokyonight, 'Tokyo Night')
+  assert.equal(THEME_EN.nightowl, 'Night Owl')
+  assert.equal(THEME_EN['osaka-jade'], 'Osaka Jade')
+  assert.equal(THEME_EN.synthwave84, "SynthWave '84")
+  assert.equal(THEME_EN.carbonfox, 'CarbonFox')
+  assert.equal(THEME_EN.shadesofpurple, 'Shades of Purple')
+  assert.equal(THEME_EN.system, 'System')
+})
+
+test('搜索索引（#67）：内部 id / 中文名 / 英文官方名三者任一可命中', () => {
+  assert.ok(themeSearchText('nightowl').toLowerCase().includes('night owl'), '多词官方名要能搜到（slug 里没有空格，搜不到）')
+  assert.ok(themeSearchText('shadesofpurple').toLowerCase().includes('shades of purple'), '多词官方名要能搜到')
+  assert.ok(themeSearchText('tokyonight').toLowerCase().includes('东京之夜'), '中文名要在索引里（中英界面共用同一索引）')
+  assert.ok(themeSearchText('tokyonight').toLowerCase().includes('tokyonight'), '内部 id 仍可搜（老用户按 slug 找）')
+  assert.equal(themeSearchText('does-not-exist').trim(), 'does-not-exist', '缺键只留 id，不抛错、不出现 undefined')
+})
+
+test('词表单源对账（#67）：docs/i18n-glossary.md 的 en 列 / 中文终稿列 == 代码两表', () => {
+  const md = readFileSync(new URL('../docs/i18n-glossary.md', import.meta.url), 'utf8')
+  const rows = []
+  for (const line of md.split('\n')) {
+    const m = line.match(/^\|\s*`([^`]+)`\s*\|\s*theme\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*$/)
+    if (m) rows.push({ key: m[1], en: m[2], zh: m[3] })
+  }
+  assert.equal(rows.length, 38, '词表主题行应为 38 行（表被改动就要同步代码两表）')
+  for (const row of rows) {
+    assert.equal(THEME_EN[row.key], row.en, 'THEME_EN 与词表 en 列不一致：' + row.key)
+    assert.equal(THEME_ZH[row.key], row.zh, 'THEME_ZH 与词表中文终稿列不一致：' + row.key)
+  }
+  assert.deepEqual([...rows.map((r) => r.key)].sort(), [...themeNames()].sort(), '词表主题键集应与注册表一致')
 })
 
 test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {

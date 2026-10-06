@@ -7,7 +7,7 @@ import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
 import { codeFontStack } from './engine/generate.mjs'
 import { buildFontCandidates, collectLocalFonts } from './engine/local-fonts.mjs'
-import { THEME_ZH } from './engine/zh-names.mjs'
+import { THEME_ZH, THEME_EN, themeSearchText } from './engine/zh-names.mjs'
 import { createClientLog } from 'dsh-log/client'
 import { mountUpdateEntry } from 'dsh-plugin-update/entry'
 import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
@@ -558,14 +558,16 @@ export function createClient(slotTarget) {
         const shown = q === ''
           ? props.groups('dark')
           : props.groups('dark')
-              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return (t.name + ' ' + (THEME_ZH[t.name] || '')).toLowerCase().indexOf(q) >= 0 }) } })
+              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return themeSearchText(t.name).toLowerCase().indexOf(q) >= 0 }) } })
               .filter(function (g) { return g.themes.length > 0 })
 
         const muted = 'var(--dsw-alias-label-secondary)'
         const base = 'var(--dsw-alias-label-primary)'
-        // 主题显示名：中文界面用中文名（system 走 i18n 文案）
+        // 主题显示名：中文界面用中文名、英文界面用官方名（system 走 i18n 文案）；
+        // 两表都缺键才退回内部 id（slug 兜底，键集由单源对账 pin 住）
         const themeLabel = function (name) {
-          return currentLang === 'zh' && name !== 'system' ? (THEME_ZH[name] || name) : name
+          if (name === 'system') return name
+          return currentLang === 'zh' ? (THEME_ZH[name] || name) : (THEME_EN[name] || name)
         }
         const fieldLabel = { fontSize: 11, color: muted }
         const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }

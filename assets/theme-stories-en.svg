@@ -21,7 +21,7 @@
 <text x="36" y="125" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Warm</text>
 <text x="76" y="125" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">3 themes</text>
 <rect x="20" y="140" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="169" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#DA702C" font-weight="700">flexoki</text>
+<text x="20" y="169" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#DA702C" font-weight="700">Flexoki</text>
 <text x="93" y="168" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">flexoki</text>
 <text x="20" y="187" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Ink on warm paper (by kepano)</text>
 <rect x="356" y="164" width="64" height="30" rx="4" fill="#100F0F"/>
@@ -31,7 +31,7 @@
 <rect x="636" y="164" width="64" height="30" rx="4" fill="#D14D41"/>
 <rect x="706" y="164" width="64" height="30" rx="4" fill="#DA702C"/>
 <rect x="776" y="164" width="64" height="30" rx="4" fill="#879A39"/>
-<text x="20" y="223" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#FFC799" font-weight="700">vesper</text>
+<text x="20" y="223" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#FFC799" font-weight="700">Vesper</text>
 <text x="84" y="222" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">vesper</text>
 <text x="20" y="241" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Warm champagne orange (opencode original)</text>
 <rect x="356" y="218" width="64" height="30" rx="4" fill="#101010"/>
@@ -41,8 +41,8 @@
 <rect x="636" y="218" width="64" height="30" rx="4" fill="#FF8080"/>
 <rect x="706" y="218" width="64" height="30" rx="4" fill="#FFC799"/>
 <rect x="776" y="218" width="64" height="30" rx="4" fill="#99FFE4"/>
-<text x="20" y="277" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#EC5B2B" font-weight="700">orng</text>
-<text x="66" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">orng</text>
+<text x="20" y="277" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#EC5B2B" font-weight="700">Orange</text>
+<text x="84" y="276" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">orng</text>
 <text x="20" y="295" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Straightforward, vivid orange</text>
 <rect x="356" y="272" width="64" height="30" rx="4" fill="#0A0A0A"/>
 <rect x="426" y="272" width="64" height="30" rx="4" fill="#EEEEEE"/>
@@ -55,7 +55,7 @@
 <text x="36" y="327" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Yellow-green</text>
 <text x="134" y="327" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">1 themes</text>
 <rect x="20" y="342" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="371" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#A7C080" font-weight="700">everforest</text>
+<text x="20" y="371" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#A7C080" font-weight="700">Everforest</text>
 <text x="120" y="370" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">everforest</text>
 <text x="20" y="389" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Forest-green tones, easy on the eyes</text>
 <rect x="356" y="366" width="64" height="30" rx="4" fill="#2D353B"/>
@@ -69,7 +69,7 @@
 <text x="36" y="421" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Teal</text>
 <text x="76" y="421" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">2 themes</text>
 <rect x="20" y="436" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="465" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#83A598" font-weight="700">gruvbox</text>
+<text x="20" y="465" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#83A598" font-weight="700">Gruvbox</text>
 <text x="93" y="464" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">gruvbox</text>
 <text x="20" y="483" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Retro warm tones honoring 80s CRTs and synths</text>
 <rect x="356" y="460" width="64" height="30" rx="4" fill="#282828"/>
@@ -79,7 +79,7 @@
 <rect x="636" y="460" width="64" height="30" rx="4" fill="#FB4934"/>
 <rect x="706" y="460" width="64" height="30" rx="4" fill="#FE8019"/>
 <rect x="776" y="460" width="64" height="30" rx="4" fill="#B8BB26"/>
-<text x="20" y="519" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#2EFF6A" font-weight="700">matrix</text>
+<text x="20" y="519" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#2EFF6A" font-weight="700">Matrix</text>
 <text x="84" y="518" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">matrix</text>
 <text x="20" y="537" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The glowing green of digital rain</text>
 <rect x="356" y="514" width="64" height="30" rx="4" fill="#0A0E0A"/>
@@ -93,8 +93,8 @@
 <text x="36" y="569" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Cyan-blue</text>
 <text x="112" y="569" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">5 themes</text>
 <rect x="20" y="584" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="613" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#9CCFD8" font-weight="700">rosepine</text>
-<text x="102" y="612" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">rosepine</text>
+<text x="20" y="613" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#9CCFD8" font-weight="700">Rosé Pine</text>
+<text x="107" y="612" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">rosepine</text>
 <text x="20" y="631" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Low-saturation rose and pine, soft and calm</text>
 <rect x="356" y="608" width="64" height="30" rx="4" fill="#191724"/>
 <rect x="426" y="608" width="64" height="30" rx="4" fill="#E0DEF4"/>
@@ -103,8 +103,8 @@
 <rect x="636" y="608" width="64" height="30" rx="4" fill="#EB6F92"/>
 <rect x="706" y="608" width="64" height="30" rx="4" fill="#F6C177"/>
 <rect x="776" y="608" width="64" height="30" rx="4" fill="#31748F"/>
-<text x="20" y="667" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#36F9F6" font-weight="700">synthwave84</text>
-<text x="129" y="666" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">synthwave84</text>
+<text x="20" y="667" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#36F9F6" font-weight="700">SynthWave '84</text>
+<text x="143" y="666" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">synthwave84</text>
 <text x="20" y="685" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">80s synthwave neon pink and cyan</text>
 <rect x="356" y="662" width="64" height="30" rx="4" fill="#262335"/>
 <rect x="426" y="662" width="64" height="30" rx="4" fill="#FFFFFF"/>
@@ -113,7 +113,7 @@
 <rect x="636" y="662" width="64" height="30" rx="4" fill="#FE4450"/>
 <rect x="706" y="662" width="64" height="30" rx="4" fill="#FEDE5D"/>
 <rect x="776" y="662" width="64" height="30" rx="4" fill="#72F1B8"/>
-<text x="20" y="721" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#88C0D0" font-weight="700">nord</text>
+<text x="20" y="721" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#88C0D0" font-weight="700">Nord</text>
 <text x="66" y="720" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">nord</text>
 <text x="20" y="739" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The cool blue-grays of the Nordic arctic</text>
 <rect x="356" y="716" width="64" height="30" rx="4" fill="#2E3440"/>
@@ -123,7 +123,7 @@
 <rect x="636" y="716" width="64" height="30" rx="4" fill="#BF616A"/>
 <rect x="706" y="716" width="64" height="30" rx="4" fill="#D08770"/>
 <rect x="776" y="716" width="64" height="30" rx="4" fill="#A3BE8C"/>
-<text x="20" y="775" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8CD0D3" font-weight="700">zenburn</text>
+<text x="20" y="775" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8CD0D3" font-weight="700">Zenburn</text>
 <text x="93" y="774" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">zenburn</text>
 <text x="20" y="793" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The classic low-contrast Vim theme</text>
 <rect x="356" y="770" width="64" height="30" rx="4" fill="#3F3F3F"/>
@@ -133,8 +133,8 @@
 <rect x="636" y="770" width="64" height="30" rx="4" fill="#CC9393"/>
 <rect x="706" y="770" width="64" height="30" rx="4" fill="#F0DFAF"/>
 <rect x="776" y="770" width="64" height="30" rx="4" fill="#7F9F7F"/>
-<text x="20" y="829" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#2DD5B7" font-weight="700">osaka-jade</text>
-<text x="120" y="828" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">osaka-jade</text>
+<text x="20" y="829" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#2DD5B7" font-weight="700">Osaka Jade</text>
+<text x="116" y="828" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">osaka-jade</text>
 <text x="20" y="847" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Jade green, Japanese-style (opencode original)</text>
 <rect x="356" y="824" width="64" height="30" rx="4" fill="#111C18"/>
 <rect x="426" y="824" width="64" height="30" rx="4" fill="#C1C497"/>
@@ -147,8 +147,8 @@
 <text x="36" y="879" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Cool-blue</text>
 <text x="112" y="879" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">12 themes</text>
 <rect x="20" y="894" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="923" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">tokyonight</text>
-<text x="120" y="922" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">tokyonight</text>
+<text x="20" y="923" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">Tokyo Night</text>
+<text x="125" y="922" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">tokyonight</text>
 <text x="20" y="941" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The deep blues and neon violets of Tokyo at night</text>
 <rect x="356" y="918" width="64" height="30" rx="4" fill="#1A1B26"/>
 <rect x="426" y="918" width="64" height="30" rx="4" fill="#C8D3F5"/>
@@ -157,7 +157,7 @@
 <rect x="636" y="918" width="64" height="30" rx="4" fill="#FF757F"/>
 <rect x="706" y="918" width="64" height="30" rx="4" fill="#FF966C"/>
 <rect x="776" y="918" width="64" height="30" rx="4" fill="#C3E88D"/>
-<text x="20" y="977" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#89B4FA" font-weight="700">catppuccin</text>
+<text x="20" y="977" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#89B4FA" font-weight="700">Catppuccin</text>
 <text x="120" y="976" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">catppuccin</text>
 <text x="20" y="995" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Latte-soft pastels (Mocha / Frappé / Macchiato)</text>
 <rect x="356" y="972" width="64" height="30" rx="4" fill="#1E1E2E"/>
@@ -167,8 +167,8 @@
 <rect x="636" y="972" width="64" height="30" rx="4" fill="#F38BA8"/>
 <rect x="706" y="972" width="64" height="30" rx="4" fill="#F9E2AF"/>
 <rect x="776" y="972" width="64" height="30" rx="4" fill="#A6E3A1"/>
-<text x="20" y="1031" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8DA4E2" font-weight="700">catppuccin-frappe</text>
-<text x="183" y="1030" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">catppuccin-frappe</text>
+<text x="20" y="1031" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8DA4E2" font-weight="700">Catppuccin Frappe</text>
+<text x="179" y="1030" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">catppuccin-frappe</text>
 <text x="20" y="1049" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The lighter, cooler sibling of Catppuccin</text>
 <rect x="356" y="1026" width="64" height="30" rx="4" fill="#303446"/>
 <rect x="426" y="1026" width="64" height="30" rx="4" fill="#C6D0F5"/>
@@ -177,8 +177,8 @@
 <rect x="636" y="1026" width="64" height="30" rx="4" fill="#E78284"/>
 <rect x="706" y="1026" width="64" height="30" rx="4" fill="#E5C890"/>
 <rect x="776" y="1026" width="64" height="30" rx="4" fill="#A6D189"/>
-<text x="20" y="1085" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8AADF4" font-weight="700">catppuccin-macchiato</text>
-<text x="210" y="1084" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">catppuccin-macchiato</text>
+<text x="20" y="1085" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8AADF4" font-weight="700">Catppuccin Macchiato</text>
+<text x="206" y="1084" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">catppuccin-macchiato</text>
 <text x="20" y="1103" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The deeper, richer sibling of Catppuccin</text>
 <rect x="356" y="1080" width="64" height="30" rx="4" fill="#24273A"/>
 <rect x="426" y="1080" width="64" height="30" rx="4" fill="#CAD3F5"/>
@@ -187,7 +187,7 @@
 <rect x="636" y="1080" width="64" height="30" rx="4" fill="#ED8796"/>
 <rect x="706" y="1080" width="64" height="30" rx="4" fill="#EED49F"/>
 <rect x="776" y="1080" width="64" height="30" rx="4" fill="#A6DA95"/>
-<text x="20" y="1139" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#268BD2" font-weight="700">solarized</text>
+<text x="20" y="1139" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#268BD2" font-weight="700">Solarized</text>
 <text x="111" y="1138" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">solarized</text>
 <text x="20" y="1157" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Sun-spectrum colors designed precisely around</text>
 <text x="20" y="1172" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">CIELAB</text>
@@ -198,7 +198,7 @@
 <rect x="636" y="1134" width="64" height="30" rx="4" fill="#DC322F"/>
 <rect x="706" y="1134" width="64" height="30" rx="4" fill="#B58900"/>
 <rect x="776" y="1134" width="64" height="30" rx="4" fill="#859900"/>
-<text x="20" y="1193" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#7E9CD8" font-weight="700">kanagawa</text>
+<text x="20" y="1193" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#7E9CD8" font-weight="700">Kanagawa</text>
 <text x="102" y="1192" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">kanagawa</text>
 <text x="20" y="1211" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Named after the ukiyo-e print 「The Great Wave</text>
 <text x="20" y="1226" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">off Kanagawa」</text>
@@ -209,8 +209,8 @@
 <rect x="636" y="1188" width="64" height="30" rx="4" fill="#E82424"/>
 <rect x="706" y="1188" width="64" height="30" rx="4" fill="#D7A657"/>
 <rect x="776" y="1188" width="64" height="30" rx="4" fill="#98BB6C"/>
-<text x="20" y="1247" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">nightowl</text>
-<text x="102" y="1246" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">nightowl</text>
+<text x="20" y="1247" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">Night Owl</text>
+<text x="107" y="1246" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">nightowl</text>
 <text x="20" y="1265" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Late-night coding blues and violets</text>
 <rect x="356" y="1242" width="64" height="30" rx="4" fill="#011627"/>
 <rect x="426" y="1242" width="64" height="30" rx="4" fill="#D6DEEB"/>
@@ -219,7 +219,7 @@
 <rect x="636" y="1242" width="64" height="30" rx="4" fill="#EF5350"/>
 <rect x="706" y="1242" width="64" height="30" rx="4" fill="#ECC48D"/>
 <rect x="776" y="1242" width="64" height="30" rx="4" fill="#C5E478"/>
-<text x="20" y="1301" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">palenight</text>
+<text x="20" y="1301" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#82AAFF" font-weight="700">Palenight</text>
 <text x="111" y="1300" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">palenight</text>
 <text x="20" y="1319" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Material’s deep purple-blue variant</text>
 <rect x="356" y="1296" width="64" height="30" rx="4" fill="#292D3E"/>
@@ -229,7 +229,7 @@
 <rect x="636" y="1296" width="64" height="30" rx="4" fill="#F07178"/>
 <rect x="706" y="1296" width="64" height="30" rx="4" fill="#FFCB6B"/>
 <rect x="776" y="1296" width="64" height="30" rx="4" fill="#C3E88D"/>
-<text x="20" y="1355" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#59C2FF" font-weight="700">ayu</text>
+<text x="20" y="1355" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#59C2FF" font-weight="700">Ayu</text>
 <text x="57" y="1354" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">ayu</text>
 <text x="20" y="1373" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Japanese for “sweetfish” — warm orange</text>
 <rect x="356" y="1350" width="64" height="30" rx="4" fill="#0B0E14"/>
@@ -239,7 +239,7 @@
 <rect x="636" y="1350" width="64" height="30" rx="4" fill="#D95757"/>
 <rect x="706" y="1350" width="64" height="30" rx="4" fill="#E6B673"/>
 <rect x="776" y="1350" width="64" height="30" rx="4" fill="#7FD962"/>
-<text x="20" y="1409" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#33B1FF" font-weight="700">carbonfox</text>
+<text x="20" y="1409" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#33B1FF" font-weight="700">CarbonFox</text>
 <text x="111" y="1408" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">carbonfox</text>
 <text x="20" y="1427" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">From the Nightfox family, built on IBM Carbon</text>
 <rect x="356" y="1404" width="64" height="30" rx="4" fill="#161616"/>
@@ -249,7 +249,7 @@
 <rect x="636" y="1404" width="64" height="30" rx="4" fill="#EE5396"/>
 <rect x="706" y="1404" width="64" height="30" rx="4" fill="#F1C21B"/>
 <rect x="776" y="1404" width="64" height="30" rx="4" fill="#25BE6A"/>
-<text x="20" y="1463" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#0088FF" font-weight="700">cobalt2</text>
+<text x="20" y="1463" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#0088FF" font-weight="700">Cobalt2</text>
 <text x="93" y="1462" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">cobalt2</text>
 <text x="20" y="1481" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The blue of the element cobalt (by Wes Bos)</text>
 <rect x="356" y="1458" width="64" height="30" rx="4" fill="#193549"/>
@@ -259,7 +259,7 @@
 <rect x="636" y="1458" width="64" height="30" rx="4" fill="#FF0088"/>
 <rect x="706" y="1458" width="64" height="30" rx="4" fill="#FFC600"/>
 <rect x="776" y="1458" width="64" height="30" rx="4" fill="#9EFF80"/>
-<text x="20" y="1517" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8DA4F5" font-weight="700">mercury</text>
+<text x="20" y="1517" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#8DA4F5" font-weight="700">Mercury</text>
 <text x="93" y="1516" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">mercury</text>
 <text x="20" y="1535" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Lavender violet (opencode original)</text>
 <rect x="356" y="1512" width="64" height="30" rx="4" fill="#171721"/>
@@ -273,7 +273,7 @@
 <text x="36" y="1567" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Violet</text>
 <text x="90" y="1567" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">2 themes</text>
 <rect x="20" y="1582" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="1611" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#BD93F9" font-weight="700">dracula</text>
+<text x="20" y="1611" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#BD93F9" font-weight="700">Dracula</text>
 <text x="93" y="1610" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">dracula</text>
 <text x="20" y="1629" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">The classic vampire-purple, a community icon</text>
 <rect x="356" y="1606" width="64" height="30" rx="4" fill="#282A36"/>
@@ -283,7 +283,7 @@
 <rect x="636" y="1606" width="64" height="30" rx="4" fill="#FF5555"/>
 <rect x="706" y="1606" width="64" height="30" rx="4" fill="#F1FA8C"/>
 <rect x="776" y="1606" width="64" height="30" rx="4" fill="#50FA7B"/>
-<text x="20" y="1665" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#A277FF" font-weight="700">aura</text>
+<text x="20" y="1665" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#A277FF" font-weight="700">Aura</text>
 <text x="66" y="1664" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">aura</text>
 <text x="20" y="1683" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Purple neon aura</text>
 <rect x="356" y="1660" width="64" height="30" rx="4" fill="#0F0F0F"/>
@@ -297,8 +297,8 @@
 <text x="36" y="1715" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">Transparent</text>
 <text x="127" y="1715" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">1 themes</text>
 <rect x="20" y="1730" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="1759" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#EC5B2B" font-weight="700">lucent-orng</text>
-<text x="129" y="1758" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">lucent-orng</text>
+<text x="20" y="1759" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#EC5B2B" font-weight="700">Lucent Orange</text>
+<text x="143" y="1758" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">lucent-orng</text>
 <text x="20" y="1777" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">Vivid orange on a transparent base</text>
 <rect x="356" y="1754" width="64" height="30" rx="4" fill="url(#chess)"/>
 <rect x="426" y="1754" width="64" height="30" rx="4" fill="#EEEEEE"/>

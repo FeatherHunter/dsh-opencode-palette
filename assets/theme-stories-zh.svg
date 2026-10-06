@@ -21,8 +21,8 @@
 <text x="36" y="125" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">暖橙</text>
 <text x="72" y="125" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">3 款</text>
 <rect x="20" y="140" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="169" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#DA702C" font-weight="700">纸墨</text>
-<text x="62" y="168" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">flexoki</text>
+<text x="20" y="169" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#DA702C" font-weight="700">Flexoki</text>
+<text x="93" y="168" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">flexoki</text>
 <text x="20" y="187" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">暖纸上的墨色（kepano 出品）</text>
 <rect x="356" y="164" width="64" height="30" rx="4" fill="#100F0F"/>
 <rect x="426" y="164" width="64" height="30" rx="4" fill="#CECDC3"/>
@@ -69,8 +69,8 @@
 <text x="36" y="421" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="13" fill="#e8e8ee" font-weight="700">青绿</text>
 <text x="72" y="421" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="10.5" fill="#6f6f78">2 款</text>
 <rect x="20" y="436" width="820" height="1" rx="0" fill="#232326"/>
-<text x="20" y="465" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#83A598" font-weight="700">复古凹槽</text>
-<text x="94" y="464" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">gruvbox</text>
+<text x="20" y="465" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#83A598" font-weight="700">Gruvbox</text>
+<text x="93" y="464" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">gruvbox</text>
 <text x="20" y="483" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">致敬 80 年代 CRT 与合成器的复古暖色</text>
 <rect x="356" y="460" width="64" height="30" rx="4" fill="#282828"/>
 <rect x="426" y="460" width="64" height="30" rx="4" fill="#EBDBB2"/>
@@ -188,8 +188,8 @@
 <rect x="636" y="1080" width="64" height="30" rx="4" fill="#ED8796"/>
 <rect x="706" y="1080" width="64" height="30" rx="4" fill="#EED49F"/>
 <rect x="776" y="1080" width="64" height="30" rx="4" fill="#A6DA95"/>
-<text x="20" y="1139" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#268BD2" font-weight="700">日光浴</text>
-<text x="78" y="1138" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">solarized</text>
+<text x="20" y="1139" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#268BD2" font-weight="700">Solarized</text>
+<text x="111" y="1138" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">solarized</text>
 <text x="20" y="1157" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">按太阳光谱精确设计的护眼配色</text>
 <rect x="356" y="1134" width="64" height="30" rx="4" fill="#002B36"/>
 <rect x="426" y="1134" width="64" height="30" rx="4" fill="#839496"/>
@@ -228,8 +228,8 @@
 <rect x="636" y="1296" width="64" height="30" rx="4" fill="#F07178"/>
 <rect x="706" y="1296" width="64" height="30" rx="4" fill="#FFCB6B"/>
 <rect x="776" y="1296" width="64" height="30" rx="4" fill="#C3E88D"/>
-<text x="20" y="1355" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#59C2FF" font-weight="700">鮎</text>
-<text x="46" y="1354" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">ayu</text>
+<text x="20" y="1355" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="16" fill="#59C2FF" font-weight="700">Ayu</text>
+<text x="57" y="1354" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace" font-size="11" fill="#8b8b95">ayu</text>
 <text x="20" y="1373" font-family="-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif" font-size="12.5" fill="#a1a1aa">日语「香鱼」的温暖橙黄</text>
 <rect x="356" y="1350" width="64" height="30" rx="4" fill="#0B0E14"/>
 <rect x="426" y="1350" width="64" height="30" rx="4" fill="#BFBDB6"/>
