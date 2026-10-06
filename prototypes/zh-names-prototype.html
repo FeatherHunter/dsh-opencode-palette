@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROTOTYPE · 主题中文名＋分组名定稿口径（#60 抛弃式原型）</title>
+<!-- PROTOTYPE — 抛弃式，不进生产。回答 #60 的问题后即删：38 主题中文名＋9 分组名的译名口径。三项实测转正前不作为终稿。 -->
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a0a0a;color:#e4e4e4;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:28px;line-height:1.6}
+.wrap{max-width:1180px}
+.proto-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;background:#3a2b00;border:1px solid #a97f00;color:#ffd75e;border-radius:4px;padding:2px 10px;margin-bottom:10px}
+h1{font-size:20px;margin-bottom:6px}
+.question{background:#101014;border:1px solid #27272a;border-left:4px solid #FAB283;border-radius:8px;padding:14px 18px;margin:14px 0 20px;font-size:13px}
+.question b{color:#FAB283}
+.question code{color:#7fd88f;font-size:12px}
+.state{background:#101014;border:1px solid #27272a;border-radius:12px;padding:16px 18px;margin-bottom:20px}
+.state h2,.sec h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:#a1a1aa;margin-bottom:10px}
+.counts{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.count{background:#1c1c1e;border:1px solid #333338;border-radius:8px;padding:6px 14px;font-size:13px}
+.count b{font-size:18px;margin-right:4px}
+.count.ke b{color:#ffd75e}.count.kz b{color:#7fd88f}.count.rn b{color:#82aaff}.count.td b{color:#8b8b95}
+.warn{background:#2a1215;border:1px solid #7a2e2e;color:#ff9d9d;border-radius:8px;padding:8px 12px;font-size:12px;margin:6px 0}
+.ok-line{color:#7fd88f;font-size:12px;margin:6px 0}
+.last-change{font-size:12px;color:#FAB283;margin-top:8px}
+pre.json{background:#0d0d10;border:1px solid #27272a;border-radius:8px;padding:10px 12px;font-size:11px;color:#9db8ff;max-height:180px;overflow:auto;margin-top:10px;white-space:pre-wrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.tab{background:#1c1c1e;border:1px solid #333338;color:#e4e4e4;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer}
+.tab.active{outline:2px solid #FAB283;outline-offset:1px;color:#FAB283}
+.walk{background:#101014;border:1px solid #27272a;border-radius:12px;padding:16px 18px;margin-bottom:20px}
+.walk p.desc{font-size:13px;color:#c9c9d1;margin-bottom:12px}
+.walk p.desc b{color:#FAB283}
+.step{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13px}
+.step button{background:#1c1c1e;border:1px solid #555;color:#e4e4e4;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer}
+.step button:hover{border-color:#FAB283}
+.step.done button{border-color:#7fd88f;color:#7fd88f}
+.step .arrow{color:#5c5c66}
+.sec{background:#101014;border:1px solid #27272a;border-radius:12px;padding:16px 18px;margin-bottom:20px}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{color:#8b8b95;font-weight:600;text-align:left;padding:6px 8px;border-bottom:1px solid #333338;font-size:11px}
+td{padding:6px 8px;border-bottom:1px solid #1e1e22;vertical-align:middle}
+tr.changed td{background:#1f1a10}
+td .en{font-family:Consolas,monospace;color:#9db8ff}
+td .cur{color:#e4e4e4}
+td .tier{font-size:11px;color:#8b8b95}
+.vbtns{display:flex;gap:4px;flex-wrap:wrap}
+.vbtn{background:#1c1c1e;border:1px solid #444;color:#c9c9d1;border-radius:5px;padding:2px 8px;font-size:11px;cursor:pointer}
+.vbtn.sel-ke{border-color:#ffd75e;color:#ffd75e}
+.vbtn.sel-kz{border-color:#7fd88f;color:#7fd88f}
+.vbtn.sel-rn{border-color:#82aaff;color:#82aaff}
+.vbtn.sel-td{border-color:#8b8b95;color:#fff}
+.toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar button{background:#1c1c1e;border:1px solid #555;color:#e4e4e4;border-radius:6px;padding:6px 14px;font-size:12px;cursor:pointer}
+.toolbar button:hover{border-color:#FAB283}
+.footer{color:#5c5c66;font-size:12px;margin-top:8px}
+.footer code{color:#7fd88f}
+</style>
+</head>
+<body><div class="wrap">
+<div class="proto-tag">PROTOTYPE · 抛弃式 · 不进生产 · 双击即开</div>
+<h1>主题中文名＋分组名定稿口径 <span style="color:#5c5c66;font-size:13px">issue #60 · LOGIC 分支</span></h1>
+<div class="question">
+<b>要回答的设计问题：</b>38 个主题中文名＋9 个色系分组名的中英口径怎么定？无译名保留原名者（opencode / One Dark / Monokai / Cursor / GitHub / Vercel）是否维持？疑难 4 名（Solarized / Gruvbox / Ayu / Flexoki）的生造中文（日光浴 / 复古凹槽 / 鮎 / 纸墨）是否废掉改保留英文？<br>
+<b>分支判定（grilling 2026-10-06 已与用户确认）：</b>走 <code>LOGIC</code> ——单文件可分享 HTML，把三级阶梯（上游官方 &gt; 社区共识 &gt; 保留英文不生造）推过难例；不走 UI 多变体。主题名只走 rubric 准确＋一致两维（#58 Q1）。<br>
+<b>怎么玩：</b>先点下面的走查 tab（每个 tab 会重置到已知初态再逐步点），再到自由区逐条翻 verdict。每点一次，顶部状态面板即时重渲染。
+</div>
+
+<div class="state"><h2>当前状态 · 每次点击后重渲染</h2>
+<div class="counts" id="counts"></div>
+<div id="warnings"></div>
+<div class="last-change" id="lastChange">尚未操作。初态＝draft 预填（13 保留英文＋34 维持中文），等你逐条拍板。</div>
+<pre class="json" id="jsonSnap"></pre>
+</div>
+
+<div class="walk"><h2 style="font-size:13px;letter-spacing:.08em;color:#a1a1aa;margin-bottom:10px">引导走查 · 难例 tabs（点 tab → 按顺序点步骤）</h2>
+<div class="tabs" id="tabs"></div>
+<p class="desc" id="walkDesc"></p>
+<div id="steps"></div>
+</div>
+
+<div class="sec"><h2>自由区 · 38 主题名（点 verdict 即改状态）</h2>
+<div class="toolbar"><button id="btnReset">重置到 draft 初态</button><button id="btnCopy">复制 verdict JSON</button></div>
+<table><thead><tr><th>key</th><th>英文</th><th>现中文</th><th>阶梯</th><th>verdict（点选）</th></tr></thead><tbody id="themeRows"></tbody></table></div>
+
+<div class="sec"><h2>自由区 · 9 分组名</h2>
+<table><thead><tr><th>key</th><th>英文</th><th>现中文</th><th>阶梯</th><th>verdict（点选）</th></tr></thead><tbody id="groupRows"></tbody></table></div>
+
+<div class="footer">逻辑壳 <code>ZhNameLogic</code> 为纯函数（无 DOM），转正时可整体迁入 <code>src/engine/zh-names.mjs</code> 旁的定稿脚本；本 HTML 壳不进 main。抛弃式分支备选：<code>prototype/issue-60-zh-names</code>。三项实测（词源考据＋中英双搜＋视觉并排）待转正，不在本原型内做全量考据。</div>
+</div>
+<script>
+/* ============ 纯逻辑模块 ZhNameLogic（无 DOM，可迁出） ============ */
+const ZhNameLogic = (() => {
+  const ENTRIES = [
+    {key:"opencode",kind:"theme",en:"opencode",cur:"opencode",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"tokyonight",kind:"theme",en:"Tokyo Night",cur:"东京之夜",tier:2,tierNote:"社区共识",draft:"keep-zh"},
+    {key:"dracula",kind:"theme",en:"Dracula",cur:"德古拉",tier:2,tierNote:"社区共识·音译",draft:"keep-zh"},
+    {key:"gruvbox",kind:"theme",en:"Gruvbox",cur:"复古凹槽→Gruvbox",tier:3,tierNote:"生造废案·保留英文",draft:"keep-en"},
+    {key:"matrix",kind:"theme",en:"Matrix",cur:"黑客帝国",tier:2,tierNote:"社区共识",draft:"keep-zh"},
+    {key:"rosepine",kind:"theme",en:"Rosé Pine",cur:"玫瑰松林",tier:2,tierNote:"社区共识",draft:"keep-zh"},
+    {key:"catppuccin",kind:"theme",en:"Catppuccin",cur:"卡布奇诺",tier:2,tierNote:"社区共识·谐音",draft:"keep-zh"},
+    {key:"catppuccin-frappe",kind:"theme",en:"Catppuccin Frappe",cur:"卡布奇诺·冰沙",tier:2,tierNote:"前缀一致",draft:"keep-zh"},
+    {key:"catppuccin-macchiato",kind:"theme",en:"Catppuccin Macchiato",cur:"卡布奇诺·玛奇朵",tier:2,tierNote:"前缀一致",draft:"keep-zh"},
+    {key:"solarized",kind:"theme",en:"Solarized",cur:"日光浴→Solarized",tier:3,tierNote:"生造废案·保留英文",draft:"keep-en"},
+    {key:"synthwave84",kind:"theme",en:"SynthWave '84",cur:"合成波 84",tier:2,tierNote:"社区共识",draft:"keep-zh"},
+    {key:"everforest",kind:"theme",en:"Everforest",cur:"常青森林",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"nord",kind:"theme",en:"Nord",cur:"北极",tier:2,tierNote:"意译 nord=北方",draft:"keep-zh"},
+    {key:"kanagawa",kind:"theme",en:"Kanagawa",cur:"神奈川",tier:2,tierNote:"地名",draft:"keep-zh"},
+    {key:"nightowl",kind:"theme",en:"Night Owl",cur:"夜猫子",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"one-dark",kind:"theme",en:"One Dark",cur:"One Dark",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"monokai",kind:"theme",en:"Monokai",cur:"Monokai",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"palenight",kind:"theme",en:"Palenight",cur:"苍白之夜",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"material",kind:"theme",en:"Material",cur:"材料设计",tier:1,tierNote:"上游官方 Material Design",draft:"keep-zh"},
+    {key:"ayu",kind:"theme",en:"Ayu",cur:"鮎→Ayu",tier:3,tierNote:"生造废案·单字鮎",draft:"keep-en"},
+    {key:"carbonfox",kind:"theme",en:"CarbonFox",cur:"碳狐",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"cobalt2",kind:"theme",en:"Cobalt2",cur:"钴蓝",tier:2,tierNote:"意译 cobalt=钴",draft:"keep-zh"},
+    {key:"cursor",kind:"theme",en:"Cursor",cur:"Cursor",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"aura",kind:"theme",en:"Aura",cur:"光环",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"flexoki",kind:"theme",en:"Flexoki",cur:"纸墨→Flexoki",tier:3,tierNote:"生造废案·保留英文",draft:"keep-en"},
+    {key:"github",kind:"theme",en:"GitHub",cur:"GitHub",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"zenburn",kind:"theme",en:"Zenburn",cur:"禅燃",tier:2,tierNote:"社区共识",draft:"keep-zh"},
+    {key:"mercury",kind:"theme",en:"Mercury",cur:"水星",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"osaka-jade",kind:"theme",en:"Osaka Jade",cur:"大阪翡翠",tier:2,tierNote:"地名＋意译",draft:"keep-zh"},
+    {key:"vesper",kind:"theme",en:"Vesper",cur:"黄昏星",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"vercel",kind:"theme",en:"Vercel",cur:"Vercel",tier:3,tierNote:"品牌·保留英文",draft:"keep-en"},
+    {key:"lucent-orng",kind:"theme",en:"Lucent Orange",cur:"透光橙",tier:2,tierNote:"对仗范式·透光↔纯",draft:"keep-zh"},
+    {key:"orng",kind:"theme",en:"Orange",cur:"纯橙",tier:2,tierNote:"对仗范式·透光↔纯",draft:"keep-zh"},
+    {key:"amoled",kind:"theme",en:"AMOLED",cur:"AMOLED",tier:3,tierNote:"缩写·保留英文",draft:"keep-en"},
+    {key:"oc-2",kind:"theme",en:"OC 2",cur:"OC 2",tier:3,tierNote:"缩写·保留英文",draft:"keep-en"},
+    {key:"onedarkpro",kind:"theme",en:"One Dark Pro",cur:"One Dark Pro",tier:3,tierNote:"品牌派生·保留英文",draft:"keep-en"},
+    {key:"shadesofpurple",kind:"theme",en:"Shades of Purple",cur:"紫影",tier:2,tierNote:"意译",draft:"keep-zh"},
+    {key:"system",kind:"theme",en:"System",cur:"跟随系统",tier:2,tierNote:"功能性中文",draft:"keep-zh"},
+    {key:"warm",kind:"group",en:"Warm",cur:"暖橙",tier:2,tierNote:"色系",draft:"keep-zh"},
+    {key:"yellow-green",kind:"group",en:"Yellow-green",cur:"黄绿",tier:2,tierNote:"色系",draft:"keep-zh"},
+    {key:"teal",kind:"group",en:"Teal",cur:"青绿",tier:2,tierNote:"色系·青字头一致性",draft:"keep-zh"},
+    {key:"cyan-blue",kind:"group",en:"Cyan-blue",cur:"青蓝",tier:2,tierNote:"色系·青字头一致性",draft:"keep-zh"},
+    {key:"cool-blue",kind:"group",en:"Cool blue",cur:"冷蓝",tier:2,tierNote:"色系·青/冷区分",draft:"keep-zh"},
+    {key:"violet",kind:"group",en:"Violet",cur:"蓝紫",tier:2,tierNote:"色系",draft:"keep-zh"},
+    {key:"neutral",kind:"group",en:"Neutral",cur:"中性",tier:2,tierNote:"色系",draft:"keep-zh"},
+    {key:"transparent",kind:"group",en:"Transparent",cur:"透明",tier:2,tierNote:"色系",draft:"keep-zh"},
+    {key:"special",kind:"group",en:"Special",cur:"特殊",tier:2,tierNote:"色系",draft:"keep-zh"},
+  ];
+  function initialState(){ const v={}; ENTRIES.forEach(e=>{v[e.key]=e.draft;}); return {verdicts:v,log:[]}; }
+  function setVerdict(state,key,verdict,via){
+    const prev=state.verdicts[key];
+    state.verdicts[key]=verdict;
+    state.log.push({key,prev,next:verdict,via:via||"free",at:new Date().toISOString()});
+    return {key,prev,next:verdict};
+  }
+  function resetAll(state){ ENTRIES.forEach(e=>{state.verdicts[e.key]=e.draft;}); state.log.push({key:"*reset",prev:"-",next:"draft",via:"reset",at:new Date().toISOString()}); }
+  function summary(state){
+    const c={"keep-en":0,"keep-zh":0,"rename":0,"todo":0};
+    Object.values(state.verdicts).forEach(v=>{c[v]=(c[v]||0)+1;});
+    return c;
+  }
+  function warnings(state){
+    const w=[];
+    const byK={}; ENTRIES.forEach(e=>{byK[e.key]=e;});
+    Object.entries(state.verdicts).forEach(([k,v])=>{
+      const e=byK[k];
+      if(e.tier===3 && v==="keep-zh" && /→/.test(e.cur)===false && ["solarized","gruvbox","ayu","flexoki"].includes(k)) w.push("阶梯漂移："+k+" 是 tier3 生造废案，verdict 却为维持中文——请改 keep-en 或 rename 并给出来源。");
+      if(v==="rename") w.push("待给新译："+k+" verdict=重译，落码前须填出新中文并过准确＋一致。");
+      if(v==="todo") w.push("待考："+k+" 尚未拍板（todo），定稿前须清零。");
+    });
+    const lo=state.verdicts["lucent-orng"], oo=state.verdicts["orng"];
+    if(!((lo==="keep-zh"&&oo==="keep-zh")||(lo===oo))) w.push("范式注意：透光橙/纯橙对仗要求同进退，当前 "+lo+" vs "+oo+"。");
+    return w;
+  }
+  function exportJSON(state){ return JSON.stringify({verdicts:state.verdicts,summary:summary(state),warnings:warnings(state)},null,1); }
+  return {ENTRIES,initialState,setVerdict,resetAll,summary,warnings,exportJSON};
+})();
+/* ============ 薄壳：页面渲染（抛弃式） ============ */
+const S = ZhNameLogic.initialState();
+let lastChanged=null;
+const VLBL={"keep-en":"保留英文","keep-zh":"维持中文","rename":"重译","todo":"待考"};
+function render(changedKey){
+  lastChanged=changedKey||lastChanged;
+  const c=ZhNameLogic.summary(S);
+  document.getElementById("counts").innerHTML=
+    '<div class="count ke"><b>'+c["keep-en"]+'</b>保留英文</div>'+
+    '<div class="count kz"><b>'+c["keep-zh"]+'</b>维持中文</div>'+
+    '<div class="count rn"><b>'+c["rename"]+'</b>重译</div>'+
+    '<div class="count td"><b>'+c["todo"]+'</b>待考</div>'+
+    '<div class="count"><b>47</b>共计</div>';
+  const ws=ZhNameLogic.warnings(S);
+  document.getElementById("warnings").innerHTML=ws.length?ws.map(w=>'<div class="warn">⚠ '+w+'</div>').join(""):'<div class="ok-line">✓ 无警告：阶梯无漂移、对仗范式成立、todo 已清零。</div>';
+  document.getElementById("jsonSnap").textContent=ZhNameLogic.exportJSON(S);
+  [["themeRows","theme"],["groupRows","group"]].forEach(([tid,kind])=>{
+    const tb=document.getElementById(tid); tb.innerHTML="";
+    ZhNameLogic.ENTRIES.filter(e=>e.kind===kind).forEach(e=>{
+      const tr=document.createElement("tr"); if(e.key===lastChanged)tr.className="changed";
+      const tds='<td><span class="en">'+e.key+'</span></td><td><span class="en">'+e.en+'</span></td><td><span class="cur">'+e.cur+'</span></td><td><span class="tier">T'+e.tier+" · "+e.tierNote+'</span></td>';
+      tr.innerHTML=tds;
+      const td=document.createElement("td"); const box=document.createElement("div"); box.className="vbtns";
+      Object.keys(VLBL).forEach(v=>{
+        const b=document.createElement("button"); const selMap={"keep-en":"ke","keep-zh":"kz","rename":"rn","todo":"td"};
+        b.className="vbtn"+(S.verdicts[e.key]===v?(" sel-"+selMap[v]):"");
+        b.textContent=VLBL[v]; b.title=e.key+" → "+v;
+        b.onclick=()=>{const r=ZhNameLogic.setVerdict(S,e.key,v,"free");document.getElementById("lastChange").textContent="刚变更："+r.key+"  "+(VLBL[r.prev]||r.prev)+" → "+VLBL[r.next]+"（自由区）";render(e.key);};
+        box.appendChild(b);
+      });
+      td.appendChild(box); tr.appendChild(td); tb.appendChild(tr);
+    });
+  });
+}
+const WALKS=[
+ {id:"S1",name:"S1 对仗范式",desc:"<b>Happy path。</b>透光橙 / 纯橙对仗是 #58 点名保留的范式（Q4）。点开始会重置到初态，然后依次确认 <b>lucent-orng</b> 与 <b>orng</b> 为维持中文，观察警告消失、范式成立。",steps:[["重置到初态","reset"],["lucent-orng → 维持中文","lucent-orng:keep-zh"],["orng → 维持中文","orng:keep-zh"]]},
+ {id:"S2",name:"S2 生造四废案",desc:"<b>Tricky edge。</b>日光浴 / 复古凹槽 / 鮎单字 / 纸墨四处生造违反准确维。依次确认 <b>solarized / gruvbox / ayu / flexoki</b> 为保留英文，观察废中文词从终稿消失。",steps:[["重置到初态","reset"],["solarized → 保留英文","solarized:keep-en"],["gruvbox → 保留英文","gruvbox:keep-en"],["ayu → 保留英文","ayu:keep-en"],["flexoki → 保留英文","flexoki:keep-en"]]},
+ {id:"S3",name:"S3 品牌六保留",desc:"<b>Tricky edge。</b>票面原问：opencode / One Dark / Monokai / Cursor / GitHub / Vercel 是否维持保留？本走查把六个逐一点为保留英文，验证 tier3 品牌档无中文生造。",steps:[["重置到初态","reset"],["opencode → 保留英文","opencode:keep-en"],["one-dark → 保留英文","one-dark:keep-en"],["monokai → 保留英文","monokai:keep-en"],["cursor → 保留英文","cursor:keep-en"],["github → 保留英文","github:keep-en"],["vercel → 保留英文","vercel:keep-en"]]},
+ {id:"S4",name:"S4 一致性陷阱",desc:"<b>Consistency。</b>青绿 / 青蓝 / 冷蓝三组“青字头”与卡布奇诺三件套前缀必须一致。依次点过六条，观察一致维：改其中一个为重译即出现待给新译警告。",steps:[["重置到初态","reset"],["teal → 维持中文","teal:keep-zh"],["cyan-blue → 维持中文","cyan-blue:keep-zh"],["cool-blue → 维持中文","cool-blue:keep-zh"],["catppuccin → 维持中文","catppuccin:keep-zh"],["catppuccin-frappe → 维持中文","catppuccin-frappe:keep-zh"],["catppuccin-macchiato → 维持中文","catppuccin-macchiato:keep-zh"]]},
+ {id:"S5",name:"S5 非法尝试",desc:"<b>Illegal。</b>演示模型如何抓住漂移：故意把 tier3 的 <b>solarized</b> 翻成维持中文，观察阶梯漂移警告出现；再把它翻回保留英文，警告消失。翻不回去就是 bug。",steps:[["重置到初态","reset"],["故意翻错：solarized → 维持中文","solarized:keep-zh"],["纠正：solarized → 保留英文","solarized:keep-en"]]},
+];
+let curWalk=0, stepIdx=0;
+function renderWalk(){
+  const tabs=document.getElementById("tabs"); tabs.innerHTML="";
+  WALKS.forEach((w,i)=>{const b=document.createElement("button");b.className="tab"+(i===curWalk?" active":"");b.textContent=w.name;b.onclick=()=>{curWalk=i;stepIdx=0;renderWalk();};tabs.appendChild(b);});
+  const w=WALKS[curWalk];
+  document.getElementById("walkDesc").innerHTML=w.desc;
+  const box=document.getElementById("steps"); box.innerHTML="";
+  w.steps.forEach((s,i)=>{
+    const d=document.createElement("div");d.className="step"+(i<stepIdx?" done":"");
+    d.innerHTML='<button>'+(i<stepIdx?"✓ ":"")+s[0]+'</button>'+(i===stepIdx?'<span class="arrow">← 下一步点我</span>':"");
+    d.querySelector("button").onclick=()=>{
+      const act=s[1];
+      if(act==="reset"){ZhNameLogic.resetAll(S);document.getElementById("lastChange").textContent="走查 "+w.id+"：已重置到 draft 初态。";render(null);}
+      else{const [k,v]=act.split(":");const r=ZhNameLogic.setVerdict(S,k,v,w.id);document.getElementById("lastChange").textContent="走查 "+w.id+"："+r.key+" → "+VLBL[r.next];render(k);}
+      stepIdx=Math.min(stepIdx+1,w.steps.length);renderWalk();
+    };
+    box.appendChild(d);
+  });
+}
+document.getElementById("btnReset").onclick=()=>{ZhNameLogic.resetAll(S);document.getElementById("lastChange").textContent="已重置到 draft 初态。";render(null);};
+document.getElementById("btnCopy").onclick=async()=>{try{await navigator.clipboard.writeText(ZhNameLogic.exportJSON(S));document.getElementById("lastChange").textContent="verdict JSON 已复制，可粘回 issue 或定稿脚本。";}catch(e){document.getElementById("lastChange").textContent="复制失败（file:// 剪贴板受限），直接拖选下方 JSON 即可。";}};
+render(null);renderWalk();
+</script>
+</body></html>

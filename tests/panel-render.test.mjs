@@ -344,7 +344,7 @@ test('底部引流卡片（中文）：标题 + 3 行兄弟插件 + 外链图标
   const { html } = loadPanel({ lang: 'zh-CN' })
   assert.ok(html.includes('作者其他插件'), '缺引流卡片标题')
   assert.ok(html.includes('装好即自带 25 个工程/效率技能，右侧面板直接调用'), '缺 skills-deck 文案')
-  assert.ok(html.includes('常用 prompt 预置或者自定义保存，开发只需要一键注入，不再繁琐'), '缺 prompt 文案')
+  assert.ok(html.includes('保存常用 prompt 预设，一键注入开发任务'), '缺 prompt 定稿文案（#59：去行话删空话）')
   assert.ok(html.includes('dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力'), '缺 im-companion 文案')
   for (const repo of AUTHOR_REPOS) {
     const url = 'https://github.com/FeatherHunter/' + repo
@@ -456,7 +456,7 @@ test('本机字体枚举：读不到清单时退回预设列表并给提示（�
   const denied = loadPanel({ lang: 'en', queryLocalFonts: () => { const e = new Error('no'); e.name = 'NotAllowedError'; throw e } })
   const b = await denied.panelProps.collectFonts()
   assert.equal(b.reason, 'denied', '拒授权应单独成一种原因')
-  assert.equal(denied.panelProps.text('fontScanDenied'), 'Font access was denied — allow it in the browser, then retry; showing the common presets')
+  assert.equal(denied.panelProps.text('fontScanDenied'), 'Font access was denied — allow it in the browser address bar, then retry; showing the common presets')
 
   // 场景三：授权了但清单为空（含被自动拒绝返回空数组）
   const empty = loadPanel({ lang: 'en', queryLocalFonts: () => Promise.resolve([]) })
@@ -584,4 +584,21 @@ test('2.0.7 英文界面：日志开关也走双语', () => {
   const { html } = loadPanel({ locale })
   assert.ok(html.includes('Log Off'), '缺英文日志开关')
   assert.ok(!html.includes('日志 关'), '英文界面不该出现中文开关文案')
+})
+
+test('面板计数走 trf 派生（#60）：themeCount/subtitle 模板含 {n}，渲染值取 themeNames().length', () => {
+  // 模板在源码里：转抄 38 必漂（34→38 前车），派生是唯一正解（n 恒≥2，英文恒复数，见注释）
+  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  assert.ok(code.includes("'{n} 款 opencode 官方配色主题"), 'subtitle zh 模板缺 {n}')
+  assert.ok(code.includes("'{n} official opencode themes"), 'subtitle en 模板缺 {n}')
+  assert.ok(code.includes("'{n} 款 · 按色系分组'"), 'themeCount zh 模板缺 {n}')
+  assert.ok(code.includes("'{n} themes · by color family'"), 'themeCount en 模板缺 {n}')
+  // 当前注册表 38 下渲染值与冻结串逐字一致（长度冒烟基线：与旧静态等长）
+  const zh = loadPanel({ lang: 'zh-CN' })
+  assert.equal(zh.panelProps.text('themeCount', { n: 38 }), '38 款 · 按色系分组')
+  assert.equal(zh.panelProps.text('subtitle', { n: 38 }), '38 款 opencode 官方配色主题，点击即切换')
+  assert.ok(zh.html.includes('38 款 · 按色系分组'), '面板应渲染出 38 计数')
+  const en = loadPanel({ locale: makeLocale('en') })
+  assert.equal(en.panelProps.text('themeCount', { n: 38 }), '38 themes · by color family')
+  assert.equal(en.panelProps.text('subtitle', { n: 38 }), '38 official opencode themes — click to switch')
 })

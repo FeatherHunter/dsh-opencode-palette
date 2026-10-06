@@ -14,7 +14,7 @@ Your ⭐ is the brightest star in my night sky.
 [![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=downloads&suffix=%2Fmo&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![last-commit](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=last-commit&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
 [![themes](https://img.shields.io/badge/themes-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
-[![PRs welcome](https://img.shields.io/badge/PRs%20welcome-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
+[![Issues welcome](https://img.shields.io/badge/Issues%20welcome-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
 
@@ -33,7 +33,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **① Install the plugin.**
 
-**② Open “opencode调色板”.** Settings → Plugins → opencode调色板
+**② Open “Opencode Palette”.** Settings → Plugins → Opencode Palette
 
 **③ Pick a theme you like.**
 
@@ -47,7 +47,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–24 px, your pick of code font — orthogonal to color, kept across restarts.
 
-**A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (中文 / English).
+**A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (Chinese / English).
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
@@ -57,7 +57,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Go to Settings → Plugins → opencode调色板: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
+Prefer a button? Go to Settings → Plugins → Opencode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
@@ -77,6 +77,8 @@ If you like this plugin, you might also like:
 
 <div align="left">
 
+[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred) 🌹; #55 caught follow-system persisting as dark 🌹
+
 [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
 
 [@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
@@ -86,8 +88,6 @@ If you like this plugin, you might also like:
 [@anupamme](https://github.com/anupamme) — #32 flagged a missing check on theme downloads 🌹
 
 [@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
-
-[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred); #55 caught follow-system persisting as dark 🌹
 
 </div>
 

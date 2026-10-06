@@ -14,7 +14,7 @@
 [![下载量](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=%E4%B8%8B%E8%BD%BD%E9%87%8F&suffix=%2F%E6%9C%88&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![最近更新](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
 [![主题包](https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
-[![期待你参与](https://img.shields.io/badge/%E6%9C%9F%E5%BE%85%E4%BD%A0%E5%8F%82%E4%B8%8E-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
+[![欢迎提 Issue](https://img.shields.io/badge/%E6%AC%A2%E8%BF%8E%E6%8F%90%20Issue-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
 
@@ -29,15 +29,15 @@ opencode 的 37 套经典配色深受开发者喜爱，另有一个不碰颜色�
 
 **👇 装完重启后，主界面就是这个样子（opencode 主题）。**
 
-![OpenCode 调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
+![opencode调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
 
 **👇 设置面板：38 款按色系分组，搜一下即切。**
 
-![OpenCode 调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
+![opencode调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
 
 **👇 另一款主题的观感。**
 
-![OpenCode 调色板 — 主界面概览（GitHub 主题）](showcase/overview-github-light-zh.png)
+![opencode调色板 — 主界面概览（GitHub 主题）](showcase/overview-github-light-zh.png)
 
 </div>
 
@@ -93,13 +93,15 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 想让 AI 不只是会聊天？25 个工程技能装好即用，一条安装 Prompt 的事
 
-**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强dsh-im插件和DSH工作区的能力，给你更优质的用户体验。
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强 dsh-im 插件和DSH工作区的能力，给你更优质的用户体验。
 
 </div>
 
 <h2 align="center"><sub>THANKS</sub><br>感谢贡献者</h2>
 
 <div align="left">
+
+[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半）🌹、#55 揪出跟随系统写成深色 🌹
 
 [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
 
@@ -110,8 +112,6 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 [@anupamme](https://github.com/anupamme) — #32 指出主题下载缺一道校验 🌹
 
 [@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
-
-[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半）、#55 揪出跟随系统写成深色 🌹
 
 </div>
 

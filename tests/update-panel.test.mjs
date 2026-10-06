@@ -441,7 +441,8 @@ test('渲染：宿主不可用时不渲染更新块（主题面板本身照常�
 
 test('渲染：中英文主题面板文案不受更新最小集成影响', () => {
   const zh = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
-  assert.ok(zh.html.includes('选择主题'), '中文主题文案应照常')
+  assert.ok(zh.html.includes('主题'), '中文主题文案应照常（#59 定稿：区标题已收敛为“主题”）')
+  assert.ok(!zh.html.includes('选择主题'), '旧区标题“选择主题”不应再出现（#59 一致命中已改）')
   const en = renderPanel({ lang: 'en', connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
   assert.ok(en.html.includes('Themes'), '英文主题文案应照常')
 })

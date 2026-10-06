@@ -36,8 +36,8 @@ const CAPSULES = {
       'https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0&color=FE7D37'],
     ['主题包', 'https://github.com/anomalyco/opencode',
       'https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-opencode%C2%B738-9D7CD8'],
-    ['期待你参与', 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
-      'https://img.shields.io/badge/%E6%9C%9F%E5%BE%85%E4%BD%A0%E5%8F%82%E4%B8%8E-brightgreen.svg'],
+    ['欢迎提 Issue', 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
+      'https://img.shields.io/badge/%E6%AC%A2%E8%BF%8E%E6%8F%90%20Issue-brightgreen.svg'],
   ],
   en: [
     ['npm', 'https://www.npmjs.com/package/dsh-opencode-palette',
@@ -48,8 +48,8 @@ const CAPSULES = {
       'https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=last-commit&color=FE7D37'],
     ['themes', 'https://github.com/anomalyco/opencode',
       'https://img.shields.io/badge/themes-opencode%C2%B738-9D7CD8'],
-    ['PRs welcome', 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
-      'https://img.shields.io/badge/PRs%20welcome-brightgreen.svg'],
+    ['Issues welcome', 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
+      'https://img.shields.io/badge/Issues%20welcome-brightgreen.svg'],
   ],
 }
 
@@ -112,7 +112,7 @@ test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck
 
 // ── 4 · MORE：新增 im-companion 且排在最后；旧两条不动 ──
 test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () => {
-  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强dsh-im插件和DSH工作区的能力，给你更优质的用户体验。'),
+  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强 dsh-im 插件和DSH工作区的能力，给你更优质的用户体验。'),
     '中文 im-companion 一行应为定稿原文')
   assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Supercharge the dsh-im plugin and DSH workspaces for a better experience.'),
     '英文 im-companion 一行应为定稿原文')
@@ -127,11 +127,12 @@ test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () 
   }
 })
 
-// ── 5 · THANKS：六位贡献者（五位 issue + 一位 PR）逐条带 🌹 ──
+// ── 5 · THANKS：六人七 🌹，按花数排行（oopsdoes 两单两花置顶） ──
 // 用户 2026-09-17 复稿把唯一的外部 PR 作者记进来，旧口径「0 个 PR / PR 虚位以待」作废；
 // 2026-10-05 用户要求删掉首句「提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。」
 // （英文页同句一并删除），THANKS 段只剩贡献者逐条。
-test('THANKS：六位贡献者按时间序点名，且每人一句 🌹', () => {
+// 2026-10-06 用户要求一单一花 + 按花数排行：@oopsdoes（#46、#55）两花置顶，其余一花按时间序。
+test('THANKS：六人七花，按花数排行（oopsdoes 两花置顶）', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(thanks > -1, `${name} 应有 THANKS 段`)
@@ -141,11 +142,18 @@ test('THANKS：六位贡献者按时间序点名，且每人一句 🌹', () => 
       assert.ok(doc.slice(thanks).includes(`[@${handle}](https://github.com/${handle})`),
         `${name} 应点名 @${handle}`)
     }
-    // 时间序：#3 → #11 → #12 → PR #32 → #43 → #46（新增者排到 PR 之后）
-    const seq = ['#3 ', '#11 ', '#12 ', '#32 ', '#43 ', '#46 '].map((n) => doc.slice(thanks).indexOf(` ${n}`))
-    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 应保持 #3 → #11 → #12 → #32 → #43 → #46 时间序`)
-    // 段内每条贡献都带 🌹
-    assert.equal(count(doc.slice(thanks), '🌹'), CONTRIBUTORS.length, `${name} 的 THANKS 应每位贡献者一句 🌹（首句已删，不再多算）`)
+    // 按花数排行：oopsdoes（#46、#55，两花）置顶，其余一花按时间序 #3 → #11 → #12 → #32 → #43
+    const top = doc.slice(thanks)
+    const oops = top.indexOf('[@oopsdoes]')
+    const nail = top.indexOf('[@the-beating-light-of-the-nail]')
+    assert.ok(oops > -1 && nail > -1 && oops < nail, `${name} 应按花数排行，@oopsdoes（两花）置顶`)
+    assert.ok(top.includes('#46') && top.includes('#55'), `${name} 的 @oopsdoes 行应同时含 #46 与 #55`)
+    assert.ok(top.indexOf('#46') < top.indexOf('#55'), `${name} 的 #46 应在 #55 之前`)
+    const seq = ['#3 ', '#11 ', '#12 ', '#32 ', '#43 '].map((n) => top.indexOf(` ${n}`))
+    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 其余应保持 #3 → #11 → #12 → #32 → #43 时间序`)
+    assert.ok(Math.max(...seq) > top.indexOf('#55'), `${name} 其余条目应排在 @oopsdoes 之后`)
+    // 一单一花：7 个单号（#3、#11、#12、#32、#43、#46、#55）对 7 朵 🌹
+    assert.equal(count(top, '🌹'), 7, `${name} 的 THANKS 应一单一花共 7 朵（首句已删，不再多算）`)
     // 旧口径不许回来：PR 邀请句已整句删除
     assert.equal(doc.includes('PR 虚位以待'), false, `${name} 不应再有「PR 虚位以待」`)
     assert.equal(doc.includes('PRs wanted'), false, `${name} 不应再有 "PRs wanted"`)

@@ -4835,16 +4835,16 @@ __mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColo
 (function () {
 // zh-names.mjs — 主题中文名表（单一来源）
 // 供运行时面板（中文界面显示中文主题名）与 assets 生成器（矩阵/故事卡中文名）共用。
-// 无中文译名者（opencode / One Dark / Monokai / Cursor / GitHub / Vercel）保留原名。
+// 无中文译名者保留原名（13）：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）。
 
 const THEME_ZH = {
-  opencode: "opencode", tokyonight: "东京之夜", dracula: "德古拉", gruvbox: "复古凹槽",
+  opencode: "opencode", tokyonight: "东京之夜", dracula: "德古拉", gruvbox: "Gruvbox",
   matrix: "黑客帝国", rosepine: "玫瑰松林", catppuccin: "卡布奇诺", "catppuccin-frappe": "卡布奇诺·冰沙",
-  "catppuccin-macchiato": "卡布奇诺·玛奇朵", solarized: "日光浴", synthwave84: "合成波 84",
+  "catppuccin-macchiato": "卡布奇诺·玛奇朵", solarized: "Solarized", synthwave84: "合成波 84",
   everforest: "常青森林", nord: "北极", kanagawa: "神奈川", nightowl: "夜猫子",
   "one-dark": "One Dark", monokai: "Monokai", palenight: "苍白之夜", material: "材料设计",
-  ayu: "鮎", carbonfox: "碳狐", cobalt2: "钴蓝", cursor: "Cursor", aura: "光环",
-  flexoki: "纸墨", github: "GitHub", zenburn: "禅燃", mercury: "水星",
+  ayu: "Ayu", carbonfox: "碳狐", cobalt2: "钴蓝", cursor: "Cursor", aura: "光环",
+  flexoki: "Flexoki", github: "GitHub", zenburn: "禅燃", mercury: "水星",
   "osaka-jade": "大阪翡翠", vesper: "黄昏星", vercel: "Vercel", "lucent-orng": "透光橙",
   orng: "纯橙", amoled: "AMOLED", "oc-2": "OC 2", onedarkpro: "One Dark Pro",
   shadesofpurple: "紫影", system: "跟随系统",
@@ -13051,20 +13051,21 @@ function saveState(state) {
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
 const I18N = {
   panelName: { zh: 'opencode调色板', en: 'Opencode Palette' },
-  subtitle: { zh: '38 款 opencode 官方配色主题，点击即切换', en: '38 official opencode themes — click to switch' },
+  // 计数为派生数据：{n} 取 themeNames().length（37 静态＋system，恒≥2，英文恒复数），转抄 38 必漂（34→38 前车）。
+  subtitle: { zh: '{n} 款 opencode 官方配色主题，点击即切换', en: '{n} official opencode themes — click to switch' },
   enabled: { zh: '已启用', en: 'Enabled' },
   disabled: { zh: '已停用', en: 'Disabled' },
-  disableTitle: { zh: '点击停用主题', en: 'Click to disable' },
-  enableTitle: { zh: '点击启用主题', en: 'Click to enable' },
+  disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
+  enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
   typography: { zh: '字体字号', en: 'Typography' },
   bodyStyle: { zh: '正文样式', en: 'Body style' },
   mono: { zh: '全部文字', en: 'All text' },
   sans: { zh: '仅代码', en: 'Code only' },
   fontSize: { zh: '字号', en: 'Font size' },
   codeFont: { zh: '代码字体', en: 'Code font' },
-  fontNotInstalled: { zh: '本机未装', en: 'missing' },
-  fontLocal: { zh: '本地', en: 'local' },
-  fontMono: { zh: '等宽', en: 'mono' },
+  fontNotInstalled: { zh: '本机未装', en: 'Not installed on this machine' },
+  fontLocal: { zh: '本地', en: 'Local' },
+  fontMono: { zh: '等宽', en: 'Mono' },
   fontPresets: { zh: '常用预设', en: 'Common presets' },
   fontLocals: { zh: '本机字体', en: 'Installed on this machine' },
   fontSearch: { zh: '搜索本机字体…', en: 'Search installed fonts…' },
@@ -13072,15 +13073,15 @@ const I18N = {
   fontCounting: { zh: '正在读取本机字体…', en: 'Reading installed fonts…' },
   fontLoadedCount: { zh: '已读取本机 {n} 款字体', en: '{n} fonts found on this machine' },
   fontScanFail: { zh: '未能读取本机字体清单，先列出常用预设', en: 'Could not read the font list — showing the common presets' },
-  fontScanDenied: { zh: '本机字体访问被拒绝，浏览器地址栏授权后再试；先列出常用预设', en: 'Font access was denied — allow it in the browser, then retry; showing the common presets' },
+  fontScanDenied: { zh: '本机字体访问被拒绝，浏览器地址栏授权后再试；先列出常用预设', en: 'Font access was denied — allow it in the browser address bar, then retry; showing the common presets' },
   fontScanUnsupported: { zh: '当前环境不支持读取本机字体清单，先列出常用预设', en: 'This environment cannot list installed fonts — showing the common presets' },
-  fontScanEmpty: { zh: '没读到本机字体清单，先列出常用预设', en: 'The font list came back empty — showing the common presets' },
+  fontScanEmpty: { zh: '本机字体清单为空，先列出常用预设', en: 'The font list came back empty — showing the common presets' },
   fontRetry: { zh: '重试', en: 'Retry' },
-  themeSection: { zh: '选择主题', en: 'Themes' },
-  themeCount: { zh: '38 款 · 按色系分组', en: '38 · by color family' },
+  themeSection: { zh: '主题', en: 'Themes' },
+  themeCount: { zh: '{n} 款 · 按色系分组', en: '{n} themes · by color family' },
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
-  systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
+  systemDefault: { zh: 'system（跟随系统）', en: 'system (follow system)' },
   translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
@@ -13095,13 +13096,13 @@ const I18N = {
   authorPlugins: { zh: '作者其他插件', en: 'More from the author' },
   authorPluginOpen: { zh: '在新窗口打开', en: 'Open in new window' },
   'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
-  'authorPlugin.prompt': { zh: '常用 prompt 预置或者自定义保存，开发只需要一键注入，不再繁琐', en: 'Save your prompt presets, inject them into a dev task with one click' },
+  'authorPlugin.prompt': { zh: '保存常用 prompt 预设，一键注入开发任务', en: 'Save your prompt presets, inject them into a dev task with one click' },
   'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
   // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
   logSwitch: { zh: '日志', en: 'Log' },
   logOn: { zh: '开', en: 'On' },
   logOff: { zh: '关', en: 'Off' },
-  logSwitchHint: { zh: '打开后把关键节点写进 <DSH_HOME>/logs/dsh-opencode-palette/（排障用；失败级别的日志恒记，不受此开关控制）', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
+  logSwitchHint: { zh: '打开后把关键节点写入 <DSH_HOME>/logs/dsh-opencode-palette/；warn/error 恒记，不受此开关控制', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
   logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
 }
 
@@ -13958,7 +13959,7 @@ function createClient(slotTarget) {
             ]),
           ]),
           h('div', { style: { fontSize: 12, color: muted } },
-            tr('subtitle')),
+            trf('subtitle', { n: themeNames().length })),
           // 日志开关写失败时的本地提示（更新控制器已删，不再经由它中转）。
           logNotice
             ? h('div', {
@@ -13993,7 +13994,7 @@ function createClient(slotTarget) {
           // ── 主题选择（色系分组标签 + mini 芯片）──
           h('div', { style: secTitle }, [
             h('span', null, tr('themeSection')),
-            h('span', { style: countStyle }, tr('themeCount')),
+            h('span', { style: countStyle }, trf('themeCount', { n: themeNames().length })),
           ]),
           h('input', {
             placeholder: tr('search'),

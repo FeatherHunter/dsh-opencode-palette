@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<!-- PROTOTYPE — 抛弃式原型（#61 双 README 镜像定稿），勿入生产。双击即开，无构建、无持久化。分支：LOGIC 单文件。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#61 双 README 镜像定稿原型（PROTOTYPE·抛弃式）</title>
+<style>
+  :root { --accent: #7c5cff; --ok: #137333; --bad: #b3261e; --mut: #5f6368; --line: #e3e1f5; --bg: #fafaff; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: #1a1b1e; font: 15px/1.65 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+  header { max-width: 1080px; margin: 0 auto; padding: 28px 20px 8px; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 999px; padding: 2px 10px; letter-spacing: .04em; }
+  h1 { font-size: 24px; margin: 10px 0 6px; }
+  .q { background: #fff; border: 1px solid var(--line); border-left: 5px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin: 12px 0; }
+  .q b { color: var(--accent); }
+  main { max-width: 1080px; margin: 0 auto; padding: 0 20px 80px; }
+  section.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; margin: 14px 0; }
+  section.card h2 { font-size: 17px; margin: 0 0 8px; }
+  #statePanel { border: 2px solid var(--accent); }
+  .nums { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .pill { border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 700; background: #eee; }
+  .pill.ok { background: #dff0e2; color: var(--ok); }
+  .pill.bad { background: #fbe3e1; color: var(--bad); }
+  .pill.mut { background: #ececf1; color: var(--mut); }
+  #lastChange { min-height: 1.6em; color: #333; background: #f4f1ff; border-radius: 8px; padding: 8px 12px; margin-top: 8px; }
+  table.grid { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.grid th, table.grid td { border: 1px solid var(--line); padding: 8px 10px; vertical-align: top; text-align: left; }
+  table.grid th { background: #f4f1ff; }
+  td.zh, td.en { width: 31%; font-family: Consolas, "Noto Sans Mono", monospace; font-size: 12.5px; word-break: break-word; }
+  .mark { background: #ffe082; padding: 0 3px; border-radius: 3px; font-weight: 700; }
+  .verdict-pass { color: var(--ok); font-weight: 700; }
+  .verdict-fail { color: var(--bad); font-weight: 700; }
+  .verdict-todo { color: var(--mut); font-weight: 700; }
+  .rowbtns button { margin: 2px 4px 2px 0; }
+  button { font: inherit; cursor: pointer; border-radius: 8px; border: 1px solid var(--accent); background: #fff; color: var(--accent); padding: 5px 12px; }
+  button:hover { background: var(--accent); color: #fff; }
+  button.primary { background: var(--accent); color: #fff; }
+  button.primary:hover { filter: brightness(.92); }
+  button.ghost { border-color: #c9c5e8; color: #444; }
+  .tabs { display: flex; gap: 8px; margin: 10px 0; flex-wrap: wrap; }
+  .tabs button[aria-selected="true"] { background: var(--accent); color: #fff; }
+  .step { border-top: 1px dashed var(--line); padding: 10px 0; }
+  .step p { margin: 4px 0 8px; }
+  code.k { background: #f1efff; border-radius: 5px; padding: 0 6px; }
+  footer { max-width: 1080px; margin: 0 auto; padding: 0 20px 40px; color: var(--mut); font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">PROTOTYPE · 抛弃式 · #61</span>
+  <h1>双 README 镜像定稿：中英逐句对等走查</h1>
+  <div class="q"><b>设计问题：</b>README.md 与 docs/README.en.md 是否逐句镜像对等？英文页 3 处中文残留、徽章行、语气、showcase 内嵌文字是否重出图，怎么定？
+  本页回答它：<b>分支 LOGIC（单文件可分享 HTML）</b>——自由按钮随便点，分 tab 走快乐路径 / 难啃差异 / 非法定稿；每次点击后状态面板即时重渲染。grilling 已定：徽章“各自本地化但结构对称”、残留改英文面板名、showcase 直接给重出图结论。</div>
+  <div class="q">运行：<code class="k">双击本文件</code>即开（无构建、无服务器、无持久化，状态只在内存）。判据来源：#58 五维结论（README 只走准确+一致+语气，信息对等≠句式对等）＋ #64 执行规格 ＋ tests/readme-*.test.mjs 现有门禁。</div>
+</header>
+<main>
+  <section class="card" id="statePanel">
+    <h2>当前状态（每次点击后重渲染）</h2>
+    <div class="nums" id="nums"></div>
+    <div id="lastChange">尚未操作——点下面的自由按钮或走查步骤，状态会在这里外显。</div>
+  </section>
+
+  <section class="card">
+    <h2>自由走查（free-play：每个 verdict 都是一个按钮，随便点）</h2>
+    <p style="color:#5f6368;margin:0 0 8px">每个按钮都会 dispatch 一个 action 并重渲染状态；<button class="primary" data-act="applyRecommended">一键按推荐 verdict</button> <button class="ghost" data-act="reset">重置</button> <button class="ghost" data-act="tryClose">检查是否可关</button></p>
+    <div style="overflow:auto">
+    <table class="grid" id="freeTable">
+      <thead><tr><th style="width:16%">节</th><th>中文侧（摘）</th><th>英文侧（摘）</th><th style="width:22%">推荐 verdict＋操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>引导走查（guided walkthroughs：每个 tab 一段难啃现实）</h2>
+    <div class="tabs" role="tablist" id="tabs"></div>
+    <div id="walk"></div>
+  </section>
+
+  <section class="card">
+    <h2>定稿 verdict 总表（T6 落码照单执行，不在本票改码）</h2>
+    <div style="overflow:auto">
+    <table class="grid" id="verdictTable">
+      <thead><tr><th>节</th><th>verdict</th><th>T6 改法（一句话）</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    </div>
+  </section>
+</main>
+<footer>捕获：validated decision = 上表 verdict（徽章本地化对称 / 残留改英文名 / showcase 对称重出 / OpenCode 孤例改小写 / slogan 顺序差算 PASS）；prototype 本体留在抛弃分支，主干只进定稿落码（T6 #62）。内存状态，关掉即丢。</footer>
+
+<script>
+/* ===== 纯逻辑模块（可整体搬走，零 DOM 引用） ===== */
+const SECTIONS = [
+  { id: "badges", name: "头尾胶囊行", zh: "版本/下载量/最近更新/主题包/期待你参与（5 枚，顺序固定）", en: "npm/downloads/last-commit/themes/PRs welcome（5 枚，顺序/链接与中文一一对应）", rec: "pass", fix: "有条件 PASS：数量·顺序·链接对称（门禁已钉）；但“期待你参与/PRs welcome”不对等（泛邀请 vs 特指PR），T6 二选一：zh 收窄或 en 放宽。" },
+  { id: "slogan", name: "卖点＋求星", zh: "粗体中文卖点＋斜体英文镜像＋“你的⭐是我夜空中最亮的星。”", en: "粗体英文卖点＋斜体中文镜像＋“Your ⭐ is the brightest star…”", rec: "pass", fix: "信息对等即过：粗体一句＋斜体一句＋求星一句的顺序差不算账（#58 Q5）。" },
+  { id: "showcase-pick", name: "SHOWCASE 选图", zh: "showcase/overview-opencode-zh.png / showcase/opencode调色板设置页面-zh.png / showcase/overview-github-light-zh.png（全名逐字）", en: "showcase/opencode调色板opencode风格主页面-en.png（EN L32） / showcase/settings-opencode-en.png / showcase/overview-tokyonight-en.png（全名逐字）", rec: "fail", fix: "重出图结论：对称三张——①主界面 opencode ②设置面板 ③同一第三主题（建议 GitHub Light 中英同主题），EN 图重截英文面板，文件名对称。会红测试：tests/readme-body.test.mjs showcase 节（断言 zhImgs[2]/enImgs[2] 现文件名＋图片存在性测试），T6 同步改。" },
+  { id: "showcase-alt", name: "SHOWCASE alt＋品牌", zh: "alt 用“OpenCode 调色板”（孤例大写 C）", en: "alt 用“Opencode Palette”", rec: "fail", fix: "统一 zh=opencode调色板 / en=Opencode Palette（生效条件：核对上游拼写后，见#58）；孤例 OpenCode 改小写。caption 已去“浅色”claim，保持。" },
+  { id: "install", name: "INSTALL 三步", zh: "①装 ②打开「opencode调色板」③挑主题", en: "EN L60 ② Open “opencode调色板”…Plugins → opencode调色板（一行两处）＋ EN L84 按钮段 …Plugins → opencode调色板", rec: "fail", fix: "3行4处之其二段：EN L60（×2）＋L84 改英文面板名 Settings → Plugins → Opencode Palette（生效条件：上游拼写核对后）；中文名只出现在中文页。" },
+  { id: "themes-ext", name: "THEMES＋EXTENSIONS", zh: "38 个入口…／面板好找…（中文 / English）", en: "EN L74 …following your DSH interface language (中文 / English)（1 处）", rec: "fail", fix: "3行4处之其一段：EN L74 改为 (Chinese / English)；其余数据句＋两条目结构对称，算过。口径：3行4处=EN L60×2＋L74＋L84，按段合并3段。" },
+  { id: "upgrade", name: "UPGRADE", zh: "命令块＋“检查更新…更新至 vX.Y.Z…横幅提醒”", en: "同一命令块＋“Check for updates…Update to vX.Y.Z…banner stays…”", rec: "pass", fix: "按钮名各自语言、动作/对象/结果/条件一一对应即过，不强制同句式。" },
+  { id: "more", name: "MORE＋尾部", zh: "三条（含 im-companion“增强dsh-im…”缺空格）", en: "三条（Supercharge…）＋ THANKS 六人七花＋CONNECT", rec: "pass", fix: "结构已对称；附带抛光：中文“增强dsh-im”补空格→“增强 dsh-im”，不算镜像失败。" },
+];
+
+function initial() {
+  const j = {};
+  SECTIONS.forEach(s => j[s.id] = null);
+  return { judgments: j, closed: false, closeAttempts: 0, lastChange: "初始态：8 节均未判，不可定稿。" };
+}
+function counts(st) {
+  let p = 0, f = 0, t = 0;
+  SECTIONS.forEach(s => { if (st.judgments[s.id] === "pass") p++; else if (st.judgments[s.id] === "fail") f++; else t++; });
+  return { pass: p, fail: f, todo: t, judged: p + f, total: SECTIONS.length, canClose: t === 0 };
+}
+function reduce(st, action) {
+  const next = { judgments: { ...st.judgments }, closed: st.closed, closeAttempts: st.closeAttempts, lastChange: "" };
+  if (action.type === "judge") {
+    next.judgments[action.id] = action.verdict;
+    const s = SECTIONS.find(x => x.id === action.id);
+    next.lastChange = "刚才把「" + s.name + "」判为 " + (action.verdict === "pass" ? "PASS" : "FAIL") + "（推荐：" + (s.rec === "pass" ? "PASS" : "FAIL") + "）。" + (action.verdict === s.rec ? "与推荐一致。" : "⚠ 与推荐不一致——有意为之请在走查里记下理由。");
+  } else if (action.type === "reset") {
+    return { judgments: Object.fromEntries(SECTIONS.map(s => [s.id, null])), closed: false, closeAttempts: 0, lastChange: "已重置：回到 8 节未判的初始态。" };
+  } else if (action.type === "applyRecommended") {
+    SECTIONS.forEach(s => next.judgments[s.id] = s.rec);
+    next.lastChange = "一键按推荐 verdict：PASS×4（badges/slogan/upgrade/more）＋ FAIL×4（showcase-pick/showcase-alt/install/themes-ext，含 3 处中文残留＋品牌孤例＋选图不对称）。可定稿条件已满足（8/8 已判）。";
+  } else if (action.type === "tryClose") {
+    next.closeAttempts++;
+    const c = counts(st);
+    if (c.todo > 0) next.lastChange = "⛔ 不可关：第 " + next.closeAttempts + " 次检查，还有 " + c.todo + " 节未判——判完才能关（本按钮只检查、不关闭任何东西）。";
+    else { next.closed = true; next.lastChange = "✅ 可关：8/8 已判，FAIL 均有 T6 改法（含会红测试清单），verdict 总表即依据。"; }
+  }
+  return next;
+}
+
+/* ===== 薄壳（页面调用逻辑，逻辑不碰 DOM） ===== */
+let state = initial();
+const $ = (s) => document.querySelector(s);
+
+
+const WALKS = [
+  { key: "A", title: "A · 快乐路径", desc: "先把无争议的四节判 PASS，看计数怎么涨、定稿按钮为什么还拦着（因为还有四节没判）。", steps: [
+    { id: "badges", verdict: "pass", why: "徽章：label 本地化但数量·顺序·链接对称——按 grilling 结论判 PASS。" },
+    { id: "slogan", verdict: "pass", why: "卖点：中英各粗体一句＋斜体一句，顺序差不算账（#58 信息对等）。" },
+    { id: "upgrade", verdict: "pass", why: "UPGRADE：按钮名各自语言，动作/条件一一对应。" },
+    { id: "more", verdict: "pass", why: "MORE：三条结构对称，缺空格只算抛光。" },
+  ]},
+  { key: "B", title: "B · 难啃的四处", desc: "纸上看着像，点开全是事：选图不对称、品牌大小写、3 处中文残留（INSTALL×2＋EXT×1）。", steps: [
+    { id: "showcase-pick", verdict: "fail", why: "选图：中英第三张主题不同（GitHub vs TokyoNight）、文件名不对称——FAIL，重出图。" },
+    { id: "showcase-alt", verdict: "fail", why: "品牌：中文 alt 孤例 OpenCode——FAIL，统一小写。" },
+    { id: "install", verdict: "fail", why: "INSTALL：EN 侧两处 opencode调色板＋（中文/English）——FAIL，改英文名。" },
+    { id: "themes-ext", verdict: "fail", why: "EXT：EN 侧 (中文 / English)——FAIL，改 (Chinese / English)。" },
+  ]},
+  { key: "C", title: "C · 非法定稿", desc: "演示什么是不合法的：没判完就点“检查是否可关”会被拦；一键推荐判完后才能关。", steps: [
+    { id: "__reset", verdict: "", why: "先重置到初始态。" },
+    { id: "__tryClose", verdict: "", why: "在 0/8 已判时点定稿——看它怎么被拦。" },
+    { id: "__apply", verdict: "", why: "一键按推荐判完 8 节。" },
+    { id: "__tryClose", verdict: "", why: "再点定稿——这次放行，verdict 总表即依据。" },
+  ]},
+];
+let curTab = "A", stepIdx = 0;
+
+function verdictChip(v) {
+  if (v === "pass") return '<span class="verdict-pass">PASS</span>';
+  if (v === "fail") return '<span class="verdict-fail">FAIL</span>';
+  return '<span class="verdict-todo">未判</span>';
+}
+function render() {
+  const c = counts(state);
+  document.getElementById("nums").innerHTML =
+    '<span class="pill mut">已判 ' + c.judged + '/' + c.total + '</span>' +
+    '<span class="pill ok">PASS ' + c.pass + '</span>' +
+    '<span class="pill bad">FAIL ' + c.fail + '</span>' +
+    '<span class="pill mut">未判 ' + c.todo + '</span>' +
+    '<span class="pill ' + (c.canClose ? "ok" : "mut") + '">' + (c.canClose ? (state.closed ? "已定稿可关" : "可定稿") : "不可定稿") + '</span>';
+  document.getElementById("lastChange").textContent = state.lastChange;
+  const tb = document.querySelector("#freeTable tbody");
+  tb.innerHTML = "";
+  SECTIONS.forEach(s => {
+    const tr = document.createElement("tr");
+    const cur = state.judgments[s.id];
+    tr.innerHTML = "<td><b>" + s.name + "</b><br>" + verdictChip(cur) + "<br><span style='color:#888'>推荐:" + (s.rec === "pass" ? "PASS" : "FAIL") + "</span></td>" +
+      "<td class='zh'></td><td class='en'></td>" +
+      "<td class='rowbtns'><div style='font-size:12.5px;color:#444;margin-bottom:6px'>" + s.fix + "</div></td>";
+    tr.children[1].textContent = s.zh;
+    tr.children[2].textContent = s.en;
+    // 高亮残留与品牌孤例
+    if (s.id === "install" || s.id === "themes-ext") {
+      tr.children[2].innerHTML = tr.children[2].textContent.replace(/opencode调色板|中文/g, (m) => '<span class="mark">' + m + "</span>");
+    }
+    if (s.id === "showcase-alt") {
+      tr.children[1].innerHTML = tr.children[1].textContent.replace("OpenCode", '<span class="mark">OpenCode</span>');
+    }
+    const box = tr.children[3];
+    const bP = document.createElement("button"); bP.textContent = "判 PASS";
+    bP.onclick = () => { state = reduce(state, { type: "judge", id: s.id, verdict: "pass" }); syncWalk(s.id); render(); };
+    const bF = document.createElement("button"); bF.textContent = "判 FAIL";
+    bF.onclick = () => { state = reduce(state, { type: "judge", id: s.id, verdict: "fail" }); syncWalk(s.id); render(); };
+    box.appendChild(bP); box.appendChild(bF);
+    tb.appendChild(tr);
+  });
+  const vt = document.querySelector("#verdictTable tbody");
+  vt.innerHTML = "";
+  SECTIONS.forEach(s => {
+    const cur = state.judgments[s.id];
+    const tr = document.createElement("tr");
+    tr.innerHTML = "<td><b>" + s.name + "</b></td><td>" + verdictChip(cur) + " <span style='color:#888'>(推荐:" + (s.rec === "pass" ? "PASS" : "FAIL") + ")</span></td>";
+    const td = document.createElement("td"); td.textContent = s.fix;
+    tr.appendChild(td); vt.appendChild(tr);
+  });
+  renderWalk();
+}
+function syncWalk() { /* 自由按钮不强制推进走查，只重渲染 */ }
+function renderWalk() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+  WALKS.forEach(w => {
+    const b = document.createElement("button");
+    b.textContent = w.title; b.setAttribute("aria-selected", w.key === curTab ? "true" : "false");
+    b.onclick = () => { state = initial(); stepIdx = 0; curTab = w.key; render(); };
+    tabs.appendChild(b);
+  });
+  const w = WALKS.find(x => x.key === curTab);
+  const box = document.getElementById("walk");
+  box.innerHTML = "";
+  const p = document.createElement("p"); p.style.color = "#5f6368"; p.textContent = w.desc + "（进入 tab 会重置到初始态——含 free-play 已判结果，先记下再切；本页状态只在内存，关掉即丢。）";
+  box.appendChild(p);
+  w.steps.forEach((st, i) => {
+    const d = document.createElement("div"); d.className = "step";
+    const done = i < stepIdx;
+    const label = document.createElement("p");
+    label.innerHTML = "<b>步骤 " + (i + 1) + "：</b>" + st.why + (done ? " ✅已走" : (i === stepIdx ? " 👈下一步" : ""));
+    d.appendChild(label);
+    const b = document.createElement("button");
+    if (st.id === "__reset") { b.textContent = "重置"; b.onclick = () => { state = reduce(state, { type: "reset" }); stepIdx = i + 1; render(); }; }
+    else if (st.id === "__tryClose") { b.textContent = "检查是否可关"; b.className = "ghost"; b.onclick = () => { state = reduce(state, { type: "tryClose" }); stepIdx = i + 1; render(); }; }
+    else if (st.id === "__apply") { b.textContent = "一键按推荐 verdict"; b.className = "primary"; b.onclick = () => { state = reduce(state, { type: "applyRecommended" }); stepIdx = i + 1; render(); }; }
+    else { b.textContent = "判「" + SECTIONS.find(s => s.id === st.id).name + "」为 " + (st.verdict === "pass" ? "PASS" : "FAIL"); b.onclick = () => { state = reduce(state, { type: "judge", id: st.id, verdict: st.verdict }); stepIdx = i + 1; render(); }; }
+    if (done) b.disabled = true;
+    d.appendChild(b);
+    box.appendChild(d);
+  });
+}
+document.querySelectorAll("[data-act]").forEach(b => {
+  b.onclick = () => {
+    const a = b.getAttribute("data-act");
+    if (a === "applyRecommended") state = reduce(state, { type: "applyRecommended" });
+    if (a === "reset") { state = reduce(state, { type: "reset" }); stepIdx = 0; }
+    if (a === "tryClose") state = reduce(state, { type: "tryClose" });
+    render();
+  };
+});
+render();
+</script>
+</body>
+</html>

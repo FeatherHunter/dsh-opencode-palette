@@ -7,6 +7,7 @@ import {
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
+import { THEME_ZH } from '../src/engine/zh-names.mjs'
 import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.mjs'
 import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
 import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
@@ -214,6 +215,18 @@ test('色系分组: 特殊/透明主题归位，暖橙含 opencode', () => {
   assert.ok(by('transparent').includes('lucent-orng'))
   assert.ok(by('warm').includes('opencode'))
   assert.ok(by('cool-blue').includes('tokyonight'))
+})
+
+test('单源对账（#60）：listThemes 38 == THEME_ZH 38 键，GROUP_ORDER 9/9 对齐', () => {
+  const names = themeNames()
+  const zhKeys = Object.keys(THEME_ZH)
+  assert.equal(names.length, 38)
+  assert.deepEqual(zhKeys.length, 38)
+  assert.deepEqual([...zhKeys].sort(), [...names].sort(), 'THEME_ZH 键集应与注册表一致（差一键就会静默退回英文 id）')
+  assert.equal(GROUP_ORDER.length, 9)
+  assert.deepEqual(Object.keys(GROUP_COLORS).sort(), [...GROUP_ORDER].sort(), 'GROUP_COLORS 键集应与 ORDER 9/9 对齐（缺一色组标题就没色点）')
+  const groups = themeGroups()
+  assert.ok(groups.every((g) => GROUP_ORDER.includes(g.name)))
 })
 
 test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PROTOTYPE #53 · 一点即弹窗按钮形态与文案（抛弃式）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:13px/1.65 system-ui,"PingFang SC","Microsoft YaHei",sans-serif;background:#0b0b0e;color:#e6e6ea;padding:24px 24px 120px;max-width:1180px;margin:0 auto}
+h1{font-size:19px;margin-bottom:4px}h1 .tag{font-size:11px;background:#3a2a00;color:#ffb020;border:1px solid #7a5b00;border-radius:4px;padding:1px 8px;vertical-align:2px;margin-right:8px}
+.q{color:#b9b9c4;font-size:12.5px;margin-bottom:10px;max-width:1000px}
+.assume{background:#17130a;border:1px solid #7a5b00;border-radius:10px;padding:10px 14px;font-size:12px;color:#ffd88a;margin-bottom:16px}
+.assume b{color:#ffb020}.assume ol{margin:6px 0 0 18px}.assume li{margin:2px 0}
+.panel{background:#121216;border:1px solid #2a2a31;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.p-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.p-head strong{font-size:14px}.p-head .sub{font-size:11.5px;color:#8b8b95}
+.ghost{font:inherit;font-size:12.5px;background:transparent;border:1px solid #4a4a52;color:#e6e6ea;border-radius:6px;padding:4px 12px;cursor:pointer}
+.ghost:hover{border-color:#8b8b95}.ghost:disabled{opacity:.55;cursor:default}
+.ghost.has-new{border-color:#059669;color:#34d399}.ghost.failed{border-color:#dc2626;color:#f87171}.ghost.restart{border-color:#d97706;color:#fbbf24}
+.entry-btn{font:inherit;font-size:12.5px;border:1px solid #d1d5db;border-radius:6px;background:#f9fafb;color:#1f2937;padding:4px 12px;cursor:pointer}
+.entry-btn:hover{border-color:#2563eb}
+.entry-wrap[data-state="update"] .entry-btn{border-color:#059669;color:#059669}
+.entry-wrap[data-state="restart"] .entry-btn{border-color:#d97706;color:#d97706}
+.entry-wrap[data-state="failed"] .entry-btn{border-color:#dc2626;color:#dc2626}
+.entry-wrap[data-theme="d5-paper"]{font-family:Georgia,"Songti SC","STSong",serif;color:#1a1a1a}
+.entry-wrap[data-theme="d5-paper"] .entry-btn{border-color:#c4b896;background:transparent;border-radius:3px}
+.entry-wrap[data-theme="d5-paper"] .entry-btn:hover{border-color:#c8402a;color:#c8402a}
+.dot{width:14px;height:14px;border:0;border-radius:50%;background:#9ca3af;cursor:pointer;padding:0}
+.entry-wrap[data-state="update"] .dot{background:#059669}.entry-wrap[data-state="restart"] .dot,.entry-wrap[data-state="busy"] .dot{background:#d97706}.entry-wrap[data-state="failed"] .dot{background:#dc2626}
+.note{font-size:12px;color:#8b8b95;margin-left:8px}
+.paper-zone{background:#f5f0e1;color:#1a1a1a;border:1px solid #c4b896;border-radius:6px;padding:14px 16px}
+.paper-zone .p-head strong{color:#1a1a1a}.paper-zone .sub{color:#6b6250 !important}
+.bottom-zone{border:1px dashed #4a4a52;border-radius:10px;padding:12px 14px;margin-top:14px}
+.bottom-zone h3{font-size:12px;color:#a1a1aa;margin-bottom:8px;font-weight:600}
+.dlg-back{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:60px 16px;z-index:40}
+.dlg{background:#17171c;border:1px solid #3a3a42;border-radius:12px;max-width:560px;width:100%;padding:18px 20px}
+.dlg h2{font-size:15px;margin-bottom:4px}.dlg .ver{font-size:12px;color:#8b8b95;margin-bottom:10px}
+.banner{border:1px solid #d97706;background:#2a1e05;color:#fbbf24;border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:10px}
+.failbox{border:1px solid #5a2a2a;background:#1e1212;border-radius:8px;padding:8px 12px;font-size:12.5px;margin-bottom:10px}
+.failbox .t{color:#f87171;font-weight:600}.failbox .a{color:#d8b4b4}
+.manual{background:#0e0e11;border:1px solid #33333a;border-radius:8px;padding:8px 12px;font-family:Consolas,monospace;font-size:11.5px;color:#7fd88f;margin-bottom:10px;white-space:pre-wrap;word-break:break-all}
+.row-btns{display:flex;gap:8px;margin-top:10px}.btn{border:1px solid #4a4a52;background:#232329;color:#fff;border-radius:7px;padding:6px 14px;font-size:12.5px;cursor:pointer}.btn.primary{background:#2563eb;border-color:#2563eb}.btn:disabled{opacity:.5;cursor:default}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin-bottom:10px}
+.fld{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#a1a1aa}
+select{background:#1c1c21;border:1px solid #3a3a42;color:#e6e6ea;border-radius:6px;padding:5px 8px;font-size:12px;max-width:280px}
+.state{background:#0e0e11;border:1px solid #33333a;border-radius:8px;padding:10px 12px;font-family:Consolas,monospace;font-size:11.5px;color:#9fd89f;white-space:pre-wrap;word-break:break-all;margin-top:8px}
+.state .chg{color:#ffb020;font-weight:700}
+table.diff{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+table.diff th,table.diff td{border:1px solid #33333a;padding:6px 8px;text-align:left;vertical-align:top}
+table.diff th{background:#1c1c21;color:#a1a1aa;font-weight:600}
+.pill{display:inline-block;font-size:10.5px;border-radius:4px;padding:0 6px;margin-right:4px}.p-reuse{background:#0f2f1d;color:#34d399}.p-new{background:#2a1e05;color:#fbbf24}.p-rep{background:#2a1205;color:#fb923c}
+#switcher{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:50;display:flex;align-items:center;gap:14px;background:#f5f5f7;color:#111;border-radius:999px;padding:8px 10px;box-shadow:0 8px 30px rgba(0,0,0,.5);font-size:13px}
+#switcher button{border:0;background:#111;color:#fff;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer}
+#switcher .lab b{margin-right:6px}
+#switcher .proto-tag{font-size:10px;background:#111;color:#ffb020;border-radius:4px;padding:1px 6px;margin-left:8px}
+.sec-t{font-size:13px;font-weight:700;margin:0 0 8px}.sec-t .en{color:#5c5c66;font-weight:400;font-size:11px;margin-left:8px}
+</style></head><body>
+<h1><span class="tag">PROTOTYPE · 抛弃式</span>#53 · 一点即弹窗按钮形态与文案</h1>
+<div class="q">设计问题：配置面板「检查更新」改成新包风格的一点即弹窗后，按钮位置、四态、弹窗内容与中英文案是什么？以新包自带弹窗为基准，对照现有头行右侧 ghost 四态与八种原因码文案，输出形态与词条差量（复用或新增）。分支：UI（What should this look like → 同页多变体＋底部悬浮切换）。单文件双击即开，无持久化（状态全内存），无测试。</div>
+<div class="assume"><b>假设外显（grilling 已问、用户取消作答；按架构师推荐默认推进，用户可随时推翻）：</b><ol>
+<li>按钮位置＝头行右侧原位（变体 A 为正选；C 底部区仅作否决对照）。推荐理由与对抗审查见票 #53 评论/正文。</li>
+<li>入口形态 variant＝button（#52/#63 已定）；badge（B）与 inline 语义对照仅为证明“为什么不行”（badge 无文字 affordance；inline 在包实现里 open() 直接 return，点它永不弹窗）。</li>
+<li>主题首版＝default，d5-paper 只在 B 变体跑对照、预留 setTheme；38→2 硬映射本次不做（结论交 #56）。</li>
+<li>文案＝中文照包原文零改；英文用现有自研表过渡补齐（包无英文），标待 #56 定稿；行为参数全默认（autoCheck mount / openOn has-update / pollMs 默认 / changelog null / profileName 与 onRestartRequested 不传）。</li>
+<li>载体＝本单文件，?variant=A/B/C＋底部悬浮条＋←/→ 键；每次动作后下方状态面板外显全量状态。</li>
+</ol></div>
+<div id="mount"></div>
+<div class="panel"><div class="sec-t">试驾控制台 <span class="en">free-play — 每个动作后状态面板重渲染，变化字段标 ★</span></div>
+<div class="ctl">
+<label class="fld">预设快照（宿主回包）<select id="c-preset"></select></label>
+<label class="fld">点后查到（查后快照）<select id="c-after"><option value="same">与预设相同</option><option value="hasnew">有新版 2.0.17</option><option value="latest">无新版（已是最新）</option><option value="fail">检查失败 check-failed</option></select></label>
+<label class="fld">界面语言（包仅中文；EN 为自研过渡）<select id="c-lang"><option value="zh">中文（包原文）</option><option value="en">English（自研过渡补齐）</option></select></label>
+<label class="fld">动作<button class="btn primary" id="b-click">点一下按钮（走 activate）</button></label>
+<label class="fld">　<button class="btn" id="b-silent">进面静默查（只读 status）</button></label>
+<label class="fld">　<button class="btn" id="b-close">关弹窗</button></label>
+</div>
+<div class="state" id="state">初始化…</div></div>
+<div class="panel"><div class="sec-t">形态与词条差量表 <span class="en">包（唯一出处） vs 现有自研 — 结论：复用 / 新增 / 替换</span></div><div id="difftable"></div></div>
+<div class="panel"><div class="sec-t">八种 blocked＋电话码原文对照 <span class="en">CN＝包原文；EN＝现有自研过渡（包无英文）</span></div><div id="codetable"></div></div>
+<div id="switcher"><button id="s-prev" title="上一个变体">←</button><span class="lab" id="s-lab"></span><button id="s-next" title="下一个变体">→</button><span class="proto-tag">PROTOTYPE — wipe me</span></div>
+<div id="dlg-root"></div>
+<script>
+var $=function(id){return document.getElementById(id)};
+var VARIANTS=[
+{k:"A",name:"头行原位 button · default",openOn:"has-update",theme:"default",entry:"button",place:"header",desc:"推荐基线＝#63 默认：autoCheck mount，进面静默查只变按钮；点击先 updateCheck，有新版开 dialog，无新版原地 已是最新 R 不弹窗"}
+,{k:"B",name:"极简圆点 badge · d5-paper",openOn:"manual",theme:"d5-paper",entry:"badge",place:"header",desc:"否决对照：10px 圆点无文字 affordance，CJK 用户找不到；d5-paper 纸色衬线仅供审美对照，深色宿主未验证"}
+,{k:"C",name:"底部更新区 · 全量差量",openOn:"has-update",theme:"default",entry:"button",place:"bottom",desc:"信息密度对照：更新块搬到底部独立区＋差量表前置；预期结论只取差量表、布局不取（搬家破坏习惯）"}
+];
+function variantOf(){var m=/[?&]variant=([ABC])/i.exec(location.search);return m?m[1].toUpperCase():"A"}
+function setVariant(k){var u=new URL(location.href);u.searchParams.set("variant",k);history.replaceState(null,"",""+u.pathname+u.search);render()}
+var PRESETS=[
+{k:"latest",t:"无新版（running 2.0.16＝latest，无 blocked）",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.16",canInstall:false,blockedReason:null,job:null}}
+,{k:"hasnew",t:"有新版 2.0.17（canInstall 真）",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.17",canInstall:true,blockedReason:null,job:null}}
+,{k:"installing",t:"正在安装中（job installing）",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.17",canInstall:false,blockedReason:null,job:{state:"installing"}}}
+,{k:"restart",t:"待重启 pending-restart（新版已落盘）",snap:{runningVersion:"2.0.16",installedVersion:"2.0.17",latestVersion:"2.0.17",canInstall:false,blockedReason:"pending-restart",job:null}}
+,{k:"err",t:"检查失败 check-failed",snap:null,err:"check-failed"}
+,{k:"b-unknown-profile",t:"blocked · unknown-profile",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.17",canInstall:false,blockedReason:"unknown-profile",job:null}}
+,{k:"b-source",t:"blocked · source-install",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.16",canInstall:false,blockedReason:"source-install",job:null}}
+,{k:"b-invalid",t:"blocked · invalid-installation",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.16",canInstall:false,blockedReason:"invalid-installation",job:null}}
+,{k:"b-changed",t:"blocked · installation-changed",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.16",canInstall:false,blockedReason:"installation-changed",job:null}}
+,{k:"b-registry",t:"blocked · registry-conflict",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.16",canInstall:false,blockedReason:"registry-conflict",job:null}}
+,{k:"b-node",t:"blocked · incompatible-node",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.17",canInstall:false,blockedReason:"incompatible-node",job:null}}
+,{k:"b-recovery",t:"blocked · recovery-required",snap:{runningVersion:"2.0.16",installedVersion:"2.0.16",latestVersion:"2.0.17",canInstall:false,blockedReason:"recovery-required",job:null}}
+,{k:"p-busy",t:"电话码 · update-busy",snap:null,err:"update-busy"}
+,{k:"p-expired",t:"电话码 · check-expired",snap:null,err:"check-expired"}
+,{k:"p-invalid",t:"电话码 · invalid-release",snap:null,err:"invalid-release"}
+,{k:"p-install",t:"电话码 · install-failed",snap:null,err:"install-failed"}
+,{k:"p-future",t:"未来码 · SOME-FUTURE-CODE（兜底）",snap:null,err:"SOME-FUTURE-CODE"}
+];
+var S={snap:PRESETS[1].snap,err:null,note:null,dlg:false,lang:"zh",last:"初始化（默认装入 有新版 2.0.17，便于直接点开弹窗）",prevJson:""};
+var BLOCKED_CN={"unknown-profile":["使用范围或插件位置认不出","重开宿主再查一次；一直这样就把版本号与日志交给插件作者；这种情形不给手工命令"],"source-install":["当前是从源码装的，不是按版本号装的","这种情形不给手工命令；想走更新先按版本号重装一次"],"invalid-installation":["已装的包不完整（名字对不上、版本非法、入口文件缺失）","重装当前版本，修好已装目录再查更新"],"installation-changed":["安装位置在使用中途变了（换了目录或换了包）","重新打开宿主再查一次；还出现就重装"],"pending-restart":["新版已装到磁盘，正在跑的还是旧版","重启宿主，让新版跑起来；这是正常终态，不是失败"],"registry-conflict":["本地声明的版本与磁盘实际版本互相矛盾","打开使用范围的清单文件，把目标包名那一行改成版本号再试"],"incompatible-node":["新版要求的 Node 与当前运行的对不上","先升级 Node 到 22 或更高，再查更新"],"recovery-required":["上次安装被打断，留下一个半截任务","重新点一次安装；一直出现就按第 6 节排错"]};
+var BLOCKED_EN={"unknown-profile":"Unknown profile — check the profile name and that the directory still exists","source-install":"Installed from source — reinstall by version first","invalid-installation":"The installed package is incomplete — reinstall the current version","installation-changed":"The install location changed — reopen DSH and check again","pending-restart":"The new version is on disk — restart DSH to apply","registry-conflict":"The profile manifest does not pin a version — pin one and retry","incompatible-node":"The new version needs a newer Node — upgrade it first","recovery-required":"The last install was interrupted — retry the install"};
+var PHONE_CN={"check-failed":["查新版没成功（联网、源、限流都可能）","过一会儿再查一次；一直失败就把复制诊断交给插件作者"],"invalid-release":["拿到的发布信息不合法（版本号非法或内容对不上）","检查清单文件里的包名与版本写法，再查一次"],"check-expired":["凭证过期了，安装请求被拒","重新查一次新版再点安装，不要重试旧编号"],"update-busy":["同一使用范围正在装另一个","等当前任务离开 installing/verifying 再点；排队中去查状态看位置"],"install-failed":["装不上（详见诊断摘要）","先看复制诊断；官方桌面版把这段交给插件作者"],"internal":["出了点问题，认不出具体原因","先重试一次；一直这样就把复制诊断交给插件作者"]};
+function hasUpdate(){var s=S.snap;if(!s)return false;var l=s.latestVersion;return typeof l==="string"&&l.trim()&&l.trim()!==s.runningVersion}
+function kind(){var s=S.snap,j=s&&s.job;if(j&&(j.state==="installing"||j.state==="verifying"))return"busy";if(s&&(s.blockedReason==="pending-restart"||(j&&j.state==="restart-required")))return"restart";if(S.err||(j&&(j.state==="failed"||j.state==="interrupted")))return"failed";if(hasUpdate())return"update";return"idle"}
+function labelCN(){var k=kind();if(k==="busy")return"正在安装…";if(k==="restart")return"待重启";if(k==="failed")return"更新失败，点此查看";if(k==="update")return"有新版 "+S.snap.latestVersion.trim();return"检查更新"}
+function labelEN(){var k=kind();if(k==="busy")return"Updating…";if(k==="restart")return"Restart needed";if(k==="failed")return"Update failed — view details";if(k==="update")return"New version "+S.snap.latestVersion.trim();return"Check for updates"}
+function label(){return S.lang==="zh"?labelCN():labelEN()}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function presetByKey(k){for(var i=0;i<PRESETS.length;i++)if(PRESETS[i].k===k)return PRESETS[i];return PRESETS[0]}
+function applyAfter(){var a=$("c-after").value;if(a==="same")return;if(a==="hasnew"){S.snap=presetByKey("hasnew").snap;S.err=null}if(a==="latest"){S.snap=presetByKey("latest").snap;S.err=null}if(a==="fail"){S.snap=null;S.err="check-failed"}}
+function click(){var v=VARIANTS.filter(function(x){return x.k===variantOf()})[0];S.note=null;S.lang=$("c-lang").value;applyAfter();S.last="点按钮 → updateCheck 一次（查后＝"+$("c-after").selectedOptions[0].text+"）";if(v.entry==="badge"||v.openOn==="manual"){S.dlg=true;render();return}if(v.openOn==="always"||hasUpdate()||!S.snap||S.err){S.dlg=true;render();return}S.note="已是最新 "+S.snap.runningVersion;S.dlg=false;render()}
+function silent(){S.lang=$("c-lang").value;var p=presetByKey($("c-preset").value);if(!S.dlg){S.snap=p.snap;S.err=p.err||null}S.note=null;S.last="进面静默查 → 只读 updateStatus（只变按钮，不自动弹窗）";render()}
+function dlgHTML(){var v=VARIANTS.filter(function(x){return x.k===variantOf()})[0];var zh=S.lang==="zh";var h="";var latest=S.snap&&S.snap.latestVersion?S.snap.latestVersion:"?";var run=S.snap&&S.snap.runningVersion?S.snap.runningVersion:"?";h+="<h2>"+(zh?"发现新版本 v":"New version v")+esc(latest)+"</h2>";h+="<div class=ver>"+(zh?("当前版本 v"+esc(run)+" → 最新版本 v"+esc(latest)):(("Current v"+esc(run)+" → latest v"+esc(latest))))+"</div>";if(S.snap&&S.snap.blockedReason==="pending-restart"){h+="<div class=banner>"+(zh?("待重启：新版 v"+esc(latest)+" 已装到磁盘，重启 DSH 后生效。期间不提供安装按钮。"):(("Restart needed: v"+esc(latest)+" is on disk — restart DSH to apply. Installing is disabled meanwhile.")))+"</div>"}if(S.err&&!(S.snap&&S.snap.blockedReason)){var pc=PHONE_CN[S.err]||["出了点问题，认不出具体原因（带原码 "+esc(S.err)+"）","先重试一次；一直这样就把复制诊断交给插件作者"];h+="<div class=failbox><div class=t>"+esc(zh?pc[0]:("Failure: "+S.err))+"</div><div class=a>"+esc(zh?pc[1]:"Retry once; if it persists, hand the copied diagnosis to the plugin author.")+"</div></div>"}else if(S.snap&&S.snap.blockedReason&&S.snap.blockedReason!=="pending-restart"){var bc=BLOCKED_CN[S.snap.blockedReason];if(bc){h+="<div class=failbox><div class=t>"+esc(zh?bc[0]:(BLOCKED_EN[S.snap.blockedReason]||S.snap.blockedReason))+"</div><div class=a>"+esc(zh?bc[1]:"")+"</div></div>"}}h+="<div class=manual>"+esc("[update-diag] dsh-opencode-palette 稳定码："+(S.err||((S.snap&&S.snap.blockedReason)||"has-update"))+" · 运行版="+run+" / 远端="+latest)+"</div>";h+="<div style=font-size:12px;color:#8b8b95>"+(zh?"更新日志：暂无随包日志，显示中性行（缺省 null，永不挡安装）。":"Changelog: neutral line (default null, never blocks install).")+"</div>";var dis=(S.snap&&S.snap.blockedReason==="pending-restart")?" disabled":"";h+="<div class=row-btns><button class=btn primary"+dis+">"+(zh?"立即升级":"Update now")+"</button><button class=btn id=b-later>"+(zh?"稍后":"Later")+"</button><button class=btn id=b-copy>"+(zh?"复制诊断":"Copy diagnosis")+"</button></div>";return h}
+function render(){var vk=variantOf();var v=VARIANTS.filter(function(x){return x.k===vk})[0];$("s-lab").innerHTML="<b>"+v.k+"</b> "+esc(v.name);var m=$("mount");var h="";var dot=v.entry==="badge";var wrapAttr="data-state="+kind()+(v.theme==="d5-paper"?" data-theme=d5-paper":"");if(v.place==="bottom"){h+="<div class=panel><div class=p-head><strong>opencode调色板</strong><span class=sub>38 款主题 · 头行更新入口已移到底部（变体 C 对照）</span></div><div style=color:#5c5c66;font-size:12px>主题网格（省略 38 款，用占位条表示密度）…</div></div>";h+="<div class=bottom-zone><h3>更新区（变体 C：独立区块，非头行）</h3><div class=entry-wrap "+wAttr(wrapAttr)+">"+entryCtrl(dot)+noteHTML()+"</div></div>"}else if(v.theme==="d5-paper"){h+="<div class=paper-zone><div class=p-head><strong>opencode调色板</strong><span class=sub>变体 B · d5-paper 纸质对照</span></div><div class=entry-wrap "+wAttr(wrapAttr)+">"+entryCtrl(dot)+noteHTML()+"</div><div style=font-size:12px;color:#6b6250>纸色 #f5f0e1 · 衬线 · 边框 #c4b896 · hover #c8402a</div></div>"}else{h+="<div class=panel><div class=p-head><strong>opencode调色板</strong><span class=sub>变体 A · 头行右侧原位（ghost→包 button 内核）</span></div><div class=entry-wrap "+wAttr(wrapAttr)+" style=float:right>"+entryCtrl(dot)+noteHTML()+"</div><div style=clear:both></div><div style=color:#5c5c66;font-size:12px>主题网格（省略）…</div></div>"}h+="<div class=panel style=margin-top:14px><span style=font-size:12px;color:#a1a1aa>变体说明：</span> "+esc(v.desc)+"</div>";m.innerHTML=h;renderState();renderTables();var dr=$("dlg-root");if(S.dlg){dr.innerHTML="<div class=dlg-back><div class=dlg>"+dlgHTML()+"</div></div>";var bl=$("b-later");if(bl)bl.onclick=function(){S.dlg=false;S.last="关弹窗（稍后）";render()};var bc=$("b-copy");if(bc)bc.onclick=function(){S.last="复制诊断（原型内模拟已复制）";render()}}else{dr.innerHTML=""}}
+function wAttr(a){return a}
+function entryCtrl(dot){if(dot){return '<button class="dot" title="'+esc(label())+'" aria-label="'+esc(label())+'" onclick="window.__protoClick()"></button>'}return "<button class=entry-btn onclick=window.__protoClick()>"+esc(label())+"</button>"}
+function noteHTML(){if(S.note){var n=S.lang==="zh"?S.note:("You are on the latest version (v"+S.snap.runningVersion+")");return "<span class=note>"+esc(n)+"</span>"}return ""}
+window.__protoClick=function(){click()};
+function renderState(){var obj={variant:variantOf(),entryStateKind:kind(),labelCN:labelCN(),labelEN:labelEN(),showing:label(),snapshot:S.snap,error:S.err,note:S.note,dialogOpen:S.dlg,lang:S.lang,lastAction:S.last};var js=JSON.stringify(obj,null,1);var prev={};try{prev=JSON.parse(S.prevJson||"{}")}catch(e){}var lines=js.split("\n");var html="";for(var i=0;i<lines.length;i++){lines[i]=esc(lines[i]);}html=lines.join("\n");$("state").innerHTML="★ 上次动作："+esc(S.last)+"\n"+html;S.prevJson=JSON.stringify(obj)}
+function renderTables(){var rows=[["检查更新","updateCheck 检查更新 / Check for updates","<span class=pill>复用</span> 中英文语义一致，中文以包字形为准"],["有新版 X.Y.Z","updateHasNew 有新版本 / New version（无版本号）","<span class=pill>替换</span> 包带版本号；按钮变红→包绿框"],["正在安装…","updateChecking 检查中…＋updateInstalling 正在升级…","<span class=pill>替换</span> 包 busy 单态；“检查中”过渡保留作点击→回包间禁用文案（复用现有词条）"],["待重启","updateRestart 待重启 / Restart needed","<span class=pill>复用</span> 语义一致；样式换包（琥珀边框）；横幅三硬要求不变"],["更新失败，点此查看","updateCheckFail（仅 toast，无按钮态）","<span class=pill>新增</span> 按钮失败态＋开 dialog 看诊断"],["已是最新 R（按钮旁 note）","updateLatest 已是最新版本（v{v}）（toast/横幅）","<span class=pill>复用</span> 语义一致；位置换到按钮旁 note，不弹窗"],["8 blocked title＋action 双栏","blocked.* 8 条一句话（仅状态视角）","<span class=pill>替换</span> CN：包“用户该做什么”双栏更准（含两种“不给手工命令”、Node 22 点名、“正常终态不是失败”）"],["5 电话码＋internal＋未来兜底","updateFailInstall/Changed/Recovery 3 句＋散列码","<span class=pill>新增</span> 包独有；未来码带原码"],["更新日志中性行（null）","（无）","<span class=pill>新增</span> 缺省不挡安装；取数链路另票"],["复制诊断 [update-diag]","（无）","<span class=pill>新增</span> 稳定码＋版本＋宿主＋队列"],["手动命令（包 manualCommand 数据源）","updateManual* 双语＋复制按钮","<span class=pill>复用</span> 交互复用；数据源换包，EN 过渡保留"],["EN 全表","I18N 双语表（getLang）","<span class=pill>复用</span> 过渡补齐（包无英文），标待 #56 定稿"]];var h="<table class=diff><tr><th>包词条（唯一出处）</th><th>现有自研对应</th><th>结论</th></tr>";for(var i=0;i<rows.length;i++){h+="<tr><td>"+rows[i][0]+"</td><td>"+rows[i][1]+"</td><td>"+rows[i][2]+"</td></tr>"}h+="</table>";$("difftable").innerHTML=h;var c="<table class=diff><tr><th>码</th><th>包 CN title</th><th>包 CN action</th><th>现有 EN（过渡）</th></tr>";var keys=["unknown-profile","source-install","invalid-installation","installation-changed","pending-restart","registry-conflict","incompatible-node","recovery-required"];for(var j=0;j<keys.length;j++){var k=keys[j];var b=BLOCKED_CN[k];c+="<tr><td><code>"+k+"</code></td><td>"+b[0]+"</td><td>"+b[1]+"</td><td>"+BLOCKED_EN[k]+"</td></tr>"}c+="</table><div style=margin-top:8px;font-size:12px;color:#8b8b95>电话码：check-failed 查新版没成功／invalid-release 发布信息不合法／check-expired 凭证过期／update-busy 同一范围正在装另一个／install-failed 装不上／internal 认不出原因 —— 全为包独有新增；未来码回落 internal 文案并带原码。</div>";$("codetable").innerHTML=c}
+function initSel(){var s=$("c-preset");for(var i=0;i<PRESETS.length;i++){var o=document.createElement("option");o.value=PRESETS[i].k;o.text=PRESETS[i].t;s.appendChild(o)}s.value="hasnew";s.onchange=function(){var p=presetByKey(s.value);S.snap=p.snap;S.err=p.err||null;S.note=null;S.dlg=false;S.last="切换预设："+p.t;render()};$("b-click").onclick=function(){click()};$("b-silent").onclick=function(){silent()};$("b-close").onclick=function(){S.dlg=false;S.last="关弹窗";render()};$("s-prev").onclick=function(){var order=["A","B","C"];setVariant(order[(order.indexOf(variantOf())+2)%3])};$("s-next").onclick=function(){var order=["A","B","C"];setVariant(order[(order.indexOf(variantOf())+1)%3])};document.addEventListener("keydown",function(e){var t=e.target;if(t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable))return;if(e.key==="ArrowLeft")$("s-prev").click();if(e.key==="ArrowRight")$("s-next").click()})}
+initSel();render();
+</script></body></html>
