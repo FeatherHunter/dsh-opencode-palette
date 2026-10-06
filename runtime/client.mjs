@@ -82,9 +82,9 @@ function saveState(state) {
 }
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
 const I18N = {
-  panelName: { zh: 'opencode调色板', en: 'Opencode Palette' },
+  panelName: { zh: 'OpenCode调色板', en: 'OpenCode Palette' },
   // 计数为派生数据：{n} 取 themeNames().length（37 静态＋system，恒≥2，英文恒复数），转抄 38 必漂（34→38 前车）。
-  subtitle: { zh: '{n} 款 opencode 官方配色主题，点击即切换', en: '{n} official opencode themes — click to switch' },
+  subtitle: { zh: '{n} 款 OpenCode 官方配色主题，点击即切换', en: '{n} official OpenCode themes — click to switch' },
   enabled: { zh: '已启用', en: 'Enabled' },
   disabled: { zh: '已停用', en: 'Disabled' },
   disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },

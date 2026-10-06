@@ -13,7 +13,7 @@ Your ⭐ is the brightest star in my night sky.
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette?label=npm)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=downloads&suffix=%2Fmo&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![last-commit](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=last-commit&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
-[![themes](https://img.shields.io/badge/themes-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
+[![themes](https://img.shields.io/badge/themes-OpenCode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
 [![Issues welcome](https://img.shields.io/badge/Issues%20welcome-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
@@ -25,19 +25,19 @@ Your ⭐ is the brightest star in my night sky.
 
 Staring at a screen ten-plus hours a day, tired eyes are inevitable — a gentler palette lets them rest.
 
-opencode's 37 classic themes are loved by developers everywhere, plus a native look that touches no colors: one click dresses your whole DSH, dark for the night, light for the day.
+OpenCode's 37 classic themes are loved by developers everywhere, plus a native look that touches no colors: one click dresses your whole DSH, dark for the night, light for the day.
 
 **👇 This is what it looks like after install and restart (opencode theme).**
 
-![Opencode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png)
+![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png)
 
 **👇 Settings panel: 38 themes grouped by color family, search and switch.**
 
-![Opencode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png)
+![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png)
 
 **👇 How another theme feels.**
 
-![Opencode Palette — overview (Tokyo Night theme)](../showcase/overview-tokyonight-en.png)
+![OpenCode Palette — overview (Tokyo Night theme)](../showcase/overview-tokyonight-en.png)
 
 </div>
 
@@ -57,7 +57,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **① Install the plugin.**
 
-**② Open “Opencode Palette”.** Settings → Plugins → Opencode Palette
+**② Open “OpenCode Palette”.** Settings → Plugins → OpenCode Palette
 
 **③ Pick a theme you like.**
 
@@ -67,7 +67,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 ![theme stories](../assets/theme-stories-en.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>What the opencode themes come with</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
 **Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–24 px, your pick of code font — orthogonal to color, kept across restarts.
 
@@ -81,7 +81,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Go to Settings → Plugins → Opencode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
+Prefer a button? Go to Settings → Plugins → OpenCode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 

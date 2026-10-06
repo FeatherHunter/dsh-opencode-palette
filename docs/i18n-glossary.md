@@ -9,8 +9,9 @@
 - 回译分级：A 类（hint/失败态/更新说明/README 断言句）强制双盲回译；B 类（单字按钮/标签）只做术语命中＋占位符检查。`systemDefault` 类漂移属 A 类。
 - 长度只定方法：先量真实容器与溢出行为再冻预算；判据为不溢出/不截断/不顶布局/占位符完好。占位符不调序（`trf` 全量替换，与语序无关），英文重写绕开，不改插值逻辑。窄屏只做真实最小宽度冒烟。
 - 疑难名阶梯：上游官方 > 社区共识 > 保留英文不生造。
+- 词源考据（2026-10-06，四名全过，支撑保留英文）：Solarized＝Ethan Schoonover 原创十六色（摄影 solarization 与日光浴无关，“日光浴”系望文生义，废）；Gruvbox＝morhetz（Pavel Pertsev）“Retro groove for Vim”（groove 指律动/槽纹，“复古凹槽”系音义混译，废）；Ayu＝dempfi 原创亮色主题（单字“鮎”系生造，废）；Flexoki＝Steph Ango “inky scheme for prose and code”（“纸墨”系无共识意译，废）。双搜缺工具（搜索 API 无 key）未做——裁决：保留英文是默认安全态，维持无需转正举证；双搜＋视觉并排转为未来中文提议的 intake 门槛（有提议再测），不 blocking 关票。
 - 语气分体裁：面板＝中性工具体（禁最高级/空话/无结果动词）；README＝实证劝服体（好处断言须有事实锚）。对等指信息对等（动作/对象/结果/条件），不强制句式/句数。
-- 品牌：中文 `opencode调色板`、英文 `Opencode Palette` 为 draft，待核上游拼写后冻结；`OpenCode` 孤例标红待改。
+- 品牌（2026-10-06 已按上游转正）：中文 `OpenCode调色板`、英文 `OpenCode Palette`；依据 opencode.ai `<title>OpenCode | …`＋description `OpenCode - …` 共 17 处 `OpenCode`、0 处裸 `opencode`（域名/URL 小写为技术规范，非品牌证据）。`OpenCode` 孤例即正体，无需改小写。
 
 ## 面板 51 键（`runtime/client.mjs`，`{zh,en}` 结构、键名与语言跟随不变）
 
@@ -18,8 +19,8 @@
 
 | key | 定稿 zh | 定稿 en | 状态 |
 |---|---|---|---|
-| `panelName` | opencode调色板 | Opencode Palette | 冻结 |
-| `subtitle` | 38 款 opencode 官方配色主题，点击即切换 | 38 official opencode themes — click to switch | 冻结 |
+| `panelName` | OpenCode调色板 | OpenCode Palette | 冻结（品牌已转正） |
+| `subtitle` | 38 款 OpenCode 官方配色主题，点击即切换 | 38 official OpenCode themes — click to switch | 冻结（品牌已转正；面板侧为 trf `{n}` 模板） |
 | `enabled` | 已启用 | Enabled | 冻结 |
 | `disabled` | 已停用 | Disabled | 冻结 |
 | `disableTitle` | 点击停用主题 | Click to disable the theme | 冻结 |
@@ -133,13 +134,13 @@
 | 头尾胶囊行 | pass | 有条件 PASS：数量·顺序·链接对称（门禁已钉）；但“期待你参与/PRs welcome”不对等（泛邀请 vs 特指PR），T6 二选一：zh 收窄或 en 放宽。 |
 | 卖点＋求星 | pass | 信息对等即过：粗体一句＋斜体一句＋求星一句的顺序差不算账（#58 Q5）。 |
 | SHOWCASE 选图 | fail | 重出图结论：对称三张——①主界面 opencode ②设置面板 ③同一第三主题（建议 GitHub Light 中英同主题），EN 图重截英文面板，文件名对称。会红测试：tests/readme-body.test.mjs showcase 节（断言 zhImgs[2]/enImgs[2] 现文件名＋图片存在性测试），T6 同步改。 |
-| SHOWCASE alt＋品牌 | fail | 统一 zh=opencode调色板 / en=Opencode Palette（生效条件：核对上游拼写后，见#58）；孤例 OpenCode 改小写。caption 已去“浅色”claim，保持。 |
-| INSTALL 三步 | fail | 3行4处之其二段：EN L60（×2）＋L84 改英文面板名 Settings → Plugins → Opencode Palette（生效条件：上游拼写核对后）；中文名只出现在中文页。 |
+| SHOWCASE alt＋品牌 | fail | 统一 zh=OpenCode调色板 / en=OpenCode Palette（2026-10-06 已按上游转正）；孤例即正体。caption 已去“浅色”claim，保持。 |
+| INSTALL 三步 | fail | 3行4处之其二段：EN L60（×2）＋L84 改英文面板名 Settings → Plugins → OpenCode Palette（已按转正品牌落码）；中文名只出现在中文页。 |
 | THEMES＋EXTENSIONS | fail | 3行4处之其一段：EN L74 改为 (Chinese / English)；其余数据句＋两条目结构对称，算过。口径：3行4处=EN L60×2＋L74＋L84，按段合并3段。 |
 | UPGRADE | pass | 按钮名各自语言、动作/对象/结果/条件一一对应即过，不强制同句式。 |
 | MORE＋尾部 | pass | 结构已对称；附带抛光：中文“增强dsh-im”补空格→“增强 dsh-im”，不算镜像失败。 |
 
-其中 SHOWCASE 选图（对称三张重出图）与徽章不对等（`欢迎提 Issue`／`Issues welcome`，2026-10-06 已双向收敛到 Issues 口径，链 `/issues` 不动）见各票；`alt` 统一 `opencode调色板`／`Opencode Palette`（待品牌拼写核对后转正）；EN L60×2＋L84 改英文面板名、L74 改 `Chinese / English` 已落码。
+其中 SHOWCASE 选图（对称三张重出图）与徽章不对等（`欢迎提 Issue`／`Issues welcome`，2026-10-06 已双向收敛到 Issues 口径，链 `/issues` 不动）见各票；`alt` 统一 `OpenCode调色板`／`OpenCode Palette`（2026-10-06 已按上游转正并落码）；EN L60×2＋L84 改英文面板名、L74 改 `Chinese / English` 已落码。
 
 ## 禁用词与重写方向
 
@@ -160,7 +161,7 @@
 ## 待人定（本表不代选）
 
 - [x] 单源文件路径：本文件（`docs/i18n-glossary.md`）即答案，2026-10-06 用户认可后建立。
-- [ ] 上游品牌拼写核对后冻结（`opencode`／`Opencode Palette` 转正，孤例全仓 quét）。
+- [x] 上游品牌拼写核对后冻结（2026-10-06 转正为 `OpenCode`／`OpenCode Palette`，全仓已落码，含徽章 `OpenCode·38`）。
 - [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名／R5 THEME_EN／R6 青绿·青蓝·冷蓝并排另起票（见 #60 关闭语）。
 - [ ] SHOWCASE 对称三张重出图＋同步改 `readme-body` 会红断言（见 #62 下一步）。
 

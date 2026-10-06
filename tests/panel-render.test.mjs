@@ -199,15 +199,15 @@ function loadPanel(opts = {}) {
 
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
   const { html } = loadPanel({ lang: 'en' })
-  assert.ok(html.includes('Opencode Palette'), '缺英文品牌标题')
+  assert.ok(html.includes('OpenCode Palette'), '缺英文品牌标题')
   assert.ok(html.includes('tokyonight'), '缺主题芯片')
   assert.ok(html.includes('system'), '缺 system 芯片')
   assert.ok(!html.includes('东京之夜'), 'DOM 回退英文界面不应出现中文主题名')
 })
 
-test('面板渲染（DOM 回退·中文）：输出 opencode调色板 与中文组名', () => {
+test('面板渲染（DOM 回退·中文）：输出 OpenCode调色板 与中文组名', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
-  assert.ok(html.includes('opencode调色板'), '缺中文品牌标题（opencode 与调色板之间无空格）')
+  assert.ok(html.includes('OpenCode调色板'), '缺中文品牌标题（opencode 与调色板之间无空格）')
   assert.ok(html.includes('暖橙'), '缺中文色系组名')
   assert.ok(html.includes('system（跟随系统）'), '缺 system 中文标签')
   assert.ok(html.includes('东京之夜'), '缺 tokyonight 中文名')
@@ -219,7 +219,7 @@ test('面板渲染（DOM 回退·中文）：输出 opencode调色板 与中文�
 test('面板渲染（locale 服务·英文）：整体英文，不出现中文', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('Opencode Palette'), '缺英文品牌标题')
+  assert.ok(html.includes('OpenCode Palette'), '缺英文品牌标题')
   assert.ok(html.includes('Typography'), '缺「字体字号」英文段标')
   assert.ok(html.includes('Themes'), '缺「选择主题」英文段标')
   assert.ok(html.includes('Warm'), '缺暖橙组英译')
@@ -232,7 +232,7 @@ test('面板渲染（locale 服务·英文）：整体英文，不出现中文',
 test('面板渲染（locale 服务·中文）：输出中文', () => {
   const locale = makeLocale('zh')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('opencode调色板'), '缺中文品牌标题')
+  assert.ok(html.includes('OpenCode调色板'), '缺中文品牌标题')
   assert.ok(html.includes('暖橙'), '缺中文色系组名')
   assert.ok(html.includes('东京之夜'), '缺 tokyonight 中文名')
 })
@@ -240,21 +240,21 @@ test('面板渲染（locale 服务·中文）：输出中文', () => {
 test('locale 服务切换实时生效：切到英文后重渲染即全英文', () => {
   const locale = makeLocale('zh')
   const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
-  assert.ok(zhHtml.includes('opencode调色板'), '初始中文标题缺失')
+  assert.ok(zhHtml.includes('OpenCode调色板'), '初始中文标题缺失')
   assert.ok(zhHtml.includes('暖橙'), '初始中文组名缺失')
   locale.setActive('en') // 模拟 DSH 设置 → General → Language 切到 English
   const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  assert.ok(enHtml.includes('Opencode Palette'), '切换后缺英文标题')
+  assert.ok(enHtml.includes('OpenCode Palette'), '切换后缺英文标题')
   assert.ok(enHtml.includes('Warm'), '切换后缺暖橙英译')
-  assert.ok(!enHtml.includes('opencode调色板'), '切换后不应残留中文标题')
+  assert.ok(!enHtml.includes('OpenCode调色板'), '切换后不应残留中文标题')
   assert.ok(!enHtml.includes('暖橙'), '切换后不应残留中文组名')
 })
 
 test('面板双语表已注册进 locale 服务（opencode-palette 命名空间）', () => {
   const locale = makeLocale('en')
   loadPanel({ locale })
-  assert.equal(locale.dictFor('opencode-palette', 'zh', 'panelName'), 'opencode调色板')
-  assert.equal(locale.dictFor('opencode-palette', 'en', 'panelName'), 'Opencode Palette')
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'panelName'), 'OpenCode调色板')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'panelName'), 'OpenCode Palette')
   assert.equal(locale.dictFor('opencode-palette', 'zh', 'group.warm'), '暖橙')
   assert.equal(locale.dictFor('opencode-palette', 'en', 'group.warm'), 'Warm')
 })
@@ -589,16 +589,16 @@ test('2.0.7 英文界面：日志开关也走双语', () => {
 test('面板计数走 trf 派生（#60）：themeCount/subtitle 模板含 {n}，渲染值取 themeNames().length', () => {
   // 模板在源码里：转抄 38 必漂（34→38 前车），派生是唯一正解（n 恒≥2，英文恒复数，见注释）
   const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
-  assert.ok(code.includes("'{n} 款 opencode 官方配色主题"), 'subtitle zh 模板缺 {n}')
-  assert.ok(code.includes("'{n} official opencode themes"), 'subtitle en 模板缺 {n}')
+  assert.ok(code.includes("'{n} 款 OpenCode 官方配色主题"), 'subtitle zh 模板缺 {n}')
+  assert.ok(code.includes("'{n} official OpenCode themes"), 'subtitle en 模板缺 {n}')
   assert.ok(code.includes("'{n} 款 · 按色系分组'"), 'themeCount zh 模板缺 {n}')
   assert.ok(code.includes("'{n} themes · by color family'"), 'themeCount en 模板缺 {n}')
   // 当前注册表 38 下渲染值与冻结串逐字一致（长度冒烟基线：与旧静态等长）
   const zh = loadPanel({ lang: 'zh-CN' })
   assert.equal(zh.panelProps.text('themeCount', { n: 38 }), '38 款 · 按色系分组')
-  assert.equal(zh.panelProps.text('subtitle', { n: 38 }), '38 款 opencode 官方配色主题，点击即切换')
+  assert.equal(zh.panelProps.text('subtitle', { n: 38 }), '38 款 OpenCode 官方配色主题，点击即切换')
   assert.ok(zh.html.includes('38 款 · 按色系分组'), '面板应渲染出 38 计数')
   const en = loadPanel({ locale: makeLocale('en') })
   assert.equal(en.panelProps.text('themeCount', { n: 38 }), '38 themes · by color family')
-  assert.equal(en.panelProps.text('subtitle', { n: 38 }), '38 official opencode themes — click to switch')
+  assert.equal(en.panelProps.text('subtitle', { n: 38 }), '38 official OpenCode themes — click to switch')
 })

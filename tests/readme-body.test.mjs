@@ -159,8 +159,8 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且只剩「丰富的字体�
     assert.equal(block.includes('随时反悔'), false, `${name}「随时反悔」应已删除`)
     assert.equal(/native look/i.test(block), false, `${name} 的 EXTENSIONS 不应再有 "native look" 那条`)
   }
-  assert.ok(ZH.includes('<sub>EXTENSIONS</sub><br>opencode 主题之外提供的功能'), '中文小标题应为复稿原文')
-  assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the opencode themes come with'), '英文小标题应为复稿原文')
+  assert.ok(ZH.includes('<sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能'), '中文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
+  assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   assert.ok(ZH.includes('**丰富的字体。** 排印是独立维度：'), '中文首条应为「丰富的字体」')
   assert.ok(EN.includes('**Plenty of fonts.** Typography is its own dimension:'), '英文首条应为 "Plenty of fonts"')
   // 只剩两条：字体 + 面板好找

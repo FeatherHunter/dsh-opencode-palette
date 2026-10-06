@@ -13,7 +13,7 @@
 [![版本](https://img.shields.io/npm/v/dsh-opencode-palette?label=%E7%89%88%E6%9C%AC)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![下载量](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.npmjs.org%2Fdownloads%2Fpoint%2Flast-month%2Fdsh-opencode-palette&query=%24.downloads&label=%E4%B8%8B%E8%BD%BD%E9%87%8F&suffix=%2F%E6%9C%88&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![最近更新](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
-[![主题包](https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-opencode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
+[![主题包](https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-OpenCode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
 [![欢迎提 Issue](https://img.shields.io/badge/%E6%AC%A2%E8%BF%8E%E6%8F%90%20Issue-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
 
 </div>
@@ -25,19 +25,19 @@
 
 每天盯屏幕十几个小时，眼睛难免发涩——换套温柔的配色，让眼睛歇一会儿。
 
-opencode 的 37 套经典配色深受开发者喜爱，另有一个不碰颜色的原生外观：一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
+OpenCode 的 37 套经典配色深受开发者喜爱，另有一个不碰颜色的原生外观：一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
 
 **👇 装完重启后，主界面就是这个样子（opencode 主题）。**
 
-![opencode调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
+![OpenCode调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
 
 **👇 设置面板：38 款按色系分组，搜一下即切。**
 
-![opencode调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
+![OpenCode调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
 
 **👇 另一款主题的观感。**
 
-![opencode调色板 — 主界面概览（GitHub 主题）](showcase/overview-github-light-zh.png)
+![OpenCode调色板 — 主界面概览（GitHub 主题）](showcase/overview-github-light-zh.png)
 
 </div>
 
@@ -57,7 +57,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **① 安装好本插件。**
 
-**② 打开「opencode调色板」。** 设置 → 插件 → opencode调色板
+**② 打开「OpenCode调色板」。** 设置 → 插件 → OpenCode调色板
 
 **③ 挑选喜爱的主题。**
 
@@ -67,7 +67,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 ![theme stories](assets/theme-stories-zh.svg)
 
-<h2 align="center"><sub>EXTENSIONS</sub><br>opencode 主题之外提供的功能</h2>
+<h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 
 **丰富的字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–24 px、代码字体随你挑，与颜色互不干扰，重启不丢。
 
@@ -81,7 +81,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
-不想敲命令就点面板：「设置 → 插件 → opencode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「更新至 vX.Y.Z」，点开即升级。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
+不想敲命令就点面板：「设置 → 插件 → OpenCode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「更新至 vX.Y.Z」，点开即升级。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
 
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 

@@ -429,14 +429,14 @@ test('渲染：宿主可用时头行原位出现入口件挂载位，且无自�
   assert.ok(!html.includes('有新版本'), '不应再有自研红字按钮')
   assert.ok(!html.includes('立即升级'), '不应再有自研弹窗动作按钮')
   assert.ok(!html.includes('发现新版本'), '不应再有自研弹窗标题')
-  assert.ok(html.includes('opencode调色板'), '主题面板本身不受影响')
+  assert.ok(html.includes('OpenCode调色板'), '主题面板本身不受影响')
 })
 
 test('渲染：宿主不可用时不渲染更新块（主题面板本身照常）', () => {
   const { html } = renderPanel({ connection: null })
   assert.ok(!html.includes('data-update-entry'), '无宿主时不该出现更新挂载位')
   assert.ok(!html.includes('检查更新'), '无宿主时不该出现更新文案')
-  assert.ok(html.includes('opencode调色板'), '主题面板本身不受影响')
+  assert.ok(html.includes('OpenCode调色板'), '主题面板本身不受影响')
 })
 
 test('渲染：中英文主题面板文案不受更新最小集成影响', () => {

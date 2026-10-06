@@ -73,7 +73,7 @@ test('每个主题都能渲染出 tokens 与 css', () => {
   }
 })
 
-test('opencode 官方主题: 关键色与官方 JSON 一致', () => {
+test('OpenCode 官方主题: 关键色与官方 JSON 一致', () => {
   const r = renderTheme('opencode', TYPO)
   assert.equal(r.tokens['--dsw-alias-bg-base'].dark, '#0A0A0A')
   assert.equal(r.tokens['--dsw-alias-brand-primary'].dark, '#FAB283')
