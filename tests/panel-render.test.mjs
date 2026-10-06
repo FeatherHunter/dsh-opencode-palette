@@ -271,7 +271,8 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
   assert.ok(html.includes('background:#FFFFFF'), '停用开关钮色浅色可见')
   assert.ok(html.includes('0 1px 3px rgba(0,0,0,0.25)'), '预览芯片浅色分离阴影')
   const translucent = chipSegment(html, '透光橙')
-  assert.ok(translucent.includes('color:#EEEEEE'), 'issue 48：芯片恒走深色基线，透明底芯片取深色字（迷你深色画布，不洗白）')
+  assert.ok(translucent.includes('background:#FFFFFF'), '透光芯片恒浅底（浅色一眼可辨，不随宿主走）')
+  assert.ok(translucent.includes('color:#1A1A1A'), '透光芯片恒深字，对比度正常')
   assert.ok(translucent.includes('title="透光主题'), '委托画布芯片应带透光提示')
   const opaque = chipSegment(html, 'opencode')
   assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
@@ -293,7 +294,8 @@ test('深色回退（未知宿主）：深色硬编码原样保留', () => {
   assert.ok(html.includes('1px solid #555'), 'system 芯片兜底边框保持深色')
   assert.ok(!html.includes('0 1px 3px rgba(0,0,0,0.25)'), '深色不加分离阴影')
   const translucent = chipSegment(html, '透光橙')
-  assert.ok(!translucent.includes('color:var(--dsw-alias-label-primary)'), '透明底芯片深色保持主题字色')
+  assert.ok(translucent.includes('background:#FFFFFF'), '深色宿主下透光芯片仍恒浅底')
+  assert.ok(translucent.includes('color:#1A1A1A'), '深色宿主下透光芯片仍恒深字')
 })
 
 test('透光提示：深色英文界面下委托芯片带英文提示，自持芯片无', () => {
@@ -494,12 +496,16 @@ test('2.0.7 头行带日志开关（默认关）与落点提示', () => {
   assert.ok(!code.includes('log-switch-dsh-opencode-palette.json'), '面板不得自己写开关文件（会成第二份真源）')
 })
 
-test('芯片预览锁深色基线（issue 48）：浅色宿主下仍展示深色', () => {
+test('芯片预览锁深色基线（issue 48）：浅色宿主下仍展示深色（透光恒浅底除外）', () => {
   const { html } = loadPanel({ lang: 'zh-CN', hostDark: false })
   assert.ok(html.includes('#0A0A0A'), '浅色宿主下 opencode 芯片应展示深色底 #0A0A0A')
   assert.ok(!html.includes('#3B7DD8'), '浅色宿主下不应出现浅色变体主色 #3B7DD8')
-  assert.ok(html.includes('#EEEEEE'), '芯片文字应为深色基线 #EEEEEE')
-  assert.ok(html.includes('选中即切换 DSH 明暗'), '缺外观跟随开关文案')
+  assert.ok(html.includes('#EEEEEE'), '不透明芯片文字应为深色基线 #EEEEEE')
+  const translucentChip = chipSegment(html, '透光橙')
+  assert.ok(translucentChip.includes('background:#FFFFFF'), '透光芯片恒浅底，与宿主深浅无关')
+  assert.ok(translucentChip.includes('color:#1A1A1A'), '透光芯片恒深字')
+  assert.ok(!html.includes('选中即切换 DSH 明暗'), '跟随开关已下线，不应再渲染开关文案')
+  assert.ok(!html.includes('Match DSH appearance'), '跟随开关已下线，不应再渲染英文开关文案')
 })
 
 test('选中即切换宿主明暗（issue 48）：官方写入口三态', () => {
@@ -537,26 +543,40 @@ test('官方抛错即降级（issue 48）：facade 不符不抛到面板', () =>
   assert.equal(docEl.style.colorScheme, 'dark', '兜底投影应完整')
 })
 
-test('跟随开关关闭后不再接管（issue 48）', () => {
-  const { panelProps, bodyAttrs, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false })
-  panelProps.setFollowAppearance(false)
+test('无跟随开关：恒跟随（选深色必写 dark）', () => {
+  const { panelProps, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false })
+  assert.equal(typeof panelProps.setFollowAppearance, 'undefined', '跟随开关已下线，不应再暴露 setter')
   panelProps.setTheme('matrix')
-  assert.deepEqual(themeCalls, ['dark', 'light'], '关开关应把偏好恢复到接管前（light），之后不再写')
-  assert.equal('data-ds-dark-theme' in bodyAttrs, false, '开关关闭后选深色也不应动 body')
-  assert.equal(panelProps.getState().followAppearance, false, '开关状态应进 state')
+  assert.deepEqual(themeCalls, ['dark', 'dark'], '无开关后选深色仍应写 dark（启动 dark + 选中 dark）')
 })
 
 test('用户中途改过则不恢复（issue 48）：只释放自己写的值', () => {
   const { panelProps, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false, stuckPref: 'light' })
   panelProps.setTheme('matrix')
   assert.deepEqual(themeCalls, ['dark', 'dark'], '启动+选中各写一次，均未落地')
-  panelProps.setFollowAppearance(false)
-  assert.deepEqual(themeCalls, ['dark', 'dark'], '快照未落地（用户/宿主仍为 light），不盲目恢复')
+  panelProps.toggle()
+  assert.deepEqual(themeCalls, ['dark', 'dark'], '快照未落地（用户/宿主仍为 light），停用时不盲目恢复')
 })
 
 test('启动跳过存量 system 主题（issue 48）：非手势不写偏好', () => {
   const { themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false, savedTheme: 'system' })
   assert.deepEqual(themeCalls, [], '存量 system 启动时不写（点击 system 仍写，见三态用例）')
+})
+
+test('system 芯片跟宿主走（浅白/深黑）', () => {
+  const light = loadPanel({ lang: 'zh-CN', hostDark: false })
+  const lightSeg = chipSegment(light.html, 'system')
+  assert.ok(lightSeg.includes('background:#FFFFFF'), '浅色宿主下 system 芯片应白底')
+  const dark = loadPanel({ lang: 'zh-CN', hostDark: true })
+  const darkSeg = chipSegment(dark.html, 'system')
+  assert.ok(darkSeg.includes('background:#0A0A0A'), '深色宿主下 system 芯片应深底')
+})
+
+test('system 已释放时点选不再写（#55：system→system no-op）', () => {
+  const { panelProps, themeCalls } = loadPanel({ lang: 'zh-CN', hostDark: false, stuckPref: 'system' })
+  const before = themeCalls.length
+  panelProps.setTheme('system')
+  assert.deepEqual(themeCalls.length, before, '宿主已为 system 时点选 system 不应再写，避免 compat 落成具体值')
 })
 
 test('2.0.7 英文界面：日志开关也走双语', () => {

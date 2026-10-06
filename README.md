@@ -111,7 +111,7 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 [@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
 
-[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半） 🌹
+[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半）、#55 揪出跟随系统写成深色 🌹
 
 </div>
 

@@ -87,7 +87,7 @@ If you like this plugin, you might also like:
 
 [@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
 
-[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred) 🌹
+[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred); #55 caught follow-system persisting as dark 🌹
 
 </div>
 

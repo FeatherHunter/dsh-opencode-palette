@@ -69,7 +69,8 @@ function loadState() {
     }
     if (raw) {
       const s = JSON.parse(raw)
-      return { ...DEFAULT_STATE, ...s }
+      // 跟随开关已下线：恒跟随，存量 false 迁移为 true，不给用户选择
+      return { ...DEFAULT_STATE, ...s, followAppearance: true }
     }
   } catch (e) { /* 存储不可用则用默认 */ }
   return { ...DEFAULT_STATE }
@@ -113,8 +114,6 @@ const I18N = {
   search: { zh: '搜索主题…', en: 'Search themes…' },
   noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
   systemDefault: { zh: 'system（跟随系统）', en: 'system (default)' },
-  followAppearance: { zh: '选中即切换 DSH 明暗', en: 'Match DSH appearance on select' },
-  followAppearanceHint: { zh: '深色主题切深色、透明主题切浅色、跟随系统则释放', en: 'Dark themes switch DSH dark, translucent switches light, system releases control' },
   translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
   'group.warm': { zh: '暖橙', en: 'Warm' },
   'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
@@ -442,7 +441,10 @@ export function createClient(slotTarget) {
       } catch (e) { /* 忽略 */ }
     }
     function syncAppearanceForTheme(name) {
-      if (!state.followAppearance || !state.enabled) return
+      // 无跟随开关：只要启用就恒跟随（深色→dark、透光→light、system→system释放）
+      if (!state.enabled) return
+      // system 已是释放态时不写：宿主已为 system 即无主张，重写反而可能在 compat 宿主上落成具体值（#55）
+      if (name === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
       let pref
       if (name === 'system') pref = 'system'
       else {
@@ -470,12 +472,6 @@ export function createClient(slotTarget) {
       saveState(state)
       if (state.enabled) applyStyle()
       syncAppearanceForTheme(state.theme)
-    }
-    function setFollowAppearance(v) {
-      state = { ...state, followAppearance: !!v }
-      saveState(state)
-      if (state.followAppearance) syncAppearanceForTheme(state.theme)
-      else { restoreOfficialOnStop(); releaseAppearance() }
     }
     function setTypography(next) {
       state = { ...state, ...next }
@@ -602,8 +598,10 @@ export function createClient(slotTarget) {
         const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
         // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
         const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
-        // issue 48：透光芯片的迷你深色画布（深色基线代表底 = opencode 深色底），不借宿主面板表面
+        // 透光芯片恒浅底（浅色主题一眼可辨，不随宿主深浅走）；system 芯片跟宿主走（浅宿主白底、深宿主深底）
         const chipDarkSurface = '#0A0A0A'
+        const chipLightSurface = '#FFFFFF'
+        const chipLightText = '#1A1A1A'
         // issue 48：预览色恒为深色基线，直接取主题文字色；
         // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
         const chipText = function (colors) {
@@ -800,18 +798,22 @@ export function createClient(slotTarget) {
         }
 
         // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
+        // 透光恒浅底深字（浅色一眼可辨）；system 跟宿主（浅白/深黑），选中 system 的外观效果等同停用（只留排印，颜色与外观接管全释放）
         const chip = function (t) {
           const isCur = t.name === st.theme
           const c = t.colors
           const translucent = t.name !== 'system' && delegatesBackground(t.name)
+          const isSystem = t.name === 'system'
+          const chipBg = translucent ? chipLightSurface : (isSystem ? (hostDark ? chipDarkSurface : chipLightSurface) : (c && c.background ? c.background : chipDarkSurface))
+          const chipFg = translucent ? chipLightText : chipText(c)
           return h('button', {
             key: t.name,
             onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
             title: translucent ? tr('translucentNote') : undefined,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: c && c.background ? c.background : chipDarkSurface,
-              color: chipText(c),
+              background: chipBg,
+              color: chipFg,
               border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
               borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
               fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
@@ -1138,29 +1140,6 @@ export function createClient(slotTarget) {
           h('div', { style: secTitle }, [
             h('span', null, tr('themeSection')),
             h('span', { style: countStyle }, tr('themeCount')),
-            h('span', {
-              key: 'follow',
-              onClick: function () { props.setFollowAppearance(!st.followAppearance); setUi(props.getState()) },
-              title: tr('followAppearanceHint'),
-              style: { marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer', userSelect: 'none' },
-            }, [
-              h('span', {
-                style: {
-                  position: 'relative', display: 'inline-block', width: 28, height: 16,
-                  borderRadius: 9, cursor: 'pointer',
-                  background: st.followAppearance ? 'rgba(250,178,131,0.4)' : switchOffTrack,
-                  transition: 'background .12s',
-                },
-              }, h('span', {
-                style: {
-                  position: 'absolute', top: 2, left: st.followAppearance ? 14 : 2,
-                  width: 12, height: 12, borderRadius: '50%',
-                  background: st.followAppearance ? '#FAB283' : switchOffKnob,
-                  transition: 'left .12s',
-                },
-              })),
-              h('span', { style: { fontSize: 11, color: st.followAppearance ? base : muted } }, tr('followAppearance')),
-            ]),
           ]),
           h('input', {
             placeholder: tr('search'),
@@ -1197,7 +1176,6 @@ export function createClient(slotTarget) {
           toggle: toggle,
           refresh: refresh,
           setTheme: setTheme,
-          setFollowAppearance: setFollowAppearance,
           themeNames: themeNames,
           // 检查更新：控制器 + 日志器交给面板（宿主不可用时 update.available 为假，按钮不渲染）
           update: update,
