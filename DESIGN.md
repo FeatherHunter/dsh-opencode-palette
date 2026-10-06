@@ -125,8 +125,8 @@ build-client.mjs 把 src/engine + src/themes + runtime 内联为一个
 
 - **宿主半**：`runtime/host.mjs` 原样复制成 `package/lib/index.js`（另带 `channel.mjs`、`event-list.json`
   两个随包文件）。宿主半是真插件：接日志落盘与更新三电话，并把电话经精确路由 `/api/opencode-palette`
-  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（`dsh-log` + `dsh-plugin-update@^0.2.0`）。
-- **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/client` 在构建期从 npm 包读入、
+  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（`dsh-log` + `dsh-plugin-update@^0.7.0`）。
+- **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/entry`（入口件闭包）在构建期从 npm 包读入、
   转成 bundle 模块内联（转换器支持多行 `import`/`export` 与 `as` 别名）。所以面板里的电话名与轮询间隔
   是**运行时从包的函数算出来的**，不是抄进源码的常量。
 - **更新包不再 vendor**：0.1.x 时 `runtime/vendor/` 与 `package/lib/vendor/` 由构建从 npm 包复制

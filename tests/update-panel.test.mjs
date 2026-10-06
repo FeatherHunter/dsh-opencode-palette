@@ -218,8 +218,8 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.5.2' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.5.x 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.7.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.7.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -449,7 +449,8 @@ function fakeConnection(answers) {
 test('渲染：宿主可用时头行原位出现入口件挂载位，且无自研残留', () => {
   const { html } = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
   assert.ok(html.includes('data-update-entry'), '头行原位缺入口件挂载位')
-  assert.ok(html.includes('zoom:1'), '尺寸开关应渲染（临时方案：zoom 钉住当前按钮大小）')
+  assert.ok(html.includes('white-space:nowrap') || html.includes('whiteSpace'), '入口件容器应锁不换行（0.7.0 sizing 前置修复：检查更新不再折行）')
+  assert.ok(!html.includes('zoom:1'), '旧 zoom 临时方案应已删除（0.7.0 走正式 sizing 参数）')
   assert.ok(!html.includes('有新版本'), '不应再有自研红字按钮')
   assert.ok(!html.includes('立即升级'), '不应再有自研弹窗动作按钮')
   assert.ok(!html.includes('发现新版本'), '不应再有自研弹窗标题')
@@ -471,6 +472,76 @@ test('渲染：中英文主题面板文案不受更新最小集成影响', () =>
   assert.ok(en.html.includes('Themes'), '英文主题文案应照常')
 })
 
+
+// ───────────────────────── 四点五、换肤：主题一致（0.7.0 themeTokens） ─────────────────────────
+
+test('换肤：37 主题的 themeTokens 全过 0.7.0 校验，system/透光回 undefined', async () => {
+  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
+  const { themeTokensStyleFor } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href)
+  const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.mjs')).href)
+  const names = listThemes()
+  assert.ok(names.includes('tokyonight') && names.includes('system'), '主题表应含 tokyonight 与 system')
+  let themed = 0
+  for (const name of names) {
+    const tokens = buildUpdateTokens(name)
+    if (name === 'system') {
+      assert.equal(tokens, undefined, 'system 无色应回 undefined（零回归，用包默认）')
+      continue
+    }
+    if (!tokens) continue
+    themed++
+    const css = themeTokensStyleFor(tokens)
+    assert.ok(css.includes('--dsh-update-text:'), name + ' 的 token 应含 text')
+    assert.ok(css.includes('--dsh-update-bg:'), name + ' 的 token 应含 bg')
+    assert.ok(css.includes('--dsh-update-primary:'), name + ' 的 token 应含 primary')
+  }
+  assert.ok(themed >= 36, '至少 36 个主题应产出 token（实得 ' + themed + '）')
+  const tk = buildUpdateTokens('tokyonight')
+  assert.equal(tk.text, '#C8D3F5')
+  assert.equal(tk.primary, '#82AAFF')
+  assert.ok(!('entryFontSize' in tk) && !('entryPadding' in tk) && !('entryBorderRadius' in tk) && !('entryScale' in tk),
+    '按钮尺寸只走 sizing 参数，themeTokens 不再写 entry*（双信源已删）')
+})
+
+test('换肤：真挂载入口件随 setThemeTokens 即时换肤（执行级，非源码 grep）', async () => {
+  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
+  const { mountUpdateEntry } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'entry.js')).href)
+  const tk = buildUpdateTokens('tokyonight')
+  const dracula = buildUpdateTokens('dracula')
+  assert.ok(tk && dracula && tk.text !== dracula.text, '前置：两主题 text 应不同，否则换肤无从验证')
+  const container = { innerHTML: '' }
+  const entry = mountUpdateEntry(container, {
+    pluginId: 'dsh-opencode-palette',
+    prefix: 'palette',
+    call: async () => { throw new Error('换肤测试不应调宿主（autoCheck never）') },
+    variant: 'button',
+    theme: 'default',
+    themeTokens: tk,
+    sizing: { fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 },
+    autoCheck: 'never',
+    openOn: 'has-update',
+  })
+  try {
+    assert.ok(container.innerHTML.includes('--dsh-update-text:' + tk.text), '挂载后容器应含 tokyonight 的 text 变量')
+    entry.setThemeTokens(dracula)
+    assert.ok(container.innerHTML.includes('--dsh-update-text:' + dracula.text), 'setThemeTokens 后容器应换成 dracula 的 text 变量')
+    entry.setThemeTokens(undefined)
+    assert.ok(!container.innerHTML.includes('--dsh-update-text:' + dracula.text), '传 undefined 应清掉覆盖')
+  } finally {
+    entry.unmount()
+  }
+})
+
+test('换肤：入口件接线传 themeTokens + sizing，换主题经 setThemeTokens 同步', () => {
+  const client = read('runtime/client.mjs')
+  assert.match(client, /buildUpdateTokens/, '客户端应从主题派生 token')
+  assert.match(client, /themeTokens: currentUpdateTokens\(\)/, '挂载时应传入当前主题的 token')
+  assert.match(client, /sizing: \{ fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 \}/, '按钮尺寸走 0.7.0 正式 sizing 参数')
+  assert.match(client, /setThemeTokens/, '换主题应经 setThemeTokens 即时换肤（含 dialog 透传）')
+  const bundle = read('package/lib/client.js')
+  assert.ok(bundle.indexOf('--dsh-update-text') >= 0, '产物应含 0.7.0 新变量名（0.6.0 已更名，旧 --dsh-upd-* 不应再出现）')
+  assert.ok(bundle.indexOf('--dsh-upd-text') < 0 && bundle.indexOf('--dsh-upd-btn') < 0, '产物不应再有旧 --dsh-upd-* 变量')
+})
 
 // ───────────────────────── 五、事件清单 ─────────────────────────
 

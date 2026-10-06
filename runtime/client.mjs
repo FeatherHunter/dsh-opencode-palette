@@ -8,6 +8,7 @@ import { createFontAvailability } from './engine/font-avail.mjs'
 import { codeFontStack } from './engine/generate.mjs'
 import { buildFontCandidates, collectLocalFonts } from './engine/local-fonts.mjs'
 import { THEME_ZH, THEME_EN, themeSearchText } from './engine/zh-names.mjs'
+import { buildUpdateTokens } from './engine/update-tokens.mjs'
 import { createClientLog } from 'dsh-log/client'
 import { mountUpdateEntry } from 'dsh-plugin-update/entry'
 import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
@@ -213,19 +214,30 @@ export function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：新包入口件单点（最小集成）。头行原按钮位置挂载 variant button，
-    // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包（默认主题＋全默认行为）。
-    // 语言跟随（更新包 0.5.8 locale 选项）：把本面板的语言信号（官方 locale 服务优先，
-    // html[lang] 回退）以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的
-    // dialog 面板都按同一语言单语渲染，切换即时重绘；入口件只挂载一次，不随语言重挂
-    //（unmount 时停订，不泄漏）。注意入口件挂载在渲染 effect 里，调用时下方的语言
-    // 基础设施均已就绪。宿主不可用时不挂载，主题面板照常。
-    // 尺寸开关（临时方案）：更新包暂无按钮尺寸参数（字号 13px/padding 4px 12px 写死在包内 CSS），
-    // 这里用容器 zoom 钉住当前视觉——改一个数即整体缩放，不碰包内类名（外部覆盖 .dsh-upd-entry-btn
-    // 会耦合上游内部实现）。=1 即现在检查更新按钮的大小；上游正式参数落地后切过去并删掉开关。
-    // 见上游 ISSUE：https://github.com/FeatherHunter/dsh-plugin-update/issues/69
-    const UPDATE_ENTRY_ZOOM = 1
+    // ── 检查更新：dsh-plugin-update@0.7.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
+    // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
+    // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
+    // 以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的 dialog 面板都按同一语言单语渲染，
+    // 切换即时重绘；入口件只挂载一次，不随语言重挂（unmount 时停订，不泄漏）。宿主不可用时不挂载，主题面板照常。
+    // 按钮尺寸走正式参数 sizing（取代旧容器 zoom 临时方案，上游 #69 已落地）：12px/2px 10px/6px/scale 1，
+    // 容器再加 nowrap 防止“检查更新”折成两行；不碰包内类名。
     const mountedUpdateEntries = []
+    function currentUpdateTokens() {
+      try {
+        return buildUpdateTokens(state.theme)
+      } catch (e) {
+        return undefined
+      }
+    }
+    function refreshUpdateTheme() {
+      const tokens = currentUpdateTokens()
+      for (const entry of mountedUpdateEntries) {
+        try {
+          if (entry && typeof entry.setThemeTokens === 'function') entry.setThemeTokens(tokens)
+        } catch (err) { /* 忽略 */ }
+      }
+    }
     function updateLocaleSource() {
       return {
         getActive: function () { return currentLocale() },
@@ -247,6 +259,8 @@ export function createClient(slotTarget) {
           call: function (phone, args) { return hostBridge.call(phone, args) },
           variant: 'button',
           theme: 'default',
+          themeTokens: currentUpdateTokens(),
+          sizing: { fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 },
           autoCheck: 'mount',
           openOn: 'has-update',
           changelogMarkdown: null,
@@ -478,6 +492,7 @@ export function createClient(slotTarget) {
       saveState(state)
       if (state.enabled) applyStyle()
       syncAppearanceForTheme(state.theme)
+      refreshUpdateTheme()
     }
     function setTypography(next) {
       state = { ...state, ...next }
@@ -487,7 +502,7 @@ export function createClient(slotTarget) {
     function toggle() {
       state = { ...state, enabled: !state.enabled }
       saveState(state)
-      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme) } else { clearStyle(); restoreOfficialOnStop(); releaseAppearance() }
+      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme); refreshUpdateTheme() } else { clearStyle(); restoreOfficialOnStop(); releaseAppearance() }
     }
     function refresh(nextMode, nextSize, nextFont) {
       setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont })
@@ -910,12 +925,18 @@ export function createClient(slotTarget) {
           const el = updMountRef.current
           if (!el) return undefined
           const entry = mountUpdateButton(el)
-          return function () { try { entry && entry.unmount() } catch (e) { /* 忽略 */ } }
+          return function () {
+            try {
+              const i = mountedUpdateEntries.indexOf(entry)
+              if (i >= 0) mountedUpdateEntries.splice(i, 1)
+            } catch (e) { /* 忽略 */ }
+            try { entry && entry.unmount() } catch (e) { /* 忽略 */ }
+          }
         }, [])
         // 新包入口件挂载容器：头行右侧原位；宿主不可用时 mountUpdateButton 回 null，不渲染。
         // data-update-entry 是产物级断言锚点（tests/update-panel.test.mjs），不是样式钩子。
         const updateButton = hostBridge
-          ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { zoom: UPDATE_ENTRY_ZOOM } })
+          ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' } })
           : null
 
 
