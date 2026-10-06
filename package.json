@@ -11,7 +11,7 @@
     "deps:sync": "npm update dsh-plugin-update dsh-log --registry=https://registry.npmjs.org && node scripts/check-deps.mjs",
     "vendor:check": "node scripts/check-deps.mjs",
     "build": "node scripts/check-deps.mjs && node scripts/inline-fonts.mjs && node scripts/build-client.mjs",
-    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/log-switch.test.mjs tests/release-scripts.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs tests/readme-body.test.mjs"
+    "test": "node --test tests/engine.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/log-switch.test.mjs tests/release-scripts.test.mjs tests/sync-verify.test.mjs tests/readme-head-tail.test.mjs tests/readme-body.test.mjs tests/group-boundary.test.mjs"
   },
   "engines": { "node": ">=22", "dsh": ">=0.2.0-rc.1" },
   "repository": {

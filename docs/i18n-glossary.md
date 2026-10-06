@@ -130,6 +130,8 @@
 | `transparent` | group | Transparent | 透明 |
 | `special` | group | Special | 特殊 |
 
+分组名体例（2026-10-06 [#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 并排实测后冻结）：整组名 = 两端温度锚（暖橙／冷蓝）＋中段邻接复合（黄绿／青绿／青蓝／蓝紫）——青字头覆盖 `[90,200)`（青绿／青蓝 共享字头、尾字分色向），`[200,230)` 用冷字头（冷蓝）区分纯蓝段；英文按英语习惯（Teal／Violet 为单词色名），不与中文同构。色相阈值 160／200／230 与两侧实测余量见 `src/engine/grouping.mjs` 的冻结注释。
+
 ## 双 README 8 节（`README.md`／`docs/README.en.md`，`prototypes/readme-mirror-61.html` v2）
 
 | 节 | 结论 | 落码动作 |
@@ -159,13 +161,14 @@
 - 主题名表：专名保留、共识沿用、无生造；`listThemes() == THEME_ZH 键数 == THEME_EN 键数 == 38`、`GROUP_ORDER 9/9` 对齐；面板计数经 `trf({n})` 取 `themeNames().length`（`n≥2` 恒复数，注释注明）。#67 追加：英文名非空不重名、只有 opencode 与 id 同形；词表 en／中文终稿两列与代码两表逐行对账；搜索索引三源；中英**实渲染** 38 款无一退回内部 id。
 - 双 README：无残留中文面板名（EN 只留故意的中文镜像句与图片文件名）、断言有锚、选图对称、计数一致、五枚徽章对等（`欢迎提 Issue`／`Issues welcome`）。
 - 长度：真实容器不溢出、最小宽度冒烟、大字号不截断；`trf` 不调序。
+- 色系边界（#68）：阈值 ±1° 探针、边界两侧最近主题归属、≥2° 余量跳闸线、三组色相连续、青／冷字头体例、明暗不改成员——六条 pin 在 `tests/group-boundary.test.mjs`（越界或改名即红）。
 - 先例：状态机＋接线一致＋宿主冒烟的门禁写法；真实渲染抓错的面板渲染回归写法；纯文本断字符串与数值的 README 体写法。
 
 ## 待人定（本表不代选）
 
 - [x] 单源文件路径：本文件（`docs/i18n-glossary.md`）即答案，2026-10-06 用户认可后建立。
 - [x] 上游品牌拼写核对后冻结（2026-10-06 转正为 `OpenCode`／`OpenCode Palette`，全仓已落码，含徽章 `OpenCode·38`）。
-- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名（[#66](https://github.com/FeatherHunter/dsh-opencode-palette/issues/66) 2026-10-06 已落码：四名只进索引、不进正名）／R5 THEME_EN（[#67](https://github.com/FeatherHunter/dsh-opencode-palette/issues/67) 2026-10-06 已落码）／R6 青绿·青蓝·冷蓝并排（[#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 待办）。
+- [ ] 疑难名单三项实测（词源考据＋中英双搜＋视觉并排）后由主题定稿转正；R2 搜索别名（[#66](https://github.com/FeatherHunter/dsh-opencode-palette/issues/66) 2026-10-06 已落码：四名只进索引、不进正名）／R5 THEME_EN（[#67](https://github.com/FeatherHunter/dsh-opencode-palette/issues/67) 2026-10-06 已落码）／R6 青绿·青蓝·冷蓝并排（[#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 2026-10-06 已冻结：阈值 160／200／230 与青／冷字头体例原样冻结，注释＋六条 pin 落码）。
 - [ ] SHOWCASE 对称三张重出图＋同步改 `readme-body` 会红断言（见 #62 下一步）。
 
 ## 来源
