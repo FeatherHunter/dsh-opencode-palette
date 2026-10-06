@@ -15040,6 +15040,7 @@ function createClient(slotTarget) {
               color: on ? base : muted,
               opacity: k.ok ? 1 : 0.45,
               overflow: 'hidden', whiteSpace: 'nowrap',
+              flex: 'none',
             },
           }, h('span', { style: { flex: '1 1 auto', minWidth: '0', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '20px', fontFamily: k.stack || codeFontStack(k.key) } }, k.key + suffix))
         }
@@ -15070,6 +15071,7 @@ function createClient(slotTarget) {
             style: {
               display: 'flex', alignItems: 'center', gap: 8,
               padding: '10px 10px 4px', cursor: 'default', userSelect: 'none',
+              flex: 'none',
             },
           }, [
             h('span', {

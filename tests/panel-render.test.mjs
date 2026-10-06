@@ -715,4 +715,7 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
   assert.ok(item.includes("textOverflow: 'ellipsis'"), '候选行应单行省略')
   assert.ok(item.includes('title: k.key + suffix'), '候选行 title 应为全文本')
   assert.ok(item.includes("lineHeight: '20px'"), '候选行应锁行高（防宿主行高压扁）')
+  assert.ok(item.includes("flex: 'none'"), '候选行不得被 flex 容器压缩（#69：92 项时被压扁聚集）')
+  const sec = code.slice(code.indexOf('const secHeader = function'), code.indexOf('const menuItem = function'))
+  assert.ok(sec.includes("flex: 'none'"), '分组头不得被 flex 容器压缩（#69 同因）')
 })
