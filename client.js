@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.0.22 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.0.23 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -14337,7 +14337,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.22'
+const PALETTE_VERSION = '2.0.23'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -15125,7 +15125,7 @@ function createClient(slotTarget) {
               },
             }),
             hintNode,
-            h('div', { style: { maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
+            h('div', { style: { maxHeight: 280, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
           ])
         }
         const fontPicker = function () {
@@ -15148,7 +15148,7 @@ function createClient(slotTarget) {
               style: {
                 position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 240, width: '100%', maxWidth: 'calc(100vw - 48px)',
+                borderRadius: 8, width: 'max-content', minWidth: 'max(240px, 100%)', maxWidth: 'calc(100vw - 48px)',
                 boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
               },
             }, [fontMenu()]) : null,

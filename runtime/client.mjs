@@ -806,7 +806,7 @@ export function createClient(slotTarget) {
               },
             }),
             hintNode,
-            h('div', { style: { maxHeight: 280, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
+            h('div', { style: { maxHeight: 280, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
           ])
         }
         const fontPicker = function () {
@@ -829,7 +829,7 @@ export function createClient(slotTarget) {
               style: {
                 position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
                 background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 240, width: '100%', maxWidth: 'calc(100vw - 48px)',
+                borderRadius: 8, width: 'max-content', minWidth: 'max(240px, 100%)', maxWidth: 'calc(100vw - 48px)',
                 boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
               },
             }, [fontMenu()]) : null,

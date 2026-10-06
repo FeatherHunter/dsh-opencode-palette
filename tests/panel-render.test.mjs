@@ -702,11 +702,15 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
   // 悬浮菜单统一最高层级（旧 zIndex 20 会被兄弟内容盖住）
   assert.ok(!code.includes('zIndex: 20'), '不应再有 zIndex: 20 的悬浮菜单')
   assert.ok(code.includes('zIndex: 1000'), '悬浮菜单应提至 1000')
-  // 字体菜单块：宽度跟锚定按钮走（不再 max-content 撑爆面板），溢出裁掉
+  // 字体菜单块（#69 follow-up）：宽度随内容撑开（下限按钮宽/240，上限视口），只纵滑不横滑
   const menu = code.slice(code.indexOf("key: 'font-menu'"), code.indexOf('[fontMenu()]'))
-  assert.ok(menu.includes("width: '100%'"), '字体菜单宽度应跟按钮走')
-  assert.ok(!menu.includes('max-content'), '字体菜单不得再用 max-content')
+  assert.ok(menu.includes("width: 'max-content'"), '字体菜单宽度应随内容撑开')
+  assert.ok(menu.includes('100%'), '字体菜单至少跟按钮一样宽')
+  assert.ok(menu.includes("maxWidth: 'calc(100vw - 48px)'"), '字体菜单上限视口宽度')
   assert.ok(menu.includes("overflow: 'hidden'"), '字体菜单溢出应裁掉')
+  const scroller = code.slice(code.indexOf('maxHeight: 280'), code.indexOf('maxHeight: 280') + 200)
+  assert.ok(scroller.includes("overflowY: 'auto'"), '纵滑容器应可上下滚动')
+  assert.ok(scroller.includes("overflowX: 'hidden'"), '纵滑容器不得左右滑动')
   // 候选行：固定高度 flex 行（行高不再依赖 line box，宿主行高干扰压不扁）+ 单行省略 + 全文 title
   const item = code.slice(code.indexOf('const fontItem = function'), code.indexOf('const hint = fontHint()'))
   assert.ok(item.includes("height: '28px'"), '候选行应固定高度（不依赖 line box）')
