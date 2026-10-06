@@ -11,7 +11,7 @@
 你的 ⭐ 是我夜空中最亮的星。
 
 [![版本](https://img.shields.io/npm/v/dsh-opencode-palette?label=%E7%89%88%E6%9C%AC)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![下载量](https://img.shields.io/npm/dt/dsh-opencode-palette?label=%E4%B8%8B%E8%BD%BD%E9%87%8F&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![下载量](https://img.shields.io/npm/dt/dsh-opencode-palette?label=%E4%B8%8B%E8%BD%BD%E9%87%8F&color=red)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![最近更新](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=%E6%9C%80%E8%BF%91%E6%9B%B4%E6%96%B0&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
 [![主题包](https://img.shields.io/badge/%E4%B8%BB%E9%A2%98%E5%8C%85-OpenCode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
 [![欢迎提 Issue](https://img.shields.io/badge/%E6%AC%A2%E8%BF%8E%E6%8F%90%20Issue-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)

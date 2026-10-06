@@ -11,7 +11,7 @@
 Your ⭐ is the brightest star in my night sky.
 
 [![npm](https://img.shields.io/npm/v/dsh-opencode-palette?label=npm)](https://www.npmjs.com/package/dsh-opencode-palette)
-[![downloads](https://img.shields.io/npm/dt/dsh-opencode-palette?label=downloads&color=brightgreen)](https://www.npmjs.com/package/dsh-opencode-palette)
+[![downloads](https://img.shields.io/npm/dt/dsh-opencode-palette?label=downloads&color=red)](https://www.npmjs.com/package/dsh-opencode-palette)
 [![last-commit](https://img.shields.io/github/last-commit/FeatherHunter/dsh-opencode-palette?label=last-commit&color=FE7D37)](https://github.com/FeatherHunter/dsh-opencode-palette/commits/main)
 [![themes](https://img.shields.io/badge/themes-OpenCode%C2%B738-9D7CD8)](https://github.com/anomalyco/opencode)
 [![Issues welcome](https://img.shields.io/badge/Issues%20welcome-brightgreen.svg)](https://github.com/FeatherHunter/dsh-opencode-palette/issues)
