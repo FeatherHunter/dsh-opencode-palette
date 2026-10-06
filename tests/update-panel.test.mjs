@@ -123,15 +123,15 @@ test('入口件：电话失败码与 internal 全中文，未来码兜底并带�
   assert.ok((fallback.act || '').includes('SOME-FUTURE-CODE') || JSON.stringify(fallback).includes('码'), '兜底应带上原码或提示带码')
 })
 
-test('入口件：挂载默认进面静默查一次（只读 status），按钮文案随状态走', async () => {
+test('入口件：挂载默认进面静默查一次（只读 status），按钮文案随状态走（0.8.0 upToDateDisplay 默认按钮即版本）', async () => {
   const host = stubHost({ [buildPhoneNames('palette').updateStatus]: reply(snapshotOf({ latestVersion: '1.7.2' })) })
   const container = stubContainer()
   const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
   await tick()
   assert.ok(host.calls.some((c) => c.phone === buildPhoneNames('palette').updateStatus), '挂载默认 autoCheck mount：应静默查一次状态')
   await entry.refresh()
-  assert.equal(entry.label(), '检查更新')
-  assert.ok(container.innerHTML.includes('检查更新'), '按钮应渲染当前文案')
+  assert.equal(entry.label(), '已是最新 1.7.2')
+  assert.ok(container.innerHTML.includes('已是最新 1.7.2'), '按钮应渲染当前文案（0.8.0 默认按钮即版本，仍是单按钮）')
   assert.ok(container.innerHTML.includes('dsh-upd-entry'), '应渲染入口件骨架')
   entry.unmount()
 })
@@ -218,7 +218,7 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.7.0' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.8.0' })
   assert.equal(pkg.engines.node, '>=22', '更新包 0.7.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')

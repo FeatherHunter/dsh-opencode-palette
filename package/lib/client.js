@@ -2822,6 +2822,15 @@ const UPDATE_PANEL_CSS = [
   '.dsh-upd-actions button:first-child:not([aria-busy="true"])::after{content:"";display:inline-block;width:11px;height:11px;margin-left:8px;visibility:hidden}',
   ".dsh-upd-banner{min-height:1.2em}",
   ".dsh-upd-strip{min-height:48px}",
+  // —— 查新版瞬时抖动补强：忙闲两帧同高 + 横幅不动（只追加覆盖，不改上面既有串）——
+  ".dsh-upd-actions{align-content:flex-start}",
+  ".dsh-upd-actions button{white-space:nowrap}",
+  ".dsh-upd-actions button:first-child{min-width:10em}",
+  '.dsh-upd-actions button[data-primary="1"]{min-width:9em}',
+  ".dsh-upd-banner{min-height:3.4em;display:flex;flex-direction:column;justify-content:center}",
+  ".dsh-upd-banner{animation:none}",
+  ".dsh-upd-copy{min-height:1.75em}",
+  ".dsh-upd-copy--empty{visibility:hidden}",
   "@media (prefers-color-scheme: dark){.dsh-upd{--dsh-update-text:#e5e7eb;--dsh-update-bg:#111827;--dsh-update-border:#374151;",
   "--dsh-update-button-bg:#1f2937;--dsh-update-bg-soft:#1f2937;--dsh-update-primary:#3b82f6;--dsh-update-focus:#93c5fd;",
   // 横幅深色覆盖：底色用低透明度同色系（不是浅色原值），边线提亮，保证「深底浅字」可读。
@@ -3210,6 +3219,7 @@ ${changelogHTML}
       }
     }
     if (copyNotice) errLines.push(`<div class="dsh-upd-copy" role="status">${escapeHtml(copyNotice)}</div>`);
+    else errLines.push('<div class="dsh-upd-copy dsh-upd-copy--empty" aria-hidden="true"></div>');
     chapters.push(chapterOf(4, errLines.join(""), "", l));
   }
   chapters.push(
@@ -4157,6 +4167,11 @@ const { DEFAULT_PREFIX, MIN_PANEL_POLL_MS, buildPhoneNames } = __mods["upd-confi
 const { failureCodeOf, mountUpdatePanel, normalizePanelTheme, themeTokensStyleFor } = __mods["upd-panel"];
 const { BILINGUAL_CSS, copyHTML, copyText } = __mods["upd-bilingual"];
 const { resolveLang, subscribeLang } = __mods["upd-lang"];
+function upToDateVersionOf(snapshot, error) {
+  if (error || !snapshot || hasUpdateOf(snapshot)) return null;
+  const v = snapshot.runningVersion;
+  return typeof v === "string" && v.trim() ? v.trim() : null;
+}
 function hasUpdateOf(snapshot) {
   if (!snapshot) return false;
   const latest = snapshot.latestVersion;
@@ -4272,6 +4287,9 @@ const UPDATE_ENTRY_CSS = [
   '.dsh-upd-entry[data-state="update"] .dsh-upd-entry-dot{background:var(--dsh-update-ok-border,#059669)}',
   '.dsh-upd-entry[data-state="busy"] .dsh-upd-entry-dot,.dsh-upd-entry[data-state="restart"] .dsh-upd-entry-dot{background:var(--dsh-update-warn-border,#d97706)}',
   '.dsh-upd-entry[data-state="failed"] .dsh-upd-entry-dot{background:var(--dsh-update-bad-border,#dc2626)}',
+  // C 直显（upToDateDisplay='button'）：无新版时按钮本身即版本，走中性弱边（不抢有新版的红/绿），hover 才走 primary 暗示可再查；复用既有 token，不加新键。
+  '.dsh-upd-entry[data-known="uptodate"] .dsh-upd-entry-btn{border-color:var(--dsh-update-border,#d1d5db);color:var(--dsh-update-text-muted,#6b7280)}',
+  '.dsh-upd-entry[data-known="uptodate"] .dsh-upd-entry-btn:hover{border-color:var(--dsh-update-primary,#2563eb);color:var(--dsh-update-primary,#2563eb)}',
   // 小字自带底（深色宿主 + 浅色变量时也读得出；浅底宿主上只是多一圈细线，不抢戏）。
   ".dsh-upd-entry-note{font-size:12.5px;opacity:.9;background:var(--dsh-update-bg,#ffffff);border:1px solid var(--dsh-update-border,#e5e7eb);border-radius:var(--dsh-update-radius-badge,4px);padding:1px 8px}",
   '.dsh-upd-entry[data-theme="archive"] .dsh-upd-entry-note{background:var(--dsh-update-bg);border-color:var(--dsh-update-border-strong);color:var(--dsh-update-text)}',
@@ -4282,7 +4300,7 @@ const UPDATE_ENTRY_CSS = [
   '.dsh-upd-entry[data-theme="archive"] .dsh-upd-entry-btn{border-color:var(--dsh-update-border-strong);background:var(--dsh-update-bg);color:var(--dsh-update-text);border-radius:var(--dsh-update-entry-border-radius,3px)}',
   '.dsh-upd-entry[data-theme="archive"] .dsh-upd-entry-btn:hover{border-color:var(--dsh-update-primary);color:var(--dsh-update-primary)}',
   '@media (prefers-color-scheme: dark){.dsh-upd-entry[data-theme="archive"]{--dsh-update-text:#ece5d3;--dsh-update-text-muted:#a89c83;--dsh-update-border-strong:#5c4e3b;--dsh-update-primary:#e0684e;--dsh-update-bg:#1e1a15}}',
-  "@media (prefers-color-scheme: dark){.dsh-upd-entry{color:#e5e7eb}",
+  "@media (prefers-color-scheme: dark){.dsh-upd-entry{color:#e5e7eb;--dsh-update-text-muted:#9ca3af}",
   ".dsh-upd-entry-btn{--dsh-update-button-bg:#1f2937;--dsh-update-border:#374151}}"
 ].join("\n");
 const ENTRY_ATTR = "data-dsh-upd-entry";
@@ -4327,6 +4345,10 @@ function mountUpdateEntry(container, options) {
   const openOn = options.openOn ?? "has-update";
   if (openOn !== "has-update" && openOn !== "always" && openOn !== "manual" && openOn !== "direct") {
     throw new Error(`[dsh-plugin-update] \u70B9\u51FB\u53BB\u5411\u975E\u6CD5\uFF1A\u53EA\u6536 has-update / always / manual / direct\uFF08\u6536\u5230 ${JSON.stringify(options.openOn)}\uFF09`);
+  }
+  const upToDateDisplay = options.upToDateDisplay ?? "button";
+  if (upToDateDisplay !== "note" && upToDateDisplay !== "button" && upToDateDisplay !== "tooltip") {
+    throw new Error(`[dsh-plugin-update] invalid upToDateDisplay: expected note / button / tooltip (got ${JSON.stringify(options.upToDateDisplay)})`);
   }
   if (options.theme !== void 0 && options.theme !== "default" && options.theme !== "archive") {
     throw new Error(`[dsh-plugin-update] \u4E3B\u9898\u975E\u6CD5\uFF1A\u53EA\u6536 default \u6216 archive\uFF08\u6536\u5230 ${JSON.stringify(options.theme)}\uFF09`);
@@ -4386,7 +4408,13 @@ function mountUpdateEntry(container, options) {
     return { snapshot, error };
   }
   function currentLabel() {
-    return labelOverride ?? entryLabelFor(stateOf(), currentLang());
+    if (labelOverride) return labelOverride;
+    const lang = currentLang();
+    if (!activating && upToDateDisplay === "button" && entryStateKind(stateOf()) === "idle") {
+      const v = upToDateVersionOf(snapshot, error);
+      if (v) return copyText("entry.note.up-to-date", lang, { version: v });
+    }
+    return entryLabelFor(stateOf(), lang);
   }
   function hasUpdate() {
     return hasUpdateOf(snapshot);
@@ -4397,18 +4425,24 @@ function mountUpdateEntry(container, options) {
   function entryHTML() {
     const kind = entryStateKind(stateOf());
     const lang = currentLang();
-    const labelHTML = labelOverride ? escapeHtml(labelOverride) : activating ? copyHTML("entry.action.checking", lang) : copyHTML(entryBilingualKeyFor(stateOf()), lang, entryBilingualValuesFor(stateOf()));
-    const labelText = labelOverride ?? (activating ? copyText("entry.action.checking", lang) : copyText(entryBilingualKeyFor(stateOf()), lang, entryBilingualValuesFor(stateOf())));
+    const knownUpToDate = !activating && kind === "idle" ? upToDateVersionOf(snapshot, error) : null;
+    const buttonMode = !labelOverride && upToDateDisplay === "button" && knownUpToDate;
+    const tooltipMode = !labelOverride && upToDateDisplay === "tooltip" && knownUpToDate;
+    const labelHTML = labelOverride ? escapeHtml(labelOverride) : activating ? copyHTML("entry.action.checking", lang) : buttonMode && knownUpToDate ? copyHTML("entry.note.up-to-date", lang, { version: knownUpToDate }) : copyHTML(entryBilingualKeyFor(stateOf()), lang, entryBilingualValuesFor(stateOf()));
+    const labelText = labelOverride ?? (activating ? copyText("entry.action.checking", lang) : buttonMode && knownUpToDate ? copyText("entry.note.up-to-date", lang, { version: knownUpToDate }) : copyText(entryBilingualKeyFor(stateOf()), lang, entryBilingualValuesFor(stateOf())));
+    const titleText = labelOverride ? labelOverride : activating ? copyText("entry.action.checking", lang) : buttonMode && knownUpToDate ? copyText(entryBilingualKeyFor(stateOf()), lang, entryBilingualValuesFor(stateOf())) : tooltipMode && knownUpToDate ? copyText("entry.note.up-to-date", lang, { version: knownUpToDate }) : labelText;
     const busyAttr = activating ? ' disabled aria-busy="true"' : "";
     const themeAttr = theme === "archive" ? ' data-theme="archive"' : "";
     const tokensStyle = themeTokensStyleFor(themeTokens ?? void 0);
     const styleBody = [sizingStyle, tokensStyle].filter((part) => part).join(";");
     const styleAttr = styleBody ? ` style="${styleBody}"` : "";
-    const control = variant === "badge" ? `<button type="button" class="dsh-upd-entry-dot" ${ENTRY_ATTR}="activate" title="${escapeHtml(labelText)}" aria-label="${escapeHtml(labelText)}"${busyAttr}></button>` : `<button type="button" class="dsh-upd-entry-btn" ${ENTRY_ATTR}="activate"${busyAttr}>${labelHTML}</button>`;
-    const noteHTML = noteVersion ? `<span class="dsh-upd-entry-note" data-dsh-upd-note="1">${copyHTML("entry.note.up-to-date", lang, { version: noteVersion })}</span>` : "";
+    const knownAttr = buttonMode ? ' data-known="uptodate"' : "";
+    const displayAttr = ` data-uptodate="${upToDateDisplay}"`;
+    const control = variant === "badge" ? `<button type="button" class="dsh-upd-entry-dot" ${ENTRY_ATTR}="activate" title="${escapeHtml(titleText)}" aria-label="${escapeHtml(labelText)}"${busyAttr}></button>` : `<button type="button" class="dsh-upd-entry-btn" ${ENTRY_ATTR}="activate" title="${escapeHtml(titleText)}" aria-label="${escapeHtml(labelText)}"${busyAttr}>${labelHTML}</button>`;
+    const noteHTML = upToDateDisplay === "note" && noteVersion ? `<span class="dsh-upd-entry-note" data-dsh-upd-note="1">${copyHTML("entry.note.up-to-date", lang, { version: noteVersion })}</span>` : "";
     return `<style>${UPDATE_ENTRY_CSS}
 ${BILINGUAL_CSS}</style>
-<span class="dsh-upd-entry" data-variant="${variant}" data-state="${kind}"${themeAttr}${styleAttr}>${control}${noteHTML}</span>`;
+<span class="dsh-upd-entry" data-variant="${variant}" data-state="${kind}"${displayAttr}${knownAttr}${themeAttr}${styleAttr}>${control}${noteHTML}</span>`;
   }
   function render() {
     if (!mounted) return;
@@ -4510,7 +4544,7 @@ ${BILINGUAL_CSS}</style>
       openDialog();
       return;
     }
-    noteVersion = snapshot.runningVersion;
+    if (upToDateDisplay === "note") noteVersion = snapshot.runningVersion;
     render();
   }
   function setTheme(next) {
@@ -14198,7 +14232,7 @@ function auditAll() {
 __mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
 })();
 (function () {
-// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.7.0 themeTokens（弹窗换肤一等口径）
+// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.8.0 themeTokens（弹窗换肤一等口径）
 // 只填颜色 22 键；字体/阴影/圆角/入口尺寸沿用包默认与 sizing 参数（主题无对应槽位，不伪造；
 // 按钮尺寸走 mountUpdateEntry 的 sizing 正式参数，与 themeTokens 的 entry* 同组变量二选一，只留 sizing）。
 // 颜色只出 hex（包内 isThemeColorValue 只收 #rgb/#rrggbb/#rrggbbaa 或英文单词；rgba 会挂载即抛）。
@@ -14601,7 +14635,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.7.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.8.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）

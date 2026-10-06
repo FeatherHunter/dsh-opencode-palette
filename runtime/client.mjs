@@ -218,7 +218,7 @@ export function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.7.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.8.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
