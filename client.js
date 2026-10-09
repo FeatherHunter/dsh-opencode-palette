@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.0.25 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.0.26 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -4928,9 +4928,55 @@ function createClientLog(deps, configInput) {
   const logForwardState = { lastSummaryAt: 0, lastSummaryDropped: 0, lastReason: "" };
   const logFlushTimer = { id: null };
   const setLogSwitchGen = { n: 0 };
-  function isEnabled(level) {
+  const RESIDENT_EVENTS = /* @__PURE__ */ new Set([
+    "snapshot.request",
+    "snapshot.cache.miss",
+    "repo.resolve.tier",
+    "gh.exec",
+    "gh.timeout",
+    "gh.resolve.fail",
+    "graphql.fallback",
+    "issues.fallback",
+    "snapshot.built",
+    "panelSync.dirty",
+    "registry.select",
+    "detection.detect",
+    "skill.probe",
+    "skill.pending.cap",
+    "host.call",
+    "host.call.fail",
+    "snapshot.hydrate",
+    "backend.switch",
+    "naming.guard",
+    "naming.lock",
+    "panel.open",
+    "statusbar.fallback",
+    "dock.rehydrate",
+    "storage.fail",
+    "chain.derive.error",
+    "fallback.chain",
+    "client.snapshot.miss",
+    "host.start",
+    "update.install.exec",
+    "labelColors.write",
+    "guide.inject",
+    "healthCheck.inject",
+    "choiceStore.file.bad",
+    "choiceStore.write.fail",
+    "issues.page",
+    "sessionTickets.chain",
+    "chain.backoff",
+    "host.dispatch.empty",
+    "naming.summary",
+    "cwd.persisted",
+    "update.install.manifestSync",
+    "git.exec",
+    "git.exec.fail"
+  ]);
+  function isEnabled(level, event) {
     if (level === "error" || level === "warn") return true;
     try {
+      if (typeof event === "string" && RESIDENT_EVENTS.has(event)) return true;
       return logSwitch.enabled === true;
     } catch (e) {
       void e;
@@ -4938,7 +4984,7 @@ function createClientLog(deps, configInput) {
     }
   }
   function log(level, event, fields) {
-    if (!isEnabled(level)) return;
+    if (!isEnabled(level, event)) return;
     if (logQueue.length >= LOG_QUEUE_MAX) {
       logDroppedState.count += 1;
       logForwardState.lastReason = "queue-full";
@@ -14465,7 +14511,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.25'
+const PALETTE_VERSION = '2.0.26'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
