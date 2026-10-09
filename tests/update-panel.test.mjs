@@ -218,8 +218,8 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.8.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.7.x 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.1', 'dsh-plugin-update': '^0.10.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.10.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -473,9 +473,9 @@ test('渲染：中英文主题面板文案不受更新最小集成影响', () =>
 })
 
 
-// ───────────────────────── 四点五、换肤：主题一致（0.7.0 themeTokens） ─────────────────────────
+// ───────────────────────── 四点五、换肤：主题一致（0.10.0 themeTokens，含 newText/newOkText） ─────────────────────────
 
-test('换肤：37 主题的 themeTokens 全过 0.7.0 校验，system/透光回 undefined', async () => {
+test('换肤：37 主题的 themeTokens 全过 0.10.0 校验，system/透光回 undefined', async () => {
   const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
   const { themeTokensStyleFor } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href)
   const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.mjs')).href)
@@ -494,6 +494,8 @@ test('换肤：37 主题的 themeTokens 全过 0.7.0 校验，system/透光回 u
     assert.ok(css.includes('--dsh-update-text:'), name + ' 的 token 应含 text')
     assert.ok(css.includes('--dsh-update-bg:'), name + ' 的 token 应含 bg')
     assert.ok(css.includes('--dsh-update-primary:'), name + ' 的 token 应含 primary')
+    assert.ok(css.includes('--dsh-update-new-text:'), name + ' 的 token 应含 newText（0.7.1）')
+    assert.ok(css.includes('--dsh-update-new-ok-text:'), name + ' 的 token 应含 newOkText（0.9.0）')
   }
   assert.ok(themed >= 36, '至少 36 个主题应产出 token（实得 ' + themed + '）')
   const tk = buildUpdateTokens('tokyonight')

@@ -649,16 +649,32 @@ function createUpdateCore(ports) {
       job
     };
   }
+  function jobsEqual(a, b) {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    return a.id === b.id && a.state === b.state && a.targetVersion === b.targetVersion && a.message === b.message && (a.requestId ?? null) === (b.requestId ?? null);
+  }
+  async function healedJob(env) {
+    const loaded = await loadJob();
+    const healed = healJob(loaded, env);
+    if (!jobsEqual(loaded, healed)) {
+      try {
+        await saveJob(healed);
+      } catch {
+      }
+    }
+    return healed;
+  }
   async function status() {
     const env = await ports.readInstalled();
-    const job = healJob(await loadJob(), env);
+    const job = await healedJob(env);
     return buildSnapshot(env, job);
   }
   async function check() {
     if (checking) return checking;
     if (checked?.checkId && ports.now() - lastCheckAt < RECHECK_WINDOW_MS) {
       const env = await ports.readInstalled();
-      const snapshot = buildSnapshot(env, healJob(await loadJob(), env));
+      const snapshot = buildSnapshot(env, await healedJob(env));
       return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
     }
     lastCheckAt = ports.now();
@@ -674,7 +690,7 @@ function createUpdateCore(ports) {
           installationKey: env.installationKey,
           blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? null : "incompatible-node"
         };
-        const snapshot = buildSnapshot(env, healJob(await loadJob(), env));
+        const snapshot = buildSnapshot(env, await healedJob(env));
         return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
       } catch (error) {
         if (checked) checked = { ...checked, checkId: null, expiresAt: 0 };
@@ -1039,8 +1055,8 @@ const BILINGUAL_STRINGS = {
   "panel.action.unskip-title": { en: "Undo skip; this version will remind again", zh: "\u64A4\u9500\u8DF3\u8FC7\uFF0C\u8BE5\u7248\u672C\u91CD\u65B0\u63D0\u9192", draft: true },
   "panel.action.copy-manual": { en: "Copy manual command", zh: "\u590D\u5236\u624B\u5DE5\u547D\u4EE4", draft: true },
   "panel.action.copy-manual-title": { en: "Copy the manual command; paste the full line into the terminal", zh: "\u590D\u5236\u624B\u5DE5\u547D\u4EE4\uFF0C\u7C98\u5230\u7EC8\u7AEF\u6574\u884C\u6267\u884C", draft: true },
-  "panel.action.restart-host": { en: "Restart host", zh: "\u91CD\u542F\u5BBF\u4E3B", draft: true },
-  "panel.action.restart-host-title": { en: "This host provides no restart entry; restart the host manually", zh: "\u5BBF\u4E3B\u6CA1\u6709\u81EA\u91CD\u542F\u7535\u8BDD\uFF1A\u8BF7\u624B\u52A8\u91CD\u542F\u5BBF\u4E3B", draft: true },
+  "panel.action.restart-host": { en: "Please restart DSH", zh: "\u8BF7\u91CD\u542FDSH", draft: true },
+  "panel.action.restart-host-title": { en: "Run the caller restart flow if available, otherwise restart DSH manually", zh: "\u70B9\u4E00\u4E0B\u8D70\u8C03\u7528\u65B9\u6D41\u7A0B\uFF0C\u6CA1\u6709\u5C31\u624B\u52A8\u91CD\u542F DSH", draft: true },
   "panel.action.dismiss": { en: "Got it", zh: "\u77E5\u9053\u4E86", draft: true },
   "panel.action.dismiss-title": { en: "Acknowledge the failure and return; next check or install will re-evaluate", zh: "\u786E\u8BA4\u5DF2\u77E5\u6653\u8BE5\u5931\u8D25\uFF1A\u56DE\u5230\u53EF\u88C5\u9875\uFF0C\u4E0B\u6B21\u67E5/\u88C5\u5C06\u91CD\u65B0\u8BC4\u4F30", draft: true },
   "panel.action.copy-diag": { en: "Copy diagnostics", zh: "\u590D\u5236\u8BCA\u65AD", draft: true },
@@ -1121,6 +1137,7 @@ const BILINGUAL_STRINGS = {
   "panel.diag.copy.block.source": { en: "Source\uFF1A{source}", zh: "\u6765\u6E90\uFF1A{source}", draft: true },
   "panel.diag.copy.block.remedy": { en: "Remedy\uFF1A{remedy}", zh: "\u600E\u4E48\u529E\uFF1A{remedy}", draft: true },
   "batch.action.resume": { en: "Continue the unfinished batch ({count} left)", zh: "\u7EE7\u7EED\u4E0A\u6B21\u672A\u5B8C\u6210\u7684\u66F4\u65B0\uFF08\u8FD8\u5269 {count} \u5BB6\uFF09", draft: true },
+  "batch.action.resume-title": { en: "Continue from where it stopped; installed ones stay", zh: "\u4ECE\u4E0A\u6B21\u6CA1\u505A\u5B8C\u7684\u5730\u65B9\u63A5\u7740\u5B89\u88C5\uFF0C\u5DF2\u5B8C\u6210\u7684\u4E0D\u91CD\u88C5", draft: true },
   "batch.action.discard": { en: "Discard this unfinished batch (installed ones stay)", zh: "\u4E22\u5F03\u8FD9\u6279\u672A\u5B8C\u6210\u7684\u66F4\u65B0\uFF08\u5DF2\u5B8C\u6210\u7684\u4FDD\u7559\uFF09", draft: true },
   "batch.action.confirm-discard": { en: "Confirm discard", zh: "\u786E\u8BA4\u4E22\u5F03", draft: true },
   "batch.fact.close-safe": { en: "Closing this panel won't stop it \u2014 progress is saved on disk.", zh: "\u5173\u6389\u9762\u677F\u4E0D\u4F1A\u4E2D\u65AD\uFF1A\u8FDB\u5EA6\u5DF2\u5199\u76D8\uFF0C\u56DE\u6765\u53EF\u7EE7\u7EED\u3002", draft: true },
@@ -1168,7 +1185,7 @@ const BILINGUAL_STRINGS = {
   "batch.banner.failed-action": { en: "Retry each one inline; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u9010\u5BB6\u70B9\u884C\u5185\u300C\u91CD\u8BD5\u300D\u518D\u6765\u4E00\u6B21\uFF1B\u4E00\u76F4\u5931\u8D25\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
   "batch.banner.restart-title": { en: "{n} installed; restart the host to take effect.", zh: "{n} \u5BB6\u5DF2\u5B89\u88C5\u597D\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
   "batch.banner.restart-action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\uFF0C\u8BA9\u65B0\u7248\u8DD1\u8D77\u6765\uFF1B\u8FD9\u662F\u6B63\u5E38\u7EC8\u6001\uFF0C\u4E0D\u662F\u5931\u8D25\u3002", draft: true },
-  "batch.banner.restart-button": { en: "Restart host", zh: "\u91CD\u542F\u5BBF\u4E3B", draft: true },
+  "batch.banner.restart-button": { en: "Please restart DSH", zh: "\u8BF7\u91CD\u542FDSH", draft: true },
   "batch.row.queued-generic": { en: "Queued \xB7 waiting for the running install to finish", zh: "\u5DF2\u6392\u961F \xB7 \u7B49\u524D\u9762\u5B89\u88C5\u5B8C", draft: true },
   "batch.row.queued-n": { en: "Queued \xB7 {n} ahead", zh: "\u5DF2\u6392\u961F \xB7 \u524D\u65B9 {n} \u4E2A", draft: true },
   "batch.row.skipped": { en: "Skipped {version}", zh: "\u5DF2\u8DF3\u8FC7 {version}", draft: true },
@@ -1190,7 +1207,7 @@ const BILINGUAL_STRINGS = {
   "batch.row-action.install-version": { en: "Install {version}", zh: "\u5B89\u88C5 {version}", draft: true },
   "batch.row-action.install-generic": { en: "Install the new version", zh: "\u5B89\u88C5 \u65B0\u7248", draft: true },
   "batch.row-action.unskip": { en: "Restore ({version})", zh: "\u6062\u590D\uFF08{version}\uFF09", draft: true },
-  "batch.row-action.restart": { en: "Restart host", zh: "\u91CD\u542F\u5BBF\u4E3B", draft: true },
+  "batch.row-action.restart": { en: "Please restart DSH", zh: "\u8BF7\u91CD\u542FDSH", draft: true },
   "batch.row-action.show-detail": { en: "Details", zh: "\u8BE6\u60C5", draft: true },
   "batch.row-action.hide-detail": { en: "Collapse", zh: "\u6536\u8D77", draft: true },
   "batch.row-action.skip": { en: "Skip this version", zh: "\u8DF3\u8FC7\u8FD9\u4E00\u7248", draft: true },
@@ -2155,6 +2172,7 @@ const THEME_TOKEN_VARS = {
   busyBorder: "--dsh-update-busy-border",
   busyText: "--dsh-update-busy-text",
   newText: "--dsh-update-new-text",
+  newOkText: "--dsh-update-new-ok-text",
   fontSans: "--dsh-update-font-sans",
   fontSerif: "--dsh-update-font-serif",
   fontMono: "--dsh-update-font-mono",
@@ -2190,7 +2208,8 @@ const THEME_TOKEN_COLOR_KEYS = /* @__PURE__ */ new Set([
   "busyBg",
   "busyBorder",
   "busyText",
-  "newText"
+  "newText",
+  "newOkText"
 ]);
 function themeTokensError(raw) {
   return new Error(`[dsh-plugin-update] \u4E3B\u9898\u53C2\u6570 themeTokens \u975E\u6CD5\uFF1A\u53EA\u6536\u5DF2\u77E5 token \u952E\uFF08\u989C\u8272\u7528 hex \u6216\u82F1\u6587\u540D\uFF0C\u5B57\u4F53/\u5706\u89D2/\u9634\u5F71/\u5C3A\u5BF8\u4E3A\u5B89\u5168 CSS \u503C\uFF0CentryScale \u4E3A\u5927\u4E8E 0 \u7684\u6709\u9650\u6570\uFF09\uFF08\u6536\u5230 ${JSON.stringify(raw ?? null)})`);
@@ -2595,24 +2614,6 @@ function panelViewModelCore(input, lang) {
       queueNote
     };
   }
-  if (snapshot.blockedReason === "pending-restart") {
-    const latest = snapshot.latestVersion ?? snapshot.installedVersion ?? "";
-    return {
-      banner: {
-        kind: "restart",
-        // 文案照原型（archive.html:329）：不带 emoji——警示由横幅左侧的手绘 SVG 标承担，
-        // 印章在状态一侧，两者各司其职，不再三重标记。
-        title: copyText("panel.banner.restart-title", l, { latest }),
-        action: blockedCopy("pending-restart", l)?.action ?? ""
-      },
-      installEnabled: false,
-      installLabel: copyText("panel.action.install", l),
-      skippedLatest: false,
-      showManual: manual ? true : false,
-      showReset: false,
-      queueNote
-    };
-  }
   if (jobState === "installing" || jobState === "verifying") {
     const ver = typeof job?.targetVersion === "string" && job.targetVersion.trim() ? job.targetVersion.trim() : "";
     let installingTitle = copyText("panel.banner.installing-title", l, { version: ver || " " });
@@ -2644,6 +2645,24 @@ function panelViewModelCore(input, lang) {
       },
       installEnabled: snapshot.canInstall,
       installLabel: copyText("panel.action.retry-install", l),
+      skippedLatest: false,
+      showManual: manual ? true : false,
+      showReset: false,
+      queueNote
+    };
+  }
+  if (snapshot.blockedReason === "pending-restart") {
+    const latest = snapshot.latestVersion ?? snapshot.installedVersion ?? "";
+    return {
+      banner: {
+        kind: "restart",
+        // 文案照原型（archive.html:329）：不带 emoji——警示由横幅左侧的手绘 SVG 标承担，
+        // 印章在状态一侧，两者各司其职，不再三重标记。
+        title: copyText("panel.banner.restart-title", l, { latest }),
+        action: blockedCopy("pending-restart", l)?.action ?? ""
+      },
+      installEnabled: false,
+      installLabel: copyText("panel.action.install", l),
       skippedLatest: false,
       showManual: manual ? true : false,
       showReset: false,
@@ -2729,6 +2748,18 @@ const UPDATE_PANEL_CSS = [
   ".dsh-upd-changelog-neutral{color:inherit;opacity:.8}",
   ".dsh-upd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}",
   ".dsh-upd-overlay .dsh-upd{background:var(--dsh-update-bg,#ffffff);max-height:85vh;display:flex;flex-direction:column;overflow:hidden}",
+  // —— 弹窗高度让渡契约（#93，headless 量盒子实测）——
+  // 面板内容高过 85vh 时，纵向 flex 按比例压所有子项；唯独**显式写了 min-height 的区**会失去 CSS 的
+  // 「内容最小尺寸」自动保护：横幅（3.4em）与版本条（48px）被压到地板，而没写 min-height 的抬头/
+  // 档案头/页脚纹丝不动。档案卷皮肤又给横幅加了 flex-wrap:wrap——纵向 flex 上它不换行而换列，
+  // 最后一项（副行）被甩到标题右侧、冲出横幅后被 .dsh-upd{overflow:hidden} 裁掉。
+  // 契约：带滚动区的弹窗帧里，只有滚动区让高度，其余各区不得小于自己的内容高度。
+  // :has(>.dsh-upd-body) 是刻意的边界——批量面板的弹窗帧没有滚动区，本契约不扩到它（属 #90/#91 域）。
+  ".dsh-upd-overlay .dsh-upd:has(>.dsh-upd-body)>:not(.dsh-upd-body){flex:none}",
+  // 兜底：窗口矮到连框架都放不下时，整面板自己滚（横向仍 hidden）；章节区留 8em 下限——
+  // 别把章节区压成 0、更别把页脚顶出视野还滚不到（实测：可用高 ≤ 约 512 时接管，对应窗口高 ≤ 约 600）。
+  ".dsh-upd-overlay .dsh-upd:has(>.dsh-upd-body){overflow-x:hidden;overflow-y:auto}",
+  ".dsh-upd-overlay .dsh-upd:has(>.dsh-upd-body)>.dsh-upd-body{min-height:8em}",
   // —— 弹窗分栏滚动：头（抬头/档案头/横幅/版本条）与尾固定，只有 01–05 章节区滚动 ——
   ".dsh-upd-body{min-height:0}",
   ".dsh-upd-body *{min-width:0}",
@@ -2930,7 +2961,7 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   '.dsh-upd[data-theme="archive"] .dsh-upd-chap-title{font-family:var(--dsh-update-font-serif);font-size:17px;margin:0;letter-spacing:.1em}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-chap-rule{flex:1;border-top:1px solid var(--dsh-update-border);transform:translateY(-4px)}',
   // —— 横幅即状态行 / 待重启横幅（原型 :81-85 `.restart-banner`：2px 边框、圆角 4、内边距 12/16、衬线；右侧留章位）——
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner{border:2px solid var(--dsh-update-border-strong);border-radius:4px;padding:10px 12px;font-size:14.5px;font-family:var(--dsh-update-font-serif);display:flex;gap:10px;align-items:center;flex-wrap:wrap}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner{border:2px solid var(--dsh-update-border-strong);border-radius:4px;padding:10px 12px;font-size:14.5px;font-family:var(--dsh-update-font-serif);gap:10px;align-items:center}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{flex:1 1 auto;min-width:0}',
   // 状态行字号照原型 .status-line=27px（实测去掉横幅右侧占位后可写 486px > 428px，一行放得下）
   '.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child strong{font-family:var(--dsh-update-font-serif);font-size:27px;font-weight:700;line-height:1.25}',
@@ -3037,9 +3068,12 @@ function renderUpdatePanelKernel(input, view, lang) {
     const busyAct = input.busyAct;
     const checkBusy = busyAct === "check";
     const installBusy = busyAct === "install";
+    const jobState = snapshot?.job?.state;
+    const snapshotBusy = jobState === "installing" || jobState === "verifying";
+    const macroBusy = busyAct === "check" || busyAct === "install" || snapshotBusy;
     actions.push('<div class="dsh-upd-actions">');
     actions.push(
-      (checkBusy ? `<button type="button" data-action="check" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.checking-busy-title", l))}">${escapeHtml(copyText("panel.action.checking-busy", l))}</button>` : `<button type="button" data-action="check" title="${escapeHtml(copyText("panel.action.check-title", l))}">${escapeHtml(copyText("panel.action.check", l))}</button>`) + (installBusy ? `<button type="button" data-action="install" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.installing-busy-title", l))}">${escapeHtml(copyText("panel.action.installing-busy", l))}</button>` : `<button type="button" data-action="install" data-primary="1" title="${escapeHtml(copyText("panel.action.install-title", l))}"${view.installEnabled ? "" : " disabled"}>${escapeHtml(view.installLabel)}</button>`)
+      (checkBusy ? `<button type="button" data-action="check" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.checking-busy-title", l))}">${escapeHtml(copyText("panel.action.checking-busy", l))}</button>` : `<button type="button" data-action="check" title="${escapeHtml(copyText("panel.action.check-title", l))}"${macroBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.check", l))}</button>`) + (installBusy ? `<button type="button" data-action="install" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.installing-busy-title", l))}">${escapeHtml(copyText("panel.action.installing-busy", l))}</button>` : `<button type="button" data-action="install" data-primary="1" title="${escapeHtml(copyText("panel.action.install-title", l))}"${macroBusy || !view.installEnabled ? " disabled" : ""}>${escapeHtml(view.installLabel)}</button>`)
     );
     if (snapshot?.latestVersion && !view.skippedLatest && view.banner.kind === "update") {
       actions.push(`<button type="button" data-action="skip" title="${escapeHtml(copyText("panel.action.skip-title", l))}">${escapeHtml(copyText("panel.action.skip", l))}</button>`);
@@ -3051,7 +3085,7 @@ function renderUpdatePanelKernel(input, view, lang) {
       actions.push(`<button type="button" data-action="copy-manual" title="${escapeHtml(copyText("panel.action.copy-manual-title", l))}">${escapeHtml(copyText("panel.action.copy-manual", l))}</button>`);
     }
     if (b.kind === "restart") {
-      actions.push(`<button type="button" data-action="restart-hint" data-primary="1" title="${escapeHtml(copyText("panel.action.restart-host-title", l))}">${escapeHtml(copyText("panel.action.restart-host", l))}</button>`);
+      actions.push(`<button type="button" data-action="restart-hint" title="${escapeHtml(copyText("panel.action.restart-host-title", l))}">${escapeHtml(copyText("panel.action.restart-host", l))}</button>`);
     }
     if (b.kind === "failed") {
       actions.push(`<button type="button" data-action="dismiss-failure" title="${escapeHtml(copyText("panel.action.dismiss-title", l))}">${escapeHtml(copyText("panel.action.dismiss", l))}</button>`);
@@ -4005,7 +4039,7 @@ function mountUpdatePanel(container, options) {
         render();
         return;
       }
-      // 「重启宿主」：宿主没有重启自己的电话，所以只做入口——
+      // 「请重启DSH」：宿主没有重启自己的电话，所以只做入口——
       // 调用方给了 onRestartRequested 就交给它；没给就如实说“请手动重启”，不假装。
       case "restart-hint": {
         try {
@@ -4172,11 +4206,11 @@ function entryStateKind(state) {
   const snapshot = state?.snapshot ?? null;
   const job = snapshot?.job ?? null;
   if (job && (job.state === "installing" || job.state === "verifying")) return "busy";
-  if (snapshot && (snapshot.blockedReason === "pending-restart" || job?.state === "restart-required")) {
-    return "restart";
-  }
   if (state && state.error || job && (job.state === "failed" || job.state === "interrupted")) {
     return "failed";
+  }
+  if (snapshot && (snapshot.blockedReason === "pending-restart" || job?.state === "restart-required")) {
+    return "restart";
   }
   if (hasUpdateOf(snapshot)) return "update";
   return "idle";
@@ -14224,8 +14258,8 @@ function auditAll() {
 __mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
 })();
 (function () {
-// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.8.0 themeTokens（弹窗换肤一等口径）
-// 只填颜色 22 键；字体/阴影/圆角/入口尺寸沿用包默认与 sizing 参数（主题无对应槽位，不伪造；
+// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.10.0 themeTokens（弹窗换肤一等口径）
+// 只填颜色 24 键（含 0.7.1 newText、0.9.0 newOkText）；字体/阴影/圆角/入口尺寸沿用包默认与 sizing 参数（主题无对应槽位，不伪造；
 // 按钮尺寸走 mountUpdateEntry 的 sizing 正式参数，与 themeTokens 的 entry* 同组变量二选一，只留 sizing）。
 // 颜色只出 hex（包内 isThemeColorValue 只收 #rgb/#rrggbb/#rrggbbaa 或英文单词；rgba 会挂载即抛）。
 // 状态底色用 shade() 在 hex 内调出深浅 tint，不用 withAlpha（rgba 过不了颜色校验）。
@@ -14316,6 +14350,9 @@ function buildUpdateTokens(name) {
   tokens.busyText = info
   const busyBg = tinted(info, darkMode)
   if (busyBg) tokens.busyBg = busyBg
+  // 0.7.1 newText（有新版红）/ 0.9.0 newOkText（done 行新版绿）：与 badText/okText 同色，不引新 hue。
+  tokens.newText = error
+  tokens.newOkText = success
   return tokens
 }
 
@@ -14627,7 +14664,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.8.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.10.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
