@@ -3,7 +3,7 @@
  *
  * 最小集成后只测外部行为（产物与电话行为），不测实现细节：
  *   一、入口件行为（桩宿主＋替身容器）：文案唯一出处 entryLabelFor 五态、状态优先级、
- *      14 码中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
+ *      15 码中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
  *   二、接线一致性：通道常量单一真源、产物里不写死电话名、入口件闭包内联、无 vendor、
  *      产物声明双写一致、宿主有几个电话注册几个；
  *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.mjs → 路由注册对 → 电话分派能落到
@@ -98,9 +98,9 @@ test('入口件：五态文案唯一出处（中文照包原文）', () => {
   assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，点此查看')
 })
 
-test('入口件：八种 blocked 都有中文 title＋action（用户该做什么）', () => {
+test('入口件：九种 blocked 都有中文 title＋action（用户该做什么）', () => {
   const codes = [
-    'unknown-profile', 'source-install', 'invalid-installation', 'installation-changed',
+    'unknown-profile', 'channel-mismatch', 'source-install', 'invalid-installation', 'installation-changed',
     'pending-restart', 'registry-conflict', 'incompatible-node', 'recovery-required',
   ]
   for (const code of codes) {
@@ -218,8 +218,8 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.10.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.10.x 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.12.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.12.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -473,9 +473,9 @@ test('渲染：中英文主题面板文案不受更新最小集成影响', () =>
 })
 
 
-// ───────────────────────── 四点五、换肤：主题一致（0.10.0 themeTokens，含 newText/newOkText） ─────────────────────────
+// ───────────────────────── 四点五、换肤：主题一致（0.12.0 themeTokens，含 newText/newOkText） ─────────────────────────
 
-test('换肤：37 主题的 themeTokens 全过 0.10.0 校验，system/透光回 undefined', async () => {
+test('换肤：37 主题的 themeTokens 全过 0.12.0 校验，system/透光回 undefined', async () => {
   const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
   const { themeTokensStyleFor } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href)
   const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.mjs')).href)

@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.0.26 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.0.27 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -707,7 +707,7 @@ function createUpdateCore(ports) {
   }
   async function runBackground(job, envAtStart) {
     try {
-      if (ports.runInstall) await ports.runInstall({ version: job.targetVersion, profileName: envAtStart.profileName, environmentKind: envAtStart.environmentKind });
+      if (ports.runInstall) await ports.runInstall({ version: job.targetVersion, profileName: envAtStart.profileName, environmentKind: envAtStart.environmentKind, releaseChannel });
       else throw updateError("unsupported");
       const doing = { ...job, state: "verifying", message: null };
       activeJobId = doing.id;
@@ -952,36 +952,38 @@ const BILINGUAL_STRINGS = {
   "batch-entry.label.restart": { en: "{count} restarts required", zh: "{count} \u5BB6\u5F85\u91CD\u542F", draft: true },
   "batch-entry.label.failed": { en: "{count} failed \u2014 View details", zh: "{count} \u5BB6\u5931\u8D25\uFF0C\u70B9\u6B64\u67E5\u770B", draft: true },
   "batch-entry.action.checking": { en: "Checking for updates\u2026", zh: "\u6B63\u5728\u67E5\u65B0\u7248\u2026", draft: true },
-  "panel.blocked.unknown-profile.title": { en: "Unrecognized scope or plugin location", zh: "\u4F7F\u7528\u8303\u56F4\u6216\u63D2\u4EF6\u4F4D\u7F6E\u8BA4\u4E0D\u51FA", draft: true },
-  "panel.blocked.unknown-profile.action": { en: "Reopen the host and check again; if it persists, send the version and logs to the plugin author; no manual command is provided for this case.", zh: "\u91CD\u5F00\u5BBF\u4E3B\u518D\u67E5\u4E00\u6B21\uFF1B\u4E00\u76F4\u8FD9\u6837\u5C31\u628A\u7248\u672C\u53F7\u4E0E\u65E5\u5FD7\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005\uFF1B\u8FD9\u79CD\u60C5\u5F62\u4E0D\u7ED9\u624B\u5DE5\u547D\u4EE4", draft: true },
-  "panel.blocked.source-install.title": { en: "Installed from source, not by version", zh: "\u5F53\u524D\u662F\u4ECE\u6E90\u7801\u88C5\u7684\uFF0C\u4E0D\u662F\u6309\u7248\u672C\u53F7\u88C5\u7684", draft: true },
-  "panel.blocked.source-install.action": { en: "No manual command is provided here; to update, reinstall by version first.", zh: "\u8FD9\u79CD\u60C5\u5F62\u4E0D\u7ED9\u624B\u5DE5\u547D\u4EE4\uFF1B\u60F3\u8D70\u66F4\u65B0\u5148\u6309\u7248\u672C\u53F7\u91CD\u88C5\u4E00\u6B21", draft: true },
-  "panel.blocked.invalid-installation.title": { en: "Installed package is incomplete (name mismatch, invalid version, or missing entry file)", zh: "\u5DF2\u88C5\u7684\u5305\u4E0D\u5B8C\u6574\uFF08\u540D\u5B57\u5BF9\u4E0D\u4E0A\u3001\u7248\u672C\u975E\u6CD5\u3001\u5165\u53E3\u6587\u4EF6\u7F3A\u5931\uFF09", draft: true },
-  "panel.blocked.invalid-installation.action": { en: "Reinstall the current version to repair the install directory, then check again.", zh: "\u91CD\u88C5\u5F53\u524D\u7248\u672C\uFF0C\u4FEE\u597D\u5DF2\u88C5\u76EE\u5F55\u518D\u67E5\u66F4\u65B0", draft: true },
-  "panel.blocked.installation-changed.title": { en: "Install location changed during use (directory or package changed)", zh: "\u5B89\u88C5\u4F4D\u7F6E\u5728\u4F7F\u7528\u4E2D\u9014\u53D8\u4E86\uFF08\u6362\u4E86\u76EE\u5F55\u6216\u6362\u4E86\u5305\uFF09", draft: true },
-  "panel.blocked.installation-changed.action": { en: "Reopen the host and check again; if it persists, reinstall.", zh: "\u91CD\u65B0\u6253\u5F00\u5BBF\u4E3B\u518D\u67E5\u4E00\u6B21\uFF1B\u8FD8\u51FA\u73B0\u5C31\u91CD\u88C5", draft: true },
-  "panel.blocked.pending-restart.title": { en: "New version is on disk; the running instance is still the old version", zh: "\u65B0\u7248\u5DF2\u88C5\u5230\u78C1\u76D8\uFF0C\u6B63\u5728\u8DD1\u7684\u8FD8\u662F\u65E7\u7248", draft: true },
-  "panel.blocked.pending-restart.action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\uFF0C\u8BA9\u65B0\u7248\u8DD1\u8D77\u6765\uFF1B\u8FD9\u662F\u6B63\u5E38\u7EC8\u6001\uFF0C\u4E0D\u662F\u5931\u8D25", draft: true },
-  "panel.blocked.registry-conflict.title": { en: "Declared version conflicts with the version on disk", zh: "\u672C\u5730\u58F0\u660E\u7684\u7248\u672C\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u4E92\u76F8\u77DB\u76FE", draft: true },
-  "panel.blocked.registry-conflict.action": { en: "Open the scope manifest and set the target package line to the version number, then retry.", zh: "\u6253\u5F00\u4F7F\u7528\u8303\u56F4\u7684\u6E05\u5355\u6587\u4EF6\uFF0C\u628A\u76EE\u6807\u5305\u540D\u90A3\u4E00\u884C\u6539\u6210\u7248\u672C\u53F7\u518D\u8BD5", draft: true },
-  "panel.blocked.incompatible-node.title": { en: "Required Node version does not match the running Node", zh: "\u65B0\u7248\u8981\u6C42\u7684 Node \u4E0E\u5F53\u524D\u8FD0\u884C\u7684\u5BF9\u4E0D\u4E0A", draft: true },
-  "panel.blocked.incompatible-node.action": { en: "Upgrade Node to 22 or later, then check again.", zh: "\u5148\u5347\u7EA7 Node \u5230 22 \u6216\u66F4\u9AD8\uFF0C\u518D\u67E5\u66F4\u65B0", draft: true },
-  "panel.blocked.recovery-required.title": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u88AB\u6253\u65AD\uFF0C\u7559\u4E0B\u4E00\u4E2A\u534A\u622A\u4EFB\u52A1", draft: true },
-  "panel.blocked.recovery-required.action": { en: "Run install once more; if it persists, follow section 6 to troubleshoot.", zh: "\u91CD\u65B0\u70B9\u4E00\u6B21\u5B89\u88C5\uFF1B\u4E00\u76F4\u51FA\u73B0\u5C31\u6309\u7B2C 6 \u8282\u6392\u9519", draft: true },
-  "panel.failure.check-failed.title": { en: "Couldn\u2019t check for updates (network, source, or rate limit)", zh: "\u67E5\u65B0\u7248\u6CA1\u6210\u529F\uFF08\u8054\u7F51\u3001\u6E90\u3001\u9650\u6D41\u90FD\u53EF\u80FD\uFF09", draft: true },
-  "panel.failure.check-failed.action": { en: "Try checking again later; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u8FC7\u4E00\u4F1A\u513F\u518D\u67E5\u4E00\u6B21\uFF1B\u4E00\u76F4\u5931\u8D25\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005", draft: true },
-  "panel.failure.invalid-release.title": { en: "Release info is invalid (bad version or mismatched content)", zh: "\u62FF\u5230\u7684\u53D1\u5E03\u4FE1\u606F\u4E0D\u5408\u6CD5\uFF08\u7248\u672C\u53F7\u975E\u6CD5\u6216\u5185\u5BB9\u5BF9\u4E0D\u4E0A\uFF09", draft: true },
-  "panel.failure.invalid-release.action": { en: "Check the package name and version in the manifest, then check again.", zh: "\u68C0\u67E5\u6E05\u5355\u6587\u4EF6\u91CC\u7684\u5305\u540D\u4E0E\u7248\u672C\u5199\u6CD5\uFF0C\u518D\u67E5\u4E00\u6B21", draft: true },
-  "panel.failure.check-expired.title": { en: "Credentials expired; the install request was rejected", zh: "\u51ED\u8BC1\u8FC7\u671F\u4E86\uFF0C\u5B89\u88C5\u8BF7\u6C42\u88AB\u62D2", draft: true },
-  "panel.failure.check-expired.action": { en: "Check for updates again before installing; do not retry with the old ID.", zh: "\u91CD\u65B0\u67E5\u4E00\u6B21\u65B0\u7248\u518D\u70B9\u5B89\u88C5\uFF0C\u4E0D\u8981\u91CD\u8BD5\u65E7\u7F16\u53F7", draft: true },
-  "panel.failure.update-busy.title": { en: "Another install is running in the same scope", zh: "\u540C\u4E00\u4F7F\u7528\u8303\u56F4\u6B63\u5728\u88C5\u53E6\u4E00\u4E2A", draft: true },
-  "panel.failure.update-busy.action": { en: "Wait until the current task leaves installing/verifying, then try; check status for your queue position.", zh: "\u7B49\u5F53\u524D\u4EFB\u52A1\u79BB\u5F00 installing/verifying \u518D\u70B9\uFF1B\u6392\u961F\u4E2D\u53BB\u67E5\u72B6\u6001\u770B\u4F4D\u7F6E", draft: true },
-  "panel.failure.install-failed.title": { en: "Couldn\u2019t install (see the diagnostic summary)", zh: "\u88C5\u4E0D\u4E0A\uFF08\u8BE6\u89C1\u8BCA\u65AD\u6458\u8981\uFF09", draft: true },
-  "panel.failure.install-failed.action": { en: "Read the copied diagnostics first; on official desktop builds, send it to the plugin author.", zh: "\u5148\u770B\u590D\u5236\u8BCA\u65AD\uFF1B\u5B98\u65B9\u684C\u9762\u7248\u628A\u8FD9\u6BB5\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005", draft: true },
-  "panel.failure.internal.title": { en: "Something went wrong; the cause is unknown", zh: "\u51FA\u4E86\u70B9\u95EE\u9898\uFF0C\u8BA4\u4E0D\u51FA\u5177\u4F53\u539F\u56E0", draft: true },
-  "panel.failure.internal.action": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author.", zh: "\u5148\u91CD\u8BD5\u4E00\u6B21\uFF1B\u4E00\u76F4\u8FD9\u6837\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005", draft: true },
-  "panel.failure.unknown.title": { en: "Something went wrong; the cause is unknown", zh: "\u51FA\u4E86\u70B9\u95EE\u9898\uFF0C\u8BA4\u4E0D\u51FA\u5177\u4F53\u539F\u56E0", draft: true },
-  "panel.failure.unknown.action": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author (include the code you saw).", zh: "\u5148\u91CD\u8BD5\u4E00\u6B21\uFF1B\u4E00\u76F4\u8FD9\u6837\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005\uFF08\u5E26\u4E0A\u4F60\u770B\u5230\u7684\u7801\uFF09", draft: true },
+  "panel.blocked.unknown-profile.title": { en: "Unrecognized scope or plugin location", zh: "\u65E0\u6CD5\u8BC6\u522B\u4F7F\u7528\u8303\u56F4\u6216\u63D2\u4EF6\u5B89\u88C5\u4F4D\u7F6E", draft: true },
+  "panel.blocked.unknown-profile.action": { en: "Reopen the host and check again; if it persists, send the version and logs to the plugin author; no manual command is provided for this case.", zh: "\u91CD\u542F\u5BBF\u4E3B\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u7248\u672C\u53F7\u4E0E\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005\uFF1B\u6B64\u573A\u666F\u4E0D\u63D0\u4F9B\u624B\u5DE5\u547D\u4EE4", draft: true },
+  "panel.blocked.channel-mismatch.title": { en: "Installed version is not in the selected release channel", zh: "\u5DF2\u5B89\u88C5\u7248\u672C\u4E0E\u5F53\u524D\u7248\u672C\u901A\u9053\u4E0D\u7B26", draft: true },
+  "panel.blocked.channel-mismatch.action": { en: "Switch to the prerelease channel, or install the channel release, then check again.", zh: "\u5207\u6362\u81F3\u9884\u53D1\u5E03\u901A\u9053\uFF0C\u6216\u91CD\u65B0\u5B89\u88C5\u672C\u901A\u9053\u6B63\u5F0F\u7248\u672C\u540E\u67E5\u8BE2", draft: true },
+  "panel.blocked.source-install.title": { en: "Installed from source, not by version", zh: "\u6E90\u7801\u5B89\u88C5\u5B9E\u4F8B\uFF0C\u4E0D\u652F\u6301\u7248\u672C\u66F4\u65B0", draft: true },
+  "panel.blocked.source-install.action": { en: "No manual command is provided here; to update, reinstall by version first.", zh: "\u6B64\u573A\u666F\u4E0D\u63D0\u4F9B\u624B\u5DE5\u547D\u4EE4\uFF1B\u5982\u9700\u66F4\u65B0\uFF0C\u8BF7\u6309\u5305\u540D@\u7248\u672C\u53F7\u91CD\u65B0\u5B89\u88C5", draft: true },
+  "panel.blocked.invalid-installation.title": { en: "Installed package is incomplete (name mismatch, invalid version, or missing entry file)", zh: "\u5DF2\u5B89\u88C5\u5305\u7ED3\u6784\u4E0D\u5B8C\u6574\uFF08\u5305\u540D / \u7248\u672C\u53F7 / \u5165\u53E3\u6587\u4EF6\u5F02\u5E38\uFF09", draft: true },
+  "panel.blocked.invalid-installation.action": { en: "Reinstall the current version to repair the install directory, then check again.", zh: "\u91CD\u65B0\u5B89\u88C5\u5F53\u524D\u7248\u672C\u4EE5\u4FEE\u590D\u5B89\u88C5\u76EE\u5F55\uFF0C\u7136\u540E\u91CD\u65B0\u67E5\u8BE2\u66F4\u65B0", draft: true },
+  "panel.blocked.installation-changed.title": { en: "Install location changed during use (directory or package changed)", zh: "\u5B89\u88C5\u4F4D\u7F6E\u53D1\u751F\u53D8\u66F4\uFF08\u76EE\u5F55\u6216\u5305\u4F53\u4E0D\u4E00\u81F4\uFF09", draft: true },
+  "panel.blocked.installation-changed.action": { en: "Reopen the host and check again; if it persists, reinstall.", zh: "\u91CD\u542F\u5BBF\u4E3B\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u91CD\u65B0\u5B89\u88C5", draft: true },
+  "panel.blocked.pending-restart.title": { en: "New version is on disk; the running instance is still the old version", zh: "\u65B0\u7248\u672C\u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u5F53\u524D\u8FD0\u884C\u4ECD\u4E3A\u65E7\u7248\u672C", draft: true },
+  "panel.blocked.pending-restart.action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\u4EE5\u52A0\u8F7D\u65B0\u7248\u672C\uFF1B\u6B64\u4E3A\u6B63\u5E38\u72B6\u6001\uFF0C\u975E\u5B89\u88C5\u5931\u8D25", draft: true },
+  "panel.blocked.registry-conflict.title": { en: "Declared version conflicts with the version on disk", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
+  "panel.blocked.registry-conflict.action": { en: "Open the scope manifest and set the target package line to the version number, then retry.", zh: "\u6838\u5BF9\u4F7F\u7528\u8303\u56F4\u6E05\u5355\u6587\u4EF6\u4E2D\u76EE\u6807\u5305\u7684\u7248\u672C\u58F0\u660E\uFF0C\u4FEE\u6B63\u540E\u91CD\u8BD5", draft: true },
+  "panel.blocked.incompatible-node.title": { en: "Required Node version does not match the running Node", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
+  "panel.blocked.incompatible-node.action": { en: "Upgrade Node to 22 or later, then check again.", zh: "\u8BF7\u5347\u7EA7 Node \u81F3 22 \u6216\u66F4\u9AD8\u7248\u672C\u540E\u91CD\u65B0\u67E5\u8BE2", draft: true },
+  "panel.blocked.recovery-required.title": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
+  "panel.blocked.recovery-required.action": { en: "Run install once more; if it persists, follow section 6 to troubleshoot.", zh: "\u91CD\u65B0\u6267\u884C\u5B89\u88C5\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u6309\u7B2C 6 \u8282\u6392\u9519", draft: true },
+  "panel.failure.check-failed.title": { en: "Couldn\u2019t check for updates (network, source, or rate limit)", zh: "\u7248\u672C\u4FE1\u606F\u67E5\u8BE2\u5931\u8D25\uFF08\u7F51\u7EDC / \u6570\u636E\u6E90 / \u9650\u6D41\uFF09", draft: true },
+  "panel.failure.check-failed.action": { en: "Try checking again later; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u7A0D\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005", draft: true },
+  "panel.failure.invalid-release.title": { en: "Release info is invalid (bad version or mismatched content)", zh: "\u53D1\u5E03\u7248\u672C\u4FE1\u606F\u65E0\u6548\uFF08\u7248\u672C\u53F7\u975E\u6CD5\u6216\u5185\u5BB9\u4E0D\u4E00\u81F4\uFF09", draft: true },
+  "panel.failure.invalid-release.action": { en: "Check the package name and version in the manifest, then check again.", zh: "\u6838\u5BF9\u6E05\u5355\u6587\u4EF6\u4E2D\u7684\u5305\u540D\u4E0E\u7248\u672C\u58F0\u660E\u540E\u91CD\u65B0\u67E5\u8BE2", draft: true },
+  "panel.failure.check-expired.title": { en: "Credentials expired; the install request was rejected", zh: "\u67E5\u8BE2\u51ED\u8BC1\u8FC7\u671F\uFF0C\u5B89\u88C5\u8BF7\u6C42\u88AB\u62D2\u7EDD", draft: true },
+  "panel.failure.check-expired.action": { en: "Check for updates again before installing; do not retry with the old ID.", zh: "\u8BF7\u91CD\u65B0\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u540E\u5B89\u88C5\uFF1B\u8BF7\u52FF\u590D\u7528\u8FC7\u671F\u8BF7\u6C42\u7F16\u53F7", draft: true },
+  "panel.failure.update-busy.title": { en: "Another install is running in the same scope", zh: "\u540C\u4E00\u4F7F\u7528\u8303\u56F4\u5185\u5B58\u5728\u8FDB\u884C\u4E2D\u7684\u5B89\u88C5\u4EFB\u52A1", draft: true },
+  "panel.failure.update-busy.action": { en: "Wait until the current task leaves installing/verifying, then try; check status for your queue position.", zh: "\u5F85\u5F53\u524D\u4EFB\u52A1\u9000\u51FA installing/verifying \u72B6\u6001\u540E\u91CD\u8BD5\uFF1B\u6392\u961F\u671F\u95F4\u53EF\u67E5\u8BE2\u4EFB\u52A1\u72B6\u6001\u786E\u8BA4\u961F\u5217\u4F4D\u7F6E", draft: true },
+  "panel.failure.install-failed.title": { en: "Couldn\u2019t install (see the diagnostic summary)", zh: "\u5B89\u88C5\u6267\u884C\u5931\u8D25\uFF0C\u8BE6\u60C5\u89C1\u8BCA\u65AD\u6458\u8981", draft: true },
+  "panel.failure.install-failed.action": { en: "Read the copied diagnostics first; on official desktop builds, send it to the plugin author.", zh: "\u8BF7\u67E5\u9605\u8BCA\u65AD\u6458\u8981\uFF1B\u5B98\u65B9\u684C\u9762\u7248\u8BF7\u63D0\u4EA4\u8BE5\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005", draft: true },
+  "panel.failure.internal.title": { en: "Something went wrong; the cause is unknown", zh: "\u5185\u90E8\u9519\u8BEF\uFF0C\u539F\u56E0\u672A\u77E5", draft: true },
+  "panel.failure.internal.action": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author.", zh: "\u8BF7\u91CD\u8BD5\u4E00\u6B21\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005", draft: true },
+  "panel.failure.unknown.title": { en: "Something went wrong; the cause is unknown", zh: "\u5185\u90E8\u9519\u8BEF\uFF0C\u539F\u56E0\u672A\u77E5", draft: true },
+  "panel.failure.unknown.action": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author (include the code you saw).", zh: "\u8BF7\u91CD\u8BD5\u4E00\u6B21\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005\uFF08\u8BF7\u4E00\u5E76\u63D0\u4EA4\u6240\u89C1\u9519\u8BEF\u7801\uFF09", draft: true },
   "panel.seal.loading.text": { en: "Not checked", zh: "\u5F85\u67E5", draft: true },
   "panel.seal.loading.mini": { en: "Check", zh: "\u67E5", draft: true },
   "panel.seal.idle.text": { en: "Not checked", zh: "\u5F85\u67E5", draft: true },
@@ -1091,13 +1093,14 @@ const BILINGUAL_STRINGS = {
   "panel.error.query-check": { en: "Check", zh: "\u68C0\u67E5", draft: true },
   "panel.error.failed-at": { en: "Failed at {time}", zh: "\u5931\u8D25\u4E8E {time}", draft: true },
   "panel.error.query-keys": { en: "Query keys: {keys} (use them to match in logs).", zh: "\u672C\u6B21\u67E5\u8BE2\u952E\uFF1A{keys}\uFF08\u62FF\u7740\u5B83\u4EEC\u53BB\u65E5\u5FD7\u91CC\u5BF9\uFF09\u3002", draft: true },
+  "panel.error.target-version": { en: "Failed target {version}", zh: "\u5931\u8D25\u76EE\u6807 {version}", draft: true },
   "panel.error.evidence-frozen": { en: "Evidence frozen: the code, versions, and IDs in copied diagnostics are from the failure moment and do not refresh with polling; the next check or install will update them.", zh: "\u8BC1\u636E\u5DF2\u51BB\u7ED3\uFF1A\u590D\u5236\u8BCA\u65AD\u91CC\u7684\u7801\u3001\u7248\u672C\u3001\u7F16\u53F7\u90FD\u53D6\u81EA\u5931\u8D25\u65F6\u523B\uFF0C\u4E0D\u968F\u8F6E\u8BE2\u5237\u65B0\uFF1B\u4E0B\u4E00\u6B21\u67E5\u65B0\u7248\u6216\u5B89\u88C5\u4F1A\u66F4\u65B0\u5B83\u3002", draft: true },
   "panel.error.evidence-transient": { en: "Transient read failure: it clears on the next successful read; if it persists, troubleshoot by stable code.", zh: "\u8BFB\u6570\u77AC\u6001\u5931\u8D25\uFF1A\u4E0B\u4E00\u6B21\u6210\u529F\u8BFB\u6570\u4F1A\u81EA\u52A8\u89E3\u9664\uFF1B\u4E00\u76F4\u51FA\u73B0\u518D\u6309\u7A33\u5B9A\u7801\u6392\u67E5\u3002", draft: true },
   "panel.error.no-failure": { en: "No failure: copying diagnostics gives the current state snapshot.", zh: "\u6682\u65E0\u5931\u8D25\uFF1A\u6B64\u65F6\u590D\u5236\u8BCA\u65AD\u7ED9\u51FA\u7684\u662F\u5F53\u524D\u72B6\u6001\u5FEB\u7167\u3002", draft: true },
   "panel.error.log-hint": { en: "Check logs: filter by plugin ID {pluginId} for events {e1}, {e2}, {e3}.", zh: "\u6DF1\u6316\u770B\u65E5\u5FD7\uFF1A\u6309\u63D2\u4EF6\u6807\u8BC6 {pluginId} \u8FC7\u6EE4 {e1}\u3001{e2}\u3001{e3} \u4E09\u4E2A\u4E8B\u4EF6\u3002", draft: true },
   "panel.error.log-follow": { en: "Match the request/check IDs above in {eFail}; baseline timing in {eCall}, execution result in {eExec}.", zh: "\u51ED\u4E0A\u9762\u7684\u8BF7\u6C42\uFF0F\u68C0\u67E5\u7F16\u53F7\u5728 {eFail} \u91CC\u5BF9\u4E0A\uFF1B\u57FA\u7EBF\u8017\u65F6\u770B {eCall}\uFF0C\u6267\u884C\u7ED3\u679C\u770B {eExec}\u3002", draft: true },
   "panel.manual.heading": { en: "Manual fallback command (copy the full line to run):", zh: "\u624B\u5DE5\u515C\u5E95\u547D\u4EE4\uFF08\u590D\u5236\u6574\u884C\u6267\u884C\uFF09\uFF1A", draft: true },
-  "panel.manual.absent": { en: "No manual command available (unrecognized scope or source install).", zh: "\u5F53\u524D\u6CA1\u6709\u53EF\u7528\u7684\u624B\u5DE5\u547D\u4EE4\uFF08\u8BA4\u4E0D\u51FA\u4F7F\u7528\u8303\u56F4\u6216\u5C5E\u6E90\u7801\u5B89\u88C5\u65F6\u4E0D\u7ED9\uFF09\u3002", draft: true },
+  "panel.manual.absent": { en: "No manual command available (unrecognized scope or source install).", zh: "\u5F53\u524D\u6CA1\u6709\u53EF\u7528\u7684\u624B\u5DE5\u547D\u4EE4\uFF08\u4F7F\u7528\u8303\u56F4\u65E0\u6CD5\u8BC6\u522B\u6216\u6E90\u7801\u5B89\u88C5\u573A\u666F\u4E0D\u63D0\u4F9B\uFF09\u3002", draft: true },
   "panel.footer.note": { en: "Closing never interrupts updates; come back anytime", zh: "\u5173\u95ED\u4E0D\u5F71\u54CD\u66F4\u65B0\uFF0C\u53EF\u968F\u65F6\u56DE\u6765\u67E5\u770B", draft: true },
   "panel.footer.close": { en: "Close", zh: "\u5173\u95ED", draft: true },
   "panel.footer.close-title": { en: "Close the window; updates keep running", zh: "\u5173\u95ED\u7A97\u53E3\uFF0C\u66F4\u65B0\u4E0D\u53D7\u5F71\u54CD", draft: true },
@@ -1131,6 +1134,7 @@ const BILINGUAL_STRINGS = {
   "panel.diag.copy.field.request": { en: "Request={request}", zh: "\u8BF7\u6C42={request}", draft: true },
   "panel.diag.copy.field.check": { en: "Check={check}", zh: "\u68C0\u67E5={check}", draft: true },
   "panel.diag.copy.field.queue": { en: "Queue={queue}", zh: "\u961F\u5217={queue}", draft: true },
+  "panel.diag.copy.field.target": { en: "Target={version}", zh: "\u76EE\u6807={version}", draft: true },
   "panel.diag.copy.line.summary": { en: "Summary={summary}", zh: "\u6458\u8981={summary}", draft: true },
   "panel.diag.copy.line.remedy": { en: "Remedy={remedy}", zh: "\u600E\u4E48\u529E={remedy}", draft: true },
   "panel.diag.copy.block.summary": { en: "Summary\uFF1A{summary}", zh: "\u6458\u8981\uFF1A{summary}", draft: true },
@@ -1180,11 +1184,11 @@ const BILINGUAL_STRINGS = {
   "batch.hint.done": { en: "All up to date; nothing to do.", zh: "\u5168\u90E8\u5DF2\u6700\u65B0\uFF0C\u6CA1\u6709\u8981\u505A\u7684\u3002", draft: true },
   "batch.seal.ledger": { en: "Ledger", zh: "\u603B\u8D26", draft: true },
   "batch.banner.error-title": { en: "Failed this time ({code}): {detail}.", zh: "\u8FD9\u6B21\u6CA1\u6210\u529F\uFF08{code}\uFF09\uFF1A{detail}\u3002", draft: true },
-  "batch.banner.error-action-fallback": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author.", zh: "\u5148\u91CD\u8BD5\u4E00\u6B21\uFF1B\u4E00\u76F4\u8FD9\u6837\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
+  "batch.banner.error-action-fallback": { en: "Retry once first; if it persists, send the copied diagnostics to the plugin author.", zh: "\u8BF7\u91CD\u8BD5\u4E00\u6B21\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
   "batch.banner.failed-title": { en: "{n} failed to install.", zh: "{n} \u5BB6\u5B89\u88C5\u5931\u8D25\u3002", draft: true },
-  "batch.banner.failed-action": { en: "Retry each one inline; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u9010\u5BB6\u70B9\u884C\u5185\u300C\u91CD\u8BD5\u300D\u518D\u6765\u4E00\u6B21\uFF1B\u4E00\u76F4\u5931\u8D25\u5C31\u628A\u590D\u5236\u8BCA\u65AD\u4EA4\u7ED9\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
+  "batch.banner.failed-action": { en: "Retry each one inline; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u8BF7\u9010\u5BB6\u4F7F\u7528\u884C\u5185\u300C\u91CD\u8BD5\u300D\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
   "batch.banner.restart-title": { en: "{n} installed; restart the host to take effect.", zh: "{n} \u5BB6\u5DF2\u5B89\u88C5\u597D\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
-  "batch.banner.restart-action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\uFF0C\u8BA9\u65B0\u7248\u8DD1\u8D77\u6765\uFF1B\u8FD9\u662F\u6B63\u5E38\u7EC8\u6001\uFF0C\u4E0D\u662F\u5931\u8D25\u3002", draft: true },
+  "batch.banner.restart-action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\u4EE5\u52A0\u8F7D\u65B0\u7248\u672C\uFF1B\u6B64\u4E3A\u6B63\u5E38\u72B6\u6001\uFF0C\u975E\u5B89\u88C5\u5931\u8D25\u3002", draft: true },
   "batch.banner.restart-button": { en: "Please restart DSH", zh: "\u8BF7\u91CD\u542FDSH", draft: true },
   "batch.row.queued-generic": { en: "Queued \xB7 waiting for the running install to finish", zh: "\u5DF2\u6392\u961F \xB7 \u7B49\u524D\u9762\u5B89\u88C5\u5B8C", draft: true },
   "batch.row.queued-n": { en: "Queued \xB7 {n} ahead", zh: "\u5DF2\u6392\u961F \xB7 \u524D\u65B9 {n} \u4E2A", draft: true },
@@ -1238,20 +1242,21 @@ const BILINGUAL_STRINGS = {
   "changelog.security.summary": { en: "{n} more items", zh: "\u5176\u4F59 {n} \u6761", draft: true },
   "changelog.security.note": { en: "Remaining entries are collapsed to keep the panel fast. See the original text.", zh: "\u4E3A\u4FDD\u6301\u9762\u677F\u6027\u80FD\uFF0C\u5176\u4F59\u6761\u76EE\u5DF2\u6298\u53E0\uFF0C\u53EF\u67E5\u770B\u539F\u6587\u3002", draft: true },
   "diag.fallback.generic": { en: "Operation failed", zh: "\u64CD\u4F5C\u5931\u8D25", draft: true },
-  "diag.fallback.read-installed": { en: "Failed to read local state", zh: "\u8BFB\u672C\u5730\u72B6\u6001\u6CA1\u6210\u529F", draft: true },
-  "diag.fallback.revalidate-fetch": { en: "Revalidation fetch failed before install", zh: "\u88C5\u524D\u91CD\u9A8C\u53D6\u6570\u6CA1\u6210\u529F", draft: true },
+  "diag.fallback.read-installed": { en: "Failed to read local state", zh: "\u8BFB\u53D6\u672C\u5730\u72B6\u6001\u5931\u8D25", draft: true },
+  "diag.fallback.revalidate-fetch": { en: "Revalidation fetch failed before install", zh: "\u5B89\u88C5\u524D\u590D\u9A8C\u5931\u8D25\uFF0C\u672A\u80FD\u83B7\u53D6\u7248\u672C\u4FE1\u606F", draft: true },
   "diag.fallback.rate-limited": { en: "Source returned 429. Too many requests this minute.", zh: "\u6E90\u8FD4\u56DE 429\uFF0C\u8FD9\u4E00\u5206\u949F\u8BF7\u6C42\u592A\u591A", draft: true },
   "diag.fallback.http-status": { en: "Source returned {status}. Retry still failed.", zh: "\u6E90\u8FD4\u56DE {status}\uFF0C\u91CD\u8BD5\u4ECD\u5931\u8D25", draft: true },
-  "diag.fallback.invalid-release": { en: "Version in the manifest is not valid", zh: "\u6E05\u5355\u91CC\u7684\u7248\u672C\u53F7\u4E0D\u662F\u5408\u6CD5\u7248\u672C", draft: true },
-  "diag.fallback.install-failed": { en: "Install failed", zh: "\u5B89\u88C5\u5931\u8D25", draft: true },
-  "diag.fallback.unknown-profile": { en: "Scope or plugin location not recognized", zh: "\u4F7F\u7528\u8303\u56F4\u6216\u63D2\u4EF6\u4F4D\u7F6E\u8BA4\u4E0D\u51FA", draft: true },
-  "diag.fallback.source-install": { en: "Installed from source, not by version", zh: "\u5F53\u524D\u662F\u4ECE\u6E90\u7801\u88C5\u7684\uFF0C\u4E0D\u662F\u6309\u7248\u672C\u53F7\u88C5\u7684", draft: true },
-  "diag.fallback.invalid-installation": { en: "Installed package is incomplete", zh: "\u5DF2\u88C5\u7684\u5305\u4E0D\u5B8C\u6574", draft: true },
-  "diag.fallback.installation-changed": { en: "Install location changed during use", zh: "\u5B89\u88C5\u4F4D\u7F6E\u5728\u4F7F\u7528\u4E2D\u9014\u53D8\u4E86", draft: true },
-  "diag.fallback.pending-restart": { en: "New version is on disk. The running version is still the old one.", zh: "\u65B0\u7248\u5DF2\u88C5\u5230\u78C1\u76D8\uFF0C\u6B63\u5728\u8DD1\u7684\u8FD8\u662F\u65E7\u7248", draft: true },
-  "diag.fallback.incompatible-node": { en: "New version needs a different Node version than the running one", zh: "\u65B0\u7248\u8981\u6C42\u7684 Node \u4E0E\u5F53\u524D\u8FD0\u884C\u7684\u5BF9\u4E0D\u4E0A", draft: true },
-  "diag.fallback.registry-conflict": { en: "Declared version conflicts with the on-disk version", zh: "\u672C\u5730\u58F0\u660E\u7684\u7248\u672C\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u4E92\u76F8\u77DB\u76FE", draft: true },
-  "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u88AB\u6253\u65AD\uFF0C\u7559\u4E0B\u4E00\u4E2A\u534A\u622A\u4EFB\u52A1", draft: true }
+  "diag.fallback.invalid-release": { en: "Version in the manifest is not valid", zh: "\u6E05\u5355\u6587\u4EF6\u4E2D\u7248\u672C\u53F7\u975E\u6CD5", draft: true },
+  "diag.fallback.install-failed": { en: "Install failed", zh: "\u5B89\u88C5\u6267\u884C\u5931\u8D25", draft: true },
+  "diag.fallback.unknown-profile": { en: "Scope or plugin location not recognized", zh: "\u65E0\u6CD5\u8BC6\u522B\u4F7F\u7528\u8303\u56F4\u6216\u63D2\u4EF6\u5B89\u88C5\u4F4D\u7F6E", draft: true },
+  "diag.fallback.channel-mismatch": { en: "Installed version is not in the selected release channel", zh: "\u5DF2\u5B89\u88C5\u7248\u672C\u4E0E\u5F53\u524D\u7248\u672C\u901A\u9053\u4E0D\u7B26", draft: true },
+  "diag.fallback.source-install": { en: "Installed from source, not by version", zh: "\u6E90\u7801\u5B89\u88C5\u5B9E\u4F8B\uFF0C\u4E0D\u652F\u6301\u7248\u672C\u66F4\u65B0", draft: true },
+  "diag.fallback.invalid-installation": { en: "Installed package is incomplete", zh: "\u5DF2\u5B89\u88C5\u5305\u7ED3\u6784\u4E0D\u5B8C\u6574", draft: true },
+  "diag.fallback.installation-changed": { en: "Install location changed during use", zh: "\u5B89\u88C5\u4F4D\u7F6E\u53D1\u751F\u53D8\u66F4", draft: true },
+  "diag.fallback.pending-restart": { en: "New version is on disk. The running version is still the old one.", zh: "\u65B0\u7248\u672C\u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u5F53\u524D\u8FD0\u884C\u4ECD\u4E3A\u65E7\u7248\u672C", draft: true },
+  "diag.fallback.incompatible-node": { en: "New version needs a different Node version than the running one", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
+  "diag.fallback.registry-conflict": { en: "Declared version conflicts with the on-disk version", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
+  "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true }
 };
 function escapeHtml(value) {
   return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -1346,6 +1351,9 @@ function normalizeCategory(raw) {
   if (t === "deprecated") return "Deprecated";
   if (t === "removed") return "Removed";
   if (t === "security") return "Security";
+  for (const k of CHANGELOG_ALL_CATEGORIES) {
+    if (t === CHANGELOG_CATEGORY_ZH[k]) return k;
+  }
   return null;
 }
 function isUnreleasedVersion(v) {
@@ -1698,11 +1706,11 @@ function renderChangelogSection(entry, lang) {
     const date = typeof dateRaw === "string" ? dateRaw : "";
     const yankedFlag = entry.yanked === true;
     const yankedSuffix = yankedFlag ? copyText("changelog.yanked.suffix", l) : "";
-    const title = (date ? version + " \xB7 " + date : version) + yankedSuffix;
+    const titleInner = date ? escapeChangelogHtml(version) + ' \xB7 <span class="dsh-upd-changelog-date">' + escapeChangelogHtml(date) + "</span>" + escapeChangelogHtml(yankedSuffix) : escapeChangelogHtml(version + yankedSuffix);
     const counts = countsOf(entry);
     const parts = [];
     parts.push('<div class="dsh-upd-changelog-version" data-version="' + escapeChangelogHtml(version) + '">');
-    parts.push('<div class="dsh-upd-changelog-title">' + escapeChangelogHtml(title) + "</div>");
+    parts.push('<div class="dsh-upd-changelog-title">' + titleInner + "</div>");
     for (const cat of CHANGELOG_MUST_SHOW) {
       const items = Array.isArray(entry.sections ? entry.sections[cat] : null) ? entry.sections[cat] : [];
       if (!items || items.length === 0) continue;
@@ -1799,7 +1807,7 @@ ${blocks.join("\n")}
 }
 const CHANGELOG_VALIDATE_HINTS = {
   E_VERSION_TITLE: "\u8BE5\u6807\u9898\u4E0D\u662F\u5408\u6CD5\u7248\u672C\u53F7\uFF0C\u5176\u4E0B\u6761\u76EE\u5DF2\u88AB\u5FFD\u7565\uFF0C\u8BF7\u6539\u6210 ## [x.y.z] \u5F62\u6001",
-  E_CATEGORY: "\u672A\u77E5\u5206\u7C7B\uFF0C\u5176\u4E0B\u6761\u76EE\u5DF2\u88AB\u5FFD\u7565\uFF0C\u4EC5\u6536 Added/Fixed/Changed/Deprecated/Removed/Security",
+  E_CATEGORY: "\u672A\u77E5\u5206\u7C7B\uFF0C\u5176\u4E0B\u6761\u76EE\u5DF2\u88AB\u5FFD\u7565\uFF1B\u4EC5\u6536 Added/Fixed/Changed/Deprecated/Removed/Security\uFF0C\u4EA6\u6536\u4E2D\u6587\u540D\uFF08\u65B0\u589E/\u4FEE\u590D/\u53D8\u66F4/\u5F03\u7528\u9884\u544A/\u79FB\u9664/\u5B89\u5168\uFF09",
   E_BULLET_ORPHAN: "\u8BE5\u6761\u76EE\u4E0D\u5728\u7248\u672C\u8282\u4E0E\u5206\u7C7B\u4E0B\uFF0C\u5DF2\u88AB\u5FFD\u7565",
   W_BREAKING_MAYBE: "\u7591\u4F3C\u7834\u574F\u6807\u8BB0\u8BEF\u5199\uFF08\u7F3A\u5192\u53F7/\u62FC\u5199\u63A5\u8FD1/\u4F4D\u7F6E\u7591\u4F3C\u653E\u9519\uFF09\uFF0C\u8BF7\u68C0\u67E5\u662F\u5426\u60F3\u5199 BREAKING:/\u4E0D\u517C\u5BB9:",
   W_YANKED: "\u8BE5\u7248\u672C\u5DF2\u88AB\u6807\u8BB0\u64A4\u56DE\uFF08yanked\uFF09\uFF0C\u5B89\u88C5\u4E0D\u53D7\u5F71\u54CD\uFF0C\u7EE7\u7EED\u524D\u8BF7\u786E\u8BA4",
@@ -2140,7 +2148,7 @@ __mods["upd-log-events"] = { LOG_EVENT_CALL, LOG_EVENT_CALL_FAIL, LOG_EVENT_INST
 // AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/panel.ts
 const { buildChangelogPhoneName, buildPhoneNames, DEFAULT_PANEL_POLL_MS, MIN_PANEL_POLL_MS } = __mods["upd-config"];
 const { COPY_BUDGET_CHARS, sanitizeForCopy } = __mods["upd-redaction"];
-const { validReleaseVersion } = __mods["upd-service"];
+const { compareReleaseVersions, validReleaseVersion } = __mods["upd-service"];
 const { changelogForUpdate, parseChangelog, renderChangelogHTML, shouldFetchChangelog, yankedBannerHTML } = __mods["upd-changelog"];
 const { LOG_EVENT_CALL, LOG_EVENT_CALL_FAIL, LOG_EVENT_INSTALL_EXEC } = __mods["upd-log-events"];
 const { copyText } = __mods["upd-bilingual"];
@@ -2254,6 +2262,7 @@ function themeTokensStyleFor(tokens) {
 }
 const BLOCKED_KEYS = {
   "unknown-profile": { title: "panel.blocked.unknown-profile.title", action: "panel.blocked.unknown-profile.action" },
+  "channel-mismatch": { title: "panel.blocked.channel-mismatch.title", action: "panel.blocked.channel-mismatch.action" },
   "source-install": { title: "panel.blocked.source-install.title", action: "panel.blocked.source-install.action" },
   "invalid-installation": { title: "panel.blocked.invalid-installation.title", action: "panel.blocked.invalid-installation.action" },
   "installation-changed": { title: "panel.blocked.installation-changed.title", action: "panel.blocked.installation-changed.action" },
@@ -2414,7 +2423,10 @@ function buildUpdateDiagCopy(input, langOverride) {
   const requestRaw = diag.requestId ?? input.requestId;
   const checkRaw = diag.checkId ?? input.checkId;
   const queue = queueTextOf(input.queuePosition ?? null, l);
-  const prov = [copyText("panel.diag.copy.field.plugin", l, { plugin: pluginName }), copyText("panel.diag.copy.field.version", l, { run: runVer, inst: instVer }), copyText("panel.diag.copy.field.host", l, { host })];
+  const prov = [copyText("panel.diag.copy.field.plugin", l, { plugin: pluginName }), copyText("panel.diag.copy.field.version", l, { run: runVer, inst: instVer })];
+  const targetRaw = input.targetVersion;
+  if (typeof targetRaw === "string" && targetRaw.trim()) prov.push(copyText("panel.diag.copy.field.target", l, { version: targetRaw.trim() }));
+  prov.push(copyText("panel.diag.copy.field.host", l, { host }));
   prov.push(copyText("panel.diag.copy.field.profile", l, { profile: pickText(input.profileName, unknown) }));
   if (typeof routeRaw === "string" && routeRaw.trim()) prov.push(copyText("panel.diag.copy.field.route", l, { route: routeRaw.trim() }));
   if (diag.stage) prov.push(copyText("panel.diag.copy.field.stage", l, { stage: diag.stage }));
@@ -2634,7 +2646,16 @@ function panelViewModelCore(input, lang) {
   }
   const jobCode = jobState === "failed" ? messageCodeOf(job?.message) || "install-failed" : "";
   const failedCode = typeof errorKind === "string" && errorKind.trim() || lastError || jobCode || "";
-  if (failedCode || jobState === "failed" || jobState === "interrupted") {
+  let staleFailure = false;
+  try {
+    const target = typeof job?.targetVersion === "string" ? job.targetVersion.trim() : "";
+    const latest = typeof snapshot.latestVersion === "string" ? snapshot.latestVersion.trim() : "";
+    const freshOther = typeof errorKind === "string" && errorKind.trim() || lastError;
+    staleFailure = (jobState === "failed" || jobState === "interrupted") && !!target && !!latest && !freshOther && (snapshot.canInstall || !!snapshot.blockedReason) && compareReleaseVersions(latest, target) === 1;
+  } catch {
+    staleFailure = false;
+  }
+  if (!staleFailure && (failedCode || jobState === "failed" || jobState === "interrupted")) {
     const code = failedCode || "install-failed";
     const copy = failureCopy(code, l);
     return {
@@ -2790,6 +2811,10 @@ const UPDATE_PANEL_CSS = [
   ".dsh-upd-chap-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}",
   ".dsh-upd-chap-no{font-size:13px;font-style:italic;opacity:.6}",
   ".dsh-upd-chap-title{font-size:14px;margin:0}",
+  // —— 宿主样式隔离：章节标题是裸 h3，宿主全局 h3 规则（如渐变标题字）会直接命中它，
+  // 而继承来的根颜色输给任何直接命中的规则。双 class 显式钉死颜色并洗掉背景裁剪，
+  // 深色宿主下即回近白正文，档案卷下跟纸墨变量走（宿主 !important 另议，见测试）。
+  ".dsh-upd .dsh-upd-chap-title{color:var(--dsh-update-text,#1f2937);background:none;-webkit-background-clip:border-box;-webkit-text-fill-color:currentColor}",
   ".dsh-upd-chap-rule{flex:1;border-top:1px solid var(--dsh-update-border,#e5e7eb);transform:translateY(-3px)}",
   // 03 章标题行右端的开关（问题 3 定案：按钮形态、挪到标题行）。
   ".dsh-upd-chap-note{flex:none;font-size:12px;opacity:.75}",
@@ -2850,6 +2875,10 @@ const UPDATE_PANEL_CSS = [
   '.dsh-upd-actions button[data-primary="1"]{min-width:9em}',
   ".dsh-upd-banner{min-height:3.4em;display:flex;flex-direction:column;justify-content:center}",
   ".dsh-upd-banner{animation:none}",
+  // —— 横幅副行：色框之外的第二行补充说明（居左小字；两主题共用结构，皮肤各自收敛）——
+  ".dsh-upd-banner-sub{font-size:12.5px;opacity:.75;margin:2px 0 8px;text-align:left}",
+  // #99 真节点行内章：默认主题不画（Archive 串里才显示）；节点常驻 DOM（双主题内核逐字同一份）。
+  ".dsh-upd-banner>div:first-child>.dsh-upd-sealmini{display:none}",
   ".dsh-upd-copy{min-height:1.75em}",
   ".dsh-upd-copy--empty{visibility:hidden}",
   "@media (prefers-color-scheme: dark){.dsh-upd{--dsh-update-text:#e5e7eb;--dsh-update-bg:#111827;--dsh-update-border:#374151;",
@@ -2918,18 +2947,21 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   '.dsh-upd[data-theme="archive"] .dsh-upd-body .dsh-upd-chap-head{background:var(--dsh-update-bg)}',
   '.dsh-upd-overlay .dsh-upd[data-theme="archive"] .dsh-upd-body{scrollbar-color:var(--dsh-update-border-strong) transparent}',
   '.dsh-upd-overlay .dsh-upd[data-theme="archive"] .dsh-upd-body::-webkit-scrollbar-thumb{background:var(--dsh-update-border-strong)}',
-  // —— 小印章（原型 :215 `.sealmini`：30px、旋转 -5°、一字）——
+  // —— 小印章（原型 :215 `.sealmini`：30px、旋转 -5°、一字；#99：真节点行内章）——
   // 待重启横幅一律不画印章：那一档的标记是左侧手绘 SVG（原型 :446 的 .mark 只有 SVG）。
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="loading"]::before,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="idle"]::before,',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="update"]::before,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="busy"]::before,',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="blocked"]::before,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="failed"]::before,',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="done"]::before{content:attr(data-mini);display:inline-flex;align-items:center;justify-content:center;',
-  "width:30px;height:30px;margin-right:10px;vertical-align:middle;border:2px solid currentColor;border-radius:7px;",
-  "font-family:var(--dsh-update-font-serif);font-weight:700;font-size:16px;line-height:26px;transform:rotate(-5deg);flex:none;color:var(--dsh-update-text-muted)}",
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="update"]::before{color:var(--dsh-update-ok-text)}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="busy"]::before{color:var(--dsh-update-warn-text)}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="blocked"]::before,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="failed"]::before{color:var(--dsh-update-bad-text)}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="done"]::before{color:var(--dsh-update-ok-text)}',
+  // #99 注：印章曾是横幅的 ::before 伪元素，但内核横幅是纵向 flex（#93 契约冻结），伪元素只能独占一行；
+  // 英文词撑宽后固定缩进又会与标题重叠——纯 CSS 走不通。改为横幅首行内的真实行内节点（aria-hidden，
+  // 默认主题隐藏），与原型 `.sealmini + 文字` 同结构；data-mini 属性保留（取证与快照口径不变）。
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="loading"] .dsh-upd-sealmini,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="idle"] .dsh-upd-sealmini,',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="update"] .dsh-upd-sealmini,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="busy"] .dsh-upd-sealmini,',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="blocked"] .dsh-upd-sealmini,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="failed"] .dsh-upd-sealmini,',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="done"] .dsh-upd-sealmini{display:inline-flex;align-items:center;justify-content:center;width:auto;min-width:34px;height:34px;padding:0 6px;box-sizing:border-box;white-space:nowrap;vertical-align:middle;margin-right:10px;',
+  "border:2px solid currentColor;border-radius:7px;",
+  "font-family:var(--dsh-update-font-serif);font-weight:700;font-size:16px;line-height:26px;transform:rotate(-5deg);color:var(--dsh-update-text-muted)}",
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="update"] .dsh-upd-sealmini{color:var(--dsh-update-ok-text)}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="busy"] .dsh-upd-sealmini{color:var(--dsh-update-warn-text)}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="blocked"] .dsh-upd-sealmini,.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="failed"] .dsh-upd-sealmini{color:var(--dsh-update-bad-text)}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner[data-kind="done"] .dsh-upd-sealmini{color:var(--dsh-update-ok-text)}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-log code{font-family:var(--dsh-update-font-mono);font-size:11px;color:var(--dsh-update-text-muted);border:1px solid var(--dsh-update-border-strong);border-radius:3px;padding:0 6px;letter-spacing:.06em}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-manual code{display:block;background:var(--dsh-update-text);color:var(--dsh-update-bg-soft);font-family:var(--dsh-update-font-mono);font-size:12.5px;padding:12px 14px;border-radius:4px;white-space:pre-wrap;word-break:break-all}',
   // 待重启标记：手绘 SVG 当**独立 flex 标记**放在文字块左侧（原型 :446 `.mark` 是独立节点），
@@ -2962,7 +2994,9 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   '.dsh-upd[data-theme="archive"] .dsh-upd-chap-rule{flex:1;border-top:1px solid var(--dsh-update-border);transform:translateY(-4px)}',
   // —— 横幅即状态行 / 待重启横幅（原型 :81-85 `.restart-banner`：2px 边框、圆角 4、内边距 12/16、衬线；右侧留章位）——
   '.dsh-upd[data-theme="archive"] .dsh-upd-banner{border:2px solid var(--dsh-update-border-strong);border-radius:4px;padding:10px 12px;font-size:14.5px;font-family:var(--dsh-update-font-serif);gap:10px;align-items:center}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{flex:1 1 auto;min-width:0}',
+  // #99 标题行拉满：纵向 flex + align-items:center 会把短标题收成窄块居中（章跟着偏右）；
+  // 原型状态行是整行块居左，这里 stretch 回去（副行已移出框体为独立兄弟节点，不吃本条）。
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{flex:1 1 auto;min-width:0;align-self:stretch}',
   // 状态行字号照原型 .status-line=27px（实测去掉横幅右侧占位后可写 486px > 428px，一行放得下）
   '.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child strong{font-family:var(--dsh-update-font-serif);font-size:27px;font-weight:700;line-height:1.25}',
   // —— 进度条 / 跳过行（原型 :132-133 `.prog`、:129-131 `.skipline .tag`）——
@@ -2972,7 +3006,30 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   '.dsh-upd[data-theme="archive"] .dsh-upd-skipline{font-size:13px;margin-top:8px}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-tag{display:inline-block;border:1px dashed var(--dsh-update-border-strong);border-radius:3px;padding:1px 8px;margin-right:8px;font-family:var(--dsh-update-font-mono);font-size:12px}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-err{font-size:13px;margin:0 0 6px;color:var(--dsh-update-text-muted)}',
-  '@media (max-width:640px){.dsh-upd[data-theme="archive"]{padding:10px 12px}.dsh-upd[data-theme="archive"]::before{top:12px;right:12px;width:56px;height:56px;font-size:15px;box-shadow:inset 0 0 0 4px var(--dsh-update-bg),inset 0 0 0 5px currentColor}.dsh-upd[data-theme="archive"] .dsh-upd-masthead-title{font-size:19px}.dsh-upd[data-theme="archive"] .dsh-upd-banner{padding-right:16px}.dsh-upd[data-theme="archive"] .dsh-upd-banner::before{width:24px;height:24px;font-size:14px;line-height:20px;flex:none}.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{white-space:normal}}',
+  // —— 横幅副行（框外第二行居左小字；色框只装标题，原型状态行是裸文本）——
+  '.dsh-upd[data-theme="archive"] .dsh-upd-banner-sub{color:var(--dsh-update-text-muted);font-size:12.5px;text-align:left;margin:2px 0 8px}',
+  // —— 动作行贴原型（d5-paper :119-125 `.btn`：13px 紧凑、无最小宽、8px 间距；复制类小按钮 12px）——
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions{gap:8px;min-height:0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button{font-size:13px;line-height:1.45;padding:6px 12px;margin:0;min-width:0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button:first-child{min-width:0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button[data-primary="1"]{min-width:0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button:first-child:not([aria-busy="true"])::after{display:none}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button:not([data-primary="1"]){background:transparent}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-actions button[data-action="copy-manual"],.dsh-upd[data-theme="archive"] .dsh-upd-actions button[data-action="copy-diag"]{font-size:12px;padding:4px 10px}',
+  // —— 日志贴原型（d5-paper :137-144 `.logver`：版本 mono 粗体、分类头隐藏、条目前缀红字）——
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-version{margin:12px 0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-title{font-family:var(--dsh-update-font-mono);font-size:14px;font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-date{font-weight:400;font-size:12px;color:var(--dsh-update-text-muted)}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog ul{margin:6px 0 0 2px;padding-left:18px;font-size:13.5px}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog li{margin:3px 0}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-catname{display:none}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Added"] ul li::before{content:"Added \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Fixed"] ul li::before{content:"Fixed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Changed"] ul li::before{content:"Changed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Security"] ul li::before{content:"Security \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Deprecated"] ul li::before{content:"Deprecated \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Removed"] ul li::before{content:"Removed \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
+  '@media (max-width:640px){.dsh-upd[data-theme="archive"]{padding:10px 12px}.dsh-upd[data-theme="archive"]::before{top:12px;right:12px;width:56px;height:56px;font-size:15px;box-shadow:inset 0 0 0 4px var(--dsh-update-bg),inset 0 0 0 5px currentColor}.dsh-upd[data-theme="archive"] .dsh-upd-masthead-title{font-size:19px}.dsh-upd[data-theme="archive"] .dsh-upd-banner{padding-right:16px}.dsh-upd[data-theme="archive"] .dsh-upd-banner .dsh-upd-sealmini{min-width:28px;height:28px;font-size:14px;line-height:20px}.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{white-space:normal}}',
   '@media (prefers-color-scheme: dark){.dsh-upd[data-theme="archive"]{--dsh-update-bg-soft:#141210;--dsh-update-bg:#1e1a15;--dsh-update-text:#ece5d3;--dsh-update-text-muted:#a89c83;',
   "--dsh-update-border:#3a3226;--dsh-update-border-strong:#5c4e3b;--dsh-update-primary:#e0684e;--dsh-update-primary-deep:#f0866b;",
   "--dsh-update-ok-text:#8fd6a4;--dsh-update-ok-bg:rgba(80,180,120,.12);--dsh-update-warn-text:#e8c15a;--dsh-update-warn-bg:rgba(232,193,90,.12);",
@@ -3058,9 +3115,9 @@ function renderUpdatePanelKernel(input, view, lang) {
     `<div class="dsh-upd-head"><span class="dsh-upd-name">${escapeHtml(pluginId)}</span><span class="dsh-upd-meta">${escapeHtml(copyText("panel.meta.label", l))} <b>${escapeHtml(profileName ?? copyText("panel.meta.unknown", l))}</b><span class="dsh-upd-proftag">profile</span></span></div>`
   );
   parts.push(`<div class="dsh-upd-banner" data-kind="${b.kind}" data-mini="${escapeHtml(seal.mini)}" role="status" aria-live="polite">`);
-  parts.push(`<div><strong>${escapeHtml(b.title)}</strong></div>`);
-  if (b.action) parts.push(`<div>${escapeHtml(b.action)}</div>`);
+  parts.push(`<div>${b.kind === "restart" ? "" : `<span class="dsh-upd-sealmini" aria-hidden="true">${escapeHtml(seal.mini)}</span>`}<strong>${escapeHtml(b.title)}</strong></div>`);
   parts.push("</div>");
+  if (b.action) parts.push(`<div class="dsh-upd-banner-sub">${escapeHtml(b.action)}</div>`);
   parts.push(snapshot ? versionStrip(snapshot, l) : skeletonStrip(view.banner.kind === "loading", l));
   const showActions = input.actions !== "none";
   const actions = [];
@@ -3116,30 +3173,35 @@ function renderUpdatePanelKernel(input, view, lang) {
           snapshot.latestVersion,
           snapshot.installedVersion
         );
-        const changelogHTML = renderChangelogHTML(ranged, { lang: l });
-        const fromText = String(snapshot.runningVersion ?? "");
-        const toText = String(snapshot.latestVersion ?? "");
-        const rangeTitle = fromText && toText ? copyText("panel.changelog.heading-range", l, { from: fromText, to: toText }) : copyText("panel.changelog.heading", l);
-        let yankedBanner = "";
-        try {
-          const toEntry = Array.isArray(ranged) ? ranged.find(function(e) {
-            try {
-              return e && e.version === toText;
-            } catch {
-              return false;
+        if (ranged.length === 0 && mdText.trim() && entries.length === 0) {
+          inner = `<div class="dsh-upd-changelog-wrap"><div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.changelog.unavailable", l))}</div></div>`;
+          hasLog = false;
+        } else {
+          const changelogHTML = renderChangelogHTML(ranged, { lang: l });
+          const fromText = String(snapshot.runningVersion ?? "");
+          const toText = String(snapshot.latestVersion ?? "");
+          const rangeTitle = fromText && toText ? copyText("panel.changelog.heading-range", l, { from: fromText, to: toText }) : copyText("panel.changelog.heading", l);
+          let yankedBanner = "";
+          try {
+            const toEntry = Array.isArray(ranged) ? ranged.find(function(e) {
+              try {
+                return e && e.version === toText;
+              } catch {
+                return false;
+              }
+            }) : null;
+            if (toEntry && toEntry.yanked === true && toText) {
+              yankedBanner = yankedBannerHTML(toText, l);
             }
-          }) : null;
-          if (toEntry && toEntry.yanked === true && toText) {
-            yankedBanner = yankedBannerHTML(toText, l);
+          } catch {
+            yankedBanner = "";
           }
-        } catch {
-          yankedBanner = "";
-        }
-        const logOpen = input.changelogCollapsed !== true;
-        inner = `<div class="dsh-upd-changelog-wrap"><div>${escapeHtml(rangeTitle)}</div><div class="dsh-upd-changelog-foldbox" data-open="${logOpen ? "1" : "0"}"><div class="dsh-upd-changelog-foldbox-inner">${yankedBanner}
+          const logOpen = input.changelogCollapsed !== true;
+          inner = `<div class="dsh-upd-changelog-wrap"><div>${escapeHtml(rangeTitle)}</div><div class="dsh-upd-changelog-foldbox" data-open="${logOpen ? "1" : "0"}"><div class="dsh-upd-changelog-foldbox-inner">${yankedBanner}
 ${changelogHTML}
 </div></div></div>`;
-        hasLog = Array.isArray(ranged) && ranged.length > 0;
+          hasLog = Array.isArray(ranged) && ranged.length > 0;
+        }
       } catch {
         inner = "";
       }
@@ -3209,6 +3271,9 @@ ${changelogHTML}
         if (at) keys.push(`${escapeHtml(copyText("panel.error.failed-at", l, { time: at }))}`);
         if (keys.length > 0) {
           errLines.push(`<div class="dsh-upd-err">${copyText("panel.error.query-keys", l, { keys: keys.join(" \xB7 ") })}</div>`);
+        }
+        if (typeof failRef.targetVersion === "string" && failRef.targetVersion.trim()) {
+          errLines.push(`<div class="dsh-upd-err">${escapeHtml(copyText("panel.error.target-version", l, { version: failRef.targetVersion.trim() }))}</div>`);
         }
         if (!failRef.volatile) {
           errLines.push(
@@ -3449,6 +3514,15 @@ function mountUpdatePanel(container, options) {
   function currentEnvPair() {
     return { hostKind: hostKind ?? envHostKind, profileName: profileNameOption ?? envProfileName };
   }
+  function jobTargetOf(value) {
+    try {
+      const job = value?.job;
+      const tv = job?.targetVersion;
+      return typeof tv === "string" && tv.trim() ? tv.trim() : null;
+    } catch {
+      return null;
+    }
+  }
   function latchFromReply(reply, source) {
     const env = currentEnvPair();
     return {
@@ -3464,6 +3538,7 @@ function mountUpdatePanel(container, options) {
       runningVersion: snapshot?.runningVersion ?? null,
       installedVersion: snapshot?.installedVersion ?? null,
       latestVersion: snapshot?.latestVersion ?? null,
+      targetVersion: jobTargetOf(reply["snapshot"]),
       hostKind: env.hostKind,
       profileName: env.profileName,
       source,
@@ -3487,6 +3562,7 @@ function mountUpdatePanel(container, options) {
       runningVersion: snap?.runningVersion ?? snapshot?.runningVersion ?? null,
       installedVersion: snap?.installedVersion ?? snapshot?.installedVersion ?? null,
       latestVersion: snap?.latestVersion ?? snapshot?.latestVersion ?? null,
+      targetVersion: jobTargetOf({ job }),
       hostKind: env.hostKind ?? latch?.hostKind ?? null,
       profileName: env.profileName ?? latch?.profileName ?? null,
       source: "install",
@@ -3519,6 +3595,7 @@ function mountUpdatePanel(container, options) {
       runningVersion: snapshot?.runningVersion ?? null,
       installedVersion: snapshot?.installedVersion ?? null,
       latestVersion: snapshot?.latestVersion ?? null,
+      targetVersion: null,
       hostKind: env.hostKind,
       profileName: env.profileName,
       source,
@@ -3539,6 +3616,7 @@ function mountUpdatePanel(container, options) {
       runningVersion: snapshot?.runningVersion ?? null,
       installedVersion: snapshot?.installedVersion ?? null,
       latestVersion: snapshot?.latestVersion ?? null,
+      targetVersion: null,
       hostKind: env.hostKind,
       profileName: env.profileName,
       source,
@@ -3684,7 +3762,7 @@ function mountUpdatePanel(container, options) {
       skippedLatest,
       lastError: latch?.code ?? null,
       errorKind: latch?.kind ?? null,
-      failure: latch ? { requestId: latch.requestId, checkId: latch.checkId, atMs: latch.atMs, source: latch.source, volatile: latch.volatile } : null,
+      failure: latch ? { requestId: latch.requestId, checkId: latch.checkId, atMs: latch.atMs, source: latch.source, volatile: latch.volatile, targetVersion: latch.targetVersion } : null,
       showLogHint: showLogHintOption,
       changelogMarkdown,
       mode,
@@ -3727,7 +3805,8 @@ function mountUpdatePanel(container, options) {
       } else if (jobState === "completed" || jobState === "restart-required") {
         clearLatch();
       } else if ((jobState === "failed" || jobState === "interrupted") && snapshot?.job) {
-        setLatch(latchFromJob(snapshot.job, snapshot));
+        if (snapshot && tripleChanged(snapshot)) clearLatch();
+        else setLatch(latchFromJob(snapshot.job, snapshot));
       } else if (via === "install") {
         clearLatch();
       } else if (snapshot && tripleChanged(snapshot)) {
@@ -3899,6 +3978,7 @@ function mountUpdatePanel(container, options) {
               runningVersion: snapshot?.runningVersion ?? null,
               installedVersion: snapshot?.installedVersion ?? null,
               latestVersion: snapshot?.latestVersion ?? null,
+              targetVersion: null,
               hostKind: expiredEnv.hostKind,
               profileName: expiredEnv.profileName,
               source: "install",
@@ -4003,6 +4083,7 @@ function mountUpdatePanel(container, options) {
           runningVersion: frozen?.runningVersion ?? snapshot?.runningVersion ?? null,
           installedVersion: frozen?.installedVersion ?? snapshot?.installedVersion ?? null,
           latestVersion: frozen?.latestVersion ?? snapshot?.latestVersion ?? null,
+          targetVersion: frozen?.targetVersion ?? null,
           hostKind: frozen?.hostKind ?? hostKind ?? envHostKind,
           profileName: frozen?.profileName ?? profileNameOption ?? envProfileName,
           queuePosition: queue?.position ?? null,
@@ -14304,7 +14385,7 @@ function auditAll() {
 __mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
 })();
 (function () {
-// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.10.0 themeTokens（弹窗换肤一等口径）
+// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.12.0 themeTokens（弹窗换肤一等口径）
 // 只填颜色 24 键（含 0.7.1 newText、0.9.0 newOkText）；字体/阴影/圆角/入口尺寸沿用包默认与 sizing 参数（主题无对应槽位，不伪造；
 // 按钮尺寸走 mountUpdateEntry 的 sizing 正式参数，与 themeTokens 的 entry* 同组变量二选一，只留 sizing）。
 // 颜色只出 hex（包内 isThemeColorValue 只收 #rgb/#rrggbb/#rrggbbaa 或英文单词；rgba 会挂载即抛）。
@@ -14511,7 +14592,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.0.26'
+const PALETTE_VERSION = '2.0.27'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -14710,7 +14791,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.10.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.12.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）

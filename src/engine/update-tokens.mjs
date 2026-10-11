@@ -1,4 +1,4 @@
-// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.10.0 themeTokens（弹窗换肤一等口径）
+// update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.12.0 themeTokens（弹窗换肤一等口径）
 // 只填颜色 24 键（含 0.7.1 newText、0.9.0 newOkText）；字体/阴影/圆角/入口尺寸沿用包默认与 sizing 参数（主题无对应槽位，不伪造；
 // 按钮尺寸走 mountUpdateEntry 的 sizing 正式参数，与 themeTokens 的 entry* 同组变量二选一，只留 sizing）。
 // 颜色只出 hex（包内 isThemeColorValue 只收 #rgb/#rrggbb/#rrggbbaa 或英文单词；rgba 会挂载即抛）。
