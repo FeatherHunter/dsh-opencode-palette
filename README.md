@@ -81,7 +81,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
-不想敲命令就点面板：「设置 → 插件 → OpenCode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「更新至 vX.Y.Z」，点开即升级。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
+不想敲命令就点面板：「设置 → 插件 → OpenCode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「有新版本 vX.Y.Z」，点开弹窗再点安装。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
 
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 

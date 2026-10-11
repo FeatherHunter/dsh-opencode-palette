@@ -57,7 +57,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Go to Settings → Plugins → OpenCode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update to vX.Y.Z” right there — one click upgrades. Restart DSH to apply: until you do, a banner stays at the top of the panel.
+Prefer a button? Go to Settings → Plugins → OpenCode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update available vX.Y.Z” right there — click to open the panel, then install. Restart DSH to apply: until you do, a banner stays at the top of the panel.
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 

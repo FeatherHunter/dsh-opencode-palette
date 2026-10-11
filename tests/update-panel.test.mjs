@@ -78,7 +78,7 @@ const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 // ───────────────────────── 一、入口件行为 ─────────────────────────
 
-test('入口件：状态优先级 活任务 > 待重启 > 失败 > 有新版 > 空闲', () => {
+test('入口件：状态优先级 活任务 > 待重启 > 失败 > 有新版本 > 空闲', () => {
   const base = snapshotOf({ latestVersion: '1.8.0', canInstall: true })
   assert.equal(entryStateKind({ snapshot: Object.assign({}, base, { job: { state: 'installing' } }), error: 'check-failed' }), 'busy')
   assert.equal(entryStateKind({ snapshot: Object.assign({}, base, { blockedReason: 'pending-restart' }), error: null }), 'restart')
@@ -92,10 +92,10 @@ test('入口件：状态优先级 活任务 > 待重启 > 失败 > 有新版 > �
 
 test('入口件：五态文案唯一出处（中文照包原文）', () => {
   assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.7.2' }), error: null }), '检查更新')
-  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.8.0', canInstall: true }), error: null }), '有新版 1.8.0')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.8.0', canInstall: true }), error: null }), '有新版本 1.8.0')
   assert.equal(entryLabelFor({ snapshot: snapshotOf({ job: { state: 'installing' } }), error: null }), '正在安装…')
   assert.equal(entryLabelFor({ snapshot: snapshotOf({ blockedReason: 'pending-restart' }), error: null }), '待重启')
-  assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，点此查看')
+  assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，请查看详情')
 })
 
 test('入口件：九种 blocked 都有中文 title＋action（用户该做什么）', () => {
@@ -136,10 +136,10 @@ test('入口件：挂载默认进面静默查一次（只读 status），按钮�
   entry.unmount()
 })
 
-test('入口件：有新版时按钮文案带版本号，待重启与失败各有其态', async () => {
+test('入口件：有新版本时按钮文案带版本号，待重启与失败各有其态', async () => {
   const phones = buildPhoneNames('palette')
   for (const [snapshot, label] of [
-    [snapshotOf({ latestVersion: '1.8.0', canInstall: true }), '有新版 1.8.0'],
+    [snapshotOf({ latestVersion: '1.8.0', canInstall: true }), '有新版本 1.8.0'],
     [snapshotOf({ blockedReason: 'pending-restart' }), '待重启'],
     [snapshotOf({ job: { state: 'installing' } }), '正在安装…'],
   ]) {
@@ -155,8 +155,8 @@ test('入口件：有新版时按钮文案带版本号，待重启与失败各�
   const failBox = stubContainer()
   const failEntry = mountUpdateEntry(failBox, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: failHost.call })
   await failEntry.refresh()
-  assert.equal(failEntry.label(), '更新失败，点此查看')
-  assert.ok(failBox.innerHTML.includes('更新失败，点此查看'))
+  assert.equal(failEntry.label(), '更新失败，请查看详情')
+  assert.ok(failBox.innerHTML.includes('更新失败，请查看详情'))
   failEntry.unmount()
 })
 
@@ -218,8 +218,8 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.12.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.12.x 要求 node >=22')
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.13.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.13.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -473,9 +473,9 @@ test('渲染：中英文主题面板文案不受更新最小集成影响', () =>
 })
 
 
-// ───────────────────────── 四点五、换肤：主题一致（0.12.0 themeTokens，含 newText/newOkText） ─────────────────────────
+// ───────────────────────── 四点五、换肤：主题一致（0.13.0 themeTokens，含 newText/newOkText） ─────────────────────────
 
-test('换肤：37 主题的 themeTokens 全过 0.12.0 校验，system/透光回 undefined', async () => {
+test('换肤：37 主题的 themeTokens 全过 0.13.0 校验，system/透光回 undefined', async () => {
   const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
   const { themeTokensStyleFor } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href)
   const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.mjs')).href)
@@ -503,6 +503,9 @@ test('换肤：37 主题的 themeTokens 全过 0.12.0 校验，system/透光回 
   assert.equal(tk.primary, '#82AAFF')
   assert.ok(!('entryFontSize' in tk) && !('entryPadding' in tk) && !('entryBorderRadius' in tk) && !('entryScale' in tk),
     '按钮尺寸只走 sizing 参数，themeTokens 不再写 entry*（双信源已删）')
+  assert.ok(!('panelFontSize' in tk) && !('panelChapterFontSize' in tk) && !('panelBannerTitleFontSize' in tk)
+    && !('panelLogFontSize' in tk) && !('panelSmallFontSize' in tk),
+    '0.13.0 面板字号 5 键不填：本仓字号真源是用户排印档（typography.size），面板字号跟包默认（不传零回归）')
 })
 
 test('换肤：真挂载入口件随 setThemeTokens 即时换肤（执行级，非源码 grep）', async () => {
