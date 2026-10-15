@@ -196,14 +196,20 @@ test('接线：通道常量来自单一真源，两侧都引它', () => {
 })
 
 test('接线：电话名从更新包派生，产物里不写死', () => {
-  // 0.5.x 起第 4 个电话 updateChangelog 由包派生、宿主全量注册自动纳入（#52：有几个注册几个，不手数）。
-  assert.deepEqual(Object.keys(PHONES).sort(), ['updateChangelog', 'updateCheck', 'updateInstall', 'updateStatus'])
+  // 0.5.x 起第 4 个电话 updateChangelog 由包派生、0.16.0 起第 5 个 logAppend（面板日志通道）亦由包派生、
+  // 宿主全量注册自动纳入（#52：有几个注册几个，不手数；#78：期望表补 logAppend 一键）。
+  assert.deepEqual(Object.keys(PHONES).sort(), ['logAppend', 'updateChangelog', 'updateCheck', 'updateInstall', 'updateStatus'])
   assert.equal(PHONES.updateStatus, 'palette.updateStatus')
   assert.equal(PHONES.updateChangelog, 'palette.updateChangelog')
+  assert.equal(PHONES.logAppend, 'palette.logAppend')
+  // 宿主侧拼法与客户端侧拼法同源（config.buildPhoneNames vs client.buildClientPhoneNames）
+  assert.equal(buildPhoneNames('palette').logAppend, PHONES.logAppend)
   for (const rel of ['client.js', 'package/lib/client.js']) {
     const bundle = read(rel)
     assert.ok(bundle.indexOf("'palette.updateStatus'") < 0 && bundle.indexOf('"palette.updateStatus"') < 0,
       rel + ' 里不该出现写死的电话名字面量（电话名由入口件从前缀现算）')
+    assert.ok(bundle.indexOf("'palette.logAppend'") < 0 && bundle.indexOf('"palette.logAppend"') < 0,
+      rel + ' 里不该出现写死的 logAppend 字面量（第五个电话同样现算）')
     assert.ok(bundle.indexOf('mountUpdateEntry') >= 0, rel + ' 里应有更新包的入口件')
     assert.ok(bundle.indexOf('mountUpdatePanel') >= 0, rel + ' 里应有更新包的面板内核')
     assert.ok(bundle.indexOf('entryLabelFor') >= 0, rel + ' 里应有入口件文案函数（唯一出处）')
