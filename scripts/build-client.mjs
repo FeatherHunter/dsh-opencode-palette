@@ -9,7 +9,7 @@
 //   package/README.md                 用户文档副本
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（`^0.13.0`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.0`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
 //     只有它的**入口件闭包**（entry→panel→config/redaction/service/changelog/queue/log-events/lang/bilingual）仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
@@ -38,9 +38,32 @@ const INLINE_PACKAGES = [
     spec: 'dsh-log/client',
     pkg: 'dsh-log',
     key: 'log-client',
+    // 0.3.4 起树状 22 模块：client → config 转出树 + client/* + core/*。deps 键必须用包内 import 原字面量
+    //（`'../core/ids.js'` 与 `'./core/ids.js'` 是两个键，不能归一，transformer 按原串查表）。
     modules: [
-      { key: 'log-config', file: 'dist/config.js', deps: {} },
-      { key: 'log-client', file: 'dist/client.js', deps: { './config.js': 'log-config' } },
+      { key: 'log-core-level', file: 'dist/core/level.js', deps: {} },
+      { key: 'log-core-ids', file: 'dist/core/ids.js', deps: {} },
+      { key: 'log-core-resident', file: 'dist/core/resident.js', deps: {} },
+      { key: 'log-core-file-name', file: 'dist/core/file-name.js', deps: {} },
+      { key: 'log-core-row', file: 'dist/core/row.js', deps: {} },
+      { key: 'log-core-admission', file: 'dist/core/admission.js', deps: { './level.js': 'log-core-level' } },
+      { key: 'log-core-trace', file: 'dist/core/trace.js', deps: { './ids.js': 'log-core-ids' } },
+      { key: 'log-config-constants', file: 'dist/config/constants.js', deps: { '../core/level.js': 'log-core-level' } },
+      { key: 'log-config-validate', file: 'dist/config/validate.js', deps: {} },
+      { key: 'log-config-event-list', file: 'dist/config/event-list.js', deps: { './constants.js': 'log-config-constants', './validate.js': 'log-config-validate' } },
+      { key: 'log-config-phones', file: 'dist/config/phones.js', deps: { './constants.js': 'log-config-constants', './validate.js': 'log-config-validate' } },
+      { key: 'log-config-log-names', file: 'dist/config/log-names.js', deps: { './validate.js': 'log-config-validate' } },
+      { key: 'log-config-resolve', file: 'dist/config/resolve.js', deps: { './constants.js': 'log-config-constants', './event-list.js': 'log-config-event-list', './validate.js': 'log-config-validate' } },
+      // config.js 通篇 `export … from` 转出（无自有导出）：transformer 按转出行逐行累加进本模块导出。
+      { key: 'log-config', file: 'dist/config.js', deps: { './core/file-name.js': 'log-core-file-name', './core/row.js': 'log-core-row', './config/constants.js': 'log-config-constants', './config/validate.js': 'log-config-validate', './config/resolve.js': 'log-config-resolve', './config/phones.js': 'log-config-phones', './config/log-names.js': 'log-config-log-names', './config/event-list.js': 'log-config-event-list' } },
+      { key: 'log-client-switch-cache', file: 'dist/client/switch-cache.js', deps: {} },
+      { key: 'log-client-transport', file: 'dist/client/transport.js', deps: { '../config.js': 'log-config' } },
+      { key: 'log-client-trace', file: 'dist/client/trace.js', deps: { '../core/ids.js': 'log-core-ids', '../core/level.js': 'log-core-level' } },
+      { key: 'log-client-switch-ops', file: 'dist/client/switch-ops.js', deps: { '../core/ids.js': 'log-core-ids' } },
+      { key: 'log-client-forward', file: 'dist/client/forward.js', deps: { '../core/ids.js': 'log-core-ids' } },
+      { key: 'log-client-send', file: 'dist/client/send.js', deps: { '../config.js': 'log-config', '../core/admission.js': 'log-core-admission', './transport.js': 'log-client-transport' } },
+      { key: 'log-client-write', file: 'dist/client/write.js', deps: { '../config.js': 'log-config', '../core/admission.js': 'log-core-admission', '../core/level.js': 'log-core-level', '../core/row.js': 'log-core-row', '../core/trace.js': 'log-core-trace' } },
+      { key: 'log-client', file: 'dist/client.js', deps: { './config.js': 'log-config', './core/ids.js': 'log-core-ids', './core/resident.js': 'log-core-resident', './client/switch-cache.js': 'log-client-switch-cache', './client/trace.js': 'log-client-trace', './client/transport.js': 'log-client-transport', './client/switch-ops.js': 'log-client-switch-ops', './client/forward.js': 'log-client-forward', './client/send.js': 'log-client-send', './client/write.js': 'log-client-write' } },
     ],
   },
   // 更新系统只内联入口件闭包（entry → panel → config/redaction/service/changelog/queue/log-events/bilingual/lang）：
@@ -49,6 +72,7 @@ const INLINE_PACKAGES = [
   // 上游再加文件时构建按“引用未声明即抛”报错，按报错补声明即可。
   // 0.5.5 起新增：panel → log-events（日志事件名单源），entry → bilingual（双语底座）。
   // 0.7.0 起新增：panel → bilingual + lang（面板单语渲染消费字典与语言信号，与入口件同口径）。
+  // 0.18.0 起新增：panel → codes（稳定码单源）+ log/client-queue（面板日志通道，零 Node 依赖）。
   {
     spec: 'dsh-plugin-update/entry',
     pkg: 'dsh-plugin-update',
@@ -62,7 +86,9 @@ const INLINE_PACKAGES = [
       { key: 'upd-log-events', file: 'dist/log-events.js', deps: {} },
       { key: 'upd-lang', file: 'dist/lang.js', deps: {} },
       { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: { './lang.js': 'upd-lang' } },
-      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
+      { key: 'upd-codes', file: 'dist/codes.js', deps: {} },
+      { key: 'upd-log-client-queue', file: 'dist/log/client-queue.js', deps: {} },
+      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang', './codes.js': 'upd-codes', './log/client-queue.js': 'upd-log-client-queue' } },
       { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
     ],
   },
@@ -80,8 +106,12 @@ function inlineModuleFor(key) {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER = [
-  'upd-config', 'upd-redaction', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-panel', 'upd-entry',
-  'log-config', 'log-client',
+  'upd-config', 'upd-redaction', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-codes', 'upd-log-client-queue', 'upd-panel', 'upd-entry',
+  'log-core-level', 'log-core-ids', 'log-core-resident', 'log-core-file-name', 'log-core-row',
+  'log-core-admission', 'log-core-trace', 'log-config-constants', 'log-config-validate',
+  'log-config-event-list', 'log-config-phones', 'log-config-log-names', 'log-config-resolve', 'log-config',
+  'log-client-switch-cache', 'log-client-transport', 'log-client-trace', 'log-client-switch-ops',
+  'log-client-forward', 'log-client-send', 'log-client-write', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'update-tokens', 'float-geometry',
   'channel', 'client',
 ]
@@ -93,6 +123,8 @@ const EXPORT_RE = /^export (function|const) (\w+)/
 // npm 包 dist 的 ESM 形态：多行 import/export 列表，且带 as 别名
 const PKG_ESM_IMPORT_RE = /^[ \t]*import\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 const PKG_ESM_EXPORT_RE = /^[ \t]*export\s*\{([\s\S]*?)\};?/gm
+// 转出形态：`export { A, B as C } from './x.js'`（dsh-log 0.3.x config.js 通篇此形态）——必须先于 EXPORT_RE 处理
+const PKG_ESM_EXPORT_FROM_RE = /^[ \t]*export\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 
 const q = (s) => JSON.stringify(s)
 
@@ -112,18 +144,46 @@ function vendorNamePairs(body) {
 /** npm 包 vendor 模块 → 本 bundle 的 __mods 形态。 */
 function transformPackageModule(text, spec) {
   let out = text
+  // 本模块已绑定的顶层名（import 解构而来）：转出行若重复解构同名会 SyntaxError，只补新增的。
+  const bound = new Set()
   out = out.replace(PKG_ESM_IMPORT_RE, function (all, names, from) {
     const depKey = spec.deps[from]
     if (!depKey) throw new Error('[build] vendor 模块引用了未声明的依赖：' + spec.file + ' -> ' + from)
     // 解构：源名作键、绑定名作值（`{ a: b }`）
-    const binding = vendorNamePairs(names).map((p) => (p.local === p.exported ? p.local : p.local + ': ' + p.exported)).join(', ')
+    const pairs = vendorNamePairs(names)
+    const binding = pairs.map((p) => (p.local === p.exported ? p.local : p.local + ': ' + p.exported)).join(', ')
+    for (const p of pairs) bound.add(p.exported)
     return 'const { ' + binding + ' } = __mods[' + q(depKey) + '];'
+  })
+  // `export { A, B as C } from 'spec'` 转出（dsh-log 0.3.x 的 config.js 通篇此形态）：
+  // 从依赖模块解构，累加进本模块导出（不用覆盖写，同一文件可有多行转出再加自有导出）。
+  out = out.replace(PKG_ESM_EXPORT_FROM_RE, function (all, names, from) {
+    const depKey = spec.deps[from]
+    if (!depKey) throw new Error('[build] vendor 模块引用了未声明的依赖：' + spec.file + ' -> ' + from)
+    const pairs = vendorNamePairs(names)
+    const fresh = pairs.filter((p) => !bound.has(p.exported))
+    for (const p of fresh) bound.add(p.exported)
+    const binding = fresh.map((p) => (p.local === p.exported ? p.local : p.local + ': ' + p.exported)).join(', ')
+    const exposed = pairs.map((p) => p.exported).join(', ')
+    const decl = fresh.length > 0 ? 'const { ' + binding + ' } = __mods[' + q(depKey) + '];\n' : ''
+    return decl + '__mods[' + q(spec.key) + '] = Object.assign(__mods[' + q(spec.key) + '] || {}, { ' + exposed + ' });'
+  })
+  // 行内导出（dsh-log 0.3.x 树状模块的主形态）：去 `export ` 前缀，名字记下来，末尾统一累加进本模块导出。
+  const inlineExported = []
+  out = out.replace(/^export\s+(?:async\s+)?(?:function|const|class|let|var)\s+([A-Za-z0-9_$]+)/gm, function (all, name) {
+    inlineExported.push(name)
+    return all.replace(/^export\s+/, '')
   })
   out = out.replace(PKG_ESM_EXPORT_RE, function (all, names) {
     // 对象字面量：导出名作键、本地名作值（`{ 导出名: 本地名 }`）
     const binding = vendorNamePairs(names).map((p) => (p.local === p.exported ? p.local : p.exported + ': ' + p.local)).join(', ')
     return '__mods[' + q(spec.key) + '] = { ' + binding + ' };'
   })
+  if (inlineExported.length > 0) {
+    out += '\n__mods[' + q(spec.key) + '] = Object.assign(__mods[' + q(spec.key) + '] || {}, { ' + inlineExported.join(', ') + ' });'
+  }
+  // 兜底：还有以 export 开头的行说明来了新形态（export default / export * 等），大声报错而不是静默丢符号。
+  if (/^[ \t]*export[\s{]/m.test(out)) throw new Error('[build] vendor 模块有未处理的 export 形态：' + spec.file)
   return '(function () {\n' + out + '\n})();'
 }
 
@@ -279,12 +339,12 @@ async function main() {
     repository: { type: 'git', url: 'git+https://github.com/FeatherHunter/dsh-opencode-palette.git' },
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
-    // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按范围取。
-    // 更新系统用 `^0.13.0`：0.13.x 的补丁用户自动跟上；上游发 0.14.0/1.x 就必须我们改范围重发（check-deps 负责提醒）。
+    // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
+    // 两处都用精确钉版（0.3.4 / 0.18.0）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.mjs` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.13.0' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.0' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

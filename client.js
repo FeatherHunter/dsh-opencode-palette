@@ -73,14 +73,19 @@ function resolveUpdateConfig(input) {
   }
   return { pluginId, prefix, targetPackageName, registryUrl, homeDir, checkTimeoutMs, confirmationTtlMs, installTimeoutMs, panelPollMs, releaseChannel };
 }
+const LOG_APPEND_ACTION = "logAppend";
 function buildPhoneNames(prefix) {
   const checked = assertPrefix(prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix");
   return {
     updateStatus: checked + ".updateStatus",
     updateCheck: checked + ".updateCheck",
     updateInstall: checked + ".updateInstall",
-    updateChangelog: checked + ".updateChangelog"
+    updateChangelog: checked + ".updateChangelog",
+    logAppend: checked + "." + LOG_APPEND_ACTION
   };
+}
+function buildLogAppendPhoneName(prefix) {
+  return buildPhoneNames(prefix).logAppend;
 }
 function buildChangelogPhoneName(prefix) {
   return buildPhoneNames(prefix).updateChangelog;
@@ -88,7 +93,7 @@ function buildChangelogPhoneName(prefix) {
 function buildPhoneName(prefix, action) {
   return buildPhoneNames(prefix)[action];
 }
-__mods["upd-config"] = { BACKUP_FILE, CHANGELOG_PHONE_ACTION, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, RELEASE_CHANNELS, SKIPPED_FILE, STATE_FILE, assertPluginId, assertPrefix, buildChangelogPhoneName, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
+__mods["upd-config"] = { BACKUP_FILE, CHANGELOG_PHONE_ACTION, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, LOG_APPEND_ACTION, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, RELEASE_CHANNELS, SKIPPED_FILE, STATE_FILE, assertPluginId, assertPrefix, buildChangelogPhoneName, buildLogAppendPhoneName, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
 
 })();
 (function () {
@@ -291,6 +296,25 @@ const CONFIRMATION_TTL_MS = 10 * 6e4;
 const RECHECK_WINDOW_MS = 2e3;
 const MAX_METADATA_BYTES = 256 * 1024;
 const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";
+function stageOfError(error) {
+  const stage = error?.stage;
+  if (stage === "fetch" || stage === "compare" || stage === "channel" || stage === "verify") return stage;
+  return error?.code === "check-failed" ? "fetch" : "verify";
+}
+function stableCodeOf(error) {
+  const code = error?.code;
+  return typeof code === "string" && code ? code : "internal";
+}
+function httpStatusOfError(error) {
+  const status = error?.httpStatus;
+  return typeof status === "number" && Number.isInteger(status) ? status : null;
+}
+function installSourceOf(value) {
+  return value === "entry" || value === "batch" ? value : "panel";
+}
+function triggerOf(value) {
+  return value === "auto" || value === "user" || value === "batch" || value === "entry" ? value : null;
+}
 function validRequestId(v) {
   if (typeof v !== "string") return false;
   const id = v.trim();
@@ -465,13 +489,40 @@ function checkFailedWithStatus(response) {
   const err = updateError("check-failed");
   const status = httpStatusOf(response);
   if (status !== null) err.httpStatus = status;
+  err.stage = "fetch";
   return err;
+}
+function withStage(error, stage) {
+  try {
+    ;
+    error.stage = stage;
+  } catch {
+  }
+  return error;
+}
+function makeFetchNoter(emitLog, registryHost) {
+  const port = typeof emitLog === "function" ? emitLog : null;
+  const host = typeof registryHost === "string" && registryHost ? registryHost : null;
+  if (!port) return () => {
+  };
+  return (httpStatus, startedAt) => {
+    try {
+      port("info", "update.registry.fetch", {
+        ...httpStatus === null ? {} : { httpStatus },
+        latencyMs: Math.max(0, Date.now() - startedAt),
+        ...host ? { registryHost: host } : {}
+      });
+    } catch {
+    }
+  };
 }
 async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
   const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
   const registry = opts?.registryUrl ?? NPM_REGISTRY;
   const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
   let response = null;
+  const startedAt = Date.now();
   try {
     response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}/latest`, {
       headers: { accept: "application/json" },
@@ -479,8 +530,10 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
       signal: timeoutSignal(timeoutMs)
     });
   } catch {
+    noteFetch(null, startedAt);
     throw updateError("check-failed");
   }
+  noteFetch(httpStatusOf(response), startedAt);
   try {
     if (!response.ok) throw checkFailedWithStatus(response);
     const declared = Number(response.headers.get("content-length"));
@@ -488,7 +541,10 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
     const text = await response.text();
     if (byteLength(text) > MAX_METADATA_BYTES) throw updateError("invalid-release");
     const value = JSON.parse(text);
-    if (value.name !== targetName || !isVersionAllowedInChannel(value.version, channel)) throw updateError("invalid-release");
+    if (value.name !== targetName) throw updateError("invalid-release");
+    if (!isVersionAllowedInChannel(value.version, channel)) {
+      throw withStage(updateError("invalid-release"), "channel");
+    }
     const version = value.version;
     const nodeRange = value.engines?.node;
     if (nodeRange !== void 0 && typeof nodeRange !== "string") throw updateError("invalid-release");
@@ -516,10 +572,12 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
   const registry = opts?.registryUrl ?? NPM_REGISTRY;
   const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
   const version = opts?.version;
+  const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
   if (typeof version !== "string" || !validReleaseVersion(version) || !isVersionAllowedInChannel(version, channel)) {
-    throw updateError("invalid-release");
+    throw withStage(updateError("invalid-release"), "channel");
   }
   let response = null;
+  const startedAt = Date.now();
   try {
     response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}/${encodeURIComponent(version)}`, {
       headers: { accept: "application/json" },
@@ -527,8 +585,10 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
       signal: timeoutSignal(timeoutMs)
     });
   } catch {
+    noteFetch(null, startedAt);
     throw updateError("check-failed");
   }
+  noteFetch(httpStatusOf(response), startedAt);
   try {
     if (!response.ok) throw checkFailedWithStatus(response);
     const declared = Number(response.headers.get("content-length"));
@@ -536,8 +596,9 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
     const text = await response.text();
     if (byteLength(text) > MAX_METADATA_BYTES) throw updateError("invalid-release");
     const value = JSON.parse(text);
-    if (value.name !== targetName || value.version !== version || !isVersionAllowedInChannel(value.version, channel)) {
-      throw updateError("invalid-release");
+    if (value.name !== targetName || value.version !== version) throw updateError("invalid-release");
+    if (!isVersionAllowedInChannel(value.version, channel)) {
+      throw withStage(updateError("invalid-release"), "channel");
     }
     const nodeRange = value.engines?.node;
     if (nodeRange !== void 0 && typeof nodeRange !== "string") throw updateError("invalid-release");
@@ -566,13 +627,29 @@ function createUpdateCore(ports) {
   const targetPackageName = ports.targetPackageName ?? PACKAGE_NAME;
   const registryUrl = ports.registryUrl ?? NPM_REGISTRY;
   const releaseChannel = ports.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  const logPort = typeof ports.emitLog === "function" ? ports.emitLog : null;
+  const registryHost = typeof ports.registryHost === "string" && ports.registryHost ? ports.registryHost : null;
+  function emit(level, event, fields, opts) {
+    if (!logPort) return;
+    try {
+      logPort(level, event, fields, opts);
+    } catch {
+    }
+  }
   function fetchRelease() {
-    return fetchNpmRelease(ports.fetchImpl, checkTimeoutMs, { targetPackageName, registryUrl, releaseChannel });
+    return fetchNpmRelease(ports.fetchImpl, checkTimeoutMs, {
+      targetPackageName,
+      registryUrl,
+      releaseChannel,
+      emitLog: logPort ?? void 0,
+      registryHost
+    });
   }
   let checked = null;
   let checking = null;
   let lastCheckAt = -Infinity;
   let activeJobId = null;
+  const notedInterruptions = /* @__PURE__ */ new Set();
   let memJob = null;
   let memLock = null;
   async function loadJob() {
@@ -622,7 +699,11 @@ function createUpdateCore(ports) {
     return job;
   }
   function buildSnapshot(env, job) {
-    let blockedReason = env.blockedReason ?? checked?.blockedReason ?? null;
+    const present = env.installed !== false;
+    let blockedReason = present ? env.blockedReason ?? checked?.blockedReason ?? null : env.blockedReason ?? null;
+    if (!present && blockedReason === null && checked?.release) {
+      if (!isVersionAllowedInChannel(checked.release.version, releaseChannel)) blockedReason = "channel-mismatch";
+    }
     if (job?.state === "interrupted" || job?.state === "failed") {
       if (env.installedVersion !== ports.readRunningVersion()) blockedReason = "recovery-required";
     } else if (job?.state === "restart-required" || env.installedVersion && env.installedVersion !== ports.readRunningVersion()) {
@@ -632,22 +713,62 @@ function createUpdateCore(ports) {
     const fresh = checked !== null && checked.checkId !== null && ports.now() < checked.expiresAt;
     const runningVersion = ports.readRunningVersion();
     let newer = false;
+    let remoteOk = false;
     try {
-      newer = isVersionAllowedInChannel(runningVersion, releaseChannel) && !!checked?.release && isVersionAllowedInChannel(checked.release.version, releaseChannel) && compareReleaseVersions(checked.release.version, runningVersion) === 1;
+      if (present) {
+        newer = isVersionAllowedInChannel(runningVersion, releaseChannel) && !!checked?.release && isVersionAllowedInChannel(checked.release.version, releaseChannel) && compareReleaseVersions(checked.release.version, runningVersion) === 1;
+      } else if (checked?.release) {
+        remoteOk = isVersionAllowedInChannel(checked.release.version, releaseChannel);
+      }
     } catch {
       newer = false;
+      remoteOk = false;
     }
     const canInstall = Boolean(
-      env.eligible && !blockedReason && !busy && fresh && checked?.installationKey === env.installationKey && newer
+      env.eligible && !blockedReason && !busy && fresh && checked?.installationKey === env.installationKey && (present ? newer : remoteOk)
     );
-    return {
+    const snapshot = {
       runningVersion,
+      installed: present,
       installedVersion: env.installedVersion ?? null,
       latestVersion: checked?.release.version ?? null,
       canInstall,
       blockedReason,
       job
     };
+    noteStatusChanged(snapshot);
+    return snapshot;
+  }
+  function statusKindOf(snapshot) {
+    if (!snapshot.latestVersion) return "unknown";
+    if (snapshot.installed === false) return "update-available";
+    try {
+      const newer = isVersionAllowedInChannel(snapshot.runningVersion, releaseChannel) && isVersionAllowedInChannel(snapshot.latestVersion, releaseChannel) && compareReleaseVersions(snapshot.latestVersion, snapshot.runningVersion) === 1;
+      return newer ? "update-available" : "up-to-date";
+    } catch {
+      return "unknown";
+    }
+  }
+  let lastStatusKind = null;
+  function noteStatusChanged(snapshot) {
+    const kind = statusKindOf(snapshot);
+    if (kind === lastStatusKind) return;
+    lastStatusKind = kind;
+    emit(
+      "info",
+      "update.status.changed",
+      { kind, ...snapshot.latestVersion ? { latest: snapshot.latestVersion } : {} },
+      { always: true }
+    );
+  }
+  function noteChannelDecision(current, latest) {
+    const shapeOk = validVersion(current) && validVersion(latest);
+    let reason;
+    if (!shapeOk) reason = "invalid";
+    else if (!isVersionAllowedInChannel(current, releaseChannel) || !isVersionAllowedInChannel(latest, releaseChannel)) {
+      reason = "mismatch";
+    } else reason = releaseChannel === "prerelease" ? "prerelease" : "stable";
+    emit("info", "update.channel.decide", { channel: releaseChannel, reason, from: current, to: latest });
   }
   function jobsEqual(a, b) {
     if (a === b) return true;
@@ -662,15 +783,26 @@ function createUpdateCore(ports) {
         await saveJob(healed);
       } catch {
       }
+      if (healed && healed.state === "interrupted" && loaded && loaded.state !== "interrupted" && !notedInterruptions.has(healed.id)) {
+        notedInterruptions.add(healed.id);
+        emit("info", "update.install.verify", {
+          result: "interrupted",
+          ...env.installedVersion ? { installedVersion: env.installedVersion } : {},
+          pendingRestart: false
+        });
+      }
     }
     return healed;
   }
   async function status() {
+    const t0 = Date.now();
     const env = await ports.readInstalled();
     const job = await healedJob(env);
-    return buildSnapshot(env, job);
+    const snapshot = buildSnapshot(env, job);
+    emit("info", "update.poll", { state: statusKindOf(snapshot), latencyMs: Math.max(0, Date.now() - t0) });
+    return snapshot;
   }
-  async function check() {
+  async function check(trigger) {
     if (checking) return checking;
     if (checked?.checkId && ports.now() - lastCheckAt < RECHECK_WINDOW_MS) {
       const env = await ports.readInstalled();
@@ -678,6 +810,14 @@ function createUpdateCore(ports) {
       return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
     }
     lastCheckAt = ports.now();
+    const startedAt = Date.now();
+    const askedBy = triggerOf(trigger);
+    if (askedBy) {
+      emit("info", "update.check.start", {
+        trigger: askedBy,
+        ...registryHost ? { source: registryHost } : {}
+      });
+    }
     checking = (async () => {
       try {
         const env = await ports.readInstalled();
@@ -691,9 +831,24 @@ function createUpdateCore(ports) {
           blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? null : "incompatible-node"
         };
         const snapshot = buildSnapshot(env, await healedJob(env));
+        noteChannelDecision(snapshot.runningVersion, release2.version);
+        emit("info", "update.check.done", {
+          ok: true,
+          current: snapshot.runningVersion,
+          latest: release2.version,
+          channel: releaseChannel,
+          ...registryHost ? { source: registryHost } : {},
+          latencyMs: Math.max(0, Date.now() - startedAt)
+        });
         return { snapshot, receipt: snapshot.canInstall ? toReceipt() : null };
       } catch (error) {
         if (checked) checked = { ...checked, checkId: null, expiresAt: 0 };
+        const httpStatus = httpStatusOfError(error);
+        emit("warn", "update.check.fail", {
+          stage: stageOfError(error),
+          errorKind: stableCodeOf(error),
+          ...httpStatus === null ? {} : { httpStatus }
+        });
         throw error;
       } finally {
         checking = null;
@@ -706,6 +861,7 @@ function createUpdateCore(ports) {
     return { checkId: checked.checkId, checkedAt: checked.checkedAt, expiresAt: checked.expiresAt };
   }
   async function runBackground(job, envAtStart) {
+    let verifiedEnv = null;
     try {
       if (ports.runInstall) await ports.runInstall({ version: job.targetVersion, profileName: envAtStart.profileName, environmentKind: envAtStart.environmentKind, releaseChannel });
       else throw updateError("unsupported");
@@ -713,6 +869,7 @@ function createUpdateCore(ports) {
       activeJobId = doing.id;
       await saveJob(doing);
       const env = await ports.readInstalled();
+      verifiedEnv = env;
       if (env.installedVersion !== job.targetVersion) {
         throw Object.assign(updateError("install-failed"), {
           detail: `\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1A\u78C1\u76D8\u4E0A\u662F ${env.installedVersion ?? "\u672A\u77E5"}\uFF0C\u76EE\u6807\u662F ${job.targetVersion ?? "\u672A\u77E5"}`
@@ -723,6 +880,12 @@ function createUpdateCore(ports) {
       }
       const done = { ...doing, state: "restart-required", message: null };
       await saveJob(done);
+      const pendingRestart = ports.readRunningVersion() !== job.targetVersion;
+      emit("info", "update.install.verify", {
+        result: pendingRestart ? "restart-required" : "completed",
+        ...env.installedVersion ? { installedVersion: env.installedVersion } : {},
+        pendingRestart
+      });
     } catch (error) {
       const code = error?.code;
       const base = code === "installation-changed" || code === "registry-conflict" || code === "install-failed" ? String(code) : "install-failed";
@@ -734,6 +897,11 @@ function createUpdateCore(ports) {
       } catch {
         memJob = failedJob;
       }
+      emit("info", "update.install.verify", {
+        result: "failed",
+        ...verifiedEnv?.installedVersion ? { installedVersion: verifiedEnv.installedVersion } : {},
+        pendingRestart: false
+      });
     } finally {
       await release(job.id);
       if (activeJobId === job.id) activeJobId = null;
@@ -753,9 +921,17 @@ function createUpdateCore(ports) {
       throw updateError("check-expired");
     }
     if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
-    if (!buildSnapshot(env, previous).canInstall) {
+    const snap = buildSnapshot(env, previous);
+    if (!snap.canInstall) {
+      if (!snap.installed) throw updateError(snap.blockedReason ?? checked.blockedReason ?? "check-expired");
       throw updateError(env.blockedReason ?? checked.blockedReason ?? "update-busy");
     }
+    emit("info", "update.install.request", {
+      from: installSourceOf(args?.from),
+      current: ports.readRunningVersion(),
+      latest: checked.release.version,
+      checkAgeMs: Math.max(0, ports.now() - checked.checkedAt)
+    });
     const job = {
       id: ports.randomId(),
       state: "installing",
@@ -823,26 +999,46 @@ function readNavigatorLangs() {
     return [];
   }
 }
-function resolveLang(override) {
+function overrideTagOf(override) {
   if (override !== null && typeof override === "object") {
     try {
       const fn = override.getActive;
       if (typeof fn === "function") {
         const v = fn.call(override);
-        if (typeof v === "string" && v.trim()) return normalizeLangTag(v);
+        if (typeof v === "string" && v.trim()) return v;
       }
     } catch {
     }
-  } else if (typeof override === "string" && override.trim()) {
-    return normalizeLangTag(override);
+    return null;
   }
-  const docLang = readDocumentLang();
-  if (docLang !== null) return normalizeLangTag(docLang);
-  const navs = readNavigatorLangs();
-  for (const c of navs) {
-    return normalizeLangTag(c);
+  if (typeof override === "string" && override.trim()) return override;
+  return null;
+}
+function langSignalSource(override) {
+  if (overrideTagOf(override) !== null) return "override";
+  if (readDocumentLang() !== null) return "dom";
+  if (readNavigatorLangs().length > 0) return "navigator";
+  return "default";
+}
+function resolveLang(override) {
+  switch (langSignalSource(override)) {
+    case "override": {
+      const tag = overrideTagOf(override);
+      return tag === null ? "zh" : normalizeLangTag(tag);
+    }
+    case "dom": {
+      const docLang = readDocumentLang();
+      return docLang === null ? "zh" : normalizeLangTag(docLang);
+    }
+    case "navigator": {
+      for (const c of readNavigatorLangs()) {
+        return normalizeLangTag(c);
+      }
+      return "zh";
+    }
+    default:
+      return "zh";
   }
-  return "zh";
 }
 const entries = /* @__PURE__ */ new Set();
 let mo = null;
@@ -931,7 +1127,7 @@ function __resetLangState() {
   }
   mo = null;
 }
-__mods["upd-lang"] = { __resetLangState, normalizeLangTag, resolveLang, subscribeLang };
+__mods["upd-lang"] = { __resetLangState, langSignalSource, normalizeLangTag, resolveLang, subscribeLang };
 
 })();
 (function () {
@@ -1018,6 +1214,7 @@ const BILINGUAL_STRINGS = {
   "panel.banner.update-action": { en: "Install runs the exact version; only one install runs per scope at a time.", zh: "\u9009\u62E9\u5B89\u88C5\u5C06\u6309\u7CBE\u786E\u7248\u672C\u5B89\u88C5\uFF1B\u540C\u4E00\u4F7F\u7528\u8303\u56F4\u540C\u65F6\u4EC5\u5B89\u88C5\u4E00\u9879\u3002", draft: true },
   "panel.action.install-version": { en: "Install {latest}", zh: "\u5B89\u88C5\u7248\u672C {latest}", draft: true },
   "panel.banner.done": { en: "Up to date. No update needed.", zh: "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002", draft: true },
+  "panel.banner.not-installed": { en: "Not installed", zh: "\u672A\u5B89\u88C5", draft: true },
   "panel.toast.checking": { en: "Checking for updates\u2026", zh: "\u6B63\u5728\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u2026", draft: true },
   "panel.toast.installing": { en: "Installing\u2026", zh: "\u6B63\u5728\u5B89\u88C5\u2026", draft: true },
   "panel.toast.copy-manual-ok": { en: "Manual command copied; paste the full line into the terminal to run it.", zh: "\u624B\u5DE5\u547D\u4EE4\u5DF2\u590D\u5236\uFF0C\u8BF7\u7C98\u8D34\u81F3\u7EC8\u7AEF\u6574\u884C\u6267\u884C\u3002", draft: true },
@@ -1097,7 +1294,7 @@ const BILINGUAL_STRINGS = {
   "panel.error.evidence-frozen": { en: "Evidence frozen: the code, versions, and IDs in copied diagnostics are from the failure moment and do not refresh with polling; the next check or install will update them.", zh: "\u8BC1\u636E\u5DF2\u51BB\u7ED3\uFF1A\u590D\u5236\u8BCA\u65AD\u4E2D\u7684\u7A33\u5B9A\u7801\u3001\u7248\u672C\u4E0E\u7F16\u53F7\u5747\u53D6\u81EA\u5931\u8D25\u65F6\u523B\uFF0C\u4E0D\u968F\u8F6E\u8BE2\u5237\u65B0\uFF1B\u4E0B\u6B21\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u6216\u5B89\u88C5\u5C06\u66F4\u65B0\u3002", draft: true },
   "panel.error.evidence-transient": { en: "Transient read failure: it clears on the next successful read; if it persists, troubleshoot by stable code.", zh: "\u77AC\u6001\u8BFB\u53D6\u5931\u8D25\uFF1A\u4E0B\u6B21\u6210\u529F\u8BFB\u53D6\u5C06\u81EA\u52A8\u89E3\u9664\uFF1B\u82E5\u6301\u7EED\u51FA\u73B0\uFF0C\u8BF7\u6309\u7A33\u5B9A\u7801\u6392\u67E5\u3002", draft: true },
   "panel.error.no-failure": { en: "No failure: copying diagnostics gives the current state snapshot.", zh: "\u6682\u65E0\u5931\u8D25\uFF1A\u6B64\u65F6\u590D\u5236\u8BCA\u65AD\u63D0\u4F9B\u7684\u662F\u5F53\u524D\u72B6\u6001\u5FEB\u7167\u3002", draft: true },
-  "panel.error.log-hint": { en: "Check logs: filter by plugin ID {pluginId} for events {e1}, {e2}, {e3}.", zh: "\u8BF7\u67E5\u770B\u65E5\u5FD7\uFF1A\u6309\u63D2\u4EF6\u6807\u8BC6 {pluginId} \u7B5B\u9009 {e1}\u3001{e2}\u3001{e3} \u4E8B\u4EF6\u3002", draft: true },
+  "panel.error.log-hint": { en: "Check logs: {dir} (one directory per plugin, no overlap). Read them with {cmd}; filter by plugin ID {pluginId} for events {e1}, {e2}, {e3}.", zh: "\u8BF7\u67E5\u770B\u65E5\u5FD7\uFF1A{dir}\uFF08\u4E00\u4E2A\u63D2\u4EF6\u4E00\u68F5\u76EE\u5F55\uFF0C\u4E92\u4E0D\u8986\u76D6\uFF09\u3002\u4E00\u6761\u547D\u4EE4\u770B\uFF1A{cmd}\uFF1B\u6309\u63D2\u4EF6\u6807\u8BC6 {pluginId} \u7B5B\u9009 {e1}\u3001{e2}\u3001{e3} \u4E8B\u4EF6\u3002", draft: true },
   "panel.error.log-follow": { en: "Match the request/check IDs above in {eFail}; baseline timing in {eCall}, execution result in {eExec}.", zh: "\u51ED\u4E0A\u65B9\u8BF7\u6C42\uFF0F\u68C0\u67E5\u7F16\u53F7\u5728 {eFail} \u4E2D\u5339\u914D\uFF1B\u57FA\u7EBF\u8017\u65F6\u8BF7\u67E5\u770B {eCall}\uFF0C\u6267\u884C\u7ED3\u679C\u8BF7\u67E5\u770B {eExec}\u3002", draft: true },
   "panel.manual.heading": { en: "Manual fallback command (copy the full line to run):", zh: "\u624B\u5DE5\u5907\u7528\u547D\u4EE4\uFF08\u8BF7\u590D\u5236\u6574\u884C\u6267\u884C\uFF09\uFF1A", draft: true },
   "panel.manual.absent": { en: "No manual command available (unrecognized scope or source install).", zh: "\u5F53\u524D\u6CA1\u6709\u53EF\u7528\u7684\u624B\u5DE5\u547D\u4EE4\uFF08\u4F7F\u7528\u8303\u56F4\u65E0\u6CD5\u8BC6\u522B\u6216\u6E90\u7801\u5B89\u88C5\u573A\u666F\u4E0D\u63D0\u4F9B\uFF09\u3002", draft: true },
@@ -1150,6 +1347,7 @@ const BILINGUAL_STRINGS = {
   "batch.row.current": { en: "Up to date", zh: "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u64CD\u4F5C\u3002", draft: true },
   "batch.row.never": { en: "Not checked yet", zh: "\u5C1A\u672A\u67E5\u8BE2", draft: true },
   "batch.row.failed": { en: "Last check failed", zh: "\u672C\u6B21\u672A\u80FD\u67E5\u8BE2", draft: true },
+  "batch.row.not-installed": { en: "Not installed", zh: "\u672A\u5B89\u88C5", draft: true },
   "batch.notice.auto-resumed": { en: "Auto-continued the unfinished batch ({count} left).", zh: "\u5DF2\u81EA\u52A8\u7EE7\u7EED\u4E0A\u6B21\u672A\u5B8C\u6210\u7684\u66F4\u65B0\uFF08\u5269\u4F59 {count} \u4E2A\uFF09\u3002", draft: true },
   "batch.notice.resumed": { en: "Continued the unfinished batch ({count} left).", zh: "\u5DF2\u7EE7\u7EED\u4E0A\u6B21\u672A\u5B8C\u6210\u7684\u66F4\u65B0\uFF08\u5269\u4F59 {count} \u4E2A\uFF09\u3002", draft: true },
   "batch.notice.no-resume": { en: "Nothing to continue.", zh: "\u6682\u65E0\u53EF\u7EE7\u7EED\u7684\u5185\u5BB9\u3002", draft: true },
@@ -1237,6 +1435,8 @@ const BILINGUAL_STRINGS = {
   "changelog.breaking.badge": { en: "Breaking", zh: "\u4E0D\u517C\u5BB9", draft: true },
   "changelog.breaking.aria": { en: "Breaking change", zh: "\u7834\u574F\u6027\u53D8\u66F4", draft: true },
   "changelog.truncated.count": { en: "Showing {n} of {m} items", zh: "\u5171 {m} \u6761\uFF0C\u4EC5\u663E\u793A\u524D {n} \u6761", draft: true },
+  "changelog.truncated.file": { en: "This log is larger than 64 KiB; only the first part is rendered.", zh: "\u65E5\u5FD7\u8FC7\u957F\uFF0C\u8D85\u51FA\u4E0A\u9650\u7684\u90E8\u5206\u6CA1\u6709\u6E32\u67D3\u3002", draft: true },
+  "changelog.truncated.versions": { en: "{n} more versions are hidden.", zh: "\u5176\u540E\u8FD8\u6709 {n} \u4E2A\u7248\u672C\u672A\u663E\u793A\u3002", draft: true },
   "changelog.yanked.banner": { en: "Version {version} was yanked by the author. Install is not affected. Please confirm before proceeding.", zh: "\u76EE\u6807\u7248\u672C {version} \u5DF2\u88AB\u4F5C\u8005\u64A4\u56DE\uFF08yanked\uFF09\uFF0C\u5B89\u88C5\u4E0D\u53D7\u5F71\u54CD\uFF0C\u7EE7\u7EED\u524D\u8BF7\u786E\u8BA4\u3002", draft: true },
   "changelog.yanked.suffix": { en: " \xB7 Yanked", zh: " \xB7 \u5DF2\u64A4\u56DE", draft: true },
   "changelog.security.summary": { en: "{n} more items", zh: "\u5176\u4F59 {n} \u6761", draft: true },
@@ -1256,7 +1456,8 @@ const BILINGUAL_STRINGS = {
   "diag.fallback.pending-restart": { en: "New version is on disk. The running version is still the old one.", zh: "\u65B0\u7248\u672C\u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u5F53\u524D\u8FD0\u884C\u4ECD\u4E3A\u65E7\u7248\u672C", draft: true },
   "diag.fallback.incompatible-node": { en: "New version needs a different Node version than the running one", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
   "diag.fallback.registry-conflict": { en: "Declared version conflicts with the on-disk version", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
-  "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true }
+  "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
+  "install-button.action.installed": { en: "Installed", zh: "\u5DF2\u5B89\u88C5", draft: true }
 };
 function escapeHtml(value) {
   return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -1316,6 +1517,7 @@ const CHANGELOG_MAX_CHARS = 64 * 1024;
 const CHANGELOG_MAX_ENTRIES = 100;
 const CHANGELOG_MAX_BULLETS_PER_SECTION = 200;
 const CHANGELOG_MAX_BULLET_CHARS = 500;
+const CHANGELOG_MAX_ENTRY_DEPTH = 3;
 const CHANGELOG_ALL_CATEGORIES = [
   "Added",
   "Fixed",
@@ -1334,6 +1536,27 @@ const CHANGELOG_CATEGORY_ZH = {
   Removed: "\u79FB\u9664",
   Security: "\u5B89\u5168"
 };
+const CHANGELOG_CATEGORY_ALIASES = {
+  "bug fixes": "Fixed",
+  fixes: "Fixed",
+  fix: "Fixed",
+  "bug fix": "Fixed",
+  features: "Added",
+  feature: "Added",
+  feat: "Added",
+  "security fixes": "Security",
+  "security fix": "Security",
+  deprecations: "Deprecated",
+  removals: "Removed",
+  \u4FEE\u590D: "Fixed",
+  \u65B0\u589E: "Added",
+  \u7279\u6027: "Added",
+  \u53D8\u66F4: "Changed",
+  \u6539\u52A8: "Changed",
+  \u79FB\u9664: "Removed",
+  \u5F03\u7528: "Deprecated",
+  \u5B89\u5168: "Security"
+};
 function emptySections() {
   return { Added: [], Fixed: [], Changed: [], Deprecated: [], Removed: [], Security: [] };
 }
@@ -1351,10 +1574,26 @@ function normalizeCategory(raw) {
   if (t === "deprecated") return "Deprecated";
   if (t === "removed") return "Removed";
   if (t === "security") return "Security";
+  const alias = CHANGELOG_CATEGORY_ALIASES[t];
+  if (alias) return alias;
   for (const k of CHANGELOG_ALL_CATEGORIES) {
     if (t === CHANGELOG_CATEGORY_ZH[k]) return k;
   }
   return null;
+}
+function normalizeCategoryMulti(raw) {
+  const t = String(raw || "").trim();
+  if (!t) return null;
+  const parts = t.split(/[/|·、,，;；+]/).map((s) => s.trim()).filter((s) => !!s);
+  if (parts.length <= 1) return normalizeCategory(t);
+  let acc = null;
+  for (const part of parts) {
+    const cat = normalizeCategory(part);
+    if (!cat) return null;
+    if (acc === null) acc = cat;
+    else if (acc !== cat) return null;
+  }
+  return acc;
 }
 function isUnreleasedVersion(v) {
   return typeof v === "string" && v.trim().toLowerCase() === "unreleased";
@@ -1364,7 +1603,7 @@ function extractVersionDateAndYanked(title) {
   if (!t) return { version: null, date: null, yanked: false };
   const yanked = /\[YANKED\]/i.test(t);
   if (/unreleased/i.test(t)) return { version: "Unreleased", date: null, yanked };
-  const vm = t.match(/(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/);
+  const vm = t.match(RE_VERSION_TOKEN);
   if (!vm) return { version: null, date: null, yanked: false };
   const dm = t.match(/(\d{4}-\d{2}-\d{2})/);
   return { version: vm[1], date: dm ? dm[1] : null, yanked };
@@ -1375,6 +1614,47 @@ function truncateBullet(text) {
   if (t.length <= CHANGELOG_MAX_BULLET_CHARS) return t;
   return `${t.slice(0, CHANGELOG_MAX_BULLET_CHARS - 1)}\u2026`;
 }
+function indentLevel(line) {
+  const raw = (String(line || "").match(/^[ \t]*/) || [""])[0];
+  let n = 0;
+  for (const ch of raw) n += ch === "	" ? 2 : 1;
+  return Math.min(CHANGELOG_MAX_ENTRY_DEPTH, Math.floor(n / 2));
+}
+function matchOrderedBody(line) {
+  const m = String(line || "").match(/^\s*\d{1,9}[.)]\s+(.+?)\s*$/);
+  return m ? String(m[1] !== void 0 && m[1] !== null ? m[1] : "") : null;
+}
+function truncateEntryLines(lines, ledger) {
+  const out = [];
+  let truncated = false;
+  for (const raw of lines) {
+    const line = String(raw === null || raw === void 0 ? "" : raw).replace(/[ \t]+$/, "");
+    if (!line) continue;
+    const next = out.length > 0 ? out.join("\n") + "\n" + line : line;
+    if (next.length <= CHANGELOG_MAX_BULLET_CHARS) {
+      out.push(line);
+      continue;
+    }
+    truncated = true;
+    break;
+  }
+  const text = out.join("\n");
+  if (!truncated) return text;
+  if (ledger) ledger.items += 1;
+  if (text.length < CHANGELOG_MAX_BULLET_CHARS) return text + "\u2026";
+  return text.slice(0, CHANGELOG_MAX_BULLET_CHARS - 1) + "\u2026";
+}
+function bufEndsWithItem(lines) {
+  const last = Array.isArray(lines) && lines.length > 0 ? String(lines[lines.length - 1] || "") : "";
+  if (!last) return false;
+  if (RE_FENCE_TOGGLE.test(last)) return true;
+  return /^[ \t]*(?:[-*+]|\d{1,9}[.)])\s+/.test(last);
+}
+function canonicalNestedItem(line, level, body) {
+  const m = String(line || "").match(/^[ \t]*(?:([-*+])|(\d{1,9}[.)]))\s+/);
+  const marker = m && m[2] ? m[2] : m && m[1] ? m[1] : "-";
+  return "  ".repeat(Math.max(1, level)) + marker + " " + String(body || "").replace(/\s+/g, " ").trim();
+}
 const RE_VERSION_HEADING = /^##(?!#)\s*(.+?)\s*$/;
 const RE_CATEGORY_HEADING = /^###\s*(.+?)\s*$/;
 const RE_BULLET = /^\s*[-*+]\s+(.+?)\s*$/;
@@ -1383,6 +1663,41 @@ const RE_VERSION_NUM = /(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)/;
 const RE_VERSION_DATE = /(\d{4}-\d{2}-\d{2})/;
 const RE_YANKED = /\[YANKED\]/i;
 const RE_UNRELEASED = /unreleased/i;
+const RE_VERSION_TOKEN = /(\d+\.\d+(?:\.\d+)*(?:-[0-9A-Za-z.-]+)?)/;
+function isPlainVersionTitle(text) {
+  const t = String(text || "").trim();
+  if (!t) return false;
+  if (!/(?:^|[^\d.])v?\d+\.\d+(?![\d.])/.test(t)) return false;
+  const core = t.replace(/\[YANKED\]/gi, " ").replace(/\[([^\]]*)\]\([^)]*\)/g, " ").replace(/\([^)]*\)/g, " ").replace(/（[^）]*）/g, " ").replace(/\d{4}-\d{2}-\d{2}/g, " ").replace(/[\[\]()（）【】]/g, " ").replace(/^[\s#>*_\-\u2014\u2013:：|]+/, "").replace(/[\s#>*_\-\u2014\u2013:：|]+$/, "").trim();
+  return /^v?\d+\.\d+$/.test(core);
+}
+function isVersionIshWithoutNumber(text) {
+  const t = String(text !== null && text !== void 0 ? text : "").trim();
+  if (!t) return false;
+  if (extractVersionDateAndYanked(t).version) return false;
+  return /^\s*v?\d+\s*(?:$|[\u2014\u2013\-(（])/.test(t);
+}
+function isSetextTextCandidate(line) {
+  const t = String(line === null || line === void 0 ? "" : line);
+  if (!t.trim()) return false;
+  if (/^[ \t]/.test(t)) return false;
+  if (/^\s{0,3}#{1,6}\s/.test(t)) return false;
+  if (/^\s*(?:[-*+]|\d{1,9}[.)])\s+/.test(t)) return false;
+  if (/^\s*>/.test(t)) return false;
+  if (/^\s*\|/.test(t)) return false;
+  if (isFenceToggle(t)) return false;
+  return true;
+}
+function normalizeSetextHeadings(lines) {
+  const out = lines.map((l) => String(l === null || l === void 0 ? "" : l));
+  for (let i = 0; i + 1 < out.length; i++) {
+    const m = out[i + 1].match(/^ {0,3}(={3,}|-{3,})\s*$/);
+    if (!m || !isSetextTextCandidate(out[i])) continue;
+    out[i] = (m[1].charAt(0) === "=" ? "# " : "## ") + out[i].trim();
+    out[i + 1] = "";
+  }
+  return out;
+}
 function matchVersionHeading(line) {
   try {
     const s = String(line !== null && line !== void 0 ? line : "");
@@ -1392,6 +1707,29 @@ function matchVersionHeading(line) {
   } catch {
     return null;
   }
+}
+const RE_ANY_HEADING = /^\s{0,3}(#{1,6})\s*(.+?)\s*$/;
+function looksLikeVersionHeading(text) {
+  const t = String(text !== null && text !== void 0 ? text : "").trim();
+  if (!t) return false;
+  if (RE_UNRELEASED.test(t)) return true;
+  if (RE_VERSION_NUM.test(t)) return true;
+  return isPlainVersionTitle(t);
+}
+function matchAnyHeading(line) {
+  try {
+    const s = String(line !== null && line !== void 0 ? line : "");
+    const m = s.match(RE_ANY_HEADING);
+    if (!m) return null;
+    return { level: (m[1] || "").length, text: String(m[2] !== void 0 && m[2] !== null ? m[2] : "").trim() };
+  } catch {
+    return null;
+  }
+}
+function matchVersionHeadingAny(line) {
+  const h = matchAnyHeading(line);
+  if (!h || h.level > 4) return null;
+  return looksLikeVersionHeading(h.text) ? h.text : null;
 }
 function matchCategoryHeading(line) {
   try {
@@ -1500,86 +1838,228 @@ function shouldFetchChangelog(opts) {
     return true;
   }
 }
-function parseChangelog(markdown) {
+function ensureOther(cur, title) {
+  const list = cur.otherSections ?? (cur.otherSections = []);
+  const last = list[list.length - 1];
+  if (title && last && last.title === "" && last.items.length === 0) {
+    last.title = title.slice(0, 120);
+    return last;
+  }
+  const sec = { title: title.slice(0, 120), items: [], count: 0 };
+  list.push(sec);
+  return sec;
+}
+function countVersionHeadings(tail) {
+  let n = 0;
+  for (const line of String(tail || "").split("\n")) {
+    if (matchVersionHeadingAny(line) !== null) n += 1;
+  }
+  return n;
+}
+function parseChangelogReport(markdown) {
+  const ledger = { chars: false, tailVersions: 0, entries: 0, sections: 0, sectionItems: 0, items: 0 };
   try {
-    if (typeof markdown !== "string" || !markdown.trim()) return [];
+    if (typeof markdown !== "string" || !markdown.trim()) return { entries: [], truncation: ledger };
     let text = markdown.replace(/\r\n/g, "\n");
-    if (text.length > CHANGELOG_MAX_CHARS) text = text.slice(0, CHANGELOG_MAX_CHARS);
-    const lines = text.split("\n");
+    if (text.length > CHANGELOG_MAX_CHARS) {
+      ledger.chars = true;
+      ledger.tailVersions = countVersionHeadings(text.slice(CHANGELOG_MAX_CHARS));
+      text = text.slice(0, CHANGELOG_MAX_CHARS);
+    }
+    const lines = normalizeSetextHeadings(text.split("\n"));
     const entries = [];
     let cur = null;
-    let curCat = null;
+    let bucket = null;
     let inFence = false;
+    let buf = null;
+    const bufNow = () => buf;
+    let fenceTo = null;
+    let fenceIndent = 0;
+    let pendingBlank = false;
+    const destOf = () => {
+      if (!bucket) return null;
+      return "cat" in bucket ? { cat: bucket.cat } : { other: bucket.other };
+    };
+    const ensureDest = () => {
+      const d = destOf();
+      if (d) return d;
+      if (!cur) return null;
+      const other = ensureOther(cur, "");
+      bucket = { other };
+      return { other };
+    };
+    const flushBuf = () => {
+      const pending = buf;
+      buf = null;
+      pendingBlank = false;
+      if (!pending || !cur) return;
+      const text2 = truncateEntryLines(pending.lines, ledger);
+      if (!text2) return;
+      const c = cur;
+      if ("cat" in pending.dest) {
+        c.sections[pending.dest.cat].push(text2);
+        try {
+          if (c.counts) c.counts[pending.dest.cat] += 1;
+        } catch {
+        }
+      } else {
+        pending.dest.other.items.push(text2);
+        pending.dest.other.count = (pending.dest.other.count ?? 0) + 1;
+      }
+    };
+    const openBuf = (first, dest) => {
+      buf = { lines: [first], dest };
+    };
     const pushCurrent = () => {
+      flushBuf();
       if (!cur) return;
-      const hasAny = CHANGELOG_ALL_CATEGORIES.some(
-        (c) => cur.sections[c].length > 0
-      );
+      const e = cur;
+      const hasAny = CHANGELOG_ALL_CATEGORIES.some((c) => e.sections[c].length > 0) || (e.otherSections ?? []).some((s) => s.items.length > 0);
       if (!hasAny) return;
       for (const c of CHANGELOG_ALL_CATEGORIES) {
-        const list = cur.sections[c];
+        const list = e.sections[c];
         if (list.length > CHANGELOG_MAX_BULLETS_PER_SECTION) {
-          cur.sections[c] = list.slice(0, CHANGELOG_MAX_BULLETS_PER_SECTION);
+          ledger.sections += 1;
+          ledger.sectionItems += list.length - CHANGELOG_MAX_BULLETS_PER_SECTION;
+          e.sections[c] = list.slice(0, CHANGELOG_MAX_BULLETS_PER_SECTION);
         }
       }
-      entries.push(cur);
+      for (const s of e.otherSections ?? []) {
+        if (s.items.length > CHANGELOG_MAX_BULLETS_PER_SECTION) {
+          ledger.sections += 1;
+          ledger.sectionItems += s.items.length - CHANGELOG_MAX_BULLETS_PER_SECTION;
+          s.items = s.items.slice(0, CHANGELOG_MAX_BULLETS_PER_SECTION);
+        }
+      }
+      entries.push(e);
     };
     for (const rawLine of lines) {
       const line = String(rawLine ?? "");
       if (isFenceToggle(line)) {
-        inFence = !inFence;
+        if (inFence) {
+          inFence = false;
+          if (fenceTo) {
+            fenceTo.push("```");
+            fenceTo = null;
+          }
+          continue;
+        }
+        inFence = true;
+        const lead = ((line.match(/^[ \t]*/) || [""])[0] || "").length;
+        fenceIndent = lead;
+        const b0 = bufNow();
+        if (lead > 0 && b0) {
+          fenceTo = b0.lines;
+          fenceTo.push("```" + line.replace(/^[ \t]*(?:`{3,}|~{3,})\s*/, "").trim());
+          continue;
+        }
+        const dest = ensureDest();
+        flushBuf();
+        if (dest) {
+          openBuf("```" + line.replace(/^[ \t]*(?:`{3,}|~{3,})\s*/, "").trim(), dest);
+          const b1 = bufNow();
+          fenceTo = b1 ? b1.lines : null;
+        } else {
+          fenceTo = null;
+        }
         continue;
       }
-      if (inFence) continue;
-      const versionTitle = matchVersionHeading(line);
-      if (versionTitle !== null) {
-        pushCurrent();
-        cur = null;
-        curCat = null;
-        const title = versionTitle;
-        const { version, date, yanked } = extractVersionDateAndYanked(title);
-        if (!version) continue;
-        cur = { version, date, yanked, sections: emptySections(), counts: emptyCounts() };
+      if (inFence) {
+        if (fenceTo) {
+          const lead = ((line.match(/^[ \t]*/) || [""])[0] || "").length;
+          fenceTo.push(line.slice(Math.min(fenceIndent, lead)).replace(/[ \t]+$/, ""));
+        }
         continue;
       }
-      const catTitle = matchCategoryHeading(line);
-      if (catTitle !== null) {
-        const cat = normalizeCategory(catTitle);
-        curCat = cur && cat && isCategoryName(cat) ? cat : null;
+      const head = matchAnyHeading(line);
+      if (head) {
+        const vTitle = head.level <= 4 && looksLikeVersionHeading(head.text) ? head.text : null;
+        if (vTitle !== null) {
+          pushCurrent();
+          cur = null;
+          bucket = null;
+          const { version, date, yanked } = extractVersionDateAndYanked(vTitle);
+          if (!version) continue;
+          cur = { version, date, yanked, sections: emptySections(), counts: emptyCounts() };
+          continue;
+        }
+        if (isVersionIshWithoutNumber(head.text)) {
+          if (cur) {
+            pushCurrent();
+            cur = null;
+            bucket = null;
+          }
+          continue;
+        }
+        if (cur) {
+          flushBuf();
+          const cat = normalizeCategoryMulti(head.text);
+          if (cat && isCategoryName(cat)) bucket = { cat };
+          else bucket = { other: ensureOther(cur, head.text) };
+          continue;
+        }
         continue;
       }
       const bulletBody = matchBulletBody(line);
-      if (bulletBody !== null && cur && curCat) {
-        const item = truncateBullet(bulletBody);
-        if (item) {
-          cur.sections[curCat].push(item);
-          try {
-            if (cur.counts) cur.counts[curCat] += 1;
-          } catch {
-          }
+      const orderedBody = bulletBody === null ? matchOrderedBody(line) : null;
+      const body = bulletBody !== null ? bulletBody : orderedBody;
+      if (body !== null) {
+        const level = indentLevel(line);
+        const b = bufNow();
+        if (level > 0 && b && !(pendingBlank && !bufEndsWithItem(b.lines))) {
+          b.lines.push(canonicalNestedItem(line, level, body));
+          pendingBlank = false;
+          continue;
         }
-        continue;
+        if (bulletBody !== null) {
+          const b2 = bufNow();
+          if (pendingBlank && b2 && !bufEndsWithItem(b2.lines)) flushBuf();
+          flushBuf();
+          const dest = ensureDest();
+          if (body.replace(/\s+/g, " ").trim().length > CHANGELOG_MAX_BULLET_CHARS) ledger.items += 1;
+          const item = truncateBullet(body);
+          if (dest && item) openBuf(item, dest);
+          continue;
+        }
       }
       const trimmed = line.trim();
-      if (trimmed && !trimmed.startsWith("#") && /^\s/.test(line) && cur && curCat) {
-        const list = cur.sections[curCat];
-        if (list.length > 0) {
-          const merged = truncateBullet(`${list[list.length - 1]} ${trimmed}`);
-          if (merged) list[list.length - 1] = merged;
-        }
+      if (!trimmed) {
+        pendingBlank = true;
         continue;
+      }
+      if (trimmed.startsWith("#")) continue;
+      if (cur) {
+        const dest = ensureDest();
+        if (!dest) continue;
+        const bp = bufNow();
+        if (bp && pendingBlank && !/^[ \t]/.test(line)) flushBuf();
+        const isQuote = trimmed === ">" || trimmed.startsWith("> ");
+        const text2 = isQuote ? "> " + trimmed.replace(/^>\s?/, "") : /^[ \t]/.test(line) ? "  ".repeat(Math.max(1, indentLevel(line))) + trimmed : trimmed.replace(/[ \t]+$/, "");
+        const bp2 = bufNow();
+        if (bp2) bp2.lines.push(text2);
+        else openBuf(text2, dest);
+        pendingBlank = false;
       }
     }
     pushCurrent();
-    return entries.slice(0, CHANGELOG_MAX_ENTRIES);
+    if (entries.length > CHANGELOG_MAX_ENTRIES) {
+      ledger.entries = entries.length - CHANGELOG_MAX_ENTRIES;
+      return { entries: entries.slice(0, CHANGELOG_MAX_ENTRIES), truncation: ledger };
+    }
+    return { entries, truncation: ledger };
   } catch {
-    return [];
+    return { entries: [], truncation: ledger };
   }
+}
+function parseChangelog(markdown) {
+  return parseChangelogReport(markdown).entries;
 }
 function hasVisibleSections(entry) {
   if (!entry || typeof entry !== "object") return false;
   try {
-    return CHANGELOG_ALL_CATEGORIES.some((c) => Array.isArray(entry.sections?.[c]) && entry.sections[c].length > 0);
+    if (CHANGELOG_ALL_CATEGORIES.some((c) => Array.isArray(entry.sections?.[c]) && entry.sections[c].length > 0)) return true;
+    const other = entry.otherSections;
+    return Array.isArray(other) && other.some((s) => Array.isArray(s?.items) && s.items.length > 0);
   } catch {
     return false;
   }
@@ -1635,6 +2115,169 @@ function changelogForUpdate(entries, runningVersion, latestVersion, installedVer
 function escapeChangelogHtml(text) {
   return String(text ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
+const CHANGELOG_MD_INLINE = ["code", "strong", "em", "del", "link", "autolink", "url", "image"];
+const MD_URL_MAX = 2048;
+const MD_MAX_DEPTH = 2;
+function isHttpUrl(u) {
+  return /^https?:\/\//i.test(String(u || ""));
+}
+function renderInlineTailAware(s) {
+  let src = s;
+  let out = renderInlineMarkdown(src, 0);
+  if (!s.endsWith("\u2026")) return out;
+  for (let round = 0; round < 3; round++) {
+    let visible = "";
+    try {
+      visible = out.replace(/<code[^>]*>[\s\S]*?<\/code>/g, "").replace(/<[^>]*>/g, "");
+    } catch {
+      break;
+    }
+    const m = visible.match(/\*\*|__|~~|`/);
+    if (!m) break;
+    const marker = m[0];
+    const at = src.lastIndexOf(marker);
+    if (at < 0) break;
+    src = src.slice(0, at) + src.slice(at + marker.length);
+    out = renderInlineMarkdown(src, 0);
+  }
+  return out;
+}
+function matchBracketLink(s, openIdx) {
+  try {
+    if (s[openIdx] !== "[") return null;
+    const close = s.indexOf("]", openIdx + 1);
+    if (close < 0 || s[close + 1] !== "(") return null;
+    const urlEnd = s.indexOf(")", close + 2);
+    if (urlEnd < 0) return null;
+    const raw = s.slice(close + 2, urlEnd).trim();
+    if (!raw || raw.length > MD_URL_MAX) return null;
+    const url = raw.split(/\s+/)[0] || "";
+    if (!url) return null;
+    return { text: s.slice(openIdx + 1, close), url, end: urlEnd + 1 };
+  } catch {
+    return null;
+  }
+}
+function trimBareUrl(raw) {
+  let u = String(raw || "");
+  while (u.length > 0 && /[.,;:!?'"”’、。，；：！？]/.test(u[u.length - 1])) u = u.slice(0, -1);
+  while (u.endsWith(")")) {
+    const open = (u.match(/\(/g) || []).length;
+    const close = (u.match(/\)/g) || []).length;
+    if (close <= open) break;
+    u = u.slice(0, -1);
+  }
+  return u;
+}
+function mdAnchor(url, inner) {
+  return '<a class="dsh-upd-md-link" data-openlink="1" href="' + escapeChangelogHtml(url) + '" target="_blank" rel="noopener noreferrer">' + inner + "</a>";
+}
+function renderInlineMarkdown(text, depth) {
+  const s = String(text ?? "");
+  if (!s) return "";
+  if (depth > MD_MAX_DEPTH) return escapeChangelogHtml(s);
+  let out = "";
+  let i = 0;
+  const n = s.length;
+  while (i < n) {
+    const c = s[i];
+    if (c === "\\" && i + 1 < n && /[\\`*_~[\]()!<>#|]/.test(s[i + 1])) {
+      out += escapeChangelogHtml(s[i + 1]);
+      i += 2;
+      continue;
+    }
+    if (c === "`") {
+      let ticks = 1;
+      while (i + ticks < n && s[i + ticks] === "`" && ticks < 3) ticks++;
+      const fence = "`".repeat(ticks);
+      const end = s.indexOf(fence, i + ticks);
+      if (end > i + ticks) {
+        out += '<code class="dsh-upd-md-code">' + escapeChangelogHtml(s.slice(i + ticks, end)) + "</code>";
+        i = end + ticks;
+        continue;
+      }
+    }
+    if (c === "!" && s[i + 1] === "[") {
+      const img = matchBracketLink(s, i + 1);
+      if (img && isHttpUrl(img.url)) {
+        const alt = img.text.trim() || img.url;
+        out += '<span class="dsh-upd-md-img" data-src="' + escapeChangelogHtml(img.url) + '" title="' + escapeChangelogHtml(img.url) + '">' + renderInlineMarkdown(alt, depth + 1) + "</span>";
+        i = img.end;
+        continue;
+      }
+    }
+    if (c === "[") {
+      const lk = matchBracketLink(s, i);
+      if (lk && isHttpUrl(lk.url)) {
+        out += mdAnchor(lk.url, renderInlineMarkdown(lk.text, depth + 1));
+        i = lk.end;
+        continue;
+      }
+    }
+    if (c === "<") {
+      const m = s.slice(i).match(/^<(https?:\/\/[^<>\s]+)>/i);
+      if (m) {
+        out += mdAnchor(m[1], escapeChangelogHtml(m[1]));
+        i += m[0].length;
+        continue;
+      }
+    }
+    if ((c === "h" || c === "H") && /^https?:\/\//i.test(s.slice(i, i + 8))) {
+      const m = s.slice(i).match(/^https?:\/\/[A-Za-z0-9\-._~:/?#@!$&*+,;=%()[\]]+/i);
+      if (m) {
+        const url = trimBareUrl(m[0]);
+        if (url.length > 8) {
+          out += mdAnchor(url, escapeChangelogHtml(url));
+          i += url.length;
+          continue;
+        }
+      }
+    }
+    if (c === "*" || c === "_") {
+      let run = 1;
+      while (i + run < n && s[i + run] === c && run < 2) run++;
+      const marker = c.repeat(run);
+      const prev = i > 0 ? s[i - 1] : "";
+      const inWord = c === "_" && /[0-9A-Za-z\u4e00-\u9fff]/.test(prev);
+      if (!inWord) {
+        const end = s.indexOf(marker, i + run);
+        if (end > i + run) {
+          const inner = s.slice(i + run, end);
+          if (inner.trim() === inner && !inner.includes("\n")) {
+            const tag = run === 2 ? "strong" : "em";
+            out += "<" + tag + ">" + renderInlineMarkdown(inner, depth + 1) + "</" + tag + ">";
+            i = end + run;
+            continue;
+          }
+        }
+      }
+    }
+    if (c === "~" && s[i + 1] === "~") {
+      const end = s.indexOf("~~", i + 2);
+      if (end > i + 2) {
+        out += '<del class="dsh-upd-md-del">' + renderInlineMarkdown(s.slice(i + 2, end), depth + 1) + "</del>";
+        i = end + 2;
+        continue;
+      }
+    }
+    out += escapeChangelogHtml(c);
+    i++;
+  }
+  return out;
+}
+function renderChangelogInline(text) {
+  try {
+    const s = String(text !== null && text !== void 0 ? text : "");
+    if (!s) return "";
+    return renderInlineTailAware(s);
+  } catch {
+    try {
+      return escapeChangelogHtml(String(text !== null && text !== void 0 ? text : ""));
+    } catch {
+      return "";
+    }
+  }
+}
 function countsOf(entry) {
   try {
     const out = { Added: 0, Fixed: 0, Changed: 0, Deprecated: 0, Removed: 0, Security: 0 };
@@ -1677,20 +2320,151 @@ function yankedBannerHTML(version, lang) {
     return "";
   }
 }
-function renderChangelogItem(item, lang) {
+function matchListItem(line) {
+  const m = String(line || "").match(/^([ \t]*)(?:([-*+])|(\d{1,9}[.)]))[ \t]+(.*)$/);
+  if (!m) return null;
+  return { depth: indentLevel(m[1] || ""), ordered: m[3] !== void 0 && m[3] !== null, text: m[4] || "" };
+}
+function renderListItems(items, start, base) {
+  const first = items[start];
+  const tag = first && first.ordered ? "ol" : "ul";
+  const cls = tag === "ol" ? "dsh-upd-md-list-ol" : "dsh-upd-md-list";
+  let html = "<" + tag + ' class="' + cls + '">';
+  let i = start;
+  while (i < items.length && items[i].depth >= base) {
+    const it = items[i];
+    if (it.depth > base) {
+      const sub = renderListItems(items, i, it.depth);
+      html += sub.html;
+      i = sub.next;
+      continue;
+    }
+    html += "<li>" + renderChangelogInline(it.text);
+    i += 1;
+    const nextItem = items[i];
+    if (nextItem && nextItem.depth > base) {
+      const sub = renderListItems(items, i, nextItem.depth);
+      html += sub.html;
+      i = sub.next;
+    }
+    html += "</li>";
+  }
+  html += "</" + tag + ">";
+  return { html, next: i };
+}
+function isThematicBreak(line) {
+  const t = String(line === null || line === void 0 ? "" : line);
+  return /^ {0,3}([-*_])(?:\s*\1){2,}\s*$/.test(t);
+}
+function renderChangelogBlocks(lines) {
+  try {
+    const src = Array.isArray(lines) ? lines.map((x) => String(x === null || x === void 0 ? "" : x)) : [];
+    const out = [];
+    let para = [];
+    const flushPara = () => {
+      if (!para.length) return;
+      out.push('<div class="dsh-upd-md-para">' + renderChangelogInline(para.join(" ")) + "</div>");
+      para = [];
+    };
+    let i = 0;
+    while (i < src.length) {
+      const line = src[i];
+      if (isFenceToggle(line)) {
+        flushPara();
+        const code = [];
+        i += 1;
+        while (i < src.length && !isFenceToggle(src[i])) {
+          code.push(src[i]);
+          i += 1;
+        }
+        if (i < src.length) i += 1;
+        out.push('<pre class="dsh-upd-md-pre"><code class="dsh-upd-md-precode">' + escapeChangelogHtml(code.join(String.fromCharCode(10))) + "</code></pre>");
+        continue;
+      }
+      if (/^[ \t]*>/.test(line)) {
+        flushPara();
+        const quote = [];
+        while (i < src.length && /^[ \t]*>/.test(src[i])) {
+          quote.push(src[i].replace(/^[ \t]*>[ \t]?/, ""));
+          i += 1;
+        }
+        out.push('<blockquote class="dsh-upd-md-quote">' + renderChangelogInline(quote.join(" ")) + "</blockquote>");
+        continue;
+      }
+      if (isThematicBreak(line)) {
+        flushPara();
+        out.push('<hr class="dsh-upd-md-hr">');
+        i += 1;
+        continue;
+      }
+      const li = matchListItem(line);
+      if (li) {
+        flushPara();
+        const items = [];
+        while (i < src.length) {
+          const head = matchListItem(src[i]);
+          if (!head) break;
+          let text2 = head.text;
+          i += 1;
+          while (i < src.length && !matchListItem(src[i]) && !isFenceToggle(src[i]) && !/^[ \t]*>/.test(src[i]) && !isThematicBreak(src[i])) {
+            const extra = src[i].trim();
+            if (extra) text2 += " " + extra;
+            i += 1;
+          }
+          items.push({ depth: head.depth, ordered: head.ordered, text: text2 });
+        }
+        out.push(renderListItems(items, 0, items.length > 0 ? items[0].depth : 0).html);
+        continue;
+      }
+      const text = line.trim();
+      if (text) para.push(text);
+      i += 1;
+    }
+    flushPara();
+    return out.join("");
+  } catch {
+    return "";
+  }
+}
+function leadsWithCategoryName(item, cat) {
+  const first = String(item !== null && item !== void 0 ? item : "").split(String.fromCharCode(10))[0].trim();
+  if (!first) return false;
+  const bare = first.replace(/^[*_`~\s]+/, "");
+  for (const name of [String(cat), CHANGELOG_CATEGORY_ZH[cat]]) {
+    if (!name) continue;
+    if (bare.slice(0, name.length).toLowerCase() !== name.toLowerCase()) continue;
+    const next = bare.slice(name.length, name.length + 1);
+    if (!next) return true;
+    if (/[\s·:：,，)）\]】\-—–、。.;；/|｜*_`~]/.test(next)) return true;
+  }
+  return false;
+}
+function renderChangelogItem(item, lang, cat) {
   try {
     const l = normalizeLangTag(lang ?? "zh");
     const s = String(item !== null && item !== void 0 ? item : "");
     if (!s) return "";
-    const split = splitBreakingPrefix(s);
-    if (!split) return "<li>" + escapeChangelogHtml(s) + "</li>";
-    const head = escapeChangelogHtml(split.head);
-    const prefix = escapeChangelogHtml(split.prefix);
-    const rest = escapeChangelogHtml(split.rest);
+    const nlIdx = s.indexOf(String.fromCharCode(10));
+    const firstLine = nlIdx === -1 ? s : s.slice(0, nlIdx);
+    if (/^[ \t]*(?:```|~~~|>|[-*+][ \t]|\d{1,9}[.)][ \t]|[-*_]{3,}\s*$)/.test(firstLine)) {
+      const blockLead = cat && isCategoryName(String(cat)) ? ' data-cat-block="1"' : "";
+      const blockHtml = renderChangelogBlocks(s.split(String.fromCharCode(10)));
+      return blockHtml ? "<li" + blockLead + ">" + blockHtml + "</li>" : "";
+    }
+    const head = firstLine;
+    const tail = nlIdx === -1 ? [] : s.slice(nlIdx + 1).split(String.fromCharCode(10));
+    const tailHtml = renderChangelogBlocks(tail);
+    const lead = cat && isCategoryName(String(cat)) && leadsWithCategoryName(head, String(cat)) ? ' data-cat-lead="1"' : "";
+    if (!head) return tailHtml ? "<li" + lead + ">" + tailHtml + "</li>" : "";
+    const split = splitBreakingPrefix(head);
+    if (!split) return "<li" + lead + ">" + renderChangelogInline(head) + tailHtml + "</li>";
+    const headHtml = renderChangelogInline(split.head);
+    const prefix = renderChangelogInline(split.prefix);
+    const rest = renderChangelogInline(split.rest);
     const badgeText = copyText("changelog.breaking.badge", l);
     const badgeAria = copyText("changelog.breaking.aria", l);
     const badge = '<span class="dsh-upd-breaking-badge" role="img" aria-label="' + escapeChangelogHtml(badgeAria) + '">' + escapeChangelogHtml(badgeText) + "</span> ";
-    return "<li>" + head + badge + "<strong>" + prefix + "</strong>" + rest + "</li>";
+    return "<li" + lead + ">" + headHtml + badge + "<strong>" + prefix + "</strong>" + rest + tailHtml + "</li>";
   } catch {
     return "";
   }
@@ -1725,7 +2499,7 @@ function renderChangelogSection(entry, lang) {
       parts.push("<ul>");
       for (const item of items) {
         if (!item) continue;
-        const li = renderChangelogItem(item, l);
+        const li = renderChangelogItem(item, l, cat);
         if (li) parts.push(li);
       }
       parts.push("</ul>");
@@ -1751,11 +2525,12 @@ function renderChangelogSection(entry, lang) {
       parts.push("<ul>");
       for (const item of items) {
         if (!item) continue;
-        const li = renderChangelogItem(item, l);
+        const li = renderChangelogItem(item, l, cat);
         if (li) parts.push(li);
       }
       parts.push("</ul></details>");
     }
+    for (const block of renderOtherSections(entry, l)) parts.push(block);
     parts.push("</div>");
     return parts.join(String.fromCharCode(10));
   } catch {
@@ -1771,9 +2546,55 @@ function renderChangelogNeutral(lang) {
     return "";
   }
 }
+function renderOtherSections(entry, l) {
+  const out = [];
+  const list = Array.isArray(entry.otherSections) ? entry.otherSections : [];
+  for (const s of list) {
+    const items = Array.isArray(s?.items) ? s.items : [];
+    if (items.length === 0) continue;
+    const title = String(s.title || "").trim();
+    out.push('<div class="dsh-upd-changelog-cat" data-cat="other">');
+    if (title) out.push('<div class="dsh-upd-changelog-catname">' + renderChangelogInline(title) + "</div>");
+    const total = typeof s.count === "number" && s.count > items.length ? s.count : items.length;
+    if (total > items.length) out.push(truncatedNoteHTML(total, items.length, l));
+    out.push("<ul>");
+    for (const item of items) {
+      if (!item) continue;
+      const li = renderChangelogItem(item, l, null);
+      if (li) out.push(li);
+    }
+    out.push("</ul>");
+    out.push("</div>");
+  }
+  return out;
+}
+function truncationNoteHTML(tr, lang) {
+  try {
+    const l = normalizeLangTag(lang ?? "zh");
+    if (!tr || typeof tr !== "object") return "";
+    const parts = [];
+    if (tr.chars === true) {
+      parts.push(copyText("changelog.truncated.file", l));
+      const n = Number(tr.tailVersions) || 0;
+      if (n > 0) parts.push(copyText("changelog.truncated.versions", l, { n: String(n) }));
+    }
+    const droppedEntries = Number(tr.entries) || 0;
+    if (droppedEntries > 0) {
+      parts.push(copyText("changelog.truncated.count", l, {
+        n: String(CHANGELOG_MAX_ENTRIES),
+        m: String(CHANGELOG_MAX_ENTRIES + droppedEntries)
+      }));
+    }
+    if (parts.length === 0) return "";
+    return '<div class="dsh-upd-changelog-truncnote">' + escapeChangelogHtml(parts.join(" ")) + "</div>";
+  } catch {
+    return "";
+  }
+}
 function renderChangelogHTML(entries, opts) {
   try {
     const l = normalizeLangTag(opts?.lang ?? "zh");
+    const note = truncationNoteHTML(opts?.truncated, l);
     if (!Array.isArray(entries) || entries.length === 0) return renderChangelogNeutral(l);
     const from = opts && typeof opts.from === "string" ? opts.from : null;
     const to = opts && typeof opts.to === "string" ? opts.to : null;
@@ -1790,11 +2611,11 @@ function renderChangelogHTML(entries, opts) {
         }
       });
     }
-    if (ranged.length === 0) return renderChangelogNeutral(l);
+    if (ranged.length === 0) return note + renderChangelogNeutral(l);
     const blocks = ranged.map((e) => renderChangelogSection(e, l)).filter((s) => !!s);
-    if (blocks.length === 0) return renderChangelogNeutral(l);
+    if (blocks.length === 0) return note + renderChangelogNeutral(l);
     return `<div class="dsh-upd-changelog">
-${blocks.join("\n")}
+${note}${blocks.join("\n")}
 </div>`;
   } catch {
     try {
@@ -1807,8 +2628,8 @@ ${blocks.join("\n")}
 }
 const CHANGELOG_VALIDATE_HINTS = {
   E_VERSION_TITLE: "\u8BE5\u6807\u9898\u4E0D\u662F\u5408\u6CD5\u7248\u672C\u53F7\uFF0C\u5176\u4E0B\u6761\u76EE\u5DF2\u88AB\u5FFD\u7565\uFF0C\u8BF7\u6539\u6210 ## [x.y.z] \u5F62\u6001",
-  E_CATEGORY: "\u672A\u77E5\u5206\u7C7B\uFF0C\u5176\u4E0B\u6761\u76EE\u5DF2\u88AB\u5FFD\u7565\uFF1B\u4EC5\u6536 Added/Fixed/Changed/Deprecated/Removed/Security\uFF0C\u4EA6\u6536\u4E2D\u6587\u540D\uFF08\u65B0\u589E/\u4FEE\u590D/\u53D8\u66F4/\u5F03\u7528\u9884\u544A/\u79FB\u9664/\u5B89\u5168\uFF09",
-  E_BULLET_ORPHAN: "\u8BE5\u6761\u76EE\u4E0D\u5728\u7248\u672C\u8282\u4E0E\u5206\u7C7B\u4E0B\uFF0C\u5DF2\u88AB\u5FFD\u7565",
+  W_CATEGORY_OTHER: "\u975E\u516D\u7C7B\u5C0F\u8282\u540D\uFF08\u4E5F\u4E0D\u5728\u522B\u540D\u8868\u91CC\uFF09\uFF0C\u6309\u4F5C\u8005\u539F\u6587\u6807\u9898\u539F\u6837\u663E\u793A\u3001\u4E0D\u4E22\u5185\u5BB9\uFF1B\u516D\u7C7B\u540D\uFF1AAdded/Fixed/Changed/Deprecated/Removed/Security\uFF0C\u4EA6\u6536\u4E2D\u6587\u540D\uFF08\u65B0\u589E/\u4FEE\u590D/\u53D8\u66F4/\u5F03\u7528\u9884\u544A/\u79FB\u9664/\u5B89\u5168\uFF09\u4E0E\u5E76\u5217\u5199\u6CD5\uFF08Fixed / \u4FEE\u590D\uFF09",
+  E_BULLET_ORPHAN: "\u8BE5\u6761\u76EE\u4E0D\u5728\u4EFB\u4F55\u7248\u672C\u8282\u4E4B\u4E0B\uFF0C\u5DF2\u88AB\u5FFD\u7565",
   W_BREAKING_MAYBE: "\u7591\u4F3C\u7834\u574F\u6807\u8BB0\u8BEF\u5199\uFF08\u7F3A\u5192\u53F7/\u62FC\u5199\u63A5\u8FD1/\u4F4D\u7F6E\u7591\u4F3C\u653E\u9519\uFF09\uFF0C\u8BF7\u68C0\u67E5\u662F\u5426\u60F3\u5199 BREAKING:/\u4E0D\u517C\u5BB9:",
   W_YANKED: "\u8BE5\u7248\u672C\u5DF2\u88AB\u6807\u8BB0\u64A4\u56DE\uFF08yanked\uFF09\uFF0C\u5B89\u88C5\u4E0D\u53D7\u5F71\u54CD\uFF0C\u7EE7\u7EED\u524D\u8BF7\u786E\u8BA4",
   W_TRUNCATED: "\u8BE5\u7C7B\u5171 M \u6761\uFF0C\u4EC5\u663E\u793A\u524D N \u6761",
@@ -1844,7 +2665,7 @@ function validateChangelog(markdown) {
       fileTruncated = true;
       raw = raw.slice(0, CHANGELOG_MAX_CHARS);
     }
-    const lines = raw.split(String.fromCharCode(10));
+    const lines = normalizeSetextHeadings(raw.split(String.fromCharCode(10)));
     const diags = [];
     let inFence = false;
     let curValid = false;
@@ -1873,7 +2694,9 @@ function validateChangelog(markdown) {
         continue;
       }
       if (inFence) continue;
-      const vTitle = matchVersionHeading(line);
+      const head = matchAnyHeading(line);
+      const versionIsh = head !== null && head.level <= 4 && (looksLikeVersionHeading(head.text) || isVersionIshWithoutNumber(head.text));
+      const vTitle = versionIsh && head !== null ? head.text : null;
       if (vTitle !== null) {
         flushCounts();
         catLineByCat = {};
@@ -1896,12 +2719,11 @@ function validateChangelog(markdown) {
         }
         continue;
       }
-      const cTitle = matchCategoryHeading(line);
-      if (cTitle !== null) {
-        const cat = normalizeCategory(cTitle);
+      if (head) {
+        const cat = normalizeCategoryMulti(head.text);
         if (!cat) {
           curCat = null;
-          diags.push({ line: lineNo, code: "E_CATEGORY", hint: CHANGELOG_VALIDATE_HINTS.E_CATEGORY });
+          if (curValid) diags.push({ line: lineNo, code: "W_CATEGORY_OTHER", hint: CHANGELOG_VALIDATE_HINTS.W_CATEGORY_OTHER });
           continue;
         }
         if (!curValid) {
@@ -1915,11 +2737,15 @@ function validateChangelog(markdown) {
       }
       const body = matchBulletBody(line);
       if (body !== null) {
-        if (!curValid || !curCat) {
+        if (!curValid) {
           diags.push({ line: lineNo, code: "E_BULLET_ORPHAN", hint: CHANGELOG_VALIDATE_HINTS.E_BULLET_ORPHAN });
           continue;
         }
-        countByCat[curCat] = (countByCat[curCat] ? countByCat[curCat] : 0) + 1;
+        const bucketCat = curCat;
+        if (!bucketCat) {
+          continue;
+        }
+        countByCat[bucketCat] = (countByCat[bucketCat] ? countByCat[bucketCat] : 0) + 1;
         if (isMaybeBreakingMisuse(body)) {
           diags.push({ line: lineNo, code: "W_BREAKING_MAYBE", hint: CHANGELOG_VALIDATE_HINTS.W_BREAKING_MAYBE });
         }
@@ -1962,7 +2788,7 @@ function validateChangelog(markdown) {
     return { ok: false, diagnostics: [] };
   }
 }
-__mods["upd-changelog"] = { BREAKING_BADGE_TEXT, CHANGELOG_ALL_CATEGORIES, CHANGELOG_CATEGORY_ZH, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, CHANGELOG_POLL_BACKOFF_MS, CHANGELOG_VALIDATE_HINTS, RE_BULLET, RE_CATEGORY_HEADING, RE_FENCE_TOGGLE, RE_UNRELEASED, RE_VERSION_DATE, RE_VERSION_HEADING, RE_VERSION_NUM, RE_YANKED, changelogCategoryLabel, changelogFoldedLabel, changelogForUpdate, countsOf, hasVisibleSections, isBreakingChangelogItem, isFenceToggle, isMaybeBreakingMisuse, isUnreleasedVersion, matchBulletBody, matchCategoryHeading, matchVersionHeading, parseChangelog, renderChangelogHTML, renderChangelogItem, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries, shouldFetchChangelog, splitBreakingPrefix, stripBreakingDecorations, truncatedNoteHTML, validateChangelog, yankedBannerHTML };
+__mods["upd-changelog"] = { BREAKING_BADGE_TEXT, CHANGELOG_ALL_CATEGORIES, CHANGELOG_CATEGORY_ALIASES, CHANGELOG_CATEGORY_ZH, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MAX_ENTRY_DEPTH, CHANGELOG_MD_INLINE, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, CHANGELOG_POLL_BACKOFF_MS, CHANGELOG_VALIDATE_HINTS, RE_ANY_HEADING, RE_BULLET, RE_CATEGORY_HEADING, RE_FENCE_TOGGLE, RE_UNRELEASED, RE_VERSION_DATE, RE_VERSION_HEADING, RE_VERSION_NUM, RE_YANKED, changelogCategoryLabel, changelogFoldedLabel, changelogForUpdate, countsOf, hasVisibleSections, isBreakingChangelogItem, isFenceToggle, isMaybeBreakingMisuse, isUnreleasedVersion, isVersionIshWithoutNumber, looksLikeVersionHeading, matchAnyHeading, matchBulletBody, matchCategoryHeading, matchVersionHeading, matchVersionHeadingAny, parseChangelog, parseChangelogReport, renderChangelogBlocks, renderChangelogHTML, renderChangelogInline, renderChangelogItem, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries, shouldFetchChangelog, splitBreakingPrefix, stripBreakingDecorations, truncatedNoteHTML, truncationNoteHTML, validateChangelog, yankedBannerHTML };
 
 })();
 (function () {
@@ -2145,14 +2971,351 @@ __mods["upd-log-events"] = { LOG_EVENT_CALL, LOG_EVENT_CALL_FAIL, LOG_EVENT_INST
 
 })();
 (function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/codes.ts
+const BLOCKED_REASONS = [
+  "unknown-profile",
+  "channel-mismatch",
+  "source-install",
+  "invalid-installation",
+  "installation-changed",
+  "pending-restart",
+  "registry-conflict",
+  "incompatible-node",
+  "recovery-required"
+];
+const PHONE_FAILURE_CODES = [
+  "check-failed",
+  "invalid-release",
+  "check-expired",
+  "update-busy",
+  "install-failed"
+];
+const CHECK_SIDE_FAILURE_CODES = [
+  "check-failed",
+  "invalid-release",
+  "check-expired"
+];
+const INTERNAL_CODE = "internal";
+const UNSUPPORTED_CODE = "unsupported";
+const CROSS_SCOPE_CODE = "cross-scope";
+const STABLE_CODES = [...BLOCKED_REASONS, ...PHONE_FAILURE_CODES, INTERNAL_CODE];
+const CORE_ERROR_CODES = [...PHONE_FAILURE_CODES, ...BLOCKED_REASONS];
+const BATCH_REPLY_CODES = [...CORE_ERROR_CODES, CROSS_SCOPE_CODE];
+function isOneOf(codes, code) {
+  return typeof code === "string" && codes.includes(code);
+}
+function isCoreErrorCode(code) {
+  return isOneOf(CORE_ERROR_CODES, code);
+}
+function isBatchReplyCode(code) {
+  return isOneOf(BATCH_REPLY_CODES, code);
+}
+function isCheckSideFailureCode(code) {
+  return typeof code === "string" && isOneOf(CHECK_SIDE_FAILURE_CODES, code.trim());
+}
+__mods["upd-codes"] = { BATCH_REPLY_CODES, BLOCKED_REASONS, CHECK_SIDE_FAILURE_CODES, CORE_ERROR_CODES, CROSS_SCOPE_CODE, INTERNAL_CODE, PHONE_FAILURE_CODES, STABLE_CODES, UNSUPPORTED_CODE, isBatchReplyCode, isCheckSideFailureCode, isCoreErrorCode };
+
+})();
+(function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/log/client-queue.ts
+const CLIENT_LOG_MAX_QUEUE = 200;
+const CLIENT_LOG_BATCH_SIZE = 50;
+const CLIENT_LOG_FLUSH_MS = 1e3;
+const CLIENT_LOG_MAX_RETRIES = 2;
+const CLIENT_LOG_RETRY_DELAYS_MS = [250, 1e3];
+const CLIENT_LOG_SEND_TIMEOUT_MS = 5e3;
+const LOG_LEVELS = ["debug", "info", "warn", "error"];
+const CLIENT_LOG_EVENTS = [
+  "update.panel.mount",
+  "update.panel.action",
+  "update.panel.render.fail",
+  "update.panel.state",
+  "update.lang.applied"
+];
+function isClientLogEvent(name) {
+  if (typeof name !== "string") return false;
+  for (const e of CLIENT_LOG_EVENTS) {
+    if (e === name) return true;
+  }
+  return false;
+}
+function positiveInt(value, fallback) {
+  const n = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : fallback;
+  return n > 0 ? n : fallback;
+}
+function nonNegativeInt(value, fallback) {
+  const n = typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : fallback;
+  return n >= 0 ? n : fallback;
+}
+function resolveClientLogTimer() {
+  try {
+    const g = globalThis;
+    const set = g["setTimeout"];
+    const clear = g["clearTimeout"];
+    if (typeof set === "function" && typeof clear === "function") {
+      return {
+        set: (fn, ms) => set.call(g, fn, ms),
+        clear: (handle) => clear.call(g, handle)
+      };
+    }
+  } catch {
+  }
+  return null;
+}
+function resolveClientLogVisibility() {
+  try {
+    const doc = globalThis.document;
+    if (doc && typeof doc.addEventListener === "function") return doc;
+  } catch {
+  }
+  return null;
+}
+function createClientLogChannel(options) {
+  const call = options && typeof options.call === "function" ? options.call : null;
+  const phoneName = options && typeof options.phoneName === "string" ? options.phoneName : "";
+  const capacity = positiveInt(options?.maxQueue, CLIENT_LOG_MAX_QUEUE);
+  const batchSize = positiveInt(options?.batchSize, CLIENT_LOG_BATCH_SIZE);
+  const flushMs = positiveInt(options?.flushIntervalMs, CLIENT_LOG_FLUSH_MS);
+  const maxRetries = nonNegativeInt(options?.maxRetries, CLIENT_LOG_MAX_RETRIES);
+  const retryDelays = Array.isArray(options?.retryDelaysMs) && options.retryDelaysMs.length > 0 ? options.retryDelaysMs : CLIENT_LOG_RETRY_DELAYS_MS;
+  const sendTimeoutMs = options?.sendTimeoutMs === void 0 ? CLIENT_LOG_SEND_TIMEOUT_MS : Number(options.sendTimeoutMs);
+  const timer = options?.timer === void 0 ? resolveClientLogTimer() : options.timer;
+  const visibility = options?.visibility === void 0 ? resolveClientLogVisibility() : options.visibility;
+  const now = typeof options?.now === "function" ? options.now : () => Date.now();
+  const onDrop = typeof options?.onDrop === "function" ? options.onDrop : null;
+  const slots = new Array(capacity).fill(null);
+  let head = 0;
+  let count = 0;
+  let dropped = 0;
+  let sent = 0;
+  let disposed = false;
+  let scheduled = null;
+  let inFlight = false;
+  function noteDrop(row, reason) {
+    dropped++;
+    if (!onDrop) return;
+    try {
+      onDrop(row, reason);
+    } catch {
+    }
+  }
+  function push(row) {
+    if (count === capacity) {
+      const evicted = slots[head];
+      slots[head] = row;
+      head = (head + 1) % capacity;
+      noteDrop(evicted, "overflow");
+      return;
+    }
+    slots[(head + count) % capacity] = row;
+    count++;
+  }
+  function shift() {
+    if (count === 0) return null;
+    const row = slots[head];
+    slots[head] = null;
+    head = (head + 1) % capacity;
+    count--;
+    return row;
+  }
+  function enabled() {
+    return !disposed && call !== null && phoneName !== "";
+  }
+  function schedule(ms) {
+    if (!timer || disposed || scheduled !== null) return;
+    try {
+      scheduled = timer.set(() => {
+        scheduled = null;
+        void flush();
+      }, ms);
+    } catch {
+      scheduled = null;
+    }
+  }
+  function delay(ms) {
+    if (!timer || !(ms > 0)) return Promise.resolve();
+    return new Promise((resolve) => {
+      try {
+        timer.set(resolve, ms);
+      } catch {
+        resolve();
+      }
+    });
+  }
+  async function sendOnce(rows) {
+    const payload = { rows: rows.map((r) => ({ level: r.level, event: r.event, fields: r.fields, ts: r.ts })) };
+    const pendingCall = call ? call(phoneName, payload) : Promise.reject(new Error("no-channel"));
+    if (!(sendTimeoutMs > 0) || !timer) return await pendingCall;
+    return await new Promise((resolve, reject) => {
+      let done = false;
+      let handle = null;
+      try {
+        handle = timer.set(() => {
+          if (done) return;
+          done = true;
+          reject(new Error("log-append-timeout"));
+        }, sendTimeoutMs);
+      } catch {
+        handle = null;
+      }
+      pendingCall.then(
+        (reply) => {
+          if (done) return;
+          done = true;
+          if (handle !== null) {
+            try {
+              timer.clear(handle);
+            } catch {
+            }
+          }
+          resolve(reply);
+        },
+        (error) => {
+          if (done) return;
+          done = true;
+          if (handle !== null) {
+            try {
+              timer.clear(handle);
+            } catch {
+            }
+          }
+          reject(error);
+        }
+      );
+    });
+  }
+  async function sendWithRetry(rows) {
+    let attempt = 0;
+    for (; ; ) {
+      try {
+        const reply = await sendOnce(rows);
+        if (reply && typeof reply === "object" && typeof reply["accepted"] === "number" && typeof reply["dropped"] === "number") {
+          return { ok: true, reply };
+        }
+      } catch {
+      }
+      if (attempt >= maxRetries) return { ok: false, reply: null };
+      const wait = retryDelays[Math.min(attempt, retryDelays.length - 1)];
+      attempt++;
+      await delay(typeof wait === "number" && Number.isFinite(wait) ? wait : 0);
+    }
+  }
+  async function flush() {
+    if (disposed || inFlight || count === 0) return;
+    if (!enabled()) {
+      while (count > 0) noteDrop(shift(), "no-channel");
+      return;
+    }
+    inFlight = true;
+    const batch = [];
+    while (batch.length < batchSize && count > 0) {
+      const row = shift();
+      if (!row) break;
+      batch.push(row);
+    }
+    try {
+      const result = await sendWithRetry(batch);
+      if (result.ok && result.reply) {
+        const accepted = Number(result.reply["accepted"]);
+        const hostDropped = Number(result.reply["dropped"]);
+        sent += Number.isFinite(accepted) ? accepted : batch.length;
+        let lost = Number.isFinite(hostDropped) ? hostDropped : 0;
+        while (lost > 0) {
+          noteDrop(null, "host-refused");
+          lost--;
+        }
+      } else {
+        for (const row of batch) noteDrop(row, "send-failed");
+      }
+    } catch {
+      for (const row of batch) noteDrop(row, "send-failed");
+    } finally {
+      inFlight = false;
+    }
+    if (disposed) return;
+    if (count >= batchSize) schedule(0);
+    else if (count > 0) schedule(flushMs);
+  }
+  function onVisibilityChange() {
+    try {
+      const state = visibility?.visibilityState;
+      const hidden = visibility?.hidden === true || state === "hidden";
+      if (hidden) void flush();
+    } catch {
+    }
+  }
+  if (visibility && typeof visibility.addEventListener === "function") {
+    try {
+      visibility.addEventListener("visibilitychange", onVisibilityChange);
+    } catch {
+    }
+  }
+  function emit(level, event, fields) {
+    try {
+      const eventName = typeof event === "string" ? event : "";
+      if (!eventName) return;
+      const row = {
+        level: typeof level === "string" && level ? level : "info",
+        event: eventName,
+        fields: fields && typeof fields === "object" ? fields : {},
+        ts: now()
+      };
+      if (disposed) {
+        noteDrop(row, "disposed");
+        return;
+      }
+      if (!enabled()) {
+        noteDrop(row, "no-channel");
+        return;
+      }
+      push(row);
+      if (count >= batchSize) schedule(0);
+      else schedule(flushMs);
+    } catch {
+    }
+  }
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    if (scheduled !== null && timer) {
+      try {
+        timer.clear(scheduled);
+      } catch {
+      }
+    }
+    scheduled = null;
+    while (count > 0) noteDrop(shift(), "disposed");
+    if (visibility && typeof visibility.removeEventListener === "function") {
+      try {
+        visibility.removeEventListener("visibilitychange", onVisibilityChange);
+      } catch {
+      }
+    }
+  }
+  return {
+    emit,
+    flush,
+    pending: () => count,
+    dropped: () => dropped,
+    sent: () => sent,
+    enabled,
+    dispose
+  };
+}
+__mods["upd-log-client-queue"] = { CLIENT_LOG_BATCH_SIZE, CLIENT_LOG_EVENTS, CLIENT_LOG_FLUSH_MS, CLIENT_LOG_MAX_QUEUE, CLIENT_LOG_MAX_RETRIES, CLIENT_LOG_RETRY_DELAYS_MS, CLIENT_LOG_SEND_TIMEOUT_MS, LOG_LEVELS, createClientLogChannel, isClientLogEvent, resolveClientLogTimer, resolveClientLogVisibility };
+
+})();
+(function () {
 // AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/panel.ts
-const { buildChangelogPhoneName, buildPhoneNames, DEFAULT_PANEL_POLL_MS, MIN_PANEL_POLL_MS } = __mods["upd-config"];
+const { buildChangelogPhoneName, buildLogAppendPhoneName, buildPhoneNames, DEFAULT_PANEL_POLL_MS, MIN_PANEL_POLL_MS } = __mods["upd-config"];
 const { COPY_BUDGET_CHARS, sanitizeForCopy } = __mods["upd-redaction"];
 const { compareReleaseVersions, validReleaseVersion } = __mods["upd-service"];
-const { changelogForUpdate, parseChangelog, renderChangelogHTML, shouldFetchChangelog, yankedBannerHTML } = __mods["upd-changelog"];
+const { changelogForUpdate, parseChangelogReport, renderChangelogHTML, shouldFetchChangelog, truncationNoteHTML, yankedBannerHTML } = __mods["upd-changelog"];
 const { LOG_EVENT_CALL, LOG_EVENT_CALL_FAIL, LOG_EVENT_INSTALL_EXEC } = __mods["upd-log-events"];
+const { createClientLogChannel } = __mods["upd-log-client-queue"];
+const { INTERNAL_CODE, isCheckSideFailureCode } = __mods["upd-codes"];
 const { copyText } = __mods["upd-bilingual"];
-const { normalizeLangTag, resolveLang, subscribeLang } = __mods["upd-lang"];
+const { langSignalSource, normalizeLangTag, resolveLang, subscribeLang } = __mods["upd-lang"];
 function normalizePanelTheme(value) {
   return value === "archive" ? "archive" : "default";
 }
@@ -2289,7 +3452,7 @@ const PHONE_FAILURE_KEYS = {
   "check-expired": { title: "panel.failure.check-expired.title", action: "panel.failure.check-expired.action" },
   "update-busy": { title: "panel.failure.update-busy.title", action: "panel.failure.update-busy.action" },
   "install-failed": { title: "panel.failure.install-failed.title", action: "panel.failure.install-failed.action" },
-  internal: { title: "panel.failure.internal.title", action: "panel.failure.internal.action" }
+  [INTERNAL_CODE]: { title: "panel.failure.internal.title", action: "panel.failure.internal.action" }
 };
 const UNKNOWN_FAILURE_KEYS = {
   title: "panel.failure.unknown.title",
@@ -2318,7 +3481,7 @@ function failureCodeOf(reply, fallback) {
   const err = reply && typeof reply.error === "string" ? reply.error.trim() : "";
   if (err) return err;
   if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
-  return "internal";
+  return INTERNAL_CODE;
 }
 const PANEL_DIAG_MAX_CHARS = COPY_BUDGET_CHARS;
 function redactForCopy(text) {
@@ -2663,10 +3826,12 @@ function panelViewModelCore(input, lang) {
   if (!staleFailure && (failedCode || jobState === "failed" || jobState === "interrupted")) {
     const code = failedCode || "install-failed";
     const copy = failureCopy(code, l);
+    const checkDetail = copy?.zh ?? code;
+    const detail = snapshot?.installed === false && isCheckSideFailureCode(code) ? copyText("panel.banner.not-installed", l) + "\uFF1A" + checkDetail : checkDetail;
     return {
       banner: {
         kind: "failed",
-        title: copyText("panel.banner.error.title", l, { code, detail: copy?.zh ?? code }),
+        title: copyText("panel.banner.error.title", l, { code, detail }),
         action: copy?.act || copyText("panel.banner.error.action-fallback", l)
       },
       installEnabled: snapshot.canInstall,
@@ -2713,16 +3878,32 @@ function panelViewModelCore(input, lang) {
     };
   }
   if (snapshot.canInstall && snapshot.latestVersion) {
+    const running = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.runningVersion;
     return {
       banner: {
         kind: "update",
-        title: copyText("panel.banner.update-title", l, { latest: snapshot.latestVersion, running: snapshot.runningVersion }),
+        title: copyText("panel.banner.update-title", l, { latest: snapshot.latestVersion, running }),
         action: copyText("panel.banner.update-action", l)
       },
       installEnabled: true,
       installLabel: copyText("panel.action.install-version", l, { latest: snapshot.latestVersion }),
       skippedLatest: false,
       showManual: manual ? true : false,
+      showReset: false,
+      queueNote
+    };
+  }
+  if (snapshot?.installed === false) {
+    return {
+      banner: {
+        kind: "idle",
+        title: copyText("panel.banner.not-installed", l),
+        action: copyText("panel.action.check", l)
+      },
+      installEnabled: false,
+      installLabel: copyText("panel.action.install", l),
+      skippedLatest: false,
+      showManual: false,
       showReset: false,
       queueNote
     };
@@ -2771,7 +3952,26 @@ const UPDATE_PANEL_CSS = [
   ".dsh-upd-changelog-security-more{margin:4px 0 6px}",
   ".dsh-upd-changelog-security-more>summary{cursor:pointer;font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.8}",
   ".dsh-upd-changelog-more-note{font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.7;margin:2px 0 4px}",
+  // 文档级截断说明（0.16.0）：切掉多少写在日志块头上，不再静默丢字。
+  ".dsh-upd-changelog-truncnote{font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.8;border-left:3px solid var(--dsh-update-border,#d1d5db);padding:2px 0 2px 8px;margin:4px 0 6px}",
   ".dsh-upd-changelog-neutral{color:inherit;opacity:.8}",
+  // —— 日志行内 Markdown（#110 取样：行内代码 4914 处/81 份是主力，粗体 4742/26，链接 6286+裸 URL 6671）——
+  // 只上最小可用样式：颜色/底色一律走现有 token（第三方 themeTokens 覆盖即生效），不新增配色体系。
+  ".dsh-upd-md-code{font-family:var(--dsh-update-font-mono,Consolas,Menlo,monospace);font-size:.92em;background:var(--dsh-update-bg-soft,#f3f4f6);border:1px solid var(--dsh-update-border,#e5e7eb);border-radius:3px;padding:0 3px;word-break:break-word}",
+  ".dsh-upd-md-link{color:var(--dsh-update-primary,#2563eb);text-decoration:underline;text-underline-offset:2px;cursor:pointer;word-break:break-all}",
+  ".dsh-upd-md-del{opacity:.7}",
+  ".dsh-upd-md-img{display:inline-block;max-width:100%;border:1px dashed var(--dsh-update-border,#d1d5db);border-radius:3px;padding:0 4px;font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.85;word-break:break-all}",
+  // —— 日志块级 Markdown（嵌套子条目 / 引用块 / 围栏代码块 / 续行段落，见 #116 返工后的解析层）——
+  // 面板正文只有 400–460px 宽：代码块横向滚动而不是撑破面板，列表缩进收紧，引用块只留一条左边线。
+  ".dsh-upd-md-pre{margin:6px 0;padding:7px 9px;max-width:100%;overflow-x:auto;background:var(--dsh-update-bg-soft,#f3f4f6);border:1px solid var(--dsh-update-border,#e5e7eb);border-radius:4px}",
+  ".dsh-upd-md-precode{display:block;font-family:var(--dsh-update-font-mono,Consolas,Menlo,monospace);font-size:.9em;white-space:pre;background:none;border:0;padding:0}",
+  ".dsh-upd-md-quote{margin:6px 0;padding:1px 0 1px 9px;border-left:3px solid var(--dsh-update-border,#d1d5db);color:var(--dsh-update-text-muted,#4b5563)}",
+  ".dsh-upd-md-list{margin:4px 0;padding-left:18px;list-style:disc}",
+  ".dsh-upd-md-list-ol{margin:4px 0;padding-left:20px;list-style:decimal}",
+  ".dsh-upd-md-list li,.dsh-upd-md-list-ol li{margin:2px 0}",
+  ".dsh-upd-md-para{margin:4px 0}",
+  // 分隔线（`---`／`***`）：作者拿它切版本或小节，别让它以字面 `---` 混在正文里（jimp 类日志常见）。
+  ".dsh-upd-md-hr{margin:8px 0;border:0;border-top:1px solid var(--dsh-update-border,#e5e7eb)}",
   ".dsh-upd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:9999}",
   ".dsh-upd-overlay .dsh-upd{background:var(--dsh-update-bg,#ffffff);max-height:85vh;display:flex;flex-direction:column;overflow:hidden}",
   // —— 弹窗高度让渡契约（#93，headless 量盒子实测）——
@@ -2986,6 +4186,8 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   // footer 只换肤（#47 定案 A + Archive 约束：不换 DOM 顺序；复制诊断永不隐藏，本串不动它）。
   '.dsh-upd[data-theme="archive"] .dsh-upd-footer{margin-top:14px;padding-top:10px;border-top:1px solid var(--dsh-update-border)}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-foot-note{color:var(--dsh-update-text-muted)}',
+  // footer 关闭幽灵统一（#108：与 actions 非主按钮同口径——缺覆盖吃到底层 button-bg 灰填充；只给透明底，沿用 border-strong/text 纸墨，不独立设色；字号/内边距跟 footer 现状走）。
+  '.dsh-upd[data-theme="archive"] .dsh-upd-footer button{background:transparent}',
   // —— 档案头（原型 :208-211 `.filehead`：serif 插件名 22px + 使用范围 + profile 牌；右侧留章位）——
   '.dsh-upd[data-theme="archive"] .dsh-upd-head{display:flex;gap:16px;align-items:baseline;flex-wrap:wrap;padding-right:120px}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-name{font-family:var(--dsh-update-font-serif);font-size:22px;font-weight:700}',
@@ -3039,12 +4241,28 @@ const UPDATE_PANEL_ARCHIVE_CSS = [
   '.dsh-upd[data-theme="archive"] .dsh-upd-changelog ul{margin:6px 0 0 2px;padding-left:18px;font-size:var(--dsh-update-panel-log-font-size,13.5px)}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-changelog li{margin:3px 0}',
   '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-catname{display:none}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Added"] ul li::before{content:"Added \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Fixed"] ul li::before{content:"Fixed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Changed"] ul li::before{content:"Changed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Security"] ul li::before{content:"Security \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Deprecated"] ul li::before{content:"Deprecated \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
-  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Removed"] ul li::before{content:"Removed \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
+  // 作者自定义小节（data-cat="other"）：档案卷没有「类名前缀」可补，标题必须自己显示出来，
+  // 否则整段内容会变成没有出处的一堆条目（六类之外唯一需要露出标题的分支）。
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="other"] .dsh-upd-changelog-catname{display:block;font-size:var(--dsh-update-panel-small-font-size,12.5px);color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-truncnote{border-left-color:var(--dsh-update-border-strong);opacity:1;color:var(--dsh-update-text-muted)}',
+  // 前缀只给「正文自己没写类名」的顶层**散文**条目：嵌套子列表（.dsh-upd-md-list）的 li 不是 cat 的直接子级，
+  // 正文已写 `**Added** · …` 的条目标了 data-cat-lead、整条是代码块/引用块的标了 data-cat-block（见 renderChangelogItem）
+  //——否则会出现「Added · Added · …」，或在代码块前挂一个孤零零的「Added ·」。
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Added"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Added \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Fixed"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Fixed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Changed"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Changed \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-cat[data-cat="Security"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Security \xB7 ";color:var(--dsh-update-primary);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Deprecated"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Deprecated \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-changelog-fold[data-cat="Removed"]>ul>li:not([data-cat-lead]):not([data-cat-block])::before{content:"Removed \xB7 ";color:var(--dsh-update-text-muted);font-weight:700}',
+  // —— 档案卷：行内 Markdown 只换肤（纸色底、朱红链接、去掉下划线改细底线，贴原型 .logver 的手记感）——
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-code{background:var(--dsh-update-bg-soft);border-color:var(--dsh-update-border);color:var(--dsh-update-primary-deep);border-radius:2px;padding:0 3px}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-link{color:var(--dsh-update-primary);text-decoration:none;border-bottom:1px solid currentColor}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-img{border-color:var(--dsh-update-border-strong);color:var(--dsh-update-text-muted)}',
+  // —— 档案卷：块级 Markdown 同样只换肤（纸色代码块、墨色引用边线、列表缩进收紧）——
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-pre{background:var(--dsh-update-bg-soft);border-color:var(--dsh-update-border);border-radius:2px}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-quote{border-left-color:var(--dsh-update-border-strong);color:var(--dsh-update-text-muted)}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-list,.dsh-upd[data-theme="archive"] .dsh-upd-md-list-ol{padding-left:16px}',
+  '.dsh-upd[data-theme="archive"] .dsh-upd-md-hr{border-top-color:var(--dsh-update-border-strong)}',
   '@media (max-width:640px){.dsh-upd[data-theme="archive"]{padding:10px 12px}.dsh-upd[data-theme="archive"]::before{top:12px;right:12px;width:56px;height:56px;font-size:15px;box-shadow:inset 0 0 0 4px var(--dsh-update-bg),inset 0 0 0 5px currentColor}.dsh-upd[data-theme="archive"] .dsh-upd-masthead-title{font-size:19px}.dsh-upd[data-theme="archive"] .dsh-upd-banner{padding-right:16px}.dsh-upd[data-theme="archive"] .dsh-upd-banner .dsh-upd-sealmini{min-width:28px;height:28px;font-size:14px;line-height:20px}.dsh-upd[data-theme="archive"] .dsh-upd-banner>div:first-child{white-space:normal}}',
   '@media (prefers-color-scheme: dark){.dsh-upd[data-theme="archive"]{--dsh-update-bg-soft:#141210;--dsh-update-bg:#1e1a15;--dsh-update-text:#ece5d3;--dsh-update-text-muted:#a89c83;',
   "--dsh-update-border:#3a3226;--dsh-update-border-strong:#5c4e3b;--dsh-update-primary:#e0684e;--dsh-update-primary-deep:#f0866b;",
@@ -3106,7 +4324,8 @@ function versionStrip(snapshot, lang) {
   const unknown = copyText("panel.meta.unknown", l);
   const cell = (k, v) => `<div><span class="dsh-upd-strip-k">${escapeHtml(k)}</span><span class="dsh-upd-strip-v">${escapeHtml(v ?? unknown)}</span></div>`;
   if (!snapshot) return "";
-  return `<div class="dsh-upd-strip">` + cell(copyText("panel.strip.running", l), snapshot.runningVersion) + cell(copyText("panel.strip.installed", l), snapshot.installedVersion) + cell(copyText("panel.strip.latest", l), snapshot.latestVersion) + `</div>`;
+  return `<div class="dsh-upd-strip">` + cell(copyText("panel.strip.running", l), snapshot.runningVersion) + // 磁盘格是单插件面板的版本槽状态词：缺席不说「未知」，说「未安装」（#134/US8）。
+  cell(copyText("panel.strip.installed", l), snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.installedVersion) + cell(copyText("panel.strip.latest", l), snapshot.latestVersion) + `</div>`;
 }
 function progressBar(snapshot, lang) {
   const job = snapshot?.job;
@@ -3184,7 +4403,8 @@ function renderUpdatePanelKernel(input, view, lang) {
     if (snapshot && snapshot.latestVersion) {
       try {
         const mdText = typeof changelogMarkdown === "string" ? changelogMarkdown : "";
-        const entries = parseChangelog(mdText);
+        const report = parseChangelogReport(mdText);
+        const entries = report.entries;
         const ranged = changelogForUpdate(
           entries,
           snapshot.runningVersion,
@@ -3192,11 +4412,11 @@ function renderUpdatePanelKernel(input, view, lang) {
           snapshot.installedVersion
         );
         if (ranged.length === 0 && mdText.trim() && entries.length === 0) {
-          inner = `<div class="dsh-upd-changelog-wrap"><div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.changelog.unavailable", l))}</div></div>`;
+          inner = `<div class="dsh-upd-changelog-wrap"><div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.changelog.unavailable", l))}</div>${truncationNoteHTML(report.truncation, l)}</div>`;
           hasLog = false;
         } else {
-          const changelogHTML = renderChangelogHTML(ranged, { lang: l });
-          const fromText = String(snapshot.runningVersion ?? "");
+          const changelogHTML = renderChangelogHTML(ranged, { lang: l, truncated: report.truncation });
+          const fromText = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : String(snapshot.runningVersion ?? "");
           const toText = String(snapshot.latestVersion ?? "");
           const rangeTitle = fromText && toText ? copyText("panel.changelog.heading-range", l, { from: fromText, to: toText }) : copyText("panel.changelog.heading", l);
           let yankedBanner = "";
@@ -3307,8 +4527,14 @@ ${changelogHTML}
       errLines.push(`<div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.error.no-failure", l))}</div>`);
     }
     if (input.showLogHint !== false) {
+      const logDirInput = input.logDir;
+      const logDirKnown = typeof logDirInput === "string" && logDirInput.trim() ? logDirInput.trim() : null;
+      const logDirShown = logDirKnown ?? "<DSH_HOME>/logs/<derived>";
+      const logCmdShown = logDirKnown ? `npx dsh-log ${logDirKnown}` : "npx dsh-log <log-dir>";
       errLines.push(
         `<div class="dsh-upd-log">${copyText("panel.error.log-hint", l, {
+          dir: `<code>${escapeHtml(logDirShown)}</code>`,
+          cmd: `<code>${escapeHtml(logCmdShown)}</code>`,
           pluginId: `<code>${escapeHtml(pluginId)}</code>`,
           e1: `<code>${LOG_EVENT_CALL}</code>`,
           e2: `<code>${LOG_EVENT_CALL_FAIL}</code>`,
@@ -3404,6 +4630,16 @@ function getTimer() {
     clear: (h) => clearT(h)
   };
 }
+function defaultOpenLink(url) {
+  try {
+    if (!/^https?:\/\//i.test(String(url || ""))) return;
+    const g = globalThis;
+    const w = g["window"];
+    const open = w && typeof w.open === "function" ? w.open : null;
+    if (open && w) open.call(w, url, "_blank", "noopener,noreferrer");
+  } catch {
+  }
+}
 async function defaultCopyText(text) {
   try {
     const holder = globalThis["navigator"];
@@ -3424,22 +4660,50 @@ function pendingAutoCheck(snapshot, busyAct) {
   return true;
 }
 function mountUpdatePanel(container, options) {
+  const logOptionRead = options && typeof options === "object" ? options.clientLog : void 0;
+  const clientLogDisabled = logOptionRead === null;
+  const clientLogMountName = logOptionRead && typeof logOptionRead === "object" && typeof logOptionRead.mount === "string" && logOptionRead.mount ? logOptionRead.mount : "";
+  let clientLog = logOptionRead && typeof logOptionRead === "object" && logOptionRead.channel ? logOptionRead.channel : null;
+  let clientLogOwned = false;
+  function logClient(level, event, fields) {
+    const channel = clientLog;
+    if (!channel) return;
+    try {
+      channel.emit(level, event, fields);
+    } catch {
+    }
+  }
+  function logMountFailure(kind) {
+    logClient("error", "update.panel.render.fail", { kind });
+  }
   if (!container || typeof container.innerHTML !== "string") {
+    logMountFailure("container");
     throw new Error("[dsh-plugin-update] \u6302\u8F7D\u9762\u677F\u9700\u8981\u4E00\u4E2A\u6709 innerHTML \u7684\u5BB9\u5668");
   }
   if (!options || typeof options !== "object") {
+    logMountFailure("plugin-id");
     throw new Error("[dsh-plugin-update] \u6302\u8F7D\u9762\u677F\u7F3A\u5C11\u914D\u7F6E\uFF1A\u63D2\u4EF6\u6807\u8BC6 pluginId \u5FC5\u586B");
   }
   const pluginId = options.pluginId;
   if (typeof pluginId !== "string" || !pluginId) {
+    logMountFailure("plugin-id");
     throw new Error(`[dsh-plugin-update] \u63D2\u4EF6\u6807\u8BC6 pluginId \u5FC5\u586B\uFF1A\u987B\u4E3A\u975E\u7A7A\u5B57\u7B26\u4E32\uFF08\u6536\u5230 ${JSON.stringify(pluginId)}\uFF09`);
   }
   if (typeof options.call !== "function") {
+    logMountFailure("call");
     throw new Error("[dsh-plugin-update] \u6302\u8F7D\u9762\u677F\u9700\u8981\u4F20\u8F93\u51FD\u6570 call\uFF08\u9762\u677F\u8C03\u5BBF\u4E3B\u7535\u8BDD\u7684\u552F\u4E00\u63A5\u89E6\u9762\uFF09");
   }
   const prefix = options.prefix === void 0 ? "wf" : options.prefix;
   const phoneNames = buildPhoneNames(prefix);
   const changelogPhone = buildChangelogPhoneName(prefix);
+  if (!clientLog && !clientLogDisabled) {
+    try {
+      clientLog = createClientLogChannel({ call: options.call, phoneName: buildLogAppendPhoneName(prefix) });
+      clientLogOwned = true;
+    } catch {
+      clientLog = null;
+    }
+  }
   const autoChangelogEnabled = typeof options.changelogMarkdown !== "string" && options.autoChangelog !== false;
   let manualChangelogOverride = typeof options.changelogMarkdown === "string";
   const changelogCache = /* @__PURE__ */ new Map();
@@ -3448,16 +4712,20 @@ function mountUpdatePanel(container, options) {
   let autoSeq = 0;
   const pollMs = options.pollMs === void 0 ? DEFAULT_PANEL_POLL_MS : options.pollMs;
   if (typeof pollMs !== "number" || !Number.isFinite(pollMs) || pollMs < MIN_PANEL_POLL_MS) {
+    logMountFailure("poll-ms");
     throw new Error(`[dsh-plugin-update] \u9762\u677F\u8F6E\u8BE2\u95F4\u9694\u975E\u6CD5\uFF1A\u4E0D\u5F97\u5C0F\u4E8E 250 \u6BEB\u79D2\uFF08\u6536\u5230 ${JSON.stringify(options.pollMs)}\uFF09`);
   }
   let mode = options.mode ?? "embedded";
   if (mode !== "embedded" && mode !== "dialog") {
+    logMountFailure("mode");
     throw new Error(`[dsh-plugin-update] \u6446\u653E\u5F62\u6001\u975E\u6CD5\uFF1A\u53EA\u6536 embedded \u6216 dialog\uFF08\u6536\u5230 ${JSON.stringify(options.mode)}\uFF09`);
   }
   if (options.theme !== void 0 && options.theme !== "default" && options.theme !== "archive") {
+    logMountFailure("theme");
     throw new Error(`[dsh-plugin-update] \u4E3B\u9898\u975E\u6CD5\uFF1A\u53EA\u6536 default \u6216 archive\uFF08\u6536\u5230 ${JSON.stringify(options.theme)}\uFF09`);
   }
   let theme = normalizePanelTheme(options.theme ?? "default");
+  const themeExplicit = options.theme !== void 0;
   themeTokensStyleFor(options.themeTokens ?? void 0);
   let themeTokens = options.themeTokens;
   const localeOpt = options.locale ?? void 0;
@@ -3474,6 +4742,44 @@ function mountUpdatePanel(container, options) {
   function currentLang() {
     return resolveLang(localeOpt);
   }
+  let loggedLang = null;
+  function logLangApplied() {
+    const lang = currentLang();
+    if (lang === loggedLang) return;
+    loggedLang = lang;
+    logClient("info", "update.lang.applied", { lang, source: langSignalSource(localeOpt) });
+  }
+  let loggedState = "";
+  let actionBytes = -1;
+  let actionTruncated = false;
+  function utf8ByteLength(text) {
+    let bytes = 0;
+    for (let i = 0; i < text.length; i++) {
+      const code = text.charCodeAt(i);
+      if (code < 128) bytes += 1;
+      else if (code < 2048) bytes += 2;
+      else if (code >= 55296 && code <= 56319 && i + 1 < text.length) {
+        bytes += 4;
+        i++;
+      } else bytes += 3;
+    }
+    return bytes;
+  }
+  function logPanelState() {
+    const state = busyAct ? "busy" : latch || snapshot?.job?.state === "failed" ? "error" : "ready";
+    let tokensApplied = 0;
+    if (themeTokens) {
+      for (const key2 of Object.keys(themeTokens)) {
+        if (themeTokens[key2] !== void 0) tokensApplied++;
+      }
+    }
+    const key = `${state}|${theme}|${tokensApplied}|${themeExplicit ? "x" : "d"}`;
+    if (key === loggedState) return;
+    loggedState = key;
+    logClient("info", "update.panel.state", { state, theme, tokensApplied, fallback: !themeExplicit });
+  }
+  logClient("info", "update.panel.mount", { mode: clientLogMountName || mode, theme, lang: currentLang(), pollMs });
+  logLangApplied();
   let showOthers = options.showOthers === true;
   let changelogCollapsed = false;
   const call = options.call;
@@ -3481,10 +4787,12 @@ function mountUpdatePanel(container, options) {
   const onCloseRequested = typeof options.onCloseRequested === "function" ? options.onCloseRequested : null;
   let lastHTML = "";
   const copyTextOut = options.copyText ?? defaultCopyText;
+  const openLinkOut = options.openLink ?? defaultOpenLink;
   const skipStore = options.skipStore ?? createBrowserSkipStore(pluginId);
   const hostKind = typeof options.hostKind === "string" && options.hostKind ? options.hostKind : null;
   const profileNameOption = typeof options.profileName === "string" && options.profileName ? options.profileName : null;
   const showLogHintOption = options.showLogHint !== false;
+  const logDirOption = typeof options.logDir === "string" && options.logDir ? options.logDir : null;
   const diagCopyFormat = options.diagCopyFormat === "line" ? "line" : "block";
   let changelogMarkdown = typeof options.changelogMarkdown === "string" ? options.changelogMarkdown : null;
   let snapshot = null;
@@ -3670,6 +4978,10 @@ function mountUpdatePanel(container, options) {
     ];
     return pairs.some(([a, b]) => a !== null && b !== null && a !== b);
   }
+  function latchSameFailure(a, b) {
+    if (!a) return false;
+    return a.code === b.code && a.kind === b.kind && a.detail === b.detail && a.diag === b.diag && a.requestId === b.requestId && a.checkId === b.checkId && a.runningVersion === b.runningVersion && a.installedVersion === b.installedVersion && a.latestVersion === b.latestVersion && a.targetVersion === b.targetVersion && a.hostKind === b.hostKind && a.profileName === b.profileName && a.source === b.source && a.volatile === b.volatile && a.jobId === b.jobId;
+  }
   let copyNotice = null;
   let noticeExpiresAt = 0;
   let busyAct = null;
@@ -3710,6 +5022,7 @@ function mountUpdatePanel(container, options) {
         focusAction = null;
       }
       let scrolls = [];
+      let rootScrolls = [];
       try {
         const nodes = el.querySelectorAll(".dsh-upd-body");
         if (nodes) {
@@ -3721,6 +5034,17 @@ function mountUpdatePanel(container, options) {
       } catch {
         scrolls = [];
       }
+      try {
+        const roots = el.querySelectorAll(".dsh-upd");
+        if (roots) {
+          for (let i = 0; i < roots.length; i++) {
+            const n = roots[i];
+            rootScrolls.push(typeof n.scrollTop === "number" ? n.scrollTop : 0);
+          }
+        }
+      } catch {
+        rootScrolls = [];
+      }
       target.innerHTML = html;
       try {
         const bodies = el.querySelectorAll(".dsh-upd-body");
@@ -3729,6 +5053,19 @@ function mountUpdatePanel(container, options) {
             const n = bodies[i];
             try {
               n.scrollTop = scrolls[i];
+            } catch {
+            }
+          }
+        }
+      } catch {
+      }
+      try {
+        const roots = el.querySelectorAll(".dsh-upd");
+        if (roots) {
+          for (let i = 0; i < roots.length && i < rootScrolls.length; i++) {
+            const n = roots[i];
+            try {
+              n.scrollTop = rootScrolls[i];
             } catch {
             }
           }
@@ -3763,6 +5100,13 @@ function mountUpdatePanel(container, options) {
   }
   function render() {
     if (!mounted) return;
+    try {
+      paint();
+    } catch {
+      logClient("error", "update.panel.render.fail", { kind: "unknown" });
+    }
+  }
+  function paint() {
     if (!copyNotice) noticeExpiresAt = 0;
     else if (noticeExpiresAt && Date.now() > noticeExpiresAt) {
       copyNotice = null;
@@ -3792,12 +5136,15 @@ function mountUpdatePanel(container, options) {
       themeTokens,
       // 使用范围与宿主种类：调用方显式传的优先，否则用宿主回的真值。
       profileName: profileNameOption ?? envProfileName,
-      hostKind: hostKind ?? envHostKind
+      hostKind: hostKind ?? envHostKind,
+      // 日志目录（#123）：挂载项给的真值；没给就由错误章路牌退回算式与命令模板。
+      logDir: logDirOption
     });
     if (nextHTML !== lastHTML) {
       lastHTML = nextHTML;
       setStableHTML(container, nextHTML);
     }
+    logPanelState();
   }
   function applyStatusReply(reply, via) {
     if (!isObject(reply)) return;
@@ -3824,7 +5171,10 @@ function mountUpdatePanel(container, options) {
         clearLatch();
       } else if ((jobState === "failed" || jobState === "interrupted") && snapshot?.job) {
         if (snapshot && tripleChanged(snapshot)) clearLatch();
-        else setLatch(latchFromJob(snapshot.job, snapshot));
+        else {
+          const next = latchFromJob(snapshot.job, snapshot);
+          if (!latchSameFailure(latch, next)) setLatch(next);
+        }
       } else if (via === "install") {
         clearLatch();
       } else if (snapshot && tripleChanged(snapshot)) {
@@ -3936,6 +5286,18 @@ function mountUpdatePanel(container, options) {
   }
   async function act(kind, arg) {
     if (!mounted) return;
+    actionBytes = -1;
+    actionTruncated = false;
+    try {
+      await runAction(kind, arg);
+    } finally {
+      logClient("info", "update.panel.action", {
+        action: kind,
+        ...actionBytes >= 0 ? { bytes: actionBytes, truncated: actionTruncated } : {}
+      });
+    }
+  }
+  async function runAction(kind, arg) {
     copyNotice = null;
     switch (kind) {
       case "check": {
@@ -4066,7 +5428,8 @@ function mountUpdatePanel(container, options) {
       case "copy-diag": {
         const jobCode = snapshot?.job?.state === "failed" ? messageCodeOf(snapshot.job.message) || "install-failed" : "";
         if (!latch && !jobCode && !snapshot?.blockedReason && snapshot) {
-          const stateLine = snapshot.canInstall && snapshot.latestVersion ? `\u6709\u65B0\u7248 ${snapshot.latestVersion} \u53EF\u88C5\uFF08\u5F53\u524D ${snapshot.runningVersion}\uFF09` : "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002";
+          const notInstalledWord = snapshot.installed === false ? copyText("panel.banner.not-installed", currentLang()) : null;
+          const stateLine = snapshot.canInstall && snapshot.latestVersion ? `\u6709\u65B0\u7248 ${snapshot.latestVersion} \u53EF\u88C5\uFF08\u5F53\u524D ${notInstalledWord ?? snapshot.runningVersion}\uFF09` : notInstalledWord ?? "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002";
           const queueName = queueTextOf(queue?.position ?? null);
           const envBits = [
             `\u63D2\u4EF6=${pluginId}`,
@@ -4082,6 +5445,8 @@ function mountUpdatePanel(container, options) {
             `\u6765\u6E90\uFF1A${envBits.join(" \xB7 ")}`
           ].map((s) => redactForCopy(s));
           const text2 = diagCopyFormat === "line" ? segs.join(" \xB7 ") : segs.join("\n");
+          actionBytes = utf8ByteLength(text2);
+          actionTruncated = text2.length >= PANEL_DIAG_MAX_CHARS;
           try {
             await copyTextOut(text2);
             sayCopyKey("panel.toast.copy-state-ok");
@@ -4113,6 +5478,8 @@ function mountUpdatePanel(container, options) {
           format: diagCopyFormat,
           lang: currentLang()
         });
+        actionBytes = utf8ByteLength(text);
+        actionTruncated = text.length >= PANEL_DIAG_MAX_CHARS;
         try {
           await copyTextOut(text);
           sayCopyKey("panel.toast.copy-diag-ok");
@@ -4190,6 +5557,17 @@ function mountUpdatePanel(container, options) {
   function onClick(ev) {
     try {
       const t = ev;
+      const anchor = t?.target && typeof t.target.closest === "function" ? t.target.closest("a[data-openlink][href]") : null;
+      const href = anchor?.getAttribute ? anchor.getAttribute("href") : null;
+      if (href && /^https?:\/\//i.test(href)) {
+        if (typeof t?.preventDefault === "function") t.preventDefault();
+        try {
+          void Promise.resolve(openLinkOut(href)).catch(() => {
+          });
+        } catch {
+        }
+        return;
+      }
       const btn = t?.target && typeof t.target.closest === "function" ? t.target.closest("[data-action]") : null;
       const kind = btn?.getAttribute ? btn.getAttribute("data-action") : null;
       if (!kind) return;
@@ -4241,9 +5619,16 @@ function mountUpdatePanel(container, options) {
       container.removeEventListener?.("keydown", onKeyDown);
     } catch {
     }
+    if (clientLogOwned && clientLog) {
+      try {
+        clientLog.dispose();
+      } catch {
+      }
+    }
   }
   const unsubLang = subscribeLang(() => {
     render();
+    logLangApplied();
   }, localeOpt);
   render();
   try {
@@ -4280,8 +5665,8 @@ const PANEL_POLL = {
   minMs: MIN_PANEL_POLL_MS
 };
 const { QUEUE_INTENT_TTL_MS, emptyQueueState, normalizeQueueState, queuePositionOf, isHeadOfQueue, isQueueBusy, visibleQueueFor: visibleQueueFor2 } = __mods["upd-queue"];
-const { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate: changelogForUpdate2, hasVisibleSections, isUnreleasedVersion, parseChangelog: parseChangelog2, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries } = __mods["upd-changelog"];
-__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, changelogForUpdate: changelogForUpdate2, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, formatLatchTime, hasVisibleSections, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog: parseChangelog2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, selectChangelogEntries, themeTokensStyleFor, visibleQueueFor: visibleQueueFor2 };
+const { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate: changelogForUpdate2, hasVisibleSections, isUnreleasedVersion, parseChangelog, parseChangelogReport: parseChangelogReport2, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries, truncationNoteHTML: truncationNoteHTML2 } = __mods["upd-changelog"];
+__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, changelogForUpdate: changelogForUpdate2, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, formatLatchTime, hasVisibleSections, isCheckSideFailureCode, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, messageCodeOf, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog, parseChangelogReport: parseChangelogReport2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, selectChangelogEntries, themeTokensStyleFor, truncationNoteHTML: truncationNoteHTML2, visibleQueueFor: visibleQueueFor2 };
 
 })();
 (function () {
@@ -4613,12 +5998,15 @@ ${BILINGUAL_CSS}</style>
       themeTokens,
       pollMs,
       profileName,
+      logDir: options.logDir,
       autoChangelog: options.autoChangelog,
       changelogMarkdown: options.changelogMarkdown ?? null,
       locale: localeOpt,
       // 面板点「关闭」即走入口件的完整关闭（收 dialog + 还原按钮 + 重查一次），不再是面板自己停轮询。
       onCloseRequested: () => close(),
-      call: panelCall
+      call: panelCall,
+      // 客户端日志（#122）：挂载点名字写进 update.panel.mount，第三方一眼看出是入口件挂的。
+      clientLog: { mount: "entry" }
     });
     panelMode = mode;
   }
@@ -4748,690 +6136,1986 @@ __mods["upd-entry"] = { UPDATE_ENTRY_CSS, entryBilingualHTMLFor, entryBilingualK
 
 })();
 (function () {
-// AUTO-GENERATED by node packages/dsh-log/build.mjs — DO NOT EDIT. Source: packages/dsh-log/src/config.ts
-const LOG_DEBOUNCE_MS = 1e3;
-const DEFAULT_MAX_QUEUE = 1e3;
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/level.ts
+// src/core/level.ts —— 级别语义（领域层：零 IO、不依赖上层）。
+//
+// 「哪些级别永不丢」是 0.3.0 的头号不变量（error 永不丢）。同一条语义同时决定四件事：
+//   ① 开关是否放行（error/warn 恒放行）
+//   ② 队列满时怎么腾位（error/warn 挤最旧普通行，普通行丢新）
+//   ③ 刷盘走直通还是防抖（error/warn 立即刷）
+//   ④ 同形连击折叠认哪一级（只有 error 折叠）
+// 这四件事从前在 store.ts 与 client.ts 里各写一遍 'error'/'warn' 字面（8 处）。
+// 哪天加一个 fatal 级别，就得六处同步改，漏一处就是「新级别被静默丢掉」——
+// 最不该靠「记得改」保证的一条，单源一份在这里。
+// 级别全表，从最严重到最不严重。config.ts 的 EVENT_LEVELS 直接引用它（公开名与元组类型不变）。
+const LOG_LEVEL_ORDER = ['error', 'warn', 'info', 'debug'];
+// 严重度数值：越小越严重。要排序/比较用这个，别拿字符串比大小（'debug' < 'error' 是字母序，不是严重度）。
+const LEVEL_SEVERITY = { error: 0, warn: 1, info: 2, debug: 3 };
+// 是不是我们认识的级别。调用方与事件清单都可能传进任意字符串（清单是外部文件），
+// 不认识的级别一律按普通行处理，绝不当成 error 放行。
+function isKnownLevel(level) {
+    return typeof level === 'string' && Object.prototype.hasOwnProperty.call(LEVEL_SEVERITY, level);
+}
+// 紧急级别：error 与 warn。开关关了也放行、队列满时挤掉普通行、刷盘不等防抖。
+function isUrgentLevel(level) {
+    return level === 'error' || level === 'warn';
+}
+// 最高保护级：只有 error。三处用到它，理由不同、判据同一个：
+//   ① 同形连击折叠只折 error（warn 重复了多少次本身就是信息，折掉等于抹平）
+//   ② 客户端超包裁剪只裁普通行，error 不因体积被丢
+//   ③ 客户端积压裁剪同理
+// 一句话：error 是唯一「配额、体积、重复都不许动它」的级别。
+function isErrorLevel(level) {
+    return level === 'error';
+}
+
+__mods["log-core-level"] = Object.assign(__mods["log-core-level"] || {}, { LOG_LEVEL_ORDER, LEVEL_SEVERITY, isKnownLevel, isUrgentLevel, isErrorLevel });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/ids.ts
+// src/core/ids.ts —— 纯标识与指纹（领域层：零 IO、零平台、零全局状态）。
+//
+// 为什么下沉：同一套 djb2 短指纹原先在 store.ts（叫 hashText）、client.ts（叫 hash8）、
+// phones.ts（也叫 hash8）各写一份。三份实现只要有一处漂移，同一条目录/同一批字段在两个入口算出的
+// 散列就对不上——而散列正是「只记指纹、不记原文」的脱敏口径，对不上等于审计线断在中间。
+// 单源一份，谁要谁 import。
+/**
+ * 短指纹：djb2 → 8 位十六进制小写。
+ *
+ * 目录、字段、导出内容都只记它，不记原文（脱敏）。**不抛错**：调用方多在写盘/回包路径上，
+ * 不能因为一次散列失败把整批行带下水；出错回 `'00000000'`（与旧实现同形，历史散列值不变）。
+ */
+function hash8(value) {
+    try {
+        const t = String(value || '');
+        let h = 5381;
+        for (let i = 0; i < t.length; i++)
+            h = ((h << 5) + h + t.charCodeAt(i)) >>> 0;
+        return ('0000000' + h.toString(16)).slice(-8);
+    }
+    catch (e) {
+        void e;
+        return '00000000';
+    }
+}
+/**
+ * 短 id：`len` 位十六进制（traceId 16 位、spanId 8 位）。
+ *
+ * 用 Math.random 而不是 crypto：宿主与浏览器闭包两边都要跑，本包不引入任何运行环境专属能力
+ * （tsconfig 的 types 为空）。**它不是安全标识**——只用来把同一件事的多行串成一条链，
+ * 不承担防伪职责；要防伪的场合调用方自己注入。
+ */
+function genHex(len) {
+    try {
+        const digits = '0123456789abcdef';
+        let out = '';
+        for (let i = 0; i < len; i++)
+            out += digits[Math.floor(Math.random() * 16)];
+        return out || '0'.repeat(len);
+    }
+    catch (e) {
+        void e;
+        return '0'.repeat(len > 0 ? len : 8);
+    }
+}
+
+__mods["log-core-ids"] = Object.assign(__mods["log-core-ids"] || {}, { hash8, genHex });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/resident.ts
+// 常驻事件名单（单源）：包内固定的 DSH 常驻表 ∪ 调用方清单里 kind === 'resident' 的事件。
+//
+// 为什么要有这个文件：写侧有两个地方要判「这条 info 在开关关着时该不该落盘」——
+// 宿主的 engine/pipeline.ts 与客户端的 client/write.ts。两份名单各写一份，加一个事件就得改两处，
+// 漏一处就是「同一事件在宿主侧落了、客户端侧被静默拦掉」（#731 的根因就是这么来的）。
+//
+// 为什么还要认调用方清单：清单里 kind === 'resident' 是清单自己的语义（resident 常驻：
+// 始终落盘的轻量轨迹），可写侧从前不读它——外部插件把自己的 info 标成 resident 也照样静默消失
+// （2026-10-14 独立审查实测：默认配置下 log('info','my.app.started') 回 'skipped'、磁盘零行、
+// 丢弃计数为零）。所以判定 = 包内固定表 ∪ 清单声明的 resident：DSH 侧既有行为一字不变，
+// 第三方插件终于有一条「不用打开开关就能让某类 info 落盘」的正路。
+//
+// 这里是 core 层：不认识 config 的类型，只做防御性结构读取（清单形状在 config 面已验过）。
+// DSH 常驻 43 条（与 research/489-appendix.md 第 1 章一致，计数门禁逐项核对）。
+// 历史（原注释保留在这份名单旁边，别在别处再抄一遍）：
+//   #731 一次性修好：信息级里标为常驻的那批，开关关着也落盘；做成名单是为了以后新增只改一处。
+//   #782 补记：#746 的 naming.summary 落地时只进了附录与计数门禁，漏了写侧名单，
+//     开关关着时它被误拦；本票把 naming.summary 与新事件 cwd.persisted 一并补进。
+//   2026-10-04 #817 补记：版本管理宿主侧 git 适配器的 git.exec（每跑一次 git 外部命令一行）
+//     与 git.exec.fail（等超时与起进程失败）同日补进，常驻数由 41 变 43。
+const BUILTIN_RESIDENT_EVENTS = [
+    'snapshot.request', 'snapshot.cache.miss', 'repo.resolve.tier', 'gh.exec',
+    'gh.timeout', 'gh.resolve.fail', 'graphql.fallback', 'issues.fallback',
+    'snapshot.built', 'panelSync.dirty', 'registry.select', 'detection.detect',
+    'skill.probe', 'skill.pending.cap', 'host.call', 'host.call.fail',
+    'snapshot.hydrate', 'backend.switch', 'naming.guard', 'naming.lock',
+    'panel.open', 'statusbar.fallback', 'dock.rehydrate', 'storage.fail',
+    'chain.derive.error', 'fallback.chain', 'client.snapshot.miss', 'host.start',
+    'update.install.exec', 'labelColors.write', 'guide.inject', 'healthCheck.inject',
+    'choiceStore.file.bad', 'choiceStore.write.fail', 'issues.page', 'sessionTickets.chain',
+    'chain.backoff', 'host.dispatch.empty', 'naming.summary', 'cwd.persisted',
+    'update.install.manifestSync',
+    'git.exec', 'git.exec.fail',
+];
+// 从调用方清单里挑出 kind === 'resident' 的事件名。形状不对（null、数组、events 不是对象）时返空数组，
+// 不抛错：清单的验形在 config 面（parseEventListManifest）已经做过，这里只防御性地读。
+function declaredResidentEvents(manifest) {
+    if (manifest === null || typeof manifest !== 'object' || Array.isArray(manifest))
+        return [];
+    const events = manifest.events;
+    if (events === null || typeof events !== 'object' || Array.isArray(events))
+        return [];
+    const names = [];
+    for (const name of Object.keys(events)) {
+        const entry = events[name];
+        if (entry !== null && typeof entry === 'object' && entry.kind === 'resident') {
+            names.push(name);
+        }
+    }
+    return names;
+}
+// 写侧要的那一份：包内固定表 + 清单声明，合成一个 Set（建库时算一次，热路径只做 has）。
+function residentEventSet(manifest) {
+    const set = new Set(BUILTIN_RESIDENT_EVENTS);
+    for (const name of declaredResidentEvents(manifest))
+        set.add(name);
+    return set;
+}
+
+__mods["log-core-resident"] = Object.assign(__mods["log-core-resident"] || {}, { BUILTIN_RESIDENT_EVENTS, declaredResidentEvents, residentEventSet });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/file-name.ts
+/**
+ * core/file-name.ts —— 日志文件名的唯一解析器（领域层，零 IO）
+ *
+ * 为什么单独成模块：写侧封存会把当日可写文件改名成 `<当日名>.<N>.log`，读侧（查询、导出、清空、
+ * 保留清理）曾经各自写一套正则，daily 下只认 `YYYY-MM-DD.log`。结果是文件一被封存，那些行对读侧
+ * 整体消失——磁盘上 14 行、查询只回 5 行，而且不报错（.local/probe-seam.mjs 实测）。
+ *
+ * 从此以后，凡是要「从文件名判断它是不是本桶的日志、属于哪天、是不是封存件」的地方都只走这一个解析器，
+ * 读侧与写侧的文件名形状不可能再分叉（tests/seam-invariant.test.mjs 钉住这条不变式）。
+ *
+ * 分层约束：本文件属于 core/，不许 import 上层模块（engine/host/client/entries）也不许碰 IO。
+ * 入参只取结构上需要的那一个字段（`fileNamePolicy`），所以任何带这个字段的配置对象都能直接传进来。
+ *
+ * 形状（与 config.ts 的 formatDailyFileName / formatFourSegmentFileName 一一对应）：
+ *   daily         可写 `YYYY-MM-DD.log`；封存 `YYYY-MM-DD.<N>.log`（N ≥ 1）
+ *   four-segment  可写 `YYYY-MM-DD.<标识>.<pid>.<启动时间>.log`
+ *                 封存 `YYYY-MM-DD.<标识>.<pid>.<启动时间>.<N>.log`
+ * 四段式的启动时间里允许出现点（ISO 毫秒），所以末尾的 `.N` 只在「去掉它之后仍解析得通」时才认。
+ * 已知边界：启动时间恰好以裸整数结尾（如 `...T00-00-00.5`）会被读成封存件；写侧启动时间来自 ISO 串，
+ * 末尾是 `Z` 或「数字+字母」，撞不上。
+ */
+const DAILY_FILE_RE = /^(\d{4}-\d{2}-\d{2})(?:\.(\d+))?\.log$/;
+const FOUR_SEGMENT_BASE_RE = /^(\d{4}-\d{2}-\d{2})\.([a-z0-9-]{1,32})\.(\d+)\.(.+)\.log$/;
+const FOUR_SEGMENT_SEALED_RE = /^(\d{4}-\d{2}-\d{2})\.([a-z0-9-]{1,32})\.(\d+)\.(.+)\.(\d+)\.log$/;
+// 解析一个文件名；不是本桶的日志文件（开关文件、audit.json、别的形状）一律返回 null，调用方据此跳过。
+function parseLogFileName(config, name) {
+    const nm = typeof name === 'string' ? name : '';
+    if (!nm)
+        return null;
+    if (config.fileNamePolicy === 'four-segment') {
+        const sealed = FOUR_SEGMENT_SEALED_RE.exec(nm);
+        if (sealed) {
+            const seq = Number(sealed[5]);
+            if (seq >= 1)
+                return { name: nm, date: sealed[1], seq: seq, sealed: true, policy: 'four-segment' };
+        }
+        const base = FOUR_SEGMENT_BASE_RE.exec(nm);
+        if (base)
+            return { name: nm, date: base[1], seq: 0, sealed: false, policy: 'four-segment' };
+        return null;
+    }
+    const m = DAILY_FILE_RE.exec(nm);
+    if (!m)
+        return null;
+    if (!m[2])
+        return { name: nm, date: m[1], seq: 0, sealed: false, policy: 'daily' };
+    const seq = Number(m[2]);
+    if (!(seq >= 1))
+        return null;
+    return { name: nm, date: m[1], seq: seq, sealed: true, policy: 'daily' };
+}
+// 文件名里那一天的日期串（'YYYY-MM-DD'）；解析不通返空串。
+// 写侧按它决定「今天的文件叫什么」，保留清理按它决定「这份文件是哪天的」——同一处解析，不各写一套。
+function logFileDate(config, name) {
+    const info = parseLogFileName(config, name);
+    return info ? info.date : '';
+}
+// 写入先后＝行的时间先后。封存是「把当前可写文件改名成 .N，再开一个新的可写文件」，
+// 所以 .1 装的是当天最早的行、序号越大越新，而可写文件（seq 0）永远装最新的行 —— 它排在最后。
+// 注意不能按字典序排：`YYYY-MM-DD.10.log` 在字典序里排在 `YYYY-MM-DD.2.log` 前面。
+function logFileWriteOrder(info) {
+    return info.seq === 0 ? Number.MAX_SAFE_INTEGER : info.seq;
+}
+// 目录清单里属于本桶的日志文件，按**写入先后**排序。读侧拼接/导出用这个顺序就是行的时间顺序。
+function logFilesOfDate(config, names, date) {
+    const out = [];
+    const list = Array.isArray(names) ? names : [];
+    for (let i = 0; i < list.length; i += 1) {
+        const info = parseLogFileName(config, list[i]);
+        if (info && info.date === date)
+            out.push(info);
+    }
+    out.sort((a, b) => {
+        const ra = logFileWriteOrder(a);
+        const rb = logFileWriteOrder(b);
+        if (ra !== rb)
+            return ra - rb;
+        return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
+    return out;
+}
+// 目录清单里所有属于本桶的日志文件（不分日期），写入先后排序。清空/保留清理用它代替各处自写正则。
+function listLogFiles(config, names) {
+    const out = [];
+    const list = Array.isArray(names) ? names : [];
+    for (let i = 0; i < list.length; i += 1) {
+        const info = parseLogFileName(config, list[i]);
+        if (info)
+            out.push(info);
+    }
+    out.sort((a, b) => {
+        if (a.date !== b.date)
+            return a.date < b.date ? -1 : 1;
+        const ra = logFileWriteOrder(a);
+        const rb = logFileWriteOrder(b);
+        if (ra !== rb)
+            return ra - rb;
+        return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
+    return out;
+}
+// 清空与导出里按文件名匹配的正则随策略分支（#558 Q2b）：
+// daily 走现有按天正则，四段式走对应的四段正则。
+//
+// **本函数是包内私有**（0.3.0 起不再导出）：它认不出封存件（daily 正则只匹配 `YYYY-MM-DD.log`），
+// 谁拿它当「这是不是本桶日志」的判据，谁就会重演「封存后历史行整体查不到」那个缺陷。
+// 对外一律走 parseLogFileName / listLogFiles / logFilesOfDate（单源解析器）。
+function logFileNamePattern(config) {
+    if (config.fileNamePolicy === 'four-segment') {
+        return /^\d{4}-\d{2}-\d{2}\.[a-z0-9-]{1,32}\.\d+\..+\.log$/;
+    }
+    return /^\d{4}-\d{2}-\d{2}\.log$/;
+}
+// 日期入参（YYYY-MM-DD）按策略选出要导出的文件名：daily 直接加 .log（沿现状）；
+// 四段式下指定日期匹配该日期开头的所有四段文件，取排序后第一个，找不到回退到当天文件名。
+function matchExportFileName(config, candidates, wantDate, fallbackFileName) {
+    if (config.fileNamePolicy !== 'four-segment') {
+        return /^\d{4}-\d{2}-\d{2}$/.test(wantDate) ? wantDate + '.log' : fallbackFileName;
+    }
+    const pattern = logFileNamePattern(config);
+    const hits = (Array.isArray(candidates) ? candidates : [])
+        .filter((name) => typeof name === 'string' && pattern.test(name) && name.indexOf(wantDate + '.') === 0)
+        .sort();
+    return hits.length > 0 ? hits[0] : fallbackFileName;
+}
+
+__mods["log-core-file-name"] = Object.assign(__mods["log-core-file-name"] || {}, { parseLogFileName, logFileDate, logFileWriteOrder, logFilesOfDate, listLogFiles, matchExportFileName });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/row.ts
+// src/core/row.ts —— 落盘行：格式版本、行形状、行文本构造、字节数（领域层：零 IO）。
+//
+// 五键行 `{v,ts,level,event,fields}` 是 0.3.0 的对外承诺，读侧（查询/导出/快照门禁）与写侧
+// （普通行、自监控行）都必须从**同一处**取形状：否则某天写侧多一个键、读侧少认一个键，
+// 就是「磁盘有、查询看不见」那类缺陷的翻版（#25 的教训）。
+//
+// `buildRowText` 是**唯一**的行文本构造点（自监控行也走它，只是不经过队列）。
+/** 落盘行格式版本：0.3.0 起为 3（五键）；0.2.x 旧行无 v 键，读侧跳过并计数。 */
+const LOG_FORMAT_VERSION = 3;
+/**
+ * 拼一行文本（含末尾换行）：五键 + JSON.stringify。
+ *
+ * 串化失败（循环引用、BigInt 等）回空串——调用方按「这行没写成」处理，**不许**因此抛错打断整批。
+ */
+function buildRowText(level, event, fields) {
+    try {
+        return JSON.stringify({ v: LOG_FORMAT_VERSION, ts: Date.now(), level: level, event: event, fields: fields || {} }) + '\n';
+    }
+    catch (e) {
+        void e;
+        return '';
+    }
+}
+/**
+ * UTF-8 字节数：本包 `types: []`，不能碰 Buffer，手算即可（代理对按 4 字节）。
+ *
+ * 轮转阈值（`maxSize`）与单批超阈值判定都读它——算错就会「文件已经超了还不封存」。
+ */
+function utf8Bytes(s) {
+    let n = 0;
+    for (let i = 0; i < s.length; i += 1) {
+        const c = s.charCodeAt(i);
+        if (c < 0x80)
+            n += 1;
+        else if (c < 0x800)
+            n += 2;
+        else if (c >= 0xd800 && c <= 0xdbff && i + 1 < s.length) {
+            n += 4;
+            i += 1;
+        }
+        else
+            n += 3;
+    }
+    return n;
+}
+
+__mods["log-core-row"] = Object.assign(__mods["log-core-row"] || {}, { LOG_FORMAT_VERSION, buildRowText, utf8Bytes });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/admission.ts
+// src/core/admission.ts —— 准入与裁剪的「该动哪一行」（领域层：零 IO、不依赖上层）。
+//
+// 三处队列（宿主队列、宿主重试位、客户端队列）都要回答同一个问题：满了要腾位时该动哪一行。
+// 从前 store.ts 与 client.ts 各写一遍循环（5 处），判据一样、写法不同——改一处漏一处，
+// 丢行口径就分叉了（宿主与客户端对「丢谁」的说法不一致，是最难查的一类 bug）。
+//
+// 这里只回答「动哪一行」，不动手：splice 与计数留给调用方（宿主响 onDrop、客户端记 lastReason）。
+const { isErrorLevel, isUrgentLevel } = __mods["log-core-level"];
+// 被挤的第一顺位：**最旧的普通行**（非 error/warn）。没有普通行可挤时返 -1，由调用方决定
+// 是「越过配额硬塞」（宿主：保 error/warn 不丢）还是「挤最旧一行」（客户端）。
+function findEvictableIndex(rows) {
+    for (let i = 0; i < rows.length; i += 1)
+        if (!isUrgentLevel(rows[i].level))
+            return i;
+    return -1;
+}
+// 可裁行：只保护 error——体积与积压都能裁 warn/info/debug，error 不因体积被丢。
+// 返 -1 表示没有可裁行（全 error），调用方就此收手。
+function findTrimmableIndex(rows, direction) {
+    if (direction === 'newest-first') {
+        for (let i = rows.length - 1; i >= 0; i -= 1)
+            if (!isErrorLevel(rows[i].level))
+                return i;
+        return -1;
+    }
+    for (let i = 0; i < rows.length; i += 1)
+        if (!isErrorLevel(rows[i].level))
+            return i;
+    return -1;
+}
+
+__mods["log-core-admission"] = Object.assign(__mods["log-core-admission"] || {}, { findEvictableIndex, findTrimmableIndex });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/core/trace.ts
+// src/core/trace.ts —— 追踪三件套的保留字与影子搬迁（领域层：零 IO、不依赖上层）。
+//
+// #24 契约：fields 里的 traceId/spanId/seq 是**保留字**。调用方自己传了同名键时，
+// 不拒收整行，而是把冲突的值搬进 fields._shadow 并计数（error 本体照落）。
+// 这条规则从前写在 client.ts 的 log() 体内，现在单源一份——谁要给别的写入路径
+// （宿主侧、电话侧）也做同样的搬迁，读这里就够了，不必去抄一遍循环。
+const { genHex } = __mods["log-core-ids"];
+// 保留字：客户端追踪链路自己要用这三个键，调用方传的同名值让位。
+const RESERVED_TRACE_FIELDS = ['traceId', 'spanId', 'seq'];
+// 让位后的落脚点：`fields._shadow.{traceId,spanId,seq}`。
+const SHADOW_FIELD = '_shadow';
+function isReservedTraceField(key) {
+    return key === 'traceId' || key === 'spanId' || key === 'seq';
+}
+// 搬迁：返回「留给主行的字段」与「影子对象」（没有冲突时 shadow 为 null）。
+// 整段包 try/catch：字段值可能来自带 getter 的对象，取键/取值抛错时宁可少搬字段，也绝不整行丢。
+function relocateReservedFields(userFields) {
+    const fields = {};
+    let shadow = null;
+    let reservedMoved = false;
+    try {
+        for (const k of Object.keys(userFields)) {
+            if (isReservedTraceField(k)) {
+                if (!shadow)
+                    shadow = {};
+                shadow[k] = userFields[k];
+                reservedMoved = true;
+            }
+            else if (k === SHADOW_FIELD) {
+                // 调用方自带的 _shadow 不当普通字段：下面是它的合并规则（先来先占，保留字优先级更高）。
+                continue;
+            }
+            else {
+                fields[k] = userFields[k];
+            }
+        }
+        const userShadow = userFields[SHADOW_FIELD];
+        if (userShadow !== undefined) {
+            if (userShadow && typeof userShadow === 'object' && !Array.isArray(userShadow)) {
+                if (!shadow)
+                    shadow = {};
+                const src = userShadow;
+                const target = shadow;
+                for (const sk of Object.keys(src)) {
+                    if (target[sk] === undefined)
+                        target[sk] = src[sk];
+                }
+            }
+            else if (!shadow) {
+                // 不是对象（或没有保留字冲突）时按普通值原样保留，不吞掉调用方写的东西。
+                fields[SHADOW_FIELD] = userShadow;
+            }
+        }
+    }
+    catch (e) {
+        void e;
+    }
+    return { fields, shadow, reservedMoved };
+}
+function createHostTrace(input) {
+    const genId = input.genId ?? genHex;
+    const traceId = input.traceId ?? genId(16);
+    const spanId = input.spanId ?? genId(8);
+    let seq = 0;
+    let shadowWarns = 0;
+    const trace = {
+        get traceId() {
+            return traceId;
+        },
+        get spanId() {
+            return spanId;
+        },
+        get shadowWarns() {
+            return shadowWarns;
+        },
+        log(level, event, fields) {
+            const userFields = fields && typeof fields === 'object' ? fields : {};
+            const relocated = relocateReservedFields(userFields);
+            const out = relocated.fields;
+            if (relocated.shadow) {
+                out[SHADOW_FIELD] = relocated.shadow;
+            }
+            // 只数「调用方传了保留字」的冲突；只带 _shadow 不算（见 RelocatedFields.reservedMoved）。
+            if (relocated.reservedMoved)
+                shadowWarns += 1;
+            out.traceId = traceId;
+            out.spanId = spanId;
+            const current = seq;
+            out.seq = current;
+            const outcome = input.emit(level, event, out);
+            // 被开关挡下的行不算进序号（客户端同口径：skip 不消耗 seq）；丢掉/写失败的行照样消耗
+            // —— 那个序号已经给出去了，回头补写会让两条行撞号。
+            if (outcome !== 'skipped')
+                seq = current + 1;
+            return outcome;
+        },
+        child(overrides) {
+            return createHostTrace({
+                emit: input.emit,
+                genId: genId,
+                traceId: overrides?.traceId ?? traceId,
+                spanId: overrides?.spanId ?? genId(8)
+            });
+        }
+    };
+    return trace;
+}
+
+__mods["log-core-trace"] = Object.assign(__mods["log-core-trace"] || {}, { RESERVED_TRACE_FIELDS, SHADOW_FIELD, isReservedTraceField, relocateReservedFields, createHostTrace });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/constants.ts
+// src/config/constants.ts —— 公开常量与级别/归类全表（公开面字面单源，别处只许引用）。
+// 级别全表的真源在 core/level.ts（LOG_LEVEL_ORDER），EVENT_LEVELS 只是它的公开别名：
+// 「哪些级别永不丢」的判定（isUrgentLevel 等）读同一份表，不会出现两处不一致。
+const { LOG_LEVEL_ORDER } = __mods["log-core-level"];
+// 防抖窗口 1000 毫秒（设计 2.2 字面：窗口内多次调用合并为一次读改写）。
+const LOG_DEBOUNCE_MS = 1000;
+// 宿主内存队列默认 1000 条封顶（#558 队列口径：满时按级别丢弃，只计数不抛错）。
+const DEFAULT_MAX_QUEUE = 1000;
+// #21 轮转默认值：单文件超 5MB 立封（当日可写文件唯一），保留 14 天（含当日，按文件名里的日期）。
+const DEFAULT_MAX_SIZE = 5 * 1024 * 1024;
+const DEFAULT_MAX_DAYS = 14;
+// 客户端批量转发口径（#558 队列口径，宿主包内只存字面供客户端引擎票 #560 引用）：
+// 每批最多 50 条，每 1000 毫秒发一次，单包约 128KB 或队列 100 条先到先截，裁掉的记入丢弃数。
 const CLIENT_BATCH_MAX = 50;
-const CLIENT_BATCH_INTERVAL_MS = 1e3;
+const CLIENT_BATCH_INTERVAL_MS = 1000;
 const CLIENT_PACKET_BYTES = 128 * 1024;
 const CLIENT_QUEUE_MAX = 100;
-const LEGACY_LOG_DIR_NAME = "logs";
-const LEGACY_SWITCH_FILE_NAME = "log-switch.json";
-const PHONE_ACTIONS = ["logBatch", "logExport", "logClear", "logGetSwitch", "logSetSwitch"];
+// 兼容旧字面：插件标识为 wf 时，目录名与开关文件名与现状一字不差。
+const LEGACY_LOG_DIR_NAME = 'logs';
+const LEGACY_SWITCH_FILE_NAME = 'log-switch.json';
+// 宿主电话的 5 个动作名（#558 冻结：动作名不变，只许前缀参数化）。
+const PHONE_ACTIONS = ['logBatch', 'logExport', 'logClear', 'logGetSwitch', 'logSetSwitch'];
+// 事件级别（沿用附录定版：错误与告警始终落盘，信息中常驻落盘，其余只在调试开关打开时落盘）。
+// 级别全表：单源在 core/level.ts（LOG_LEVEL_ORDER），这里只是公开别名——
+// 「哪些级别永不丢」的判定（isUrgentLevel 等）也读同一份表，不会出现两处不一致。
+const EVENT_LEVELS = LOG_LEVEL_ORDER;
+// 事件归类（只为计数检查服务，与级别是两回事：级别管落不落盘，归类管数对不对）。
+const EVENT_KINDS = ['resident', 'ondemand', 'selfmon'];
+// 只读查询电话名单源（0.3.0 读侧：client.ts 与 phones.ts 均从此处导入，不再各手拼 prefix+'.logQuery'；
+// PHONE_ACTIONS 仍为冻结的 5 个，不新增动作名，已有“拼出 5 个”字面断言不受影响）。
+const LOG_QUERY_ACTION_SUFFIX = 'logQuery';
+
+__mods["log-config-constants"] = Object.assign(__mods["log-config-constants"] || {}, { LOG_DEBOUNCE_MS, DEFAULT_MAX_QUEUE, DEFAULT_MAX_SIZE, DEFAULT_MAX_DAYS, CLIENT_BATCH_MAX, CLIENT_BATCH_INTERVAL_MS, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, LEGACY_LOG_DIR_NAME, LEGACY_SWITCH_FILE_NAME, PHONE_ACTIONS, EVENT_LEVELS, EVENT_KINDS, LOG_QUERY_ACTION_SUFFIX });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/validate.ts
+// src/config/validate.ts —— 标识校验（配置面最小件，不含别的）。
+// 插件标识与前缀的字符约束（#558 冻结）：只许小写英文字母、数字、中横线，长度 1 到 32；
+// 不许含点（点留作前缀与动作名之间的分隔符）、不许含文件不安全字符；收到大写直接报错，
+// 不做静默转小写。拼进目录名与文件名后必须仍是合法名字。
+// 插件标识与前缀的字符约束（#558 冻结）：只能用小写英文字母、数字、中横线，长度 1 到 32；
+// 不许含点（点留作前缀与动作名之间的分隔符）；收到大写直接报错，不做静默转小写；
+// 不许含文件不安全字符（斜杠、反斜杠、冒号、星号、问号、引号、尖括号、竖线、空格），
+// 拼进目录名与文件名后必须仍是合法名字。
 const ID_PATTERN = /^[a-z0-9-]{1,32}$/;
 function assertPluginId(value, role) {
-  if (typeof value !== "string" || !ID_PATTERN.test(value)) {
-    throw new Error(
-      "[dsh-log] " + role + " \u975E\u6CD5\uFF1A\u53EA\u80FD\u7528\u5C0F\u5199\u82F1\u6587\u5B57\u6BCD\u3001\u6570\u5B57\u3001\u4E2D\u6A2A\u7EBF\uFF0C\u957F\u5EA6 1 \u5230 32\uFF08\u6536\u5230 " + JSON.stringify(value) + "\uFF09"
-    );
-  }
-  return value;
+    if (typeof value !== 'string' || !ID_PATTERN.test(value)) {
+        throw new Error('[dsh-log] ' + role + ' 非法：只能用小写英文字母、数字、中横线，长度 1 到 32（收到 ' + JSON.stringify(value) + '）');
+    }
+    return value;
 }
-function resolveHostLogConfig(input) {
-  if (!input || typeof input !== "object") throw new Error("[dsh-log] \u5EFA\u65E5\u5FD7\u5E93\u7F3A\u5C11\u914D\u7F6E\uFF1A\u63D2\u4EF6\u6807\u8BC6 pluginId \u5FC5\u586B");
-  const pluginId = assertPluginId(input.pluginId, "\u63D2\u4EF6\u6807\u8BC6 pluginId");
-  const prefix = input.prefix === void 0 ? pluginId : assertPluginId(input.prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix");
-  const logDirName = input.logDirName !== void 0 ? input.logDirName : pluginId === "wf" ? LEGACY_LOG_DIR_NAME : LEGACY_LOG_DIR_NAME + "-" + pluginId;
-  const switchFileName = input.switchFileName !== void 0 ? input.switchFileName : pluginId === "wf" ? LEGACY_SWITCH_FILE_NAME : "log-switch-" + pluginId + ".json";
-  const fileNamePolicy = input.fileNamePolicy === void 0 ? "daily" : input.fileNamePolicy;
-  if (fileNamePolicy !== "daily" && fileNamePolicy !== "four-segment") {
-    throw new Error("[dsh-log] \u6587\u4EF6\u540D\u7B56\u7565 fileNamePolicy \u975E\u6CD5\uFF1A\u53EA\u8BB8 daily \u6216 four-segment");
-  }
-  const maxQueue = input.maxQueue === void 0 ? DEFAULT_MAX_QUEUE : input.maxQueue;
-  if (typeof maxQueue !== "number" || !isFinite(maxQueue) || maxQueue < 1) {
-    throw new Error("[dsh-log] \u5185\u5B58\u961F\u5217\u4E0A\u9650 maxQueue \u975E\u6CD5\uFF1A\u5FC5\u987B\u662F\u4E0D\u5C0F\u4E8E 1 \u7684\u6570\u5B57");
-  }
-  const eventList = input.eventList === void 0 ? null : input.eventList;
-  if (eventList !== null && typeof eventList === "object") {
-    parseEventListManifest(eventList);
-  }
-  return {
-    pluginId,
-    prefix,
-    logDirName,
-    switchFileName,
-    fileNamePolicy,
-    maxQueue: Math.floor(maxQueue),
-    eventList
-  };
-}
-function buildPhoneName(prefix, action) {
-  return assertPluginId(prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix") + "." + action;
-}
-function buildPhoneNames(prefix) {
-  const checked = assertPluginId(prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix");
-  const names = {};
-  for (const action of PHONE_ACTIONS) names[action] = checked + "." + action;
-  return names;
-}
-function formatDailyFileName(date) {
-  const d = date instanceof Date ? date : new Date(date);
-  const pad = (n) => String(n).padStart(2, "0");
-  return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".log";
-}
-function formatFourSegmentFileName(date, pluginId, pid, startedAt) {
-  const d = date instanceof Date ? date : new Date(date);
-  const pad = (n) => String(n).padStart(2, "0");
-  const day = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
-  const safeId = assertPluginId(pluginId, "\u63D2\u4EF6\u6807\u8BC6 pluginId");
-  const safePid = typeof pid === "number" && isFinite(pid) && pid > 0 ? Math.floor(pid) : 0;
-  const safeStartedAt = String(startedAt || "").replace(/[:/\\]/g, "-");
-  return day + "." + safeId + "." + safePid + "." + safeStartedAt + ".log";
-}
-function resolveLogFileName(config, date, pid, startedAt) {
-  if (config.fileNamePolicy === "four-segment") {
-    return formatFourSegmentFileName(date, config.pluginId, pid, startedAt);
-  }
-  return formatDailyFileName(date);
-}
-function logFileNamePattern(config) {
-  if (config.fileNamePolicy === "four-segment") {
-    return /^\d{4}-\d{2}-\d{2}\.[a-z0-9-]{1,32}\.\d+\..+\.log$/;
-  }
-  return /^\d{4}-\d{2}-\d{2}\.log$/;
-}
-function matchExportFileName(config, candidates, wantDate, fallbackFileName) {
-  if (config.fileNamePolicy !== "four-segment") {
-    return /^\d{4}-\d{2}-\d{2}$/.test(wantDate) ? wantDate + ".log" : fallbackFileName;
-  }
-  const pattern = logFileNamePattern(config);
-  const hits = (Array.isArray(candidates) ? candidates : []).filter((name) => typeof name === "string" && pattern.test(name) && name.indexOf(wantDate + ".") === 0).sort();
-  return hits.length > 0 ? hits[0] : fallbackFileName;
-}
-const EVENT_LEVELS = ["error", "warn", "info", "debug"];
-const EVENT_KINDS = ["resident", "ondemand", "selfmon"];
+
+__mods["log-config-validate"] = Object.assign(__mods["log-config-validate"] || {}, { assertPluginId });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/event-list.ts
+// src/config/event-list.ts —— 事件清单（#561）：清单格式与通用检查器（离线自查用，运行期不拦行）。
+//
+// 一句话背景：#558 只冻了清单的注入点位（配置键 eventList），清单内部一条事件有哪些字段由本票定。
+// 本票选对象形式：调用方把清单拼成对象传进来，日志包不读盘，包内永不出现仓库路径的字面量。
+//
+// 清单长这样（空模板见包内的 event-list.template.json）：
+//
+//   {
+//     "version": 1,
+//     "pluginId": "wf",
+//     "counts": { "resident": 30, "ondemand": 20, "selfmon": 5 },
+//     "events": {
+//       "gh.exec": {
+//         "level": "info",
+//         "kind": "resident",
+//         "fields": ["argv0", "cwdHash", "latencyMs", "kind", "exitCode"],
+//         "codes": ["H_CWD", "B_TOKEN"],
+//         "rules": ["R_TOKEN_BEARER", "R_GH_TOKEN"]
+//       }
+//     }
+//   }
+//
+// 每条事件四样东西：事件名（events 的键）、级别（level）、允许字段（fields，清单内登记、自查用；
+// 运行期原样透传、不裁剪）、脱敏引用（codes 是截断或散列代号、rules 是具名正则名，都是引用名，
+// 命中只记规则名不记原文）。kind 说明这条归哪类计数：resident 常驻（始终落盘的轻量轨迹）、
+// ondemand 按需（只在调试开关打开时记）、selfmon 自监控（日志管道自己的故障行，错误与告警级、
+// 始终落盘）。guard 可选，一句话写清守卫（如百分之一采样、节流），无特殊守卫不写。
+//
+// 通用检查器只收对象、不读文件：checkEventFields 做字段白名单检查，lintEventFields 分「黄/红」两档
+// （未知字段黄、未知事件与非法信封红），computeEventCounts 自算计数（counts 字段已删：手填的计数
+// 与自算的计数核对＝同义反复）。检查器是纯函数（不跨进程、不碰磁盘、无定时器、无新电话），
+// 不触发日志埋点纪律里的五种变动，所以不新增日志点。
+const { EVENT_KINDS, EVENT_LEVELS } = __mods["log-config-constants"];
+const { assertPluginId } = __mods["log-config-validate"];
 function isNonEmptyString(value) {
-  return typeof value === "string" && value.length > 0;
+    return typeof value === 'string' && value.length > 0;
 }
 function assertStringArray(value, what) {
-  if (!Array.isArray(value)) throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A" + what + " \u5FC5\u987B\u662F\u5B57\u7B26\u4E32\u6570\u7EC4");
-  const seen = [];
-  for (const item of value) {
-    if (!isNonEmptyString(item)) throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A" + what + " \u91CC\u6709\u7A7A\u5B57\u6BB5\u540D");
-    if (seen.indexOf(item) >= 0) throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A" + what + " \u91CC\u5B57\u6BB5\u540D\u91CD\u590D\uFF1A" + item);
-    seen.push(item);
-  }
-  return seen;
+    if (!Array.isArray(value))
+        throw new Error('[dsh-log] 事件清单 eventList 非法：' + what + ' 必须是字符串数组');
+    const seen = [];
+    for (const item of value) {
+        if (!isNonEmptyString(item))
+            throw new Error('[dsh-log] 事件清单 eventList 非法：' + what + ' 里有空字段名');
+        if (seen.indexOf(item) >= 0)
+            throw new Error('[dsh-log] 事件清单 eventList 非法：' + what + ' 里字段名重复：' + item);
+        seen.push(item);
+    }
+    return seen;
 }
+// 把调用方传进来的值验成可用的事件清单：错了直接报错，不静默修补。
+// 字符串（路径）形式在这里就被拦下：调用方先把清单文件读成对象再传入，日志包不读盘。
+// #18 counts删除：输入的 counts 缺失/不对数不再抛，忽略并自算（唯一真源为 computeEventCounts）。
 function parseEventListManifest(value) {
-  if (typeof value === "string") {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u8DEF\u5F84\u5F62\u5F0F\u8BF7\u8C03\u7528\u65B9\u81EA\u5DF1\u8BFB\u6210\u5BF9\u8C61\u518D\u4F20\u5165\uFF0C\u65E5\u5FD7\u5305\u4E0D\u8BFB\u76D8");
-  }
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u53EA\u6536\u5BF9\u8C61\u5F62\u5F0F\uFF08\u7A7A\u6A21\u677F\u89C1\u5305\u5185\u7684 event-list.template.json\uFF09");
-  }
-  const input = value;
-  if (input["version"] !== 1) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1Aversion \u73B0\u5728\u53EA\u8BA4 1\uFF08\u6536\u5230 " + JSON.stringify(input["version"]) + "\uFF09");
-  }
-  const pluginId = assertPluginId(input["pluginId"], "\u4E8B\u4EF6\u6E05\u5355 pluginId");
-  const countsRaw = input["counts"];
-  if (!countsRaw || typeof countsRaw !== "object" || Array.isArray(countsRaw)) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1Acounts \u5FC5\u987B\u662F\u542B\u4E09\u7C7B\u8BA1\u6570\u7684\u5BF9\u8C61");
-  }
-  const countsRecord = countsRaw;
-  const counts = { resident: 0, ondemand: 0, selfmon: 0 };
-  for (const kind of EVENT_KINDS) {
-    const n = countsRecord[kind];
-    if (typeof n !== "number" || !isFinite(n) || Math.floor(n) !== n || n < 0) {
-      throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1Acounts." + kind + " \u5FC5\u987B\u662F\u975E\u8D1F\u6574\u6570");
+    if (typeof value === 'string') {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：路径形式请调用方自己读成对象再传入，日志包不读盘');
     }
-    counts[kind] = n;
-  }
-  const eventsRaw = input["events"];
-  if (!eventsRaw || typeof eventsRaw !== "object" || Array.isArray(eventsRaw)) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1Aevents \u5FC5\u987B\u662F\u4E8B\u4EF6\u540D\u5230\u6761\u76EE\u7684\u5BF9\u8C61");
-  }
-  const events = {};
-  for (const name of Object.keys(eventsRaw)) {
-    events[name] = parseEventEntry(name, eventsRaw[name]);
-  }
-  return { version: 1, pluginId, counts, events };
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：只收对象形式（空模板见包内的 event-list.template.json）');
+    }
+    const input = value;
+    if (input['version'] !== 1) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：version 现在只认 1（收到 ' + JSON.stringify(input['version']) + '）');
+    }
+    const pluginId = assertPluginId(input['pluginId'], '事件清单 pluginId');
+    const eventsRaw = input['events'];
+    if (!eventsRaw || typeof eventsRaw !== 'object' || Array.isArray(eventsRaw)) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：events 必须是事件名到条目的对象');
+    }
+    const events = {};
+    for (const name of Object.keys(eventsRaw)) {
+        events[name] = parseEventEntry(name, eventsRaw[name]);
+    }
+    // counts 输入忽略：缺失/错数/错形一律不抛，按 events 自算（与 computeEventCounts 同口径，唯一真源）。
+    const counts = computeEventCounts({ version: 1, pluginId: pluginId, counts: { resident: 0, ondemand: 0, selfmon: 0 }, events: events });
+    return { version: 1, pluginId: pluginId, counts: counts, events: events };
 }
+// 验清单里的一条事件：级别与归类必须是枚举值，条目里不认多余的键（多半是拼写错误）。
 function parseEventEntry(name, value) {
-  if (!isNonEmptyString(name)) throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6\u540D\u4E0D\u80FD\u4E3A\u7A7A");
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6 " + name + " \u5FC5\u987B\u662F\u5BF9\u8C61");
-  }
-  const input = value;
-  if (EVENT_LEVELS.indexOf(input["level"]) < 0) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6 " + name + " \u7684 level \u53EA\u8BB8 error\u3001warn\u3001info\u3001debug");
-  }
-  if (EVENT_KINDS.indexOf(input["kind"]) < 0) {
-    throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6 " + name + " \u7684 kind \u53EA\u8BB8 resident\u3001ondemand\u3001selfmon");
-  }
-  for (const key of Object.keys(input)) {
-    if (["level", "kind", "fields", "codes", "rules", "guard"].indexOf(key) < 0) {
-      throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6 " + name + " \u6709\u4E0D\u8BA4\u8BC6\u7684\u952E " + key);
+    if (!isNonEmptyString(name))
+        throw new Error('[dsh-log] 事件清单 eventList 非法：事件名不能为空');
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：事件 ' + name + ' 必须是对象');
     }
-  }
-  const entry = {
-    level: input["level"],
-    kind: input["kind"],
-    fields: assertStringArray(input["fields"], "\u4E8B\u4EF6 " + name + " \u7684 fields")
-  };
-  if (input["codes"] !== void 0) entry.codes = assertStringArray(input["codes"], "\u4E8B\u4EF6 " + name + " \u7684 codes");
-  if (input["rules"] !== void 0) entry.rules = assertStringArray(input["rules"], "\u4E8B\u4EF6 " + name + " \u7684 rules");
-  if (input["guard"] !== void 0) {
-    if (typeof input["guard"] !== "string") {
-      throw new Error("[dsh-log] \u4E8B\u4EF6\u6E05\u5355 eventList \u975E\u6CD5\uFF1A\u4E8B\u4EF6 " + name + " \u7684 guard \u5FC5\u987B\u662F\u5B57\u7B26\u4E32");
+    const input = value;
+    if (EVENT_LEVELS.indexOf(input['level']) < 0) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：事件 ' + name + ' 的 level 只许 error、warn、info、debug');
     }
-    entry.guard = input["guard"];
-  }
-  return entry;
+    if (EVENT_KINDS.indexOf(input['kind']) < 0) {
+        throw new Error('[dsh-log] 事件清单 eventList 非法：事件 ' + name + ' 的 kind 只许 resident、ondemand、selfmon');
+    }
+    for (const key of Object.keys(input)) {
+        if (['level', 'kind', 'fields', 'codes', 'rules', 'guard'].indexOf(key) < 0) {
+            throw new Error('[dsh-log] 事件清单 eventList 非法：事件 ' + name + ' 有不认识的键 ' + key);
+        }
+    }
+    const entry = {
+        level: input['level'],
+        kind: input['kind'],
+        fields: assertStringArray(input['fields'], '事件 ' + name + ' 的 fields')
+    };
+    if (input['codes'] !== undefined)
+        entry.codes = assertStringArray(input['codes'], '事件 ' + name + ' 的 codes');
+    if (input['rules'] !== undefined)
+        entry.rules = assertStringArray(input['rules'], '事件 ' + name + ' 的 rules');
+    if (input['guard'] !== undefined) {
+        if (typeof input['guard'] !== 'string') {
+            throw new Error('[dsh-log] 事件清单 eventList 非法：事件 ' + name + ' 的 guard 必须是字符串');
+        }
+        entry.guard = input['guard'];
+    }
+    return entry;
 }
+// 字段白名单检查：拿插件自己的清单当尺子，量一批实际字段键。
+// 未知事件名、未知字段键都算不通过，并把名单带回给调用方。
 function checkEventFields(manifest, eventName, fieldNames) {
-  const entry = manifest.events[eventName];
-  if (!entry) return { ok: false, unknownEvent: true, unknownFields: [] };
-  const allowed = new Set(entry.fields);
-  const unknownFields = (Array.isArray(fieldNames) ? fieldNames : []).filter(
-    (field) => !allowed.has(field)
-  );
-  return { ok: unknownFields.length === 0, unknownEvent: false, unknownFields };
+    const entry = manifest.events[eventName];
+    if (!entry)
+        return { ok: false, unknownEvent: true, unknownFields: [] };
+    const allowed = new Set(entry.fields);
+    const unknownFields = (Array.isArray(fieldNames) ? fieldNames : []).filter((field) => !allowed.has(field));
+    return { ok: unknownFields.length === 0, unknownEvent: false, unknownFields: unknownFields };
 }
-function checkEventCounts(manifest) {
-  const actual = { resident: 0, ondemand: 0, selfmon: 0 };
-  for (const name of Object.keys(manifest.events)) {
-    actual[manifest.events[name].kind] += 1;
-  }
-  const problems = [];
-  for (const kind of EVENT_KINDS) {
-    if (actual[kind] !== manifest.counts[kind]) {
-      problems.push(
-        "[dsh-log] \u4E8B\u4EF6\u6E05\u5355\u8BA1\u6570\u5BF9\u4E0D\u4E0A\uFF1A" + kind + " \u7C7B\u5B9E\u9645 " + actual[kind] + " \u6761\uFF0C\u6E05\u5355\u81EA\u62A5 " + manifest.counts[kind] + " \u6761"
-      );
+// 离线 lint（0.3.0 门禁口径）：未知字段 warn、未知事件 error；老 checkEventFields 原样保留。
+function lintEventFields(manifest, eventName, fieldNames) {
+    const entry = manifest.events[eventName];
+    if (!entry)
+        return { ok: false, severity: 'error', unknownEvent: true, unknownFields: [] };
+    const allowed = new Set(entry.fields);
+    const unknownFields = (Array.isArray(fieldNames) ? fieldNames : []).filter((field) => !allowed.has(field));
+    if (unknownFields.length === 0)
+        return { ok: true, severity: 'none', unknownEvent: false, unknownFields: [] };
+    return { ok: false, severity: 'warn', unknownEvent: false, unknownFields: unknownFields };
+}
+// 自算计数（#18 counts删除后的唯一真源：清单条数由实现自算，不再让人手改；parse 已调此处忽略输入 counts）。
+function computeEventCounts(manifest) {
+    const actual = { resident: 0, ondemand: 0, selfmon: 0 };
+    for (const name of Object.keys(manifest.events)) {
+        actual[manifest.events[name].kind] += 1;
     }
-  }
-  return { ok: problems.length === 0, problems };
+    return actual;
 }
-__mods["log-config"] = { CLIENT_BATCH_INTERVAL_MS, CLIENT_BATCH_MAX, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, DEFAULT_MAX_QUEUE, EVENT_KINDS, EVENT_LEVELS, LEGACY_LOG_DIR_NAME, LEGACY_SWITCH_FILE_NAME, LOG_DEBOUNCE_MS, PHONE_ACTIONS, assertPluginId, buildPhoneName, buildPhoneNames, checkEventCounts, checkEventFields, formatDailyFileName, formatFourSegmentFileName, logFileNamePattern, matchExportFileName, parseEventListManifest, resolveHostLogConfig, resolveLogFileName };
+
+__mods["log-config-event-list"] = Object.assign(__mods["log-config-event-list"] || {}, { parseEventListManifest, checkEventFields, lintEventFields, computeEventCounts });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/phones.ts
+// src/config/phones.ts —— 电话名拼装（宿主 5 个动作名 + 1 个只读查询名）。
+// 前缀参数化（#558 冻结：动作名不变，只许前缀参数化），撞名与否由注册表在运行期判定。
+const { LOG_QUERY_ACTION_SUFFIX, PHONE_ACTIONS } = __mods["log-config-constants"];
+const { assertPluginId } = __mods["log-config-validate"];
+// 新电话名 = 前缀 + 点 + 动作名（#558 Q1：默认前缀 wf 下 5 个字面与现状一字不差）。
+function buildPhoneName(prefix, action) {
+    return assertPluginId(prefix, '电话名前缀 prefix') + '.' + action;
+}
+// 一次拼出 5 个电话名（前缀只隔离电话名，磁盘隔离靠目录与开关文件名的默认派生）。
+function buildPhoneNames(prefix) {
+    const checked = assertPluginId(prefix, '电话名前缀 prefix');
+    const names = {};
+    for (const action of PHONE_ACTIONS)
+        names[action] = checked + '.' + action;
+    return names;
+}
+function buildLogQueryPhoneName(prefix) {
+    return assertPluginId(prefix, '电话名前缀 prefix') + '.' + LOG_QUERY_ACTION_SUFFIX;
+}
+
+__mods["log-config-phones"] = Object.assign(__mods["log-config-phones"] || {}, { buildPhoneName, buildPhoneNames, buildLogQueryPhoneName });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/log-names.ts
+// src/config/log-names.ts —— 文件名拼装（写侧）：按天 / 四段式两套策略，按策略选一个。
+// 读侧解析（认不认得出封存件）在 core/file-name.ts，两侧只共用同一个解析器，不许各写一份。
+const { assertPluginId } = __mods["log-config-validate"];
+// 按天文件名：每个自然天一个文件，命名 YYYY-MM-DD.log（如 2026-09-06.log）。只分桶，不自动清理。
+function formatDailyFileName(date) {
+    const d = date instanceof Date ? date : new Date(date);
+    const pad = (n) => String(n).padStart(2, '0');
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.log';
+}
+// 四段式文件名（#558 Q2b 定死）：日期点插件标识点进程号点启动时间。
+// 插件名取配置里的插件标识，进程号取不到时回退 0，
+// 启动时间取宿主建日志库那一刻（以启动头写入的 startedAt 为准）。
+// 启动时间里的冒号与斜杠在文件名里不合法，转写为中横线后才拼入。
+function formatFourSegmentFileName(date, pluginId, pid, startedAt) {
+    const d = date instanceof Date ? date : new Date(date);
+    const pad = (n) => String(n).padStart(2, '0');
+    const day = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+    const safeId = assertPluginId(pluginId, '插件标识 pluginId');
+    const safePid = typeof pid === 'number' && isFinite(pid) && pid > 0 ? Math.floor(pid) : 0;
+    const safeStartedAt = String(startedAt || '').replace(/[:/\\]/g, '-');
+    return day + '.' + safeId + '.' + safePid + '.' + safeStartedAt + '.log';
+}
+// 按策略算出当天文件名（默认 daily，与现状同形）。
+function resolveLogFileName(config, date, pid, startedAt) {
+    if (config.fileNamePolicy === 'four-segment') {
+        return formatFourSegmentFileName(date, config.pluginId, pid, startedAt);
+    }
+    return formatDailyFileName(date);
+}
+
+__mods["log-config-log-names"] = Object.assign(__mods["log-config-log-names"] || {}, { formatDailyFileName, formatFourSegmentFileName, resolveLogFileName });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config/resolve.ts
+// src/config/resolve.ts —— 建库配置的入参形状与补齐（#18 双必填：pluginId 与 prefix 缺一即抛中文错，不再回退）。
+// 对象形式的 eventList 当场验形状（错了直接报错）；字符串（路径）形式只存不解析——日志包不读盘。
+const { DEFAULT_MAX_DAYS, DEFAULT_MAX_QUEUE, DEFAULT_MAX_SIZE, LEGACY_LOG_DIR_NAME, LEGACY_SWITCH_FILE_NAME } = __mods["log-config-constants"];
+const { parseEventListManifest } = __mods["log-config-event-list"];
+const { assertPluginId } = __mods["log-config-validate"];
+// 把调用方传入的配置补齐为完整配置（#18 双必填：pluginId 与 prefix 缺一即抛中文错，不再回退；
+// 其余缺省走 #558 默认派生；非法才抛错。旧回退已删，旧字面仅注释保留：如 'wf'）。
+function resolveHostLogConfig(input) {
+    if (!input || typeof input !== 'object')
+        throw new Error('[dsh-log] 建日志库缺少配置：插件标识 pluginId 与电话名前缀 prefix 双必填，均须显式传入');
+    const raw = input;
+    if (raw['pluginId'] === undefined || raw['pluginId'] === null)
+        throw new Error('[dsh-log] 建日志库缺少配置：插件标识 pluginId 必填（须显式传入，不再回退）');
+    if (raw['prefix'] === undefined || raw['prefix'] === null)
+        throw new Error('[dsh-log] 建日志库缺少配置：电话名前缀 prefix 必填（须显式传入，不再回退到 pluginId）');
+    const pluginId = assertPluginId(input.pluginId, '插件标识 pluginId');
+    const prefix = assertPluginId(input.prefix, '电话名前缀 prefix');
+    const pluginVersion = resolvePluginVersion(raw['pluginVersion']);
+    // 目录与开关文件名默认派生（非 #18 回退：此处 'wf' 分支是 legacy 兼容派生，非缺参回退，缺参已在上抛错）；
+    const logDirName = input.logDirName !== undefined
+        ? input.logDirName
+        : pluginId === 'wf'
+            ? LEGACY_LOG_DIR_NAME
+            : LEGACY_LOG_DIR_NAME + '-' + pluginId;
+    const switchFileName = input.switchFileName !== undefined
+        ? input.switchFileName
+        : pluginId === 'wf'
+            ? LEGACY_SWITCH_FILE_NAME
+            : 'log-switch-' + pluginId + '.json';
+    const fileNamePolicy = input.fileNamePolicy === undefined ? 'daily' : input.fileNamePolicy;
+    if (fileNamePolicy !== 'daily' && fileNamePolicy !== 'four-segment') {
+        throw new Error('[dsh-log] 文件名策略 fileNamePolicy 非法：只许 daily 或 four-segment');
+    }
+    const maxQueue = input.maxQueue === undefined ? DEFAULT_MAX_QUEUE : input.maxQueue;
+    if (typeof maxQueue !== 'number' || !isFinite(maxQueue) || maxQueue < 1) {
+        throw new Error('[dsh-log] 内存队列上限 maxQueue 非法：必须是不小于 1 的数字');
+    }
+    const maxSize = input.maxSize === undefined ? DEFAULT_MAX_SIZE : input.maxSize;
+    if (typeof maxSize !== 'number' || !isFinite(maxSize) || maxSize < 1) {
+        throw new Error('[dsh-log] 单文件封存阈值 maxSize 非法：必须是不小于 1 的数字（单位字节）');
+    }
+    const maxDays = input.maxDays === undefined ? DEFAULT_MAX_DAYS : input.maxDays;
+    if (typeof maxDays !== 'number' || !isFinite(maxDays) || maxDays < 1) {
+        throw new Error('[dsh-log] 保留天数 maxDays 非法：必须是不小于 1 的数字（含当日）');
+    }
+    let eventList = input.eventList === undefined ? null : input.eventList;
+    if (eventList !== null && typeof eventList === 'object') {
+        // 对象形式的清单当场验形状，错了直接报错（与插件标识非法的处理一致）；
+        // 数组形式同样走验形口径被拦下（只收对象，数组多半是把事件表直接当成了清单）；
+        // 字符串（路径）形式仍只存不解析，由调用方自己读成对象再传入，日志包不读盘；
+        // 默认 null 原样透过；#18 counts删除：对象存自算后清单（输入 counts 忽略，输出恒为自算）。
+        eventList = parseEventListManifest(eventList);
+    }
+    return {
+        pluginId: pluginId,
+        prefix: prefix,
+        pluginVersion: pluginVersion,
+        logDirName: logDirName,
+        switchFileName: switchFileName,
+        fileNamePolicy: fileNamePolicy,
+        maxQueue: Math.floor(maxQueue),
+        maxSize: Math.floor(maxSize),
+        maxDays: Math.floor(maxDays),
+        eventList: eventList
+    };
+}
+// 客户端配置补齐（#18 双必填口径与宿主一致）。
+function resolveClientLogConfig(input) {
+    if (!input || typeof input !== 'object')
+        throw new Error('[dsh-log] 建客户端日志库缺少配置：插件标识 pluginId 与电话名前缀 prefix 双必填，均须显式传入');
+    const raw = input;
+    if (raw['pluginId'] === undefined || raw['pluginId'] === null)
+        throw new Error('[dsh-log] 建客户端日志库缺少配置：插件标识 pluginId 必填（须显式传入，不再回退）');
+    if (raw['prefix'] === undefined || raw['prefix'] === null)
+        throw new Error('[dsh-log] 建客户端日志库缺少配置：电话名前缀 prefix 必填（须显式传入，不再回退到 pluginId）');
+    const pluginId = assertPluginId(input.pluginId, '插件标识 pluginId');
+    const prefix = assertPluginId(input.prefix, '电话名前缀 prefix');
+    let eventList = input.eventList === undefined ? null : input.eventList;
+    if (eventList !== null && typeof eventList === 'object') {
+        eventList = parseEventListManifest(eventList);
+    }
+    return { pluginId: pluginId, prefix: prefix, eventList: eventList };
+}
+// 插件版本上限：够长到装下「0.3.2-rc.1+build.7」这类写法，又短到不会把启动头行撑大。
+const PLUGIN_VERSION_MAX = 64;
+// 插件版本是可选自由文本：只做「是字符串 + 修剪 + 长度上限」三件事，不校验版本号语义
+// （版本号的写法各家不同，本包不替调用方定标准）；没传或空串一律按「没记」处理。
+function resolvePluginVersion(value) {
+    if (value === undefined || value === null)
+        return '';
+    if (typeof value !== 'string') {
+        throw new Error('[dsh-log] 建日志库配置里 pluginVersion 必须是字符串（可省略；它只用于写进启动头 host.start 行）');
+    }
+    const trimmed = value.trim();
+    if (trimmed.length > PLUGIN_VERSION_MAX) {
+        throw new Error('[dsh-log] 建日志库配置里 pluginVersion 太长：' + trimmed.length + ' 字符，上限 ' + PLUGIN_VERSION_MAX);
+    }
+    return trimmed;
+}
+
+__mods["log-config-resolve"] = Object.assign(__mods["log-config-resolve"] || {}, { resolveHostLogConfig, resolveClientLogConfig });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/config.ts
+const { listLogFiles, logFilesOfDate, matchExportFileName, parseLogFileName } = __mods["log-core-file-name"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { listLogFiles, logFilesOfDate, matchExportFileName, parseLogFileName });
+const { LOG_FORMAT_VERSION } = __mods["log-core-row"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { LOG_FORMAT_VERSION });
+const { LOG_DEBOUNCE_MS, DEFAULT_MAX_QUEUE, DEFAULT_MAX_SIZE, DEFAULT_MAX_DAYS, CLIENT_BATCH_MAX, CLIENT_BATCH_INTERVAL_MS, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, LEGACY_LOG_DIR_NAME, LEGACY_SWITCH_FILE_NAME, PHONE_ACTIONS, LOG_QUERY_ACTION_SUFFIX, EVENT_LEVELS, EVENT_KINDS } = __mods["log-config-constants"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { LOG_DEBOUNCE_MS, DEFAULT_MAX_QUEUE, DEFAULT_MAX_SIZE, DEFAULT_MAX_DAYS, CLIENT_BATCH_MAX, CLIENT_BATCH_INTERVAL_MS, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, LEGACY_LOG_DIR_NAME, LEGACY_SWITCH_FILE_NAME, PHONE_ACTIONS, LOG_QUERY_ACTION_SUFFIX, EVENT_LEVELS, EVENT_KINDS });
+const { assertPluginId } = __mods["log-config-validate"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { assertPluginId });
+const { resolveHostLogConfig, resolveClientLogConfig } = __mods["log-config-resolve"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { resolveHostLogConfig, resolveClientLogConfig });
+const { buildPhoneName, buildPhoneNames, buildLogQueryPhoneName } = __mods["log-config-phones"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { buildPhoneName, buildPhoneNames, buildLogQueryPhoneName });
+const { formatDailyFileName, formatFourSegmentFileName, resolveLogFileName } = __mods["log-config-log-names"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { formatDailyFileName, formatFourSegmentFileName, resolveLogFileName });
+const { parseEventListManifest, checkEventFields, lintEventFields, computeEventCounts } = __mods["log-config-event-list"];
+__mods["log-config"] = Object.assign(__mods["log-config"] || {}, { parseEventListManifest, checkEventFields, lintEventFields, computeEventCounts });
 
 })();
 (function () {
-// AUTO-GENERATED by node packages/dsh-log/build.mjs — DO NOT EDIT. Source: packages/dsh-log/src/client.ts
-const { assertPluginId, buildPhoneNames, CLIENT_BATCH_INTERVAL_MS, CLIENT_BATCH_MAX, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, parseEventListManifest } = __mods["log-config"];
-const { buildPhoneName, buildPhoneNames: buildPhoneNames2 } = __mods["log-config"];
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/switch-cache.ts
+// src/client/switch-cache.ts —— 本地开关缓存（S6 从 client.ts 原样搬出）。
+// 为什么单独一层：开关要在界面首屏秒显，所以先读本地存储、随后再与宿主对账；
+// 这一层只管「本地那份」，与宿主通信在 client.ts 的 reconcile/setLogSwitch 里。
+function createSwitchCache(input) {
+    // 三个名字与搬运前的闭包自由变量同名，函数体一字不改。
+    const storage = input.storage;
+    const debugKey = input.debugKey;
+    const LOG_REV = input.rev;
+    function readLocalDebugSwitch() {
+        const fallback = { enabled: false, rev: LOG_REV };
+        try {
+            if (!storage || typeof storage.getItem !== 'function')
+                return fallback;
+            const raw = storage.getItem(debugKey);
+            if (!raw)
+                return fallback;
+            const saved = JSON.parse(raw);
+            if (!saved || typeof saved !== 'object')
+                return fallback;
+            return {
+                enabled: saved.enabled === true,
+                rev: typeof saved.rev === 'number' && isFinite(saved.rev) ? saved.rev : LOG_REV
+            };
+        }
+        catch (e) {
+            void e;
+            return fallback;
+        }
+    }
+    function persistLocalDebugSwitch(state) {
+        try {
+            if (!storage || typeof storage.setItem !== 'function')
+                return false;
+            storage.setItem(debugKey, JSON.stringify({
+                enabled: !!(state && state.enabled),
+                rev: state && typeof state.rev === 'number' && isFinite(state.rev) ? state.rev : LOG_REV
+            }));
+            return true;
+        }
+        catch (e) {
+            void e;
+            return false;
+        }
+    }
+    return { read: readLocalDebugSwitch, persist: persistLocalDebugSwitch };
+}
+
+__mods["log-client-switch-cache"] = Object.assign(__mods["log-client-switch-cache"] || {}, { createSwitchCache });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/transport.ts
+// src/client/transport.ts —— 转发面的纯计算与重试策略（S6 从 client.ts 原样搬出）。
+// 这里不放状态：包体积估算与重试节奏是常量与纯函数，谁接线谁持有状态。
+const { CLIENT_PACKET_BYTES } = __mods["log-config"];
+// 与 client.ts 的 LOG_PACKET_BYTES 同源（配置面常量），本地取同名以免搬动函数体。
+const LOG_PACKET_BYTES = CLIENT_PACKET_BYTES;
+// 重试策略：有界重试（次数上限）+ 线性退避；到顶就如实计数，不再排程。
+const LOG_RETRY_MAX_ATTEMPTS = 3;
+const LOG_RETRY_BACKOFF_MS = 500;
+function estimateBatchBytes(entries) {
+    try {
+        const text = JSON.stringify(entries);
+        const g = globalThis;
+        if (typeof g.TextEncoder !== 'undefined')
+            return new g.TextEncoder().encode(text).length;
+        return String(text).length;
+    }
+    catch (e) {
+        void e;
+        return LOG_PACKET_BYTES + 1;
+    }
+}
+
+__mods["log-client-transport"] = Object.assign(__mods["log-client-transport"] || {}, { LOG_RETRY_MAX_ATTEMPTS, LOG_RETRY_BACKOFF_MS, estimateBatchBytes });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/trace.ts
+// src/client/trace.ts —— 写侧追踪装配（S6 从 client.ts 原样搬出）。
+// 只管一件事：给每条日志准备 traceId/spanId（缺就自动建链，显式传入优先）。
+// 落盘形状（五键行 + 保留字住 fields）由宿主侧 core/trace.ts 负责，两边不越界。
+const { genHex } = __mods["log-core-ids"];
+const { isKnownLevel } = __mods["log-core-level"];
+function createTraceStage(input) {
+    // 状态对象由调用方持有：child() 派生实例时共用同一份语义，但各自一份状态。
+    const traceState = input.state;
+    function ensureSpanId() {
+        if (!traceState.spanId) {
+            traceState.spanId = genHex(8);
+            if (traceState.spanSource === 'none')
+                traceState.spanSource = 'auto';
+        }
+        return traceState.spanId;
+    }
+    function ensureTraceForLevel(level) {
+        if (traceState.traceId)
+            return traceState.traceId;
+        if (isKnownLevel(level)) {
+            traceState.traceId = genHex(16);
+            traceState.traceSource = 'auto';
+            ensureSpanId();
+            return traceState.traceId;
+        }
+        return traceState.traceId;
+    }
+    return { ensureSpanId: ensureSpanId, ensureForLevel: ensureTraceForLevel };
+}
+
+__mods["log-client-trace"] = Object.assign(__mods["log-client-trace"] || {}, { createTraceStage });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/switch-ops.ts
+// src/client/switch-ops.ts —— 开关对账与保存（S6 从 client.ts 原样搬出）。
+// 分工：本地那份缓存住 switch-cache.ts，本层负责与宿主对话（读开关、写开关、超时与代际）。
+// 失败原因只给机器码（host-unavailable / host-rejected / switch-timeout / stale / throw*），
+// 面向用户的文案由界面批次经多语言系统转换——本包不写面向用户的中文字符串。
+const { hash8 } = __mods["log-core-ids"];
+function createSwitchOps(input) {
+    // 下面这些名字与搬运前的闭包自由变量同名，函数体一字不改。
+    const host = input.host;
+    const phoneNames = input.phoneNames;
+    const timer = input.timer;
+    const LOG_WATCHDOG_MS = input.watchdogMs;
+    const logSwitch = input.state;
+    const setLogSwitchGen = input.gen;
+    const persistLocalDebugSwitch = input.cache.persist;
+    const broadcast = input.broadcast;
+    const log = input.log;
+    const watchSwitchOp = input.watch;
+    // 启动对账：向宿主读开关，以宿主为准；宿主不可用或读失败就保持本地值，
+    // 不回退为开启，不抛错，不产生调试日志。成功后持久化到本地并向全组广播。
+    function reconcileLogSwitch() {
+        if (!host || typeof host.call !== 'function') {
+            return Promise.resolve({ ok: false, enabled: logSwitch.enabled });
+        }
+        try {
+            const pendingGet = host.call(phoneNames.logGetSwitch, {});
+            watchSwitchOp('reconcile', pendingGet);
+            return pendingGet.then(function (res) {
+                const body = res && typeof res === 'object' ? res : null;
+                if (!body || body.ok !== true)
+                    return { ok: false, enabled: logSwitch.enabled };
+                logSwitch.enabled = body.enabled === true;
+                persistLocalDebugSwitch(logSwitch);
+                try {
+                    if (broadcast)
+                        broadcast();
+                }
+                catch (e) {
+                    void e;
+                }
+                return { ok: true, enabled: logSwitch.enabled };
+            }).catch(function () {
+                return { ok: false, enabled: logSwitch.enabled };
+            });
+        }
+        catch (e) {
+            void e;
+            return Promise.resolve({ ok: false, enabled: logSwitch.enabled });
+        }
+    }
+    // 开关写失败分类行：写开关是低频用户动作，三条失败路各落一条告警行。
+    // 复用现成常驻事件 host.call.fail（不新增事件名），字段只用白名单三键；
+    // 告警级始终落盘、不依赖调试开关，下次导出日志即可看出是哪一类失败。
+    const logSwitchSetFail = function (kind, hint) {
+        try {
+            log('warn', 'host.call.fail', {
+                method: phoneNames.logSetSwitch,
+                kind: 'set-switch-' + kind,
+                errorHash: hash8(String(hint === undefined || hint === null ? kind : hint).slice(0, 120))
+            });
+        }
+        catch (e) {
+            void e;
+        }
+    };
+    // 调用抛错再按文案分一小类：未知端点与连接不可用各单列，其余归通用抛错。
+    // 只做归类、不记原文（原文只进散列），低频路径、关闭时零代价。
+    const switchThrowKind = function (e) {
+        const msg = String((e && typeof e === 'object' && ('code' in e || 'message' in e)
+            ? (e.code || e.message)
+            : e) || '');
+        if (/unknown endpoint/i.test(msg))
+            return 'throw-unknown-endpoint';
+        if (/connection|host\.call 不可用|unavailable/i.test(msg))
+            return 'throw-connection';
+        return 'throw';
+    };
+    // 调用抛错这条路：先落一条分类告警行，再把同一个分类码当返回值交给界面。
+    // 界面拿分类码翻成「是哪一类失败」的提示（#597 期望 2：别再只给一句笼统的保存失败）；
+    // 错误原文只进散列、不落盘也不上屏。
+    const failByThrow = function (e) {
+        const kind = switchThrowKind(e);
+        logSwitchSetFail(kind, (e && typeof e === 'object' && 'message' in e
+            ? e.message
+            : undefined) || e);
+        return kind;
+    };
+    // 设置页保存开关：先写宿主，宿主生效才更新本地与内存并广播；写失败保持本地旧值并返回失败，
+    // 由调用处提示用户，不回退为开启。失败原因只给机器码——host-unavailable、host-rejected、
+    // switch-timeout、stale、throw / throw-connection / throw-unknown-endpoint；
+    // 面向用户的文案由界面批次经多语言系统转换，本包不写面向用户的中文字符串。
+    function setLogSwitch(enabled) {
+        const next = { enabled: enabled === true };
+        if (!host || typeof host.call !== 'function') {
+            logSwitchSetFail('host-unavailable', 'host-unavailable');
+            return Promise.resolve({ ok: false, enabled: logSwitch.enabled, error: 'host-unavailable' });
+        }
+        try {
+            const pendingSet = host.call(phoneNames.logSetSwitch, next);
+            watchSwitchOp('set', pendingSet);
+            // 超时放行：调用 hang 住不再卡死界面，与看门狗同超时；
+            // 无计时器时永不超时，原样等待（行为退化到修前）。
+            const myGen = (setLogSwitchGen.n += 1);
+            const timeoutAt = new Promise(function (resolve) {
+                const fire = function () {
+                    resolve({ switchTimedOut: true });
+                };
+                try {
+                    if (timer !== null && timer !== undefined && typeof timer.timeout === 'function') {
+                        timer.timeout(fire, LOG_WATCHDOG_MS);
+                        return;
+                    }
+                }
+                catch (e) {
+                    void e;
+                }
+                try {
+                    setTimeout(fire, LOG_WATCHDOG_MS);
+                }
+                catch (e2) {
+                    void e2;
+                }
+            });
+            return Promise.race([pendingSet, timeoutAt]).then(function (res) {
+                const body = res && typeof res === 'object' ? res : null;
+                if (body && body['switchTimedOut'] === true) {
+                    logSwitchSetFail('timeout', 'timeout-' + LOG_WATCHDOG_MS);
+                    return { ok: false, enabled: logSwitch.enabled, error: 'switch-timeout' };
+                }
+                if (myGen !== setLogSwitchGen.n)
+                    return { ok: false, enabled: logSwitch.enabled, error: 'stale' };
+                if (!body || body['ok'] !== true) {
+                    logSwitchSetFail('host-rejected', 'host-rejected');
+                    return { ok: false, enabled: logSwitch.enabled, error: 'host-rejected' };
+                }
+                logSwitch.enabled = body['enabled'] === true;
+                persistLocalDebugSwitch(logSwitch);
+                try {
+                    if (broadcast)
+                        broadcast();
+                }
+                catch (e) {
+                    void e;
+                }
+                return { ok: true, enabled: logSwitch.enabled };
+            }).catch(function (e) {
+                if (myGen !== setLogSwitchGen.n)
+                    return { ok: false, enabled: logSwitch.enabled, error: 'stale' };
+                return { ok: false, enabled: logSwitch.enabled, error: failByThrow(e) };
+            });
+        }
+        catch (e) {
+            return Promise.resolve({ ok: false, enabled: logSwitch.enabled, error: failByThrow(e) });
+        }
+    }
+    return { reconcile: reconcileLogSwitch, set: setLogSwitch };
+}
+
+__mods["log-client-switch-ops"] = Object.assign(__mods["log-client-switch-ops"] || {}, { createSwitchOps });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/forward.ts
+// src/client/forward.ts —— 转发面的自监控（S6 从 client.ts 原样搬出）。
+// 三件事：丢弃汇总行（有新增丢弃才记一行）、导出失败行（只散列不记原文）、开关看门狗（5 秒未落定记一行）。
+// 都不改变主流程的返回值：只旁观、只记录，失败自己吞掉。
+const { hash8 } = __mods["log-core-ids"];
+function createForwardStage(input) {
+    // 下面这些名字与搬运前的闭包自由变量同名，函数体一字不改（只有 logExportFail 的 hashFn 一行刻意改写，见上）。
+    const logDiagnostic = input.logDiagnostic;
+    const logDroppedState = input.dropped;
+    const logForwardState = input.forward;
+    const timer = input.timer;
+    const LOG_WATCHDOG_MS = input.watchdogMs;
+    const hashFn = input.hashFn;
+    // 转发汇总行：批量发送落定后，有新增丢弃才记一行；无丢弃的窗口不打扰。
+    // 汇总行本身走告警直通再触发下一次发送，下一次无新增丢弃即止，链条自然终止。
+    // 字段带上宿主最近一次回包的 accepted/skipped/rejected（#26 验收线 A1：宿主如实报了，
+    // 客户端就不能把它塌成一个布尔——「收了几行、按开关跳了几行、拒了几行」要在日志里看得见）。
+    // 未知（宿主没回这个键）时不写该键，不给读者一个假的 0。
+    function maybeForwardSummary() {
+        const delta = logDroppedState.count - logForwardState.lastSummaryDropped;
+        if (delta <= 0)
+            return;
+        logForwardState.lastSummaryDropped = logDroppedState.count;
+        const now = Date.now();
+        const windowMs = now - logForwardState.lastSummaryAt;
+        logForwardState.lastSummaryAt = now;
+        const fields = {
+            droppedDelta: delta,
+            totalDropped: logDroppedState.count,
+            reason: logForwardState.lastReason || 'send-fail',
+            windowMs: windowMs
+        };
+        if (logForwardState.lastAccepted >= 0)
+            fields.accepted = logForwardState.lastAccepted;
+        if (logForwardState.lastSkipped >= 0)
+            fields.skipped = logForwardState.lastSkipped;
+        if (logForwardState.lastRejected >= 0)
+            fields.rejected = logForwardState.lastRejected;
+        try {
+            logDiagnostic('warn', 'log.forward.summary', fields);
+        }
+        catch (e) {
+            void e;
+        }
+    }
+    // 散列小函数已下沉 core/ids.ts（hash8 单源：不记原文，只记指纹）。
+    // 导出链路行：状态栏菜单与设置页两处复用；成功路径不调用，失败分支才记一行。
+    // 0.3.0（#19）：删全局裸函数，不再认 globalThis.dswsLogHash/dswsLogTrunc；
+    // 改为经 ClientLogDeps 可选注入 hashFn?(s:string)=>string，缺省用包内 hash8。
+    // 截断固定为前 120 字切片（旧 trunc 注入位不再保留），只散列不记原文。
+    function logExportFail(op, reason, err) {
+        try {
+            const hash = (hashFn && typeof hashFn === 'function' ? hashFn : hash8);
+            const raw = err && typeof err === 'object' && 'message' in err
+                ? String(err.message)
+                : String(err || reason);
+            const sliced = String(raw || '').slice(0, 120);
+            let hashed = '';
+            try {
+                hashed = hash(sliced);
+            }
+            catch (eH) {
+                void eH;
+                hashed = hash8(sliced);
+            }
+            logDiagnostic('warn', 'log.export.fail', { op: op, reason: reason, errorHash: hashed });
+        }
+        catch (e) {
+            void e;
+        }
+    }
+    // 开关看门狗：操作与 5 秒计时竞跑，计时先到记一行告警；原调用不取消、不重试、不改返回值。
+    function watchSwitchOp(op, pending) {
+        let settled = false;
+        try {
+            if (pending && typeof pending.then === 'function') {
+                ;
+                pending.then(function () {
+                    settled = true;
+                }, function () {
+                    settled = true;
+                });
+            }
+        }
+        catch (e) {
+            void e;
+        }
+        const fire = function () {
+            if (!settled) {
+                settled = true;
+                try {
+                    logDiagnostic('warn', 'log.switch.watchdog', { op: op, timeoutMs: LOG_WATCHDOG_MS, stage: 'waiting-host' });
+                }
+                catch (e) {
+                    void e;
+                }
+            }
+        };
+        try {
+            if (timer !== null && timer !== undefined && typeof timer.timeout === 'function') {
+                timer.timeout(fire, LOG_WATCHDOG_MS);
+                return;
+            }
+        }
+        catch (e) {
+            void e;
+        }
+        try {
+            setTimeout(fire, LOG_WATCHDOG_MS);
+        }
+        catch (e2) {
+            void e2;
+        }
+    }
+    return {
+        maybeForwardSummary: maybeForwardSummary,
+        logExportFail: logExportFail,
+        watchSwitchOp: watchSwitchOp
+    };
+}
+
+__mods["log-client-forward"] = Object.assign(__mods["log-client-forward"] || {}, { createForwardStage });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/send.ts
+// src/client/send.ts —— 发送面：取批、裁剪、发、重试位（S6 从 client.ts 原样搬出）。
+// 口径（0.3.0 Track 1）：失败先进重试位、有界重试（次数上限 + 线性退避），到顶才如实计数；
+// 宿主明确拒收时只算它拒的那几行，传输失败才算整批——「一行被拒」不再报成「整批丢」。
+// 裁剪分级保 error：单包超限或队列积压都只裁普通行，error 行不被裁掉。
+const { CLIENT_BATCH_MAX, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX } = __mods["log-config"];
+const { findTrimmableIndex } = __mods["log-core-admission"];
+const { estimateBatchBytes, LOG_RETRY_BACKOFF_MS, LOG_RETRY_MAX_ATTEMPTS } = __mods["log-client-transport"];
+// 与 client.ts 的公开常量同源（配置面），本地取同名以免搬动函数体。
+const LOG_BATCH_MAX = CLIENT_BATCH_MAX;
+const LOG_PACKET_BYTES = CLIENT_PACKET_BYTES;
+const LOG_QUEUE_MAX = CLIENT_QUEUE_MAX;
+function createSendStage(input) {
+    // 下面这些名字与搬运前的闭包自由变量同名，函数体一字不改。
+    const host = input.host;
+    const phoneNames = input.phoneNames;
+    const logQueue = input.queue;
+    const logRetryState = input.retry;
+    const logDroppedState = input.dropped;
+    const logForwardState = input.forward;
+    const logFlushTimer = input.flushTimer;
+    const timer = input.timer;
+    const laterRun = input.laterRun;
+    const maybeForwardSummary = input.maybeForwardSummary;
+    const scheduleLogFlush = input.scheduleLogFlush;
+    // 丢弃计数只数「用户行」：库自己写的诊断行（转发汇总行——它自己也被送进来发）被拒收、
+    // 被裁掉或被丢掉时都不算账，否则「你丢 1 行」会被报成「丢 2 行」。
+    // 宿主侧同款：engine/pipeline.ts 的 userRowCount（口径必须一致，两侧都叫这个词）。
+    function userRowCount(rows) {
+        let n = 0;
+        for (let i = 0; i < rows.length; i += 1)
+            if (rows[i].isDiagnostic !== true)
+                n += 1;
+        return n;
+    }
+    // 失败落定：能重试就排一次退避重试（次数有界），到顶才如实计入丢弃并清空重试位。
+    // 计数口径（诚实）：宿主明确拒收时只算它拒的那几行（rejected），传输失败才算整批。
+    function settleSendFailure(reason, entries, onlySummary) {
+        logForwardState.lastReason = reason;
+        if (logRetryState.attempts < LOG_RETRY_MAX_ATTEMPTS) {
+            logRetryState.rows = entries.slice();
+            logRetryState.attempts += 1;
+            if (logRetryState.timer === null) {
+                const wait = LOG_RETRY_BACKOFF_MS * logRetryState.attempts;
+                logRetryState.timer = laterRun(function () {
+                    logRetryState.timer = null;
+                    try {
+                        sendLogBatch();
+                    }
+                    catch (e) {
+                        void e;
+                    }
+                }, wait);
+            }
+        }
+        else {
+            const rc = logRetryState.rejectCount;
+            const countable = userRowCount(entries);
+            logDroppedState.count += rc >= 0 ? Math.min(rc, countable) : countable;
+            logRetryState.rows = [];
+            logRetryState.rejectCount = -1;
+            logRetryState.attempts = 0;
+        }
+        if (!onlySummary)
+            maybeForwardSummary();
+        return { ok: false, sent: 0 };
+    }
+    // 发一批：一次最多 50 条；单包超 128KB 或队列超 100 条时先到先截，
+    // 裁掉的记入丢弃数并在包尾最后一条记截断标记；失败进重试位（有界重试），到顶才记丢弃。
+    // 重试位优先发：里面是更早的行，先发它们才不乱序。
+    function sendLogBatch() {
+        let entries;
+        if (logRetryState.rows.length > 0) {
+            entries = logRetryState.rows.splice(0, LOG_BATCH_MAX);
+        }
+        else {
+            if (logQueue.length === 0)
+                return Promise.resolve({ ok: true, sent: 0 });
+            entries = logQueue.splice(0, LOG_BATCH_MAX);
+        }
+        let trimmed = 0;
+        // 超包裁剪分级保 error：error 行不被裁掉，只裁普通行（warn/info/debug 均为可裁行）；
+        // 尾部优先（与修前 pop 同序，全普通行时与修前一字不差）；全 error 超包也不裁，整包发出。
+        // 裁掉的行若本来就是库自己的诊断行，不进丢弃计数（只数用户行）。
+        while (entries.length > 1 && estimateBatchBytes(entries) > LOG_PACKET_BYTES) {
+            const victim = findTrimmableIndex(entries, 'newest-first');
+            if (victim < 0)
+                break;
+            if (entries[victim].isDiagnostic !== true)
+                trimmed += 1;
+            entries.splice(victim, 1);
+        }
+        // 队列里还压着超过 100 条说明消费跟不上：只留 100 条，其余丢弃并计数（不无界缓冲）。
+        // 积压裁剪同样分级保 error：只裁最旧普通行，全 error 积压也不裁。
+        while (logQueue.length > LOG_QUEUE_MAX) {
+            const victim = findTrimmableIndex(logQueue, 'oldest-first');
+            if (victim < 0)
+                break;
+            if (logQueue[victim].isDiagnostic !== true)
+                trimmed += 1;
+            logQueue.splice(victim, 1);
+        }
+        if (trimmed > 0) {
+            logDroppedState.count += trimmed;
+            logForwardState.lastReason = 'packet-trim';
+            try {
+                entries[entries.length - 1].truncated = true;
+            }
+            catch (e) {
+                void e;
+            }
+        }
+        const args = { entries: entries, droppedCount: logDroppedState.count };
+        // 防自激：这一批如果只剩上一行汇总自己，失败只计数不再记新汇总，否则汇总会自己养活自己停不下来。
+        const onlySummary = entries.length === 1 && entries[0] && entries[0].event === 'log.forward.summary';
+        if (!host || typeof host.call !== 'function') {
+            // 压根没有宿主可发（不是暂时不可用）：重试没意义，如实整批计数（仍只数用户行）。
+            logDroppedState.count += userRowCount(entries);
+            logForwardState.lastReason = 'send-fail';
+            if (!onlySummary)
+                maybeForwardSummary();
+            return Promise.resolve({ ok: false, sent: 0 });
+        }
+        try {
+            return host
+                .call(phoneNames.logBatch, args)
+                .then(function (res) {
+                const obj = res && typeof res === 'object' ? res : null;
+                const ok = !!obj && obj.ok === true;
+                // 三档计数一律先过「是不是可信的非负整数」这一关：不可信就记 -1（未知），不许编。
+                const countOf = (v) => (typeof v === 'number' && isFinite(v) && v >= 0 ? Math.floor(v) : -1);
+                const acceptedRaw = countOf(obj ? obj.accepted : undefined);
+                const skippedRaw = countOf(obj ? obj.skipped : undefined);
+                const rejectedRaw = countOf(obj ? obj.rejected : undefined);
+                // 宿主如实报了三档计数（accepted/skipped/rejected）：照原样存下来给汇总行用，
+                // 不许再塌成一个布尔（#26 D2：一行被拒曾报成整批丢）。
+                logForwardState.lastAccepted = acceptedRaw;
+                logForwardState.lastSkipped = skippedRaw;
+                // 被拒条数：宿主报了就用它（夹在 0..entries.length 内）；**没报或报 0 却回了 ok:false** 时，
+                // 用 entries.length - accepted 兜底，两个数都不可信才按整批计——宁可多算丢，也绝不允许
+                // 「整批行被丢掉了而丢弃计数不动」（2026-10-14 终局审查 277d5b3e 必改 3：非规范宿主
+                // 回 {ok:false} 时是静默丢账）。
+                let rejected = rejectedRaw > 0 ? Math.min(rejectedRaw, entries.length) : 0;
+                if (!ok && rejected === 0) {
+                    rejected =
+                        acceptedRaw >= 0 ? Math.max(0, Math.min(entries.length - acceptedRaw, entries.length)) : entries.length;
+                }
+                logForwardState.lastRejected = rejected;
+                if (ok && rejected === 0) {
+                    logRetryState.attempts = 0;
+                    logRetryState.rejectCount = -1;
+                    maybeForwardSummary();
+                    return { ok: true, sent: entries.length };
+                }
+                // 宿主回包说「有行没进队列」：按它说的数记下来（回包诚实计数 R1 的客户端一半——从前一律
+                // 按整批计，一行被拒报成整批丢），这批仍进重试位：宿主队列满通常是暂时的。
+                logRetryState.rejectCount = rejected;
+                return settleSendFailure('host-reject', entries, onlySummary);
+            })
+                .catch(function () {
+                return settleSendFailure('send-fail', entries, onlySummary);
+            });
+        }
+        catch (e) {
+            void e;
+            return Promise.resolve(settleSendFailure('send-fail', entries, onlySummary));
+        }
+    }
+    // 立刻转发一次（取消本次防抖等待）；客户端侧的 flush 只管转发，不管落盘。
+    function flush() {
+        if (logFlushTimer.id !== null) {
+            try {
+                clearTimeout(logFlushTimer.id);
+            }
+            catch (e) {
+                void e;
+            }
+            logFlushTimer.id = null;
+        }
+        try {
+            sendLogBatch();
+        }
+        catch (e) {
+            void e;
+        }
+        return { ok: true };
+    }
+    // 读累计丢弃数（队列满与转发失败都只计数不抛错，与宿主同名同参）。
+    function getDroppedCount() {
+        return logDroppedState.count;
+    }
+    return { sendLogBatch: sendLogBatch, flush: flush, getDroppedCount: getDroppedCount };
+}
+
+__mods["log-client-send"] = Object.assign(__mods["log-client-send"] || {}, { createSendStage });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client/write.ts
+// src/client/write.ts —— 主写路径：准入、腾位、记行、安排转发（S6 从 client.ts 原样搬出）。
+// 口径：error/warn 与常驻事件恒放行（开关拦不住）；队列满时按级别腾位——error/warn 挤最旧普通行，
+// 普通行丢新并计数（客户端无 onDrop，只记 lastReason 供转发汇总）；保留字冲突进 fields._shadow
+// 并附记一行影子 warn（不占主行配额）；urgent 级别直通转发，其余 1000 毫秒防抖合并。
+const { CLIENT_BATCH_INTERVAL_MS, CLIENT_QUEUE_MAX } = __mods["log-config"];
+const { findEvictableIndex } = __mods["log-core-admission"];
+const { isUrgentLevel } = __mods["log-core-level"];
+const { LOG_FORMAT_VERSION } = __mods["log-core-row"];
+const { relocateReservedFields, SHADOW_FIELD } = __mods["log-core-trace"];
+// 与 client.ts 的公开常量同源（配置面），本地取同名以免搬动函数体。
+const LOG_FLUSH_MS = CLIENT_BATCH_INTERVAL_MS;
+const LOG_QUEUE_MAX = CLIENT_QUEUE_MAX;
+function createWriteStage(input) {
+    // 下面这些名字与搬运前的闭包自由变量同名，函数体除开关判定外一字不改。
+    const getSwitchEnabled = input.getSwitchEnabled;
+    const logQueue = input.queue;
+    const logDroppedState = input.dropped;
+    const logForwardState = input.forward;
+    const logFlushTimer = input.flushTimer;
+    const traceState = input.traceState;
+    const ensureSpanId = input.ensureSpanId;
+    const ensureTraceForLevel = input.ensureTraceForLevel;
+    const sendLogBatch = input.sendLogBatch;
+    const timer = input.timer;
+    const residentEvents = input.residentEvents;
+    // 读当前级别与事件名是否允许产生日志；关闭时调用处直接返回。错误与告警始终允许；
+    // 信息级里落在常驻集合的也始终允许（#731 根因：从前只看级别，常驻信息全被开关拦掉）。
+    // 集合 = 包内固定 43 条 ∪ 调用方清单里 kind === 'resident' 的事件（core/resident.ts 单源）。
+    function isEnabled(level, event) {
+        if (isUrgentLevel(level))
+            return true;
+        try {
+            if (typeof event === 'string' && residentEvents.has(event))
+                return true;
+            return getSwitchEnabled() === true;
+        }
+        catch (e) {
+            void e;
+            return false;
+        }
+    }
+    // 队列满时按级别腾位（与宿主 store.dropForRoom 同口径：error/warn 永不丢，新到的 error/warn
+    // 满时挤掉最旧普通行，全 error/warn 无普通可挤时挤掉最旧一行腾位；普通行满时直接丢新并计数；
+    // 都只计数不抛错，客户端无 onDrop 回调，只记 lastReason 供转发汇总）。
+    function dropForRoom(level) {
+        if (isUrgentLevel(level)) {
+            const victim = findEvictableIndex(logQueue);
+            if (victim >= 0) {
+                logQueue.splice(victim, 1);
+                logDroppedState.count += 1;
+                logForwardState.lastReason = 'queue-full';
+                return;
+            }
+            // 满且全是 error/warn、无普通可挤：为保新到的 error/warn 不丢，挤掉最旧一行腾位（仍计数）。
+            if (logQueue.length > 0) {
+                logQueue.splice(0, 1);
+                logDroppedState.count += 1;
+                logForwardState.lastReason = 'queue-full';
+                return;
+            }
+        }
+        logDroppedState.count += 1;
+        logForwardState.lastReason = 'queue-full';
+    }
+    // 记一行日志：体内仍先判断一次再写，做漏加外层判断的兜底；
+    // 但兜底拦不住调用前已求值的拼接，所以高频调用处仍必须写外层判断，不许省略。
+    // 0.3.0 追踪：保留字 traceId/spanId/seq 永不拒收——冲突重命名进 fields._shadow 并 warn 计数，
+    // error 本体照落；落盘行带 v:3（读侧先认 v，v!=3 跳过+计数不抛错）。
+    // 回执与宿主侧 store.log() 同口径（LogOutcome）：调用方能当场看出「记上了 / 被开关挡下 / 满了丢了」。
+    // 第四个参数留给库自己：isDiagnostic 为真时这一行是库写的便签（汇总行、影子行），
+    // 发送面统计丢弃时不计它——否则「你丢 1 行」会被报成「丢 2 行」。调用方只需用三个参数的 log。
+    function log(level, event, fields, isDiagnostic) {
+        if (!isEnabled(level, event))
+            return 'skipped';
+        if (logQueue.length >= LOG_QUEUE_MAX) {
+            dropForRoom(level);
+            if (logQueue.length >= LOG_QUEUE_MAX)
+                return 'dropped';
+        }
+        const userFields = fields && typeof fields === 'object' ? fields : {};
+        // 保留字搬迁走 core/trace.ts 单源（#24：保留字永不整行拒收，冲突进 fields._shadow）。
+        const relocated = relocateReservedFields(userFields);
+        const out = relocated.fields;
+        const shadow = relocated.shadow;
+        if (shadow) {
+            out[SHADOW_FIELD] = shadow;
+        }
+        // 计数与影子行**只针对「调用方真的传了保留字」**（reservedMoved）：只带 `_shadow`
+        // 是调用方自己归档自己的字段，不是我们搬的——那时候影子行里那句「被让位的是这些键」
+        // 也是假的，所以整块一起跳过（`fields._shadow` 仍原样保留）。
+        if (shadow && relocated.reservedMoved) {
+            traceState.shadowWarns += 1;
+            // warn 计数之外再记一行可检索的 warn 行（error 本体照落，不拒收；本行不含保留字，不递归）。
+            // 影子行不占主行配额：只在富余一格以上时附记，满时舍影子保主行（影子行不挤掉主行）；
+            // 舍掉的影子行不计入丢弃数（与主行丢弃计数独立，冲突次数只走 shadowWarns）。
+            try {
+                if (logQueue.length + 1 < LOG_QUEUE_MAX) {
+                    logQueue.push({
+                        v: LOG_FORMAT_VERSION,
+                        ts: Date.now(),
+                        level: 'warn',
+                        event: 'log.trace.shadow',
+                        fields: { event: String(event || ''), shadowed: Object.keys(shadow) },
+                        isDiagnostic: true
+                    });
+                }
+            }
+            catch (e2) {
+                void e2;
+            }
+        }
+        // 自动建链（见 ensureTraceForLevel 注释）；序号本实例单调，子实例从 0。
+        try {
+            ensureTraceForLevel(level);
+        }
+        catch (e3) {
+            void e3;
+        }
+        if (traceState.traceId) {
+            try {
+                ensureSpanId();
+            }
+            catch (e4) {
+                void e4;
+            }
+            out.traceId = traceState.traceId;
+            out.spanId = traceState.spanId;
+        }
+        try {
+            out.seq = traceState.seq;
+            traceState.seq += 1;
+        }
+        catch (e5) {
+            void e5;
+        }
+        // 主行二次容量检查：影子行已占一格时主行仍须有位；error/warn 可再挤一格保新，普通行满则丢新。
+        if (logQueue.length >= LOG_QUEUE_MAX) {
+            dropForRoom(level);
+            if (logQueue.length >= LOG_QUEUE_MAX)
+                return 'dropped';
+        }
+        logQueue.push({
+            v: LOG_FORMAT_VERSION,
+            ts: Date.now(),
+            level: level,
+            event: String(event || ''),
+            fields: out,
+            isDiagnostic: isDiagnostic === true
+        });
+        if (isUrgentLevel(level))
+            scheduleLogFlush(true);
+        else
+            scheduleLogFlush(false);
+        return 'queued';
+    }
+    // 库自己的诊断行专用入口（转发汇总行、导出失败行、开关看门狗行都走这里）：
+    // 与 log 同一条队列，只是打上 isDiagnostic 标记，发送面统计丢弃时会跳过它。
+    function logDiagnostic(level, event, fields) {
+        return log(level, event, fields, true);
+    }
+    // 安排一次转发：普通走 1000 毫秒防抖合并；错误与告警走直通（取消本次等待立刻发，
+    // 但调用处仍只进队列就返回，不等转发完成，崩溃窗口只剩毫秒级）。
+    function scheduleLogFlush(immediate) {
+        const later = function (fn, ms) {
+            try {
+                if (timer !== null && timer !== undefined && typeof timer.timeout === 'function')
+                    return timer.timeout(fn, ms);
+            }
+            catch (e) {
+                void e;
+            }
+            return setTimeout(fn, ms);
+        };
+        if (immediate) {
+            if (logFlushTimer.id !== null) {
+                try {
+                    clearTimeout(logFlushTimer.id);
+                }
+                catch (e) {
+                    void e;
+                }
+                logFlushTimer.id = null;
+            }
+            later(sendLogBatch, 0);
+            return;
+        }
+        if (logFlushTimer.id !== null)
+            return;
+        logFlushTimer.id = later(function () {
+            logFlushTimer.id = null;
+            sendLogBatch();
+        }, LOG_FLUSH_MS);
+    }
+    return {
+        log: log,
+        logDiagnostic: logDiagnostic,
+        isEnabled: isEnabled,
+        dropForRoom: dropForRoom,
+        scheduleLogFlush: scheduleLogFlush
+    };
+}
+
+__mods["log-client-write"] = Object.assign(__mods["log-client-write"] || {}, { createWriteStage });
+})();
+(function () {
+// AUTO-GENERATED by build.mjs — DO NOT EDIT. Source: src/client.ts
+// packages/dsh-log/src/client.ts —— 日志包的客户端入口（dsh-log/client，#558 Q4 双入口之一）。
+//
+// 日志系统的客户端引擎（#560）：把 src/client/kernel/log.js 改写为 TS 工厂函数。
+// 调用方传入 host、timer、存储、开关广播四个依赖，拿回一个独立的日志器；
+// 旧模块的闭包自由变量在本包内不再出现，全部经依赖参数进入。
+// 全程用“日志系统”指日志功能本身，用“日志包”指装着日志系统的这个 npm 包。
+//
+// 两种消费方式落哪（实现侧说明，文档细节留 #562 文档票）：
+// 1. 直接 import 形态落本入口的工厂函数：调用方写 import { createClientLog } from 'dsh-log/client'，
+//    把四个依赖与插件配置传进来，当场得到日志器，打包工具正常解析 import。
+// 2. 文本拼接形态落本入口的声明体文本：消费方构建时取客户端入口编译后的声明体、
+//    去行首 export 后拼进插件主文件闭包，调用时把闭包里现成的四个名字原样传给工厂。
+//    本仓当前插件本次不切拼接源（默认 wf 下行为零变化），拼接形态留给第二个插件验证。
+//
+// 三样直接复用，不另起字面：电话名拼法走 buildClientPhoneNames（与宿主入口同一套，
+// 前缀加点加动作名，默认前缀 wf 下与现状一字不差）；批量口径走 CLIENT_BATCH 常量
+// （每批 50 条、每 1000 毫秒、单包约 128KB、队列 100 条先到先截）；事件清单走对象形式
+// （调用方把清单拼成对象传给 eventList，日志包不读盘，默认 null 主路径零变化）。
+//
+// 失败语义冻结（#558）：失败只计数不抛错；转发与开关读写失败都只加到累计丢弃数里，
+// 返回成功为假的结构，不抛异常；开关失败保持旧值。
+// 未新增日志事件：本文件只沿用旧模块的 4 个事件名（log.forward.summary、log.switch.watchdog、
+// log.export.fail、host.call.fail），research/489-appendix.md 第 1 章对照表不用改。
+const { assertPluginId, buildLogQueryPhoneName, buildPhoneNames, CLIENT_BATCH_INTERVAL_MS, CLIENT_BATCH_MAX, CLIENT_PACKET_BYTES, CLIENT_QUEUE_MAX, LOG_FORMAT_VERSION, parseEventListManifest } = __mods["log-config"];
+// S2 下沉（领域层）：短 id（traceId/spanId）与短指纹单源一份，与宿主侧共用同一算法。
+const { genHex, hash8 } = __mods["log-core-ids"];
+const { residentEventSet } = __mods["log-core-resident"];
+const { createSwitchCache } = __mods["log-client-switch-cache"];
+const { createTraceStage } = __mods["log-client-trace"];
+const { estimateBatchBytes } = __mods["log-client-transport"];
+const { createSwitchOps } = __mods["log-client-switch-ops"];
+const { createForwardStage } = __mods["log-client-forward"];
+const { createSendStage } = __mods["log-client-send"];
+const { createWriteStage } = __mods["log-client-write"];
+const { buildPhoneName, LOG_QUERY_ACTION_SUFFIX } = __mods["log-config"];
+__mods["log-client"] = Object.assign(__mods["log-client"] || {}, { buildPhoneName, buildPhoneNames, LOG_QUERY_ACTION_SUFFIX, buildLogQueryPhoneName });
 const CLIENT_BATCH = {
-  maxPerBatch: CLIENT_BATCH_MAX,
-  intervalMs: CLIENT_BATCH_INTERVAL_MS,
-  packetBytes: CLIENT_PACKET_BYTES,
-  queueMax: CLIENT_QUEUE_MAX
+    maxPerBatch: CLIENT_BATCH_MAX,
+    intervalMs: CLIENT_BATCH_INTERVAL_MS,
+    packetBytes: CLIENT_PACKET_BYTES,
+    queueMax: CLIENT_QUEUE_MAX
 };
+// 客户端转发与开关读写要调的 5 个电话名（与宿主注册名同一套拼法，调用方传入同一前缀）。
 function buildClientPhoneNames(prefix) {
-  return buildPhoneNames(prefix);
+    return buildPhoneNames(prefix);
 }
+// 把调用方传入的配置补齐为完整配置（#19 双必填：缺项不是编译期兜底，而是运行期抛中文错；
+// 入参取 Partial 是因为 JS 调用方可能传空对象，这里必须给出可执行的错误，而不是靠类型静默）。
 function resolveClientLogConfig(input) {
-  const raw = input === void 0 || input === null ? {} : input;
-  const pluginId = raw.pluginId === void 0 ? "wf" : assertPluginId(raw.pluginId, "\u63D2\u4EF6\u6807\u8BC6 pluginId");
-  const prefix = raw.prefix === void 0 ? pluginId : assertPluginId(raw.prefix, "\u7535\u8BDD\u540D\u524D\u7F00 prefix");
-  const eventList = raw.eventList === void 0 ? null : raw.eventList;
-  if (eventList !== null && typeof eventList === "object") {
-    parseEventListManifest(eventList);
-  }
-  return { pluginId, prefix, eventList };
+    const raw = input === undefined || input === null ? {} : input;
+    const pluginId = raw.pluginId !== undefined && raw.pluginId !== null ? assertPluginId(raw.pluginId, '插件标识 pluginId') : (function () { throw new Error('[dsh-log] 建客户端日志库缺少配置：插件标识 pluginId 必填（须显式传入，不再回退）'); })();
+    const prefix = raw.prefix !== undefined && raw.prefix !== null ? assertPluginId(raw.prefix, '电话名前缀 prefix') : (function () { throw new Error('[dsh-log] 建客户端日志库缺少配置：电话名前缀 prefix 必填（须显式传入，不再回退到 pluginId）'); })();
+    const eventList = raw.eventList === undefined ? null : raw.eventList;
+    if (eventList !== null && typeof eventList === 'object') {
+        // 对象形式的清单当场验形状（与宿主入口同一函数）；数组同样被拦下；默认 null 原样透过。
+        parseEventListManifest(eventList);
+    }
+    return { pluginId: pluginId, prefix: prefix, eventList: eventList };
 }
-const LOG_DEBUG_KEY = "dsws.debug";
+// ---- 旧字面兼容（批量口径数字复用 CLIENT_BATCH 常量，不另写一遍） ----
+// 本地开关存一份：0.3.0 起按插件派生命名空间（#19+#20+#24 读侧，不兼容 0.2.x）。
+// 0.2.x 单键 'dsws.debug' 全插件共用（见 research/08-plugin-isolation.md 第 4 层）；
+// 0.3.0 起实际键为 `dsws.debug.<pluginId>`（config.pluginId），读写两处同改，读不到只用默认。
+// LOG_DEBUG_KEY 保留作前缀字面（文档锚点）；运行期请用 debugStorageKey(pluginId) 拿实际键。
+// 旧的 LOG_DEBUG_KEY_PREFIX 别名与 buildLogDebugKey 兼容别名已在 0.3.0 #27 删除（同物多名只制造分叉）。
+const LOG_DEBUG_KEY = 'dsws.debug';
+// 按插件派生实际存储键（前缀默认等于插件标识时，键仍按插件标识派生，不按前缀）。
+function debugStorageKey(pluginId) {
+    return LOG_DEBUG_KEY + '.' + pluginId;
+}
+// 只读查询电话名单源见 config.ts（LOG_QUERY_ACTION_SUFFIX/buildLogQueryPhoneName，本入口转出口供兼容）。
+// 通道批量口径（#558 队列口径）：每批最多 50 条、每 1000 毫秒发一次、
+// 单包约 128KB 或队列 100 条先到先截，裁掉的记入丢弃数。
 const LOG_BATCH_MAX = CLIENT_BATCH_MAX;
 const LOG_FLUSH_MS = CLIENT_BATCH_INTERVAL_MS;
 const LOG_PACKET_BYTES = CLIENT_PACKET_BYTES;
 const LOG_QUEUE_MAX = CLIENT_QUEUE_MAX;
-const LOG_WATCHDOG_MS = 5e3;
+// 自监控看门狗阈值：开关写与启动对账超过这么多毫秒未回，就记一行告警，不改返回值。
+const LOG_WATCHDOG_MS = 5000;
+// 开关形状版本号：以后开关加字段就把这里加一，旧本地值读到缺字段时用默认补齐。
 const LOG_REV = 1;
-const LOG_LEVELS = ["error", "warn", "info", "debug"];
+// 级别只有四个：error、warn、info、debug。
+const LOG_LEVELS = ['error', 'warn', 'info', 'debug'];
+// 建客户端日志器：四依赖全由调用方传入，返回日志器。
+// 文本拼接消费时，调用处把闭包里现成的 host、timer、localStorage、broadcastLogSwitch 四个名字原样传入即可。
 function createClientLog(deps, configInput) {
-  const input = deps || {};
-  const host = input.host === void 0 ? null : input.host;
-  const timer = input.timer === void 0 ? null : input.timer;
-  const storage = input.storage !== void 0 && input.storage !== null ? input.storage : input.localStorage === void 0 ? null : input.localStorage;
-  const broadcast = typeof input.broadcastLogSwitch === "function" ? input.broadcastLogSwitch : null;
-  const config = resolveClientLogConfig(configInput);
-  const phoneNames = buildClientPhoneNames(config.prefix);
-  function readLocalDebugSwitch() {
-    const fallback = { enabled: false, sampleRate: 1, rev: LOG_REV };
-    try {
-      if (!storage || typeof storage.getItem !== "function") return fallback;
-      const raw = storage.getItem(LOG_DEBUG_KEY);
-      if (!raw) return fallback;
-      const saved = JSON.parse(raw);
-      if (!saved || typeof saved !== "object") return fallback;
-      return {
-        enabled: saved.enabled === true,
-        sampleRate: typeof saved.sampleRate === "number" && isFinite(saved.sampleRate) ? saved.sampleRate : 1,
-        rev: typeof saved.rev === "number" && isFinite(saved.rev) ? saved.rev : LOG_REV
-      };
-    } catch (e) {
-      void e;
-      return fallback;
+    const input = deps || {};
+    const host = input.host === undefined ? null : input.host;
+    const timer = input.timer === undefined ? null : input.timer;
+    const storage = input.storage !== undefined && input.storage !== null ? input.storage : (input.localStorage === undefined ? null : input.localStorage);
+    const broadcast = typeof input.broadcastLogSwitch === 'function' ? input.broadcastLogSwitch : null;
+    // 配置：默认 wf（插件标识与前缀都是 wf），拼出的 5 个电话名与现状一字不差。
+    const config = resolveClientLogConfig(configInput);
+    const phoneNames = buildClientPhoneNames(config.prefix);
+    // 0.3.0 存储键：按插件派生 `dsws.debug.<pluginId>`（不按前缀；读不到只用默认）。
+    const debugKey = debugStorageKey(config.pluginId);
+    const switchCache = createSwitchCache({ storage: storage, debugKey: debugKey, rev: LOG_REV });
+    const readLocalDebugSwitch = () => switchCache.read();
+    const persistLocalDebugSwitch = (state) => switchCache.persist(state);
+    // 开关内存值：建日志器时同步读本地，界面秒显不等待宿主；随后启动对账再向宿主看齐。
+    const logSwitch = readLocalDebugSwitch();
+    // 内存批量队列：调用处只进队列就返回，不等转发完成；转发走宿主记录电话。
+    const logQueue = [];
+    // 累计丢弃数：队列满丢弃、超包裁剪、转发失败都只计数不抛错。
+    const logDroppedState = { count: 0 };
+    // 转发汇总状态：只记上次汇总位置与最近一次丢弃原因，汇总行本身不逐条。
+    // lastSummaryAt 从「实例建成那一刻」起算：0 是「还没有计时起点」的哨兵，会让第一条汇总行
+    // 报出 epoch 量级的 windowMs（2026-10-15 真实样例里抓到过），所以这里就把它设为当下。
+    const logForwardState = {
+        lastSummaryAt: Date.now(),
+        lastSummaryDropped: 0,
+        lastReason: '',
+        // 宿主最近一次回包里的三档计数（-1＝这一档宿主没说，汇总行不写这个键）。
+        lastAccepted: -1,
+        lastSkipped: -1,
+        lastRejected: -1
+    };
+    // 失败重试位（0.3.0 Track 1）：宿主不可用 / 宿主拒收 / 发送抛错时，整批先放这里重试，不立刻判死。
+    // 为什么必须有：原来这三条路都是「失败整批记丢弃、不等待不重试」——客户端到宿主这一段一断，
+    // error 行就静默消失，直接违反「error 永不丢」。重试有界（次数上限 + 只留一批，天然有界），
+    // 到顶才如实计数；rejectCount 记「宿主说它不要了几行」，给最终计数用（一行被拒不该报成整批丢）。
+    const logRetryState = {
+        rows: [],
+        rejectCount: -1,
+        attempts: 0,
+        timer: null
+    };
+    // 与 scheduleLogFlush 里的 later 同口径：优先用注入的计时器，没有就退回全局 setTimeout。
+    function laterRun(fn, ms) {
+        try {
+            if (timer !== null && timer !== undefined && typeof timer.timeout === 'function')
+                return timer.timeout(fn, ms);
+        }
+        catch (e) {
+            void e;
+        }
+        return setTimeout(fn, ms);
     }
-  }
-  function persistLocalDebugSwitch(state) {
-    try {
-      if (!storage || typeof storage.setItem !== "function") return false;
-      storage.setItem(
-        LOG_DEBUG_KEY,
-        JSON.stringify({
-          enabled: !!(state && state.enabled),
-          sampleRate: state && typeof state.sampleRate === "number" && isFinite(state.sampleRate) ? state.sampleRate : 1,
-          rev: state && typeof state.rev === "number" && isFinite(state.rev) ? state.rev : LOG_REV
-        })
-      );
-      return true;
-    } catch (e) {
-      void e;
-      return false;
-    }
-  }
-  const logSwitch = readLocalDebugSwitch();
-  const logQueue = [];
-  const logDroppedState = { count: 0 };
-  const logForwardState = { lastSummaryAt: 0, lastSummaryDropped: 0, lastReason: "" };
-  const logFlushTimer = { id: null };
-  const setLogSwitchGen = { n: 0 };
-  const RESIDENT_EVENTS = /* @__PURE__ */ new Set([
-    "snapshot.request",
-    "snapshot.cache.miss",
-    "repo.resolve.tier",
-    "gh.exec",
-    "gh.timeout",
-    "gh.resolve.fail",
-    "graphql.fallback",
-    "issues.fallback",
-    "snapshot.built",
-    "panelSync.dirty",
-    "registry.select",
-    "detection.detect",
-    "skill.probe",
-    "skill.pending.cap",
-    "host.call",
-    "host.call.fail",
-    "snapshot.hydrate",
-    "backend.switch",
-    "naming.guard",
-    "naming.lock",
-    "panel.open",
-    "statusbar.fallback",
-    "dock.rehydrate",
-    "storage.fail",
-    "chain.derive.error",
-    "fallback.chain",
-    "client.snapshot.miss",
-    "host.start",
-    "update.install.exec",
-    "labelColors.write",
-    "guide.inject",
-    "healthCheck.inject",
-    "choiceStore.file.bad",
-    "choiceStore.write.fail",
-    "issues.page",
-    "sessionTickets.chain",
-    "chain.backoff",
-    "host.dispatch.empty",
-    "naming.summary",
-    "cwd.persisted",
-    "update.install.manifestSync",
-    "git.exec",
-    "git.exec.fail"
-  ]);
-  function isEnabled(level, event) {
-    if (level === "error" || level === "warn") return true;
-    try {
-      if (typeof event === "string" && RESIDENT_EVENTS.has(event)) return true;
-      return logSwitch.enabled === true;
-    } catch (e) {
-      void e;
-      return false;
-    }
-  }
-  function log(level, event, fields) {
-    if (!isEnabled(level, event)) return;
-    if (logQueue.length >= LOG_QUEUE_MAX) {
-      logDroppedState.count += 1;
-      logForwardState.lastReason = "queue-full";
-      return;
-    }
-    logQueue.push({
-      ts: Date.now(),
-      level,
-      event: String(event || ""),
-      fields: fields && typeof fields === "object" ? fields : {}
+    const logFlushTimer = { id: null };
+    // 写开关代际：调用 hang 住时超时放行，迟到回包按代际丢弃，不碰状态、不记新行。
+    const setLogSwitchGen = { n: 0 };
+    // 追踪状态（0.3.0 #20+#24 写侧：显式继承 + 自动建链占位；另一路 store.ts 只管落盘形状）。
+    const traceState = { traceId: null, spanId: null, seq: 0, traceSource: 'none', spanSource: 'none', shadowWarns: 0 };
+    const trace = createTraceStage({ state: traceState });
+    const ensureSpanId = () => trace.ensureSpanId();
+    const ensureTraceForLevel = (level) => trace.ensureForLevel(level);
+    // 主写路径已下沉 client/write.ts（S6）：留同名包装，调用点一字不改。
+    // 发送面在写路径之后建立，用一次性转发解环（调用都发生在运行期，建库期不自杀）。
+    let sendBatchRef = () => Promise.resolve({ ok: false, sent: 0 });
+    const write = createWriteStage({
+        getSwitchEnabled: () => logSwitch.enabled,
+        // 常驻集合单源在 core/resident.ts：包内固定 43 条 ∪ 调用方清单里 kind === 'resident' 的事件。
+        // 客户端清单由 createClientLog 的 configInput.eventList 传入（字符串路径形式本包不读盘，
+        // 那时只有固定 43 条放行，与 0.3.0 之前一字不差）。两端共用一份，防漂移。
+        residentEvents: residentEventSet(config.eventList),
+        queue: logQueue,
+        dropped: logDroppedState,
+        forward: logForwardState,
+        flushTimer: logFlushTimer,
+        traceState: traceState,
+        ensureSpanId: ensureSpanId,
+        ensureTraceForLevel: ensureTraceForLevel,
+        sendLogBatch: () => sendBatchRef(),
+        timer: timer
     });
-    if (level === "error" || level === "warn") scheduleLogFlush(true);
-    else scheduleLogFlush(false);
-  }
-  function scheduleLogFlush(immediate) {
-    const later = function(fn, ms) {
-      try {
-        if (timer !== null && timer !== void 0 && typeof timer.timeout === "function") return timer.timeout(fn, ms);
-      } catch (e) {
-        void e;
-      }
-      return setTimeout(fn, ms);
-    };
-    if (immediate) {
-      if (logFlushTimer.id !== null) {
+    // 回执与宿主侧同口径（LogOutcome）：'queued' 真进队列、'skipped' 被开关挡下（不是丢）、
+    // 'dropped' 满队列丢新（真丢、计入 logDroppedState.count）。
+    const log = (level, event, fields) => write.log(level, event, fields);
+    const isEnabled = (level, event) => write.isEnabled(level, event);
+    const dropForRoom = (level) => write.dropForRoom(level);
+    const scheduleLogFlush = (immediate) => write.scheduleLogFlush(immediate);
+    // 转发面自监控已下沉 client/forward.ts（S6）：留同名包装，调用点一字不改。
+    // 它写的三行（转发汇总/导出失败/开关看门狗）都是库自己的诊断行，所以走 write.logDiagnostic：
+    // 同一条队列，但发送面统计丢弃时不算成用户的行。
+    const forward = createForwardStage({
+        logDiagnostic: write.logDiagnostic,
+        dropped: logDroppedState,
+        forward: logForwardState,
+        timer: timer,
+        watchdogMs: LOG_WATCHDOG_MS,
+        hashFn: input && typeof input.hashFn === 'function' ? input.hashFn : null
+    });
+    const maybeForwardSummary = () => forward.maybeForwardSummary();
+    const logExportFail = (op, reason, err) => forward.logExportFail(op, reason, err);
+    const watchSwitchOp = (op, pending) => forward.watchSwitchOp(op, pending);
+    // 发送面已下沉 client/send.ts（S6）：留同名包装，调用点一字不改。
+    const send = createSendStage({
+        host: host,
+        phoneNames: phoneNames,
+        queue: logQueue,
+        retry: logRetryState,
+        dropped: logDroppedState,
+        forward: logForwardState,
+        flushTimer: logFlushTimer,
+        timer: timer,
+        laterRun: laterRun,
+        maybeForwardSummary: maybeForwardSummary,
+        scheduleLogFlush: scheduleLogFlush
+    });
+    const sendLogBatch = () => send.sendLogBatch();
+    const flush = () => send.flush();
+    const getDroppedCount = () => send.getDroppedCount();
+    sendBatchRef = sendLogBatch;
+    // 开关对账与保存已下沉 client/switch-ops.ts（S6）：下面留同名包装，调用点一字不改。
+    const switchOps = createSwitchOps({
+        host: host,
+        phoneNames: phoneNames,
+        timer: timer,
+        watchdogMs: LOG_WATCHDOG_MS,
+        state: logSwitch,
+        gen: setLogSwitchGen,
+        cache: switchCache,
+        broadcast: broadcast,
+        log: log,
+        watch: watchSwitchOp
+    });
+    const reconcileLogSwitch = () => switchOps.reconcile();
+    const setLogSwitch = (enabled) => switchOps.set(enabled);
+    // 追踪：log.child(ctx) 显式继承（继承 traceId、刷新 spanId、子实例 seq 从 0）。
+    // 独立子实例（队列与开关各自独立，traceId 靠字段透传在宿主侧汇合，查询按 traceId 串链）。
+    function child(ctx) {
+        const next = createClientLog(input, { pluginId: config.pluginId, prefix: config.prefix, eventList: config.eventList });
         try {
-          clearTimeout(logFlushTimer.id);
-        } catch (e) {
-          void e;
+            let tid = null;
+            let tsrc = 'none';
+            const c = ctx;
+            if (c && typeof c === 'object' && typeof c.traceId === 'string' && c.traceId) {
+                tid = c.traceId;
+                tsrc = 'explicit';
+            }
+            else if (traceState.traceId) {
+                tid = traceState.traceId;
+                tsrc = 'inherited';
+            }
+            next.traceState.traceId = tid;
+            next.traceState.traceSource = tsrc;
+            next.traceState.spanId = genHex(8);
+            next.traceState.spanSource = 'refreshed';
+            next.traceState.seq = 0;
         }
-        logFlushTimer.id = null;
-      }
-      later(sendLogBatch, 0);
-      return;
-    }
-    if (logFlushTimer.id !== null) return;
-    logFlushTimer.id = later(function() {
-      logFlushTimer.id = null;
-      sendLogBatch();
-    }, LOG_FLUSH_MS);
-  }
-  function estimateBatchBytes(entries) {
-    try {
-      const text = JSON.stringify(entries);
-      const g = globalThis;
-      if (typeof g.TextEncoder !== "undefined") return new g.TextEncoder().encode(text).length;
-      return String(text).length;
-    } catch (e) {
-      void e;
-      return LOG_PACKET_BYTES + 1;
-    }
-  }
-  function maybeForwardSummary() {
-    const delta = logDroppedState.count - logForwardState.lastSummaryDropped;
-    if (delta <= 0) return;
-    logForwardState.lastSummaryDropped = logDroppedState.count;
-    const now = Date.now();
-    const windowMs = now - logForwardState.lastSummaryAt;
-    logForwardState.lastSummaryAt = now;
-    try {
-      log("warn", "log.forward.summary", {
-        droppedDelta: delta,
-        totalDropped: logDroppedState.count,
-        reason: logForwardState.lastReason || "send-fail",
-        windowMs
-      });
-    } catch (e) {
-      void e;
-    }
-  }
-  function hash8(value) {
-    try {
-      const t = String(value || "");
-      let h = 5381;
-      for (let i = 0; i < t.length; i++) h = (h << 5) + h + t.charCodeAt(i) >>> 0;
-      return ("0000000" + h.toString(16)).slice(-8);
-    } catch (e) {
-      void e;
-      return "00000000";
-    }
-  }
-  function logExportFail(op, reason, err) {
-    try {
-      const g = globalThis;
-      if (typeof g.dswsLogHash === "function" && typeof g.dswsLogTrunc === "function") {
-        const trunc = g.dswsLogTrunc;
-        const hash = g.dswsLogHash;
-        const raw = err && typeof err === "object" && "message" in err ? String(err.message) : String(err || reason);
-        log("warn", "log.export.fail", { op, reason, errorHash: hash(trunc(raw, 120, "error")) });
-      } else {
-        const raw = err && typeof err === "object" && "message" in err ? String(err.message) : String(err || reason);
-        log("warn", "log.export.fail", { op, reason, errorHash: hash8(raw) });
-      }
-    } catch (e) {
-      void e;
-    }
-  }
-  function watchSwitchOp(op, pending) {
-    let settled = false;
-    try {
-      if (pending && typeof pending.then === "function") {
-        ;
-        pending.then(
-          function() {
-            settled = true;
-          },
-          function() {
-            settled = true;
-          }
-        );
-      }
-    } catch (e) {
-      void e;
-    }
-    const fire = function() {
-      if (!settled) {
-        settled = true;
-        try {
-          log("warn", "log.switch.watchdog", { op, timeoutMs: LOG_WATCHDOG_MS, stage: "waiting-host" });
-        } catch (e) {
-          void e;
+        catch (e) {
+            void e;
         }
-      }
-    };
-    try {
-      if (timer !== null && timer !== void 0 && typeof timer.timeout === "function") {
-        timer.timeout(fire, LOG_WATCHDOG_MS);
-        return;
-      }
-    } catch (e) {
-      void e;
+        return next;
     }
-    try {
-      setTimeout(fire, LOG_WATCHDOG_MS);
-    } catch (e2) {
-      void e2;
-    }
-  }
-  function sendLogBatch() {
-    if (logQueue.length === 0) return Promise.resolve({ ok: true, sent: 0 });
-    const entries = logQueue.splice(0, LOG_BATCH_MAX);
-    let trimmed = 0;
-    while (entries.length > 1 && estimateBatchBytes(entries) > LOG_PACKET_BYTES) {
-      entries.pop();
-      trimmed += 1;
-    }
-    while (logQueue.length > LOG_QUEUE_MAX) {
-      logQueue.shift();
-      trimmed += 1;
-    }
-    if (trimmed > 0) {
-      logDroppedState.count += trimmed;
-      logForwardState.lastReason = "packet-trim";
-      try {
-        entries[entries.length - 1].truncated = true;
-      } catch (e) {
-        void e;
-      }
-    }
-    const args = { entries, droppedCount: logDroppedState.count };
-    const onlySummary = entries.length === 1 && entries[0] && entries[0].event === "log.forward.summary";
-    if (!host || typeof host.call !== "function") {
-      logDroppedState.count += entries.length;
-      logForwardState.lastReason = "send-fail";
-      if (!onlySummary) maybeForwardSummary();
-      return Promise.resolve({ ok: false, sent: 0 });
-    }
-    try {
-      return host.call(phoneNames.logBatch, args).then(function(res) {
-        const ok = !!res && typeof res === "object" && res.ok === true;
-        if (!ok) {
-          logDroppedState.count += entries.length;
-          logForwardState.lastReason = "host-reject";
-        }
-        if (ok) maybeForwardSummary();
-        else if (!onlySummary) maybeForwardSummary();
-        return { ok, sent: entries.length };
-      }).catch(function() {
-        logDroppedState.count += entries.length;
-        logForwardState.lastReason = "send-fail";
-        if (!onlySummary) maybeForwardSummary();
-        return { ok: false, sent: 0 };
-      });
-    } catch (e) {
-      void e;
-      logDroppedState.count += entries.length;
-      logForwardState.lastReason = "send-fail";
-      if (!onlySummary) maybeForwardSummary();
-      return Promise.resolve({ ok: false, sent: 0 });
-    }
-  }
-  function flush() {
-    if (logFlushTimer.id !== null) {
-      try {
-        clearTimeout(logFlushTimer.id);
-      } catch (e) {
-        void e;
-      }
-      logFlushTimer.id = null;
-    }
-    try {
-      sendLogBatch();
-    } catch (e) {
-      void e;
-    }
-    return { ok: true };
-  }
-  function getDroppedCount() {
-    return logDroppedState.count;
-  }
-  function reconcileLogSwitch() {
-    if (!host || typeof host.call !== "function") {
-      return Promise.resolve({ ok: false, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate });
-    }
-    try {
-      const pendingGet = host.call(phoneNames.logGetSwitch, {});
-      watchSwitchOp("reconcile", pendingGet);
-      return pendingGet.then(function(res) {
-        const body = res && typeof res === "object" ? res : null;
-        if (!body || body.ok !== true) return { ok: false, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate };
-        logSwitch.enabled = body.enabled === true;
-        if (typeof body.sampleRate === "number" && isFinite(body.sampleRate)) logSwitch.sampleRate = body.sampleRate;
-        persistLocalDebugSwitch(logSwitch);
-        try {
-          if (broadcast) broadcast();
-        } catch (e) {
-          void e;
-        }
-        return { ok: true, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate };
-      }).catch(function() {
-        return { ok: false, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate };
-      });
-    } catch (e) {
-      void e;
-      return Promise.resolve({ ok: false, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate });
-    }
-  }
-  const logSwitchSetFail = function(kind, hint) {
-    try {
-      log("warn", "host.call.fail", {
-        method: phoneNames.logSetSwitch,
-        kind: "set-switch-" + kind,
-        errorHash: hash8(String(hint === void 0 || hint === null ? kind : hint).slice(0, 120))
-      });
-    } catch (e) {
-      void e;
-    }
-  };
-  const switchThrowKind = function(e) {
-    const msg = String((e && typeof e === "object" && ("code" in e || "message" in e) ? e.code || e.message : e) || "");
-    if (/unknown endpoint/i.test(msg)) return "throw-unknown-endpoint";
-    if (/connection|host\.call 不可用|unavailable/i.test(msg)) return "throw-connection";
-    return "throw";
-  };
-  const failByThrow = function(e) {
-    const kind = switchThrowKind(e);
-    logSwitchSetFail(
-      kind,
-      (e && typeof e === "object" && "message" in e ? e.message : void 0) || e
-    );
-    return kind;
-  };
-  function setLogSwitch(enabled, sampleRate) {
-    const next = {
-      enabled: enabled === true,
-      sampleRate: typeof sampleRate === "number" && isFinite(sampleRate) ? sampleRate : logSwitch.sampleRate
-    };
-    if (!host || typeof host.call !== "function") {
-      logSwitchSetFail("host-unavailable", "host-unavailable");
-      return Promise.resolve({ ok: false, enabled: logSwitch.enabled, error: "host-unavailable" });
-    }
-    try {
-      const pendingSet = host.call(phoneNames.logSetSwitch, next);
-      watchSwitchOp("set", pendingSet);
-      const myGen = setLogSwitchGen.n += 1;
-      const timeoutAt = new Promise(function(resolve) {
-        const fire = function() {
-          resolve({ switchTimedOut: true });
+    // 追踪：log.why() 解释三来源（traceId 的 explicit/inherited/auto 三处来历 + span/seq 说明）。
+    function why() {
+        const detail = 'traceId 来源=' + traceState.traceSource +
+            '（explicit=child(ctx)显式传入，inherited=从父实例继承，auto=缺链自动建链仅info以上+采样后debug，none=尚未建链）；' +
+            'spanId 来源=' + traceState.spanSource + '（child 每次刷新，首链自动生成）；' +
+            'seq=' + String(traceState.seq) + '（本实例内单调，子实例从0，按(seq,ts)排链）；' +
+            '保留字冲突_shadow 计' + String(traceState.shadowWarns) + '次（traceId/spanId/seq 永不拒收，error 照落）；' +
+            '旧行 v!=' + String(LOG_FORMAT_VERSION) + ' 跳过计数不抛（读侧 handleLogQuery）';
+        return {
+            traceId: traceState.traceId,
+            spanId: traceState.spanId,
+            seq: traceState.seq,
+            sources: { traceId: traceState.traceSource, spanId: traceState.spanSource, seq: 'per-instance' },
+            shadowWarns: traceState.shadowWarns,
+            detail: detail
         };
-        try {
-          if (timer !== null && timer !== void 0 && typeof timer.timeout === "function") {
-            timer.timeout(fire, LOG_WATCHDOG_MS);
-            return;
-          }
-        } catch (e) {
-          void e;
-        }
-        try {
-          setTimeout(fire, LOG_WATCHDOG_MS);
-        } catch (e2) {
-          void e2;
-        }
-      });
-      return Promise.race([pendingSet, timeoutAt]).then(function(res) {
-        const body = res && typeof res === "object" ? res : null;
-        if (body && body["switchTimedOut"] === true) {
-          logSwitchSetFail("timeout", "timeout-" + LOG_WATCHDOG_MS);
-          return { ok: false, enabled: logSwitch.enabled, error: "switch-timeout" };
-        }
-        if (myGen !== setLogSwitchGen.n) return { ok: false, enabled: logSwitch.enabled, error: "stale" };
-        if (!body || body["ok"] !== true) {
-          logSwitchSetFail("host-rejected", "host-rejected");
-          return { ok: false, enabled: logSwitch.enabled, error: "host-rejected" };
-        }
-        logSwitch.enabled = body["enabled"] === true;
-        logSwitch.sampleRate = next.sampleRate;
-        persistLocalDebugSwitch(logSwitch);
-        try {
-          if (broadcast) broadcast();
-        } catch (e) {
-          void e;
-        }
-        return { ok: true, enabled: logSwitch.enabled, sampleRate: logSwitch.sampleRate };
-      }).catch(function(e) {
-        if (myGen !== setLogSwitchGen.n) return { ok: false, enabled: logSwitch.enabled, error: "stale" };
-        return { ok: false, enabled: logSwitch.enabled, error: failByThrow(e) };
-      });
-    } catch (e) {
-      return Promise.resolve({ ok: false, enabled: logSwitch.enabled, error: failByThrow(e) });
     }
-  }
-  return {
-    config,
-    phoneNames,
-    logSwitch,
-    logQueue,
-    logDroppedState,
-    logForwardState,
-    logFlushTimer,
-    isEnabled,
-    log,
-    scheduleLogFlush,
-    estimateBatchBytes,
-    maybeForwardSummary,
-    hash8,
-    logExportFail,
-    watchSwitchOp,
-    sendLogBatch,
-    flush,
-    getDroppedCount,
-    readLocalDebugSwitch,
-    persistLocalDebugSwitch,
-    reconcileLogSwitch,
-    setLogSwitch
-  };
+    // 只读查询透传（电话名单源见 config.ts buildLogQueryPhoneName）。
+    function queryLogs(args) {
+        const name = buildLogQueryPhoneName(config.prefix);
+        if (!host || typeof host.call !== 'function') {
+            return Promise.resolve({ ok: false, entries: [], error: 'host-unavailable' });
+        }
+        try {
+            return host.call(name, (args || {})).catch(function (e) {
+                void e;
+                return { ok: false, entries: [] };
+            });
+        }
+        catch (e) {
+            void e;
+            return Promise.resolve({ ok: false, entries: [] });
+        }
+    }
+    // 命名空间化挂 log 对象上（log.child / log.why 与顶层 child/why 同体）。
+    const logFn = log;
+    try {
+        logFn.child = child;
+        logFn.why = why;
+    }
+    catch (e) {
+        void e;
+    }
+    return {
+        config: config,
+        phoneNames: phoneNames,
+        logSwitch: logSwitch,
+        logQueue: logQueue,
+        logDroppedState: logDroppedState,
+        logForwardState: logForwardState,
+        logFlushTimer: logFlushTimer,
+        traceState: traceState,
+        isEnabled: isEnabled,
+        log: logFn,
+        child: child,
+        why: why,
+        queryLogs: queryLogs,
+        scheduleLogFlush: scheduleLogFlush,
+        estimateBatchBytes: estimateBatchBytes,
+        maybeForwardSummary: maybeForwardSummary,
+        hash8: hash8,
+        logExportFail: logExportFail,
+        watchSwitchOp: watchSwitchOp,
+        sendLogBatch: sendLogBatch,
+        flush: flush,
+        getDroppedCount: getDroppedCount,
+        readLocalDebugSwitch: readLocalDebugSwitch,
+        persistLocalDebugSwitch: persistLocalDebugSwitch,
+        reconcileLogSwitch: reconcileLogSwitch,
+        setLogSwitch: setLogSwitch
+    };
 }
-__mods["log-client"] = { CLIENT_BATCH, LOG_BATCH_MAX, LOG_DEBUG_KEY, LOG_FLUSH_MS, LOG_LEVELS, LOG_PACKET_BYTES, LOG_QUEUE_MAX, LOG_REV, LOG_WATCHDOG_MS, buildClientPhoneNames, buildPhoneName, buildPhoneNames: buildPhoneNames2, createClientLog, resolveClientLogConfig };
 
+__mods["log-client"] = Object.assign(__mods["log-client"] || {}, { CLIENT_BATCH, buildClientPhoneNames, resolveClientLogConfig, LOG_DEBUG_KEY, debugStorageKey, LOG_BATCH_MAX, LOG_FLUSH_MS, LOG_PACKET_BYTES, LOG_QUEUE_MAX, LOG_WATCHDOG_MS, LOG_REV, LOG_LEVELS, createClientLog });
 })();
 (function () {
 // resolve.mjs — 颜色解析器：把 opencode 主题 JSON 的颜色引用链解析为确定 HEX

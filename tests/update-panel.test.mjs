@@ -217,12 +217,21 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
-  // 更新包与日志包都以依赖形态随包发出：用户装插件时由 npm 按范围取最新匹配版本
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.2.2', 'dsh-plugin-update': '^0.13.0' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.13.x 要求 node >=22')
+  // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.0' })
+  assert.equal(pkg.engines.node, '>=22', '更新包 0.18.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
+})
+
+test('接线：新闭包模块全进包，无嵌套双拷贝', () => {
+  // #75 实物结论：精确 0.3.4 落在更新包 dsh-log@^0.3.4 内，npm 去重为单拷贝；锁死不断言，后续重装即失据
+  assert.ok(!existsSync(join(ROOT, 'node_modules', 'dsh-plugin-update', 'node_modules')), '更新包下不应有嵌套 dsh-log 副本')
+  const bundle = read('package/lib/client.js')
+  for (const key of ['upd-codes', 'upd-log-client-queue', 'log-config', 'log-client', 'log-core-level', 'log-config-resolve', 'log-client-write']) {
+    assert.ok(bundle.indexOf('__mods["' + key + '"]') >= 0, '包版应内联 ' + key)
+  }
 })
 
 test('接线：宿主半不再 vendor 更新包 —— 走真依赖，产物里没有 vendor 目录', () => {
