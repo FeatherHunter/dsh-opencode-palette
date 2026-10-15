@@ -63,7 +63,8 @@ async function prepareLogHome(store, cacheDir) {
   const file = join(cacheDir, store.config.switchFileName)
   if (existsSync(file)) return
   const defaults = store.getSwitchState()
-  await store.setSwitch(defaults.enabled, defaults.sampleRate)
+  // 0.3.0 起开关形状只有 { enabled }：setSwitch 单参，sampleRate 死参数已删（多传会被忽略，别传）
+  await store.setSwitch(defaults.enabled)
 }
 
 const PACKAGE_DIR = dirname(dirname(fileURLToPath(import.meta.url)))

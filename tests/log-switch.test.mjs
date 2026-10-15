@@ -85,11 +85,11 @@ test('面板侧：写开后重进对账仍为开，写关后仍为关（issue 42
       rpc: {
         call: async (channel, endpoint, { method, payload }) => {
           if (String(method).endsWith('logGetSwitch')) {
-            return { ok: true, value: { ok: true, enabled: hostState.enabled, sampleRate: 1 } }
+            return { ok: true, value: { ok: true, enabled: hostState.enabled } }
           }
           if (String(method).endsWith('logSetSwitch')) {
             hostState.enabled = !!(payload && payload.enabled)
-            return { ok: true, value: { ok: true, enabled: hostState.enabled, sampleRate: 1 } }
+            return { ok: true, value: { ok: true, enabled: hostState.enabled } }
           }
           throw new Error('unexpected phone: ' + method)
         },

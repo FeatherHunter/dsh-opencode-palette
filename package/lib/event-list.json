@@ -1,11 +1,6 @@
 {
   "version": 1,
   "pluginId": "dsh-opencode-palette",
-  "counts": {
-    "resident": 14,
-    "ondemand": 0,
-    "selfmon": 0
-  },
   "events": {
     "host.call": {
       "level": "info",
@@ -39,59 +34,212 @@
         "pluginId"
       ]
     },
-    "update.check.start": {
+    "update.wire.ready": {
       "level": "info",
       "kind": "resident",
       "fields": [
-        "trigger",
-        "pluginId"
+        "logSink",
+        "logDirHash"
       ]
     },
-    "update.check.ok": {
+    "update.check.done": {
       "level": "info",
       "kind": "resident",
       "fields": [
-        "trigger",
-        "hasNew",
+        "ok",
+        "current",
         "latest",
-        "latencyMs",
-        "pluginId"
+        "channel",
+        "source",
+        "latencyMs"
       ]
     },
     "update.check.fail": {
       "level": "warn",
       "kind": "resident",
       "fields": [
-        "trigger",
-        "code",
-        "errorHash",
-        "pluginId"
+        "stage",
+        "errorKind",
+        "httpStatus"
       ]
     },
-    "update.install.start": {
+    "update.status.changed": {
       "level": "info",
       "kind": "resident",
       "fields": [
-        "latest",
-        "pluginId"
+        "kind",
+        "latest"
       ]
     },
-    "update.install.ok": {
+    "update.install.request": {
       "level": "info",
       "kind": "resident",
       "fields": [
+        "from",
+        "current",
         "latest",
-        "pending",
-        "pluginId"
+        "checkAgeMs"
       ]
     },
-    "update.install.fail": {
+    "update.install.verify": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "result",
+        "installedVersion",
+        "pendingRestart"
+      ]
+    },
+    "update.batch.entry.request": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "total",
+        "ownCount",
+        "foreignCount"
+      ]
+    },
+    "update.batch.entry.fail": {
       "level": "warn",
       "kind": "resident",
       "fields": [
-        "code",
-        "errorHash",
-        "pluginId"
+        "targetHash",
+        "errorKind",
+        "exitCode"
+      ]
+    },
+    "update.batch.summary": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "total",
+        "ok",
+        "failed",
+        "skipped",
+        "durationMs"
+      ]
+    },
+    "update.queue.transition": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "phase",
+        "waitedMs",
+        "position"
+      ]
+    },
+    "update.lock.anomaly": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": [
+        "kind",
+        "ageMs",
+        "ownerHash"
+      ]
+    },
+    "update.store.fail": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": [
+        "op",
+        "reason",
+        "dirHash"
+      ]
+    },
+    "update.panel.mount": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "mode",
+        "theme",
+        "lang",
+        "pollMs"
+      ]
+    },
+    "update.panel.action": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "action",
+        "bytes",
+        "truncated"
+      ]
+    },
+    "update.panel.render.fail": {
+      "level": "error",
+      "kind": "resident",
+      "fields": [
+        "kind"
+      ]
+    },
+    "update.check.start": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "trigger",
+        "source"
+      ]
+    },
+    "update.registry.fetch": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "httpStatus",
+        "latencyMs",
+        "registryHost"
+      ]
+    },
+    "update.channel.decide": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "channel",
+        "reason",
+        "from",
+        "to"
+      ]
+    },
+    "update.changelog.parse": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "entries",
+        "truncated",
+        "degraded",
+        "source"
+      ]
+    },
+    "update.poll": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "state",
+        "latencyMs"
+      ]
+    },
+    "update.lang.applied": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "lang",
+        "source"
+      ]
+    },
+    "update.panel.state": {
+      "level": "info",
+      "kind": "ondemand",
+      "fields": [
+        "state",
+        "theme",
+        "tokensApplied",
+        "fallback"
+      ]
+    },
+    "update.log.degraded": {
+      "level": "warn",
+      "kind": "selfmon",
+      "fields": [
+        "reason"
       ]
     },
     "log.switch.set": {

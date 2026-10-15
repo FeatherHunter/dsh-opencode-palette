@@ -341,8 +341,9 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
     // ——真机两天日志里除它之外什么都没有，等于日志系统没真正跑起来。
     const switchFile = join(home, 'logs', 'log-switch-dsh-opencode-palette.json')
     assert.equal(existsSync(switchFile), true, '装配后开关文件必须已落盘（缺省值物化）')
-    assert.deepEqual(JSON.parse(readFileSync(switchFile, 'utf8')), { enabled: false, sampleRate: 1 },
-      '缺省态应为 { enabled: false, sampleRate: 1 }')
+    // 0.3.0 起开关文件形状只有 { enabled }：sampleRate 是从没被读过的死参数，已删
+    assert.deepEqual(JSON.parse(readFileSync(switchFile, 'utf8')), { enabled: false },
+      '缺省态应为 { enabled: false }')
 
     // 读开关不得再产生 readBack 误报
     const switchRead = await call('palette.logGetSwitch', {})
@@ -361,7 +362,7 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
       '开关文件已物化后，不得再出现 log.persist.fail（readBack 误报）')
 
     // 开关往返：写进去能读回来，且文件里是真的
-    const setReply = await call('palette.logSetSwitch', { enabled: true, sampleRate: 0.5 })
+    const setReply = await call('palette.logSetSwitch', { enabled: true })
     assert.equal(setReply.result.ok, true, '设置开关必须回成功')
     const state = setReply.result.value.switch || setReply.result.value
     assert.equal(state.enabled, true, '设置后读回的开关应为 true')
@@ -369,17 +370,17 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
 
     // 2.0.7：开关打开后，info 级的关键节点才落盘 —— 面板那个小开关就是为它存在的
     // （warn/error 不受开关控制，这也是 2.0.7 之前真机上只剩失败散列的原因）
-    await call('palette.logSetSwitch', { enabled: true, sampleRate: 1 })
+    await call('palette.logSetSwitch', { enabled: true })
     await call('palette.logBatch', {
       entries: [{
-        ts: Date.now(), level: 'info', event: 'update.check.ok',
-        fields: { trigger: 'manual', hasNew: true, latest: '2.0.7', latencyMs: 12, pluginId: 'dsh-opencode-palette' },
+        ts: Date.now(), level: 'info', event: 'update.check.done',
+        fields: { ok: true, current: '2.0.28', latest: '2.0.28', channel: 'stable', source: 'manual', latencyMs: 12 },
       }],
     })
     let infoWritten = false
     for (let i = 0; i < 30 && !infoWritten; i += 1) {
       await new Promise((resolve) => setTimeout(resolve, 200))
-      infoWritten = logText().indexOf('update.check.ok') >= 0
+      infoWritten = logText().indexOf('update.check.done') >= 0
     }
     assert.equal(infoWritten, true, '开关打开后 info 级关键节点必须落盘')
   } finally {
@@ -607,20 +608,21 @@ test('换肤：入口件接线传 themeTokens + sizing，换主题经 setThemeTo
 // ───────────────────────── 五、事件清单 ─────────────────────────
 
 test('事件清单：形状与计数过检查器，且覆盖运行期真会发出的每个事件', async () => {
-  const { parseEventListManifest, checkEventCounts, checkEventFields } = await import('dsh-log/host')
+  const { parseEventListManifest, computeEventCounts, checkEventFields, lintEventFields } = await import('dsh-log/host')
   const manifest = parseEventListManifest(JSON.parse(read('runtime/event-list.json')))
   assert.equal(manifest.pluginId, 'dsh-opencode-palette')
-  assert.equal(checkEventCounts(manifest).ok, true, '三类自报计数必须与实际条数逐项一致')
+  // 0.3.0 起清单不再自报 counts：三类计数以 computeEventCounts 自算为准（快照 pin 住，上游增删事件即变红）
+  assert.deepEqual(computeEventCounts(manifest), { resident: 23, ondemand: 7, selfmon: 1 })
   for (const [name, entry] of Object.entries(manifest.events)) {
     const check = checkEventFields(manifest, name, entry.fields)
     assert.equal(check.ok, true, name + ' 的字段白名单检查不过：' + JSON.stringify(check))
+    assert.notEqual(lintEventFields(manifest, name, entry.fields).code, 'red', name + ' 有未知事件')
   }
-  // 运行期会发的事件名（宿主侧来自日志包；更新包 0.5.x 经 logCtx 不再自发事件；
-  // 自研重试/探针事件已随代码同删，其余更新/日志事件名保留为白名单口径）。
+  // 运行期会发的事件名：本仓自有 8（update.* 死条目已删，见 #75）+ 面板经 logAppend 发的上游事件抽样
   const emitted = [
-    'host.call', 'host.call.fail', 'update.install.exec', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail', 'host.channel.fail',
-    'update.check.start', 'update.check.ok', 'update.check.fail',
-    'update.install.start', 'update.install.ok', 'update.install.fail', 'log.switch.set',
+    'host.call', 'host.call.fail', 'update.install.exec', 'host.channel.fail',
+    'log.switch.set', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail',
+    'update.check.start', 'update.check.done', 'update.status.changed', 'update.panel.mount',
   ]
   for (const name of emitted) {
     assert.ok(manifest.events[name], '事件清单缺 ' + name)
