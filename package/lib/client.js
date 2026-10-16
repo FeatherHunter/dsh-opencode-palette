@@ -8303,7 +8303,7 @@ const TOKEN_MAP = [
   ['--dsw-alias-bg-layer-2', 'background'],
   ['--dsw-alias-bg-overlay', 'background'],
   ['--dsw-alias-bg-layer-3', 'background'],
-  ['--dsw-specific-sidebar-fill', 'background'],
+  ['--dsw-specific-sidebar-fill', 'sidebarBg'],
   // F3 退出：--dsw-specific-menu 不透明底杀毛玻璃（DSH 0.1.7 起半透明材料 + web-styling 禁止覆盖菜单材料）
   // 老版影响为菜单回默认、可读，不算功能回归；菜单材料/滤镜变量永不输出。
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
@@ -8311,7 +8311,7 @@ const TOKEN_MAP = [
   // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
   ['--dsw-alias-markdown-tag', 'backgroundPanel'],
   ['--dsw-alias-markdown-placeholder', 'backgroundPanel'],
-  ['--dsw-specific-bubble', 'backgroundPanel'],
+  ['--dsw-specific-bubble', 'bubbleBg'],
   ['--dsw-alias-bg-multi-select', 'backgroundPanel'],
   // 浮起面：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
   ['--dsw-alias-markdown-citation', 'backgroundElement'],
@@ -8320,12 +8320,12 @@ const TOKEN_MAP = [
   ['--dsw-specific-tip', 'backgroundElement'],
   ['--dsw-specific-bubble-highlight', 'backgroundElement'],
   // 输入框/代码块底 = backgroundPanel；横幅/按钮面 = backgroundElement
-  ['--dsw-specific-input-major', 'backgroundPanel'],
-  ['--dsw-specific-login-input', 'backgroundPanel'],
-  ['--dsw-alias-markdown-code-block', 'backgroundPanel'],
-  ['--dsw-alias-markdown-code-block-banner', 'backgroundElement'],
+  ['--dsw-specific-input-major', 'inputBg'],
+  ['--dsw-specific-login-input', 'inputBg'],
+  ['--dsw-alias-markdown-code-block', 'codeBlockBg'],
+  ['--dsw-alias-markdown-code-block-banner', 'codeHeaderBg'],
   // F2 新头部（DSH 0.1.7 CodeCard.header 只读此变量，不读 banner token；老横幅路径保留，老版继续命中）
-  ['--dsl-code-block-background', 'backgroundElement'],
+  ['--dsl-code-block-background', 'codeHeaderBg'],
   ['--dsw-alias-toast-bg', 'backgroundElement'],
   ['--dsw-alias-tooltip-bg', 'backgroundElement'],
   ['--dsw-alias-button-elevated-fill', 'backgroundPanel'],
@@ -8472,7 +8472,71 @@ const FONTS = {
   'SF Mono': "'SF Mono','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
 }
-__mods["map-dsh"] = { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, SANS_STACK, FONTS }
+
+// ── 6. 自定义主题 37 色位元数据（#84，口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
+// 7 大分组 = 界面与背景 8 + 文字 2 + 品牌与状态 6 + 边框 2 + Diff 6 + Markdown 6 + 代码高亮 7 = 37
+// allowTransparent 仅 8 个背景槽为 true（其余 29 槽设 transparent 会被编辑器 reducer 拦截）；fallback 为 5 个扩展槽的默认继承源；previewSlot 为微缩画布 data-slot（恒等于 key）。
+const COLOR_SLOT_GROUPS = [
+  { id: 'bg', keys: ['background', 'backgroundPanel', 'backgroundElement', 'sidebarBg', 'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg'] },
+  { id: 'text', keys: ['text', 'textMuted'] },
+  { id: 'brand', keys: ['primary', 'secondary', 'info', 'success', 'warning', 'error'] },
+  { id: 'border', keys: ['border', 'borderActive'] },
+  { id: 'diff', keys: ['diffAdded', 'diffRemoved', 'diffAddedBg', 'diffRemovedBg', 'diffAddedLineNumberBg', 'diffRemovedLineNumberBg'] },
+  { id: 'md', keys: ['markdownHeading', 'markdownLink', 'markdownCode', 'markdownEmph', 'markdownStrong', 'markdownBlockQuote'] },
+  { id: 'syn', keys: ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'] },
+]
+const COLOR_SLOTS = [
+  { key: 'background', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'background' },
+  { key: 'backgroundPanel', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundPanel' },
+  { key: 'backgroundElement', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundElement' },
+  { key: 'sidebarBg', group: 'bg', allowTransparent: true, fallback: 'background', previewSlot: 'sidebarBg' },
+  { key: 'bubbleBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'bubbleBg' },
+  { key: 'inputBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'inputBg' },
+  { key: 'codeBlockBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'codeBlockBg' },
+  { key: 'codeHeaderBg', group: 'bg', allowTransparent: true, fallback: 'backgroundElement', previewSlot: 'codeHeaderBg' },
+  { key: 'text', group: 'text', allowTransparent: false, fallback: null, previewSlot: 'text' },
+  { key: 'textMuted', group: 'text', allowTransparent: false, fallback: null, previewSlot: 'textMuted' },
+  { key: 'primary', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'primary' },
+  { key: 'secondary', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'secondary' },
+  { key: 'info', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'info' },
+  { key: 'success', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'success' },
+  { key: 'warning', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'warning' },
+  { key: 'error', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'error' },
+  { key: 'border', group: 'border', allowTransparent: false, fallback: null, previewSlot: 'border' },
+  { key: 'borderActive', group: 'border', allowTransparent: false, fallback: null, previewSlot: 'borderActive' },
+  { key: 'diffAdded', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAdded' },
+  { key: 'diffRemoved', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemoved' },
+  { key: 'diffAddedBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAddedBg' },
+  { key: 'diffRemovedBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemovedBg' },
+  { key: 'diffAddedLineNumberBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAddedLineNumberBg' },
+  { key: 'diffRemovedLineNumberBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemovedLineNumberBg' },
+  { key: 'markdownHeading', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownHeading' },
+  { key: 'markdownLink', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownLink' },
+  { key: 'markdownCode', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownCode' },
+  { key: 'markdownEmph', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownEmph' },
+  { key: 'markdownStrong', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownStrong' },
+  { key: 'markdownBlockQuote', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownBlockQuote' },
+  { key: 'syntaxComment', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxComment' },
+  { key: 'syntaxKeyword', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxKeyword' },
+  { key: 'syntaxFunction', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxFunction' },
+  { key: 'syntaxType', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxType' },
+  { key: 'syntaxNumber', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxNumber' },
+  { key: 'syntaxString', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxString' },
+  { key: 'syntaxOperator', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxOperator' },
+]
+// 32 色内置色板 → 37 色完整色板：仅补齐未显式指定的 5 个扩展槽（已显式的保持不动，纯函数不改入参）。
+// 回退链：sidebarBg←background；bubbleBg/inputBg/codeBlockBg←backgroundPanel；codeHeaderBg←backgroundElement。
+function normalizeThemeColors(colors) {
+  const c = Object.assign({}, colors || {})
+  if (c.sidebarBg === undefined || c.sidebarBg === null) c.sidebarBg = c.background
+  if (c.bubbleBg === undefined || c.bubbleBg === null) c.bubbleBg = c.backgroundPanel
+  if (c.inputBg === undefined || c.inputBg === null) c.inputBg = c.backgroundPanel
+  if (c.codeBlockBg === undefined || c.codeBlockBg === null) c.codeBlockBg = c.backgroundPanel
+  if (c.codeHeaderBg === undefined || c.codeHeaderBg === null) c.codeHeaderBg = c.backgroundElement
+  return c
+}
+
+__mods["map-dsh"] = { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, SANS_STACK, FONTS, COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors }
 })();
 (function () {
 // font-face.mjs — 生成文件，勿手改（`node scripts/inline-fonts.mjs` 重新生成）
@@ -8803,7 +8867,7 @@ __mods["local-fonts"] = { MONO_PROBE_TEXT, MONO_PROBE_SIZE, MONO_MEASURE_LIMIT, 
 (function () {
 // generate.mjs — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
-const { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } = __mods["map-dsh"]
+const { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors } = __mods["map-dsh"]
 const { FONT_FACE_CSS } = __mods["font-face"]
 const { quoteFontFamily } = __mods["font-names"]
 const { withAlpha, isDelegatedSurface } = __mods["resolve"]
@@ -8825,7 +8889,10 @@ function usable(colors, from) {
 // 缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
 // 单参调用保持 legacy 语义（同一套色值写两半），存量调用方兼容。
 function buildTokens(darkColors, lightColors, delegated) {
-  const light = (lightColors === undefined) ? darkColors : lightColors
+  const rawDark = darkColors || {}
+  const rawLight = (lightColors === undefined) ? rawDark : (lightColors || {})
+  darkColors = normalizeThemeColors(rawDark)
+  const light = normalizeThemeColors(rawLight)
   const del = (lightColors === undefined) ? false : !!delegated
   const tokens = {}
   const put2 = (name, lv, dv) => {
@@ -8915,6 +8982,8 @@ function buildTypographyCss(typography) {
 // issue 45：自持画布走 legacy 联合选择器（字节一致）；委托画布按外观分区发射，
 // 浅色走宿主默认作用域，深色走宿主深色作用域。
 function buildColorCss(darkColors, lightColors, tokens, delegated) {
+  if (darkColors) darkColors = normalizeThemeColors(darkColors)
+  if (lightColors) lightColors = normalizeThemeColors(lightColors)
   if (!delegated) {
     const decls = []
     for (const name of Object.keys(tokens)) {
@@ -8971,7 +9040,30 @@ function generateTheme(modes, typography, themeName) {
     meta: { theme: themeName || (modes ? 'theme' : 'system'), typography: typography || {} },
   }
 }
-__mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColorCss, generateTheme }
+// 自定义主题单套色渲染（#84）：同一套 37 色同时注入 dark/light 两半（delegated=false），transparent 槽自动跳过透出宿主底。
+// customTheme = { id, name, appearance: 'dark'|'light'|'system', basePreset?, colors: { ...37 } }
+function renderCustomTheme(customTheme, typography) {
+  const t = customTheme || {}
+  const norm = normalizeThemeColors(t.colors || {})
+  const tokens = buildTokens(norm, norm, false)
+  const css = [buildTypographyCss(typography || {})]
+  css.push(buildColorCss(norm, norm, tokens, false))
+  const rawId = String(t.id || t.name || 'custom')
+  const themeKey = rawId.indexOf('custom:') === 0 ? rawId : 'custom:' + rawId
+  const appearance = t.appearance === 'light' || t.appearance === 'system' ? t.appearance : 'dark'
+  return { tokens: tokens, css: css.join(''), meta: { theme: themeKey, appearance: appearance, name: t.name || rawId, typography: typography || {} } }
+}
+// 自定义主题胶囊预览色（#84，口径与原型 chipStyle 一致）：light+transparent 标记 translucent 走 chipLightSurface 白底。
+function customPreviewColors(customTheme) {
+  const t = customTheme || {}
+  const c = t.colors || {}
+  const appearance = t.appearance === 'light' || t.appearance === 'system' ? t.appearance : 'dark'
+  const background = c.background
+  const translucent = background === 'transparent' && appearance === 'light'
+  return { primary: c.primary, background: background, text: c.text, border: c.border, appearance: appearance, translucent: translucent }
+}
+
+__mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColorCss, generateTheme, renderCustomTheme, customPreviewColors }
 })();
 (function () {
 // zh-names.mjs — 主题名表（单一来源：中文名 THEME_ZH ＋ 英文官方名 THEME_EN）
@@ -17069,7 +17161,8 @@ __mods["grouping"] = { GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview
 // index.mjs — ThemeEngine 门面：注册表 + 解析 + 生成 的对外唯一入口
 const { listThemes, getThemeJson, isSystem, SYSTEM_THEME, countStatic } = __mods["registry"]
 const { resolveThemeColors, collectErrors, isDelegatedSurface } = __mods["resolve"]
-const { generateTheme } = __mods["generate"]
+const { generateTheme, renderCustomTheme, customPreviewColors } = __mods["generate"]
+const { COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors } = __mods["map-dsh"]
 const { themeGroups, GROUP_ORDER, GROUP_COLORS, resolvePreview } = __mods["grouping"]
 
 const DARK = 'dark'
@@ -17108,6 +17201,33 @@ function delegatesBackground(name) {
 function themeNames() { return listThemes() }
 function themeStats() { return { static: countStatic(), total: listThemes().length } }
 
+// 37 色槽位取值：字符串直接采用；缺失或 __error 用同明暗 opencode 色板回退（5 个扩展槽位 resolve 不产出，走 normalize 回填）
+function pick37(src, fallback) {
+  const out = {}
+  for (const slot of COLOR_SLOTS) {
+    const v = src ? src[slot.key] : undefined
+    if (typeof v === 'string') { out[slot.key] = v; continue }
+    const f = fallback ? fallback[slot.key] : undefined
+    if (typeof f === 'string') out[slot.key] = f
+  }
+  return normalizeThemeColors(out)
+}
+// 预置主题 37 色提取（#84）：system→system（按 hostMode 取 opencode 对应色板）；透光主题（如 lucent-orng）→light 取 light 色板；其余 36 款→dark 取 dark 色板
+function extractPresetPalette(name, hostMode) {
+  const mode = hostMode === 'light' ? 'light' : 'dark'
+  if (isSystem(name)) {
+    const oc = getThemeJson('opencode')
+    const base = resolveThemeColors(oc, mode)
+    return { name: 'system', appearance: 'system', colors: pick37(base, base) }
+  }
+  const json = getThemeJson(name)
+  if (!json) throw new Error('未知主题: ' + String(name))
+  const appearance = delegatesBackground(name) ? 'light' : 'dark'
+  const src = appearance === 'light' ? resolveThemeColors(json, 'light') : resolveThemeColors(json, 'dark')
+  const ocResolved = resolveThemeColors(getThemeJson('opencode'), appearance)
+  return { name: name, appearance: appearance, colors: pick37(src, ocResolved) }
+}
+
 // 完整自检（测试/诊断用）：解析全部主题，报告失败清单
 function auditAll() {
   const report = { ok: [], broken: [] }
@@ -17121,7 +17241,8 @@ function auditAll() {
   }
   return report
 }
-__mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, themeStats, auditAll }
+
+__mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames, themeGroups, GROUP_ORDER, GROUP_COLORS, COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, renderCustomTheme, customPreviewColors, themeStats, extractPresetPalette, auditAll }
 })();
 (function () {
 // update-tokens.mjs — opencode 主题 → dsh-plugin-update@0.13.0 themeTokens（弹窗换肤一等口径）
@@ -17135,6 +17256,7 @@ __mods["index"] = { renderTheme, previewColors, delegatesBackground, themeNames,
 // 外观与 syncAppearanceForTheme 同口径：透光主题（画布委托）走 light，否则走 dark；system 无色直接 undefined（零回归）。
 const { getThemeJson, isSystem } = __mods["registry"]
 const { resolveThemeColors, shade, isDelegatedSurface } = __mods["resolve"]
+const { normalizeThemeColors } = __mods["map-dsh"]
 function hexOf(v) {
   if (typeof v !== 'string') return undefined
   const t = v.trim()
@@ -17169,8 +17291,15 @@ function buildUpdateTokens(name) {
   } catch (e) {
     translucent = false
   }
-  const colors = translucent ? light : dark
-  const darkMode = !translucent
+  return tokensFromColors(translucent ? light : dark, !translucent)
+}
+// 自定义主题更新条（#84）：单套 37 色直驱；appearance system 无色回 undefined（与 system 预置同口径）；transparent 背景 hexOf 落空即回 undefined（与 lucent-orng 预置同口径）
+function buildUpdateTokensFromColors(colors, appearance) {
+  if (appearance === 'system') return undefined
+  const norm = normalizeThemeColors(colors || {})
+  return tokensFromColors(norm, appearance !== 'light')
+}
+function tokensFromColors(colors, darkMode) {
   const text = hexOf(colors.text)
   const primary = hexOf(colors.primary)
   if (!text || !primary) return undefined
@@ -17225,7 +17354,7 @@ function buildUpdateTokens(name) {
   return tokens
 }
 
-__mods["update-tokens"] = { buildUpdateTokens }
+__mods["update-tokens"] = { buildUpdateTokens, buildUpdateTokensFromColors }
 })();
 (function () {
 // float-geometry.mjs — 锚定浮层的几何计算：纯数字进、纯数字出，与 DOM 无关
@@ -17304,13 +17433,26 @@ const ROUTE_PATH = CHANNEL + '/' + ENDPOINT
 const PLUGIN_ID = 'dsh-opencode-palette'
 /** 电话名前缀：日志电话与更新电话共用，电话名由两侧从包函数派生（产物里不写字面量，见接线门禁）。 */
 const PHONE_PREFIX = 'palette'
+/**
+ * 自定义主题存储电话（#85）：宿主半与浏览器半共用的电话名表（单一真源）。
+ *
+ * 注：票面写「在 PHONE_METHODS 中新增」，但本文件此前并无 PHONE_METHODS 表
+ * （日志/更新电话名由 dsh-log / dsh-plugin-update 包函数派生，不在此定义）——
+ * 自定义主题电话是本插件自己的电话，无上游包可派生，故在此新建该表，
+ * 两侧（runtime/host.mjs 注册、面板客户端调用）只从这里读，不写字面量。
+ */
+const PHONE_METHODS = {
+  customThemesList: 'customThemesList',
+  customThemesSave: 'customThemesSave',
+  customThemesDelete: 'customThemesDelete',
+}
 /** 要检查更新的那个包（本插件自己）。 */
 const TARGET_PACKAGE_NAME = 'dsh-opencode-palette'
 
 /** 浏览器半向宿主半回一个失败的调用结果（宿主不可用时用，形状与宿主回包一致）。 */
 const HOST_UNAVAILABLE = 'host-unavailable'
 
-__mods["channel"] = { CHANNEL, ENDPOINT, ROUTE_PATH, PLUGIN_ID, PHONE_PREFIX, TARGET_PACKAGE_NAME, HOST_UNAVAILABLE }
+__mods["channel"] = { CHANNEL, ENDPOINT, ROUTE_PATH, PLUGIN_ID, PHONE_PREFIX, PHONE_METHODS, TARGET_PACKAGE_NAME, HOST_UNAVAILABLE }
 })();
 (function () {
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）

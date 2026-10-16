@@ -19,13 +19,13 @@
  * 于是 vendor 全部删除。历史决策与推翻过程见 docs/adr/0001-vendor-dsh-plugin-update.md。
  */
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createHostLog, registerHostLogPhones } from 'dsh-log/host'
 import { createHostUpdate } from 'dsh-plugin-update'
-import { PLUGIN_ID, PHONE_PREFIX, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.mjs'
+import { PLUGIN_ID, PHONE_PREFIX, PHONE_METHODS, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.mjs'
 
 
 export const name = PLUGIN_ID
@@ -98,6 +98,204 @@ export function dshHomeDir(env, osHome) {
   return raw === '~' ? osHome : raw.replace(/^~[\\/]/, osHome + '/')
 }
 
+// ───────────────────────── 自定义主题单文件存储（#85） ─────────────────────────
+// 落点：<DSH_HOME>/opencode-palette/custom-themes/<id>.json，单主题单文件，2 空格缩进，
+// 用户可手放/手改/互传。宿主半只做存储与消毒，不解析颜色语义（渲染时引擎再验）。
+//
+// 打包约束：package/lib/index.js 是本文件的原样复制，宿主在包内只能 import
+// './channel.mjs' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
+// 内嵌值 = 引擎 extractPresetPalette('opencode').colors（dark，COLOR_SLOTS 顺序），
+// 由 tests/custom-themes-storage.test.mjs 锁死一致：opencode.json 改了必须同步这里。
+
+/** 自定义主题落盘 schema（磁盘文件顶层 `schema` 字段值）。 */
+export const CUSTOM_THEME_SCHEMA = 'dsh-opencode-palette.custom-theme.v1'
+
+/** 缺色回退：opencode dark 37 色（键顺序即规范槽位顺序，落盘可读性依赖它）。
+ *  有意单一源：缺色永远用它补，不随主题的 basePreset/appearance 切换——宿主包内无引擎、
+ *  其它预置色板不可达；basePreset 名字照常保留（供面板重编时溯源），仅回退源固定。 */
+const OPENCODE_FALLBACK_COLORS = {
+  background: '#0A0A0A',
+  backgroundPanel: '#141414',
+  backgroundElement: '#1E1E1E',
+  text: '#EEEEEE',
+  textMuted: '#808080',
+  primary: '#FAB283',
+  secondary: '#5C9CF5',
+  info: '#56B6C2',
+  success: '#7FD88F',
+  warning: '#F5A742',
+  error: '#E06C75',
+  border: '#484848',
+  borderActive: '#606060',
+  diffAdded: '#4FD6BE',
+  diffRemoved: '#C53B53',
+  diffAddedBg: '#20303B',
+  diffRemovedBg: '#37222C',
+  diffAddedLineNumberBg: '#1B2B34',
+  diffRemovedLineNumberBg: '#2D1F26',
+  markdownHeading: '#9D7CD8',
+  markdownLink: '#FAB283',
+  markdownCode: '#7FD88F',
+  markdownEmph: '#E5C07B',
+  markdownStrong: '#F5A742',
+  markdownBlockQuote: '#E5C07B',
+  syntaxComment: '#808080',
+  syntaxKeyword: '#9D7CD8',
+  syntaxFunction: '#FAB283',
+  syntaxType: '#E5C07B',
+  syntaxNumber: '#F5A742',
+  syntaxString: '#7FD88F',
+  syntaxOperator: '#56B6C2',
+  sidebarBg: '#0A0A0A',
+  bubbleBg: '#141414',
+  inputBg: '#141414',
+  codeBlockBg: '#141414',
+  codeHeaderBg: '#1E1E1E',
+}
+
+/** 规范 37 槽位（= 回退表键序）。 */
+const CUSTOM_COLOR_SLOTS = Object.keys(OPENCODE_FALLBACK_COLORS)
+/** 文件名/id 严格形：save 与 delete 只接受全匹配（点都不允许，`..` 天然不可达）。 */
+const CUSTOM_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/
+const CUSTOM_APPEARANCES = ['dark', 'light', 'system']
+const CUSTOM_NAME_MAX = 120
+
+/** 存储目录：<homeDir>/opencode-palette/custom-themes（resolve 转平台原生绝对路径）。 */
+export function customThemesDir(homeDir) {
+  return resolve(join(homeDir, 'opencode-palette', 'custom-themes'))
+}
+
+/**
+ * id 消毒（读路径文件名兜底用）：含 `/` `\` 直接拒绝（null）；其余非法字符折成 `-`。
+ * save/delete 不走这里——它们要求调用方 id 全匹配 CUSTOM_ID_PATTERN，否则整单拒绝。
+ */
+export function sanitizeCustomThemeId(raw) {
+  if (typeof raw !== 'string') return null
+  let s = raw.trim()
+  if (!s) return null
+  if (/[/\\]/.test(s)) return null
+  s = s.replace(/\.json$/i, '')
+  if (s === '..' || s === '.') return null
+  s = s.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 64)
+  if (!s || !CUSTOM_ID_PATTERN.test(s)) return null
+  return s
+}
+
+/**
+ * 主题归一化（读/写共用）：缺 id 用 fallbackId 兜底（再消毒不出即 null → 整文件跳过），
+ * 缺 name 用 id 兜底，非法 appearance 回 'dark'，非法 basePreset 回 'opencode'，
+ * colors 逐槽位取非空字符串、缺失用 opencode 回退补满 37，多余键丢弃。
+ */
+export function normalizeCustomTheme(data, fallbackId, fallbackUpdatedAt) {
+  const src = data !== null && typeof data === 'object' && !Array.isArray(data) ? data : {}
+  const rawId = typeof src.id === 'string' && CUSTOM_ID_PATTERN.test(src.id) ? src.id : null
+  const id = rawId || sanitizeCustomThemeId(fallbackId)
+  if (!id) return null
+  const rawName = typeof src.name === 'string' ? src.name.trim() : ''
+  const colors = {}
+  const srcColors = src.colors !== null && typeof src.colors === 'object' && !Array.isArray(src.colors) ? src.colors : {}
+  for (const slot of CUSTOM_COLOR_SLOTS) {
+    const v = srcColors[slot]
+    colors[slot] = typeof v === 'string' && v.trim() ? v.trim() : OPENCODE_FALLBACK_COLORS[slot]
+  }
+  return {
+    schema: CUSTOM_THEME_SCHEMA,
+    id: id,
+    name: rawName ? rawName.slice(0, CUSTOM_NAME_MAX) : id,
+    appearance: CUSTOM_APPEARANCES.indexOf(src.appearance) >= 0 ? src.appearance : 'dark',
+    basePreset: typeof src.basePreset === 'string' && CUSTOM_ID_PATTERN.test(src.basePreset) ? src.basePreset : 'opencode',
+    updatedAt: typeof src.updatedAt === 'string' && src.updatedAt ? src.updatedAt : (fallbackUpdatedAt || new Date().toISOString()),
+    colors: colors,
+  }
+}
+
+/** 目录确保存在（list/save/delete 每次都先调：运行中目录被删也能自愈）。 */
+async function ensureCustomThemesDir(homeDir) {
+  const dir = customThemesDir(homeDir)
+  await mkdir(dir, { recursive: true })
+  return dir
+}
+
+/** 扫描目录：单文件坏了只跳过该文件（catch 内静默，绝不阻断其余主题、不记新事件）。 */
+async function readCustomThemes(homeDir) {
+  const dirPath = await ensureCustomThemesDir(homeDir)
+  let files = []
+  try {
+    files = (await readdir(dirPath)).filter((n) => n.endsWith('.json')).sort()
+  } catch (e) {
+    return { dirPath: dirPath, themes: [] }
+  }
+  const themes = []
+  const seen = new Set()
+  for (const file of files) {
+    // 文件名与 save/delete 同一严格口径：非法文件名（含空格等）直接跳过——
+    // 否则它会以折叠 id 列出、却永远无法被 save/delete 按名寻址（delete 会假成功而文件仍在 = 孤儿）。
+    if (!CUSTOM_ID_PATTERN.test(file.slice(0, -'.json'.length))) continue
+    const full = join(dirPath, file)
+    let text = null
+    try {
+      text = await readFile(full, 'utf8')
+    } catch (e) { continue }
+    let data = null
+    try {
+      data = JSON.parse(text)
+    } catch (e) { continue }
+    let mtime = null
+    try {
+      mtime = (await stat(full)).mtime.toISOString()
+    } catch (e) { /* 用 new 日期兜底 */ }
+    const theme = normalizeCustomTheme(data, file.replace(/\.json$/, ''), mtime || new Date().toISOString())
+    if (!theme || seen.has(theme.id)) continue
+    seen.add(theme.id)
+    themes.push(theme)
+  }
+  // 稳定排序：updatedAt 新在前，相同再按 id 排（与平台 locale 无关，处处同序）。
+  themes.sort(function (a, b) {
+    if (a.updatedAt !== b.updatedAt) return a.updatedAt < b.updatedAt ? 1 : -1
+    return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0)
+  })
+  return { dirPath: dirPath, themes: themes }
+}
+
+/** 原子写：tmp 落盘 + rename（半成品只可能是 .tmp- 前缀，扫描器只认 .json）。 */
+async function saveCustomTheme(homeDir, theme) {
+  if (theme === null || typeof theme !== 'object' || Array.isArray(theme)) {
+    return { ok: false, error: { code: 'invalid-argument', message: 'theme must be an object' } }
+  }
+  if (typeof theme.id !== 'string' || !CUSTOM_ID_PATTERN.test(theme.id)) {
+    return { ok: false, error: { code: 'invalid-id', message: 'invalid theme id: ' + String(theme.id).slice(0, 80) } }
+  }
+  const dirPath = await ensureCustomThemesDir(homeDir)
+  const normalized = normalizeCustomTheme(theme, null, new Date().toISOString())
+  normalized.updatedAt = new Date().toISOString()
+  const target = join(dirPath, normalized.id + '.json')
+  const tmp = join(dirPath, normalized.id + '.tmp-' + process.pid + '-' + Date.now())
+  try {
+    await writeFile(tmp, JSON.stringify(normalized, null, 2) + '\n', 'utf8')
+    await rename(tmp, target)
+  } catch (e) {
+    try { await unlink(tmp) } catch (ignored) { /* 半成品尽力清 */ }
+    throw e
+  }
+  const listed = await readCustomThemes(homeDir)
+  return { ok: true, dirPath: listed.dirPath, theme: normalized, themes: listed.themes }
+}
+
+/** 删除：不存在幂等成功；非法 id 直接拒绝（不碰磁盘）。 */
+async function deleteCustomTheme(homeDir, id) {
+  if (typeof id !== 'string' || !CUSTOM_ID_PATTERN.test(id)) {
+    return { ok: false, error: { code: 'invalid-id', message: 'invalid theme id: ' + String(id).slice(0, 80) } }
+  }
+  const dirPath = await ensureCustomThemesDir(homeDir)
+  try {
+    await unlink(join(dirPath, id + '.json'))
+  } catch (e) {
+    if (!e || e.code !== 'ENOENT') throw e
+  }
+  const listed = await readCustomThemes(homeDir)
+  return { ok: true, dirPath: listed.dirPath, deletedId: id, themes: listed.themes }
+}
+
 /** 给日志包的文件服务（INTEGRATION.md 步骤 2 的形状表）：六个方法全走 node:fs/promises。
  *  为什么不直接传 ctx.get('fs')：DSH 的 fs 服务没有 mkdir / unlink，且部署的是沙箱实现
  *  （workspace-write 只允许写 workspace 内），写用户家目录会被 FS_SANDBOX_DENIED 拒掉。 */
@@ -165,6 +363,23 @@ export function apply(ctx, opts) {
     { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, targetPackageName: TARGET_PACKAGE_NAME }
   )
   for (const phoneName of Object.keys(update.handlers)) registry.set(phoneName, update.handlers[phoneName])
+
+  // 自定义主题存储（#85）：三个电话直接进通用分发管线（dispatch 统一包 { ok, value }、
+  // 处理器抛异常记既有 host.channel.fail），不新增任何日志事件（event-list 31 项锁死）。
+  // 处理器自带 { ok } 内层状态：校验失败回 { ok: false, error: { code: 'invalid-*' } }，
+  // 磁盘异常才抛给 dispatch（变外层 { ok: false, error: { code: 'internal' } }）。
+  registry.set(PHONE_METHODS.customThemesList, async function () {
+    const listed = await readCustomThemes(homeDir)
+    return { ok: true, dirPath: listed.dirPath, themes: listed.themes }
+  })
+  registry.set(PHONE_METHODS.customThemesSave, async function (args) {
+    const theme = args !== null && typeof args === 'object' ? args.theme : undefined
+    return saveCustomTheme(homeDir, theme)
+  })
+  registry.set(PHONE_METHODS.customThemesDelete, async function (args) {
+    const id = args !== null && typeof args === 'object' ? args.id : undefined
+    return deleteCustomTheme(homeDir, id)
+  })
 
   // 更新电话直注册，不包探针/重试（最小集成）：有几个注册几个（0.5.x 起含 updateChangelog），
   // 失败证据由包内 diag 承载；电话名从 update.phoneNames 读，不自己拼字符串。

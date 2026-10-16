@@ -20,6 +20,19 @@ export const ROUTE_PATH = CHANNEL + '/' + ENDPOINT
 export const PLUGIN_ID = 'dsh-opencode-palette'
 /** 电话名前缀：日志电话与更新电话共用，电话名由两侧从包函数派生（产物里不写字面量，见接线门禁）。 */
 export const PHONE_PREFIX = 'palette'
+/**
+ * 自定义主题存储电话（#85）：宿主半与浏览器半共用的电话名表（单一真源）。
+ *
+ * 注：票面写「在 PHONE_METHODS 中新增」，但本文件此前并无 PHONE_METHODS 表
+ * （日志/更新电话名由 dsh-log / dsh-plugin-update 包函数派生，不在此定义）——
+ * 自定义主题电话是本插件自己的电话，无上游包可派生，故在此新建该表，
+ * 两侧（runtime/host.mjs 注册、面板客户端调用）只从这里读，不写字面量。
+ */
+export const PHONE_METHODS = {
+  customThemesList: 'customThemesList',
+  customThemesSave: 'customThemesSave',
+  customThemesDelete: 'customThemesDelete',
+}
 /** 要检查更新的那个包（本插件自己）。 */
 export const TARGET_PACKAGE_NAME = 'dsh-opencode-palette'
 
