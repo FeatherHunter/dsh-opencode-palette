@@ -88,6 +88,7 @@
 | `customCopied` | 已复制 | Copied | #86 新增 |
 | `customCopyFail` | 复制失败，请手动复制 | Copy failed — please copy it manually | #86 新增 |
 | `customOther` | 其他 | Other | #86 新增 |
+| `customIpPresets` | IP 预置 | IP presets | IP 预置来源新增 |
 | `customChipTitle` | 点击直接换上，不打开编辑 | Click to apply, without opening the editor | #86 新增 |
 | `customAdd` | 新增 | New | #86 新增 |
 | `customAddTitle` | 新建一个主题 | Create a new theme | #86 新增 |

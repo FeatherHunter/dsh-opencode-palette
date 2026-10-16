@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url'
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const ENGINE_DIR = join(ROOT, 'src', 'engine')
 const THEMES_DIR = join(ROOT, 'src', 'themes')
+const CUSTOM_PRESETS_DIR = join(ROOT, 'src', 'custom-presets')
 const RUNTIME_DIR = join(ROOT, 'runtime')
 const PKG_DIR = join(ROOT, 'package')
 
@@ -114,7 +115,7 @@ const MODULE_ORDER = [
   'log-config-event-list', 'log-config-phones', 'log-config-log-names', 'log-config-resolve', 'log-config',
   'log-client-switch-cache', 'log-client-transport', 'log-client-trace', 'log-client-switch-ops',
   'log-client-forward', 'log-client-send', 'log-client-write', 'log-client',
-  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'update-tokens', 'float-geometry',
+  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry',
   'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
 ]
 
@@ -229,8 +230,17 @@ async function loadModule(key) {
   for (const line of lines) {
     let m = line.match(JSON_IMPORT_RE)
     if (m) {
-      // JSON 数据内联（主题数据进 bundle，不落额外文件）
-      const jsonText = await readFile(join(THEMES_DIR, m[2].split('/').pop()), 'utf8')
+      // JSON 数据内联（主题数据进 bundle，不落额外文件）：
+      // 先 src/themes（TUI vendored），再 src/custom-presets（IP 预置第二来源）。
+      const base = m[2].split('/').pop()
+      let jsonText = null
+      try {
+        jsonText = await readFile(join(THEMES_DIR, base), 'utf8')
+      } catch (e) {
+        // 只有「文件不存在」才落到第二来源；权限等其他错误直接抛（否则报错指向错的目录）。
+        if (!e || e.code !== 'ENOENT') throw e
+        jsonText = await readFile(join(CUSTOM_PRESETS_DIR, base), 'utf8')
+      }
       body.push('const ' + m[1] + ' = ' + jsonText.trim())
       continue
     }

@@ -4,6 +4,7 @@ import { resolveThemeColors, collectErrors, isDelegatedSurface } from './resolve
 import { generateTheme, renderCustomTheme, customPreviewColors } from './generate.mjs'
 import { COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors } from './map-dsh.mjs'
 import { themeGroups, GROUP_ORDER, GROUP_COLORS, resolvePreview } from './grouping.mjs'
+import { listIpPresets, getIpPreset, countIpPresets, IP_PRESET_IDS } from './ip-presets.mjs'
 
 const DARK = 'dark'
 
@@ -39,7 +40,7 @@ export function delegatesBackground(name) {
 }
 
 export function themeNames() { return listThemes() }
-export { themeGroups, GROUP_ORDER, GROUP_COLORS, COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, renderCustomTheme, customPreviewColors }
+export { themeGroups, GROUP_ORDER, GROUP_COLORS, COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, renderCustomTheme, customPreviewColors, listIpPresets, getIpPreset, countIpPresets, IP_PRESET_IDS }
 export function themeStats() { return { static: countStatic(), total: listThemes().length } }
 
 // 37 色槽位取值：字符串直接采用；缺失或 __error 用同明暗 opencode 色板回退（5 个扩展槽位 resolve 不产出，走 normalize 回填）

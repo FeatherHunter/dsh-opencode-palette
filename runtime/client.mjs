@@ -1,7 +1,7 @@
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS } from './engine/index.mjs'
+import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets } from './engine/index.mjs'
 import { FONTS } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
@@ -151,6 +151,7 @@ const I18N = {
   customCopied: { zh: '已复制', en: 'Copied' },
   customCopyFail: { zh: '复制失败，请手动复制', en: 'Copy failed — please copy it manually' },
   customOther: { zh: '其他', en: 'Other' },
+  customIpPresets: { zh: 'IP 预置', en: 'IP presets' },
   customChipTitle: { zh: '点击直接换上，不打开编辑', en: 'Click to apply, without opening the editor' },
   customAdd: { zh: '新增', en: 'New' },
   customAddTitle: { zh: '新建一个主题', en: 'Create a new theme' },
@@ -1412,20 +1413,29 @@ export function createClient(slotTarget) {
             md: pick2('cgroup.md'), syn: pick2('cgroup.syn'),
           }
         }
+        const safeIpPresets = function () {
+          try { return listIpPresets() } catch (e) { return [] }
+        }
         const editorPresets = function () {
           try {
             const hm = hostDark ? 'dark' : 'light'
-            return themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
+            const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
+            // 双来源：内置 38 + IP 预置 20（IP 只进「选基底」，不进 themeNames，见 ip-presets.mjs）。
+            return builtins.concat(safeIpPresets())
           } catch (e) { return [] }
         }
         const editorPresetGroups = function (presets) {
           try {
             const names = presets.map(function (p) { return p.name })
             const seen = {}
-            const buckets = props.groups('dark').map(function (g) {
+            const buckets = []
+            const mineIp = safeIpPresets().map(function (p) { return p.name }).filter(function (n) { return names.indexOf(n) >= 0 })
+            mineIp.forEach(function (n) { seen[n] = true })
+            if (mineIp.length) buckets.push({ title: tr('customIpPresets'), names: mineIp })
+            props.groups('dark').forEach(function (g) {
               const mine = g.themes.map(function (t) { return t.name }).filter(function (n) { return names.indexOf(n) >= 0 })
               mine.forEach(function (n) { seen[n] = true })
-              return { title: tr('group.' + g.name), names: mine }
+              if (mine.length) buckets.push({ title: tr('group.' + g.name), names: mine })
             })
             const rest = names.filter(function (n) { return !seen[n] })
             if (rest.length) buckets.push({ title: tr('customOther'), names: rest })
