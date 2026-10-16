@@ -197,11 +197,13 @@ test('接线：通道常量来自单一真源，两侧都引它', () => {
 
 test('接线：电话名从更新包派生，产物里不写死', () => {
   // 0.5.x 起第 4 个电话 updateChangelog 由包派生、0.16.0 起第 5 个 logAppend（面板日志通道）亦由包派生、
+  // 0.18.6 起第 6 个 updateCheckFallback（合规版降级检查）由包派生、
   // 宿主全量注册自动纳入（#52：有几个注册几个，不手数；#78：期望表补 logAppend 一键）。
-  assert.deepEqual(Object.keys(PHONES).sort(), ['logAppend', 'updateChangelog', 'updateCheck', 'updateInstall', 'updateStatus'])
+  assert.deepEqual(Object.keys(PHONES).sort(), ['logAppend', 'updateChangelog', 'updateCheck', 'updateCheckFallback', 'updateInstall', 'updateStatus'])
   assert.equal(PHONES.updateStatus, 'palette.updateStatus')
   assert.equal(PHONES.updateChangelog, 'palette.updateChangelog')
   assert.equal(PHONES.logAppend, 'palette.logAppend')
+  assert.equal(PHONES.updateCheckFallback, 'palette.updateCheckFallback')
   // 宿主侧拼法与客户端侧拼法同源（config.buildPhoneNames vs client.buildClientPhoneNames）
   assert.equal(buildPhoneNames('palette').logAppend, PHONES.logAppend)
   for (const rel of ['client.js', 'package/lib/client.js']) {
@@ -224,7 +226,7 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.1' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.6' })
   assert.equal(pkg.engines.node, '>=22', '更新包 0.18.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')

@@ -2,6 +2,7 @@
 // 直接 import runtime 源码（这三个模块零导入，打包前后同一语义），先红后绿的 TDD 缝。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { join } from 'node:path'
 import {
   normalizeHexInput,
   hexToHsv,
@@ -290,6 +291,16 @@ test('种子 customs：胶囊渲染 + 命名空间隔离 + 38 主题计数不动
   assert.equal(editBtnDisabled(html), false, '有主题时 ✎ 编辑可用')
 })
 
+test('自定义区渲染顺序：位于特殊分组下方（分组本身由 group-boundary 钉死）', () => {
+  const { html } = loadCustomPanel({
+    storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
+  })
+  const special = html.indexOf('特殊')
+  const custom = html.indexOf('自定义主题 1')
+  assert.ok(special >= 0 && custom >= 0, '特殊与自定义标题都应渲染')
+  assert.ok(special < custom, '自定义区位于特殊分组下方')
+})
+
 test('词表对账（#86）：glossary 新增 161 行 == 代码 I18N，中英逐行命中源码', () => {
   const md = readFileSync(new URL('../docs/i18n-glossary.md', import.meta.url), 'utf8').replace(/\r/g, '')
   const rows = []
@@ -328,4 +339,116 @@ test('panelProps 自定义 API：无宿主静默降级 + 槽位/预置读取', a
   for (const k of Object.keys(preset.colors)) assert.equal(typeof preset.colors[k], 'string', '槽位 ' + k + ' 为字符串')
   const pv = panelProps.customPreview({ colors: SEED_THEME.colors, appearance: 'dark' })
   assert.equal(pv.primary, '#FAB283', '胶囊预览色口径')
+})
+
+test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', () => {
+  const { panelProps } = loadCustomPanel({
+    storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
+  })
+  panelProps.setCustomTheme('aurora-test')
+  assert.equal(panelProps.getState().theme, 'custom:aurora-test', '激活键 custom:<id> 隔离写入')
+})
+
+// ── 弹窗直渲染（源码级 CustomEditor + 桩 hooks + 真 reactSSR）──
+// 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
+// 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
+import { CustomEditor, presetToSeed } from '../runtime/custom-editor.mjs'
+import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.mjs'
+
+function mockHooks() {
+  return {
+    createElement: _React.createElement,
+    useState: (init) => [typeof init === 'function' ? init() : init, () => {}],
+    useEffect: () => {},
+    useRef: (v) => ({ current: v }),
+  }
+}
+
+function editorProps(appearance, colors) {
+  const slotMeta = {}
+  for (const s of ENGINE_SLOTS) {
+    slotMeta[s.key] = { zh: s.key, en: s.key, useZh: s.key, useEn: s.key, allow: s.allowTransparent }
+  }
+  const groupMeta = {}
+  const groups = [
+    { id: 'bg', keys: ENGINE_SLOTS.filter((s) => s.group === 'bg').map((s) => s.key) },
+    { id: 'text', keys: ['text', 'textMuted'] },
+    { id: 'brand', keys: ['primary', 'secondary', 'info', 'success', 'warning', 'error'] },
+    { id: 'border', keys: ['border', 'borderActive'] },
+    { id: 'diff', keys: ['diffAdded', 'diffRemoved', 'diffAddedBg', 'diffRemovedBg', 'diffAddedLineNumberBg', 'diffRemovedLineNumberBg'] },
+    { id: 'md', keys: ['markdownHeading', 'markdownLink', 'markdownCode', 'markdownEmph', 'markdownStrong', 'markdownBlockQuote'] },
+    { id: 'syn', keys: ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'] },
+  ]
+  for (const g of groups) groupMeta[g.id] = { zh: g.id, en: g.id }
+  return {
+    h: mockHooks(),
+    tr: (k) => 'T:' + k,
+    trf: (k, o) => 'T:' + k + JSON.stringify(o || {}),
+    lang: 'zh',
+    groups,
+    groupMeta,
+    slotMeta,
+    editor: { mode: 'new', seed: { id: null, name: '直渲检查', appearance, colors, basePreset: 'opencode' } },
+    customs: [],
+    presets: [{ name: 'opencode', appearance: 'dark', colors }],
+    presetGroups: [{ title: 't', names: ['opencode'] }],
+    isActive: false,
+    onSave: () => Promise.resolve({ ok: true }),
+    onDelete: () => Promise.resolve({ ok: true }),
+    onClose: () => {},
+  }
+}
+
+function renderEditorPure(appearance, colors) {
+  const saved = {}
+  for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
+    if (k in globalThis) { saved[k] = globalThis[k]; delete globalThis[k] }
+  }
+  try {
+    const el = _React.createElement(CustomEditor, editorProps(appearance, colors))
+    return _ReactDOMServer.renderToString(el)
+  } finally {
+    for (const k of Object.keys(saved)) globalThis[k] = saved[k]
+  }
+}
+
+test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  assert.ok(html.includes('直渲检查'), '编辑中主题名渲染')
+  assert.ok(html.includes(pal.colors.primary), '主色绑定到画布/行内样式')
+  // 36 槽直绑 data-slot；borderActive 无独立节点（与原型 .cinput 一致），经 inputBg 别名高亮
+  for (const s of ENGINE_SLOTS) {
+    if (s.key === 'borderActive') continue
+    assert.ok(html.includes('data-slot="' + s.key + '"'), '槽位落位：' + s.key)
+  }
+  assert.ok(html.includes('data-slot="inputBg"'), 'borderActive 别名节点在场')
+  assert.ok(html.includes('inset 0 0 0 2px'), '输入框内圈 borderActive 高亮环（原型 :871）')
+  assert.ok(html.includes('T:edSave'), '保存按钮在场（弹窗默认全量渲染）')
+  assert.ok(html.includes('T:miniTip'), '原型署名条在场')
+})
+
+test('弹窗直渲染：外观翻底盘跟编辑器走（c1 集成）', () => {
+  const pal = enginePreset('opencode')
+  const darkHtml = renderEditorPure('dark', pal.colors)
+  assert.ok(darkHtml.includes('#1E1E24'), '深色外观深底盘')
+  const lightHtml = renderEditorPure('light', pal.colors)
+  assert.ok(lightHtml.includes('#F4F4F5'), '浅色外观翻浅底盘（不跟 OS）')
+})
+
+test('预置载入同步：选基底 37 色 + 外观一次填好（loadPreset 接缝）', () => {
+  const pal = enginePreset('lucent-orng')
+  const seed = presetToSeed(pal)
+  assert.equal(Object.keys(seed.colors).length, 37, '37 色一次填好')
+  assert.equal(seed.appearance, 'light', '外观跟基底走')
+  assert.equal(seed.basePreset, 'lucent-orng', '基底名记住')
+  assert.equal(seed.colors.background, 'transparent', '透明跟基底走')
+  assert.notEqual(seed.colors, pal.colors, '复制不引用原对象（弹窗内改色不污染基底）')
+})
+
+test('弹窗不直连换肤：源码无换肤调用（改色只动预览，不碰弹窗外主题）', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  for (const ban of ['renderTheme', 'applyStyle', 'overrideTokens', 'buildUpdateTokens', 'setThemeTokens']) {
+    assert.equal(src.includes(ban), false, '弹窗源码不应直连换肤：' + ban)
+  }
 })

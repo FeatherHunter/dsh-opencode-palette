@@ -9,9 +9,9 @@
 //   package/README.md                 用户文档副本
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.1`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.6`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
-//     只有它的**入口件闭包**（entry→panel→config/redaction/service/changelog/queue/log-events/lang/bilingual）仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
+//     只有它的**入口件闭包**（entry→panel→config/redaction/service/changelog/queue/log-events/lang/bilingual/codes/log-client-queue/install-cause）仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
@@ -73,6 +73,7 @@ const INLINE_PACKAGES = [
   // 0.5.5 起新增：panel → log-events（日志事件名单源），entry → bilingual（双语底座）。
   // 0.7.0 起新增：panel → bilingual + lang（面板单语渲染消费字典与语言信号，与入口件同口径）。
   // 0.18.0 起新增：panel → codes（稳定码单源）+ log/client-queue（面板日志通道，零 Node 依赖）。
+  // 0.18.5 起新增：panel → install-cause（安装失败翻译官，零 I/O 纯模块）。
   {
     spec: 'dsh-plugin-update/entry',
     pkg: 'dsh-plugin-update',
@@ -81,6 +82,7 @@ const INLINE_PACKAGES = [
       { key: 'upd-config', file: 'dist/config.js', deps: {} },
       { key: 'upd-redaction', file: 'dist/redaction.js', deps: {} },
       { key: 'upd-service', file: 'dist/service.js', deps: {} },
+      { key: 'upd-install-cause', file: 'dist/install-cause.js', deps: {} },
       { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './service.js': 'upd-service', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
       { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
       { key: 'upd-log-events', file: 'dist/log-events.js', deps: {} },
@@ -88,7 +90,7 @@ const INLINE_PACKAGES = [
       { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: { './lang.js': 'upd-lang' } },
       { key: 'upd-codes', file: 'dist/codes.js', deps: {} },
       { key: 'upd-log-client-queue', file: 'dist/log/client-queue.js', deps: {} },
-      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang', './codes.js': 'upd-codes', './log/client-queue.js': 'upd-log-client-queue' } },
+      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './redaction.js': 'upd-redaction', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang', './codes.js': 'upd-codes', './log/client-queue.js': 'upd-log-client-queue', './install-cause.js': 'upd-install-cause' } },
       { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
     ],
   },
@@ -106,7 +108,7 @@ function inlineModuleFor(key) {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER = [
-  'upd-config', 'upd-redaction', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-codes', 'upd-log-client-queue', 'upd-panel', 'upd-entry',
+  'upd-config', 'upd-redaction', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-codes', 'upd-log-client-queue', 'upd-install-cause', 'upd-panel', 'upd-entry',
   'log-core-level', 'log-core-ids', 'log-core-resident', 'log-core-file-name', 'log-core-row',
   'log-core-admission', 'log-core-trace', 'log-config-constants', 'log-config-validate',
   'log-config-event-list', 'log-config-phones', 'log-config-log-names', 'log-config-resolve', 'log-config',
@@ -340,11 +342,11 @@ async function main() {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
-    // 两处都用精确钉版（0.3.4 / 0.18.1）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
+    // 两处都用精确钉版（0.3.4 / 0.18.6）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.mjs` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.1' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.6' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

@@ -16,6 +16,7 @@ window.__ModuleLoader__.load({
 const DEFAULT_PREFIX = "wf";
 const PHONE_ACTIONS = ["updateStatus", "updateCheck", "updateInstall"];
 const CHANGELOG_PHONE_ACTION = "updateChangelog";
+const CHECK_FALLBACK_PHONE_ACTION = "updateCheckFallback";
 const DEFAULT_TARGET_PACKAGE = "dsh-mattpocock-skills-deck";
 const DEFAULT_REGISTRY = "https://registry.npmjs.org/";
 const LEGACY_PLUGIN_ID = "dsh-mattpocock-skills-deck";
@@ -91,6 +92,7 @@ function buildPhoneNames(prefix) {
     updateCheck: checked + ".updateCheck",
     updateInstall: checked + ".updateInstall",
     updateChangelog: checked + ".updateChangelog",
+    updateCheckFallback: checked + "." + CHECK_FALLBACK_PHONE_ACTION,
     logAppend: checked + "." + LOG_APPEND_ACTION
   };
 }
@@ -103,7 +105,7 @@ function buildChangelogPhoneName(prefix) {
 function buildPhoneName(prefix, action) {
   return buildPhoneNames(prefix)[action];
 }
-__mods["upd-config"] = { BACKUP_FILE, CHANGELOG_PHONE_ACTION, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, LOG_APPEND_ACTION, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, RELEASE_CHANNELS, SKIPPED_FILE, STATE_FILE, assertPluginId, assertPrefix, buildChangelogPhoneName, buildLogAppendPhoneName, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
+__mods["upd-config"] = { BACKUP_FILE, CHANGELOG_PHONE_ACTION, CHECK_FALLBACK_PHONE_ACTION, DEFAULT_CHECK_TIMEOUT_MS, DEFAULT_CONFIRMATION_TTL_MS, DEFAULT_INSTALL_TIMEOUT_MS, DEFAULT_PANEL_POLL_MS, DEFAULT_PREFIX, DEFAULT_REGISTRY, DEFAULT_TARGET_PACKAGE, LEGACY_DIR_SEGMENT, LEGACY_PLUGIN_ID, LOCK_FILE, LOG_APPEND_ACTION, MIN_PANEL_POLL_MS, PHONE_ACTIONS, RECHECK_WINDOW_MS, RELEASE_CHANNELS, SKIPPED_FILE, STATE_FILE, assertPluginId, assertPrefix, buildChangelogPhoneName, buildLogAppendPhoneName, buildPhoneName, buildPhoneNames, resolveUpdateConfig };
 
 })();
 (function () {
@@ -217,7 +219,7 @@ function diagByteLength(value) {
     }
   }
 }
-const DIAG_NEVER_DROP_KEYS = ["v", "code", "error", "errorKind", "stage", "route", "method", "requestId"];
+const DIAG_NEVER_DROP_KEYS = ["v", "code", "error", "errorKind", "stage", "route", "method", "requestId", "causeKind", "causePackage", "causeUnlockAt"];
 const DIAG_DROP_ORDER = [
   "registryHost",
   "action",
@@ -631,6 +633,52 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
     throw checkFailedWithStatus(response);
   }
 }
+async function fetchPackumentTimes(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
+  const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
+  const registry = opts?.registryUrl ?? NPM_REGISTRY;
+  const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
+  let response = null;
+  const startedAt = Date.now();
+  try {
+    response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}`, {
+      headers: { accept: "application/json" },
+      redirect: "error",
+      signal: timeoutSignal(timeoutMs)
+    });
+  } catch {
+    noteFetch(null, startedAt);
+    throw updateError("check-failed");
+  }
+  noteFetch(httpStatusOf(response), startedAt);
+  try {
+    if (!response.ok) throw checkFailedWithStatus(response);
+    const declared = Number(response.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    const text = await response.text();
+    if (byteLength(text) > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    const value = JSON.parse(text);
+    if (value.name !== targetName) throw updateError("invalid-release");
+    const latest = value["dist-tags"]?.latest;
+    if (!validReleaseVersion(latest)) throw updateError("invalid-release");
+    const times = {};
+    if (value.time && typeof value.time === "object") {
+      for (const [version, stamp] of Object.entries(value.time)) {
+        try {
+          if (!validReleaseVersion(version) || typeof stamp !== "string" || !stamp.trim()) continue;
+          const ms = Date.parse(stamp.trim());
+          if (Number.isFinite(ms) && ms > 0) times[version] = ms;
+        } catch {
+        }
+      }
+    }
+    return { latest, times };
+  } catch (error) {
+    if (error?.code === "check-failed") throw error;
+    if (error?.code === "invalid-release") throw error;
+    if (response !== null && response.ok) throw updateError("invalid-release");
+    throw checkFailedWithStatus(response);
+  }
+}
 function createUpdateCore(ports) {
   const checkTimeoutMs = ports.checkTimeoutMs ?? CHECK_TIMEOUT_MS;
   const confirmationTtlMs = ports.confirmationTtlMs ?? CONFIRMATION_TTL_MS;
@@ -656,6 +704,7 @@ function createUpdateCore(ports) {
     });
   }
   let checked = null;
+  let fallbackChecked = null;
   let checking = null;
   let lastCheckAt = -Infinity;
   let activeJobId = null;
@@ -840,6 +889,7 @@ function createUpdateCore(ports) {
           installationKey: env.installationKey,
           blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? null : "incompatible-node"
         };
+        fallbackChecked = null;
         const snapshot = buildSnapshot(env, await healedJob(env));
         noteChannelDecision(snapshot.runningVersion, release2.version);
         emit("info", "update.check.done", {
@@ -869,6 +919,70 @@ function createUpdateCore(ports) {
   function toReceipt() {
     if (!checked?.checkId) return null;
     return { checkId: checked.checkId, checkedAt: checked.checkedAt, expiresAt: checked.expiresAt };
+  }
+  async function checkFallback(input) {
+    const kind = typeof input?.kind === "string" && input.kind ? input.kind : "minimum-release-age";
+    const blame = input?.blame === "target" ? "target" : input?.blame === "other-package" ? "other-package" : "unknown";
+    const windowSource = input?.windowSource === "message" || input?.windowSource === "host" ? input.windowSource : "unknown";
+    const windowMs = typeof input?.windowMs === "number" && Number.isFinite(input.windowMs) && input.windowMs > 0 ? input.windowMs : null;
+    const publishedAtMs = typeof input?.publishedAtMs === "number" && Number.isFinite(input.publishedAtMs) && input.publishedAtMs > 0 ? input.publishedAtMs : null;
+    const targetVersion = typeof input?.targetVersion === "string" && input.targetVersion ? input.targetVersion : null;
+    const resolve = ports.resolveCompliantVersion;
+    if (typeof resolve !== "function") throw updateError("unsupported");
+    if (windowMs === null) {
+      fallbackChecked = null;
+      return { verdict: resolve({ kind, blame, targetVersion: targetVersion ?? "", latestVersion: "", runningVersion: "", windowMs: null, windowSource, publishedAtMs, timeTable: {}, nowMs: ports.now() }), candidate: null, receipt: null };
+    }
+    if (blame !== "target") {
+      fallbackChecked = null;
+      return { verdict: { kind: "abstain", reason: "not-target", windowSource }, candidate: null, receipt: null };
+    }
+    const packument = await fetchPackumentTimes(ports.fetchImpl, checkTimeoutMs, {
+      targetPackageName,
+      registryUrl,
+      emitLog: logPort ?? void 0,
+      registryHost
+    });
+    const latest = packument.latest;
+    const runningVersion = ports.readRunningVersion();
+    const verdictInput = {
+      kind,
+      blame,
+      targetVersion: targetVersion ?? latest,
+      latestVersion: latest,
+      runningVersion,
+      releaseChannel,
+      windowMs,
+      windowSource,
+      publishedAtMs,
+      timeTable: packument.times,
+      nowMs: ports.now()
+    };
+    const verdict = resolve(verdictInput);
+    if (verdict.kind !== "downgrade-available") {
+      fallbackChecked = null;
+      return { verdict, candidate: null, receipt: null };
+    }
+    const env = await ports.readInstalled();
+    const release2 = await fetchNpmVersionRelease(ports.fetchImpl, checkTimeoutMs, {
+      targetPackageName,
+      registryUrl,
+      releaseChannel,
+      version: verdict.version,
+      emitLog: logPort ?? void 0,
+      registryHost
+    });
+    const checkId = ports.randomId();
+    const checkedAt = ports.now();
+    fallbackChecked = {
+      version: verdict.version,
+      release: release2,
+      checkId,
+      checkedAt,
+      expiresAt: checkedAt + confirmationTtlMs,
+      installationKey: env.installationKey
+    };
+    return { verdict, candidate: verdict.version, receipt: { checkId, checkedAt, expiresAt: fallbackChecked.expiresAt } };
   }
   async function runBackground(job, envAtStart) {
     let verifiedEnv = null;
@@ -917,6 +1031,55 @@ function createUpdateCore(ports) {
       if (activeJobId === job.id) activeJobId = null;
     }
   }
+  async function installCandidate(version, ctx) {
+    const slot = fallbackChecked;
+    if (!slot || slot.version !== version || !slot.checkId || slot.checkId !== ctx.checkId || ports.now() >= slot.expiresAt) {
+      throw updateError("check-expired");
+    }
+    if (ctx.env.installationKey !== slot.installationKey) throw updateError("installation-changed");
+    if (!ctx.env.eligible || ctx.env.blockedReason) throw updateError(ctx.env.blockedReason ?? "update-busy");
+    const runningVersion = ports.readRunningVersion();
+    if (!validReleaseVersion(runningVersion) || compareReleaseVersions(version, runningVersion) !== 1) {
+      throw updateError("installation-changed");
+    }
+    emit("info", "update.install.request", {
+      from: installSourceOf(ctx.from),
+      current: runningVersion,
+      latest: version,
+      checkAgeMs: Math.max(0, ports.now() - slot.checkedAt)
+    });
+    const job = {
+      id: ports.randomId(),
+      state: "installing",
+      targetVersion: version,
+      message: null,
+      requestId: ctx.requestId
+    };
+    if (!await acquire(job.id)) throw updateError("update-busy");
+    try {
+      const current = await fetchNpmVersionRelease(ports.fetchImpl, checkTimeoutMs, {
+        targetPackageName,
+        registryUrl,
+        releaseChannel,
+        version,
+        emitLog: logPort ?? void 0,
+        registryHost
+      });
+      if (JSON.stringify(current) !== JSON.stringify(slot.release)) throw updateError("check-expired");
+      const env = await ports.readInstalled();
+      if (env.installationKey !== slot.installationKey) throw updateError("installation-changed");
+      if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
+      if (ports.backupJob) await ports.backupJob(job);
+      await saveJob(job);
+      activeJobId = job.id;
+      void runBackground(job, env).catch(() => {
+      });
+      return buildSnapshot(env, job);
+    } catch (error) {
+      await release(job.id);
+      throw error;
+    }
+  }
   async function install(args) {
     const checkId = typeof args?.checkId === "string" ? args.checkId : "";
     const requestId = typeof args?.requestId === "string" ? args.requestId : "";
@@ -927,6 +1090,8 @@ function createUpdateCore(ports) {
     if (previous?.state === "installing" || previous?.state === "verifying" || previous?.state === "restart-required") {
       throw updateError("update-busy");
     }
+    const wantedVersion = typeof args?.version === "string" && args.version ? args.version : null;
+    if (wantedVersion) return installCandidate(wantedVersion, { checkId, requestId, from: args?.from, env, previous });
     if (!checked || !checked.checkId || checked.checkId !== checkId || ports.now() >= checked.expiresAt) {
       throw updateError("check-expired");
     }
@@ -967,9 +1132,9 @@ function createUpdateCore(ports) {
     });
     return buildSnapshot(env, job);
   }
-  return { status, check, install };
+  return { status, check, install, checkFallback };
 }
-__mods["upd-service"] = { CHECK_TIMEOUT_MS, CONFIRMATION_TTL_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY, PACKAGE_NAME, RECHECK_WINDOW_MS, RELEASE_CHANNELS, compareReleaseVersions, compareVersions, createUpdateCore, fetchNpmRelease, fetchNpmVersionRelease, isPrereleaseVersion, isVersionAllowedInChannel, satisfiesNodeRange, updateError, validReleaseChannel, validReleaseVersion, validRequestId, validVersion };
+__mods["upd-service"] = { CHECK_TIMEOUT_MS, CONFIRMATION_TTL_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY, PACKAGE_NAME, RECHECK_WINDOW_MS, RELEASE_CHANNELS, compareReleaseVersions, compareVersions, createUpdateCore, fetchNpmRelease, fetchNpmVersionRelease, fetchPackumentTimes, isPrereleaseVersion, isVersionAllowedInChannel, satisfiesNodeRange, updateError, validReleaseChannel, validReleaseVersion, validRequestId, validVersion };
 
 })();
 (function () {
@@ -1176,6 +1341,8 @@ const BILINGUAL_STRINGS = {
   "panel.blocked.incompatible-node.action": { en: "Upgrade Node to 22 or later, then check again.", zh: "\u8BF7\u5347\u7EA7 Node \u81F3 22 \u6216\u66F4\u9AD8\u7248\u672C\u540E\u91CD\u65B0\u67E5\u8BE2", draft: true },
   "panel.blocked.recovery-required.title": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
   "panel.blocked.recovery-required.action": { en: "Run install once more; if it persists, follow section 6 to troubleshoot.", zh: "\u91CD\u65B0\u6267\u884C\u5B89\u88C5\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u6309\u7B2C 6 \u8282\u6392\u9519", draft: true },
+  "panel.blocked.dev-source.title": { en: "Dev-mode source link, update center unavailable", zh: "\u5F00\u53D1\u6001\u6302\u8F7D\uFF08\u6E90\u7801\u94FE\u63A5\uFF09\uFF0C\u66F4\u65B0\u4E2D\u5FC3\u4E0D\u53EF\u7528", draft: true },
+  "panel.blocked.dev-source.action": { en: "Edit the repo and restart the host to take effect; the update center only serves version installs, no manual command is provided here.", zh: "\u6539\u5B8C\u4ED3\u5E93\u4EE3\u7801\u540E\u91CD\u542F\u5BBF\u4E3B\u751F\u6548\uFF1B\u66F4\u65B0\u4E2D\u5FC3\u53EA\u670D\u52A1\u6309\u7248\u672C\u5B89\u88C5\uFF0C\u6B64\u573A\u666F\u4E0D\u63D0\u4F9B\u624B\u5DE5\u547D\u4EE4", draft: true },
   "panel.failure.check-failed.title": { en: "Couldn\u2019t check for updates (network, source, or rate limit)", zh: "\u7248\u672C\u4FE1\u606F\u67E5\u8BE2\u5931\u8D25\uFF08\u7F51\u7EDC / \u6570\u636E\u6E90 / \u9650\u6D41\uFF09", draft: true },
   "panel.failure.check-failed.action": { en: "Try checking again later; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u7A0D\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005", draft: true },
   "panel.failure.invalid-release.title": { en: "Release info is invalid (bad version or mismatched content)", zh: "\u53D1\u5E03\u7248\u672C\u4FE1\u606F\u65E0\u6548\uFF08\u7248\u672C\u53F7\u975E\u6CD5\u6216\u5185\u5BB9\u4E0D\u4E00\u81F4\uFF09", draft: true },
@@ -1223,6 +1390,8 @@ const BILINGUAL_STRINGS = {
   "panel.banner.update-title": { en: "Update available: {latest} (current: {running}).", zh: "\u6709\u65B0\u7248\u672C {latest} \u53EF\u5B89\u88C5\uFF08\u5F53\u524D\u7248\u672C {running}\uFF09\u3002", draft: true },
   "panel.banner.update-action": { en: "Install runs the exact version; only one install runs per scope at a time.", zh: "\u9009\u62E9\u5B89\u88C5\u5C06\u6309\u7CBE\u786E\u7248\u672C\u5B89\u88C5\uFF1B\u540C\u4E00\u4F7F\u7528\u8303\u56F4\u540C\u65F6\u4EC5\u5B89\u88C5\u4E00\u9879\u3002", draft: true },
   "panel.action.install-version": { en: "Install {latest}", zh: "\u5B89\u88C5\u7248\u672C {latest}", draft: true },
+  "panel.banner.update-gated-title": { en: "Version {latest} was just published and is still gated ({unlock}); installing now will fail \u2014 use Install fallback build below if you cannot wait.", zh: "\u65B0\u7248\u672C {latest} \u521A\u53D1\u5E03\u672A\u6EE1\u95E8\uFF0C{unlock}\u53EF\u88C5\uFF1B\u73B0\u5728\u70B9\u5B89\u88C5\u4F1A\u5931\u8D25\uFF0C\u7B49\u4E0D\u53CA\u53EF\u5148\u88C5\u5408\u89C4\u7248\u3002", draft: true },
+  "panel.action.install-gated-title": { en: "Come back {unlock} to install {latest}; it is still gated and would fail now.", zh: "{unlock}\u518D\u6765\u88C5 {latest} \u5427\uFF0C\u73B0\u5728\u88C5\u4F1A\u88AB\u95E8\u62E6\u4F4F\u3002", draft: true },
   "panel.banner.done": { en: "Up to date. No update needed.", zh: "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002", draft: true },
   "panel.banner.not-installed": { en: "Not installed", zh: "\u672A\u5B89\u88C5", draft: true },
   "panel.toast.checking": { en: "Checking for updates\u2026", zh: "\u6B63\u5728\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u2026", draft: true },
@@ -1236,6 +1405,8 @@ const BILINGUAL_STRINGS = {
   "panel.toast.restart-failed": { en: "Restart entry failed; please restart the host manually. The new version takes effect after restart.", zh: "\u91CD\u542F\u5165\u53E3\u8C03\u7528\u5931\u8D25\uFF0C\u8BF7\u624B\u52A8\u91CD\u542F\u5BBF\u4E3B\uFF1B\u91CD\u542F\u540E\u65B0\u7248\u672C\u751F\u6548\u3002", draft: true },
   "panel.toast.copy-state-ok": { en: "Current state copied (no failure); paste it to the plugin author (already redacted).", zh: "\u5F53\u524D\u72B6\u6001\u5DF2\u590D\u5236\uFF08\u65E0\u5931\u8D25\uFF09\uFF0C\u8BF7\u63D0\u4EA4\u81F3\u63D2\u4EF6\u4F5C\u8005\uFF08\u5DF2\u8131\u654F\uFF09\u3002", draft: true },
   "panel.toast.failure-dismissed": { en: "Failure acknowledged; it will be re-evaluated on the next check or install.", zh: "\u5DF2\u786E\u8BA4\u8BE5\u5931\u8D25\u63D0\u793A\uFF1B\u4E0B\u6B21\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u6216\u5B89\u88C5\u5C06\u91CD\u65B0\u8BC4\u4F30\u3002", draft: true },
+  "panel.toast.fallback-unavailable": { en: "No compliant build for this failure; see the diagnostics or retry later.", zh: "\u8FD9\u6B21\u5931\u8D25\u7528\u4E0D\u4E0A\u5408\u89C4\u7248\uFF0C\u8BF7\u770B\u8BCA\u65AD\u4FE1\u606F\u6216\u7A0D\u540E\u91CD\u8BD5\u3002", draft: true },
+  "panel.toast.fallback-wait": { en: "Latest should clear around {time}; no earlier compliant build for now.", zh: "\u6700\u65B0\u7248\u7EA6 {time} \u53EF\u88C5\uFF0C\u6682\u65E0\u66F4\u65E9\u7684\u5408\u89C4\u7248\u3002", draft: true },
   "panel.strip.running": { en: "Running", zh: "\u8FD0\u884C\u7248", draft: true },
   "panel.strip.installed": { en: "Installed", zh: "\u5DF2\u5B89\u88C5", draft: true },
   "panel.strip.latest": { en: "Latest", zh: "\u6700\u65B0\u7248", draft: true },
@@ -1268,6 +1439,12 @@ const BILINGUAL_STRINGS = {
   "panel.action.restart-host-title": { en: "Run the caller restart flow if available, otherwise restart DSH manually", zh: "\u4F18\u5148\u8D70\u8C03\u7528\u65B9\u91CD\u542F\u6D41\u7A0B\uFF1B\u82E5\u65E0\uFF0C\u8BF7\u624B\u52A8\u91CD\u542F DSH", draft: true },
   "panel.action.dismiss": { en: "Got it", zh: "\u5DF2\u77E5\u6653", draft: true },
   "panel.action.dismiss-title": { en: "Acknowledge the failure and return; next check or install will re-evaluate", zh: "\u786E\u8BA4\u5DF2\u77E5\u6653\u8BE5\u5931\u8D25\uFF1A\u8FD4\u56DE\u53EF\u5B89\u88C5\u9875\uFF0C\u4E0B\u6B21\u67E5\u8BE2\u6216\u5B89\u88C5\u5C06\u91CD\u65B0\u8BC4\u4F30", draft: true },
+  "panel.action.install-fallback": { en: "Install compliant build", zh: "\u88C5\u5408\u89C4\u7248", draft: true },
+  "panel.action.install-fallback-title": { en: "Resolve an age-compliant version first, then confirm; never installs an older version silently", zh: "\u5148\u51B3\u8BAE\u4E00\u4E2A\u6EE1\u95E8\u9650\u7684\u7248\u672C\u518D\u8BF7\u4F60\u786E\u8BA4\uFF0C\u4E0D\u4F1A\u9759\u9ED8\u88C5\u65E7\u7248", draft: true },
+  "panel.action.install-fallback-confirm": { en: "Confirm install {version}", zh: "\u786E\u8BA4\u88C5 {version}", draft: true },
+  "panel.action.install-fallback-confirm-title": { en: "Install this exact version now", zh: "\u70B9\u4E0B\u53BB\u5373\u5B89\u88C5\u8BE5\u7CBE\u786E\u7248\u672C", draft: true },
+  "panel.action.wait-latest": { en: "Wait for latest", zh: "\u7B49\u65B0\u7248", draft: true },
+  "panel.action.wait-latest-title": { en: "Dismiss this failure; install again once the latest clears the age gate", zh: "\u6536\u8D77\u8FD9\u6B21\u5931\u8D25\uFF1B\u6700\u65B0\u7248\u6EE1\u95E8\u9650\u540E\u53EF\u518D\u88C5", draft: true },
   "panel.action.copy-diag": { en: "Copy diagnostics", zh: "\u590D\u5236\u8BCA\u65AD", draft: true },
   "panel.action.copy-diag-title": { en: "Copy redacted diagnostics for the plugin author", zh: "\u590D\u5236\u5DF2\u8131\u654F\u8BCA\u65AD\uFF0C\u8BF7\u63D0\u4EA4\u81F3\u63D2\u4EF6\u4F5C\u8005", draft: true },
   "panel.skip.line-tag": { en: "Skipped {version}", zh: "\u5DF2\u8DF3\u8FC7\u7248\u672C {version}", draft: true },
@@ -1336,7 +1513,7 @@ const BILINGUAL_STRINGS = {
   "panel.diag.copy.field.method": { en: "Method={method}", zh: "\u65B9\u6CD5={method}", draft: true },
   "panel.diag.copy.field.latency": { en: "Latency={latency}", zh: "\u8017\u65F6={latency}", draft: true },
   "panel.diag.copy.field.registry": { en: "Source={host}", zh: "\u6E90={host}", draft: true },
-  "panel.diag.copy.field.registry-unknown": { en: "Source=Unknown (Omitted for non-official sources, which is itself information)", zh: "\u6E90=\u672A\u77E5\uFF08\u975E\u5B98\u65B9\u6E90\u65F6\u7701\u7565\u672C\u8EAB\u5373\u4FE1\u606F\uFF09", draft: true },
+  "panel.diag.copy.field.registry-unknown": { en: "Source=Undeclared", zh: "\u6E90=\u672A\u58F0\u660E", draft: true },
   "panel.diag.copy.field.action": { en: "Suggestion={action}", zh: "\u5EFA\u8BAE={action}", draft: true },
   "panel.diag.copy.field.request": { en: "Request={request}", zh: "\u8BF7\u6C42={request}", draft: true },
   "panel.diag.copy.field.check": { en: "Check={check}", zh: "\u68C0\u67E5={check}", draft: true },
@@ -1467,6 +1644,11 @@ const BILINGUAL_STRINGS = {
   "diag.fallback.incompatible-node": { en: "New version needs a different Node version than the running one", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
   "diag.fallback.registry-conflict": { en: "Declared version conflicts with the on-disk version", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
   "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
+  "diag.fallback.dev-source": { en: "Dev-mode source link; update center unavailable", zh: "\u5F00\u53D1\u6001\u6E90\u7801\u94FE\u63A5\uFF0C\u66F4\u65B0\u4E2D\u5FC3\u4E0D\u53EF\u7528", draft: true },
+  "diag.cause.age.target.timed": { en: "Your plugin {package} was published too recently and was blocked by the host supply-chain age policy (installer words in the summary). Retry after {time}; for urgent use ask the host to relax the policy.", zh: "\u672C\u63D2\u4EF6 {package} \u53D1\u5E03\u672A\u6EE1\u5BBF\u4E3B\u5E74\u9F84\u95E8\u9650\uFF0C\u88AB\u4F9B\u5E94\u94FE\u7B56\u7565\u62E6\u622A\uFF08\u5B89\u88C5\u5668\u539F\u8BDD\u89C1\u6458\u8981\uFF09\u3002{time}\u540E\u70B9\u91CD\u8BD5\u5373\u53EF\uFF1B\u6025\u7528\u8BF7\u627E\u5BBF\u4E3B\u653E\u5BBD\u7B56\u7565\u3002", draft: true },
+  "diag.cause.age.target.untimed": { en: "Your plugin {package} was blocked by the host supply-chain age policy because it is too new (see the summary). Retry later; for urgent use ask the host to relax the policy.", zh: "\u672C\u63D2\u4EF6 {package} \u56E0\u592A\u65B0\u88AB\u5BBF\u4E3B\u4F9B\u5E94\u94FE\u5E74\u9F84\u7B56\u7565\u62E6\u622A\uFF08\u89C1\u6458\u8981\uFF09\u3002\u8BF7\u7A0D\u540E\u91CD\u8BD5\uFF1B\u6025\u7528\u8BF7\u627E\u5BBF\u4E3B\u653E\u5BBD\u7B56\u7565\u3002", draft: true },
+  "diag.cause.age.other.timed": { en: "The installer reports: another package in the same environment, {package}, was rejected by a supply-chain age policy \u2014 not a problem with this plugin itself (see the summary). Retry after {time}; or ask the host to relax the policy.", zh: "\u5B89\u88C5\u5668\u62A5\u544A\uFF1A\u540C\u73AF\u5883\u53E6\u4E00\u5305 {package} \u56E0\u4F9B\u5E94\u94FE\u5E74\u9F84\u7B56\u7565\u88AB\u62D2\uFF0C\u4E0D\u662F\u672C\u63D2\u4EF6\u7684\u76F4\u63A5\u95EE\u9898\uFF08\u89C1\u6458\u8981\uFF09\u3002{time}\u540E\u91CD\u8BD5\uFF1B\u6216\u627E\u5BBF\u4E3B\u653E\u5BBD\u7B56\u7565\u3002", draft: true },
+  "diag.cause.age.other.untimed": { en: "The installer reports: another package in the same environment, {package}, was rejected by a supply-chain age policy \u2014 not a problem with this plugin itself (see the summary). Retry later, or ask the host to relax the policy.", zh: "\u5B89\u88C5\u5668\u62A5\u544A\uFF1A\u540C\u73AF\u5883\u53E6\u4E00\u5305 {package} \u56E0\u4F9B\u5E94\u94FE\u5E74\u9F84\u7B56\u7565\u88AB\u62D2\uFF0C\u4E0D\u662F\u672C\u63D2\u4EF6\u7684\u76F4\u63A5\u95EE\u9898\uFF08\u89C1\u6458\u8981\uFF09\u3002\u8BF7\u7A0D\u540E\u91CD\u8BD5\uFF0C\u6216\u627E\u5BBF\u4E3B\u653E\u5BBD\u7B56\u7565\u3002", draft: true },
   "install-button.action.installed": { en: "Installed", zh: "\u5DF2\u5B89\u88C5", draft: true }
 };
 function escapeHtml(value) {
@@ -2991,7 +3173,8 @@ const BLOCKED_REASONS = [
   "pending-restart",
   "registry-conflict",
   "incompatible-node",
-  "recovery-required"
+  "recovery-required",
+  "dev-source"
 ];
 const PHONE_FAILURE_CODES = [
   "check-failed",
@@ -3316,6 +3499,161 @@ __mods["upd-log-client-queue"] = { CLIENT_LOG_BATCH_SIZE, CLIENT_LOG_EVENTS, CLI
 
 })();
 (function () {
+// AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/install-cause.ts
+const CAUSE_KINDS = ["minimum-release-age"];
+const CAUSE_SIGNATURES = [
+  {
+    kind: "minimum-release-age",
+    codes: ["install-failed"],
+    stages: ["exec"],
+    token: "[ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION]",
+    pattern: (
+      // 锚词故意放宽（published/cutoff 只认词不认整句）：安装器措辞版本间会变，
+      // 身份由 token 承担；时间只认 ISO 形，Date.parse 再验；双界 120 字符防跨段乱抠。
+      /(?<spec>@?[a-z0-9][a-z0-9._/-]*@[0-9][A-Za-z0-9._-]*)[\s\S]*?published[\s\S]{0,120}?(?<published>[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?Z?)[\s\S]*?cutoff[\s\S]{0,120}?(?<cutoff>[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\.[0-9]+)?Z?)/
+    )
+  }
+];
+function toMs(value) {
+  try {
+    if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
+    if (typeof value === "string" && value.trim()) {
+      const ms = Date.parse(value.trim());
+      if (Number.isFinite(ms) && ms > 0) return ms;
+    }
+  } catch {
+  }
+  return null;
+}
+function causePackageNameOf(spec) {
+  try {
+    const s = String(spec ?? "").trim();
+    if (!s) return "";
+    const at = s.lastIndexOf("@");
+    if (at > 0) return s.slice(0, at);
+    return s;
+  } catch {
+    return "";
+  }
+}
+function blameCausePackage(spec, targetPackageName) {
+  try {
+    const name = causePackageNameOf(spec);
+    const target = String(targetPackageName ?? "").trim();
+    if (!name || !target) return "unknown";
+    if (name === target) return "target";
+    if (name.toLowerCase() === target.toLowerCase()) return "target";
+    return "other-package";
+  } catch {
+    return "unknown";
+  }
+}
+function formatUnlockAt(ms, lang) {
+  try {
+    if (typeof ms !== "number" || !Number.isFinite(ms) || ms <= 0) return null;
+    const tag = String(lang ?? "").trim().toLowerCase();
+    const locale = tag.startsWith("en") ? "en-US" : "zh-CN";
+    const text = new Intl.DateTimeFormat(locale, {
+      month: locale === "en-US" ? "short" : "numeric",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: locale === "en-US"
+    }).format(ms);
+    return text && text.trim() ? text.trim() : null;
+  } catch {
+    return null;
+  }
+}
+const WINDOW_PATTERN = /less than (?<windowMinutes>[0-9]{1,7}) minutes? ago/;
+const WINDOW_MINUTES_MAX = 525600 * 10;
+function parseWindowMinutes(detail) {
+  try {
+    const matched = WINDOW_PATTERN.exec(detail);
+    if (!matched?.groups) return null;
+    const n = Number(matched.groups["windowMinutes"]);
+    if (!Number.isInteger(n) || n <= 0 || n > WINDOW_MINUTES_MAX) return null;
+    return n;
+  } catch {
+    return null;
+  }
+}
+function interpretInstallCause(input) {
+  try {
+    const errorCode = String(input?.errorCode ?? "");
+    const detail = input?.detail;
+    if (!errorCode || typeof detail !== "string" || !detail.trim()) return null;
+    const nowMs = toMs(input?.nowMs) ?? Date.now();
+    for (const sig of CAUSE_SIGNATURES) {
+      const codes = sig.codes;
+      const stages = sig.stages;
+      if (!codes.includes(errorCode)) continue;
+      if (stages.length > 0 && typeof input?.stage === "string" && input.stage) {
+        if (!stages.includes(input.stage)) continue;
+      }
+      if (!detail.includes(sig.token)) continue;
+      const matched = sig.pattern.exec(detail);
+      if (!matched || !matched.groups) continue;
+      const spec = String(matched.groups["spec"] ?? "").trim();
+      if (!spec) continue;
+      const publishedAtMs = matched.groups["published"] ? toMs(matched.groups["published"]) : null;
+      const cutoffMs = matched.groups["cutoff"] ? toMs(matched.groups["cutoff"]) : null;
+      const windowMinutes = parseWindowMinutes(detail);
+      let unlockAtMs;
+      if (publishedAtMs !== null && windowMinutes !== null) {
+        const unlock = publishedAtMs + windowMinutes * 6e4;
+        if (unlock > nowMs) unlockAtMs = unlock;
+      } else if (publishedAtMs !== null && cutoffMs !== null) {
+        const windowMs = nowMs - cutoffMs;
+        const unlock = publishedAtMs + windowMs;
+        if (windowMs > 0 && unlock > nowMs) unlockAtMs = unlock;
+      }
+      const at = spec.lastIndexOf("@");
+      return {
+        kind: sig.kind,
+        spec,
+        packageName: causePackageNameOf(spec),
+        packageVersion: at > 0 ? spec.slice(at + 1) || null : null,
+        publishedAtMs,
+        cutoffMs,
+        windowMinutes,
+        ...unlockAtMs !== void 0 ? { unlockAtMs } : {},
+        blame: blameCausePackage(spec, input?.targetPackageName)
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+function createCauseInterpreter() {
+  const recognized = {};
+  let unrecognized = 0;
+  return {
+    interpret(input) {
+      try {
+        const out = interpretInstallCause(input);
+        if (out) recognized[out.kind] = (recognized[out.kind] ?? 0) + 1;
+        else unrecognized += 1;
+        return out;
+      } catch {
+        unrecognized += 1;
+        return null;
+      }
+    },
+    counts() {
+      return { recognized: { ...recognized }, unrecognized };
+    }
+  };
+}
+const causeInterpreter = createCauseInterpreter();
+function causeInterpreterCounts() {
+  return causeInterpreter.counts();
+}
+__mods["upd-install-cause"] = { CAUSE_KINDS, blameCausePackage, causeInterpreter, causeInterpreterCounts, causePackageNameOf, createCauseInterpreter, formatUnlockAt, interpretInstallCause };
+
+})();
+(function () {
 // AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/panel.ts
 const { buildChangelogPhoneName, buildLogAppendPhoneName, buildPhoneNames, DEFAULT_PANEL_POLL_MS, MIN_PANEL_POLL_MS } = __mods["upd-config"];
 const { COPY_BUDGET_CHARS, sanitizeForCopy } = __mods["upd-redaction"];
@@ -3325,6 +3663,7 @@ const { LOG_EVENT_CALL, LOG_EVENT_CALL_FAIL, LOG_EVENT_INSTALL_EXEC } = __mods["
 const { createClientLogChannel } = __mods["upd-log-client-queue"];
 const { INTERNAL_CODE, isCheckSideFailureCode } = __mods["upd-codes"];
 const { copyText } = __mods["upd-bilingual"];
+const { blameCausePackage, CAUSE_KINDS, formatUnlockAt, interpretInstallCause } = __mods["upd-install-cause"];
 const { langSignalSource, normalizeLangTag, resolveLang, subscribeLang } = __mods["upd-lang"];
 function normalizePanelTheme(value) {
   return value === "archive" ? "archive" : "default";
@@ -3447,7 +3786,8 @@ const BLOCKED_KEYS = {
   "pending-restart": { title: "panel.blocked.pending-restart.title", action: "panel.blocked.pending-restart.action" },
   "registry-conflict": { title: "panel.blocked.registry-conflict.title", action: "panel.blocked.registry-conflict.action" },
   "incompatible-node": { title: "panel.blocked.incompatible-node.title", action: "panel.blocked.incompatible-node.action" },
-  "recovery-required": { title: "panel.blocked.recovery-required.title", action: "panel.blocked.recovery-required.action" }
+  "recovery-required": { title: "panel.blocked.recovery-required.title", action: "panel.blocked.recovery-required.action" },
+  "dev-source": { title: "panel.blocked.dev-source.title", action: "panel.blocked.dev-source.action" }
 };
 function blockedCopy(reason, lang) {
   if (reason === null || reason === void 0) return null;
@@ -3559,7 +3899,10 @@ const DIAG_KNOWN_TYPES = {
   requestId: "string",
   checkId: "string",
   registryHost: "string",
-  action: "string"
+  action: "string",
+  causeKind: "string",
+  causePackage: "string",
+  causeUnlockAt: "number"
 };
 function readDiagTolerant(diag) {
   const empty = {
@@ -3578,6 +3921,9 @@ function readDiagTolerant(diag) {
     checkId: null,
     registryHost: null,
     action: null,
+    causeKind: null,
+    causePackage: null,
+    causeUnlockAt: null,
     unknownKeys: []
   };
   if (!diag || typeof diag !== "object" || Array.isArray(diag)) return empty;
@@ -3607,6 +3953,23 @@ function queueTextOf(queuePosition, lang, _diagQueuePos) {
   if (typeof pos === "number") return copyText("panel.diag.queue.position", l, { n: pos });
   return copyText("panel.diag.queue.absent", l);
 }
+function causeRemedyText(cause, lang) {
+  try {
+    const l = normalizeLangTag(lang ?? "zh");
+    const kind = String(cause?.kind ?? "").trim();
+    if (!kind || !CAUSE_KINDS.includes(kind)) return null;
+    const spec = String(cause?.package ?? "").trim();
+    if (!spec) return null;
+    const blame = blameCausePackage(spec, cause?.target);
+    if (blame === "unknown") return null;
+    const timeRaw = typeof cause?.unlockAtMs === "number" ? formatUnlockAt(cause.unlockAtMs, l) : null;
+    const timed = !!timeRaw;
+    const key = blame === "target" ? timed ? "diag.cause.age.target.timed" : "diag.cause.age.target.untimed" : timed ? "diag.cause.age.other.timed" : "diag.cause.age.other.untimed";
+    return copyText(key, l, { package: spec, time: timeRaw ?? "" });
+  } catch {
+    return null;
+  }
+}
 function buildUpdateDiagCopy(input, langOverride) {
   const l = normalizeLangTag(langOverride ?? input.lang ?? "zh");
   const unknown = copyText("panel.diag.copy.unknown", l);
@@ -3614,6 +3977,10 @@ function buildUpdateDiagCopy(input, langOverride) {
   const rawCode = String(input.code ?? "").trim() || "internal";
   const copy = failureCopy(rawCode, l) ?? failureCopy("unknown", l);
   const diag = readDiagTolerant(input.diag);
+  const remedy = causeRemedyText(
+    { kind: diag.causeKind, package: diag.causePackage, unlockAtMs: diag.causeUnlockAt, target: diag.targetPackageName },
+    l
+  ) ?? copy.act;
   const detailRaw = diag.detail ?? input.detail ?? "";
   const detail = redactForCopy(detailRaw) || copyText("panel.diag.copy.no-detail", l);
   const pluginName = pickText(diag.targetPackageName ?? input.pluginId, unknownPkg);
@@ -3644,14 +4011,14 @@ function buildUpdateDiagCopy(input, langOverride) {
   const format = input.format === "line" ? "line" : "block";
   const provLine = redactForCopy(prov.join(" \xB7 "));
   if (format === "line") {
-    const line = `[update-diag] code=${rawCode} \xB7 ${copy.zh} \xB7 ${copyText("panel.diag.copy.line.summary", l, { summary: detail })} \xB7 ${provLine} \xB7 ${copyText("panel.diag.copy.line.remedy", l, { remedy: copy.act })}`;
+    const line = `[update-diag] code=${rawCode} \xB7 ${copy.zh} \xB7 ${copyText("panel.diag.copy.line.summary", l, { summary: detail })} \xB7 ${provLine} \xB7 ${copyText("panel.diag.copy.line.remedy", l, { remedy })}`;
     return redactForCopy(line);
   }
   const block = [
     `[update-diag] ${rawCode} \u2014 ${copy.zh}`,
     `  ${copyText("panel.diag.copy.block.summary", l, { summary: detail })}`,
     `  ${copyText("panel.diag.copy.block.source", l, { source: provLine })}`,
-    `  ${copyText("panel.diag.copy.block.remedy", l, { remedy: copy.act })}`
+    `  ${copyText("panel.diag.copy.block.remedy", l, { remedy })}`
   ].join("\n");
   return block;
 }
@@ -3856,7 +4223,9 @@ function panelViewModelCore(input, lang) {
   } catch {
     staleFailure = false;
   }
-  if (!staleFailure && (failedCode || jobState === "failed" || jobState === "interrupted")) {
+  const noFreshFailure = !(typeof errorKind === "string" && errorKind.trim()) && !lastError;
+  const gated = noFreshFailure ? checkPrejudgeOfView(input.checkPrejudge, snapshot) : null;
+  if (!staleFailure && !gated && (failedCode || jobState === "failed" || jobState === "interrupted")) {
     const code = failedCode || "install-failed";
     const copy = failureCopy(code, l);
     const checkDetail = copy?.zh ?? code;
@@ -3912,6 +4281,22 @@ function panelViewModelCore(input, lang) {
   }
   if (snapshot.canInstall && snapshot.latestVersion) {
     const running = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.runningVersion;
+    if (gated) {
+      const unlock = formatUnlockAt(gated.unlockAtMs, l) ?? "";
+      return {
+        banner: {
+          kind: "update",
+          title: copyText("panel.banner.update-gated-title", l, { latest: snapshot.latestVersion, unlock }),
+          action: copyText("panel.banner.update-action", l)
+        },
+        installEnabled: false,
+        installLabel: copyText("panel.action.install-version", l, { latest: snapshot.latestVersion }),
+        skippedLatest: false,
+        showManual: manual ? true : false,
+        showReset: false,
+        queueNote
+      };
+    }
     return {
       banner: {
         kind: "update",
@@ -4322,6 +4707,70 @@ function chapterTitle(index, lang) {
   const l = normalizeLangTag(lang ?? "zh");
   return copyText(CHAPTER_KEYS[index - 1], l);
 }
+function checkPrejudgeOfView(pre, snapshot) {
+  try {
+    if (!pre || !snapshot?.canInstall) return null;
+    const latest = typeof snapshot.latestVersion === "string" ? snapshot.latestVersion.trim() : "";
+    const target = typeof pre.targetVersion === "string" ? pre.targetVersion.trim() : "";
+    if (!latest || !target || latest !== target) return null;
+    if (typeof pre.unlockAtMs !== "number" || !Number.isFinite(pre.unlockAtMs)) return null;
+    if (typeof pre.nowMs !== "number" || !Number.isFinite(pre.nowMs) || pre.nowMs >= pre.unlockAtMs) return null;
+    return { targetVersion: target, unlockAtMs: pre.unlockAtMs };
+  } catch {
+    return null;
+  }
+}
+function fallbackBlockedVersionOf(failure, pluginId) {
+  try {
+    return vetFailureRef(failure, pluginId);
+  } catch {
+    return null;
+  }
+}
+function vetFailureRef(failure, pluginId) {
+  const kind = typeof failure?.causeKind === "string" ? failure.causeKind.trim() : "";
+  if (!kind || !CAUSE_KINDS.includes(kind)) return null;
+  const spec = typeof failure?.causePackage === "string" ? failure.causePackage.trim() : "";
+  if (!spec) return null;
+  const target = typeof failure?.causeTarget === "string" && failure.causeTarget.trim() ? failure.causeTarget.trim() : typeof pluginId === "string" && pluginId.trim() ? pluginId.trim() : "";
+  if (!target) return null;
+  if (blameCausePackage(spec, target) !== "target") return null;
+  const direct = typeof failure?.targetVersion === "string" ? failure.targetVersion.trim() : "";
+  if (direct) return direct;
+  const at = spec.lastIndexOf("@");
+  const ver = at > 0 ? spec.slice(at + 1).trim() : "";
+  return ver || null;
+}
+function fallbackCauseFromDetail(detail, errorCode, pluginId) {
+  try {
+    const facts = interpretInstallCause({
+      errorCode: typeof errorCode === "string" && errorCode ? errorCode : "install-failed",
+      detail,
+      targetPackageName: typeof pluginId === "string" ? pluginId : void 0
+    });
+    if (!facts || facts.kind !== "minimum-release-age" || facts.blame !== "target") return null;
+    const targetVersion = typeof facts.packageVersion === "string" && facts.packageVersion.trim() ? facts.packageVersion.trim() : null;
+    if (!targetVersion) return null;
+    let windowMs = null;
+    let windowSource = "unknown";
+    if (typeof facts.windowMinutes === "number" && Number.isFinite(facts.windowMinutes) && facts.windowMinutes > 0) {
+      windowMs = facts.windowMinutes * 6e4;
+      windowSource = "message";
+    } else if (typeof facts.cutoffMs === "number" && typeof facts.publishedAtMs === "number" && facts.cutoffMs > facts.publishedAtMs) {
+      windowMs = facts.cutoffMs - facts.publishedAtMs;
+    }
+    return {
+      kind: facts.kind,
+      packageName: facts.packageName,
+      targetVersion,
+      windowMs,
+      windowSource,
+      publishedAtMs: typeof facts.publishedAtMs === "number" ? facts.publishedAtMs : null
+    };
+  } catch {
+    return null;
+  }
+}
 function formatLatchTime(atMs, lang) {
   if (typeof atMs !== "number" || !Number.isFinite(atMs) || atMs <= 0) return null;
   const raw = typeof lang === "string" ? lang.trim().replace(/_/g, "-") : "";
@@ -4395,15 +4844,27 @@ function renderUpdatePanelKernel(input, view, lang) {
     const busyAct = input.busyAct;
     const checkBusy = busyAct === "check";
     const installBusy = busyAct === "install";
+    const fallbackBusy = busyAct === "fallback";
     const jobState = snapshot?.job?.state;
     const snapshotBusy = jobState === "installing" || jobState === "verifying";
-    const macroBusy = busyAct === "check" || busyAct === "install" || snapshotBusy;
+    const macroBusy = busyAct === "check" || busyAct === "install" || fallbackBusy || snapshotBusy;
+    const gatePrejudge = b.kind === "update" ? checkPrejudgeOfView(
+      input.checkPrejudge ?? null,
+      snapshot
+    ) : null;
+    const gateOfferRaw = input.fallbackOffer ?? null;
+    const gateCandidate = gatePrejudge && typeof gateOfferRaw?.candidate === "string" && gateOfferRaw.candidate.trim() && typeof gateOfferRaw?.targetVersion === "string" && gateOfferRaw.targetVersion.trim() === gatePrejudge.targetVersion ? gateOfferRaw.candidate.trim() : null;
     actions.push('<div class="dsh-upd-actions">');
     actions.push(
-      (checkBusy ? `<button type="button" data-action="check" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.checking-busy-title", l))}">${escapeHtml(copyText("panel.action.checking-busy", l))}</button>` : `<button type="button" data-action="check" title="${escapeHtml(copyText("panel.action.check-title", l))}"${macroBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.check", l))}</button>`) + (installBusy ? `<button type="button" data-action="install" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.installing-busy-title", l))}">${escapeHtml(copyText("panel.action.installing-busy", l))}</button>` : `<button type="button" data-action="install" data-primary="1" title="${escapeHtml(copyText("panel.action.install-title", l))}"${macroBusy || !view.installEnabled ? " disabled" : ""}>${escapeHtml(view.installLabel)}</button>`)
+      (checkBusy ? `<button type="button" data-action="check" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.checking-busy-title", l))}">${escapeHtml(copyText("panel.action.checking-busy", l))}</button>` : `<button type="button" data-action="check" title="${escapeHtml(copyText("panel.action.check-title", l))}"${macroBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.check", l))}</button>`) + (installBusy ? `<button type="button" data-action="install" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.installing-busy-title", l))}">${escapeHtml(copyText("panel.action.installing-busy", l))}</button>` : `<button type="button" data-action="install" data-primary="1" title="${escapeHtml(gatePrejudge ? copyText("panel.action.install-gated-title", l, { latest: snapshot?.latestVersion ?? "", unlock: formatUnlockAt(gatePrejudge.unlockAtMs, l) ?? "" }) : copyText("panel.action.install-title", l))}"${macroBusy || !view.installEnabled ? " disabled" : ""}>${escapeHtml(view.installLabel)}</button>`)
     );
     if (snapshot?.latestVersion && !view.skippedLatest && view.banner.kind === "update") {
       actions.push(`<button type="button" data-action="skip" title="${escapeHtml(copyText("panel.action.skip-title", l))}">${escapeHtml(copyText("panel.action.skip", l))}</button>`);
+    }
+    if (gatePrejudge) {
+      actions.push(
+        gateCandidate ? `<button type="button" data-action="install-fallback-confirm" data-primary="1" title="${escapeHtml(copyText("panel.action.install-fallback-confirm-title", l))}"${macroBusy || fallbackBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.install-fallback-confirm", l, { version: gateCandidate }))}</button>` : fallbackBusy ? `<button type="button" data-action="install-fallback" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.install-fallback-title", l))}">${escapeHtml(copyText("panel.action.install-fallback", l))}</button>` : `<button type="button" data-action="install-fallback" data-primary="1" title="${escapeHtml(copyText("panel.action.install-fallback-title", l))}"${macroBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.install-fallback", l))}</button>`
+      );
     }
     if (view.showReset && snapshot?.latestVersion) {
       actions.push(`<button type="button" data-action="reset-skip" title="${escapeHtml(copyText("panel.action.unskip-title", l))}">${escapeHtml(copyText("panel.action.unskip", l, { version: snapshot.latestVersion }))}</button>`);
@@ -4414,10 +4875,20 @@ function renderUpdatePanelKernel(input, view, lang) {
     if (b.kind === "restart") {
       actions.push(`<button type="button" data-action="restart-hint" title="${escapeHtml(copyText("panel.action.restart-host-title", l))}">${escapeHtml(copyText("panel.action.restart-host", l))}</button>`);
     }
-    if (b.kind === "failed") {
+    const failureForFallback = input.failure ?? null;
+    const fallbackBlocked = b.kind === "failed" ? fallbackBlockedVersionOf(failureForFallback, pluginId) : null;
+    const fallbackOfferRaw = input.fallbackOffer ?? null;
+    const fallbackCandidate = fallbackBlocked && typeof fallbackOfferRaw?.candidate === "string" && fallbackOfferRaw.candidate.trim() ? fallbackOfferRaw.candidate.trim() : null;
+    if (fallbackBlocked) {
+      actions.push(
+        fallbackCandidate ? `<button type="button" data-action="install-fallback-confirm" data-primary="1" title="${escapeHtml(copyText("panel.action.install-fallback-confirm-title", l))}"${macroBusy || fallbackBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.install-fallback-confirm", l, { version: fallbackCandidate }))}</button>` : fallbackBusy ? `<button type="button" data-action="install-fallback" data-primary="1" disabled aria-busy="true" title="${escapeHtml(copyText("panel.action.install-fallback-title", l))}">${escapeHtml(copyText("panel.action.install-fallback", l))}</button>` : `<button type="button" data-action="install-fallback" data-primary="1" title="${escapeHtml(copyText("panel.action.install-fallback-title", l))}"${macroBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.install-fallback", l))}</button>`
+      );
+      actions.push(`<button type="button" data-action="wait-latest" title="${escapeHtml(copyText("panel.action.wait-latest-title", l))}"${macroBusy || fallbackBusy ? " disabled" : ""}>${escapeHtml(copyText("panel.action.wait-latest", l))}</button>`);
+    } else if (b.kind === "failed") {
       actions.push(`<button type="button" data-action="dismiss-failure" title="${escapeHtml(copyText("panel.action.dismiss-title", l))}">${escapeHtml(copyText("panel.action.dismiss", l))}</button>`);
     }
-    if (snapshot) {
+    const failureRef = input.failure;
+    if (snapshot || b.kind === "failed" || !!failureRef) {
       actions.push(`<button type="button" data-action="copy-diag" title="${escapeHtml(copyText("panel.action.copy-diag-title", l))}">${escapeHtml(copyText("panel.action.copy-diag", l))}</button>`);
     }
     actions.push("</div>");
@@ -4686,7 +5157,7 @@ async function defaultCopyText(text) {
   }
 }
 function pendingAutoCheck(snapshot, busyAct) {
-  if (busyAct === "check" || busyAct === "install") return false;
+  if (busyAct === "check" || busyAct === "install" || busyAct === "fallback") return false;
   if (!snapshot) return false;
   const st = snapshot?.job?.state;
   if (st === "installing" || st === "verifying") return false;
@@ -4835,6 +5306,7 @@ function mountUpdatePanel(container, options) {
   let requestId = null;
   const latchKey = `${pluginId}${profileNameOption ?? ""}`;
   let latch = null;
+  let remembered = null;
   try {
     latch = PANEL_FAILURE_LATCHES.get(latchKey) ?? null;
     if (latch?.volatile) latch = null;
@@ -4863,11 +5335,30 @@ function mountUpdatePanel(container, options) {
   }
   function setLatch(next) {
     latch = next;
+    fallbackOffer = null;
+    adoptRemembered(fallbackCauseOf());
     saveLatch();
   }
+  function adoptRemembered(cause) {
+    try {
+      if (cause && cause.kind === "minimum-release-age" && cause.targetVersion && typeof cause.windowMs === "number" && Number.isFinite(cause.windowMs) && cause.windowMs > 0) {
+        remembered = {
+          targetVersion: cause.targetVersion,
+          windowMs: cause.windowMs,
+          windowSource: cause.windowSource,
+          publishedAtMs: cause.publishedAtMs
+        };
+      }
+    } catch {
+    }
+  }
   function clearLatch() {
-    if (!latch) return;
+    if (!latch) {
+      fallbackOffer = null;
+      return;
+    }
     latch = null;
+    fallbackOffer = null;
     saveLatch();
   }
   function currentEnvPair() {
@@ -4878,6 +5369,65 @@ function mountUpdatePanel(container, options) {
       const job = value?.job;
       const tv = job?.targetVersion;
       return typeof tv === "string" && tv.trim() ? tv.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+  function fallbackCauseOf() {
+    try {
+      if (!latch || latch.source !== "install") return null;
+      const diag = readDiagTolerant(latch.diag);
+      const dKind = typeof diag.causeKind === "string" ? diag.causeKind.trim() : "";
+      const dSpec = typeof diag.causePackage === "string" ? diag.causePackage.trim() : "";
+      const dTarget = typeof diag.targetPackageName === "string" && diag.targetPackageName.trim() ? diag.targetPackageName.trim() : null;
+      if (dKind && CAUSE_KINDS.includes(dKind) && dSpec && dTarget && blameCausePackage(dSpec, dTarget) === "target") {
+        const timed = fallbackCauseFromDetail(latch.detail, latch.code, dTarget);
+        return {
+          kind: dKind,
+          spec: dSpec,
+          target: dTarget,
+          targetVersion: latch.targetVersion ?? timed?.targetVersion ?? specVersionOf(dSpec),
+          windowMs: timed?.windowMs ?? null,
+          windowSource: timed?.windowSource ?? "unknown",
+          publishedAtMs: timed?.publishedAtMs ?? null
+        };
+      }
+      const cause = fallbackCauseFromDetail(latch.detail, latch.code, pluginId);
+      if (!cause) return null;
+      return {
+        kind: cause.kind,
+        spec: `${cause.packageName}@${cause.targetVersion}`,
+        target: typeof pluginId === "string" ? pluginId : "",
+        targetVersion: latch.targetVersion ?? cause.targetVersion,
+        windowMs: cause.windowMs,
+        windowSource: cause.windowSource,
+        publishedAtMs: cause.publishedAtMs
+      };
+    } catch {
+      return null;
+    }
+  }
+  function specVersionOf(spec) {
+    try {
+      const at = spec.lastIndexOf("@");
+      const ver = at > 0 ? spec.slice(at + 1).trim() : "";
+      return ver || "";
+    } catch {
+      return "";
+    }
+  }
+  function rememberedCause() {
+    try {
+      if (!remembered) return null;
+      const latest = typeof snapshot?.latestVersion === "string" ? snapshot.latestVersion.trim() : "";
+      if (!latest || latest !== remembered.targetVersion) return null;
+      return {
+        kind: "minimum-release-age",
+        targetVersion: remembered.targetVersion,
+        windowMs: remembered.windowMs,
+        windowSource: remembered.windowSource,
+        publishedAtMs: remembered.publishedAtMs
+      };
     } catch {
       return null;
     }
@@ -5018,6 +5568,7 @@ function mountUpdatePanel(container, options) {
   let copyNotice = null;
   let noticeExpiresAt = 0;
   let busyAct = null;
+  let fallbackOffer = null;
   let mounted = true;
   let envProfileName = null;
   let envHostKind = null;
@@ -5157,7 +5708,46 @@ function mountUpdatePanel(container, options) {
       skippedLatest,
       lastError: latch?.code ?? null,
       errorKind: latch?.kind ?? null,
-      failure: latch ? { requestId: latch.requestId, checkId: latch.checkId, atMs: latch.atMs, source: latch.source, volatile: latch.volatile, targetVersion: latch.targetVersion } : null,
+      failure: latch ? {
+        requestId: latch.requestId,
+        checkId: latch.checkId,
+        atMs: latch.atMs,
+        source: latch.source,
+        volatile: latch.volatile,
+        targetVersion: latch.targetVersion,
+        // 合规版门（#156）：安装失败才解析锁存证据；查失败/瞬态不解析（签名表只认安装码）。
+        ...(() => {
+          const cause = fallbackCauseOf();
+          return cause ? {
+            causeKind: cause.kind,
+            causePackage: cause.spec,
+            causeTarget: cause.target,
+            causeWindowMs: cause.windowMs,
+            causePublishedAtMs: cause.publishedAtMs
+          } : { causeKind: null, causePackage: null, causeTarget: null, causeWindowMs: null, causePublishedAtMs: null };
+        })()
+      } : null,
+      // 合规版二次确认（#156）：有决议凭证才下发，渲染只画按钮不认凭证（装时凭它）。
+      fallbackOffer: fallbackOffer ? { candidate: fallbackOffer.candidate, targetVersion: fallbackOffer.targetVersion } : null,
+      // 检查页预判（#156 场景二）：记住的窗口翻译成渲染输入——对版、有发布时间、
+      // 时钟正常才下发；渲染侧按同一纯门再验一遍，不信这里。
+      checkPrejudge: (() => {
+        try {
+          if (!remembered) adoptRemembered(fallbackCauseOf());
+          if (!remembered || !snapshot?.canInstall) return null;
+          const latest2 = typeof snapshot.latestVersion === "string" ? snapshot.latestVersion.trim() : "";
+          if (!latest2 || latest2 !== remembered.targetVersion) return null;
+          if (typeof remembered.publishedAtMs !== "number" || !Number.isFinite(remembered.publishedAtMs)) return null;
+          if (!Number.isFinite(remembered.windowMs) || remembered.windowMs <= 0) return null;
+          const unlockAtMs = remembered.publishedAtMs + remembered.windowMs;
+          if (!Number.isFinite(unlockAtMs)) return null;
+          const nowMs = latchNow();
+          if (nowMs == null) return null;
+          return { targetVersion: latest2, unlockAtMs, nowMs };
+        } catch {
+          return null;
+        }
+      })(),
       showLogHint: showLogHintOption,
       changelogMarkdown,
       mode,
@@ -5182,6 +5772,9 @@ function mountUpdatePanel(container, options) {
   function applyStatusReply(reply, via) {
     if (!isObject(reply)) return;
     if (reply["ok"] === true) {
+      if (via === "check") {
+        fallbackOffer = null;
+      }
       const s = asSnapshot(reply["snapshot"]);
       if (s) snapshot = s;
       manual = typeof reply["manual"] === "string" ? reply["manual"] : null;
@@ -5429,6 +6022,115 @@ function mountUpdatePanel(container, options) {
         }
         render();
         maybeAutoChangelog();
+        return;
+      }
+      case "install-fallback": {
+        if (busyAct) return;
+        const cause = fallbackCauseOf() ?? rememberedCause();
+        if (!cause) {
+          sayCopyKey("panel.toast.fallback-unavailable");
+          render();
+          return;
+        }
+        busyAct = "fallback";
+        render();
+        try {
+          let reply;
+          try {
+            reply = await call(phoneNames.updateCheckFallback, {
+              kind: cause.kind,
+              blame: "target",
+              targetVersion: cause.targetVersion,
+              ...typeof cause.windowMs === "number" ? { windowMs: cause.windowMs } : {},
+              windowSource: cause.windowSource,
+              ...typeof cause.publishedAtMs === "number" ? { publishedAtMs: cause.publishedAtMs } : {}
+            });
+          } catch {
+            reply = null;
+          }
+          if (!mounted) return;
+          const snap = isObject(reply) && isObject(reply["snapshot"]) ? reply["snapshot"] : null;
+          const verdict = snap && isObject(snap["verdict"]) ? snap["verdict"] : null;
+          const vKind = verdict && typeof verdict["kind"] === "string" ? verdict["kind"] : "";
+          const vVersion = verdict && typeof verdict["version"] === "string" ? verdict["version"].trim() : "";
+          const snapCandidate = snap && typeof snap["candidate"] === "string" ? snap["candidate"].trim() : "";
+          const rec = isObject(reply) && isObject(reply["receipt"]) ? reply["receipt"] : null;
+          const gotCheckId = rec && typeof rec["checkId"] === "string" ? rec["checkId"] : "";
+          const candidate = snapCandidate || (vKind === "ok-now" ? vVersion : "");
+          if ((vKind === "downgrade-available" || vKind === "ok-now") && candidate && gotCheckId) {
+            fallbackOffer = { candidate, checkId: gotCheckId, targetVersion: cause.targetVersion };
+          } else if (vKind === "wait-until") {
+            const unlockAt = verdict && typeof verdict["unlockAtMs"] === "number" ? verdict["unlockAtMs"] : null;
+            const time = typeof unlockAt === "number" ? formatUnlockAt(unlockAt, currentLang()) : null;
+            if (time) sayCopyKey("panel.toast.fallback-wait", { time });
+            else sayCopyKey("panel.toast.fallback-unavailable");
+          } else {
+            sayCopyKey("panel.toast.fallback-unavailable");
+          }
+        } finally {
+          busyAct = null;
+        }
+        render();
+        return;
+      }
+      case "install-fallback-confirm": {
+        if (busyAct || !fallbackOffer) return;
+        const offer = fallbackOffer;
+        busyAct = "install";
+        copyNotice = copyText("panel.toast.installing", currentLang());
+        render();
+        try {
+          requestId = randomRequestId();
+          let reply;
+          try {
+            reply = await call(phoneNames.updateInstall, {
+              checkId: offer.checkId,
+              requestId,
+              version: offer.candidate,
+              ...queueArgs()
+            });
+          } catch (err) {
+            if (!mounted) return;
+            fallbackOffer = null;
+            if (thrownIsCheckExpired(err)) {
+              sayCopyKey("panel.toast.fallback-unavailable");
+              render();
+              return;
+            }
+            setLatch(userThrowLatch("install", err));
+            render();
+            return;
+          }
+          if (!mounted) return;
+          fallbackOffer = null;
+          if (replyIsCheckExpired(reply)) {
+            sayCopyKey("panel.toast.fallback-unavailable");
+            render();
+            return;
+          }
+          applyStatusReply(reply, "install");
+        } catch (err) {
+          if (!mounted) return;
+          setLatch(userThrowLatch("install", err));
+        } finally {
+          busyAct = null;
+          try {
+            const zh = copyText("panel.toast.installing", "zh");
+            const en = copyText("panel.toast.installing", "en");
+            if (copyNotice === zh || copyNotice === en) copyNotice = null;
+          } catch {
+            copyNotice = null;
+          }
+        }
+        render();
+        maybeAutoChangelog();
+        return;
+      }
+      case "wait-latest": {
+        fallbackOffer = null;
+        clearLatch();
+        sayCopyKey("panel.toast.failure-dismissed");
+        render();
         return;
       }
       case "skip": {
@@ -5703,7 +6405,7 @@ const PANEL_POLL = {
 };
 const { QUEUE_INTENT_TTL_MS, emptyQueueState, normalizeQueueState, queuePositionOf, isHeadOfQueue, isQueueBusy, visibleQueueFor: visibleQueueFor2 } = __mods["upd-queue"];
 const { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate: changelogForUpdate2, hasVisibleSections, isUnreleasedVersion, parseChangelog, parseChangelogReport: parseChangelogReport2, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries, truncationNoteHTML: truncationNoteHTML2 } = __mods["upd-changelog"];
-__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, changelogForUpdate: changelogForUpdate2, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, formatLatchTime, hasVisibleSections, isCheckSideFailureCode, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, messageCodeOf, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog, parseChangelogReport: parseChangelogReport2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, replyIsCheckExpired, selectChangelogEntries, themeTokensStyleFor, thrownIsCheckExpired, truncationNoteHTML: truncationNoteHTML2, visibleQueueFor: visibleQueueFor2 };
+__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, causeRemedyText, changelogForUpdate: changelogForUpdate2, checkPrejudgeOfView, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, fallbackBlockedVersionOf, fallbackCauseFromDetail, formatLatchTime, hasVisibleSections, isCheckSideFailureCode, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, messageCodeOf, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog, parseChangelogReport: parseChangelogReport2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, replyIsCheckExpired, selectChangelogEntries, themeTokensStyleFor, thrownIsCheckExpired, truncationNoteHTML: truncationNoteHTML2, visibleQueueFor: visibleQueueFor2 };
 
 })();
 (function () {
@@ -17708,16 +18410,18 @@ __mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, UI_FX_CSS, injectUiFx }
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 const { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight } = __mods["custom-color"]
 
-// 双向定位的额外高亮映射（原型 EXTRA_HL 口径）
+// 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
+// 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
+// 别名改写为真实 data-slot：border 系所有被 border 描边的节点 + borderActive 内圈节点。
 const EXTRA_HL = {
-  border: ['mdHr'],
-  borderActive: ['inputBox'],
-  textMuted: ['miniSub'],
-  sidebarBg: ['sideBar'],
-  bubbleBg: ['bubble'],
-  inputBg: ['inputBox'],
-  background: ['dlgRight'],
-  backgroundPanel: ['quote'],
+  border: ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg'],
+  borderActive: ['inputBg'],
+}
+
+// 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
+function presetToSeed(p) {
+  const src = (p && p.colors) || {}
+  return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined }
 }
 
 // props: {
@@ -17897,9 +18601,10 @@ function CustomEditor(props) {
   }
 
   function loadPreset(p) {
-    setColors(Object.assign({}, p.colors))
-    setAppearance(p.appearance)
-    setBasePreset(p.name)
+    const seed = presetToSeed(p)
+    setColors(seed.colors)
+    setAppearance(seed.appearance)
+    setBasePreset(seed.basePreset)
     setShowPresets(false)
     setPresetQuery('')
   }
@@ -18183,15 +18888,24 @@ function CustomEditor(props) {
         node('primary', { fontSize: '9px', color: eff('primary'), background: 'transparent', border: 'none', padding: 0 }, tr('miniDraft')),
         node('secondary', { fontSize: '9px', color: eff('secondary') }, tr('miniReview')),
       ]),
-      // 主列
-      e('div', { style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 } },
+      // 主列（原型 .main 口径：prototype.html:835，data-slot + 底色绑定，与根同值视觉无差）
+      e('div', {
+        'data-slot': 'background',
+        onClick: function () { clickSlot('background') },
+        style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, background: eff('background') },
+      },
         node('bubbleBg', {
           alignSelf: 'flex-end', maxWidth: '90%', background: eff('bubbleBg'),
           border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '5px 8px',
           fontSize: '10px', color: eff('text'),
         }, tr('miniBubble')),
         node('markdownHeading', { fontSize: '11px', fontWeight: 700, color: eff('markdownHeading') }, tr('miniVerdict')),
-        e('div', { style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6 } },
+        // 结论段（原型 .md 口径：prototype.html:837，data-slot + 底色绑定）
+        e('div', {
+          'data-slot': 'backgroundPanel',
+          onClick: function () { clickSlot('backgroundPanel') },
+          style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6, background: eff('backgroundPanel') },
+        },
           ...segJoin([
             tr('miniPass1'),
             node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong')),
@@ -18259,10 +18973,11 @@ function CustomEditor(props) {
           node('warning', { color: eff('warning'), fontSize: '9px' }, tr('miniWarn')),
           node('error', { color: eff('error'), fontSize: '9px' }, tr('miniErr'))
         ),
-        // 输入框
+        // 输入框（原型 .cinput 口径：prototype.html:871，外框 border + 内圈 borderActive）
         node('inputBg', {
           display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
-          border: '1px solid ' + eff('borderActive'), borderRadius: '8px', padding: '5px 8px',
+          border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive'),
+          borderRadius: '8px', padding: '5px 8px',
           fontSize: '10px', color: eff('textMuted'),
         }, [e('span', { key: 'ph' }, tr('miniInputPh')), node('text', { color: eff('text') }, tr('miniInputHint'))], { key: 'inputBox', 'data-slot': 'inputBg' })
       ),
@@ -18403,9 +19118,13 @@ function CustomEditor(props) {
           miniLight ? e('div', { style: { fontSize: '11px', color: '#55555E', marginBottom: '6px' } }, tr('edLightNote')) : null,
           renderMini(),
           // 原型画布底部署名条：底色跟 backgroundElement、字色跟 text，可点定位（prototype.html:844）
-          node('backgroundElement', {
-            fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
-            borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block',
+          e('div', {
+            'data-slot': 'backgroundElement',
+            onClick: function () { clickSlot('backgroundElement') },
+            style: {
+              fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
+              borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block', cursor: 'pointer',
+            },
           }, tr('miniTip')))
       ),
       renderPop(),
@@ -18446,7 +19165,7 @@ function CustomEditor(props) {
   )
 }
 
-__mods["custom-editor"] = { CustomEditor }
+__mods["custom-editor"] = { presetToSeed, CustomEditor }
 })();
 (function () {
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
@@ -18840,7 +19559,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.18.1 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.18.6 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）

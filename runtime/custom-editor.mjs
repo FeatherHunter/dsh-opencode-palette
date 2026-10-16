@@ -3,16 +3,18 @@
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 import { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight } from './custom-color.mjs'
 
-// 双向定位的额外高亮映射（原型 EXTRA_HL 口径）
+// 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
+// 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
+// 别名改写为真实 data-slot：border 系所有被 border 描边的节点 + borderActive 内圈节点。
 const EXTRA_HL = {
-  border: ['mdHr'],
-  borderActive: ['inputBox'],
-  textMuted: ['miniSub'],
-  sidebarBg: ['sideBar'],
-  bubbleBg: ['bubble'],
-  inputBg: ['inputBox'],
-  background: ['dlgRight'],
-  backgroundPanel: ['quote'],
+  border: ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg'],
+  borderActive: ['inputBg'],
+}
+
+// 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
+export function presetToSeed(p) {
+  const src = (p && p.colors) || {}
+  return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined }
 }
 
 // props: {
@@ -192,9 +194,10 @@ export function CustomEditor(props) {
   }
 
   function loadPreset(p) {
-    setColors(Object.assign({}, p.colors))
-    setAppearance(p.appearance)
-    setBasePreset(p.name)
+    const seed = presetToSeed(p)
+    setColors(seed.colors)
+    setAppearance(seed.appearance)
+    setBasePreset(seed.basePreset)
     setShowPresets(false)
     setPresetQuery('')
   }
@@ -478,15 +481,24 @@ export function CustomEditor(props) {
         node('primary', { fontSize: '9px', color: eff('primary'), background: 'transparent', border: 'none', padding: 0 }, tr('miniDraft')),
         node('secondary', { fontSize: '9px', color: eff('secondary') }, tr('miniReview')),
       ]),
-      // 主列
-      e('div', { style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 } },
+      // 主列（原型 .main 口径：prototype.html:835，data-slot + 底色绑定，与根同值视觉无差）
+      e('div', {
+        'data-slot': 'background',
+        onClick: function () { clickSlot('background') },
+        style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, background: eff('background') },
+      },
         node('bubbleBg', {
           alignSelf: 'flex-end', maxWidth: '90%', background: eff('bubbleBg'),
           border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '5px 8px',
           fontSize: '10px', color: eff('text'),
         }, tr('miniBubble')),
         node('markdownHeading', { fontSize: '11px', fontWeight: 700, color: eff('markdownHeading') }, tr('miniVerdict')),
-        e('div', { style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6 } },
+        // 结论段（原型 .md 口径：prototype.html:837，data-slot + 底色绑定）
+        e('div', {
+          'data-slot': 'backgroundPanel',
+          onClick: function () { clickSlot('backgroundPanel') },
+          style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6, background: eff('backgroundPanel') },
+        },
           ...segJoin([
             tr('miniPass1'),
             node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong')),
@@ -554,10 +566,11 @@ export function CustomEditor(props) {
           node('warning', { color: eff('warning'), fontSize: '9px' }, tr('miniWarn')),
           node('error', { color: eff('error'), fontSize: '9px' }, tr('miniErr'))
         ),
-        // 输入框
+        // 输入框（原型 .cinput 口径：prototype.html:871，外框 border + 内圈 borderActive）
         node('inputBg', {
           display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
-          border: '1px solid ' + eff('borderActive'), borderRadius: '8px', padding: '5px 8px',
+          border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive'),
+          borderRadius: '8px', padding: '5px 8px',
           fontSize: '10px', color: eff('textMuted'),
         }, [e('span', { key: 'ph' }, tr('miniInputPh')), node('text', { color: eff('text') }, tr('miniInputHint'))], { key: 'inputBox', 'data-slot': 'inputBg' })
       ),
@@ -698,9 +711,13 @@ export function CustomEditor(props) {
           miniLight ? e('div', { style: { fontSize: '11px', color: '#55555E', marginBottom: '6px' } }, tr('edLightNote')) : null,
           renderMini(),
           // 原型画布底部署名条：底色跟 backgroundElement、字色跟 text，可点定位（prototype.html:844）
-          node('backgroundElement', {
-            fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
-            borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block',
+          e('div', {
+            'data-slot': 'backgroundElement',
+            onClick: function () { clickSlot('backgroundElement') },
+            style: {
+              fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
+              borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block', cursor: 'pointer',
+            },
           }, tr('miniTip')))
       ),
       renderPop(),
