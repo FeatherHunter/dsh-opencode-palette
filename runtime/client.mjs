@@ -1302,7 +1302,7 @@ export function createClient(slotTarget) {
           return h('button', {
             key: key,
             title: tr('customChipTitle'),
-            onClick: function () { props.setCustomTheme(t.id); setUi(props.getState()) },
+            onClick: function () { applyCustomChip(t) },
             [UI_INTERACTIVE_ATTR]: '',
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -1442,13 +1442,48 @@ export function createClient(slotTarget) {
             return buckets.filter(function (b) { return b.names.length > 0 })
           } catch (e) { return [] }
         }
+        // 外层 IP 种子胶囊：未存盘的 IP 预置直接列在自定义区，点按即存盘换上（applyCustomChip），
+        // 存过即变普通 customs（按 id 去重）。中文界面显示中文名，英文界面显示 ascii id（英文无中文残留门禁）。
+        const diskIdSet = function (list) {
+          const out = {}
+          for (const t of list || []) { if (t && t.id) out[t.id] = true }
+          return out
+        }
+        const ipSeedChips = function (list) {
+          const onDisk = diskIdSet(list)
+          const en = currentLang === 'en'
+          return safeIpPresets().filter(function (p) { return p && p.name && !onDisk[p.name] }).map(function (p) {
+            return {
+              id: p.name, name: en ? p.name : (p.title || p.name), title: p.title || p.name,
+              appearance: p.appearance, colors: p.colors, basePreset: p.name, ipSeed: true,
+            }
+          })
+        }
+        // 点胶囊：存盘主题直接换上；IP 种子先存盘再换上（存盘名用中文 canonical 名，与点击语言无关；
+        // basePreset 记种子自身 id；失败走 panel 级保存失败 toast，与编辑器同口径，不静默死点击）
+        const applyCustomChip = function (t) {
+          if (diskIdSet((customData && customData.themes) || [])[t.id] || !t.ipSeed) { props.setCustomTheme(t.id); setUi(props.getState()); return }
+          setSaveError(null)
+          Promise.resolve().then(function () {
+            return props.saveCustomTheme({ id: t.id, name: t.title || t.name, appearance: t.appearance, colors: t.colors, basePreset: t.basePreset || 'opencode' })
+          }).then(function (res) {
+            if (res && res.ok) {
+              try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
+              props.setCustomTheme(t.id)
+            } else {
+              setSaveError(tr('customSaveFail'))
+            }
+            setUi(props.getState())
+          }).catch(function () { setSaveError(tr('customSaveFail')); setUi(props.getState()) })
+        }
         const renderCustomSection = function () {
           const list = (customData && customData.themes) || []
-          const shownCustom = filterCustomThemes(list, query)
+          const allCustom = list.concat(ipSeedChips(list))
+          const shownCustom = filterCustomThemes(allCustom, query)
           return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
               dot('#FAB283', 8),
-              trf('customTitle', { n: list.length }),
+              trf('customTitle', { n: allCustom.length }),
               h('span', { style: { flex: 1 } }),
               h('button', {
                 title: (customData && customData.dirPath) || undefined,

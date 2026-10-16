@@ -250,7 +250,8 @@ const SEED_THEME = {
 
 test('自定义区渲染（中文）：标题计数 + 复制路径 + 新增/编辑常驻，弹窗默认关闭', () => {
   const { html } = loadCustomPanel()
-  assert.ok(html.includes('自定义主题 0'), '标题应为 自定义主题 0')
+  assert.ok(html.includes('自定义主题 20'), '标题计入 20 套 IP 种子')
+  assert.ok(html.includes('宝可梦'), 'IP 种子胶囊中文名')
   assert.ok(html.includes('复制配置路径'), '复制路径按钮')
   assert.ok(html.includes('+ 新增'), '+ 新增胶囊')
   assert.ok(html.includes('✎ 编辑'), '✎ 编辑胶囊')
@@ -261,12 +262,21 @@ test('自定义区渲染（中文）：标题计数 + 复制路径 + 新增/编�
 
 test('自定义区渲染（英文）：Custom themes + Copy config path，无中文残留', () => {
   const { html } = loadCustomPanel({ lang: 'en' })
-  assert.ok(html.includes('Custom themes 0'), '英文标题')
+  assert.ok(html.includes('Custom themes 20'), '英文标题计入 IP 种子')
+  assert.ok(html.includes('sailor-moon'), '英文界面 IP 种子显示 ascii id')
   assert.ok(html.includes('Copy config path'), '英文复制按钮')
   assert.ok(html.includes('New'), '英文新增')
   assert.ok(html.includes('Edit'), '英文编辑')
   assert.equal(html.includes('自定义'), false, '英文界面无中文残留')
   assert.equal(html.includes('复制配置路径'), false, '英文界面无中文残留')
+  assert.equal(html.includes('宝可梦'), false, '英文界面 IP 种子不用中文名')
+})
+
+test('IP 种子去重：存盘过的 id 不再重复列种子', () => {
+  const { html } = loadCustomPanel({
+    storage: seedStorage({ themes: [{ id: 'pokemon', name: '宝可梦', appearance: 'dark', colors: SEED_THEME.colors }], dirPath: '' }),
+  })
+  assert.ok(html.includes('自定义主题 20'), '存盘 1 + 剩下 19 种子，去重后仍是 20')
 })
 
 test('浅色停用宿主：自定义区无深色硬编码（门禁 5 模式）', () => {
@@ -284,7 +294,7 @@ test('种子 customs：胶囊渲染 + 命名空间隔离 + 38 主题计数不动
   const { html } = loadCustomPanel({
     storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
   })
-  assert.ok(html.includes('自定义主题 1'), '计数派生自真值')
+  assert.ok(html.includes('自定义主题 21'), '计数 = 存盘 1 + IP 种子 20')
   assert.ok(html.includes('极光测试'), '自定义胶囊渲染主题名')
   assert.equal(html.includes('custom:aurora-test'), false, '内部激活键不泄漏到展示层')
   assert.ok(html.includes('38 款 · 按色系分组'), '内置 9 组/38 主题门禁不动')
@@ -296,7 +306,7 @@ test('自定义区渲染顺序：位于特殊分组下方（分组本身由 grou
     storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
   })
   const special = html.indexOf('特殊')
-  const custom = html.indexOf('自定义主题 1')
+  const custom = html.indexOf('自定义主题 21')
   assert.ok(special >= 0 && custom >= 0, '特殊与自定义标题都应渲染')
   assert.ok(special < custom, '自定义区位于特殊分组下方')
 })

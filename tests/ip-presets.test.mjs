@@ -32,6 +32,7 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
   let light = 0
   for (const p of listIpPresets()) {
     assert.ok(p.name && typeof p.name === 'string', p.name + ' 有名')
+    assert.ok(p.title && typeof p.title === 'string', p.name + ' 有中文展示名')
     assert.ok(p.appearance === 'dark' || p.appearance === 'light', p.name + ' 外观合法')
     if (p.appearance === 'dark') dark++
     else light++
@@ -47,7 +48,9 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
 
 test('getIpPreset 按 id 取，miss 回 null', function () {
   assert.equal(getIpPreset('sailor-moon').appearance, 'light')
+  assert.equal(getIpPreset('sailor-moon').title, '美少女战士')
   assert.equal(getIpPreset('pokemon').appearance, 'dark')
+  assert.equal(getIpPreset('pokemon').title, '宝可梦')
   assert.equal(getIpPreset('nope'), null)
   assert.equal(getIpPreset('system'), null)
 })

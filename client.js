@@ -17738,9 +17738,10 @@ __mods["registry"] = { SYSTEM_THEME, listThemes, getThemeJson, isSystem, countSt
 })();
 (function () {
 // ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 20 套（v3 终审版）。
-// 双来源口径：内置 38（registry，不动）+ IP 20（只进自定义编辑器「选基底」，不进 themeNames/countStatic）。
+// 双来源口径：内置 38（registry，不动）+ IP 20（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
 // 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
-// 每套对外仅 { name: id, appearance, colors }（presetToSeed 同形；name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法）。
+// 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
+// name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
 const cyberpunk_2077 = {"appearance": "dark", "basePreset": "cyberpunk-2077", "colors": {"background": "#141017", "backgroundElement": "#2b2140", "backgroundPanel": "#1d1529", "border": "#3a2d52", "borderActive": "#fcee0a", "bubbleBg": "#261d38", "codeBlockBg": "#0a070d", "codeHeaderBg": "#2e2344", "diffAdded": "#a6ff00", "diffAddedBg": "#162903", "diffAddedLineNumberBg": "#223d06", "diffRemoved": "#ff3232", "diffRemovedBg": "#330a1c", "diffRemovedLineNumberBg": "#4d0f29", "error": "#ff3232", "info": "#00f0ff", "inputBg": "#211832", "markdownBlockQuote": "#9a8ba8", "markdownCode": "#d98cff", "markdownEmph": "#c2c8ff", "markdownHeading": "#fcee0a", "markdownLink": "#5b8cff", "markdownStrong": "#ffffff", "primary": "#fcee0a", "secondary": "#f624a8", "sidebarBg": "#171221", "success": "#a6ff00", "syntaxComment": "#8e829e", "syntaxFunction": "#5ed4ff", "syntaxKeyword": "#ff6b9e", "syntaxNumber": "#ffb84d", "syntaxOperator": "#9a9ab0", "syntaxString": "#c8ff4d", "syntaxType": "#fff3a0", "text": "#ede7f2", "textMuted": "#9a8ba8", "warning": "#ff9e00"}, "id": "cyberpunk-2077", "name": "赛博朋克 2077", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const dc_comics = {"appearance": "dark", "basePreset": "dc-comics", "colors": {"background": "#0b0b11", "backgroundElement": "#1d1d29", "backgroundPanel": "#13131c", "border": "#2b2b3a", "borderActive": "#ffcf40", "bubbleBg": "#181824", "codeBlockBg": "#07070b", "codeHeaderBg": "#20202e", "diffAdded": "#6ee7b7", "diffAddedBg": "#0f2f1c", "diffAddedLineNumberBg": "#16432a", "diffRemoved": "#ff8a8a", "diffRemovedBg": "#3a1a20", "diffRemovedLineNumberBg": "#57232e", "error": "#f23645", "info": "#3d8bff", "inputBg": "#14141d", "markdownBlockQuote": "#7d86a3", "markdownCode": "#f9a8d4", "markdownEmph": "#cbd5e1", "markdownHeading": "#ffffff", "markdownLink": "#3d8bff", "markdownStrong": "#ffffff", "primary": "#3d8bff", "secondary": "#ffcf40", "sidebarBg": "#0e0e15", "success": "#35d461", "syntaxComment": "#6e6e80", "syntaxFunction": "#ffcf40", "syntaxKeyword": "#a78bfa", "syntaxNumber": "#ff6b35", "syntaxOperator": "#8b8ba3", "syntaxString": "#7bed6c", "syntaxType": "#2dd4bf", "text": "#eef1f8", "textMuted": "#9aa3b8", "warning": "#ffb020"}, "id": "dc-comics", "name": "DC", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const disney = {"appearance": "light", "basePreset": "disney", "colors": {"background": "#fff7e8", "backgroundElement": "#f5e4be", "backgroundPanel": "#fffcf3", "border": "#e7d7b2", "borderActive": "#1e90d6", "bubbleBg": "#fffdf6", "codeBlockBg": "#251c12", "codeHeaderBg": "#3a2c1b", "diffAdded": "#0e7a3d", "diffAddedBg": "#d9f2e3", "diffAddedLineNumberBg": "#c4e8d2", "diffRemoved": "#a31e22", "diffRemovedBg": "#fde0e3", "diffRemovedLineNumberBg": "#f5c2c7", "error": "#a41220", "info": "#1e90d6", "inputBg": "#fffef9", "markdownBlockQuote": "#6f6890", "markdownCode": "#7a2f3d", "markdownEmph": "#7a4fa3", "markdownHeading": "#8e1d29", "markdownLink": "#0f6fbf", "markdownStrong": "#2b2440", "primary": "#d81e2c", "secondary": "#d9990b", "sidebarBg": "#fbeed0", "success": "#0d7340", "syntaxComment": "#6f6a94", "syntaxFunction": "#56c8f5", "syntaxKeyword": "#ff5c72", "syntaxNumber": "#ff8a5c", "syntaxOperator": "#d0c9ef", "syntaxString": "#7ce38b", "syntaxType": "#ffd84d", "text": "#2a2438", "textMuted": "#6e6250", "warning": "#8a5a00"}, "id": "disney", "name": "迪士尼", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
@@ -17777,7 +17778,9 @@ const IP_PRESET_IDS = Object.keys(IP_PRESETS_RAW)
 function pickPreset(id) {
   const raw = IP_PRESETS_RAW[id]
   if (!raw) return null
-  return { name: id, appearance: raw.appearance, colors: raw.colors }
+  // 注意字段翻转：JSON 的 name 是中文展示名，对外 name 是 ascii id（查找键），中文名收进 title。
+  const title = typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : id
+  return { name: id, title: title, appearance: raw.appearance, colors: raw.colors }
 }
 
 function listIpPresets() {
@@ -20521,7 +20524,7 @@ function createClient(slotTarget) {
           return h('button', {
             key: key,
             title: tr('customChipTitle'),
-            onClick: function () { props.setCustomTheme(t.id); setUi(props.getState()) },
+            onClick: function () { applyCustomChip(t) },
             [UI_INTERACTIVE_ATTR]: '',
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
@@ -20661,13 +20664,48 @@ function createClient(slotTarget) {
             return buckets.filter(function (b) { return b.names.length > 0 })
           } catch (e) { return [] }
         }
+        // 外层 IP 种子胶囊：未存盘的 IP 预置直接列在自定义区，点按即存盘换上（applyCustomChip），
+        // 存过即变普通 customs（按 id 去重）。中文界面显示中文名，英文界面显示 ascii id（英文无中文残留门禁）。
+        const diskIdSet = function (list) {
+          const out = {}
+          for (const t of list || []) { if (t && t.id) out[t.id] = true }
+          return out
+        }
+        const ipSeedChips = function (list) {
+          const onDisk = diskIdSet(list)
+          const en = currentLang === 'en'
+          return safeIpPresets().filter(function (p) { return p && p.name && !onDisk[p.name] }).map(function (p) {
+            return {
+              id: p.name, name: en ? p.name : (p.title || p.name), title: p.title || p.name,
+              appearance: p.appearance, colors: p.colors, basePreset: p.name, ipSeed: true,
+            }
+          })
+        }
+        // 点胶囊：存盘主题直接换上；IP 种子先存盘再换上（存盘名用中文 canonical 名，与点击语言无关；
+        // basePreset 记种子自身 id；失败走 panel 级保存失败 toast，与编辑器同口径，不静默死点击）
+        const applyCustomChip = function (t) {
+          if (diskIdSet((customData && customData.themes) || [])[t.id] || !t.ipSeed) { props.setCustomTheme(t.id); setUi(props.getState()); return }
+          setSaveError(null)
+          Promise.resolve().then(function () {
+            return props.saveCustomTheme({ id: t.id, name: t.title || t.name, appearance: t.appearance, colors: t.colors, basePreset: t.basePreset || 'opencode' })
+          }).then(function (res) {
+            if (res && res.ok) {
+              try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
+              props.setCustomTheme(t.id)
+            } else {
+              setSaveError(tr('customSaveFail'))
+            }
+            setUi(props.getState())
+          }).catch(function () { setSaveError(tr('customSaveFail')); setUi(props.getState()) })
+        }
         const renderCustomSection = function () {
           const list = (customData && customData.themes) || []
-          const shownCustom = filterCustomThemes(list, query)
+          const allCustom = list.concat(ipSeedChips(list))
+          const shownCustom = filterCustomThemes(allCustom, query)
           return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
               dot('#FAB283', 8),
-              trf('customTitle', { n: list.length }),
+              trf('customTitle', { n: allCustom.length }),
               h('span', { style: { flex: 1 } }),
               h('button', {
                 title: (customData && customData.dirPath) || undefined,

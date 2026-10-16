@@ -1,7 +1,8 @@
 // ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 20 套（v3 终审版）。
-// 双来源口径：内置 38（registry，不动）+ IP 20（只进自定义编辑器「选基底」，不进 themeNames/countStatic）。
+// 双来源口径：内置 38（registry，不动）+ IP 20（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
 // 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
-// 每套对外仅 { name: id, appearance, colors }（presetToSeed 同形；name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法）。
+// 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
+// name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
 import cyberpunk_2077 from '../custom-presets/cyberpunk-2077.json' with { type: 'json' }
 import dc_comics from '../custom-presets/dc-comics.json' with { type: 'json' }
 import disney from '../custom-presets/disney.json' with { type: 'json' }
@@ -38,7 +39,9 @@ export const IP_PRESET_IDS = Object.keys(IP_PRESETS_RAW)
 function pickPreset(id) {
   const raw = IP_PRESETS_RAW[id]
   if (!raw) return null
-  return { name: id, appearance: raw.appearance, colors: raw.colors }
+  // 注意字段翻转：JSON 的 name 是中文展示名，对外 name 是 ascii id（查找键），中文名收进 title。
+  const title = typeof raw.name === 'string' && raw.name.trim() ? raw.name.trim() : id
+  return { name: id, title: title, appearance: raw.appearance, colors: raw.colors }
 }
 
 export function listIpPresets() {
