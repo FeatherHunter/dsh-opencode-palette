@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "dsh-log": "0.3.4",
-    "dsh-plugin-update": "0.18.0"
+    "dsh-plugin-update": "0.18.1"
   },
   "engines": {
     "node": ">=22",

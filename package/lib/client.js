@@ -3493,6 +3493,29 @@ function failureCodeOf(reply, fallback) {
   if (typeof fallback === "string" && fallback.trim()) return fallback.trim();
   return INTERNAL_CODE;
 }
+function replyIsCheckExpired(reply) {
+  if (!reply || typeof reply !== "object") return false;
+  const kind = reply["errorKind"];
+  if (typeof kind === "string" && kind.trim() === "check-expired") return true;
+  const err = reply["error"];
+  return typeof err === "string" && err.trim() === "check-expired";
+}
+function thrownIsCheckExpired(err) {
+  if (typeof err === "string") return err.trim() === "check-expired";
+  if (err instanceof Error) {
+    if (err.message.trim() === "check-expired") return true;
+    const code = err.code;
+    return typeof code === "string" && code.trim() === "check-expired";
+  }
+  if (err && typeof err === "object" && !Array.isArray(err)) {
+    const rec = err;
+    const e = typeof rec["error"] === "string" ? rec["error"].trim() : "";
+    const k = typeof rec["errorKind"] === "string" ? rec["errorKind"].trim() : "";
+    const c = typeof rec["code"] === "string" ? rec["code"].trim() : "";
+    return e === "check-expired" || k === "check-expired" || c === "check-expired";
+  }
+  return false;
+}
 const PANEL_DIAG_MAX_CHARS = COPY_BUDGET_CHARS;
 function redactForCopy(text) {
   return sanitizeForCopy(text);
@@ -5343,50 +5366,54 @@ function mountUpdatePanel(container, options) {
         copyNotice = copyText("panel.toast.installing", currentLang());
         render();
         try {
-          if (!receipt) {
-            try {
-              const checked = await call(phoneNames.updateCheck, queueArgs());
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            if (!receipt) {
+              const prevLatch = latch;
+              try {
+                const checked = await call(phoneNames.updateCheck, queueArgs());
+                if (!mounted) return;
+                applyStatusReply(checked, "check");
+              } catch (err) {
+                if (!mounted) return;
+                setLatch(userThrowLatch("check", err));
+                render();
+                return;
+              }
               if (!mounted) return;
-              applyStatusReply(checked, "check");
+              if (!receipt) {
+                if (latch === prevLatch) clearLatch();
+                render();
+                return;
+              }
+            }
+            if (!mounted) return;
+            requestId = randomRequestId();
+            let reply;
+            try {
+              reply = await call(phoneNames.updateInstall, {
+                checkId: receipt.checkId,
+                requestId,
+                ...queueArgs()
+              });
             } catch (err) {
               if (!mounted) return;
-              setLatch(userThrowLatch("check", err));
+              if (thrownIsCheckExpired(err) && attempt === 0) {
+                receipt = null;
+                continue;
+              }
+              setLatch(userThrowLatch("install", err));
               render();
               return;
             }
-          }
-          if (!mounted) return;
-          if (!receipt) {
-            const expiredEnv = currentEnvPair();
-            setLatch({
-              code: "check-expired",
-              kind: "check-expired",
-              detail: null,
-              diag: null,
-              requestId,
-              checkId: null,
-              runningVersion: snapshot?.runningVersion ?? null,
-              installedVersion: snapshot?.installedVersion ?? null,
-              latestVersion: snapshot?.latestVersion ?? null,
-              targetVersion: null,
-              hostKind: expiredEnv.hostKind,
-              profileName: expiredEnv.profileName,
-              source: "install",
-              volatile: false,
-              jobId: null,
-              atMs: latchNow()
-            });
+            if (!mounted) return;
+            if (replyIsCheckExpired(reply) && attempt === 0) {
+              receipt = null;
+              continue;
+            }
+            applyStatusReply(reply, "install");
             render();
             return;
           }
-          requestId = randomRequestId();
-          const reply = await call(phoneNames.updateInstall, {
-            checkId: receipt.checkId,
-            requestId,
-            ...queueArgs()
-          });
-          if (!mounted) return;
-          applyStatusReply(reply, "install");
         } catch (err) {
           if (!mounted) return;
           setLatch(userThrowLatch("install", err));
@@ -5676,7 +5703,7 @@ const PANEL_POLL = {
 };
 const { QUEUE_INTENT_TTL_MS, emptyQueueState, normalizeQueueState, queuePositionOf, isHeadOfQueue, isQueueBusy, visibleQueueFor: visibleQueueFor2 } = __mods["upd-queue"];
 const { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, changelogForUpdate: changelogForUpdate2, hasVisibleSections, isUnreleasedVersion, parseChangelog, parseChangelogReport: parseChangelogReport2, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, selectChangelogEntries, truncationNoteHTML: truncationNoteHTML2 } = __mods["upd-changelog"];
-__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, changelogForUpdate: changelogForUpdate2, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, formatLatchTime, hasVisibleSections, isCheckSideFailureCode, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, messageCodeOf, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog, parseChangelogReport: parseChangelogReport2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, selectChangelogEntries, themeTokensStyleFor, truncationNoteHTML: truncationNoteHTML2, visibleQueueFor: visibleQueueFor2 };
+__mods["upd-panel"] = { CHANGELOG_ALL_CATEGORIES, CHANGELOG_FILENAME, CHANGELOG_FOLDED, CHANGELOG_MAX_BULLETS_PER_SECTION, CHANGELOG_MAX_BULLET_CHARS, CHANGELOG_MAX_CHARS, CHANGELOG_MAX_ENTRIES, CHANGELOG_MUST_SHOW, CHANGELOG_NEUTRAL_HINT, CHANGELOG_NEUTRAL_LINE, PANEL_DIAG_MAX_CHARS, PANEL_POLL, QUEUE_INTENT_TTL_MS, UPDATE_PANEL_ARCHIVE_CSS, UPDATE_PANEL_CSS, blockedCopy, buildDiagnosticText, buildPanelChangelogPhoneName: buildChangelogPhoneName2, buildPanelPhoneNames: buildPhoneNames2, buildUpdateDiagCopy, changelogForUpdate: changelogForUpdate2, createBrowserSkipStore, createMemorySkipStore, emptyQueueState, failureCodeOf, failureCopy, formatLatchTime, hasVisibleSections, isCheckSideFailureCode, isHeadOfQueue, isKnownFailureCode, isQueueBusy, isSafeThemeCssValue, isUnreleasedVersion, messageCodeOf, mountUpdatePanel, normalizePanelTheme, normalizeQueueState, panelSealFor, panelViewModel, parseChangelog, parseChangelogReport: parseChangelogReport2, pendingAutoCheck, queuePositionOf, readDiagTolerant, redactForCopy, renderChangelogHTML: renderChangelogHTML2, renderChangelogNeutral, renderChangelogSection, renderUpdatePanelHTML, renderUpdatePanelKernel, replyIsCheckExpired, selectChangelogEntries, themeTokensStyleFor, thrownIsCheckExpired, truncationNoteHTML: truncationNoteHTML2, visibleQueueFor: visibleQueueFor2 };
 
 })();
 (function () {
@@ -17506,7 +17533,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.18.0 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.18.1 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
