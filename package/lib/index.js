@@ -390,6 +390,9 @@ export function apply(ctx, opts) {
   const dispatch = async function (phoneName, args) {
     const handler = registry.get(phoneName)
     if (typeof handler !== 'function') {
+      // 未知电话：#89 起记一条既有 host.channel.fail（stage 'dispatch-unknown'，不新增事件）。
+      // 两侧电话名对不上时曾经是「界面报保存失败、日志全绿」的静默死链，查无可查。
+      fail('dispatch-unknown', 'unknown phone: ' + phoneName)
       return { ok: false, error: { code: 'internal', message: 'unknown phone: ' + phoneName, details: {} } }
     }
     try {

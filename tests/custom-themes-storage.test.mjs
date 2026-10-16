@@ -228,3 +228,45 @@ test('#85 构建产物同步：包内 channel 与宿主副本必须含新电话'
   const bundledHost = readFileSync(join(ROOT, 'package', 'lib', 'index.js'), 'utf8')
   assert.ok(bundledHost.includes('customThemesSave'), 'package/lib/index.js 须为新版宿主（含存储层）')
 })
+
+test('#89 接缝门禁：电话名带前缀，且与浏览器半实际发的字面量逐个一致', async () => {
+  const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.mjs')).href)
+  const clientSrc = readFileSync(join(ROOT, 'runtime', 'client.mjs'), 'utf8')
+  const storeSrc = readFileSync(join(ROOT, 'runtime', 'custom-store.mjs'), 'utf8')
+  // 一、表里的名字必须带前缀：宿主 dispatch 按请求体里的 method 原样查表，
+  // 而桥不替调用方加前缀，裸名必然 unknown phone（#89 病灶）。
+  for (const key of ['customThemesList', 'customThemesSave', 'customThemesDelete']) {
+    assert.equal(
+      channel.PHONE_METHODS[key], channel.PHONE_PREFIX + '.' + key,
+      key + ' 必须是带前缀的电话名（宿主注册与客户端调用都得是它）'
+    )
+  }
+  // 二、客户端源里发的字面量必须与表逐字一致（改表忘改客户端 = 静默死链，这里红）
+  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesSave + "'"), 'runtime/client.mjs 存盘须发 ' + channel.PHONE_METHODS.customThemesSave)
+  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesDelete + "'"), 'runtime/client.mjs 删除须发 ' + channel.PHONE_METHODS.customThemesDelete)
+  assert.ok(storeSrc.includes("'" + channel.PHONE_METHODS.customThemesList + "'"), 'runtime/custom-store.mjs 列表须发 ' + channel.PHONE_METHODS.customThemesList)
+  // 三、反向：客户端不许出现不带前缀的裸名调用（历史写法，等于必然失败）
+  for (const src of [clientSrc, storeSrc]) {
+    assert.ok(
+      !/call\('(customThemes(?:List|Save|Delete))'/.test(src),
+      '客户端不许发不带前缀的电话名（#89：宿主按带前缀名注册）'
+    )
+  }
+})
+
+test('#89 三个真实电话名端到端：列表 / 存盘 / 删除都认得（就是浏览器半发的那些名字）', async () => {
+  const t = await setupHost()
+  try {
+    const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.mjs')).href)
+    const list = await t.call(channel.PHONE_METHODS.customThemesList, {})
+    assert.equal(list.result.ok, true, JSON.stringify(list.result.error || {}))
+    assert.equal(list.result.value.ok, true)
+    const saved = await t.call(channel.PHONE_METHODS.customThemesSave, { theme: fullTheme('seam-probe') })
+    assert.equal(saved.result.ok, true, JSON.stringify(saved.result.error || {}))
+    assert.equal(saved.result.value.ok, true)
+    assert.ok(existsSync(join(t.host.customThemesDir(t.home), 'seam-probe.json')), '真实电话名必须真写盘')
+    const del = await t.call(channel.PHONE_METHODS.customThemesDelete, { id: 'seam-probe' })
+    assert.equal(del.result.ok, true)
+    assert.equal(del.result.value.ok, true)
+  } finally { t.cleanup() }
+})

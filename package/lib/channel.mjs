@@ -27,11 +27,20 @@ export const PHONE_PREFIX = 'palette'
  * （日志/更新电话名由 dsh-log / dsh-plugin-update 包函数派生，不在此定义）——
  * 自定义主题电话是本插件自己的电话，无上游包可派生，故在此新建该表，
  * 两侧（runtime/host.mjs 注册、面板客户端调用）只从这里读，不写字面量。
+ *
+ * #89 修正（重要）：这里曾存的是不带前缀的裸名（'customThemesSave'），而浏览器半发的是
+ * 带前缀的 'palette.customThemesSave' —— 桥（client.mjs 的 createHostBridge/rpcCall）
+ * **不替调用方加前缀**，原样放进请求体 payload.method，宿主 dispatch 也按原样查表，
+ * 于是三者对不上：回 { ok:false, error:'unknown phone: …' }（不是抛错，历史版本连日志都不落），
+ * 界面只看到「保存失败」，存盘 / 删除全死、列表静默回退缓存。
+ * **带前缀才是对的**（与日志电话、更新电话同形）。浏览器半的调用点写的是与下面完全相同的
+ * 字面量：runtime/client.mjs 的 save/delete、runtime/custom-store.mjs 的 list ——
+ * 改下面的值就必须同步改那三处，tests/custom-themes-storage.test.mjs 有门禁盯着。
  */
 export const PHONE_METHODS = {
-  customThemesList: 'customThemesList',
-  customThemesSave: 'customThemesSave',
-  customThemesDelete: 'customThemesDelete',
+  customThemesList: PHONE_PREFIX + '.customThemesList',
+  customThemesSave: PHONE_PREFIX + '.customThemesSave',
+  customThemesDelete: PHONE_PREFIX + '.customThemesDelete',
 }
 /** 要检查更新的那个包（本插件自己）。 */
 export const TARGET_PACKAGE_NAME = 'dsh-opencode-palette'
