@@ -21,7 +21,7 @@ import {
   saveCustomCache,
   reconcileCustomThemes,
 } from '../runtime/custom-store.mjs'
-import { UI_FX_CSS, UI_STYLE_ATTR, injectUiFx } from '../runtime/ui-fx.mjs'
+import { UI_FX_CSS, UI_STYLE_ATTR, injectUiFx, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH } from '../runtime/ui-fx.mjs'
 
 function memoryStorage() {
   const map = new Map()
@@ -149,6 +149,41 @@ test('UI_FX_CSS：挂 data-palette-interactive 钩子，含动效与 reduced-mot
   for (const banned of ['#333338', '#8b8b95', '#555', 'rgba(255,255,255,0.14)']) {
     assert.equal(UI_FX_CSS.includes(banned), false, '动效样式表不得含停用态门禁模式：' + banned)
   }
+})
+
+// ── #88：分级档位契约（样式表侧）──
+// 六档齐备；!important 只能出现在状态伪类上（#88 Q4 拍板）；reduced-motion 全量降级；
+// 颜色只走主题变量，样式表内不得出现写死的十六进制色。
+test('#88 UI_FX_CSS：六档齐备 + !important 只在状态伪类 + reduced-motion 全量降级', () => {
+  for (const tier of [TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH]) {
+    assert.ok(UI_FX_CSS.includes('[data-palette-interactive="' + tier + '"]'), '缺档位选择器：' + tier)
+  }
+  // 逐条最内层规则核对（正则只吃无嵌套括号的规则体，@media 内层规则同样命中）：含 !important 的
+  // 规则，其每个选择器分段都必须落在 :hover/:active/:focus-visible 上。
+  let checkedRules = 0
+  for (const m of UI_FX_CSS.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const selector = m[1].trim()
+    if (!m[2].includes('!important')) continue
+    checkedRules++
+    const parts = selector.split(',').map((s) => s.trim()).filter(Boolean)
+    assert.ok(parts.length > 0, '取不到 !important 规则的选择器：' + selector)
+    for (const part of parts) {
+      assert.ok(/:(hover|active|focus-visible)/.test(part), '!important 越出状态伪类：' + part)
+    }
+  }
+  assert.ok(checkedRules >= 6, '!important 规则样本太少，断言已失效：' + checkedRules)
+  // reduced-motion 降级块必须在场且关掉过渡/位移/外发光
+  const at = UI_FX_CSS.indexOf('@media (prefers-reduced-motion: reduce)')
+  assert.ok(at >= 0, '缺 reduced-motion 降级块')
+  const reduced = UI_FX_CSS.slice(at)
+  for (const off of ['transition:none', 'transform:none', 'box-shadow:none']) {
+    assert.ok(reduced.includes(off), 'reduced-motion 缺降级：' + off)
+  }
+  assert.equal(/#[0-9A-Fa-f]{3,8}/.test(UI_FX_CSS), false, '动效样式表不得写死十六进制色（颜色只走主题变量）')
+  // 层叠禁区（#88 实测修正）：历史档的裸属性选择器特异度 (0,3,1) 高于各具名档 (0,2,0)，
+  // 会把 <button> 上胶囊/按钮档的 box-shadow（品牌色外环）覆盖掉 → 历史档必须限定空值。
+  assert.ok(UI_FX_CSS.includes('button[data-palette-interactive=""]:hover:not(:disabled)'), '历史档应只认空值钩子')
+  assert.equal(/button\[data-palette-interactive\]:/.test(UI_FX_CSS), false, '历史档不得裸挂属性选择器（会抢走具名档的 box-shadow）')
 })
 
 test('injectUiFx：幂等注入，假宿主（无 head/querySelector）不抛', () => {
@@ -460,5 +495,31 @@ test('弹窗不直连换肤：源码无换肤调用（改色只动预览，不�
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
   for (const ban of ['renderTheme', 'applyStyle', 'overrideTokens', 'buildUpdateTokens', 'setThemeTokens']) {
     assert.equal(src.includes(ban), false, '弹窗源码不应直连换肤：' + ban)
+  }
+})
+
+// ── #88：弹窗内全部可交互控件的动效钩子覆盖 ──
+// 判据：行内 cursor:pointer 的可点控件必须挂 data-palette-interactive；37 色块走 swatch 档；
+// 拾色面/输入框（Popover 展开才渲染）在源码里必须用 input 档，不允许档位空转。
+function modalInteractiveTags(html) {
+  return (html.match(/<[a-zA-Z][^>]*>/g) || []).filter((t) => t.includes('cursor:pointer'))
+}
+
+test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  const hits = modalInteractiveTags(html)
+  assert.ok(hits.length >= 37, '弹窗可点控件样本太少，断言失效：' + hits.length)
+  const missing = hits.filter((t) => !t.includes('data-palette-interactive'))
+  assert.equal(missing.length, 0, '弹窗未挂动效钩子的可点控件：' + missing.slice(0, 4).join(' | '))
+  const swatches = (html.match(/data-palette-interactive="swatch"/g) || []).length
+  assert.ok(swatches >= 37, '37 色块必须走 swatch 档，实测：' + swatches)
+  assert.ok((html.match(/data-palette-interactive="button"/g) || []).length >= 3, '外观分段/关闭/保存等按钮走 button 档')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes('UI_INTERACTIVE_ATTR'), '弹窗源码必须消费钩子属性')
+  // 预置载入胶囊只在载入 Popover 展开时渲染，SSR 渲不到 → 档位用源码级断言守（不空转）
+  assert.ok(src.includes('TIER_CHIP'), '预置载入胶囊应走 chip 档')
+  for (const tier of ['TIER_SWATCH', 'TIER_BUTTON', 'TIER_INPUT']) {
+    assert.ok(src.includes(tier), '弹窗源码缺档位使用：' + tier)
   }
 })

@@ -728,3 +728,33 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
   const sec = code.slice(code.indexOf('const secHeader = function'), code.indexOf('const menuItem = function'))
   assert.ok(sec.includes("flex: 'none'"), '分组头不得被 flex 容器压缩（#69 同因）')
 })
+
+// ── #88：主面板全部可交互控件的动效钩子覆盖（SSR 侧）──
+// 判据：行内 cursor:pointer 的可点控件必须挂 data-palette-interactive，一个不漏；
+// 主题胶囊走 chip 档（悬浮 + 周围边框变亮，用户点名效果）；可见档位齐备；
+// row/input 档只在展开的下拉/菜单里渲染，用源码级断言守住「档位不空转」。
+function panelInteractiveTags(html) {
+  return (html.match(/<[a-zA-Z][^>]*>/g) || []).filter((t) => t.includes('cursor:pointer'))
+}
+
+test('#88 主面板：可点控件全挂动效钩子，一个不漏', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  const hits = panelInteractiveTags(html)
+  assert.ok(hits.length >= 20, '可点控件样本太少，断言已失效：' + hits.length)
+  const missing = hits.filter((t) => !t.includes('data-palette-interactive'))
+  assert.equal(missing.length, 0, '未挂动效钩子的可点控件：' + missing.slice(0, 4).join(' | '))
+})
+
+test('#88 主面板：主题胶囊走 chip 档，可见档位齐备，源码档位不空转', () => {
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(chipSegment(html, 'opencode').includes('data-palette-interactive="chip"'), '内置主题胶囊必须走 chip 档')
+  assert.ok(chipSegment(html, '透光橙').includes('data-palette-interactive="chip"'), '透光胶囊同样走 chip 档')
+  for (const tier of ['chip', 'button', 'switch']) {
+    assert.ok(html.includes('data-palette-interactive="' + tier + '"'), '缺可见档位：' + tier)
+  }
+  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  for (const tier of ['TIER_CHIP', 'TIER_BUTTON', 'TIER_ROW', 'TIER_INPUT', 'TIER_SWITCH']) {
+    assert.ok(code.includes(tier), 'client.mjs 缺档位使用：' + tier)
+  }
+  assert.equal(code.includes("[UI_INTERACTIVE_ATTR]: ''"), false, '旧空值钩子应全部升级为具名档位')
+})

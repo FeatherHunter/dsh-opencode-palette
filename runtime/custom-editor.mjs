@@ -2,6 +2,7 @@
 // 交互与文案口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源）。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 import { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight } from './custom-color.mjs'
+import { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH } from './ui-fx.mjs'
 
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
 // 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
@@ -258,6 +259,7 @@ export function CustomEditor(props) {
           'data-slot-row': key,
           title: tr('edPickTitle'),
           onClick: function () { openPop(key) },
+          [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           style: Object.assign({
             width: '22px', height: '22px', borderRadius: '6px', cursor: 'pointer', flexShrink: 0,
             border: '1px solid #55555E',
@@ -329,6 +331,7 @@ export function CustomEditor(props) {
         lang === 'en' ? meta.en : meta.zh),
       e('div', {
         onMouseDown: startSv,
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: {
           height: '120px', borderRadius: '8px', cursor: 'crosshair', position: 'relative',
           background: svCss, border: '1px solid #55555E',
@@ -346,6 +349,7 @@ export function CustomEditor(props) {
       e('input', {
         type: 'range', min: 0, max: 359, step: 1, value: Math.round(hsv.h),
         'aria-label': 'Hue',
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         onChange: function (ev) {
           const hex = hsvToHex({ h: Number(ev.target.value), s: hsv.s, v: hsv.v })
           setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
@@ -363,6 +367,7 @@ export function CustomEditor(props) {
               setColor(pop.key, c, false)
             },
             style: { width: '20px', height: '20px', borderRadius: '5px', background: c, border: c === pop.hex ? '2px solid #FAB283' : '1px solid #55555E', cursor: 'pointer' },
+            [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           })
         }))) : null,
       e('div', { style: { display: 'flex', gap: '6px', marginTop: '8px' } },
@@ -378,9 +383,11 @@ export function CustomEditor(props) {
             }
           },
           style: { flex: 1, minWidth: 0, background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', fontFamily: 'monospace' },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         }),
         meta.allow ? e('label', {
           style: { display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#EDEDF2', cursor: 'pointer', whiteSpace: 'nowrap' },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         },
           e('input', {
             type: 'checkbox', checked: pop.transparent,
@@ -400,9 +407,11 @@ export function CustomEditor(props) {
             setPop(null)
           },
           style: { background: '#FAB283', color: '#141419', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         }, tr('edOk')),
         e('button', {
           onClick: function () { closePop(true) },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
         }, tr('edClosePop'))
       )
@@ -427,6 +436,7 @@ export function CustomEditor(props) {
       e('input', {
         value: presetQuery, placeholder: tr('edPresetSearch'),
         onChange: function (ev) { setPresetQuery(ev.target.value) },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: { width: '100%', boxSizing: 'border-box', background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', marginBottom: '8px' },
       }),
       (props.presetGroups || []).map(function (g) {
@@ -440,6 +450,7 @@ export function CustomEditor(props) {
             return e('button', {
               key: 'pp-' + n, title: n,
               onClick: function () { if (p) loadPreset(p) },
+              [UI_INTERACTIVE_ATTR]: TIER_CHIP,
               style: {
                 display: 'flex', alignItems: 'center', gap: '5px', background: '#26262E', color: '#EDEDF2',
                 border: '1px solid #3A3A42', borderRadius: '20px', padding: '3px 9px 3px 6px',
@@ -458,6 +469,7 @@ export function CustomEditor(props) {
     const node = function (slot, style, children, extra) {
       return e('div', Object.assign({
         'data-slot': slot,
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) },
         style: Object.assign({ cursor: 'pointer' }, style),
       }, extra || {}), children)
@@ -485,6 +497,7 @@ export function CustomEditor(props) {
       e('div', {
         'data-slot': 'background',
         onClick: function () { clickSlot('background') },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, background: eff('background') },
       },
         node('bubbleBg', {
@@ -497,6 +510,7 @@ export function CustomEditor(props) {
         e('div', {
           'data-slot': 'backgroundPanel',
           onClick: function () { clickSlot('backgroundPanel') },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6, background: eff('backgroundPanel') },
         },
           ...segJoin([
@@ -634,6 +648,7 @@ export function CustomEditor(props) {
         e('span', { style: { flex: 1 } }),
         e('button', {
           title: tr('edCloseTitle'), onClick: function () { props.onClose() },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#8B8B95', border: 'none', fontSize: '15px', cursor: 'pointer', padding: '0 4px' },
         }, '✕')
       ),
@@ -643,6 +658,7 @@ export function CustomEditor(props) {
           value: targetSel || '',
           title: tr('edTargetTitle'),
           onChange: function (ev) { switchTarget(ev.target.value) },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: { background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 6px', fontSize: '12px', maxWidth: '150px' },
         }, (props.customs || []).map(function (t) {
           return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
@@ -651,6 +667,7 @@ export function CustomEditor(props) {
           value: name, placeholder: tr('edNamePh'),
           title: name.trim() ? '' : tr('edNameEmpty'),
           onChange: function (ev) { setName(ev.target.value) },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: {
             background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px',
             padding: '5px 9px', fontSize: '12px', width: '170px',
@@ -677,6 +694,7 @@ export function CustomEditor(props) {
         e('button', {
           title: tr('edPresetTitle'),
           onClick: function () { setShowPresets(!showPresets) },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: {
             background: '#26262E', color: '#EDEDF2', border: '1px solid #3A3A42', borderRadius: '6px',
             padding: '4px 10px', fontSize: '12px', cursor: 'pointer',
@@ -690,6 +708,7 @@ export function CustomEditor(props) {
           return e('button', {
             key: 'ap-' + a, title: tip,
             onClick: function () { setAppearance(a) },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               background: on ? '#FAB283' : 'transparent', color: on ? '#141419' : '#C9C9D2',
               border: '1px solid ' + (on ? '#FAB283' : '#55555E'), borderRadius: '6px',
@@ -714,6 +733,7 @@ export function CustomEditor(props) {
           e('div', {
             'data-slot': 'backgroundElement',
             onClick: function () { clickSlot('backgroundElement') },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
               borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block', cursor: 'pointer',
@@ -729,24 +749,29 @@ export function CustomEditor(props) {
             e('small', { style: { color: '#8B8B95', fontSize: '11px' } }, tr('edDelNote')),
             e('button', {
               onClick: function () { props.onDelete(targetSel || origId) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { background: '#E5484D', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
             }, tr('edDelYes')),
             e('button', {
               onClick: function () { setDelConfirm(false) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
             }, tr('edDelNo')))
           : e('button', {
             onClick: function () { setDelConfirm(true) },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: { background: 'transparent', color: '#E5484D', border: '1px solid #E5484D', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
           }, tr('edDelete'))) : null,
         e('span', { style: { flex: 1 } }),
         e('button', {
           title: tr('edCancelTitle'), onClick: function () { props.onClose() },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 14px', fontSize: '12px', cursor: 'pointer' },
         }, tr('edCancel')),
         e('button', {
           title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
           onClick: handleSave, disabled: !canSave,
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: {
             background: canSave ? '#FAB283' : '#3A3A42', color: canSave ? '#141419' : '#8B8B95',
             border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 700,

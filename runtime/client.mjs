@@ -16,7 +16,7 @@ import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
 import { clientSlug, filterCustomThemes, normalizeHexInput } from './custom-color.mjs'
 import { loadCustomCache, saveCustomCache, reconcileCustomThemes } from './custom-store.mjs'
 import { CustomEditor } from './custom-editor.mjs'
-import { UI_INTERACTIVE_ATTR, injectUiFx } from './ui-fx.mjs'
+import { TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_ROW, TIER_SWITCH, UI_INTERACTIVE_ATTR, injectUiFx } from './ui-fx.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
@@ -1032,6 +1032,7 @@ export function createClient(slotTarget) {
               return h('button', {
                 key: String(opt.value),
                 onClick: function () { onChange(opt.value) },
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: {
                   border: 0, borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
                   background: on ? segOnBg : 'transparent',
@@ -1046,6 +1047,7 @@ export function createClient(slotTarget) {
           return h('div', { ref: ref, style: { position: 'relative' } }, [
             h('button', {
               onClick: function () { setOpen(!open) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -1098,6 +1100,7 @@ export function createClient(slotTarget) {
               setFontOpen(false)
             },
             title: k.key + suffix,
+            [UI_INTERACTIVE_ATTR]: TIER_ROW,
             style: {
               display: 'flex', alignItems: 'center', height: '28px', padding: '0 10px',
               fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
@@ -1115,6 +1118,7 @@ export function createClient(slotTarget) {
             h('span', { style: { flex: '1 1 auto' } }, hint.text),
             hint.retry ? h('span', {
               onClick: function () { retryFonts() },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { cursor: 'pointer', color: 'var(--dsw-alias-brand-primary)', flex: 'none' },
             }, tr('fontRetry')) : null,
           ])
@@ -1154,6 +1158,7 @@ export function createClient(slotTarget) {
           return h('div', {
             key: key,
             onClick: onClick,
+            [UI_INTERACTIVE_ATTR]: TIER_ROW,
             style: { padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer', color: base },
           }, label)
         }
@@ -1179,6 +1184,7 @@ export function createClient(slotTarget) {
               value: fontQuery,
               onChange: function (e) { setFontQuery(e.target.value) },
               onClick: function (e) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
+              [UI_INTERACTIVE_ATTR]: TIER_INPUT,
               placeholder: tr('fontSearch'),
               style: {
                 width: '100%', boxSizing: 'border-box', background: 'var(--dsw-alias-bg-layer-2)',
@@ -1197,6 +1203,7 @@ export function createClient(slotTarget) {
               // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
               // 顺带同步量按钮矩形定悬浮锚点（同一次 click，布局已稳定）
               onClick: function () { openFontMenu() },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -1233,6 +1240,7 @@ export function createClient(slotTarget) {
             key: t.name,
             onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
             title: translucent ? tr('translucentNote') : undefined,
+            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: chipBg,
@@ -1303,7 +1311,7 @@ export function createClient(slotTarget) {
             key: key,
             title: tr('customChipTitle'),
             onClick: function () { applyCustomChip(t) },
-            [UI_INTERACTIVE_ATTR]: '',
+            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: chipBg,
@@ -1325,7 +1333,7 @@ export function createClient(slotTarget) {
             title: title,
             onClick: onClick,
             disabled: disabled ? true : undefined,
-            [UI_INTERACTIVE_ATTR]: '',
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: '#FAB283', color: '#141419',
@@ -1488,7 +1496,7 @@ export function createClient(slotTarget) {
               h('button', {
                 title: (customData && customData.dirPath) || undefined,
                 onClick: copyDirPath,
-                [UI_INTERACTIVE_ATTR]: '',
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: {
                   display: 'inline-flex', alignItems: 'center', gap: 5,
                   background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -1575,6 +1583,7 @@ export function createClient(slotTarget) {
               href: 'https://github.com/FeatherHunter/' + p.repo,
               target: '_blank', rel: 'noopener noreferrer',
               title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
+              [UI_INTERACTIVE_ATTR]: TIER_ROW,
               style: {
                 display: 'flex', alignItems: 'baseline', gap: 10,
                 padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
@@ -1653,6 +1662,7 @@ export function createClient(slotTarget) {
               h('span', {
                 key: 'log',
                 onClick: flipLog,
+                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
                 title: tr('logSwitchHint'),
                 style: {
                   fontSize: 11, cursor: 'pointer', userSelect: 'none',
@@ -1665,6 +1675,7 @@ export function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: tr('starTitle'),
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
               }, h('svg', {
                 width: 15, height: 15, viewBox: '0 0 24 24',
@@ -1678,6 +1689,7 @@ export function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: tr('issueTitle'),
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: { display: 'inline-flex', cursor: 'pointer' },
               }, h('svg', {
                 width: 14, height: 14, viewBox: '0 0 24 24',
@@ -1690,6 +1702,7 @@ export function createClient(slotTarget) {
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
                 onClick: function () { props.toggle(); setUi(props.getState()) },
+                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
                 title: st.enabled ? tr('disableTitle') : tr('enableTitle'),
                 style: {
                   position: 'relative', display: 'inline-block', width: 36, height: 20,
@@ -1731,6 +1744,7 @@ export function createClient(slotTarget) {
                 return h('div', {
                   key: String(s),
                   onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false) },
+                  [UI_INTERACTIVE_ATTR]: TIER_ROW,
                   style: {
                     padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
                     background: on ? ddItemOnBg : 'transparent',
@@ -1749,6 +1763,7 @@ export function createClient(slotTarget) {
             placeholder: tr('search'),
             value: query,
             onChange: function (e) { setQuery(e.target.value) },
+            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
             style: {
               width: '100%', maxWidth: 380,
               background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',

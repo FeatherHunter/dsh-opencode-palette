@@ -18426,10 +18426,12 @@ function reconcileCustomThemes(bridge, storage) {
 __mods["custom-store"] = { CUSTOM_CACHE_KEY, emptyCustomCache, loadCustomCache, saveCustomCache, reconcileCustomThemes }
 })();
 (function () {
-// ui-fx.mjs — 配置面板全局悬浮交互动效（#86，SSR 零污染架构）
-// 零导入。只提供「面板专属样式表 + 钩子属性名」：既有主题胶囊/分段按钮的
+// ui-fx.mjs — 配置面板全局交互动效（#86 建立，#88 分级扩展；SSR 零污染架构）
+// 零导入。只提供「面板专属样式表 + 钩子属性名 + 档位常量」：既有主题胶囊/分段按钮的
 // SSR 内联 style 字符串一个字符都不碰（tests/panel-render.test.mjs 的
-// chipSegment 子串断言全集必须继续通过），动效只挂到新元素的数据属性钩子上。
+// chipSegment 子串断言全集必须继续通过），动效只挂到数据属性钩子上。
+// #88 拍板：`!important` 只允许出现在 :hover / :active / :focus-visible 状态选择器内，
+// 且颜色一律取主题变量，绝不写死深色；@media (prefers-reduced-motion: reduce) 全量降级。
 
 // 钩子属性名（新元素按需标记，旧元素绝不加）
 const UI_INTERACTIVE_ATTR = 'data-palette-interactive'
@@ -18437,13 +18439,77 @@ const UI_INTERACTIVE_ATTR = 'data-palette-interactive'
 // 面板专属样式表标记（注入的 <style> 标签属性）
 const UI_STYLE_ATTR = 'data-dsh-opencode-palette-ui'
 
-const UI_FX_CSS = [
-  'button[' + UI_INTERACTIVE_ATTR + ']:hover{transform:translateY(-1px);box-shadow:0 2px 10px rgba(0,0,0,0.35);border-color:var(--dsw-alias-brand-primary);}',
-  'button[' + UI_INTERACTIVE_ATTR + ']:active{transform:scale(0.98);}',
-  'button[' + UI_INTERACTIVE_ATTR + ']:focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}',
-  '[' + UI_INTERACTIVE_ATTR + ']{transition:transform 0.16s ease,box-shadow 0.16s ease,border-color 0.16s ease,background-color 0.16s ease;}',
-  '@media (prefers-reduced-motion: reduce){[' + UI_INTERACTIVE_ATTR + ']{transition:none;}button[' + UI_INTERACTIVE_ATTR + ']:hover{transform:none;box-shadow:none;}button[' + UI_INTERACTIVE_ATTR + ']:active{transform:none;}}',
-].join('')
+// 档位常量：钩子属性的取值。空值/未登记取值 = 历史通用档（#86 的 3 处空值钩子）。
+const TIER_CHIP = 'chip'
+const TIER_BUTTON = 'button'
+const TIER_ROW = 'row'
+const TIER_SWATCH = 'swatch'
+const TIER_INPUT = 'input'
+const TIER_SWITCH = 'switch'
+
+// 选择器骨架（构建期拼好，避免样式表里出现跨行拼接）
+const ANY = '[' + UI_INTERACTIVE_ATTR + ']'
+const CHIP = '[data-palette-interactive="' + TIER_CHIP + '"]'
+const BUTTON = '[data-palette-interactive="' + TIER_BUTTON + '"]'
+const ROW = '[data-palette-interactive="' + TIER_ROW + '"]'
+const SWATCH = '[data-palette-interactive="' + TIER_SWATCH + '"]'
+const INPUT = '[data-palette-interactive="' + TIER_INPUT + '"]'
+const SWITCH = '[data-palette-interactive="' + TIER_SWITCH + '"]'
+
+// 统一时限/曲线：#83 原型锁定的 cubic-bezier(0.22,1,0.36,1) 150–160ms。
+// 只动 transform / box-shadow / border-color / background-color / color / filter（零布局抖动）。
+const EASE = 'cubic-bezier(0.22,1,0.36,1)'
+const BASE = ANY + '{transition:transform 0.16s ' + EASE + ',box-shadow 0.16s ' + EASE +
+  ',border-color 0.16s ease,background-color 0.16s ease,color 0.16s ease,filter 0.16s ease;}'
+
+// 历史通用档（#86 的 3 处空值钩子）：只认空值，向后兼容旧标记。
+// #88 实测修正：裸 [data-palette-interactive] 的选择器特异度 (0,3,1) 高于各具名档 (0,2,0)，
+// 由 <button> 承载的胶囊/按钮档会被它抢走 box-shadow（品牌色外环丢失）→ 必须限定空值。
+const LEGACY_ANY = '[' + UI_INTERACTIVE_ATTR + '=""]'
+const LEGACY = 'button' + LEGACY_ANY + ':hover:not(:disabled){transform:translateY(-1px);' +
+  'box-shadow:0 2px 10px rgba(0,0,0,0.35);border-color:var(--dsw-alias-brand-primary) !important;}' +
+  'button' + LEGACY_ANY + ':active:not(:disabled){transform:scale(0.98);}' +
+  'button' + LEGACY_ANY + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
+
+// chip 档：主题胶囊上浮 + 周围边框提亮 + 品牌色外环（用户点名效果）
+const CHIP_FX = CHIP + ':hover{transform:translateY(-1px);border-color:var(--dsw-alias-brand-primary) !important;' +
+  'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 3px 10px rgba(0,0,0,0.35);}' +
+  CHIP + ':active{transform:translateY(0) scale(0.98);}' +
+  CHIP + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}'
+
+// button 档：底色/亮度提亮 + 边框变亮 + 微抬升（filter 不覆盖内联底色，主题无关）
+const BUTTON_FX = BUTTON + ':hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);' +
+  'border-color:var(--dsw-alias-brand-primary) !important;box-shadow:0 2px 8px rgba(0,0,0,0.30);}' +
+  BUTTON + ':active:not(:disabled){transform:scale(0.98);filter:brightness(0.97);}' +
+  BUTTON + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
+
+// row 档：下拉/菜单/字体行背景高亮 + 右移 1px
+const ROW_FX = ROW + ':hover{background-color:var(--dsw-alias-interactive-bg-hover) !important;transform:translateX(1px);}' +
+  ROW + ':active{transform:translateX(1px) scale(0.995);}' +
+  ROW + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;}'
+
+// swatch 档：色块/快选色卡微放大 + 品牌色描边（不改色，避免误导选色）
+const SWATCH_FX = SWATCH + ':hover{transform:scale(1.12);border-color:var(--dsw-alias-brand-primary) !important;' +
+  'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}' +
+  SWATCH + ':active{transform:scale(1.02);}' +
+  SWATCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
+
+// input 档：输入框/拾色面/预览部件悬停描边 + 聚焦光环（不位移，兼容面状元素）
+const INPUT_FX = INPUT + ':hover{border-color:var(--dsw-alias-brand-primary) !important;' +
+  'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}' +
+  INPUT + ':focus-visible{outline:none;border-color:var(--dsw-alias-brand-primary) !important;' +
+  'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}'
+
+// switch 档：开关轨道悬停光环 + 按压回弹（滑块过渡由内联样式承担，不碰）
+const SWITCH_FX = SWITCH + ':hover{box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}' +
+  SWITCH + ':active{transform:scale(0.95);}' +
+  SWITCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}'
+
+// reduced-motion 全量降级：无过渡、无位移、无外发光
+const REDUCED = '@media (prefers-reduced-motion: reduce){' + ANY + '{transition:none;}' +
+  ANY + ':hover,' + ANY + ':active{transform:none !important;box-shadow:none !important;filter:none !important;}}'
+
+const UI_FX_CSS = [BASE, LEGACY, CHIP_FX, BUTTON_FX, ROW_FX, SWATCH_FX, INPUT_FX, SWITCH_FX, REDUCED].join('')
 
 let uiFxInjected = false
 
@@ -18464,13 +18530,14 @@ function injectUiFx(doc) {
   } catch (e) { return false }
 }
 
-__mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, UI_FX_CSS, injectUiFx }
+__mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH, UI_FX_CSS, injectUiFx }
 })();
 (function () {
 // custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
 // 交互与文案口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源）。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 const { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight } = __mods["custom-color"]
+const { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH } = __mods["ui-fx"]
 
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
 // 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
@@ -18727,6 +18794,7 @@ function CustomEditor(props) {
           'data-slot-row': key,
           title: tr('edPickTitle'),
           onClick: function () { openPop(key) },
+          [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           style: Object.assign({
             width: '22px', height: '22px', borderRadius: '6px', cursor: 'pointer', flexShrink: 0,
             border: '1px solid #55555E',
@@ -18798,6 +18866,7 @@ function CustomEditor(props) {
         lang === 'en' ? meta.en : meta.zh),
       e('div', {
         onMouseDown: startSv,
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: {
           height: '120px', borderRadius: '8px', cursor: 'crosshair', position: 'relative',
           background: svCss, border: '1px solid #55555E',
@@ -18815,6 +18884,7 @@ function CustomEditor(props) {
       e('input', {
         type: 'range', min: 0, max: 359, step: 1, value: Math.round(hsv.h),
         'aria-label': 'Hue',
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         onChange: function (ev) {
           const hex = hsvToHex({ h: Number(ev.target.value), s: hsv.s, v: hsv.v })
           setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
@@ -18832,6 +18902,7 @@ function CustomEditor(props) {
               setColor(pop.key, c, false)
             },
             style: { width: '20px', height: '20px', borderRadius: '5px', background: c, border: c === pop.hex ? '2px solid #FAB283' : '1px solid #55555E', cursor: 'pointer' },
+            [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           })
         }))) : null,
       e('div', { style: { display: 'flex', gap: '6px', marginTop: '8px' } },
@@ -18847,9 +18918,11 @@ function CustomEditor(props) {
             }
           },
           style: { flex: 1, minWidth: 0, background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', fontFamily: 'monospace' },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         }),
         meta.allow ? e('label', {
           style: { display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#EDEDF2', cursor: 'pointer', whiteSpace: 'nowrap' },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         },
           e('input', {
             type: 'checkbox', checked: pop.transparent,
@@ -18869,9 +18942,11 @@ function CustomEditor(props) {
             setPop(null)
           },
           style: { background: '#FAB283', color: '#141419', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         }, tr('edOk')),
         e('button', {
           onClick: function () { closePop(true) },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
         }, tr('edClosePop'))
       )
@@ -18896,6 +18971,7 @@ function CustomEditor(props) {
       e('input', {
         value: presetQuery, placeholder: tr('edPresetSearch'),
         onChange: function (ev) { setPresetQuery(ev.target.value) },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: { width: '100%', boxSizing: 'border-box', background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', marginBottom: '8px' },
       }),
       (props.presetGroups || []).map(function (g) {
@@ -18909,6 +18985,7 @@ function CustomEditor(props) {
             return e('button', {
               key: 'pp-' + n, title: n,
               onClick: function () { if (p) loadPreset(p) },
+              [UI_INTERACTIVE_ATTR]: TIER_CHIP,
               style: {
                 display: 'flex', alignItems: 'center', gap: '5px', background: '#26262E', color: '#EDEDF2',
                 border: '1px solid #3A3A42', borderRadius: '20px', padding: '3px 9px 3px 6px',
@@ -18927,6 +19004,7 @@ function CustomEditor(props) {
     const node = function (slot, style, children, extra) {
       return e('div', Object.assign({
         'data-slot': slot,
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) },
         style: Object.assign({ cursor: 'pointer' }, style),
       }, extra || {}), children)
@@ -18954,6 +19032,7 @@ function CustomEditor(props) {
       e('div', {
         'data-slot': 'background',
         onClick: function () { clickSlot('background') },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, background: eff('background') },
       },
         node('bubbleBg', {
@@ -18966,6 +19045,7 @@ function CustomEditor(props) {
         e('div', {
           'data-slot': 'backgroundPanel',
           onClick: function () { clickSlot('backgroundPanel') },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6, background: eff('backgroundPanel') },
         },
           ...segJoin([
@@ -19103,6 +19183,7 @@ function CustomEditor(props) {
         e('span', { style: { flex: 1 } }),
         e('button', {
           title: tr('edCloseTitle'), onClick: function () { props.onClose() },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#8B8B95', border: 'none', fontSize: '15px', cursor: 'pointer', padding: '0 4px' },
         }, '✕')
       ),
@@ -19112,6 +19193,7 @@ function CustomEditor(props) {
           value: targetSel || '',
           title: tr('edTargetTitle'),
           onChange: function (ev) { switchTarget(ev.target.value) },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: { background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 6px', fontSize: '12px', maxWidth: '150px' },
         }, (props.customs || []).map(function (t) {
           return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
@@ -19120,6 +19202,7 @@ function CustomEditor(props) {
           value: name, placeholder: tr('edNamePh'),
           title: name.trim() ? '' : tr('edNameEmpty'),
           onChange: function (ev) { setName(ev.target.value) },
+          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
           style: {
             background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px',
             padding: '5px 9px', fontSize: '12px', width: '170px',
@@ -19146,6 +19229,7 @@ function CustomEditor(props) {
         e('button', {
           title: tr('edPresetTitle'),
           onClick: function () { setShowPresets(!showPresets) },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: {
             background: '#26262E', color: '#EDEDF2', border: '1px solid #3A3A42', borderRadius: '6px',
             padding: '4px 10px', fontSize: '12px', cursor: 'pointer',
@@ -19159,6 +19243,7 @@ function CustomEditor(props) {
           return e('button', {
             key: 'ap-' + a, title: tip,
             onClick: function () { setAppearance(a) },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               background: on ? '#FAB283' : 'transparent', color: on ? '#141419' : '#C9C9D2',
               border: '1px solid ' + (on ? '#FAB283' : '#55555E'), borderRadius: '6px',
@@ -19183,6 +19268,7 @@ function CustomEditor(props) {
           e('div', {
             'data-slot': 'backgroundElement',
             onClick: function () { clickSlot('backgroundElement') },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
               borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block', cursor: 'pointer',
@@ -19198,24 +19284,29 @@ function CustomEditor(props) {
             e('small', { style: { color: '#8B8B95', fontSize: '11px' } }, tr('edDelNote')),
             e('button', {
               onClick: function () { props.onDelete(targetSel || origId) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { background: '#E5484D', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
             }, tr('edDelYes')),
             e('button', {
               onClick: function () { setDelConfirm(false) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
             }, tr('edDelNo')))
           : e('button', {
             onClick: function () { setDelConfirm(true) },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: { background: 'transparent', color: '#E5484D', border: '1px solid #E5484D', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
           }, tr('edDelete'))) : null,
         e('span', { style: { flex: 1 } }),
         e('button', {
           title: tr('edCancelTitle'), onClick: function () { props.onClose() },
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 14px', fontSize: '12px', cursor: 'pointer' },
         }, tr('edCancel')),
         e('button', {
           title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
           onClick: handleSave, disabled: !canSave,
+          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
           style: {
             background: canSave ? '#FAB283' : '#3A3A42', color: canSave ? '#141419' : '#8B8B95',
             border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 700,
@@ -19248,7 +19339,7 @@ const { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } = __mods["channel"]
 const { clientSlug, filterCustomThemes, normalizeHexInput } = __mods["custom-color"]
 const { loadCustomCache, saveCustomCache, reconcileCustomThemes } = __mods["custom-store"]
 const { CustomEditor } = __mods["custom-editor"]
-const { UI_INTERACTIVE_ATTR, injectUiFx } = __mods["ui-fx"]
+const { TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_ROW, TIER_SWITCH, UI_INTERACTIVE_ATTR, injectUiFx } = __mods["ui-fx"]
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
@@ -20264,6 +20355,7 @@ function createClient(slotTarget) {
               return h('button', {
                 key: String(opt.value),
                 onClick: function () { onChange(opt.value) },
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: {
                   border: 0, borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
                   background: on ? segOnBg : 'transparent',
@@ -20278,6 +20370,7 @@ function createClient(slotTarget) {
           return h('div', { ref: ref, style: { position: 'relative' } }, [
             h('button', {
               onClick: function () { setOpen(!open) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -20330,6 +20423,7 @@ function createClient(slotTarget) {
               setFontOpen(false)
             },
             title: k.key + suffix,
+            [UI_INTERACTIVE_ATTR]: TIER_ROW,
             style: {
               display: 'flex', alignItems: 'center', height: '28px', padding: '0 10px',
               fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
@@ -20347,6 +20441,7 @@ function createClient(slotTarget) {
             h('span', { style: { flex: '1 1 auto' } }, hint.text),
             hint.retry ? h('span', {
               onClick: function () { retryFonts() },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: { cursor: 'pointer', color: 'var(--dsw-alias-brand-primary)', flex: 'none' },
             }, tr('fontRetry')) : null,
           ])
@@ -20386,6 +20481,7 @@ function createClient(slotTarget) {
           return h('div', {
             key: key,
             onClick: onClick,
+            [UI_INTERACTIVE_ATTR]: TIER_ROW,
             style: { padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer', color: base },
           }, label)
         }
@@ -20411,6 +20507,7 @@ function createClient(slotTarget) {
               value: fontQuery,
               onChange: function (e) { setFontQuery(e.target.value) },
               onClick: function (e) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
+              [UI_INTERACTIVE_ATTR]: TIER_INPUT,
               placeholder: tr('fontSearch'),
               style: {
                 width: '100%', boxSizing: 'border-box', background: 'var(--dsw-alias-bg-layer-2)',
@@ -20429,6 +20526,7 @@ function createClient(slotTarget) {
               // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
               // 顺带同步量按钮矩形定悬浮锚点（同一次 click，布局已稳定）
               onClick: function () { openFontMenu() },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
                 display: 'flex', alignItems: 'center', gap: 8,
                 background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -20465,6 +20563,7 @@ function createClient(slotTarget) {
             key: t.name,
             onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
             title: translucent ? tr('translucentNote') : undefined,
+            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: chipBg,
@@ -20535,7 +20634,7 @@ function createClient(slotTarget) {
             key: key,
             title: tr('customChipTitle'),
             onClick: function () { applyCustomChip(t) },
-            [UI_INTERACTIVE_ATTR]: '',
+            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: chipBg,
@@ -20557,7 +20656,7 @@ function createClient(slotTarget) {
             title: title,
             onClick: onClick,
             disabled: disabled ? true : undefined,
-            [UI_INTERACTIVE_ATTR]: '',
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
             style: {
               display: 'inline-flex', alignItems: 'center', gap: 5,
               background: '#FAB283', color: '#141419',
@@ -20720,7 +20819,7 @@ function createClient(slotTarget) {
               h('button', {
                 title: (customData && customData.dirPath) || undefined,
                 onClick: copyDirPath,
-                [UI_INTERACTIVE_ATTR]: '',
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: {
                   display: 'inline-flex', alignItems: 'center', gap: 5,
                   background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
@@ -20807,6 +20906,7 @@ function createClient(slotTarget) {
               href: 'https://github.com/FeatherHunter/' + p.repo,
               target: '_blank', rel: 'noopener noreferrer',
               title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
+              [UI_INTERACTIVE_ATTR]: TIER_ROW,
               style: {
                 display: 'flex', alignItems: 'baseline', gap: 10,
                 padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
@@ -20885,6 +20985,7 @@ function createClient(slotTarget) {
               h('span', {
                 key: 'log',
                 onClick: flipLog,
+                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
                 title: tr('logSwitchHint'),
                 style: {
                   fontSize: 11, cursor: 'pointer', userSelect: 'none',
@@ -20897,6 +20998,7 @@ function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: tr('starTitle'),
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
               }, h('svg', {
                 width: 15, height: 15, viewBox: '0 0 24 24',
@@ -20910,6 +21012,7 @@ function createClient(slotTarget) {
                 href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
                 target: '_blank', rel: 'noopener noreferrer',
                 title: tr('issueTitle'),
+                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                 style: { display: 'inline-flex', cursor: 'pointer' },
               }, h('svg', {
                 width: 14, height: 14, viewBox: '0 0 24 24',
@@ -20922,6 +21025,7 @@ function createClient(slotTarget) {
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
                 onClick: function () { props.toggle(); setUi(props.getState()) },
+                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
                 title: st.enabled ? tr('disableTitle') : tr('enableTitle'),
                 style: {
                   position: 'relative', display: 'inline-block', width: 36, height: 20,
@@ -20963,6 +21067,7 @@ function createClient(slotTarget) {
                 return h('div', {
                   key: String(s),
                   onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false) },
+                  [UI_INTERACTIVE_ATTR]: TIER_ROW,
                   style: {
                     padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
                     background: on ? ddItemOnBg : 'transparent',
@@ -20981,6 +21086,7 @@ function createClient(slotTarget) {
             placeholder: tr('search'),
             value: query,
             onChange: function (e) { setQuery(e.target.value) },
+            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
             style: {
               width: '100%', maxWidth: 380,
               background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
