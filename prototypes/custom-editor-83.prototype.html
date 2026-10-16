@@ -1,0 +1,1144 @@
+<!doctype html>
+<!-- PROTOTYPE-83 ★最高权威★：自定义主题配色新功能的唯一真相源（2026-10-16 用户亲定）。
+     任何实现与本文冲突时，以本文为准。抛弃式原型，不进生产。归属 #83（map #82）。双击即开，内存态，不写盘。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>自定义主题配色（试色草稿）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ease:cubic-bezier(0.22,1,0.36,1)}
+body{background:#0B0B0D;color:#E7E7EA;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:22px 22px 90px;line-height:1.55}
+h1{font-size:19px;margin:2px 0 8px}
+.proto-flag{display:inline-block;font-size:11px;background:#3A2A12;color:#F5A742;border:1px solid #F5A74255;border-radius:4px;padding:1px 8px;margin-bottom:8px;letter-spacing:.04em}
+.intro{max-width:1120px;color:#A9A9B3;font-size:13px;background:#121216;border:1px solid #26262C;border-radius:10px;padding:12px 14px;margin:10px 0 16px}
+.intro b{color:#FAB283}.intro code{color:#7FD88F;font-family:Consolas,monospace}
+.state{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;margin-bottom:14px}
+.state h2{font-size:13px;color:#FAB283;margin-bottom:8px}
+.state-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:12px}
+.state-grid .cell{background:#16161B;border:1px solid #26262C;border-radius:8px;padding:8px 10px}
+.state-grid .k{color:#8B8B95;font-size:11px;margin-bottom:2px}
+.state-grid .v{font-family:Consolas,monospace;word-break:break-all}
+#lastChange{margin-top:8px;font-size:12px;color:#7FD88F}
+.free{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;margin-bottom:14px}
+.free h2{font-size:13px;color:#FAB283;margin-bottom:8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+/* —— 全局可交互动效（第一性原理：hover 微抬升+描边提亮+柔光；active 回弹；统一 ease 150ms；reduced-motion 降级） —— */
+button[data-pi]{font-family:inherit;cursor:pointer;transition:transform 150ms var(--ease),box-shadow 150ms var(--ease),background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+button[data-pi]:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.45),0 0 0 1px rgba(250,178,131,.35)}
+button[data-pi]:active{transform:translateY(0) scale(.98);box-shadow:none}
+button[data-pi]:focus-visible{outline:2px solid #FAB283;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+button[data-pi]{transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+button[data-pi]:hover,button[data-pi]:active{transform:none;box-shadow:none}
+}
+body.rm button[data-pi]{transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+body.rm button[data-pi]:hover,body.rm button[data-pi]:active{transform:none;box-shadow:none}
+body.rm .hl{animation:none !important}
+.abtn{background:#1C1C21;border:1px solid #33333A;color:#E7E7EA;border-radius:7px;padding:6px 12px;font-size:12px}
+.abtn:hover{background:#232329;border-color:#4A4A55}
+.txt:focus{outline:none;border-color:#FAB283;box-shadow:0 0 0 2px rgba(250,178,131,.4)}
+button[data-pi]:focus-visible{outline:2px solid #FAB283;outline-offset:1px}
+.abtn.primary{background:#FAB283;border-color:#FAB283;color:#141414;font-weight:700}
+.abtn.danger{background:#2A1418;border-color:#C53B53;color:#F08A97}
+.abtn.ghost{background:transparent}
+/* —— 面板 mock —— */
+.panel{background:#101014;border:1px solid #27272A;border-radius:12px;padding:16px 18px;max-width:1120px;margin-bottom:18px}
+.panel h2{font-size:14px;margin-bottom:2px}
+.panel .sub{font-size:12px;color:#A9A9B3;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #26262C}
+.groupline{display:flex;align-items:center;gap:8px;font-size:12px;color:#9D7CD8;margin:16px 0 10px}
+.groupline .dot{flex:none;align-self:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;border-radius:7px;border:1px solid #555;padding:4px 10px 4px 6px;font-size:12px;font-family:"JetBrains Mono",Consolas,monospace;background:#0A0A0A;color:#EEE}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.chip.sel{border-width:2px;margin:-1px}
+.chip .tick{font-style:normal;font-weight:700}
+.op-chip{background:#FAB283;border:1px solid #FAB283;color:#141419;font-weight:700}
+.op-chip:hover{background:#FFC79A;border-color:#FFC79A}
+.rsec{display:flex;align-items:center;gap:8px;font-size:11px;color:#A9A9B3;letter-spacing:.08em;margin-bottom:8px}
+.rsec .rcount{color:#8B8B95;font-size:11px;letter-spacing:0}
+.rsearch{width:100%;max-width:380px;background:#1C1C21;border:1px solid #33333A;border-radius:6px;padding:7px 12px;font-size:13px;outline:none;color:#E7E7EA;margin-bottom:4px;box-sizing:border-box}
+.rgroup{margin-bottom:10px}
+.rghead{display:flex;align-items:center;gap:7px;font-size:12px;color:#A9A9B3;margin-bottom:6px}
+.rghead .rcount{font-size:11px;color:#A9A9B3}
+.rwrap{display:flex;flex-wrap:wrap;gap:6px}
+.rchip{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:3px 8px 3px 5px;font-size:11px;cursor:pointer;font-family:Consolas,Menlo,monospace;border:1px solid #555}
+.rchip.sel{border-width:2px;margin:-1px}
+.rchip .tick{font-style:normal;font-weight:700}
+.rchip .dot{flex:none}
+.rchip:focus-visible{outline:2px solid #FAB283}
+.custom-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 10px;flex-wrap:wrap;position:relative;border-top:1px solid #26262C;padding-top:14px}
+.copytoast{position:absolute;right:0;bottom:calc(100% + 6px);background:#232329;border:1px solid #3A3A44;color:#E7E7EA;border-radius:6px;padding:4px 10px;font-size:12px;display:none;align-items:center;gap:6px;box-shadow:0 8px 24px rgba(0,0,0,.5);z-index:5;white-space:nowrap}
+.copytoast.show{display:inline-flex}
+.custom-head .t{font-size:12px;color:#FAB283}
+.copybtn{background:#1C1C21;border:1px solid #33333A;color:#C8C8D0;border-radius:6px;padding:4px 10px;font-size:12px}
+.copybtn:hover{background:#232329;border-color:#55555F}
+/* —— 编辑弹窗 —— */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:safe center;justify-content:safe center;z-index:40;padding:18px;overflow:auto}
+.dlg{margin:auto;flex:none;background:#141419;border:1px solid #33333A;border-radius:12px;max-height:95vh;display:flex;flex-direction:column;overflow:hidden}
+.dlg-top{padding:10px 16px;border-bottom:1px solid #26262C;display:flex;flex-direction:column;gap:8px}
+.dlg-top .row1{display:flex;gap:10px;align-items:center;flex-wrap:nowrap;overflow:visible}
+.row1 .abtn,.row1 .seg{flex:none}
+.mode-tag{font-size:16px;font-weight:700;color:#E7E7EA;background:none;padding:0;margin-right:2px;white-space:nowrap;flex:none}
+.edtag{font-size:13px;font-weight:700;border-radius:6px;padding:3px 10px 3px 8px;display:inline-flex;align-items:center;gap:6px;max-width:170px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:0 1 auto;min-width:0}
+.row1 .abtn,.row1 select.txt,.row1 #f-name{height:32px}
+.row1 .abtn{display:inline-flex;align-items:center}
+.row1 .edtag{height:32px}
+.txt{background:#1C1C21;border:1px solid #33333A;color:#E7E7EA;border-radius:6px;padding:6px 10px;font-size:12px;min-width:170px}
+#f-name{flex:1;min-width:0;width:100%}
+.name-wrap{position:relative;flex:1 1 auto;min-width:0;display:flex}
+.name-req{position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:11px;color:#FF6B6B;border:1px solid #FF5252;border-radius:4px;padding:0 6px;pointer-events:none;background:#1C1C21;white-space:nowrap}
+#f-name.name-empty{border-color:#FF5252;box-shadow:0 0 0 1px #FF5252}
+.abtn.primary:disabled{opacity:.45;cursor:not-allowed}
+select.txt{max-width:230px}
+.seg{display:inline-flex;background:transparent;border:0;padding:0;gap:6px;align-items:center}
+.seg button{border:1px solid;font-size:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer;height:32px;padding:0 14px;border-radius:7px;font-weight:400}
+.seg button.seg-dark{background:#0B0B0E;border-color:#3A3A44;color:#EDEDEF}
+.seg button.seg-light{background:rgba(244,244,245,.94);border-color:#77777F;color:#141417}
+.seg button.seg-system{background:linear-gradient(to bottom right,#0B0B0E 0,#0B0B0E 50%,#F4F4F5 50%,#F4F4F5 100%);border-color:#55555F}
+.seg button.seg-system .syslabel{color:#F0F0F0}
+@supports ((-webkit-background-clip:text) or (background-clip:text)){.seg button.seg-system .syslabel{background:linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}}
+.seg button.on{box-shadow:inset 0 0 0 2px #FAB283;font-weight:700}
+.rleft{display:flex;align-items:center;gap:8px;flex:none;min-width:0;flex-wrap:nowrap;overflow:visible}
+.rright{display:flex;align-items:center;gap:8px;margin-left:auto;flex-wrap:nowrap;flex:none}
+#f-target{flex:0 1 150px;min-width:0;max-width:170px}
+.pp-scroll{max-height:280px;overflow:auto;background:#1C1C21;border:1px solid #33333A;border-radius:8px;padding:8px 10px}
+.pp-group{margin-bottom:10px}
+.pp-group:last-child{margin-bottom:0}
+.basechip{display:inline-flex;align-items:center;gap:5px;border-radius:5px;padding:1px 8px 1px 5px;font-size:11px;margin-left:6px;white-space:nowrap}
+.basechip .dot{flex:none}
+.basechip.none{border:1px dashed #55555F;color:#8B8B95;background:transparent;padding:1px 8px}
+.toolbar{display:flex;gap:14px;align-items:center;font-size:12px;color:#A9A9B3;margin-bottom:14px;max-width:1120px}
+.toolbar span{color:#8B8B95}
+.toolbar label{display:inline-flex;align-items:center;gap:7px;cursor:pointer}
+#rmToggle{accent-color:#FAB283;width:14px;height:14px;margin:0}
+.chip svg,.abtn svg,.seg button svg,.copybtn svg{vertical-align:-2px}
+.dlg-body{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);gap:0;min-height:0;flex:1;overflow:hidden}
+.dlg-left{overflow-y:auto;overflow-x:hidden;padding:10px 4px;border-right:1px solid #26262C;min-width:0}
+.dlg-right{overflow:auto;padding:12px 14px;background:#0D0D10;min-width:0}
+.dlg-right.host-light{background:#E2E2E6}
+.gtitle{font-size:12px;color:#9D7CD8;margin:10px 0 6px}
+.tflag{font-size:10px;color:#7FD88F;border:1px solid #3D9A57;border-radius:4px;padding:0 6px;margin-left:6px}
+.gtitle:first-child{margin-top:0}
+.crow{display:flex;align-items:center;flex-wrap:nowrap;gap:6px;padding:5px 4px;border:1px solid transparent;border-radius:8px;cursor:default;position:relative}
+.crow .nm,.mini,.badges{cursor:default}
+.sw,.tbtn{cursor:pointer}
+.abtn,.tbtn,.chip,.pill,.pbtn,.hex,.seg button,.tflag{white-space:nowrap}
+.tbtn,.hex{flex:none}
+.crow:hover{background:#1A1A20;border-color:#2A2A31}
+.crow.target{border-color:#FAB283;background:#1E1A14}
+.crow .nm{flex:0 1 auto;min-width:0}
+.crow .nm b{display:inline-block;max-width:100%;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:top}
+.crow .nm small{display:block;font-size:11px;color:#A0A0A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw{width:30px;height:22px;border-radius:6px;border:1px solid #00000066;flex:none;padding:0}
+.hex{font-family:Consolas,monospace;font-size:11px;color:#C8C8D0;min-width:0;flex:none}
+.tbtn{font-size:11px;background:transparent;border:1px solid #3A3A44;color:#A9A9B3;border-radius:5px;padding:2px 8px;flex:none}
+.dlg-left,.dlg-right,.pp-scroll{scrollbar-width:thin;scrollbar-color:#3A3A44 transparent}
+.dlg-left::-webkit-scrollbar,.dlg-right::-webkit-scrollbar,.pp-scroll::-webkit-scrollbar{width:10px;height:10px}
+.dlg-left::-webkit-scrollbar-thumb,.dlg-right::-webkit-scrollbar-thumb,.pp-scroll::-webkit-scrollbar-thumb{background:#3A3A44;background-clip:padding-box;border:2px solid transparent;border-radius:8px}
+.dlg-left::-webkit-scrollbar-thumb:hover,.dlg-right::-webkit-scrollbar-thumb:hover,.pp-scroll::-webkit-scrollbar-thumb:hover{background:#4A4A55;background-clip:padding-box;border:2px solid transparent}
+.dlg-left::-webkit-scrollbar-track,.dlg-right::-webkit-scrollbar-track,.pp-scroll::-webkit-scrollbar-track{background:transparent}
+#capPrevTop{display:inline-flex;align-items:center;flex:none}
+.dlg-left{scrollbar-color:transparent transparent}
+.dlg-left:hover{scrollbar-color:#3A3A44 transparent}
+.dlg-left::-webkit-scrollbar-thumb{background:transparent;border:2px solid transparent;border-radius:8px}
+.dlg-left:hover::-webkit-scrollbar-thumb{background:#3A3A44;background-clip:padding-box;border:2px solid transparent;border-radius:8px}
+.dlg-right{scrollbar-width:none}
+.dlg-right::-webkit-scrollbar{display:none;width:0 !important;height:0 !important}
+/* 微缩 DSH 画布 */
+.mini{border:1px solid #33333A;border-radius:10px;overflow:hidden;display:grid;grid-template-columns:max-content minmax(0,1fr);min-height:540px;min-width:0}
+.mini.inv{border-color:#D8D8DE}
+.side{padding:10px;display:flex;flex-direction:column;gap:6px}
+.sess{border-radius:6px;padding:6px 8px;font-size:11px;display:flex;align-items:center;gap:6px;border:1px solid transparent}
+.sess.cur{position:relative}
+.sess .bar{position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:2px}
+.main{padding:10px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.bubble{align-self:flex-end;border-radius:10px;padding:8px 12px;font-size:12px;max-width:85%;word-break:keep-all}
+.md{border-radius:8px;padding:10px 12px;font-size:12px}
+.md h4{font-size:14px;margin-bottom:4px}
+.md hr{margin:8px 0;border:0;border-top:1px solid}
+.tip{display:inline-block;font-size:11px;border-radius:20px;padding:2px 10px;margin-top:6px}
+.codecard{border-radius:8px;overflow:hidden;border:1px solid}
+.codehead{display:flex;justify-content:space-between;padding:5px 10px;font-size:11px}
+.codepre{padding:8px 10px;font-family:Consolas,monospace;font-size:11px;overflow:auto;white-space:pre}
+.diffcard{border-radius:8px;overflow:hidden;border:1px solid;font-size:11px;font-family:Consolas,monospace}
+.drow{display:grid;grid-template-columns:34px 1fr}
+.drow .ln{padding:4px 6px;text-align:right}
+.drow .tx{padding:4px 8px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center;min-width:0}
+.codecard,.diffcard,.md,.bubble,.cinput{min-width:0}
+.pill{border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;line-height:1.2}
+.btnrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pbtn{border-radius:7px;padding:5px 16px;font-size:12px;font-weight:700;border:1px solid;line-height:1.2}
+.cinput{border-radius:8px;padding:8px 12px;font-size:12px;border:1px solid}
+.hl{box-shadow:inset 0 0 0 2px #FAB283 !important;animation:breath 1.1s ease-in-out infinite;position:relative}
+@keyframes breath{0%,100%{box-shadow:inset 0 0 0 2px #FAB283,0 0 0 0 rgba(250,178,131,.55)}50%{box-shadow:inset 0 0 0 2px #FAB283,0 0 0 6px rgba(250,178,131,0)}}
+.hl-edge{box-shadow:0 0 0 2px #FAB283 !important;animation:breathEdge 1.1s ease-in-out infinite;position:relative}
+@keyframes breathEdge{0%,100%{box-shadow:0 0 0 2px #FAB283,0 0 0 0 rgba(250,178,131,.55)}50%{box-shadow:0 0 0 2px #FAB283,0 0 0 6px rgba(250,178,131,0)}}
+.slotbadge{position:absolute;top:-9px;right:-6px;font-size:10px;background:#FAB283;color:#141414;border-radius:4px;padding:0 6px;font-family:Consolas,monospace;z-index:3}
+/* popover */
+.popconfirm{position:absolute;top:calc(100% + 8px);right:0;z-index:70;width:max-content;max-width:min(300px,86vw);background:#232329;border:1px solid #4A4A55;border-radius:10px;padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:4px}
+.popconfirm b{font-size:12px;color:#F0F0F0}
+.popconfirm small{font-size:11px;color:#A9A9B3}
+.popconfirm .pc-row{display:flex;gap:8px;margin-top:6px}
+.pop{position:fixed;z-index:60;width:250px;background:#1B1B21;border:1px solid #3D3D47;border-radius:10px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.6)}
+.pop h4{font-size:12px;margin-bottom:8px}
+.sv{width:100%;height:120px;border-radius:8px;position:relative;cursor:crosshair;border:1px solid #00000088;margin-bottom:8px}
+.sv .mk{position:absolute;width:12px;height:12px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #000;transform:translate(-6px,-6px);pointer-events:none}
+.hue{width:100%;margin:4px 0 8px}
+.freq{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.freq button{width:24px;height:18px;border-radius:4px;border:1px solid #00000077;padding:0}
+.pop .prow{display:flex;gap:6px;align-items:center;margin-top:6px}
+.err{color:#F08A97;font-size:12px}
+</style>
+</head>
+<body>
+<div class="proto-flag">试色草稿 · 只看效果，不改动当前主题</div>
+<h1>自定义主题配色</h1>
+<div class="toolbar"><label><input type="checkbox" id="rmToggle"> 减少动态效果</label><span>关闭后试色记录不保留。</span><button class="abtn ghost" data-pi id="langBtn" title="仅原型验证用：切换主题名中/英文">EN</button></div>
+
+<div class="panel">
+<h2>主题配置面板</h2>
+<div class="sub">下面是你的主题，点击即换；改颜色用「新增 / 编辑」。</div>
+<div class="rsec"><span>主题</span><span class="rcount" id="themeCount"></span></div>
+<input class="rsearch" id="q" placeholder="搜索主题…" autocomplete="off">
+<div id="builtinGroups"></div>
+<div class="custom-head">
+<div class="t" id="customTitle"></div>
+<button class="copybtn" id="copyBtn" data-pi></button>
+<div class="copytoast" id="copyToast" role="status"></div>
+</div>
+<div class="chips" id="customChips"></div>
+<div style="margin-top:10px;font-size:12px;color:#A9A9B3" id="appliedLine"></div>
+</div>
+
+<div id="dlgRoot"></div>
+<div id="popRoot"></div>
+
+
+<script id="preset-data" type="application/json">{"amoled":{"appearance":"dark","colors":{"background":"#000000","backgroundPanel":"#121212","backgroundElement":"#242424","sidebarBg":"#000000","bubbleBg":"#121212","inputBg":"#121212","codeBlockBg":"#121212","codeHeaderBg":"#242424","text":"#FFFFFF","textMuted":"#8C8C8C","primary":"#B388FF","secondary":"#5C9CF5","info":"#18FFFF","success":"#00FF88","warning":"#FFEA00","error":"#FF1744","border":"#D6D6D6","borderActive":"#ADADAD","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#FFFFFF","markdownLink":"#FF4081","markdownCode":"#B388FF","markdownEmph":"#FFFFFF","markdownStrong":"#FFFFFF","markdownBlockQuote":"#8C8C8C","syntaxComment":"#555555","syntaxKeyword":"#FF00FF","syntaxFunction":"#B388FF","syntaxType":"#18FFFF","syntaxNumber":"#B388FF","syntaxString":"#00FF88","syntaxOperator":"#8C8C8C"}},"aura":{"appearance":"dark","colors":{"background":"#0F0F0F","backgroundPanel":"#15141B","backgroundElement":"#15141B","sidebarBg":"#0F0F0F","bubbleBg":"#15141B","inputBg":"#15141B","codeBlockBg":"#15141B","codeHeaderBg":"#15141B","text":"#EDECEE","textMuted":"#6D6D6D","primary":"#A277FF","secondary":"#F694FF","info":"#A277FF","success":"#61FFCA","warning":"#FFCA85","error":"#FF6767","border":"#2D2D2D","borderActive":"#6D6D6D","diffAdded":"#61FFCA","diffRemoved":"#FF6767","diffAddedBg":"#354933","diffRemovedBg":"#3F191A","diffAddedLineNumberBg":"#162620","diffRemovedLineNumberBg":"#26161A","markdownHeading":"#A277FF","markdownLink":"#F694FF","markdownCode":"#61FFCA","markdownEmph":"#FFCA85","markdownStrong":"#A277FF","markdownBlockQuote":"#6D6D6D","syntaxComment":"#6D6D6D","syntaxKeyword":"#F694FF","syntaxFunction":"#A277FF","syntaxType":"#A277FF","syntaxNumber":"#9DFF65","syntaxString":"#61FFCA","syntaxOperator":"#F694FF"}},"ayu":{"appearance":"dark","colors":{"background":"#0B0E14","backgroundPanel":"#0F131A","backgroundElement":"#0D1017","sidebarBg":"#0B0E14","bubbleBg":"#0F131A","inputBg":"#0F131A","codeBlockBg":"#0F131A","codeHeaderBg":"#0D1017","text":"#BFBDB6","textMuted":"#565B66","primary":"#59C2FF","secondary":"#D2A6FF","info":"#39BAE6","success":"#7FD962","warning":"#E6B673","error":"#D95757","border":"#6C7380","borderActive":"#6C7380","diffAdded":"#7FD962","diffRemoved":"#F26D78","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#D2A6FF","markdownLink":"#59C2FF","markdownCode":"#AAD94C","markdownEmph":"#E6B673","markdownStrong":"#FFB454","markdownBlockQuote":"#E6B673","syntaxComment":"#ACB6BF","syntaxKeyword":"#FF8F40","syntaxFunction":"#FFB454","syntaxType":"#E6B673","syntaxNumber":"#D2A6FF","syntaxString":"#AAD94C","syntaxOperator":"#F29668"}},"carbonfox":{"appearance":"dark","colors":{"background":"#161616","backgroundPanel":"#1A1A1A","backgroundElement":"#1E1E1E","sidebarBg":"#161616","bubbleBg":"#1A1A1A","inputBg":"#1A1A1A","codeBlockBg":"#1A1A1A","codeHeaderBg":"#1E1E1E","text":"#F2F4F8","textMuted":"#7D848F","primary":"#33B1FF","secondary":"#78A9FF","info":"#78A9FF","success":"#25BE6A","warning":"#F1C21B","error":"#EE5396","border":"#303030","borderActive":"#33B1FF","diffAdded":"#50FA7B","diffRemoved":"#FF6B6B","diffAddedBg":"#0F2418","diffRemovedBg":"#2A1216","diffAddedLineNumberBg":"#0F2418","diffRemovedLineNumberBg":"#2A1216","markdownHeading":"#8CB6FF","markdownLink":"#78A9FF","markdownCode":"#25BE6A","markdownEmph":"#BE95FF","markdownStrong":"#FFFFFF","markdownBlockQuote":"#7D848F","syntaxComment":"#7D848F","syntaxKeyword":"#BE95FF","syntaxFunction":"#8CB6FF","syntaxType":"#08BDBA","syntaxNumber":"#3DDBD9","syntaxString":"#25BE6A","syntaxOperator":"#A9AFBC"}},"catppuccin":{"appearance":"dark","colors":{"background":"#1E1E2E","backgroundPanel":"#181825","backgroundElement":"#11111B","sidebarBg":"#1E1E2E","bubbleBg":"#181825","inputBg":"#181825","codeBlockBg":"#181825","codeHeaderBg":"#11111B","text":"#CDD6F4","textMuted":"#9399B2","primary":"#89B4FA","secondary":"#CBA6F7","info":"#94E2D5","success":"#A6E3A1","warning":"#F9E2AF","error":"#F38BA8","border":"#313244","borderActive":"#45475A","diffAdded":"#A6E3A1","diffRemoved":"#F38BA8","diffAddedBg":"#24312B","diffRemovedBg":"#3C2A32","diffAddedLineNumberBg":"#1E2A25","diffRemovedLineNumberBg":"#32232A","markdownHeading":"#CBA6F7","markdownLink":"#89B4FA","markdownCode":"#A6E3A1","markdownEmph":"#F9E2AF","markdownStrong":"#FAB387","markdownBlockQuote":"#F9E2AF","syntaxComment":"#9399B2","syntaxKeyword":"#CBA6F7","syntaxFunction":"#89B4FA","syntaxType":"#F9E2AF","syntaxNumber":"#FAB387","syntaxString":"#A6E3A1","syntaxOperator":"#89DCEB"}},"catppuccin-frappe":{"appearance":"dark","colors":{"background":"#303446","backgroundPanel":"#292C3C","backgroundElement":"#232634","sidebarBg":"#303446","bubbleBg":"#292C3C","inputBg":"#292C3C","codeBlockBg":"#292C3C","codeHeaderBg":"#232634","text":"#C6D0F5","textMuted":"#949CB8","primary":"#8DA4E2","secondary":"#CA9EE6","info":"#81C8BE","success":"#A6D189","warning":"#E5C890","error":"#E78284","border":"#414559","borderActive":"#51576D","diffAdded":"#A6D189","diffRemoved":"#E78284","diffAddedBg":"#29342B","diffRemovedBg":"#3A2A31","diffAddedLineNumberBg":"#223025","diffRemovedLineNumberBg":"#2F242B","markdownHeading":"#CA9EE6","markdownLink":"#8DA4E2","markdownCode":"#A6D189","markdownEmph":"#E5C890","markdownStrong":"#EF9F76","markdownBlockQuote":"#E5C890","syntaxComment":"#949CB8","syntaxKeyword":"#CA9EE6","syntaxFunction":"#8DA4E2","syntaxType":"#E5C890","syntaxNumber":"#EF9F76","syntaxString":"#A6D189","syntaxOperator":"#99D1DB"}},"catppuccin-macchiato":{"appearance":"dark","colors":{"background":"#24273A","backgroundPanel":"#1E2030","backgroundElement":"#181926","sidebarBg":"#24273A","bubbleBg":"#1E2030","inputBg":"#1E2030","codeBlockBg":"#1E2030","codeHeaderBg":"#181926","text":"#CAD3F5","textMuted":"#939AB7","primary":"#8AADF4","secondary":"#C6A0F6","info":"#8BD5CA","success":"#A6DA95","warning":"#EED49F","error":"#ED8796","border":"#363A4F","borderActive":"#494D64","diffAdded":"#A6DA95","diffRemoved":"#ED8796","diffAddedBg":"#29342B","diffRemovedBg":"#3A2A31","diffAddedLineNumberBg":"#223025","diffRemovedLineNumberBg":"#2F242B","markdownHeading":"#C6A0F6","markdownLink":"#8AADF4","markdownCode":"#A6DA95","markdownEmph":"#EED49F","markdownStrong":"#F5A97F","markdownBlockQuote":"#EED49F","syntaxComment":"#939AB7","syntaxKeyword":"#C6A0F6","syntaxFunction":"#8AADF4","syntaxType":"#EED49F","syntaxNumber":"#F5A97F","syntaxString":"#A6DA95","syntaxOperator":"#91D7E3"}},"cobalt2":{"appearance":"dark","colors":{"background":"#193549","backgroundPanel":"#122738","backgroundElement":"#1F4662","sidebarBg":"#193549","bubbleBg":"#122738","inputBg":"#122738","codeBlockBg":"#122738","codeHeaderBg":"#1F4662","text":"#FFFFFF","textMuted":"#ADB7C9","primary":"#0088FF","secondary":"#9A5FEB","info":"#FF9D00","success":"#9EFF80","warning":"#FFC600","error":"#FF0088","border":"#1F4662","borderActive":"#0088FF","diffAdded":"#9EFF80","diffRemoved":"#FF0088","diffAddedBg":"#1A3A2A","diffRemovedBg":"#3A1A2A","diffAddedLineNumberBg":"#1A3A2A","diffRemovedLineNumberBg":"#3A1A2A","markdownHeading":"#FFC600","markdownLink":"#0088FF","markdownCode":"#9EFF80","markdownEmph":"#FF9D00","markdownStrong":"#FF628C","markdownBlockQuote":"#ADB7C9","syntaxComment":"#0088FF","syntaxKeyword":"#FF9D00","syntaxFunction":"#FFC600","syntaxType":"#2AFFDF","syntaxNumber":"#FF628C","syntaxString":"#9EFF80","syntaxOperator":"#FF9D00"}},"cursor":{"appearance":"dark","colors":{"background":"#181818","backgroundPanel":"#141414","backgroundElement":"#262626","sidebarBg":"#181818","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#262626","text":"#E4E4E4","textMuted":"#E4E4E45E","primary":"#88C0D0","secondary":"#81A1C1","info":"#81A1C1","success":"#3FA266","warning":"#F1B467","error":"#E34671","border":"#E4E4E413","borderActive":"#88C0D0","diffAdded":"#3FA266","diffRemoved":"#E34671","diffAddedBg":"#3FA26633","diffRemovedBg":"#B8004933","diffAddedLineNumberBg":"#3FA26633","diffRemovedLineNumberBg":"#B8004933","markdownHeading":"#AAA0FA","markdownLink":"#82D2CE","markdownCode":"#E394DC","markdownEmph":"#82D2CE","markdownStrong":"#F8C762","markdownBlockQuote":"#E4E4E45E","syntaxComment":"#E4E4E45E","syntaxKeyword":"#82D2CE","syntaxFunction":"#EFB080","syntaxType":"#EFB080","syntaxNumber":"#F8C762","syntaxString":"#E394DC","syntaxOperator":"#E4E4E4"}},"dracula":{"appearance":"dark","colors":{"background":"#282A36","backgroundPanel":"#21222C","backgroundElement":"#44475A","sidebarBg":"#282A36","bubbleBg":"#21222C","inputBg":"#21222C","codeBlockBg":"#21222C","codeHeaderBg":"#44475A","text":"#F8F8F2","textMuted":"#6272A4","primary":"#BD93F9","secondary":"#FF79C6","info":"#FFB86C","success":"#50FA7B","warning":"#F1FA8C","error":"#FF5555","border":"#44475A","borderActive":"#BD93F9","diffAdded":"#50FA7B","diffRemoved":"#FF5555","diffAddedBg":"#1A3A1A","diffRemovedBg":"#3A1A1A","diffAddedLineNumberBg":"#1A3A1A","diffRemovedLineNumberBg":"#3A1A1A","markdownHeading":"#BD93F9","markdownLink":"#8BE9FD","markdownCode":"#50FA7B","markdownEmph":"#F1FA8C","markdownStrong":"#FFB86C","markdownBlockQuote":"#6272A4","syntaxComment":"#6272A4","syntaxKeyword":"#FF79C6","syntaxFunction":"#50FA7B","syntaxType":"#8BE9FD","syntaxNumber":"#BD93F9","syntaxString":"#F1FA8C","syntaxOperator":"#FF79C6"}},"everforest":{"appearance":"dark","colors":{"background":"#2D353B","backgroundPanel":"#333C43","backgroundElement":"#343F44","sidebarBg":"#2D353B","bubbleBg":"#333C43","inputBg":"#333C43","codeBlockBg":"#333C43","codeHeaderBg":"#343F44","text":"#D3C6AA","textMuted":"#7A8478","primary":"#A7C080","secondary":"#7FBBB3","info":"#83C092","success":"#A7C080","warning":"#E69875","error":"#E67E80","border":"#859289","borderActive":"#9DA9A0","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#D699B6","markdownLink":"#A7C080","markdownCode":"#A7C080","markdownEmph":"#DBBC7F","markdownStrong":"#E69875","markdownBlockQuote":"#DBBC7F","syntaxComment":"#7A8478","syntaxKeyword":"#D699B6","syntaxFunction":"#A7C080","syntaxType":"#DBBC7F","syntaxNumber":"#E69875","syntaxString":"#A7C080","syntaxOperator":"#83C092"}},"flexoki":{"appearance":"dark","colors":{"background":"#100F0F","backgroundPanel":"#1C1B1A","backgroundElement":"#282726","sidebarBg":"#100F0F","bubbleBg":"#1C1B1A","inputBg":"#1C1B1A","codeBlockBg":"#1C1B1A","codeHeaderBg":"#282726","text":"#CECDC3","textMuted":"#6F6E69","primary":"#DA702C","secondary":"#4385BE","info":"#3AA99F","success":"#879A39","warning":"#DA702C","error":"#D14D41","border":"#575653","borderActive":"#6F6E69","diffAdded":"#879A39","diffRemoved":"#D14D41","diffAddedBg":"#1A2D1A","diffRemovedBg":"#2D1A1A","diffAddedLineNumberBg":"#152515","diffRemovedLineNumberBg":"#251515","markdownHeading":"#8B7EC8","markdownLink":"#4385BE","markdownCode":"#3AA99F","markdownEmph":"#D0A215","markdownStrong":"#DA702C","markdownBlockQuote":"#D0A215","syntaxComment":"#6F6E69","syntaxKeyword":"#879A39","syntaxFunction":"#DA702C","syntaxType":"#D0A215","syntaxNumber":"#8B7EC8","syntaxString":"#3AA99F","syntaxOperator":"#B7B5AC"}},"github":{"appearance":"dark","colors":{"background":"#0D1117","backgroundPanel":"#010409","backgroundElement":"#161B22","sidebarBg":"#0D1117","bubbleBg":"#010409","inputBg":"#010409","codeBlockBg":"#010409","codeHeaderBg":"#161B22","text":"#C9D1D9","textMuted":"#8B949E","primary":"#58A6FF","secondary":"#BC8CFF","info":"#D29922","success":"#3FB950","warning":"#E3B341","error":"#F85149","border":"#30363D","borderActive":"#58A6FF","diffAdded":"#3FB950","diffRemoved":"#F85149","diffAddedBg":"#033A16","diffRemovedBg":"#67060C","diffAddedLineNumberBg":"#033A16","diffRemovedLineNumberBg":"#67060C","markdownHeading":"#58A6FF","markdownLink":"#58A6FF","markdownCode":"#FF7B72","markdownEmph":"#E3B341","markdownStrong":"#D29922","markdownBlockQuote":"#8B949E","syntaxComment":"#8B949E","syntaxKeyword":"#FF7B72","syntaxFunction":"#BC8CFF","syntaxType":"#D29922","syntaxNumber":"#58A6FF","syntaxString":"#39C5CF","syntaxOperator":"#FF7B72"}},"gruvbox":{"appearance":"dark","colors":{"background":"#282828","backgroundPanel":"#3C3836","backgroundElement":"#504945","sidebarBg":"#282828","bubbleBg":"#3C3836","inputBg":"#3C3836","codeBlockBg":"#3C3836","codeHeaderBg":"#504945","text":"#EBDBB2","textMuted":"#928374","primary":"#83A598","secondary":"#D3869B","info":"#FABD2F","success":"#B8BB26","warning":"#FE8019","error":"#FB4934","border":"#665C54","borderActive":"#EBDBB2","diffAdded":"#98971A","diffRemoved":"#CC241D","diffAddedBg":"#32302F","diffRemovedBg":"#322929","diffAddedLineNumberBg":"#2A2827","diffRemovedLineNumberBg":"#2A2222","markdownHeading":"#83A598","markdownLink":"#8EC07C","markdownCode":"#FABD2F","markdownEmph":"#D3869B","markdownStrong":"#FE8019","markdownBlockQuote":"#928374","syntaxComment":"#928374","syntaxKeyword":"#FB4934","syntaxFunction":"#B8BB26","syntaxType":"#8EC07C","syntaxNumber":"#D3869B","syntaxString":"#FABD2F","syntaxOperator":"#FE8019"}},"kanagawa":{"appearance":"dark","colors":{"background":"#1F1F28","backgroundPanel":"#2A2A37","backgroundElement":"#363646","sidebarBg":"#1F1F28","bubbleBg":"#2A2A37","inputBg":"#2A2A37","codeBlockBg":"#2A2A37","codeHeaderBg":"#363646","text":"#DCD7BA","textMuted":"#727169","primary":"#7E9CD8","secondary":"#957FB8","info":"#76946A","success":"#98BB6C","warning":"#D7A657","error":"#E82424","border":"#54546D","borderActive":"#C38D9D","diffAdded":"#98BB6C","diffRemoved":"#E82424","diffAddedBg":"#252E25","diffRemovedBg":"#362020","diffAddedLineNumberBg":"#202820","diffRemovedLineNumberBg":"#2D1C1C","markdownHeading":"#957FB8","markdownLink":"#7E9CD8","markdownCode":"#98BB6C","markdownEmph":"#C38D9D","markdownStrong":"#D7A657","markdownBlockQuote":"#727169","syntaxComment":"#727169","syntaxKeyword":"#957FB8","syntaxFunction":"#7E9CD8","syntaxType":"#C38D9D","syntaxNumber":"#D7A657","syntaxString":"#98BB6C","syntaxOperator":"#D27E99"}},"lucent-orng":{"appearance":"light","colors":{"background":"transparent","backgroundPanel":"transparent","backgroundElement":"transparent","sidebarBg":"transparent","bubbleBg":"transparent","inputBg":"transparent","codeBlockBg":"transparent","codeHeaderBg":"transparent","text":"#EEEEEE","textMuted":"#808080","primary":"#EC5B2B","secondary":"#EE7948","info":"#56B6C2","success":"#6BA1E6","warning":"#EC5B2B","error":"#E06C75","border":"#EC5B2B","borderActive":"#EE7948","diffAdded":"#6BA1E6","diffRemoved":"#C53B53","diffAddedBg":"transparent","diffRemovedBg":"transparent","diffAddedLineNumberBg":"transparent","diffRemovedLineNumberBg":"transparent","markdownHeading":"#EC5B2B","markdownLink":"#EC5B2B","markdownCode":"#6BA1E6","markdownEmph":"#E5C07B","markdownStrong":"#EE7948","markdownBlockQuote":"#FFF7F1","syntaxComment":"#808080","syntaxKeyword":"#EC5B2B","syntaxFunction":"#EE7948","syntaxType":"#E5C07B","syntaxNumber":"#FFF7F1","syntaxString":"#6BA1E6","syntaxOperator":"#56B6C2"}},"material":{"appearance":"dark","colors":{"background":"#263238","backgroundPanel":"#1E272C","backgroundElement":"#37474F","sidebarBg":"#263238","bubbleBg":"#1E272C","inputBg":"#1E272C","codeBlockBg":"#1E272C","codeHeaderBg":"#37474F","text":"#EEFFFF","textMuted":"#546E7A","primary":"#82AAFF","secondary":"#C792EA","info":"#FFCB6B","success":"#C3E88D","warning":"#FFCB6B","error":"#F07178","border":"#37474F","borderActive":"#82AAFF","diffAdded":"#C3E88D","diffRemoved":"#F07178","diffAddedBg":"#2E3C2B","diffRemovedBg":"#3C2B2B","diffAddedLineNumberBg":"#2E3C2B","diffRemovedLineNumberBg":"#3C2B2B","markdownHeading":"#82AAFF","markdownLink":"#89DDFF","markdownCode":"#C3E88D","markdownEmph":"#FFCB6B","markdownStrong":"#FFCB6B","markdownBlockQuote":"#546E7A","syntaxComment":"#546E7A","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#FFCB6B","syntaxNumber":"#FFCB6B","syntaxString":"#C3E88D","syntaxOperator":"#89DDFF"}},"matrix":{"appearance":"dark","colors":{"background":"#0A0E0A","backgroundPanel":"#0E130D","backgroundElement":"#141C12","sidebarBg":"#0A0E0A","bubbleBg":"#0E130D","inputBg":"#0E130D","codeBlockBg":"#0E130D","codeHeaderBg":"#141C12","text":"#62FF94","textMuted":"#8CA391","primary":"#2EFF6A","secondary":"#00EFFF","info":"#30B3FF","success":"#62FF94","warning":"#E6FF57","error":"#FF4B4B","border":"#1E2A1B","borderActive":"#2EFF6A","diffAdded":"#1CC24B","diffRemoved":"#FF4B4B","diffAddedBg":"#132616","diffRemovedBg":"#261212","diffAddedLineNumberBg":"#0F1B11","diffRemovedLineNumberBg":"#1B1414","markdownHeading":"#00EFFF","markdownLink":"#30B3FF","markdownCode":"#1CC24B","markdownEmph":"#FFA83D","markdownStrong":"#E6FF57","markdownBlockQuote":"#8CA391","syntaxComment":"#8CA391","syntaxKeyword":"#C770FF","syntaxFunction":"#30B3FF","syntaxType":"#E6FF57","syntaxNumber":"#FFA83D","syntaxString":"#1CC24B","syntaxOperator":"#24F6D9"}},"mercury":{"appearance":"dark","colors":{"background":"#171721","backgroundPanel":"#10101A","backgroundElement":"#272735","sidebarBg":"#171721","bubbleBg":"#10101A","inputBg":"#10101A","codeBlockBg":"#10101A","codeHeaderBg":"#272735","text":"#DDDDE5","textMuted":"#9D9DA8","primary":"#8DA4F5","secondary":"#A7B6F8","info":"#77BECF","success":"#77C599","warning":"#FC9B6F","error":"#FC92B4","border":"#B4B7C81F","borderActive":"#8DA4F5","diffAdded":"#77C599","diffRemoved":"#FC92B4","diffAddedBg":"#77C59933","diffRemovedBg":"#FC92B433","diffAddedLineNumberBg":"#77C59933","diffRemovedLineNumberBg":"#FC92B433","markdownHeading":"#FFFFFF","markdownLink":"#8DA4F5","markdownCode":"#77C599","markdownEmph":"#FC9B6F","markdownStrong":"#F4F5F9","markdownBlockQuote":"#9D9DA8","syntaxComment":"#9D9DA8","syntaxKeyword":"#8DA4F5","syntaxFunction":"#8DA4F5","syntaxType":"#77BECF","syntaxNumber":"#FC9B6F","syntaxString":"#77C599","syntaxOperator":"#8DA4F5"}},"monokai":{"appearance":"dark","colors":{"background":"#272822","backgroundPanel":"#1E1F1C","backgroundElement":"#3E3D32","sidebarBg":"#272822","bubbleBg":"#1E1F1C","inputBg":"#1E1F1C","codeBlockBg":"#1E1F1C","codeHeaderBg":"#3E3D32","text":"#F8F8F2","textMuted":"#75715E","primary":"#66D9EF","secondary":"#AE81FF","info":"#FD971F","success":"#A6E22E","warning":"#E6DB74","error":"#F92672","border":"#3E3D32","borderActive":"#66D9EF","diffAdded":"#A6E22E","diffRemoved":"#F92672","diffAddedBg":"#1A3A1A","diffRemovedBg":"#3A1A1A","diffAddedLineNumberBg":"#1A3A1A","diffRemovedLineNumberBg":"#3A1A1A","markdownHeading":"#F92672","markdownLink":"#66D9EF","markdownCode":"#A6E22E","markdownEmph":"#E6DB74","markdownStrong":"#FD971F","markdownBlockQuote":"#75715E","syntaxComment":"#75715E","syntaxKeyword":"#F92672","syntaxFunction":"#A6E22E","syntaxType":"#66D9EF","syntaxNumber":"#AE81FF","syntaxString":"#E6DB74","syntaxOperator":"#F92672"}},"nightowl":{"appearance":"dark","colors":{"background":"#011627","backgroundPanel":"#0B253A","backgroundElement":"#0B253A","sidebarBg":"#011627","bubbleBg":"#0B253A","inputBg":"#0B253A","codeBlockBg":"#0B253A","codeHeaderBg":"#0B253A","text":"#D6DEEB","textMuted":"#5F7E97","primary":"#82AAFF","secondary":"#7FDBCA","info":"#82AAFF","success":"#C5E478","warning":"#ECC48D","error":"#EF5350","border":"#5F7E97","borderActive":"#82AAFF","diffAdded":"#C5E478","diffRemoved":"#EF5350","diffAddedBg":"#0A2E1A","diffRemovedBg":"#2D1B1B","diffAddedLineNumberBg":"#0A2E1A","diffRemovedLineNumberBg":"#2D1B1B","markdownHeading":"#82AAFF","markdownLink":"#7FDBCA","markdownCode":"#C5E478","markdownEmph":"#C792EA","markdownStrong":"#ECC48D","markdownBlockQuote":"#5F7E97","syntaxComment":"#637777","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#C5E478","syntaxNumber":"#F78C6C","syntaxString":"#ECC48D","syntaxOperator":"#7FDBCA"}},"nord":{"appearance":"dark","colors":{"background":"#2E3440","backgroundPanel":"#3B4252","backgroundElement":"#434C5E","sidebarBg":"#2E3440","bubbleBg":"#3B4252","inputBg":"#3B4252","codeBlockBg":"#3B4252","codeHeaderBg":"#434C5E","text":"#ECEFF4","textMuted":"#8B95A7","primary":"#88C0D0","secondary":"#81A1C1","info":"#88C0D0","success":"#A3BE8C","warning":"#D08770","error":"#BF616A","border":"#434C5E","borderActive":"#4C566A","diffAdded":"#A3BE8C","diffRemoved":"#BF616A","diffAddedBg":"#3B4252","diffRemovedBg":"#3B4252","diffAddedLineNumberBg":"#3B4252","diffRemovedLineNumberBg":"#3B4252","markdownHeading":"#88C0D0","markdownLink":"#81A1C1","markdownCode":"#A3BE8C","markdownEmph":"#D08770","markdownStrong":"#EBCB8B","markdownBlockQuote":"#8B95A7","syntaxComment":"#8B95A7","syntaxKeyword":"#81A1C1","syntaxFunction":"#88C0D0","syntaxType":"#8FBCBB","syntaxNumber":"#B48EAD","syntaxString":"#A3BE8C","syntaxOperator":"#81A1C1"}},"oc-2":{"appearance":"dark","colors":{"background":"#1F1F1F","backgroundPanel":"#1C1C1C","backgroundElement":"#232323","sidebarBg":"#1F1F1F","bubbleBg":"#1C1C1C","inputBg":"#1C1C1C","codeBlockBg":"#1C1C1C","codeHeaderBg":"#232323","text":"#EDEDED","textMuted":"#707070","primary":"#FAB283","secondary":"#5C9CF5","info":"#EDB2F1","success":"#12C905","warning":"#FCD53A","error":"#FC533A","border":"#282828","borderActive":"#AEAAA8","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#EDEDED","markdownLink":"#034CFF","markdownCode":"#FAB283","markdownEmph":"#EDEDED","markdownStrong":"#EDEDED","markdownBlockQuote":"#707070","syntaxComment":"#8F8F8F","syntaxKeyword":"#EDB2F1","syntaxFunction":"#FAB283","syntaxType":"#FCD53A","syntaxNumber":"#93E9F6","syntaxString":"#00CEB9","syntaxOperator":"#707070"}},"one-dark":{"appearance":"dark","colors":{"background":"#282C34","backgroundPanel":"#21252B","backgroundElement":"#353B45","sidebarBg":"#282C34","bubbleBg":"#21252B","inputBg":"#21252B","codeBlockBg":"#21252B","codeHeaderBg":"#353B45","text":"#ABB2BF","textMuted":"#5C6370","primary":"#61AFEF","secondary":"#C678DD","info":"#D19A66","success":"#98C379","warning":"#E5C07B","error":"#E06C75","border":"#393F4A","borderActive":"#61AFEF","diffAdded":"#98C379","diffRemoved":"#E06C75","diffAddedBg":"#2C382B","diffRemovedBg":"#3A2D2F","diffAddedLineNumberBg":"#283427","diffRemovedLineNumberBg":"#36292B","markdownHeading":"#C678DD","markdownLink":"#61AFEF","markdownCode":"#98C379","markdownEmph":"#E5C07B","markdownStrong":"#D19A66","markdownBlockQuote":"#5C6370","syntaxComment":"#5C6370","syntaxKeyword":"#C678DD","syntaxFunction":"#61AFEF","syntaxType":"#E5C07B","syntaxNumber":"#D19A66","syntaxString":"#98C379","syntaxOperator":"#56B6C2"}},"onedarkpro":{"appearance":"dark","colors":{"background":"#1E222A","backgroundPanel":"#282C34","backgroundElement":"#32363F","sidebarBg":"#1E222A","bubbleBg":"#282C34","inputBg":"#282C34","codeBlockBg":"#282C34","codeHeaderBg":"#32363F","text":"#ABB2BF","textMuted":"#6C717C","primary":"#61AFEF","secondary":"#5C9CF5","info":"#56B6C2","success":"#98C379","warning":"#E5C07B","error":"#E06C75","border":"#949BA7","borderActive":"#7E848F","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#ABB2BF","markdownLink":"#E06C75","markdownCode":"#61AFEF","markdownEmph":"#ABB2BF","markdownStrong":"#ABB2BF","markdownBlockQuote":"#6C717C","syntaxComment":"#5C6370","syntaxKeyword":"#C678DD","syntaxFunction":"#61AFEF","syntaxType":"#56B6C2","syntaxNumber":"#D19A66","syntaxString":"#98C379","syntaxOperator":"#6C717C"}},"opencode":{"appearance":"dark","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#FAB283","secondary":"#5C9CF5","info":"#56B6C2","success":"#7FD88F","warning":"#F5A742","error":"#E06C75","border":"#484848","borderActive":"#606060","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#9D7CD8","markdownLink":"#FAB283","markdownCode":"#7FD88F","markdownEmph":"#E5C07B","markdownStrong":"#F5A742","markdownBlockQuote":"#E5C07B","syntaxComment":"#808080","syntaxKeyword":"#9D7CD8","syntaxFunction":"#FAB283","syntaxType":"#E5C07B","syntaxNumber":"#F5A742","syntaxString":"#7FD88F","syntaxOperator":"#56B6C2"}},"orng":{"appearance":"dark","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#EC5B2B","secondary":"#EE7948","info":"#56B6C2","success":"#6BA1E6","warning":"#EC5B2B","error":"#E06C75","border":"#EC5B2B","borderActive":"#EE7948","diffAdded":"#6BA1E6","diffRemoved":"#C53B53","diffAddedBg":"#1A2A3D","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#162535","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#EC5B2B","markdownLink":"#EC5B2B","markdownCode":"#6BA1E6","markdownEmph":"#E5C07B","markdownStrong":"#EE7948","markdownBlockQuote":"#FFF7F1","syntaxComment":"#808080","syntaxKeyword":"#EC5B2B","syntaxFunction":"#EE7948","syntaxType":"#E5C07B","syntaxNumber":"#FFF7F1","syntaxString":"#6BA1E6","syntaxOperator":"#56B6C2"}},"osaka-jade":{"appearance":"dark","colors":{"background":"#111C18","backgroundPanel":"#1A2520","backgroundElement":"#23372B","sidebarBg":"#111C18","bubbleBg":"#1A2520","inputBg":"#1A2520","codeBlockBg":"#1A2520","codeHeaderBg":"#23372B","text":"#C1C497","textMuted":"#53685B","primary":"#2DD5B7","secondary":"#D2689C","info":"#2DD5B7","success":"#549E6A","warning":"#E5C736","error":"#FF5345","border":"#3D4A44","borderActive":"#2DD5B7","diffAdded":"#549E6A","diffRemoved":"#FF5345","diffAddedBg":"#15241C","diffRemovedBg":"#241515","diffAddedLineNumberBg":"#121F18","diffRemovedLineNumberBg":"#1F1212","markdownHeading":"#2DD5B7","markdownLink":"#8CD3CB","markdownCode":"#63B07A","markdownEmph":"#D2689C","markdownStrong":"#C1C497","markdownBlockQuote":"#53685B","syntaxComment":"#53685B","syntaxKeyword":"#2DD5B7","syntaxFunction":"#509475","syntaxType":"#549E6A","syntaxNumber":"#D2689C","syntaxString":"#63B07A","syntaxOperator":"#459451"}},"palenight":{"appearance":"dark","colors":{"background":"#292D3E","backgroundPanel":"#1E2132","backgroundElement":"#32364A","sidebarBg":"#292D3E","bubbleBg":"#1E2132","inputBg":"#1E2132","codeBlockBg":"#1E2132","codeHeaderBg":"#32364A","text":"#A6ACCD","textMuted":"#676E95","primary":"#82AAFF","secondary":"#C792EA","info":"#F78C6C","success":"#C3E88D","warning":"#FFCB6B","error":"#F07178","border":"#32364A","borderActive":"#82AAFF","diffAdded":"#C3E88D","diffRemoved":"#F07178","diffAddedBg":"#2E3C2B","diffRemovedBg":"#3C2B2B","diffAddedLineNumberBg":"#2E3C2B","diffRemovedLineNumberBg":"#3C2B2B","markdownHeading":"#C792EA","markdownLink":"#82AAFF","markdownCode":"#C3E88D","markdownEmph":"#FFCB6B","markdownStrong":"#F78C6C","markdownBlockQuote":"#676E95","syntaxComment":"#676E95","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#FFCB6B","syntaxNumber":"#F78C6C","syntaxString":"#C3E88D","syntaxOperator":"#89DDFF"}},"rosepine":{"appearance":"dark","colors":{"background":"#191724","backgroundPanel":"#1F1D2E","backgroundElement":"#26233A","sidebarBg":"#191724","bubbleBg":"#1F1D2E","inputBg":"#1F1D2E","codeBlockBg":"#1F1D2E","codeHeaderBg":"#26233A","text":"#E0DEF4","textMuted":"#6E6A86","primary":"#9CCFD8","secondary":"#C4A7E7","info":"#9CCFD8","success":"#31748F","warning":"#F6C177","error":"#EB6F92","border":"#403D52","borderActive":"#9CCFD8","diffAdded":"#31748F","diffRemoved":"#EB6F92","diffAddedBg":"#1F2D3A","diffRemovedBg":"#3A1F2D","diffAddedLineNumberBg":"#1F2D3A","diffRemovedLineNumberBg":"#3A1F2D","markdownHeading":"#C4A7E7","markdownLink":"#9CCFD8","markdownCode":"#31748F","markdownEmph":"#F6C177","markdownStrong":"#EB6F92","markdownBlockQuote":"#6E6A86","syntaxComment":"#6E6A86","syntaxKeyword":"#31748F","syntaxFunction":"#EBBCBA","syntaxType":"#9CCFD8","syntaxNumber":"#C4A7E7","syntaxString":"#F6C177","syntaxOperator":"#908CAA"}},"shadesofpurple":{"appearance":"dark","colors":{"background":"#1A102B","backgroundPanel":"#29203A","backgroundElement":"#392F49","sidebarBg":"#1A102B","bubbleBg":"#29203A","inputBg":"#29203A","codeBlockBg":"#29203A","codeHeaderBg":"#392F49","text":"#F5F0FF","textMuted":"#928BA0","primary":"#C792FF","secondary":"#5C9CF5","info":"#7DD4FF","success":"#7BE0B0","warning":"#FFD580","error":"#FF7AC6","border":"#D2CCDD","borderActive":"#AFA8BB","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#F5F0FF","markdownLink":"#FF7AC6","markdownCode":"#C792FF","markdownEmph":"#F5F0FF","markdownStrong":"#F5F0FF","markdownBlockQuote":"#928BA0","syntaxComment":"#B362FF","syntaxKeyword":"#FF9D00","syntaxFunction":"#C792FF","syntaxType":"#FAD000","syntaxNumber":"#FF628C","syntaxString":"#A5FF90","syntaxOperator":"#928BA0"}},"solarized":{"appearance":"dark","colors":{"background":"#002B36","backgroundPanel":"#073642","backgroundElement":"#073642","sidebarBg":"#002B36","bubbleBg":"#073642","inputBg":"#073642","codeBlockBg":"#073642","codeHeaderBg":"#073642","text":"#839496","textMuted":"#586E75","primary":"#268BD2","secondary":"#6C71C4","info":"#CB4B16","success":"#859900","warning":"#B58900","error":"#DC322F","border":"#073642","borderActive":"#586E75","diffAdded":"#859900","diffRemoved":"#DC322F","diffAddedBg":"#073642","diffRemovedBg":"#073642","diffAddedLineNumberBg":"#073642","diffRemovedLineNumberBg":"#073642","markdownHeading":"#268BD2","markdownLink":"#2AA198","markdownCode":"#859900","markdownEmph":"#B58900","markdownStrong":"#CB4B16","markdownBlockQuote":"#586E75","syntaxComment":"#586E75","syntaxKeyword":"#859900","syntaxFunction":"#268BD2","syntaxType":"#B58900","syntaxNumber":"#D33682","syntaxString":"#2AA198","syntaxOperator":"#859900"}},"synthwave84":{"appearance":"dark","colors":{"background":"#262335","backgroundPanel":"#1E1A29","backgroundElement":"#2A2139","sidebarBg":"#262335","bubbleBg":"#1E1A29","inputBg":"#1E1A29","codeBlockBg":"#1E1A29","codeHeaderBg":"#2A2139","text":"#FFFFFF","textMuted":"#848BBD","primary":"#36F9F6","secondary":"#FF7EDB","info":"#FF8B39","success":"#72F1B8","warning":"#FEDE5D","error":"#FE4450","border":"#495495","borderActive":"#36F9F6","diffAdded":"#72F1B8","diffRemoved":"#FE4450","diffAddedBg":"#1A3A2A","diffRemovedBg":"#3A1A2A","diffAddedLineNumberBg":"#1A3A2A","diffRemovedLineNumberBg":"#3A1A2A","markdownHeading":"#FF7EDB","markdownLink":"#36F9F6","markdownCode":"#72F1B8","markdownEmph":"#FEDE5D","markdownStrong":"#FF8B39","markdownBlockQuote":"#848BBD","syntaxComment":"#848BBD","syntaxKeyword":"#FF7EDB","syntaxFunction":"#FF8B39","syntaxType":"#36F9F6","syntaxNumber":"#B084EB","syntaxString":"#FEDE5D","syntaxOperator":"#FF7EDB"}},"system":{"appearance":"system","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#FAB283","secondary":"#5C9CF5","info":"#56B6C2","success":"#7FD88F","warning":"#F5A742","error":"#E06C75","border":"#484848","borderActive":"#606060","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#9D7CD8","markdownLink":"#FAB283","markdownCode":"#7FD88F","markdownEmph":"#E5C07B","markdownStrong":"#F5A742","markdownBlockQuote":"#E5C07B","syntaxComment":"#808080","syntaxKeyword":"#9D7CD8","syntaxFunction":"#FAB283","syntaxType":"#E5C07B","syntaxNumber":"#F5A742","syntaxString":"#7FD88F","syntaxOperator":"#56B6C2"},"stub":true},"tokyonight":{"appearance":"dark","colors":{"background":"#1A1B26","backgroundPanel":"#1E2030","backgroundElement":"#222436","sidebarBg":"#1A1B26","bubbleBg":"#1E2030","inputBg":"#1E2030","codeBlockBg":"#1E2030","codeHeaderBg":"#222436","text":"#C8D3F5","textMuted":"#828BB8","primary":"#82AAFF","secondary":"#C099FF","info":"#82AAFF","success":"#C3E88D","warning":"#FF966C","error":"#FF757F","border":"#737AA2","borderActive":"#9099B2","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#C099FF","markdownLink":"#82AAFF","markdownCode":"#C3E88D","markdownEmph":"#FFC777","markdownStrong":"#FF966C","markdownBlockQuote":"#FFC777","syntaxComment":"#828BB8","syntaxKeyword":"#C099FF","syntaxFunction":"#82AAFF","syntaxType":"#FFC777","syntaxNumber":"#FF966C","syntaxString":"#C3E88D","syntaxOperator":"#86E1FC"}},"vercel":{"appearance":"dark","colors":{"background":"#000000","backgroundPanel":"#1A1A1A","backgroundElement":"#292929","sidebarBg":"#000000","bubbleBg":"#1A1A1A","inputBg":"#1A1A1A","codeBlockBg":"#1A1A1A","codeHeaderBg":"#292929","text":"#EDEDED","textMuted":"#878787","primary":"#0070F3","secondary":"#52A8FF","info":"#52A8FF","success":"#46A758","warning":"#FFB224","error":"#E5484D","border":"#1F1F1F","borderActive":"#454545","diffAdded":"#63C46D","diffRemoved":"#FF6166","diffAddedBg":"#0B1D0F","diffRemovedBg":"#2A1314","diffAddedLineNumberBg":"#0F2613","diffRemovedLineNumberBg":"#3C1618","markdownHeading":"#BF7AF0","markdownLink":"#52A8FF","markdownCode":"#63C46D","markdownEmph":"#F2A700","markdownStrong":"#F75590","markdownBlockQuote":"#878787","syntaxComment":"#878787","syntaxKeyword":"#F75590","syntaxFunction":"#BF7AF0","syntaxType":"#0AC7AC","syntaxNumber":"#F2A700","syntaxString":"#63C46D","syntaxOperator":"#F75590"}},"vesper":{"appearance":"dark","colors":{"background":"#101010","backgroundPanel":"#101010","backgroundElement":"#101010","sidebarBg":"#101010","bubbleBg":"#101010","inputBg":"#101010","codeBlockBg":"#101010","codeHeaderBg":"#101010","text":"#FFF","textMuted":"#A0A0A0","primary":"#FFC799","secondary":"#99FFE4","info":"#FFC799","success":"#99FFE4","warning":"#FFC799","error":"#FF8080","border":"#282828","borderActive":"#FFC799","diffAdded":"#99FFE4","diffRemoved":"#FF8080","diffAddedBg":"#0D2818","diffRemovedBg":"#281A1A","diffAddedLineNumberBg":"#0D2818","diffRemovedLineNumberBg":"#281A1A","markdownHeading":"#FFC799","markdownLink":"#FFC799","markdownCode":"#A0A0A0","markdownEmph":"#FFF","markdownStrong":"#FFF","markdownBlockQuote":"#FFF","syntaxComment":"#8B8B8B","syntaxKeyword":"#A0A0A0","syntaxFunction":"#FFC799","syntaxType":"#FFC799","syntaxNumber":"#FFC799","syntaxString":"#99FFE4","syntaxOperator":"#A0A0A0"}},"zenburn":{"appearance":"dark","colors":{"background":"#3F3F3F","backgroundPanel":"#4F4F4F","backgroundElement":"#5F5F5F","sidebarBg":"#3F3F3F","bubbleBg":"#4F4F4F","inputBg":"#4F4F4F","codeBlockBg":"#4F4F4F","codeHeaderBg":"#5F5F5F","text":"#DCDCCC","textMuted":"#9F9F9F","primary":"#8CD0D3","secondary":"#DC8CC3","info":"#DFAF8F","success":"#7F9F7F","warning":"#F0DFAF","error":"#CC9393","border":"#5F5F5F","borderActive":"#8CD0D3","diffAdded":"#7F9F7F","diffRemoved":"#CC9393","diffAddedBg":"#4F5F4F","diffRemovedBg":"#5F4F4F","diffAddedLineNumberBg":"#4F5F4F","diffRemovedLineNumberBg":"#5F4F4F","markdownHeading":"#F0DFAF","markdownLink":"#8CD0D3","markdownCode":"#7F9F7F","markdownEmph":"#E0CF9F","markdownStrong":"#DFAF8F","markdownBlockQuote":"#9F9F9F","syntaxComment":"#7F9F7F","syntaxKeyword":"#F0DFAF","syntaxFunction":"#8CD0D3","syntaxType":"#93E0E3","syntaxNumber":"#8FB28F","syntaxString":"#CC9393","syntaxOperator":"#F0DFAF"}}}</script>
+
+<script>
+/* ===== 纯逻辑模块（无 DOM，可整体搬入 runtime/engine 侧；页面只调用它） ===== */
+(function (g) {
+'use strict';
+var BG_KEYS = ['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg'];
+var ALL_KEYS_37 = ['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg','text','textMuted','primary','secondary','info','success','warning','error','border','borderActive','diffAdded','diffRemoved','diffAddedBg','diffRemovedBg','diffAddedLineNumberBg','diffRemovedLineNumberBg','markdownHeading','markdownLink','markdownCode','markdownEmph','markdownStrong','markdownBlockQuote','syntaxComment','syntaxKeyword','syntaxFunction','syntaxType','syntaxNumber','syntaxString','syntaxOperator'];
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function full37(base32, fallback32) {
+  var c = {};
+  ALL_KEYS_37.forEach(function (k) {
+    if (k === 'sidebarBg') c[k] = base32.background || fallback32.background;
+    else if (k === 'bubbleBg' || k === 'inputBg' || k === 'codeBlockBg') c[k] = base32.backgroundPanel || fallback32.backgroundPanel;
+    else if (k === 'codeHeaderBg') c[k] = base32.backgroundElement || fallback32.backgroundElement;
+    else c[k] = base32[k] || fallback32[k] || '#888888';
+  });
+  return c;
+}
+function seedCustoms(PRESETS) {
+  var fb = PRESETS['opencode'].colors;
+  var a = full37(PRESETS['opencode'].colors, fb); a.primary = '#F5A742';
+  var b = full37(PRESETS['lucent-orng'].colors, fb); b.background = 'transparent';
+  return [
+    { id: 'my-amber', name: '我的琥珀', appearance: 'dark', colors: a },
+    { id: 'mist-light', name: '雾白透底', appearance: 'light', colors: b }
+  ];
+}
+function initialState(PRESETS) {
+  return {
+    applied: 'opencode',
+    customs: seedCustoms(PRESETS),
+    editor: null,
+    pop: null,
+    hl: null,
+    query: '',
+    copy: 'idle',
+    last: '就绪：种子含 2 个自定义（my-amber / mist-light），已应用 opencode。',
+    confirmDelete: false,
+    err: ''
+  };
+}
+function slug(name) {
+  var s = String(name || '').trim().toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+  return s || 'custom';
+}
+function reducer(state, action, PRESETS) {
+  var s = clone(state);
+  s.err = '';
+  var ed = s.editor ? clone(s.editor) : null;
+  function note(t) { s.last = t; }
+  switch (action.type) {
+    case 'RESET':
+      return initialState(PRESETS);
+    case 'OPEN_NEW': {
+      var fb = PRESETS['opencode'].colors;
+      s.editor = { mode: 'new', targetId: null, name: '', appearance: 'dark', colors: full37(fb, fb), changed: [], dirty: false, preset: null, presetOpen: false };
+      s.pop = null; s.confirmDelete = false;
+      note('打开编辑器：新增模式（外观默认 dark，底色取 opencode）。');
+      return s;
+    }
+    case 'OPEN_EDIT': {
+      if (!s.customs.length) { s.err = '暂无自定义主题，先新增。'; note('打开编辑失败：无自定义可编辑。'); return s; }
+      var t = s.customs[0];
+      s.editor = { mode: 'edit', targetId: t.id, name: t.name, appearance: t.appearance, colors: clone(t.colors), changed: [], dirty: false, preset: null, presetOpen: false };
+      s.pop = null; s.confirmDelete = false;
+      note('打开编辑器：编辑模式，目标 ' + t.id + '。');
+      return s;
+    }
+    case 'CLOSE':
+      s.editor = null; s.pop = null; s.confirmDelete = false;
+      note('关闭编辑器（未保存的草稿丢弃——内存态）。');
+      return s;
+    case 'SET_NAME':
+      if (!s.editor) return s;
+      ed.name = String(action.name || ''); ed.dirty = true; s.editor = ed;
+      note('草稿重命名为「' + ed.name + '」。');
+      return s;
+    case 'SET_TARGET': {
+      if (!s.editor || s.editor.mode !== 'edit') return s;
+      var f = null;
+      s.customs.forEach(function (c) { if (c.id === action.id) f = c; });
+      if (!f) { s.err = '找不到目标 ' + action.id; return s; }
+      s.editor = { mode: 'edit', targetId: f.id, name: f.name, appearance: f.appearance, colors: clone(f.colors), changed: [], dirty: false, preset: null, presetOpen: false };
+      s.confirmDelete = false;
+      note('编辑目标切换为 ' + f.id + '（草稿已重置为该主题存盘值）。');
+      return s;
+    }
+    case 'SET_APPEARANCE':
+      if (!s.editor) return s;
+      ed.appearance = action.value; ed.dirty = true;
+      if (ed.changed.indexOf('appearance') < 0) ed.changed.push('appearance');
+      s.editor = ed;
+      note('外观设为 ' + action.value + '。');
+      return s;
+    case 'LOAD_PRESET': {
+      if (!s.editor) return s;
+      var p = PRESETS[action.name];
+      if (!p) { s.err = '未知预置 ' + action.name; return s; }
+      var base = p.colors || PRESETS['opencode'].colors;
+      ed.colors = full37(base, PRESETS['opencode'].colors);
+      ed.appearance = p.appearance;
+      ed.dirty = true; ed.changed = ['preset:' + action.name]; ed.preset = action.name; ed.presetOpen = false;
+      s.editor = ed;
+      note('载入预置 ' + action.name + '：37 色已填入，外观同步为 ' + p.appearance + '。');
+      return s;
+    }
+    case 'TOGGLE_PRESETS':
+      if (!s.editor) return s;
+      ed.presetOpen = !ed.presetOpen;
+      s.pop = null;
+      s.editor = ed;
+      return s;
+    case 'SET_COLOR': {
+      if (!s.editor) return s;
+      var k = action.key, raw = String(action.value || '');
+      var v = raw.toLowerCase() === 'transparent' ? 'transparent' : raw.toUpperCase();
+      if (v !== 'transparent' && !/^#([0-9A-F]{6})$/.test(v)) { s.err = '非法颜色 ' + action.value + '（仅 #RRGGBB 或 transparent）。'; return s; }
+      if (v === 'transparent' && BG_KEYS.indexOf(k) < 0) { s.err = '只有 8 个背景类槽位可设 transparent：' + k + ' 不允许。'; note('拒绝 transparent：' + k + ' 非背景槽。'); return s; }
+      ed.colors[k] = v; ed.dirty = true; ed.preset = null;
+      if (ed.changed.indexOf(k) < 0) ed.changed.push(k);
+      s.editor = ed;
+      note('色位 ' + k + ' 改为 ' + v + '（右侧预览与胶囊已同步）。');
+      return s;
+    }
+    case 'TOGGLE_TRANSPARENT': {
+      if (!s.editor) return s;
+      var kk = action.key;
+      if (BG_KEYS.indexOf(kk) < 0) { s.err = '只有背景类 8 槽可透底。'; return s; }
+      ed.colors[kk] = (ed.colors[kk] === 'transparent' ? PRESETS['opencode'].colors[kk] || '#141414' : 'transparent');
+      ed.dirty = true; ed.preset = null;
+      if (ed.changed.indexOf(kk) < 0) ed.changed.push(kk);
+      s.editor = ed;
+      note('色位 ' + kk + ' 透底切换为 ' + ed.colors[kk] + '。');
+      return s;
+    }
+    case 'SAVE': {
+      if (!s.editor) return s;
+      var nm = String(ed.name || '').trim();
+      if (!nm) { s.err = '主题名称不能为空（保存已拦截）。'; note('保存被拦：名称为空。'); return s; }
+      if (s.editor.mode === 'new') {
+        var baseId = slug(nm) || ('theme-' + Date.now());
+        var nid = baseId, n = 2;
+        while (s.customs.some(function (c) { return c.id === nid; })) { nid = baseId + '-' + (n++); }
+        s.customs.push({ id: nid, name: nm, appearance: ed.appearance, colors: clone(ed.colors) });
+        note('已保存新主题 custom:' + nid + '（面板新增一枚胶囊；面板外 DSH 未动）。');
+        s.editor = null; s.pop = null;
+        return s;
+      } else {
+        var idx = -1;
+        s.customs.forEach(function (c, i) { if (c.id === ed.targetId) idx = i; });
+        if (idx < 0) { s.err = '编辑目标已不存在。'; return s; }
+        s.customs[idx] = { id: ed.targetId, name: nm, appearance: ed.appearance, colors: clone(ed.colors) };
+        if (s.applied === ('custom:' + ed.targetId)) note('已保存并刷新正在应用的 custom:' + ed.targetId + '（编辑激活项时立即刷新）。');
+        else note('已保存 custom:' + ed.targetId + '（面板胶囊已更新；面板外 DSH 未动，点击胶囊才应用）。');
+        s.editor = null; s.pop = null; s.confirmDelete = false;
+        return s;
+      }
+    }
+    case 'DELETE_REQUEST':
+      s.confirmDelete = true;
+      note('已弹出删除确认框：点确认删除才会执行。');
+      return s;
+    case 'DELETE_CANCEL':
+      s.confirmDelete = false;
+      note('已取消删除。');
+      return s;
+    case 'DELETE_CONFIRM': {
+      if (!s.editor || s.editor.mode !== 'edit') return s;
+      var did = ed.targetId;
+      s.customs = s.customs.filter(function (c) { return c.id !== did; });
+      if (s.applied === ('custom:' + did)) { s.applied = 'opencode'; note('已删除 custom:' + did + '，因正在应用，已平滑回退到 opencode。'); }
+      else note('已删除 custom:' + did + '。');
+      s.editor = null; s.pop = null; s.confirmDelete = false;
+      return s;
+    }
+    case 'APPLY': {
+      var aid = action.id;
+      if (aid.indexOf('custom:') === 0) {
+        var cid = aid.slice(7);
+        if (!s.customs.some(function (c) { return c.id === cid; })) { s.err = '该自定义已不存在（孤儿），保持当前应用不变。'; return s; }
+      }
+      s.applied = aid;
+      note('已应用 ' + aid + '（点击胶囊即应用；编辑器草稿不影响此处）。');
+      return s;
+    }
+    case 'QUERY':
+      s.query = String(action.value == null ? '' : action.value);
+      return s;
+    case 'COPY_PATH':
+      s.copy = 'done';
+      note('已复制存储目录路径（原型内模拟写剪贴板，按钮短暂显示 OK 已复制）。');
+      return s;
+    case 'COPY_RESET':
+      s.copy = 'idle';
+      return s;
+    case 'HOVER_KEY':
+      s.hl = action.key || null;
+      if (action.key) note('悬停 ' + action.key + '：右侧对应部件呼吸高亮中。');
+      return s;
+    case 'CLICK_SLOT':
+      if (!s.editor) { note('点击预览 ' + action.key + '：需先打开编辑器（新增/编辑）才会定位弹调色板。'); s.hl = action.key; return s; }
+      s.hl = action.key; s.pop = { key: action.key, orig: Object.assign({}, ed.colors), origDirty: ed.dirty };
+      note('点击预览 ' + action.key + '：左侧已滚动定位并弹出调色板（所见即所点）。');
+      return s;
+    case 'OPEN_POP':
+      if (!s.editor) return s;
+      ed.presetOpen = false; s.editor = ed;
+      s.pop = { key: action.key, orig: Object.assign({}, ed.colors), origDirty: ed.dirty }; s.hl = action.key;
+      note('打开调色板：' + action.key + '。');
+      return s;
+    case 'CLOSE_POP':
+      s.pop = null;
+      return s;
+    case 'REVERT_POP':
+      if (s.editor && s.pop && s.pop.orig) { s.editor.colors = s.pop.orig; s.editor.dirty = s.pop.origDirty; }
+      s.pop = null;
+      note('关闭调色板：没点确定，回到打开前的样子。');
+      return s;
+    default:
+      return s;
+  }
+}
+g.Proto83Logic = { ALL_KEYS_37: ALL_KEYS_37, BG_KEYS: BG_KEYS, initialState: initialState, reducer: reducer, full37: full37, seedCustoms: seedCustoms };
+})(window);
+</script>
+
+<script>
+/* ===== 页面壳（唯一可碰 DOM 的地方；逻辑只进不出） ===== */
+(function () {
+'use strict';
+var PRESETS = JSON.parse(document.getElementById('preset-data').textContent);
+var L = window.Proto83Logic;
+var lastPopKey = null;
+var S = L.reducer(L.initialState(PRESETS), { type: '__init__' }, PRESETS);
+S = Object.assign(L.initialState(PRESETS), {});
+var DSH_DIR = '<DSH_HOME>/opencode-palette/custom-themes';
+var GROUPS = [
+  { id: 'bg', zh: '界面与背景', en: 'Surfaces · 8', keys: [
+    ['background','页面底色','Background','整个对话区背景',1],['backgroundPanel','内容卡底色','Panel','选中的会话、气泡和代码',1],
+    ['backgroundElement','浮层底色','Elevated','悬浮提示和代码顶栏',1],['sidebarBg','侧边栏底色','Sidebar','左侧会话列表',1],
+    ['bubbleBg','消息气泡','Bubble','自己发出的消息',1],['inputBg','输入框底色','Input','底部打字那一栏',1],
+    ['codeBlockBg','代码块底色','Code block','代码正文区',1],['codeHeaderBg','代码标题栏','Code header','文件名那一行',1]] },
+  { id: 'text', zh: '文字', en: 'Text · 2', keys: [
+    ['text','正文','Text','正文和输入的字',0],['textMuted','浅色字','Muted','占位符和次要标签',0]] },
+  { id: 'brand', zh: '品牌与状态', en: 'Brand & status · 6', keys: [
+    ['primary','主题色','Primary','主按钮和选中描边',0],['secondary','辅助色','Secondary','次要按钮',0],
+    ['info','信息色','Info','信息提示',0],['success','成功色','Success','成功提示',0],
+    ['warning','警告色','Warning','警告提示',0],['error','报错色','Error','报错提示',0]] },
+  { id: 'border', zh: '边框', en: 'Border · 2', keys: [
+    ['border','边框线','Border','分割线和卡片描边',0],['borderActive','选中边框','Active border','点中输入框时的外框',0]] },
+  { id: 'diff', zh: '改动对比', en: 'Diff · 6', keys: [
+    ['diffAdded','新增','Added','加进来的行',0],['diffRemoved','删除','Removed','删掉的行',0],
+    ['diffAddedBg','新增行底色','Added bg','加进来那行的底',0],['diffRemovedBg','删除行底色','Removed bg','删掉那行的底',0],
+    ['diffAddedLineNumberBg','新增行号底','Added gutter','行号那一小格的底',0],['diffRemovedLineNumberBg','删除行号底','Removed gutter','行号那一小格的底',0]] },
+  { id: 'md', zh: 'Markdown', en: 'Markdown · 6', keys: [
+    ['markdownHeading','大标题','Heading','AI 回复的标题',0],['markdownLink','链接','Link','能点的链接字',0],
+    ['markdownCode','行内代码','Inline code','正文里的一小段代码',0],['markdownEmph','斜体','Emph','倾斜的强调字',0],
+    ['markdownStrong','粗体','Strong','加粗的字',0],['markdownBlockQuote','引用','Quote','引用块的字和竖线',0]] },
+  { id: 'syn', zh: '代码高亮', en: 'Syntax · 7', keys: [
+    ['syntaxComment','注释','Comment','代码里的注释',0],['syntaxKeyword','关键字','Keyword','if、return 这类词',0],
+    ['syntaxFunction','函数','Function','函数的名字',0],['syntaxType','类型','Type','类型的名字',0],
+    ['syntaxNumber','数字','Number','数字本身',0],['syntaxString','字符串','String','引号里的内容',0],
+    ['syntaxOperator','符号','Operator','+、-、= 这类符号',0]] }
+];
+var KEY_META = {};
+GROUPS.forEach(function (g) { g.keys.forEach(function (k) { KEY_META[k[0]] = { zh: k[1], en: k[2], use: k[3], trans: !!k[4], group: g.zh }; }); });
+var GROUPS83 = [{"name":"warm","color":"#FAB283","themes":[{"name":"flexoki","zh":"Flexoki","bg":"#100F0F","fg":"#CECDC3","primary":"#DA702C","translucent":false},{"name":"oc-2","zh":"OC 2","bg":"#1F1F1F","fg":"#EDEDED","primary":"#FAB283","translucent":false},{"name":"opencode","zh":"opencode","bg":"#0A0A0A","fg":"#EEEEEE","primary":"#FAB283","translucent":false},{"name":"orng","zh":"纯橙","bg":"#0A0A0A","fg":"#EEEEEE","primary":"#EC5B2B","translucent":false},{"name":"vesper","zh":"黄昏星","bg":"#101010","fg":"#FFF","primary":"#FFC799","translucent":false}]},{"name":"yellow-green","color":"#A7C080","themes":[{"name":"everforest","zh":"常青森林","bg":"#2D353B","fg":"#D3C6AA","primary":"#A7C080","translucent":false}]},{"name":"teal","color":"#2DD5B7","themes":[{"name":"gruvbox","zh":"Gruvbox","bg":"#282828","fg":"#EBDBB2","primary":"#83A598","translucent":false},{"name":"matrix","zh":"黑客帝国","bg":"#0A0E0A","fg":"#62FF94","primary":"#2EFF6A","translucent":false}]},{"name":"cyan-blue","color":"#88C0D0","themes":[{"name":"cursor","zh":"Cursor","bg":"#181818","fg":"#E4E4E4","primary":"#88C0D0","translucent":false},{"name":"monokai","zh":"Monokai","bg":"#272822","fg":"#F8F8F2","primary":"#66D9EF","translucent":false},{"name":"nord","zh":"北极","bg":"#2E3440","fg":"#ECEFF4","primary":"#88C0D0","translucent":false},{"name":"osaka-jade","zh":"大阪翡翠","bg":"#111C18","fg":"#C1C497","primary":"#2DD5B7","translucent":false},{"name":"rosepine","zh":"玫瑰松林","bg":"#191724","fg":"#E0DEF4","primary":"#9CCFD8","translucent":false},{"name":"synthwave84","zh":"合成波 84","bg":"#262335","fg":"#FFFFFF","primary":"#36F9F6","translucent":false},{"name":"zenburn","zh":"禅燃","bg":"#3F3F3F","fg":"#DCDCCC","primary":"#8CD0D3","translucent":false}]},{"name":"cool-blue","color":"#82AAFF","themes":[{"name":"ayu","zh":"Ayu","bg":"#0B0E14","fg":"#BFBDB6","primary":"#59C2FF","translucent":false},{"name":"carbonfox","zh":"碳狐","bg":"#161616","fg":"#F2F4F8","primary":"#33B1FF","translucent":false},{"name":"catppuccin","zh":"卡布奇诺","bg":"#1E1E2E","fg":"#CDD6F4","primary":"#89B4FA","translucent":false},{"name":"catppuccin-frappe","zh":"卡布奇诺·冰沙","bg":"#303446","fg":"#C6D0F5","primary":"#8DA4E2","translucent":false},{"name":"catppuccin-macchiato","zh":"卡布奇诺·玛奇朵","bg":"#24273A","fg":"#CAD3F5","primary":"#8AADF4","translucent":false},{"name":"cobalt2","zh":"钴蓝","bg":"#193549","fg":"#FFFFFF","primary":"#0088FF","translucent":false},{"name":"github","zh":"GitHub","bg":"#0D1117","fg":"#C9D1D9","primary":"#58A6FF","translucent":false},{"name":"kanagawa","zh":"神奈川","bg":"#1F1F28","fg":"#DCD7BA","primary":"#7E9CD8","translucent":false},{"name":"material","zh":"材料设计","bg":"#263238","fg":"#EEFFFF","primary":"#82AAFF","translucent":false},{"name":"mercury","zh":"水星","bg":"#171721","fg":"#DDDDE5","primary":"#8DA4F5","translucent":false},{"name":"nightowl","zh":"夜猫子","bg":"#011627","fg":"#D6DEEB","primary":"#82AAFF","translucent":false},{"name":"one-dark","zh":"One Dark","bg":"#282C34","fg":"#ABB2BF","primary":"#61AFEF","translucent":false},{"name":"onedarkpro","zh":"One Dark Pro","bg":"#1E222A","fg":"#ABB2BF","primary":"#61AFEF","translucent":false},{"name":"palenight","zh":"苍白之夜","bg":"#292D3E","fg":"#A6ACCD","primary":"#82AAFF","translucent":false},{"name":"solarized","zh":"Solarized","bg":"#002B36","fg":"#839496","primary":"#268BD2","translucent":false},{"name":"tokyonight","zh":"东京之夜","bg":"#1A1B26","fg":"#C8D3F5","primary":"#82AAFF","translucent":false},{"name":"vercel","zh":"Vercel","bg":"#000000","fg":"#EDEDED","primary":"#0070F3","translucent":false}]},{"name":"violet","color":"#C4A7E7","themes":[{"name":"amoled","zh":"AMOLED","bg":"#000000","fg":"#FFFFFF","primary":"#B388FF","translucent":false},{"name":"aura","zh":"光环","bg":"#0F0F0F","fg":"#EDECEE","primary":"#A277FF","translucent":false},{"name":"dracula","zh":"德古拉","bg":"#282A36","fg":"#F8F8F2","primary":"#BD93F9","translucent":false},{"name":"shadesofpurple","zh":"紫影","bg":"#1A102B","fg":"#F5F0FF","primary":"#C792FF","translucent":false}]},{"name":"transparent","color":"#8B8B95","themes":[{"name":"lucent-orng","zh":"透光橙","bg":null,"fg":"#EEEEEE","primary":"#EC5B2B","translucent":true}]},{"name":"special","color":"#8B8B95","themes":[{"name":"system","zh":"跟随系统","bg":null,"fg":null,"primary":null,"translucent":false}]}];
+var GROUP_ZH = { warm: '暖橙', 'yellow-green': '黄绿', teal: '青绿', 'cyan-blue': '青蓝', 'cool-blue': '冷蓝', violet: '蓝紫', neutral: '中性', transparent: '透明', special: '特殊' };
+/* 主题名双语表（src/engine/zh-names.mjs THEME_ZH/THEME_EN 同键集；中文翻不了的保留原文是既定口径，不是缺失） */
+var THEME_EN = { opencode: 'opencode', tokyonight: 'Tokyo Night', dracula: 'Dracula', gruvbox: 'Gruvbox', matrix: 'Matrix', rosepine: 'Rosé Pine', catppuccin: 'Catppuccin', 'catppuccin-frappe': 'Catppuccin Frappe', 'catppuccin-macchiato': 'Catppuccin Macchiato', solarized: 'Solarized', synthwave84: "SynthWave '84", everforest: 'Everforest', nord: 'Nord', kanagawa: 'Kanagawa', nightowl: 'Night Owl', 'one-dark': 'One Dark', monokai: 'Monokai', palenight: 'Palenight', material: 'Material', ayu: 'Ayu', carbonfox: 'CarbonFox', cobalt2: 'Cobalt2', cursor: 'Cursor', aura: 'Aura', flexoki: 'Flexoki', github: 'GitHub', zenburn: 'Zenburn', mercury: 'Mercury', 'osaka-jade': 'Osaka Jade', vesper: 'Vesper', vercel: 'Vercel', 'lucent-orng': 'Lucent Orange', orng: 'Orange', amoled: 'AMOLED', 'oc-2': 'OC 2', onedarkpro: 'One Dark Pro', shadesofpurple: 'Shades of Purple', system: 'System' };
+var UILANG = 'zh';
+var NAME2T = {};
+GROUPS83.forEach(function (g) { g.themes.forEach(function (t) { NAME2T[t.name] = t; }); });
+function themeLabel(n) {
+  if (UILANG === 'en') return THEME_EN[n] || n;
+  var t = NAME2T[n];
+  return t ? t.zh : n;
+}
+var APPEAR_ZH = { dark: '深色', light: '浅色', system: '跟随系统' };
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+/* ---- 图标（全 SVG path 手绘，零 emoji，零 circle 标签） ---- */
+var ICONS = {
+  check: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 4.8 9 10 3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  copy: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 4.5h5v5h-5z M2.5 7.5v-5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>',
+  plus: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 2v8M2 6h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  pencil: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M8.6 2.1l1.3 1.3L5 8.3 3.2 8.8 3.7 7z M7.8 2.9l1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  trash: '<svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.3 3.3h7.4M4.6 3.3V2.4h2.8v.9M3.5 3.3l.5 6.3h4l.5-6.3M5.1 5.4v2.4M6.9 5.4v2.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  moon: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M9.6 7.3A4.1 4.1 0 0 1 4.7 2.4a4.1 4.1 0 1 0 4.9 4.9z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>',
+  sun: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.3 6a1.7 1.7 0 1 0 3.4 0 1.7 1.7 0 0 0-3.4 0z M6 1.5v1.3M6 9.2v1.3M1.5 6h1.3M9.2 6h1.3M2.8 2.8l.9.9M8.4 8.4l.9.9M9.2 2.8l-.9.9M3.6 8.4l-.8.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+  monitor: '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1.8 2.3h8.4v5.2H1.8zM4.4 9.7h3.2M6 7.5v2.2" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>'
+};
+function dispatch(a) { S = L.reducer(S, a, PRESETS); render(); }
+function chipStyle(colors, appearance, selected) {
+  var bg = colors.background;
+  var lightTrans = (appearance === 'light' && bg === 'transparent');
+  var face = lightTrans ? '#FFFFFF' : (bg === 'transparent' ? '#FFFFFF' : bg);
+  var fg = lightTrans ? '#1A1A1A' : (bg === 'transparent' ? '#1A1A1A' : colors.text);
+  return 'background:' + face + ';color:' + fg + ';border:' + (selected ? '2px solid ' + colors.primary : '1px solid ' + colors.primary);
+}
+
+function doCopy() {
+  dispatch({ type: 'COPY_PATH' });
+  try {
+    var p = DSH_DIR.replace('<DSH_HOME>', '~/.dsh');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(p).catch(function () {});
+  } catch (e) {}
+  setTimeout(function () { S = L.reducer(S, { type: 'COPY_RESET' }, PRESETS); render(); }, 1400);
+}
+/* ---- 自带主题区：真实面板渲染管线（runtime/client.mjs chip 906-931 行 + 分组头 1172-1176 行 + 搜索 668-672 行，React h() 译为字符串/DOM 模板；数据 GROUPS83 由真实引擎 themeGroups('dark') 导出，见文件头注释） ----
+   已知偏离（抛弃式原型取舍）：宿主取深色基线（原型页恒深）；搜索对 id+中文名+英文名（旧中文别名未进）；✓ 常驻占位（真实条件渲染，原型防抖动）；无匹配提示文案为原型自拟；工具条中/EN 切换只换主题名（全界面英化是 #59 范畴）。 */
+function searchText(t) { return (t.name + ' ' + t.zh + ' ' + (THEME_EN[t.name] || '')).toLowerCase(); }
+function realChipStyle(t, isCur) {
+  var bg = t.translucent ? '#FFFFFF' : (t.name === 'system' ? '#0A0A0A' : (t.bg || '#0A0A0A'));
+  var fg = t.translucent ? '#1A1A1A' : (t.fg || '#E7E7EA');
+  return 'background:' + bg + ';color:' + fg + ';border:' +
+    (isCur ? '2px solid #FAB283' : '1px solid ' + (t.primary || '#555')) +
+    (isCur ? ';outline:1px solid #FAB283' : '');
+}
+function realChipInner(t, label, isCur) {
+  var dotColor = t.name === 'system' ? '#8B8B95' : (t.primary || '#555');
+  return '<span class="dot" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:' + dotColor + '"></span>' + esc(label) +
+    ' <i class="tick" style="color:#FAB283;' + (isCur ? '' : 'visibility:hidden') + '">' + ICONS.check + '</i>';
+}
+function realChip(t, isCur) {
+  var b = document.createElement('button');
+  b.className = 'rchip' + (isCur ? ' sel' : '');
+  b.style.cssText = realChipStyle(t, isCur);
+  var label = themeLabel(t.name);
+  b.innerHTML = realChipInner(t, label, isCur);
+  if (t.translucent) b.title = '透光主题：背景交给宿主';
+  b.onclick = (function (id) { return function () { dispatch({ type: 'APPLY', id: id }); }; })(t.name);
+  return b;
+}
+function renderBuiltin() {
+  var total = 0;
+  GROUPS83.forEach(function (g) { total += g.themes.length; });
+  document.getElementById('themeCount').textContent = total + ' 款 · 按色系分组';
+  var q = String(S.query || '').trim().toLowerCase();
+  var box = document.getElementById('builtinGroups');
+  box.innerHTML = '';
+  GROUPS83.forEach(function (g) {
+    var list = g.themes.filter(function (t) { return q === '' || searchText(t).indexOf(q) >= 0; });
+    if (!list.length) return;
+    var gd = document.createElement('div'); gd.className = 'rgroup';
+    var hd = document.createElement('div'); hd.className = 'rghead';
+    hd.innerHTML = '<span class="dot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + g.color + '"></span>' +
+      esc(GROUP_ZH[g.name] || g.name) + '<span class="rcount">' + list.length + '</span>';
+    var wrap = document.createElement('div'); wrap.className = 'rwrap';
+    list.forEach(function (t) { wrap.appendChild(realChip(t, S.applied === t.name)); });
+    gd.appendChild(hd); gd.appendChild(wrap); box.appendChild(gd);
+  });
+  if (!box.innerHTML) box.innerHTML = '<div style="font-size:12px;color:#8B8B95;padding:8px 0">没有匹配的主题</div>';
+}
+function renderPanel() {
+  renderBuiltin();
+  document.getElementById('customTitle').innerHTML = '<span class="dot" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#FAB283"></span> 自定义主题 ' + S.customs.length;
+  var cb = document.getElementById('copyBtn');
+  cb.innerHTML = ICONS.copy + ' 复制配置路径';
+  cb.onclick = doCopy;
+  cb.title = DSH_DIR;
+  var toast = document.getElementById('copyToast');
+  if (toast) {
+    toast.innerHTML = ICONS.check + ' 已复制';
+    if (S.copy === 'done') toast.classList.add('show');
+    else toast.classList.remove('show');
+  }
+  var cc = document.getElementById('customChips');
+  cc.innerHTML = '';
+  S.customs.forEach(function (t) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (S.applied === ('custom:' + t.id) ? ' sel' : '');
+    b.setAttribute('data-pi', '');
+    b.style.cssText = chipStyle(t.colors, t.appearance, S.applied === ('custom:' + t.id));
+    b.innerHTML = '<span class="dot" style="background:' + t.colors.primary + '"></span>' + esc(t.name) +
+      ' <i class="tick" style="color:' + t.colors.primary + ';' + (S.applied === ('custom:' + t.id) ? '' : 'visibility:hidden') + '">' + ICONS.check + '</i>';
+    b.title = '点击直接换上，不打开编辑';
+    b.onclick = (function (id) { return function () { dispatch({ type: 'APPLY', id: 'custom:' + id }); }; })(t.id);
+    cc.appendChild(b);
+  });
+  [[ICONS.plus + ' 新增', 'new'], [ICONS.pencil + ' 编辑', 'edit']].forEach(function (it) {
+    var b = document.createElement('button');
+    b.className = 'chip op-chip'; b.setAttribute('data-pi', '');
+    b.innerHTML = it[0];
+    b.title = it[1] === 'new' ? '新建一个主题' : '修改、删除已有主题';
+    b.onclick = function () { dispatch({ type: it[1] === 'new' ? 'OPEN_NEW' : 'OPEN_EDIT' }); };
+    if (it[1] === 'edit' && !S.customs.length) { b.disabled = true; b.style.opacity = '.45'; }
+    cc.appendChild(b);
+  });
+  document.getElementById('appliedLine').textContent = '正在使用 ' + S.applied + '，点名字直接换；编辑器里只改右侧预览，不碰当前主题。';
+}
+/* ---- 编辑器弹窗 ---- */
+function hexOrTrans(v, k, light) {
+  if (v !== 'transparent') return String(v || '').toUpperCase();
+  var fb = { background: '#101014', backgroundPanel: '#232329', backgroundElement: '#232329', sidebarBg: '#1A1A1E', bubbleBg: '#232329', inputBg: '#1C1C21', codeBlockBg: '#16161A', codeHeaderBg: '#232329' }[k] || '#141414';
+  return (light ? (FB_DARK2LIGHT[fb] || '#FFFFFF') : fb).toUpperCase();
+}
+function renderDlg() {
+  var root = document.getElementById('dlgRoot');
+  if (!S.editor) { root.innerHTML = ''; lastPopKey = null; document.getElementById('popRoot').innerHTML = ''; return; }
+  var ed = S.editor;
+  var html = '<div class="backdrop"><div class="dlg" role="dialog" aria-label="主题编辑器">';
+  html += '<div class="dlg-top"><div class="row1"><span class="rleft"><span class="mode-tag">' + (ed.mode === 'new' ? '新建' : '编辑') + '</span>';
+  if (ed.mode === 'edit') {
+    var tgt = null;
+    S.customs.forEach(function (c) { if (c.id === ed.targetId) tgt = c; });
+    if (tgt) {
+      var tgtBg = tgt.colors.background === 'transparent';
+      html += '<span class="edtag" style="background:' + esc(tgtBg ? '#FFFFFF' : tgt.colors.background) + ';color:' + esc(tgtBg ? '#1A1A1A' : tgt.colors.text) + ';border:1px solid ' + esc(tgt.colors.primary) + '" title="当前正在编辑这个主题（存盘值）"><span class="dot" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:' + esc(tgt.colors.primary) + '"></span>正在编辑 · ' + esc(tgt.name) + '</span>';
+    }
+  }
+  if (ed.mode === 'edit') {
+    html += '<select class="txt" id="f-target">' + S.customs.map(function (c) {
+      return '<option value="' + esc(c.id) + '"' + (c.id === ed.targetId ? ' selected' : '') + '>' + esc(c.name) + '</option>';
+    }).join('') + '</select>';
+  }
+  var nameEmpty = !String(ed.name || '').trim();
+  html += '<span class="name-wrap"><input class="txt' + (nameEmpty ? ' name-empty' : '') + '" id="f-name" placeholder="给主题起个名字" value="' + esc(ed.name) + '"' + (nameEmpty ? ' aria-invalid="true" title="先起个名字"' : '') + '>' + (nameEmpty ? '<span class="name-req">还没起名</span>' : '') + '</span>';
+  html += '<span id="capPrevTop" title="以后在列表里的样子"></span>';
+  var basechip = '';
+  if (ed.preset) {
+    var bt = NAME2T[ed.preset];
+    if (!bt) { var bp0 = PRESETS[ed.preset] || {}; var bpc = bp0.colors || PRESETS['opencode'].colors; bt = { name: ed.preset, bg: bpc.background, fg: bpc.text, primary: bpc.primary, translucent: false }; }
+    basechip = '<span class="basechip" style="' + esc(realChipStyle(bt, false)) + '"><span class="dot" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:' + esc(bt.name === 'system' ? '#8B8B95' : (bt.primary || '#555')) + '"></span>' + esc(themeLabel(ed.preset)) + '</span>';
+  } else basechip = '<span class="basechip none">未选</span>';
+  html += '<button class="abtn" data-pi id="f-presetbtn" title="选个底子开始调：载入后 37 色与外观一次填好">选基底' + basechip + '</button>';
+  html += '</span><span class="rright">';
+  var SYSICON = '<svg width="13" height="13" viewBox="0 0 13 13" aria-hidden="true"><path d="M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z" fill="#F4F4F5"/><path d="M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z" fill="#0B0B0E"/><path d="M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z" fill="none" stroke="#8B8B95" stroke-width="1"/></svg>';
+  html += '<div class="seg" id="f-appear">' + ['dark', 'light', 'system'].map(function (v) {
+    var t = v === 'dark' ? ['深色', ICONS.moon, '深色：换上这个主题后一直是深色'] : (v === 'light' ? ['浅色', ICONS.sun, '浅色：换上这个主题后一直是浅色'] : ['跟随系统', SYSICON, '跟随系统：深浅跟系统走']);
+    return '<button data-pi data-v="' + v + '" class="seg-' + v + (ed.appearance === v ? ' on' : '') + '" title="' + t[2] + '">' + t[1] + ' ' + (v === 'system' ? '<span class="syslabel">' + t[0] + '</span>' : t[0]) + '</button>';
+  }).join('') + '</div>';
+  if (ed.mode === 'edit') {
+    html += '<span id="delWrap" style="position:relative;display:inline-flex">';
+    html += '<button class="abtn danger" data-pi id="f-del">' + ICONS.trash + ' 删除</button>';
+    if (S.confirmDelete) {
+      html += '<span class="popconfirm" id="delPop" role="alertdialog" aria-label="删除确认"><b>删除「' + esc(ed.name || ed.targetId || '') + '」？</b><small>自定义主题删除后不可恢复。</small><span class="pc-row"><button class="abtn danger" data-pi id="f-del2">确认删除</button><button class="abtn ghost" data-pi id="f-delcancel">取消</button></span></span>';
+    }
+    html += '</span>';
+  }
+  html += '<button class="abtn ghost" data-pi id="f-cancel" title="不保存，直接关闭">取消</button><button class="abtn primary" data-pi id="f-save" title="保存后出现在自定义主题里"' + (nameEmpty ? ' disabled title="先起个名字"' : '') + '>保存主题</button>';
+  html += '</span></div>';
+  html += '</div>';
+  html += '<div class="dlg-body"><div class="dlg-left" id="f-left">';
+  GROUPS.forEach(function (g) {
+    var hasTrans = g.keys.some(function (kk) { return KEY_META[kk[0]].trans; });
+    html += '<div class="gtitle">' + esc(g.zh) + (hasTrans ? '<span class="tflag">可设透明</span>' : '') + '</div>';
+    g.keys.forEach(function (kk) {
+      var k = kk[0], v = ed.colors[k];
+      var meta = KEY_META[k];
+      html += '<div class="crow" data-row="' + k + '"><div class="nm"><b>' + esc(meta.zh) + '</b><small>' + esc(meta.use) + '</small></div>';
+      html += '<button class="sw" data-pi data-sw="' + k + '" style="background:' + (v === 'transparent' ? 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' : esc(v)) + '" title="换个颜色"></button>';
+      html += '<span class="hex">' + esc(hexOrTrans(v, k, effAppearance(ed) === 'light')) + '</span>';
+      html += '</div>';
+    });
+  });
+  html += '</div><div class="dlg-right">';
+  html += '<div class="mini" id="mini"></div>';
+
+  html += '</div></div>';
+
+  html += '</div></div>';
+  var keepFl = document.getElementById('f-left'); var keepTop = keepFl ? keepFl.scrollTop : 0;
+  root.innerHTML = html;
+  var newFl = document.getElementById('f-left'); if (newFl) newFl.scrollTop = keepTop;
+  /* 胶囊预览（顶栏名字框右侧） */
+  var capT = document.getElementById('capPrevTop');
+  var lightTrans = (ed.appearance === 'light' && ed.colors.background === 'transparent');
+  if (capT) capT.innerHTML = '<span class="chip' + ' sel' + '" style="' + chipStyle(ed.colors, ed.appearance, true) + ';cursor:default"><span class="dot" style="background:' + esc(ed.colors.primary) + '"></span>' +
+    esc(ed.name || '（未命名）') + ' <i class="tick" style="color:' + esc(ed.colors.primary) + '">' + ICONS.check + '</i></span>' +
+    (lightTrans ? '<span style="font-size:11px;color:#8B8B95">（浅色下透明处显示为白色）</span>' : '');
+  renderMini(ed);
+  fitWidth();
+  /* 事件 */
+  document.getElementById('f-cancel').onclick = function () { dispatch({ type: 'CLOSE' }); };
+  document.getElementById('f-save').onclick = function () { dispatch({ type: 'SAVE' }); };
+  var nm = document.getElementById('f-name');
+  nm.oninput = function () {
+    S = L.reducer(S, { type: 'SET_NAME', name: nm.value }, PRESETS);
+    renderMini(S.editor); syncCap(); fitWidth();
+    var empty = !String(nm.value || '').trim();
+    nm.classList.toggle('name-empty', empty);
+    if (empty) nm.setAttribute('aria-invalid', 'true'); else nm.removeAttribute('aria-invalid');
+    var tag = nm.parentNode.querySelector('.name-req');
+    if (!tag && empty) { tag = document.createElement('span'); tag.className = 'name-req'; tag.textContent = '还没起名'; nm.parentNode.appendChild(tag); }
+    if (tag) tag.style.display = empty ? '' : 'none';
+    var sv = document.getElementById('f-save');
+    if (sv) { sv.disabled = empty; sv.title = empty ? '先起个名字' : '保存后出现在自定义主题里'; }
+  };
+  var tg = document.getElementById('f-target');
+  if (tg) tg.onchange = function () { dispatch({ type: 'SET_TARGET', id: tg.value }); };
+  document.querySelectorAll('#f-appear button').forEach(function (b) {
+    b.onclick = function () { dispatch({ type: 'SET_APPEARANCE', value: b.getAttribute('data-v') }); };
+  });
+  var del = document.getElementById('f-del');
+  if (del) del.onclick = function () { dispatch({ type: 'DELETE_REQUEST' }); };
+  var del2 = document.getElementById('f-del2');
+  if (del2) del2.onclick = function () { dispatch({ type: 'DELETE_CONFIRM' }); };
+  var delc = document.getElementById('f-delcancel');
+  if (delc) delc.onclick = function () { dispatch({ type: 'DELETE_CANCEL' }); };
+  var pbtn = document.getElementById('f-presetbtn');
+  if (pbtn) pbtn.onclick = function () { dispatch({ type: 'TOGGLE_PRESETS' }); };
+  if (ed.presetOpen) { var pba = document.getElementById('f-presetbtn'); openPresetPop(pba || undefined); }
+  else { var stalePP = document.getElementById('presetPop'); if (stalePP) stalePP.remove(); }
+  /* 左行 hover + sw */
+  document.querySelectorAll('#f-left .crow').forEach(function (row) {
+    var k = row.getAttribute('data-row');
+    row.onmouseenter = function () { S.hlFrom = 'row'; S = L.reducer(S, { type: 'HOVER_KEY', key: k }, PRESETS); paintHl(); };
+    row.onmouseleave = function () { S.hlFrom = null; S = L.reducer(S, { type: 'HOVER_KEY', key: null }, PRESETS); paintHl(); };
+  });
+  document.querySelectorAll('[data-sw]').forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); placePop(b, b.getAttribute('data-sw')); };
+  });
+  /* 右画布点击 */
+  document.querySelectorAll('#mini [data-slot]').forEach(function (el) {
+    el.style.cursor = 'pointer';
+    el.onclick = function (e) {
+      e.stopPropagation();
+      var k = el.getAttribute('data-slot');
+      S = L.reducer(S, { type: 'CLICK_SLOT', key: k }, PRESETS);
+      S.hlFrom = 'row';
+      render(); scrollToRow(k);
+    };
+    el.onmouseenter = function () { S.hlFrom = 'mini'; S.hl = el.getAttribute('data-slot'); paintHl(); };
+    el.onmouseleave = function () { S.hlFrom = null; S.hl = null; paintHl(); };
+  });
+  if (S.pop) { if (lastPopKey !== S.pop.key) { scrollToRow(S.pop.key); lastPopKey = S.pop.key; } var live = document.querySelector('#f-left [data-row="' + S.pop.key + '"] [data-sw]'); var curPop = document.getElementById('pop'); if (!curPop || curPop.getAttribute('data-key') !== S.pop.key) openPop(S.pop.key, live || undefined); else if (curPop._sync && S.editor) curPop._sync(S.editor.colors[S.pop.key]); }
+  else { lastPopKey = null; var staleC = document.getElementById('pop'); if (staleC) staleC.remove(); }
+  if (S.hl) paintHl();
+}
+function fitWidth() {
+  var dlg = document.querySelector('#dlgRoot .dlg'); if (!dlg) return;
+  var row = dlg.querySelector('.row1'); if (!row) return;
+  function textW(t, cs) {
+    var m = document.createElement('span');
+    m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + cs.fontSize + ';font-family:' + cs.fontFamily + ';font-weight:' + cs.fontWeight;
+    m.textContent = t;
+    document.body.appendChild(m);
+    var w = m.offsetWidth;
+    m.remove();
+    return w;
+  }
+  var tgsel0 = dlg.querySelector('#f-target');
+  if (tgsel0 && tgsel0.options && tgsel0.options.length) {
+    var selTxt0 = tgsel0.options[tgsel0.selectedIndex >= 0 ? tgsel0.selectedIndex : 0].text;
+    var cs00 = getComputedStyle(tgsel0);
+    var padX0 = parseFloat(cs00.paddingLeft) + parseFloat(cs00.paddingRight) + parseFloat(cs00.borderLeftWidth) + parseFloat(cs00.borderRightWidth);
+    var sw00 = textW(selTxt0, cs00) + padX0 + 26;
+    tgsel0.style.flex = 'none'; tgsel0.style.minWidth = '0'; tgsel0.style.maxWidth = 'none';
+    sw00 = Math.max(80, Math.min(220, sw00));
+    tgsel0.style.width = sw00 + 'px';
+    var guard0 = 0;
+    while (guard0++ < 5 && tgsel0.scrollWidth > tgsel0.clientWidth + 1 && sw00 < 240) { sw00 += 8; tgsel0.style.width = sw00 + 'px'; }
+  }
+  var gap = 10, pad = 32, need = 0, n = 0;
+  Array.prototype.forEach.call(row.children, function (zone) {
+    if (zone.classList && zone.classList.contains('rleft')) {
+      Array.prototype.forEach.call(zone.children, function (it) {
+        var isName = it.classList && it.classList.contains('name-wrap');
+        if (isName) {
+          var inp = it.querySelector('#f-name');
+          var t = inp ? (inp.value || inp.placeholder || '') : '';
+          var nw = inp ? textW(t, getComputedStyle(inp)) + 24 : 150;
+          var nr = it.querySelector('.name-req');
+          if (nr) nw += nr.offsetWidth + 18;
+          if (inp) { var cssMin = parseFloat(getComputedStyle(inp).minWidth); if (!isNaN(cssMin)) nw = Math.max(nw, cssMin); }
+          var final = Math.max(90, nw);
+          need += final;
+          if (inp) inp.style.width = final + 'px';
+        } else need += it.offsetWidth;
+        n++;
+      });
+    } else { need += zone.offsetWidth; n++; }
+  });
+  need += gap * Math.max(0, n - 1) + pad;
+  dlg.style.width = Math.round(need) + 'px';
+  var nms = dlg.querySelectorAll('#f-left .crow .nm'), mw = 0;
+  Array.prototype.forEach.call(nms, function (x) { x.style.width = ''; });
+  Array.prototype.forEach.call(nms, function (x) { mw = Math.max(mw, x.offsetWidth); });
+  if (mw > 0) Array.prototype.forEach.call(nms, function (x) { x.style.width = mw + 'px'; });
+}
+function syncCap() {
+  var ed = S.editor; if (!ed) return;
+  var cap = document.getElementById('capPrevTop'); if (!cap) return;
+  cap.innerHTML = '<span class="chip sel" style="' + chipStyle(ed.colors, ed.appearance, true) + ';cursor:default"><span class="dot" style="background:' + esc(ed.colors.primary) + '"></span>' +
+    esc(ed.name || '（未命名）') + ' <i class="tick" style="color:' + esc(ed.colors.primary) + '">' + ICONS.check + '</i></span>';
+}
+var MINI_LIGHT = false;
+var FB_DARK2LIGHT = { '#1A1A1E': '#F4F4F5', '#232329': '#FFFFFF', '#101014': '#FFFFFF', '#16161A': '#F7F7F8', '#1C1C21': '#FFFFFF' };
+function effAppearance(ed) {
+  if (!ed || ed.appearance === 'dark') return 'dark';
+  if (ed.appearance === 'light') return 'light';
+  try { return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; } catch (e) { return 'dark'; }
+}
+function slotBg(v, fb) {
+  if (v === 'transparent') return MINI_LIGHT ? (FB_DARK2LIGHT[fb] || '#FFFFFF') : fb;
+  return v;
+}
+function renderMini(ed) {
+  var c = ed.colors;
+  MINI_LIGHT = (effAppearance(ed) === 'light');
+  var drEl = document.querySelector('.dlg-right');
+  if (drEl) drEl.classList.toggle('host-light', MINI_LIGHT);
+  var miniEl = document.getElementById('mini');
+  var bgRes = slotBg(c.background, '#101014');
+  var ringLight = (bgRes !== 'transparent' && pickText(bgRes) === '#141414');
+  if (miniEl) miniEl.classList.toggle('inv', ringLight);
+  function tx(v) { return v === 'transparent' ? (MINI_LIGHT ? '#6E6E78' : '#8B8B95') : v; }
+  var h = '';
+  h += '<div class="side" data-slot="sidebarBg" style="background:' + slotBg(c.sidebarBg, '#1A1A1E') + ';border-right:1px solid ' + c.border + '">';
+  h += '<div style="font-size:11px;color:' + tx(c.textMuted) + '">会话</div>';
+  h += '<div class="sess cur" data-slot="backgroundPanel" style="background:' + slotBg(c.backgroundPanel, '#232329') + ';color:' + tx(c.text) + '"><span class="bar" data-slot="primary" style="background:' + c.primary + '"></span> ministros · 当前</div>';
+  h += '<div class="sess" style="color:' + tx(c.textMuted) + '">aurora 草稿</div>';
+  h += '<div class="sess" style="color:' + tx(c.textMuted) + '">gruvbox 回顾</div>';
+  h += '</div>';
+  h += '<div class="main" data-slot="background" style="background:' + slotBg(c.background, '#101014') + '">';
+  h += '<div class="bubble" data-slot="bubbleBg" style="background:' + slotBg(c.bubbleBg, '#232329') + ';color:' + tx(c.text) + '"><span data-slot="text">这套配色看起来很舒服，再帮我看看深色下对比度够不够。</span></div>';
+  h += '<div class="md" data-slot="backgroundPanel" style="background:' + slotBg(c.backgroundPanel, '#16161A') + ';color:' + tx(c.text) + ';border:1px solid ' + c.border + '">';
+  h += '<h4 data-slot="markdownHeading" style="color:' + c.markdownHeading + '">走查结论</h4>';
+  h += '<div><span data-slot="text">整体通过，</span><strong data-slot="markdownStrong" style="color:' + c.markdownStrong + '">对比度</strong><span data-slot="text">与</span><em data-slot="markdownEmph" style="color:' + c.markdownEmph + '">间距</em><span data-slot="text">达标，详见</span>'
+    + '<a data-slot="markdownLink" style="color:' + c.markdownLink + '">设计规范</a><span data-slot="text">，其余看</span>'
+    + '<code data-slot="markdownCode" style="color:' + c.markdownCode + ';background:rgba(127,127,127,.15);border-radius:4px;padding:0 4px">v2</code><span data-slot="text">备注。</span></div>';
+  h += '<blockquote data-slot="markdownBlockQuote" style="border-left:3px solid ' + c.markdownBlockQuote + ';color:' + c.markdownBlockQuote + ';margin:6px 0;padding-left:8px">好的主题是看不见的，只觉得舒服。</blockquote>';
+  h += '<hr data-slot="border" style="border-color:' + c.border + '">';
+  h += '<span class="tip" data-slot="backgroundElement" style="background:' + slotBg(c.backgroundElement, '#232329') + ';color:' + tx(c.text) + '">已同步到预览</span>';
+  h += '</div>';
+  h += '<div class="codecard" data-slot="border" style="border-color:' + c.border + '"><div class="codehead" data-slot="codeHeaderBg" style="background:' + slotBg(c.codeHeaderBg, '#232329') + ';color:' + tx(c.textMuted) + '"><span>example.mjs</span><span data-slot="textMuted">js</span></div>';
+  h += '<div class="codepre" data-slot="codeBlockBg" style="background:' + slotBg(c.codeBlockBg, '#16161A') + ';color:' + tx(c.text) + '">';
+  h += '<span data-slot="syntaxComment" style="color:' + c.syntaxComment + '">// comment </span>'
+    + '<span data-slot="syntaxKeyword" style="color:' + c.syntaxKeyword + '">const </span>'
+    + '<span data-slot="syntaxFunction" style="color:' + c.syntaxFunction + '">run</span>'
+    + '<span data-slot="syntaxOperator" style="color:' + c.syntaxOperator + '"> = </span>'
+    + '<span data-slot="syntaxType" style="color:' + c.syntaxType + '">Theme</span>'
+    + '<span data-slot="syntaxNumber" style="color:' + c.syntaxNumber + '"> 37</span> '
+    + '<span data-slot="syntaxString" style="color:' + c.syntaxString + '">"ok"</span>'
+    + '\n<span data-slot="syntaxKeyword" style="color:' + c.syntaxKeyword + '">return </span>'
+    + '<span data-slot="syntaxString" style="color:' + c.syntaxString + '">"done"</span>'
+    + '<span data-slot="syntaxOperator" style="color:' + c.syntaxOperator + '">;</span>';
+  h += '</div></div>';
+  h += '<div class="diffcard" data-slot="border" style="border-color:' + c.border + '">';
+  h += '<div class="drow"><div class="ln" data-slot="diffAddedLineNumberBg" style="background:' + c.diffAddedLineNumberBg + ';color:' + tx(c.textMuted) + '">12</div>'
+    + '<div class="tx" data-slot="diffAddedBg" style="background:' + c.diffAddedBg + ';color:' + c.diffAdded + '"><span data-slot="diffAdded">+ background: #FFFFFF</span></div></div>';
+  h += '<div class="drow"><div class="ln" data-slot="diffRemovedLineNumberBg" style="background:' + c.diffRemovedLineNumberBg + ';color:' + tx(c.textMuted) + '">13</div>'
+    + '<div class="tx" data-slot="diffRemovedBg" style="background:' + c.diffRemovedBg + ';color:' + c.diffRemoved + '"><span data-slot="diffRemoved">- background: #101014</span></div></div>';
+  h += '</div>';
+  h += '<div class="badges"><span class="pbtn" data-slot="primary" style="background:' + c.primary + ';border-color:' + c.primary + ';color:' + pickText(c.primary) + '">主按钮</span>';
+  h += '<span class="pill" data-slot="secondary" style="background:' + c.secondary + '33;color:' + c.secondary + ';border:1px solid ' + c.secondary + ';border-radius:6px">次按钮</span>';
+  h += '<span class="pbtn" data-slot="info" style="background:' + c.info + ';border-color:' + c.info + ';color:' + pickText(c.info) + '">查看详情</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + c.success + ';flex:none"></span><span data-slot="success" style="color:' + c.success + '">已启用</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + c.warning + ';flex:none"></span><span data-slot="warning" style="color:' + c.warning + '">有 3 个槽对比度偏低，先看一眼预览</span></div>';
+  h += '<div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + c.error + ';flex:none"></span><span data-slot="error" style="color:' + c.error + '">保存失败，再试一次</span></div>';
+  h += '<div class="cinput" data-slot="inputBg" style="background:' + slotBg(c.inputBg, '#1C1C21') + ';border:1px solid ' + c.border + ';box-shadow:inset 0 0 0 2px ' + c.borderActive + '55;color:' + tx(c.text) + '">'
+    + '<span data-slot="text">输入</span><span data-slot="textMuted" style="color:' + tx(c.textMuted) + '">消息…</span></div>';
+  h += '<div style="font-size:11px;color:' + tx(c.textMuted) + '">输入框外框跟主题走</div>';
+  h += '</div>';
+  document.getElementById('mini').innerHTML = h;
+}
+function pickText(hex) {
+  if (!hex || hex === 'transparent') return '#141414';
+  var t = hex.replace('#', '');
+  var r = parseInt(t.slice(0, 2), 16), g = parseInt(t.slice(2, 4), 16), b = parseInt(t.slice(4, 6), 16);
+  var l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return l > 0.6 ? '#141414' : '#F4F4F5';
+}
+function paintHl() {
+  document.querySelectorAll('#mini .hl,#mini .hl-edge').forEach(function (el) {
+    el.classList.remove('hl'); el.classList.remove('hl-edge');
+    var b = el.querySelector(':scope > .slotbadge'); if (b) b.remove();
+  });
+  document.querySelectorAll('#f-left .crow.target').forEach(function (el) { el.classList.remove('target'); });
+  var old = document.getElementById('slotbadge-pop'); if (old) old.remove();
+  var oldK = document.getElementById('keypop-pop'); if (oldK) oldK.remove();
+  if (!S.hl) return;
+  var HLCLS = (S.hl === 'border' || S.hl === 'borderActive') ? 'hl-edge' : 'hl';
+  var matches = document.querySelectorAll('#mini [data-slot="' + S.hl + '"]');
+  matches.forEach(function (el) { el.classList.add(HLCLS); });
+  var EXTRA_HL = { border: ['.side', '.md', '.cinput'], borderActive: ['.cinput'] };
+  var extras = [];
+  (EXTRA_HL[S.hl] || []).forEach(function (sel) {
+    document.querySelectorAll('#mini ' + sel).forEach(function (el) { el.classList.add(HLCLS); extras.push(el); });
+  });
+  var row = document.querySelector('#f-left [data-row="' + S.hl + '"]');
+  if (row) row.classList.add('target');
+  var anchor = matches[0] || extras[0];
+  if (anchor) {
+    var r = anchor.getBoundingClientRect();
+  var s = document.createElement('span');
+  s.id = 'slotbadge-pop'; s.className = 'slotbadge'; s.textContent = S.hl;
+  s.style.position = 'fixed'; s.style.zIndex = '9999'; s.style.visibility = 'hidden'; s.style.right = 'auto'; s.style.pointerEvents = 'none';
+  document.body.appendChild(s);
+  var bw = s.offsetWidth || 90, bh = s.offsetHeight || 22;
+  var small = r.width < bw + 12;
+  var top = r.top - 9, left = small ? r.right + 6 : r.right - bw + 6;
+  if (top < 28) top = r.top + 4;
+  var dlgEl = document.querySelector('#dlgRoot .dlg');
+  if (dlgEl && top < dlgEl.getBoundingClientRect().top + 4) top = r.top + 4;
+  if (left < 4) left = 4;
+  if (left + bw > window.innerWidth - 4) left = window.innerWidth - bw - 4;
+  s.style.top = top + 'px'; s.style.left = left + 'px';
+  s.style.visibility = 'visible';
+}
+  if (row) {
+  var b = row.querySelector('.nm b') || row;
+  var k2 = document.createElement('span');
+  k2.id = 'keypop-pop'; k2.className = 'slotbadge'; k2.textContent = S.hl;
+  k2.style.position = 'absolute'; k2.style.visibility = 'hidden'; k2.style.pointerEvents = 'none'; k2.style.right = 'auto';
+  row.appendChild(k2);
+  var kw = k2.offsetWidth || 90, kh = k2.offsetHeight || 22;
+  var kl = b.offsetLeft + b.offsetWidth + 6;
+  var maxLeft = row.clientWidth - kw - 4;
+  if (kl > maxLeft) kl = Math.max(4, maxLeft);
+  var kt = b.offsetTop + Math.max(0, (b.offsetHeight - kh) / 2);
+  k2.style.left = kl + 'px'; k2.style.top = kt + 'px';
+  k2.style.visibility = 'visible';
+  }
+}
+function scrollToRow(k) {
+  var row = document.querySelector('#f-left [data-row="' + k + '"]');
+  if (row && row.scrollIntoView) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+/* ---- Popover（自绘轻便调色板） ---- */
+function distinctColors(colors) {
+  var seen = [], out = [];
+  Object.keys(colors).forEach(function (k) {
+    var v = colors[k];
+    if (v === 'transparent' || seen.indexOf(v) >= 0) return;
+    seen.push(v); out.push(v);
+  });
+  return out.slice(0, 8);
+}
+function hexToHsv(hex) {
+  var t = String(hex).replace('#', '');
+  var r = parseInt(t.slice(0, 2), 16) / 255, g = parseInt(t.slice(2, 4), 16) / 255, b = parseInt(t.slice(4, 6), 16) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h = 0;
+  if (d !== 0) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  var s = mx === 0 ? 0 : d / mx, v = mx;
+  return { h: h, s: s, v: v };
+}
+function hsvToHex(h, s, v) {
+  var c = v * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = v - c, r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; } else if (h < 180) { g = c; b = x; }
+  else if (h < 240) { g = x; b = c; } else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+  function to(vv) { return Math.round((vv + m) * 255).toString(16).padStart(2, '0'); }
+  return ('#' + to(r) + to(g) + to(b)).toUpperCase();
+}
+function placePop(anchor, key) {
+  dispatch({ type: 'OPEN_POP', key: key });
+  var live = document.querySelector('[data-sw="' + key + '"]');
+  openPop(key, live || undefined);
+}
+function openPop(key, anchor) {
+  var root = document.getElementById('popRoot');
+  var cur = S.editor.colors[key];
+  var base = cur === 'transparent' ? '#FAB283' : cur;
+  var hsv = hexToHsv(base);
+  var freq = distinctColors(S.editor.colors);
+  var meta = KEY_META[key];
+  var r = anchor ? anchor.getBoundingClientRect() : null;
+  var left = Math.min(Math.max(10, window.innerWidth - 270), Math.max(10, (r ? r.left + 40 : window.innerWidth / 2 - 125)));
+  var pvEl = document.querySelector('.dlg-right');
+  var pvr = pvEl ? pvEl.getBoundingClientRect() : null;
+  if (pvr) left = Math.min(left, pvr.left - 250 - 8);
+  left = Math.max(10, left);
+  var top0 = r ? r.bottom + 6 : 140;
+  var top = (r && top0 + 350 > window.innerHeight) ? Math.max(10, r.top - 350 - 6) : Math.min(Math.max(10, window.innerHeight - 350), Math.max(10, top0));
+  var html = '<div class="pop" id="pop" data-key="' + key + '" style="left:' + left + 'px;top:' + top + 'px">';
+  html += '<h4>' + esc(meta.zh) + '</h4>';
+  html += '<div class="sv" id="sv"><div class="mk" id="mk"></div></div>';
+  html += '<input class="hue" type="range" id="hue" min="0" max="360" value="' + Math.round(hsv.h) + '">';
+  html += '<div style="font-size:11px;color:#8B8B95">本主题用过的颜色</div><div class="freq">' +
+    freq.map(function (f) { return '<button data-pi data-f="' + f + '" style="background:' + f + '"></button>'; }).join('') + '</div>';
+  html += '<div class="prow"><input class="txt" id="hexIn" value="' + esc(cur === 'transparent' ? '#FAB283' : cur) + '" style="min-width:0;flex:1">';
+  if (meta.trans) html += '<label style="font-size:11px;color:#A9A9B3"><input type="checkbox" id="trCk"' + (cur === 'transparent' ? ' checked' : '') + '>透明</label>';
+  html += '</div><div class="prow"><button class="abtn primary" data-pi id="popOk">确定</button><button class="abtn ghost" data-pi id="popX">关闭</button></div></div>';
+  root.innerHTML = html;
+  var sv = document.getElementById('sv'), mk = document.getElementById('mk'), hue = document.getElementById('hue');
+  var st = { h: hsv.h, s: hsv.s, v: hsv.v };
+  function paint() {
+    var pure = hsvToHex(st.h, 1, 1);
+    var hx = document.getElementById('hexIn'); if (hx && document.activeElement !== hx) hx.value = hsvToHex(st.h, st.s, st.v);
+    sv.style.background = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')';
+    sv.style.backgroundBlendMode = 'normal';
+    mk.style.left = (st.s * 100) + '%'; mk.style.top = ((1 - st.v) * 100) + '%';
+  }
+  function curHex() { return hsvToHex(st.h, st.s, st.v); }
+  paint();
+  function setFromEvent(e) {
+    var b = sv.getBoundingClientRect();
+    st.s = Math.min(1, Math.max(0, (e.clientX - b.left) / b.width));
+    st.v = 1 - Math.min(1, Math.max(0, (e.clientY - b.top) / b.height));
+    paint();
+  }
+  var down = false;
+  function liveCommit() { dispatch({ type: 'SET_COLOR', key: key, value: curHex() }); }
+  sv.onmousedown = function (e) { down = true; setFromEvent(e); };
+  window.onmousemove = function (e) { if (down) { setFromEvent(e); liveCommit(); } };
+  window.onmouseup = function () { down = false; };
+  hue.oninput = function () { st.h = Number(hue.value); paint(); liveCommit(); };
+  document.getElementById('hexIn').oninput = function () { var t = this.value.trim(); if (/^#[0-9a-fA-F]{6}$/.test(t)) { var c2 = hexToHsv(t); st.h = c2.h; st.s = c2.s; st.v = c2.v; var hh = document.getElementById('hue'); if (hh) hh.value = Math.round(c2.h); paint(); dispatch({ type: 'SET_COLOR', key: key, value: t.toUpperCase() }); } };
+  document.querySelectorAll('#pop [data-f]').forEach(function (b) {
+    b.onclick = function () { var f = b.getAttribute('data-f'); var c2 = hexToHsv(f); st.h = c2.h; st.s = c2.s; st.v = c2.v; var hh = document.getElementById('hue'); if (hh) hh.value = Math.round(c2.h); paint(); dispatch({ type: 'SET_COLOR', key: key, value: f }); };
+  });
+  document.getElementById('popOk').onclick = function () {
+    var ck = document.getElementById('trCk');
+    if (ck && ck.checked) { dispatch({ type: 'SET_COLOR', key: key, value: 'transparent' }); }
+    else {
+      var v = document.getElementById('hexIn').value.trim();
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) dispatch({ type: 'SET_COLOR', key: key, value: v.toUpperCase() });
+      else dispatch({ type: 'SET_COLOR', key: key, value: curHex() });
+    }
+    dispatch({ type: 'CLOSE_POP' });
+  };
+  document.getElementById('popX').onclick = function () { dispatch({ type: 'REVERT_POP' }); };
+  setTimeout(function () {
+    document.addEventListener('mousedown', function h(e) {
+      var p = document.getElementById('pop');
+      if (!p) { document.removeEventListener('mousedown', h); return; }
+      if (p.contains(e.target)) return;
+      var sw = e.target && e.target.closest ? e.target.closest('[data-sw="' + key + '"]') : null;
+      if (sw) return;
+      document.removeEventListener('mousedown', h);
+      dispatch({ type: 'REVERT_POP' });
+    });
+  }, 0);
+  var ck0 = document.getElementById('trCk');
+  if (ck0) ck0.onchange = function () { if (ck0.checked) dispatch({ type: 'SET_COLOR', key: key, value: 'transparent' }); };
+  document.getElementById('pop')._sync = function (hex) {
+    var b2 = (hex === 'transparent') ? '#FAB283' : hex;
+    var c3 = hexToHsv(b2); st.h = c3.h; st.s = c3.s; st.v = c3.v;
+    var hh = document.getElementById('hue'); if (hh) hh.value = Math.round(c3.h);
+    paint();
+  };
+}
+
+
+function openPresetPop(anchor) {
+  var root = document.getElementById('popRoot');
+  var presetNames = Object.keys(PRESETS).sort();
+  var ed = S.editor; if (!ed) return;
+  var r = anchor ? anchor.getBoundingClientRect() : null;
+  var W = 560;
+  var left = Math.min(Math.max(10, window.innerWidth - W - 20), Math.max(10, (r ? r.left : window.innerWidth / 2 - W / 2)));
+  var top = Math.min(Math.max(10, window.innerHeight - 430), Math.max(10, (r ? r.bottom + 6 : 140)));
+  var html = '<div class="pop" id="presetPop" style="left:' + left + 'px;top:' + top + 'px;width:' + W + 'px;max-width:94vw">';
+  html += '<input class="txt" id="pp-search" placeholder="搜索预置主题" style="width:100%;box-sizing:border-box;margin-bottom:8px">';
+  var GROUP_OF = {};
+  GROUPS83.forEach(function (g) { g.themes.forEach(function (t) { GROUP_OF[t.name] = g.name; }); });
+  var buckets = {};
+  presetNames.forEach(function (n) {
+    var g = GROUP_OF[n] || 'other';
+    (buckets[g] = buckets[g] || []).push(n);
+  });
+  function groupColor(g) {
+    for (var i = 0; i < GROUPS83.length; i++) if (GROUPS83[i].name === g) return GROUPS83[i].color;
+    return '#8B8B95';
+  }
+  html += '<div class="pp-scroll" id="pp-presets">';
+  GROUPS83.map(function (g) { return g.name; }).concat(['other']).forEach(function (g) {
+    var list = buckets[g]; if (!list || !list.length) return;
+    html += '<div class="pp-group" data-g="' + g + '"><div class="rghead"><span class="dot" style="width:8px;height:8px;border-radius:50%;display:inline-block;background:' + groupColor(g) + '"></span>' + esc(GROUP_ZH[g] || '其他') + '<span class="rcount">' + list.length + '</span></div><div class="rwrap">';
+    list.forEach(function (n) {
+      var t = NAME2T[n];
+      if (!t) {
+        var p0 = PRESETS[n] || {};
+        var pc0 = p0.colors || PRESETS['opencode'].colors;
+        t = { name: n, zh: n, bg: pc0.background, fg: pc0.text, primary: pc0.primary, translucent: false };
+      }
+      var label = themeLabel(n);
+      var psel = (ed.preset === n);
+      html += '<button class="rchip' + (psel ? ' sel' : '') + '" data-pi data-n="' + esc(n) + '" style="' + realChipStyle(t, psel) + '" title="以「' + esc(label) + '」为基底">' + realChipInner(t, label, psel) + '</button>';
+    });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  html += '</div>';
+  root.innerHTML = html;
+  var sch = document.getElementById('pp-search');
+  sch.oninput = function () {
+    var q = sch.value.trim().toLowerCase();
+    document.querySelectorAll('#pp-presets .rchip').forEach(function (b) {
+      var hay = (b.getAttribute('data-n') + ' ' + b.textContent).toLowerCase();
+      b.style.display = (!q || hay.indexOf(q) >= 0) ? '' : 'none';
+    });
+    document.querySelectorAll('#pp-presets .pp-group').forEach(function (gd) {
+      var vis = 0;
+      gd.querySelectorAll('.rchip').forEach(function (b) { if (b.style.display !== 'none') vis++; });
+      gd.style.display = vis ? '' : 'none';
+    });
+  };
+  document.querySelectorAll('#pp-presets .rchip').forEach(function (b) {
+    b.onclick = function () { dispatch({ type: 'LOAD_PRESET', name: b.getAttribute('data-n') }); };
+  });
+  setTimeout(function () {
+    document.addEventListener('mousedown', function h(e) {
+      if (!document.getElementById('presetPop')) { document.removeEventListener('mousedown', h); return; }
+      var btn = document.getElementById('f-presetbtn');
+      var pp = document.getElementById('presetPop');
+      if (pp && !pp.contains(e.target) && (!btn || !btn.contains(e.target))) {
+        document.removeEventListener('mousedown', h);
+        if (S.editor && S.editor.presetOpen) dispatch({ type: 'TOGGLE_PRESETS' });
+      }
+    });
+  }, 0);
+}
+function render() {
+  renderPanel(); renderDlg();
+  if (!document.getElementById('dlgRoot').innerHTML) document.getElementById('popRoot').innerHTML = '';
+}
+document.getElementById('rmToggle').onchange = function (e) { document.body.classList.toggle('rm', e.target.checked); };
+document.getElementById('q').oninput = function (e) { S = L.reducer(S, { type: 'QUERY', value: e.target.value }, PRESETS); renderBuiltin(); };
+document.getElementById('langBtn').onclick = function () { UILANG = (UILANG === 'zh' ? 'en' : 'zh'); document.getElementById('langBtn').textContent = (UILANG === 'zh' ? 'EN' : '中文'); render(); };
+render();
+render();
+try {
+  var mql83 = window.matchMedia('(prefers-color-scheme: light)');
+  if (mql83 && mql83.addEventListener) mql83.addEventListener('change', function () {
+    if (!S.editor || S.editor.appearance !== 'system') return;
+    renderMini(S.editor);
+  });
+} catch (e) {}
+window.__proto83 = { dispatch: dispatch, getState: function () { return S; } };
+})();
+</script>
+</body>
+</html>

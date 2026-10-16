@@ -512,8 +512,7 @@ function modalInteractiveTags(html) {
   return (html.match(/<[a-zA-Z][^>]*>/g) || []).filter((t) => t.includes('cursor:pointer'))
 }
 
-test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', () => {
-  const pal = enginePreset('opencode')
+test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', () => {  const pal = enginePreset('opencode')
   const html = renderEditorPure('dark', pal.colors)
   const hits = modalInteractiveTags(html)
   assert.ok(hits.length >= 37, '弹窗可点控件样本太少，断言失效：' + hits.length)
@@ -529,4 +528,31 @@ test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', ()
   for (const tier of ['TIER_SWATCH', 'TIER_BUTTON', 'TIER_INPUT']) {
     assert.ok(src.includes(tier), '弹窗源码缺档位使用：' + tier)
   }
+})
+
+// ── 原型像素口径审计（custom-editor-83.prototype.html 逐字对齐）──
+// SSR 能渲到的走渲染断言；弹窗内部态（调色板/预置展开）走源码字面量断言。
+test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面量', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  assert.ok(html.includes('class="rleft"'), '顶栏左组带 rleft 类（原型 :622）')
+  assert.ok(html.includes('min-width:170px'), '名称输入 min-width 170（原型 .txt :88）')
+  assert.ok(html.includes('border:2px solid '), '顶部胶囊 2px 选中边（原型 chipStyle sel :518）')
+  assert.ok(html.includes('margin:-1px'), '顶部胶囊 2px 边距补偿（原型 .chip.sel :55）')
+  assert.ok(html.includes('@supports') && html.includes('.syslabel'), '跟随系统双色字走原生 @supports（原型 :101）')
+  assert.ok(html.includes('color:#F0F0F0'), 'syslabel 回落纯色（原型 :100）')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes("maxWidth: '230px'"), '基底下拉 max-width 230（原型 :94，编辑态才渲染故走源码断言）')
+  assert.equal((src.match(/position: 'fixed', zIndex: 60/g) || []).length, 2, '调色板+预置弹窗均为 fixed（原型 .pop :185）')
+  assert.ok(src.includes('vw - 270') && src.includes('vw - W - 20') && src.includes('vh - 430'), '弹窗视口坐标公式（原型 :978-984/:1061-1062）')
+  assert.ok(src.includes("outline: psel ? '1px solid #FAB283' : undefined"), '选中基底描边（原型 realChipStyle :537）')
+  assert.ok(src.includes("color: '#FAB283', visibility: psel ? 'visible' : 'hidden'"), '基底对勾恒橙色（原型 realChipInner :542）')
+  assert.ok(src.includes("'#1A1A20'") && src.includes("'#2A2A31'"), '行悬停底/边（原型 .crow:hover :129）')
+  assert.ok(src.includes('presetLabelOf(n)).toLowerCase()'), '预置搜索含中文名（原型 hay :1100）')
+  assert.ok(src.includes('setShowPresets(false) // 原型 OPEN_POP'), '开调色板收起预置弹窗（原型 :427）')
+  assert.ok(src.includes("fontSize: '12px', margin: '0 0 8px'"), '调色板标题无加粗（原型 .pop h4 :186）')
+  const hexInAt = src.indexOf('spellCheck: false')
+  assert.ok(hexInAt > 0 && !src.slice(hexInAt, hexInAt + 600).includes('Consolas'), 'hex 输入框非等宽字体（原型 .txt 口径 :991）')
+  const fqAt = src.indexOf("key: 'fq-' + c,")
+  assert.ok(fqAt > 0 && !src.slice(fqAt, fqAt + 500).includes('title:') && !src.slice(fqAt, fqAt + 500).includes('cursor'), '常用色块无 title/指针手势（原型 :990）')
 })

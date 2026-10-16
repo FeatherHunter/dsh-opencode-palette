@@ -18605,7 +18605,9 @@ function CustomEditor(props) {
   const [presetQuery, setPresetQuery] = h.useState('')
   const [pop, setPop] = h.useState(null) // { key, hex, transparent, orig: { hex, transparent } }
   const [popPos, setPopPos] = h.useState(null)
+  const [presetPos, setPresetPos] = h.useState(null)
   const [hl, setHl] = h.useState(null)
+  const [hovered, setHovered] = h.useState(null)
   const [delConfirm, setDelConfirm] = h.useState(false)
   const [sysDark, setSysDark] = h.useState(function () {
     try {
@@ -18616,6 +18618,7 @@ function CustomEditor(props) {
       return mm ? !!mm.matches : true
     } catch (err) { return true }
   })
+  const presetBtnRef = h.useRef(null)
   const dlgRef = h.useRef(null)
   const miniRef = h.useRef(null)
   const rowRef = h.useRef(null)
@@ -18706,13 +18709,23 @@ function CustomEditor(props) {
     } catch (err) { return undefined }
   }, [])
 
-  // 点弹窗外关闭 Popover（原型 document mousedown 口径）
+  // 点弹窗外关闭 Popover（原型 document mousedown 口径：调色板 revert，预置弹窗直接收起）
   h.useEffect(function () {
-    if (!pop) return undefined
+    if (!pop && !showPresets) return undefined
     const onDown = function (ev) {
       try {
+        const t = ev.target
+        const inPop = t && t.closest && (t.closest('#pop') || t.closest('#presetPop') || t.closest('#f-presetbtn'))
+        if (inPop) return
         const root = dlgRef.current
-        if (root && root.contains && !root.contains(ev.target)) closePop(true)
+        if (root && root.contains && !root.contains(t)) {
+          if (pop) closePop(true)
+          else setShowPresets(false)
+          return
+        }
+        // 对话框内、弹窗外：调色板保持原型行为（仅弹窗外且非 sw 行才 revert 由行点击接管）
+        if (pop && !(t && t.closest && t.closest('[data-sw="' + pop.key + '"]'))) closePop(true)
+        else if (!pop && showPresets) setShowPresets(false)
       } catch (err) { /* 忽略 */ }
     }
     try {
@@ -18721,20 +18734,47 @@ function CustomEditor(props) {
       d.addEventListener('mousedown', onDown)
       return function () { d.removeEventListener('mousedown', onDown) }
     } catch (err) { return undefined }
-  }, [pop ? pop.key : null])
+  }, [pop ? pop.key : null, showPresets])
 
-  // Popover 打开后按行定位（原型 placePop 口径，量行不量框）
+  // Popover 按行定位（原型 openPop/openPresetPop 视口坐标口径：fixed 弹窗，left/top 全是视口坐标）
   h.useEffect(function () {
     if (!pop) { setPopPos(null); return }
     try {
       const row = rowRefs.current[pop.key]
-      const dlg = dlgRef.current
-      if (!row || !dlg || typeof row.getBoundingClientRect !== 'function') return
+      const w = typeof window !== 'undefined' ? window : null
+      if (!row || !w || typeof row.getBoundingClientRect !== 'function') return
       const r = row.getBoundingClientRect()
-      const d = dlg.getBoundingClientRect()
-      setPopPos({ left: Math.max(8, r.left - d.left + r.width - 320), top: r.top - d.top + r.height + 6 })
+      const vw = w.innerWidth || 1280
+      const vh = w.innerHeight || 900
+      let left = Math.min(Math.max(10, vw - 270), Math.max(10, r.left + 40))
+      try {
+        const pv = miniRef.current && miniRef.current.parentNode
+          ? miniRef.current.parentNode.getBoundingClientRect() : null
+        if (pv) left = Math.min(left, pv.left - 250 - 8)
+      } catch (err) { /* 忽略 */ }
+      left = Math.max(10, left)
+      const top0 = r.bottom + 6
+      const top = (top0 + 350 > vh) ? Math.max(10, r.top - 350 - 6) : Math.min(Math.max(10, vh - 350), Math.max(10, top0))
+      setPopPos({ left: Math.round(left), top: Math.round(top) })
     } catch (err) { /* 定位失败则用默认位 */ }
   }, [pop ? pop.key : null])
+
+  // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
+  h.useEffect(function () {
+    if (!showPresets) { setPresetPos(null); return }
+    try {
+      const w = typeof window !== 'undefined' ? window : null
+      if (!w) return
+      const W = 560
+      const vw = w.innerWidth || 1280
+      const vh = w.innerHeight || 900
+      const btn = presetBtnRef.current
+      const r = btn && typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null
+      const left = Math.min(Math.max(10, vw - W - 20), Math.max(10, r ? r.left : vw / 2 - W / 2))
+      const top = Math.min(Math.max(10, vh - 430), Math.max(10, r ? r.bottom + 6 : 140))
+      setPresetPos({ left: Math.round(left), top: Math.round(top) })
+    } catch (err) { /* 定位失败则用默认位 */ }
+  }, [showPresets])
 
   // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
   const miniLight = editorMiniLight(appearance, sysDark)
@@ -18763,6 +18803,7 @@ function CustomEditor(props) {
       transparent: raw === 'transparent',
       orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
     })
+    setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
     setHl(key)
   }
 
@@ -18840,19 +18881,20 @@ function CustomEditor(props) {
         ? { background: 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' }
         : { background: shown }
       const isTarget = hl === key
+      const isHovered = hovered === key && !isTarget
       leftRows.push(e('div', {
-        key: 'row-' + key,
+        key: 'row-' + key, 'data-row': key,
         ref: function (el) { rowRefs.current[key] = el },
-        onMouseEnter: function () { setHl(key) },
-        onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null) },
+        onMouseEnter: function () { setHl(key); setHovered(key) },
+        onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null); setHovered(null) },
         style: {
           display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '6px', padding: '5px 4px',
-          border: '1px solid ' + (isTarget ? '#FAB283' : 'transparent'), borderRadius: '8px',
-          background: isTarget ? '#1E1A14' : 'transparent',
+          border: '1px solid ' + (isTarget ? '#FAB283' : (isHovered ? '#2A2A31' : 'transparent')), borderRadius: '8px',
+          background: isTarget ? '#1E1A14' : (isHovered ? '#1A1A20' : 'transparent'),
           cursor: 'default', position: 'relative',
         },
       },
-        e('div', { style: { flex: '0 1 auto', minWidth: 0 } },
+        e('div', { className: 'nm', style: { flex: '0 1 auto', minWidth: 0 } },
           e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label),
           e('small', { style: { display: 'block', fontSize: '11px', color: '#A0A0A8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
         e('button', {
@@ -18883,7 +18925,8 @@ function CustomEditor(props) {
     const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
     const hsv = hexToHsv(pop.hex)
     const freq = distinctThemeColors(colors).slice(0, 8)
-    const onSv = function (ev) {
+    // 原型 openPop 口径：按下只改预览（st），拖动中才 liveCommit，松开仅收旗
+    const previewSv = function (ev) {
       try {
         const box = ev.currentTarget
         const r = box.getBoundingClientRect()
@@ -18891,13 +18934,23 @@ function CustomEditor(props) {
         const y = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height))
         const hex = hsvToHex({ h: hsv.h, s: x * 100, v: (1 - y) * 100 })
         setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
-        setColor(pop.key, hex, false)
       } catch (err) { /* 忽略 */ }
     }
     const startSv = function (ev) {
       svDrag.current = true
-      onSv(ev)
-      const move = function (me) { if (svDrag.current) onSv(me) }
+      previewSv(ev)
+      let box = null
+      try { box = ev.currentTarget ? ev.currentTarget.getBoundingClientRect() : null } catch (err) { box = null }
+      const move = function (me) {
+        if (!svDrag.current || !box) return
+        try {
+          const x = Math.min(1, Math.max(0, (me.clientX - box.left) / box.width))
+          const y = Math.min(1, Math.max(0, (me.clientY - box.top) / box.height))
+          const hex = hsvToHex({ h: hsv.h, s: x * 100, v: (1 - y) * 100 })
+          setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
+          setColor(pop.key, hex, false)
+        } catch (err) { /* 忽略 */ }
+      }
       const up = function () {
         svDrag.current = false
         try {
@@ -18919,14 +18972,14 @@ function CustomEditor(props) {
     const pure = hsvToHex({ h: hsv.h, s: 100, v: 100 })
     const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
     return e('div', {
-      key: 'pop',
+      key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
-        position: 'absolute', zIndex: 30, width: '250px', background: '#1B1B21',
+        position: 'fixed', zIndex: 60, width: '250px', background: '#1B1B21',
         border: '1px solid #3D3D47', borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos || { left: 40, top: 120 }),
     },
-      e('h4', { style: { fontSize: '12px', fontWeight: 700, margin: '0 0 8px', color: '#EDEDF2' } },
+      e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } },
         lang === 'en' ? meta.en : meta.zh),
       e('div', {
         onMouseDown: startSv,
@@ -18960,12 +19013,12 @@ function CustomEditor(props) {
         e('div', { style: { fontSize: '11px', color: '#8B8B95' } }, tr('edFreq')),
         e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '6px 0' } }, freq.map(function (c) {
           return e('button', {
-            key: 'fq-' + c, title: c,
+            key: 'fq-' + c,
             onClick: function () {
               setPop(Object.assign({}, pop, { hex: c, transparent: false }))
               setColor(pop.key, c, false)
             },
-            style: { width: '24px', height: '18px', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0, cursor: 'pointer' },
+            style: { width: '24px', height: '18px', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0 },
             [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           })
         }))) : null,
@@ -18981,11 +19034,11 @@ function CustomEditor(props) {
               setColor(pop.key, norm, false)
             }
           },
-          style: { minWidth: 0, flex: 1, background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', fontFamily: 'Consolas,monospace' },
+          style: { minWidth: 0, flex: 1, background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px' },
           [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         }),
         meta.allow ? e('label', {
-          style: { fontSize: '11px', color: '#A9A9B3', cursor: 'pointer', whiteSpace: 'nowrap' },
+          style: { fontSize: '11px', color: '#A9A9B3' },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         },
           e('input', {
@@ -19022,16 +19075,21 @@ function CustomEditor(props) {
     if (!showPresets) return null
     const q = presetQuery.trim().toLowerCase()
     const match = function (n) {
-      return !q || n.toLowerCase().indexOf(q) >= 0
+      if (!q) return true
+      const hay = (n + ' ' + presetLabelOf(n)).toLowerCase()
+      return hay.indexOf(q) >= 0
     }
     const findPreset = presetByName
+    const visGroups = (props.presetGroups || []).map(function (g) {
+      return { g: g, names: (g.names || []).filter(match) }
+    }).filter(function (x) { return x.names.length > 0 })
     return e('div', {
-      key: 'presetpop',
-      style: {
-        position: 'absolute', zIndex: 30, top: '86px', left: '16px', width: '560px', maxWidth: '94%',
+      key: 'presetpop', id: 'presetPop',
+      style: Object.assign({
+        position: 'fixed', zIndex: 60, width: '560px', maxWidth: '94vw',
         background: '#1B1B21', border: '1px solid #3D3D47', borderRadius: '10px',
         padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-      },
+      }, presetPos || { left: 16, top: 86 }),
     },
       e('input', {
         value: presetQuery, placeholder: tr('edPresetSearch'),
@@ -19040,11 +19098,11 @@ function CustomEditor(props) {
         style: { width: '100%', boxSizing: 'border-box', background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
       }),
       e('div', { style: { maxHeight: '280px', overflow: 'auto', background: '#1C1C21', border: '1px solid #33333A', borderRadius: '8px', padding: '8px 10px' } },
-        (props.presetGroups || []).map(function (g) {
-          const names = (g.names || []).filter(match)
-          if (!names.length) return null
+        visGroups.map(function (x, gi) {
+          const g = x.g
+          const names = x.names
           const gcolor = g.color || '#8B8B95'
-          return e('div', { key: 'pg-' + g.title, style: { marginBottom: '10px' } },
+          return e('div', { key: 'pg-' + g.title, style: { marginBottom: gi < visGroups.length - 1 ? '10px' : '0' } },
             e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: '#A9A9B3', marginBottom: '6px' } },
               e('span', { style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: gcolor } }),
               g.title,
@@ -19053,9 +19111,9 @@ function CustomEditor(props) {
               const p = findPreset(n)
               const cc = (p && p.colors) || {}
               const transBg = cc.background === 'transparent'
-              const bg = transBg ? '#FFFFFF' : hexOr(cc.background, '#0A0A0A')
+              const bg = transBg ? '#FFFFFF' : (n === 'system' ? '#0A0A0A' : hexOr(cc.background, '#0A0A0A'))
               const fg = transBg ? '#1A1A1A' : hexOr(cc.text, '#E7E7EA')
-              const dot = hexOr(cc.primary, '#555')
+              const dot = n === 'system' ? '#8B8B95' : hexOr(cc.primary, '#555')
               const psel = basePreset === n
               const label = presetLabelOf(n)
               return e('button', {
@@ -19068,11 +19126,12 @@ function CustomEditor(props) {
                   border: (psel ? '2px solid #FAB283' : '1px solid ' + dot), borderRadius: '6px',
                   padding: '3px 8px 3px 5px', margin: psel ? '-1px' : '0',
                   fontSize: '11px', fontFamily: 'Consolas,Menlo,monospace', cursor: 'pointer', whiteSpace: 'nowrap',
+                  outline: psel ? '1px solid #FAB283' : undefined,
                 },
               },
                 e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: dot } }),
                 label,
-                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: (psel && !transBg) ? hexOr(cc.primary, '#FAB283') : fg, visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
+                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: '#FAB283', visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
             })))
         }))
     )
@@ -19311,6 +19370,8 @@ function CustomEditor(props) {
     },
     onClick: function () { props.onClose() },
   },
+    // 原型 .seg-system 双色字口径（prototype.html:100-101，原样搬运；不支持的浏览器回落 #F0F0F0 纯色）
+    e('style', { key: 'syslabel-css' }, '@supports ((-webkit-background-clip:text) or (background-clip:text)){.seg button.seg-system .syslabel{background:linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}}'),
     e('div', {
       ref: dlgRef,
       onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } },
@@ -19322,8 +19383,8 @@ function CustomEditor(props) {
     },
       // 顶栏（原型 .dlg-top > .row1：rleft + rright 单行；无 X 钮，关闭走取消/backdrop）
       e('div', { style: { padding: '10px 16px', borderBottom: '1px solid #26262C', display: 'flex', flexDirection: 'column', gap: '8px' } },
-        e('div', { ref: rowRef, style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'nowrap', overflow: 'visible' } },
-          e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } },
+        e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'nowrap', overflow: 'visible' } },
+          e('span', { className: 'rleft', style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } },
             e('span', {
               style: { fontSize: '16px', fontWeight: 700, color: '#E7E7EA', background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
             }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')),
@@ -19340,21 +19401,21 @@ function CustomEditor(props) {
               e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: '0 1 auto' } },
                 trf('edEditing', { name: shownName }))) : null,
             mode === 'edit' ? e('select', {
-              ref: targetRef,
+              ref: targetRef, id: 'f-target',
               value: targetSel || '',
               title: tr('edTargetTitle'),
               onChange: function (ev) { switchTarget(ev.target.value) },
               [UI_INTERACTIVE_ATTR]: TIER_INPUT,
               style: {
                 background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
-                padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '170px',
+                padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '230px',
               },
             }, (props.customs || []).map(function (t) {
               return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
             })) : null,
             e('span', { style: { position: 'relative', flex: '1 1 auto', minWidth: 0, display: 'flex' } },
               e('input', {
-                ref: nameRef,
+                ref: nameRef, id: 'f-name',
                 value: name, placeholder: tr('edNamePh'),
                 title: name.trim() ? '' : tr('edNameEmpty'),
                 'aria-invalid': !name.trim() ? 'true' : undefined,
@@ -19362,7 +19423,7 @@ function CustomEditor(props) {
                 [UI_INTERACTIVE_ATTR]: TIER_INPUT,
                 style: Object.assign({
                   background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
-                  padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: 0, width: '100%',
+                  padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: '170px', width: '100%',
                 }, !name.trim() ? { borderColor: '#FF5252', boxShadow: '0 0 0 1px #FF5252' } : null),
               }),
               !name.trim() ? e('span', {
@@ -19377,7 +19438,7 @@ function CustomEditor(props) {
               style: {
                 display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
                 padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
-                background: capFace, color: capFg, border: '1px solid ' + capPrimary,
+                background: capFace, color: capFg, border: '2px solid ' + capPrimary, margin: '-1px',
                 cursor: 'default', flex: 'none', whiteSpace: 'nowrap',
               },
             },
@@ -19386,8 +19447,9 @@ function CustomEditor(props) {
               e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700 } }, ICON_CHECK)),
             capLightT ? e('span', { style: { fontSize: '11px', color: '#8B8B95', flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null,
             e('button', {
+              ref: presetBtnRef, id: 'f-presetbtn',
               title: tr('edPresetTitle'),
-              onClick: function () { setShowPresets(!showPresets) },
+              onClick: function () { setPop(null); setShowPresets(!showPresets) },
               [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
                 background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px',
@@ -19412,8 +19474,8 @@ function CustomEditor(props) {
                 },
               }, tr('edNoBase')))
           ),
-          e('span', { ref: rrightRef, style: { display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'nowrap', flex: 'none' } },
-            e('span', { style: { display: 'inline-flex', background: 'transparent', border: 0, padding: 0, gap: '6px', alignItems: 'center', flex: 'none' } },
+          e('span', { ref: rrightRef, className: 'rright', style: { display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'nowrap', flex: 'none' } },
+            e('span', { className: 'seg', style: { display: 'inline-flex', background: 'transparent', border: 0, padding: 0, gap: '6px', alignItems: 'center', flex: 'none' } },
               ['dark', 'light', 'system'].map(function (a) {
                 const on = appearance === a
                 const label = a === 'dark' ? tr('edDark') : (a === 'light' ? tr('edLight') : tr('edSystem'))
@@ -19424,7 +19486,7 @@ function CustomEditor(props) {
                     ? { background: 'rgba(244,244,245,.94)', borderColor: '#77777F', color: '#141417' }
                     : { background: 'linear-gradient(to bottom right,#0B0B0E 0,#0B0B0E 50%,#F4F4F5 50%,#F4F4F5 100%)', borderColor: '#55555F' })
                 return e('button', {
-                  key: 'ap-' + a, title: tip,
+                  key: 'ap-' + a, title: tip, className: 'seg-' + a + (on ? ' on' : ''),
                   onClick: function () { setAppearance(a) },
                   [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                   style: Object.assign({
@@ -19433,10 +19495,8 @@ function CustomEditor(props) {
                     fontWeight: on ? 700 : 400, whiteSpace: 'nowrap',
                   }, segBase, on ? { boxShadow: 'inset 0 0 0 2px #FAB283' } : null),
                 }, a === 'dark' ? ICON_MOON : (a === 'light' ? ICON_SUN : ICON_SYS), ' ', a === 'system' ? e('span', {
-                  style: {
-                    background: 'linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%)',
-                    WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
-                  },
+                  className: 'syslabel',
+                  style: { color: '#F0F0F0' },
                 }, label) : label)
               })),
             mode === 'edit' ? e('span', { style: { position: 'relative', display: 'inline-flex' } },
