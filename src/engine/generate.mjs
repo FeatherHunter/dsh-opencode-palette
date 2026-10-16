@@ -1,6 +1,6 @@
 // generate.mjs — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
-import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK } from './map-dsh.mjs'
+import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors } from './map-dsh.mjs'
 import { FONT_FACE_CSS } from './font-face.mjs'
 import { quoteFontFamily } from './font-names.mjs'
 import { withAlpha, isDelegatedSurface } from './resolve.mjs'
@@ -22,7 +22,10 @@ function usable(colors, from) {
 // 缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
 // 单参调用保持 legacy 语义（同一套色值写两半），存量调用方兼容。
 export function buildTokens(darkColors, lightColors, delegated) {
-  const light = (lightColors === undefined) ? darkColors : lightColors
+  const rawDark = darkColors || {}
+  const rawLight = (lightColors === undefined) ? rawDark : (lightColors || {})
+  darkColors = normalizeThemeColors(rawDark)
+  const light = normalizeThemeColors(rawLight)
   const del = (lightColors === undefined) ? false : !!delegated
   const tokens = {}
   const put2 = (name, lv, dv) => {
@@ -112,6 +115,8 @@ export function buildTypographyCss(typography) {
 // issue 45：自持画布走 legacy 联合选择器（字节一致）；委托画布按外观分区发射，
 // 浅色走宿主默认作用域，深色走宿主深色作用域。
 export function buildColorCss(darkColors, lightColors, tokens, delegated) {
+  if (darkColors) darkColors = normalizeThemeColors(darkColors)
+  if (lightColors) lightColors = normalizeThemeColors(lightColors)
   if (!delegated) {
     const decls = []
     for (const name of Object.keys(tokens)) {
@@ -167,4 +172,26 @@ export function generateTheme(modes, typography, themeName) {
     css: css.join(''),
     meta: { theme: themeName || (modes ? 'theme' : 'system'), typography: typography || {} },
   }
+}
+// 自定义主题单套色渲染（#84）：同一套 37 色同时注入 dark/light 两半（delegated=false），transparent 槽自动跳过透出宿主底。
+// customTheme = { id, name, appearance: 'dark'|'light'|'system', basePreset?, colors: { ...37 } }
+export function renderCustomTheme(customTheme, typography) {
+  const t = customTheme || {}
+  const norm = normalizeThemeColors(t.colors || {})
+  const tokens = buildTokens(norm, norm, false)
+  const css = [buildTypographyCss(typography || {})]
+  css.push(buildColorCss(norm, norm, tokens, false))
+  const rawId = String(t.id || t.name || 'custom')
+  const themeKey = rawId.indexOf('custom:') === 0 ? rawId : 'custom:' + rawId
+  const appearance = t.appearance === 'light' || t.appearance === 'system' ? t.appearance : 'dark'
+  return { tokens: tokens, css: css.join(''), meta: { theme: themeKey, appearance: appearance, name: t.name || rawId, typography: typography || {} } }
+}
+// 自定义主题胶囊预览色（#84，口径与原型 chipStyle 一致）：light+transparent 标记 translucent 走 chipLightSurface 白底。
+export function customPreviewColors(customTheme) {
+  const t = customTheme || {}
+  const c = t.colors || {}
+  const appearance = t.appearance === 'light' || t.appearance === 'system' ? t.appearance : 'dark'
+  const background = c.background
+  const translucent = background === 'transparent' && appearance === 'light'
+  return { primary: c.primary, background: background, text: c.text, border: c.border, appearance: appearance, translucent: translucent }
 }

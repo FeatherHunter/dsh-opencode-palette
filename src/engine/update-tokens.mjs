@@ -9,6 +9,7 @@
 // 外观与 syncAppearanceForTheme 同口径：透光主题（画布委托）走 light，否则走 dark；system 无色直接 undefined（零回归）。
 import { getThemeJson, isSystem } from './registry.mjs'
 import { resolveThemeColors, shade, isDelegatedSurface } from './resolve.mjs'
+import { normalizeThemeColors } from './map-dsh.mjs'
 function hexOf(v) {
   if (typeof v !== 'string') return undefined
   const t = v.trim()
@@ -43,8 +44,15 @@ export function buildUpdateTokens(name) {
   } catch (e) {
     translucent = false
   }
-  const colors = translucent ? light : dark
-  const darkMode = !translucent
+  return tokensFromColors(translucent ? light : dark, !translucent)
+}
+// 自定义主题更新条（#84）：单套 37 色直驱；appearance system 无色回 undefined（与 system 预置同口径）；transparent 背景 hexOf 落空即回 undefined（与 lucent-orng 预置同口径）
+export function buildUpdateTokensFromColors(colors, appearance) {
+  if (appearance === 'system') return undefined
+  const norm = normalizeThemeColors(colors || {})
+  return tokensFromColors(norm, appearance !== 'light')
+}
+function tokensFromColors(colors, darkMode) {
   const text = hexOf(colors.text)
   const primary = hexOf(colors.primary)
   if (!text || !primary) return undefined

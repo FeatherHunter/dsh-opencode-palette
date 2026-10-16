@@ -20,7 +20,7 @@ export const TOKEN_MAP = [
   ['--dsw-alias-bg-layer-2', 'background'],
   ['--dsw-alias-bg-overlay', 'background'],
   ['--dsw-alias-bg-layer-3', 'background'],
-  ['--dsw-specific-sidebar-fill', 'background'],
+  ['--dsw-specific-sidebar-fill', 'sidebarBg'],
   // F3 退出：--dsw-specific-menu 不透明底杀毛玻璃（DSH 0.1.7 起半透明材料 + web-styling 禁止覆盖菜单材料）
   // 老版影响为菜单回默认、可读，不算功能回归；菜单材料/滤镜变量永不输出。
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
@@ -28,7 +28,7 @@ export const TOKEN_MAP = [
   // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
   ['--dsw-alias-markdown-tag', 'backgroundPanel'],
   ['--dsw-alias-markdown-placeholder', 'backgroundPanel'],
-  ['--dsw-specific-bubble', 'backgroundPanel'],
+  ['--dsw-specific-bubble', 'bubbleBg'],
   ['--dsw-alias-bg-multi-select', 'backgroundPanel'],
   // 浮起面：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
   ['--dsw-alias-markdown-citation', 'backgroundElement'],
@@ -37,12 +37,12 @@ export const TOKEN_MAP = [
   ['--dsw-specific-tip', 'backgroundElement'],
   ['--dsw-specific-bubble-highlight', 'backgroundElement'],
   // 输入框/代码块底 = backgroundPanel；横幅/按钮面 = backgroundElement
-  ['--dsw-specific-input-major', 'backgroundPanel'],
-  ['--dsw-specific-login-input', 'backgroundPanel'],
-  ['--dsw-alias-markdown-code-block', 'backgroundPanel'],
-  ['--dsw-alias-markdown-code-block-banner', 'backgroundElement'],
+  ['--dsw-specific-input-major', 'inputBg'],
+  ['--dsw-specific-login-input', 'inputBg'],
+  ['--dsw-alias-markdown-code-block', 'codeBlockBg'],
+  ['--dsw-alias-markdown-code-block-banner', 'codeHeaderBg'],
   // F2 新头部（DSH 0.1.7 CodeCard.header 只读此变量，不读 banner token；老横幅路径保留，老版继续命中）
-  ['--dsl-code-block-background', 'backgroundElement'],
+  ['--dsl-code-block-background', 'codeHeaderBg'],
   ['--dsw-alias-toast-bg', 'backgroundElement'],
   ['--dsw-alias-tooltip-bg', 'backgroundElement'],
   ['--dsw-alias-button-elevated-fill', 'backgroundPanel'],
@@ -188,4 +188,67 @@ export const FONTS = {
   'Maple Mono NF CN': "'Maple Mono NF CN','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'SF Mono': "'SF Mono','JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
+}
+
+// ── 6. 自定义主题 37 色位元数据（#84，口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
+// 7 大分组 = 界面与背景 8 + 文字 2 + 品牌与状态 6 + 边框 2 + Diff 6 + Markdown 6 + 代码高亮 7 = 37
+// allowTransparent 仅 8 个背景槽为 true（其余 29 槽设 transparent 会被编辑器 reducer 拦截）；fallback 为 5 个扩展槽的默认继承源；previewSlot 为微缩画布 data-slot（恒等于 key）。
+export const COLOR_SLOT_GROUPS = [
+  { id: 'bg', keys: ['background', 'backgroundPanel', 'backgroundElement', 'sidebarBg', 'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg'] },
+  { id: 'text', keys: ['text', 'textMuted'] },
+  { id: 'brand', keys: ['primary', 'secondary', 'info', 'success', 'warning', 'error'] },
+  { id: 'border', keys: ['border', 'borderActive'] },
+  { id: 'diff', keys: ['diffAdded', 'diffRemoved', 'diffAddedBg', 'diffRemovedBg', 'diffAddedLineNumberBg', 'diffRemovedLineNumberBg'] },
+  { id: 'md', keys: ['markdownHeading', 'markdownLink', 'markdownCode', 'markdownEmph', 'markdownStrong', 'markdownBlockQuote'] },
+  { id: 'syn', keys: ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'] },
+]
+export const COLOR_SLOTS = [
+  { key: 'background', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'background' },
+  { key: 'backgroundPanel', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundPanel' },
+  { key: 'backgroundElement', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundElement' },
+  { key: 'sidebarBg', group: 'bg', allowTransparent: true, fallback: 'background', previewSlot: 'sidebarBg' },
+  { key: 'bubbleBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'bubbleBg' },
+  { key: 'inputBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'inputBg' },
+  { key: 'codeBlockBg', group: 'bg', allowTransparent: true, fallback: 'backgroundPanel', previewSlot: 'codeBlockBg' },
+  { key: 'codeHeaderBg', group: 'bg', allowTransparent: true, fallback: 'backgroundElement', previewSlot: 'codeHeaderBg' },
+  { key: 'text', group: 'text', allowTransparent: false, fallback: null, previewSlot: 'text' },
+  { key: 'textMuted', group: 'text', allowTransparent: false, fallback: null, previewSlot: 'textMuted' },
+  { key: 'primary', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'primary' },
+  { key: 'secondary', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'secondary' },
+  { key: 'info', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'info' },
+  { key: 'success', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'success' },
+  { key: 'warning', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'warning' },
+  { key: 'error', group: 'brand', allowTransparent: false, fallback: null, previewSlot: 'error' },
+  { key: 'border', group: 'border', allowTransparent: false, fallback: null, previewSlot: 'border' },
+  { key: 'borderActive', group: 'border', allowTransparent: false, fallback: null, previewSlot: 'borderActive' },
+  { key: 'diffAdded', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAdded' },
+  { key: 'diffRemoved', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemoved' },
+  { key: 'diffAddedBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAddedBg' },
+  { key: 'diffRemovedBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemovedBg' },
+  { key: 'diffAddedLineNumberBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffAddedLineNumberBg' },
+  { key: 'diffRemovedLineNumberBg', group: 'diff', allowTransparent: false, fallback: null, previewSlot: 'diffRemovedLineNumberBg' },
+  { key: 'markdownHeading', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownHeading' },
+  { key: 'markdownLink', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownLink' },
+  { key: 'markdownCode', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownCode' },
+  { key: 'markdownEmph', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownEmph' },
+  { key: 'markdownStrong', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownStrong' },
+  { key: 'markdownBlockQuote', group: 'md', allowTransparent: false, fallback: null, previewSlot: 'markdownBlockQuote' },
+  { key: 'syntaxComment', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxComment' },
+  { key: 'syntaxKeyword', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxKeyword' },
+  { key: 'syntaxFunction', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxFunction' },
+  { key: 'syntaxType', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxType' },
+  { key: 'syntaxNumber', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxNumber' },
+  { key: 'syntaxString', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxString' },
+  { key: 'syntaxOperator', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxOperator' },
+]
+// 32 色内置色板 → 37 色完整色板：仅补齐未显式指定的 5 个扩展槽（已显式的保持不动，纯函数不改入参）。
+// 回退链：sidebarBg←background；bubbleBg/inputBg/codeBlockBg←backgroundPanel；codeHeaderBg←backgroundElement。
+export function normalizeThemeColors(colors) {
+  const c = Object.assign({}, colors || {})
+  if (c.sidebarBg === undefined || c.sidebarBg === null) c.sidebarBg = c.background
+  if (c.bubbleBg === undefined || c.bubbleBg === null) c.bubbleBg = c.backgroundPanel
+  if (c.inputBg === undefined || c.inputBg === null) c.inputBg = c.backgroundPanel
+  if (c.codeBlockBg === undefined || c.codeBlockBg === null) c.codeBlockBg = c.backgroundPanel
+  if (c.codeHeaderBg === undefined || c.codeHeaderBg === null) c.codeHeaderBg = c.backgroundElement
+  return c
 }
