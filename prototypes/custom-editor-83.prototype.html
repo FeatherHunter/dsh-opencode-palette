@@ -1,0 +1,934 @@
+<!doctype html>
+<!-- PROTOTYPE-83 THROWAWAY：抛弃式原型，不进生产。归属 #83（map #82）。双击即开，内存态，不写盘。 -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原型 83：自定义区 + 37 色编辑器 + 微缩 DSH 预览（LOGIC 单文件）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--ease:cubic-bezier(0.22,1,0.36,1)}
+body{background:#0B0B0D;color:#E7E7EA;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;padding:22px 22px 90px;line-height:1.55}
+h1{font-size:19px;margin-bottom:4px}
+.proto-flag{display:inline-block;font-size:11px;background:#3A2A12;color:#F5A742;border:1px solid #F5A74255;border-radius:4px;padding:1px 8px;margin-bottom:8px;letter-spacing:.04em}
+.intro{max-width:1120px;color:#A9A9B3;font-size:13px;background:#121216;border:1px solid #26262C;border-radius:10px;padding:12px 14px;margin:10px 0 16px}
+.intro b{color:#FAB283}.intro code{color:#7FD88F;font-family:Consolas,monospace}
+.state{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;margin-bottom:14px}
+.state h2{font-size:13px;color:#FAB283;margin-bottom:8px}
+.state-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;font-size:12px}
+.state-grid .cell{background:#16161B;border:1px solid #26262C;border-radius:8px;padding:8px 10px}
+.state-grid .k{color:#8B8B95;font-size:11px;margin-bottom:2px}
+.state-grid .v{font-family:Consolas,monospace;word-break:break-all}
+#lastChange{margin-top:8px;font-size:12px;color:#7FD88F}
+.free{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;margin-bottom:14px}
+.free h2{font-size:13px;color:#FAB283;margin-bottom:8px}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px}
+/* —— 全局可交互动效（第一性原理：hover 微抬升+描边提亮+柔光；active 回弹；统一 ease 150ms；reduced-motion 降级） —— */
+button[data-pi]{font-family:inherit;cursor:pointer;transition:transform 150ms var(--ease),box-shadow 150ms var(--ease),background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+button[data-pi]:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.45),0 0 0 1px rgba(250,178,131,.35)}
+button[data-pi]:active{transform:translateY(0) scale(.98);box-shadow:none}
+button[data-pi]:focus-visible{outline:2px solid #FAB283;outline-offset:2px}
+@media (prefers-reduced-motion:reduce){
+button[data-pi]{transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+button[data-pi]:hover,button[data-pi]:active{transform:none;box-shadow:none}
+}
+body.rm button[data-pi]{transition:background-color 150ms var(--ease),border-color 150ms var(--ease),color 150ms var(--ease)}
+body.rm button[data-pi]:hover,body.rm button[data-pi]:active{transform:none;box-shadow:none}
+body.rm .hl{animation:none !important}
+.abtn{background:#1C1C21;border:1px solid #33333A;color:#E7E7EA;border-radius:7px;padding:6px 12px;font-size:12px}
+.abtn:hover{background:#232329;border-color:#4A4A55}
+.abtn.primary{background:#FAB283;border-color:#FAB283;color:#141414;font-weight:700}
+.abtn.danger{background:#2A1418;border-color:#C53B53;color:#F08A97}
+.abtn.ghost{background:transparent}
+.walk{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;margin-bottom:18px}
+.walk h2{font-size:13px;color:#FAB283;margin-bottom:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tab{background:#1C1C21;border:1px solid #33333A;color:#A9A9B3;border-radius:7px;padding:5px 12px;font-size:12px}
+.tab.on{background:#FAB283;color:#141414;border-color:#FAB283;font-weight:700}
+.walkdesc{font-size:12px;color:#A9A9B3;margin-bottom:10px;max-width:1000px}
+.stepbtn{background:#1C1C21;border:1px solid #33333A;color:#E7E7EA;border-radius:7px;padding:6px 12px;font-size:12px;margin:0 8px 8px 0}
+.stepbtn.done{background:#14241A;border-color:#3D9A57;color:#7FD88F}
+.stepbtn.next{border-color:#FAB283;box-shadow:0 0 0 1px #FAB28366}
+/* —— 面板 mock —— */
+.panel{background:#101014;border:1px solid #27272A;border-radius:12px;padding:16px 18px;max-width:1120px;margin-bottom:18px}
+.panel h2{font-size:14px;margin-bottom:2px}
+.panel .sub{font-size:12px;color:#8B8B95;margin-bottom:12px}
+.groupline{display:flex;align-items:center;gap:8px;font-size:12px;color:#9D7CD8;margin:14px 0 8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:7px;border-radius:7px;border:1px solid #555;padding:4px 10px 4px 6px;font-size:12px;font-family:"JetBrains Mono",Consolas,monospace;background:#0A0A0A;color:#EEE}
+.chip .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.chip.sel{border-width:2px}
+.chip .tick{font-style:normal;font-weight:700}
+.op-chip{background:#1C1C21;border:1px dashed #555;color:#E7E7EA}
+.custom-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 8px;flex-wrap:wrap}
+.custom-head .t{font-size:12px;color:#FAB283}
+.copybtn{background:#1C1C21;border:1px solid #33333A;color:#C8C8D0;border-radius:6px;padding:4px 10px;font-size:12px}
+.copybtn:hover{background:#232329;border-color:#55555F}
+/* —— 编辑弹窗 —— */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:40;padding:18px}
+.dlg{background:#141419;border:1px solid #33333A;border-radius:12px;width:min(1180px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.dlg-top{padding:12px 16px;border-bottom:1px solid #26262C;display:flex;flex-direction:column;gap:10px}
+.dlg-top .row1{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.mode-tag{font-size:11px;background:#FAB283;color:#141414;border-radius:4px;padding:1px 8px;font-weight:700}
+.txt{background:#1C1C21;border:1px solid #33333A;color:#E7E7EA;border-radius:6px;padding:6px 10px;font-size:12px;min-width:170px}
+select.txt{max-width:230px}
+.seg{display:inline-flex;background:#1C1C21;border:1px solid #33333A;border-radius:7px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;color:#A1A1AA;border-radius:5px;padding:4px 12px;font-size:12px}
+.seg button.on{background:#2A2A30;color:#F0F0F0}
+.presetwrap{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.presetlist{max-height:130px;overflow:auto;background:#1C1C21;border:1px solid #33333A;border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;gap:6px}
+.preset{background:#232329;border:1px solid #3A3A44;color:#D8D8DE;border-radius:6px;font-size:11px;padding:3px 9px;font-family:Consolas,monospace}
+.dlg-body{display:grid;grid-template-columns:1fr 1fr;gap:0;min-height:0;flex:1;overflow:hidden}
+.dlg-left{overflow:auto;padding:12px 14px;border-right:1px solid #26262C}
+.dlg-right{overflow:auto;padding:12px 14px;background:#0D0D10}
+.gtitle{font-size:12px;color:#9D7CD8;margin:12px 0 6px}
+.gtitle:first-child{margin-top:0}
+.crow{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid transparent;border-radius:8px}
+.crow:hover{background:#1A1A20;border-color:#2A2A31}
+.crow.target{border-color:#FAB283;background:#1E1A14}
+.crow .nm{flex:1;min-width:0}
+.crow .nm b{display:block;font-size:12px;font-weight:600}
+.crow .nm small{display:block;font-size:11px;color:#8B8B95}
+.sw{width:30px;height:22px;border-radius:6px;border:1px solid #00000066;flex:none;padding:0}
+.hex{font-family:Consolas,monospace;font-size:11px;color:#C8C8D0;min-width:74px}
+.tbtn{font-size:11px;background:transparent;border:1px solid #3A3A44;color:#A9A9B3;border-radius:5px;padding:2px 8px}
+.capbar{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.apptag{font-size:11px;background:#232329;border:1px solid #3A3A44;border-radius:4px;padding:1px 8px;color:#FAB283}
+/* 微缩 DSH 画布 */
+.mini{border:1px solid #33333A;border-radius:10px;overflow:hidden;display:grid;grid-template-columns:150px 1fr;min-height:420px}
+.side{padding:10px;display:flex;flex-direction:column;gap:6px}
+.sess{border-radius:6px;padding:6px 8px;font-size:11px;display:flex;align-items:center;gap:6px;border:1px solid transparent}
+.sess.cur{position:relative}
+.sess .bar{position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:2px}
+.main{padding:12px;display:flex;flex-direction:column;gap:10px}
+.bubble{align-self:flex-end;border-radius:10px;padding:8px 12px;font-size:12px;max-width:85%}
+.md{border-radius:8px;padding:10px 12px;font-size:12px}
+.md h4{font-size:14px;margin-bottom:4px}
+.md hr{margin:8px 0;border:0;border-top:1px solid}
+.tip{display:inline-block;font-size:11px;border-radius:20px;padding:2px 10px;margin-top:6px}
+.codecard{border-radius:8px;overflow:hidden;border:1px solid}
+.codehead{display:flex;justify-content:space-between;padding:5px 10px;font-size:11px}
+.codepre{padding:8px 10px;font-family:Consolas,monospace;font-size:11px;overflow:auto;white-space:pre}
+.diffcard{border-radius:8px;overflow:hidden;border:1px solid;font-size:11px;font-family:Consolas,monospace}
+.drow{display:grid;grid-template-columns:34px 1fr}
+.drow .ln{padding:4px 6px;text-align:right}
+.drow .tx{padding:4px 8px}
+.badges{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pill{border-radius:20px;padding:3px 12px;font-size:11px;font-weight:700}
+.btnrow2{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pbtn{border-radius:7px;padding:6px 16px;font-size:12px;font-weight:700;border:1px solid}
+.cinput{border-radius:8px;padding:8px 12px;font-size:12px;border:1px solid}
+.hl{outline:2px solid #FAB283 !important;outline-offset:1px;animation:breath 1.1s ease-in-out infinite;position:relative}
+@keyframes breath{0%,100%{box-shadow:0 0 0 0 rgba(250,178,131,.55)}50%{box-shadow:0 0 0 6px rgba(250,178,131,0)}}
+.slotbadge{position:absolute;top:-9px;right:-6px;font-size:10px;background:#FAB283;color:#141414;border-radius:4px;padding:0 6px;font-family:Consolas,monospace;z-index:3}
+.dlg-foot{padding:10px 16px;border-top:1px solid #26262C;display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.dlg-foot .hint{font-size:11px;color:#8B8B95;margin-right:auto}
+/* popover */
+.pop{position:fixed;z-index:60;width:250px;background:#1B1B21;border:1px solid #3D3D47;border-radius:10px;padding:12px;box-shadow:0 12px 32px rgba(0,0,0,.6)}
+.pop h4{font-size:12px;margin-bottom:8px}
+.sv{width:100%;height:120px;border-radius:8px;position:relative;cursor:crosshair;border:1px solid #00000088;margin-bottom:8px}
+.sv .mk{position:absolute;width:12px;height:12px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #000;transform:translate(-6px,-6px);pointer-events:none}
+.hue{width:100%;margin:4px 0 8px}
+.freq{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.freq button{width:24px;height:18px;border-radius:4px;border:1px solid #00000077;padding:0}
+.pop .prow{display:flex;gap:6px;align-items:center;margin-top:6px}
+.decide{background:#101014;border:1px solid #2A2A31;border-radius:10px;padding:12px 14px;max-width:1120px;font-size:12px;color:#A9A9B3}
+.decide code{color:#7FD88F}.decide b{color:#E7E7EA}
+.err{color:#F08A97;font-size:12px}
+@media(max-width:980px){.dlg-body{grid-template-columns:1fr}.dlg-right{border-top:1px solid #26262C}}
+</style>
+</head>
+<body>
+<div class="proto-flag">PROTOTYPE · THROWAWAY · #83（map #82）· 单文件 · 内存态</div>
+<h1>自定义主题区 + 37 色编辑器 + 微缩 DSH 预览画布</h1>
+<div class="intro">
+<b>要回答的设计问题：</b>已锁定布局（自定义区 / 37 色弹窗 / 轻便 Popover / 双向联动 / 悬浮动效）是否顺畅、状态流是否无坑？
+<b>分支：</b><code>LOGIC 单文件 HTML</code>（自由操作 + 分步引导 + 全量状态外显）。不做 UI 分支的 3 变体，因为 #82 已锁定唯一布局。<br>
+<b>约定：</b>预置默认外观简化规则 <code>system→system / lucent-orng→light / 其余→dark</code>；5 个扩展槽默认继承
+<code>sidebarBg=background / bubbleBg,inputBg,codeBlockBg=backgroundPanel / codeHeaderBg=backgroundElement</code>；
+缺失槽位回退 <code>opencode dark</code>；<code>system</code> 预置用 opencode 底色 + 外观 system（桩）；背景类 8 槽可 <code>transparent</code>，
+<code>light+transparent</code> 胶囊走 <code>#FFFFFF</code> 银灰底；保存只生成胶囊、不碰面板外 DSH（除非正在编辑已应用项）。圆点全部用 <code>span.dot</code>，无 SVG、无 <code>&lt;circle</code>。
+运行：<b>双击本文件即开</b>，状态只在内存。
+</div>
+
+<div class="state">
+<h2>当前状态（每次点击后重渲染）</h2>
+<div class="state-grid" id="stateGrid"></div>
+<div id="lastChange"></div>
+</div>
+
+<div class="free">
+<h2>自由操作（每个按钮都是一次 action）</h2>
+<div class="btnrow" id="freeRow"></div>
+<label style="display:block;margin-top:8px;font-size:12px;color:#A9A9B3"><input type="checkbox" id="rmToggle"> 模拟 prefers-reduced-motion（只留颜色过渡，关闭位移）</label>
+</div>
+
+<div class="walk">
+<h2>分步引导（每 Tab 先重置到已知起点，再按顺序点）</h2>
+<div class="tabs" id="walkTabs"></div>
+<div class="walkdesc" id="walkDesc"></div>
+<div id="walkSteps"></div>
+</div>
+
+<div class="panel">
+<h2>配置面板 · 局部仿真</h2>
+<div class="sub">仅仿真「特殊分组尾 + 自定义区」与其余面板的衔接；特殊组为占位，自定义区为本次验证主体。</div>
+<div class="groupline"><span class="dot" style="width:9px;height:9px;border-radius:50%;display:inline-block;background:#8B8B95"></span> 特殊 Special · 占位（GROUP_ORDER 9 组不变）</div>
+<div class="chips" id="specialChips"></div>
+<div class="custom-head">
+<div class="t" id="customTitle"></div>
+<button class="copybtn" id="copyBtn" data-pi></button>
+</div>
+<div class="chips" id="customChips"></div>
+<div style="margin-top:10px;font-size:12px;color:#8B8B95" id="appliedLine"></div>
+</div>
+
+<div id="dlgRoot"></div>
+<div id="popRoot"></div>
+
+<div class="decide">
+<b>拟记入 #82 ## Decisions so far（原型验证后由 #84/#85/#86 直接落码）：</b>
+<div id="decideBox" style="margin-top:6px"></div>
+</div>
+
+<script id="preset-data" type="application/json">{"amoled":{"appearance":"dark","colors":{"background":"#000000","backgroundPanel":"#121212","backgroundElement":"#242424","sidebarBg":"#000000","bubbleBg":"#121212","inputBg":"#121212","codeBlockBg":"#121212","codeHeaderBg":"#242424","text":"#FFFFFF","textMuted":"#8C8C8C","primary":"#B388FF","secondary":"#5C9CF5","info":"#18FFFF","success":"#00FF88","warning":"#FFEA00","error":"#FF1744","border":"#D6D6D6","borderActive":"#ADADAD","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#FFFFFF","markdownLink":"#FF4081","markdownCode":"#B388FF","markdownEmph":"#FFFFFF","markdownStrong":"#FFFFFF","markdownBlockQuote":"#8C8C8C","syntaxComment":"#555555","syntaxKeyword":"#FF00FF","syntaxFunction":"#B388FF","syntaxType":"#18FFFF","syntaxNumber":"#B388FF","syntaxString":"#00FF88","syntaxOperator":"#8C8C8C"}},"aura":{"appearance":"dark","colors":{"background":"#0F0F0F","backgroundPanel":"#15141B","backgroundElement":"#15141B","sidebarBg":"#0F0F0F","bubbleBg":"#15141B","inputBg":"#15141B","codeBlockBg":"#15141B","codeHeaderBg":"#15141B","text":"#EDECEE","textMuted":"#6D6D6D","primary":"#A277FF","secondary":"#F694FF","info":"#A277FF","success":"#61FFCA","warning":"#FFCA85","error":"#FF6767","border":"#2D2D2D","borderActive":"#6D6D6D","diffAdded":"#61FFCA","diffRemoved":"#FF6767","diffAddedBg":"#354933","diffRemovedBg":"#3F191A","diffAddedLineNumberBg":"#162620","diffRemovedLineNumberBg":"#26161A","markdownHeading":"#A277FF","markdownLink":"#F694FF","markdownCode":"#61FFCA","markdownEmph":"#FFCA85","markdownStrong":"#A277FF","markdownBlockQuote":"#6D6D6D","syntaxComment":"#6D6D6D","syntaxKeyword":"#F694FF","syntaxFunction":"#A277FF","syntaxType":"#A277FF","syntaxNumber":"#9DFF65","syntaxString":"#61FFCA","syntaxOperator":"#F694FF"}},"ayu":{"appearance":"dark","colors":{"background":"#0B0E14","backgroundPanel":"#0F131A","backgroundElement":"#0D1017","sidebarBg":"#0B0E14","bubbleBg":"#0F131A","inputBg":"#0F131A","codeBlockBg":"#0F131A","codeHeaderBg":"#0D1017","text":"#BFBDB6","textMuted":"#565B66","primary":"#59C2FF","secondary":"#D2A6FF","info":"#39BAE6","success":"#7FD962","warning":"#E6B673","error":"#D95757","border":"#6C7380","borderActive":"#6C7380","diffAdded":"#7FD962","diffRemoved":"#F26D78","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#D2A6FF","markdownLink":"#59C2FF","markdownCode":"#AAD94C","markdownEmph":"#E6B673","markdownStrong":"#FFB454","markdownBlockQuote":"#E6B673","syntaxComment":"#ACB6BF","syntaxKeyword":"#FF8F40","syntaxFunction":"#FFB454","syntaxType":"#E6B673","syntaxNumber":"#D2A6FF","syntaxString":"#AAD94C","syntaxOperator":"#F29668"}},"carbonfox":{"appearance":"dark","colors":{"background":"#161616","backgroundPanel":"#1A1A1A","backgroundElement":"#1E1E1E","sidebarBg":"#161616","bubbleBg":"#1A1A1A","inputBg":"#1A1A1A","codeBlockBg":"#1A1A1A","codeHeaderBg":"#1E1E1E","text":"#F2F4F8","textMuted":"#7D848F","primary":"#33B1FF","secondary":"#78A9FF","info":"#78A9FF","success":"#25BE6A","warning":"#F1C21B","error":"#EE5396","border":"#303030","borderActive":"#33B1FF","diffAdded":"#50FA7B","diffRemoved":"#FF6B6B","diffAddedBg":"#0F2418","diffRemovedBg":"#2A1216","diffAddedLineNumberBg":"#0F2418","diffRemovedLineNumberBg":"#2A1216","markdownHeading":"#8CB6FF","markdownLink":"#78A9FF","markdownCode":"#25BE6A","markdownEmph":"#BE95FF","markdownStrong":"#FFFFFF","markdownBlockQuote":"#7D848F","syntaxComment":"#7D848F","syntaxKeyword":"#BE95FF","syntaxFunction":"#8CB6FF","syntaxType":"#08BDBA","syntaxNumber":"#3DDBD9","syntaxString":"#25BE6A","syntaxOperator":"#A9AFBC"}},"catppuccin":{"appearance":"dark","colors":{"background":"#1E1E2E","backgroundPanel":"#181825","backgroundElement":"#11111B","sidebarBg":"#1E1E2E","bubbleBg":"#181825","inputBg":"#181825","codeBlockBg":"#181825","codeHeaderBg":"#11111B","text":"#CDD6F4","textMuted":"#9399B2","primary":"#89B4FA","secondary":"#CBA6F7","info":"#94E2D5","success":"#A6E3A1","warning":"#F9E2AF","error":"#F38BA8","border":"#313244","borderActive":"#45475A","diffAdded":"#A6E3A1","diffRemoved":"#F38BA8","diffAddedBg":"#24312B","diffRemovedBg":"#3C2A32","diffAddedLineNumberBg":"#1E2A25","diffRemovedLineNumberBg":"#32232A","markdownHeading":"#CBA6F7","markdownLink":"#89B4FA","markdownCode":"#A6E3A1","markdownEmph":"#F9E2AF","markdownStrong":"#FAB387","markdownBlockQuote":"#F9E2AF","syntaxComment":"#9399B2","syntaxKeyword":"#CBA6F7","syntaxFunction":"#89B4FA","syntaxType":"#F9E2AF","syntaxNumber":"#FAB387","syntaxString":"#A6E3A1","syntaxOperator":"#89DCEB"}},"catppuccin-frappe":{"appearance":"dark","colors":{"background":"#303446","backgroundPanel":"#292C3C","backgroundElement":"#232634","sidebarBg":"#303446","bubbleBg":"#292C3C","inputBg":"#292C3C","codeBlockBg":"#292C3C","codeHeaderBg":"#232634","text":"#C6D0F5","textMuted":"#949CB8","primary":"#8DA4E2","secondary":"#CA9EE6","info":"#81C8BE","success":"#A6D189","warning":"#E5C890","error":"#E78284","border":"#414559","borderActive":"#51576D","diffAdded":"#A6D189","diffRemoved":"#E78284","diffAddedBg":"#29342B","diffRemovedBg":"#3A2A31","diffAddedLineNumberBg":"#223025","diffRemovedLineNumberBg":"#2F242B","markdownHeading":"#CA9EE6","markdownLink":"#8DA4E2","markdownCode":"#A6D189","markdownEmph":"#E5C890","markdownStrong":"#EF9F76","markdownBlockQuote":"#E5C890","syntaxComment":"#949CB8","syntaxKeyword":"#CA9EE6","syntaxFunction":"#8DA4E2","syntaxType":"#E5C890","syntaxNumber":"#EF9F76","syntaxString":"#A6D189","syntaxOperator":"#99D1DB"}},"catppuccin-macchiato":{"appearance":"dark","colors":{"background":"#24273A","backgroundPanel":"#1E2030","backgroundElement":"#181926","sidebarBg":"#24273A","bubbleBg":"#1E2030","inputBg":"#1E2030","codeBlockBg":"#1E2030","codeHeaderBg":"#181926","text":"#CAD3F5","textMuted":"#939AB7","primary":"#8AADF4","secondary":"#C6A0F6","info":"#8BD5CA","success":"#A6DA95","warning":"#EED49F","error":"#ED8796","border":"#363A4F","borderActive":"#494D64","diffAdded":"#A6DA95","diffRemoved":"#ED8796","diffAddedBg":"#29342B","diffRemovedBg":"#3A2A31","diffAddedLineNumberBg":"#223025","diffRemovedLineNumberBg":"#2F242B","markdownHeading":"#C6A0F6","markdownLink":"#8AADF4","markdownCode":"#A6DA95","markdownEmph":"#EED49F","markdownStrong":"#F5A97F","markdownBlockQuote":"#EED49F","syntaxComment":"#939AB7","syntaxKeyword":"#C6A0F6","syntaxFunction":"#8AADF4","syntaxType":"#EED49F","syntaxNumber":"#F5A97F","syntaxString":"#A6DA95","syntaxOperator":"#91D7E3"}},"cobalt2":{"appearance":"dark","colors":{"background":"#193549","backgroundPanel":"#122738","backgroundElement":"#1F4662","sidebarBg":"#193549","bubbleBg":"#122738","inputBg":"#122738","codeBlockBg":"#122738","codeHeaderBg":"#1F4662","text":"#FFFFFF","textMuted":"#ADB7C9","primary":"#0088FF","secondary":"#9A5FEB","info":"#FF9D00","success":"#9EFF80","warning":"#FFC600","error":"#FF0088","border":"#1F4662","borderActive":"#0088FF","diffAdded":"#9EFF80","diffRemoved":"#FF0088","diffAddedBg":"#1A3A2A","diffRemovedBg":"#3A1A2A","diffAddedLineNumberBg":"#1A3A2A","diffRemovedLineNumberBg":"#3A1A2A","markdownHeading":"#FFC600","markdownLink":"#0088FF","markdownCode":"#9EFF80","markdownEmph":"#FF9D00","markdownStrong":"#FF628C","markdownBlockQuote":"#ADB7C9","syntaxComment":"#0088FF","syntaxKeyword":"#FF9D00","syntaxFunction":"#FFC600","syntaxType":"#2AFFDF","syntaxNumber":"#FF628C","syntaxString":"#9EFF80","syntaxOperator":"#FF9D00"}},"cursor":{"appearance":"dark","colors":{"background":"#181818","backgroundPanel":"#141414","backgroundElement":"#262626","sidebarBg":"#181818","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#262626","text":"#E4E4E4","textMuted":"#E4E4E45E","primary":"#88C0D0","secondary":"#81A1C1","info":"#81A1C1","success":"#3FA266","warning":"#F1B467","error":"#E34671","border":"#E4E4E413","borderActive":"#88C0D0","diffAdded":"#3FA266","diffRemoved":"#E34671","diffAddedBg":"#3FA26633","diffRemovedBg":"#B8004933","diffAddedLineNumberBg":"#3FA26633","diffRemovedLineNumberBg":"#B8004933","markdownHeading":"#AAA0FA","markdownLink":"#82D2CE","markdownCode":"#E394DC","markdownEmph":"#82D2CE","markdownStrong":"#F8C762","markdownBlockQuote":"#E4E4E45E","syntaxComment":"#E4E4E45E","syntaxKeyword":"#82D2CE","syntaxFunction":"#EFB080","syntaxType":"#EFB080","syntaxNumber":"#F8C762","syntaxString":"#E394DC","syntaxOperator":"#E4E4E4"}},"dracula":{"appearance":"dark","colors":{"background":"#282A36","backgroundPanel":"#21222C","backgroundElement":"#44475A","sidebarBg":"#282A36","bubbleBg":"#21222C","inputBg":"#21222C","codeBlockBg":"#21222C","codeHeaderBg":"#44475A","text":"#F8F8F2","textMuted":"#6272A4","primary":"#BD93F9","secondary":"#FF79C6","info":"#FFB86C","success":"#50FA7B","warning":"#F1FA8C","error":"#FF5555","border":"#44475A","borderActive":"#BD93F9","diffAdded":"#50FA7B","diffRemoved":"#FF5555","diffAddedBg":"#1A3A1A","diffRemovedBg":"#3A1A1A","diffAddedLineNumberBg":"#1A3A1A","diffRemovedLineNumberBg":"#3A1A1A","markdownHeading":"#BD93F9","markdownLink":"#8BE9FD","markdownCode":"#50FA7B","markdownEmph":"#F1FA8C","markdownStrong":"#FFB86C","markdownBlockQuote":"#6272A4","syntaxComment":"#6272A4","syntaxKeyword":"#FF79C6","syntaxFunction":"#50FA7B","syntaxType":"#8BE9FD","syntaxNumber":"#BD93F9","syntaxString":"#F1FA8C","syntaxOperator":"#FF79C6"}},"everforest":{"appearance":"dark","colors":{"background":"#2D353B","backgroundPanel":"#333C43","backgroundElement":"#343F44","sidebarBg":"#2D353B","bubbleBg":"#333C43","inputBg":"#333C43","codeBlockBg":"#333C43","codeHeaderBg":"#343F44","text":"#D3C6AA","textMuted":"#7A8478","primary":"#A7C080","secondary":"#7FBBB3","info":"#83C092","success":"#A7C080","warning":"#E69875","error":"#E67E80","border":"#859289","borderActive":"#9DA9A0","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#D699B6","markdownLink":"#A7C080","markdownCode":"#A7C080","markdownEmph":"#DBBC7F","markdownStrong":"#E69875","markdownBlockQuote":"#DBBC7F","syntaxComment":"#7A8478","syntaxKeyword":"#D699B6","syntaxFunction":"#A7C080","syntaxType":"#DBBC7F","syntaxNumber":"#E69875","syntaxString":"#A7C080","syntaxOperator":"#83C092"}},"flexoki":{"appearance":"dark","colors":{"background":"#100F0F","backgroundPanel":"#1C1B1A","backgroundElement":"#282726","sidebarBg":"#100F0F","bubbleBg":"#1C1B1A","inputBg":"#1C1B1A","codeBlockBg":"#1C1B1A","codeHeaderBg":"#282726","text":"#CECDC3","textMuted":"#6F6E69","primary":"#DA702C","secondary":"#4385BE","info":"#3AA99F","success":"#879A39","warning":"#DA702C","error":"#D14D41","border":"#575653","borderActive":"#6F6E69","diffAdded":"#879A39","diffRemoved":"#D14D41","diffAddedBg":"#1A2D1A","diffRemovedBg":"#2D1A1A","diffAddedLineNumberBg":"#152515","diffRemovedLineNumberBg":"#251515","markdownHeading":"#8B7EC8","markdownLink":"#4385BE","markdownCode":"#3AA99F","markdownEmph":"#D0A215","markdownStrong":"#DA702C","markdownBlockQuote":"#D0A215","syntaxComment":"#6F6E69","syntaxKeyword":"#879A39","syntaxFunction":"#DA702C","syntaxType":"#D0A215","syntaxNumber":"#8B7EC8","syntaxString":"#3AA99F","syntaxOperator":"#B7B5AC"}},"github":{"appearance":"dark","colors":{"background":"#0D1117","backgroundPanel":"#010409","backgroundElement":"#161B22","sidebarBg":"#0D1117","bubbleBg":"#010409","inputBg":"#010409","codeBlockBg":"#010409","codeHeaderBg":"#161B22","text":"#C9D1D9","textMuted":"#8B949E","primary":"#58A6FF","secondary":"#BC8CFF","info":"#D29922","success":"#3FB950","warning":"#E3B341","error":"#F85149","border":"#30363D","borderActive":"#58A6FF","diffAdded":"#3FB950","diffRemoved":"#F85149","diffAddedBg":"#033A16","diffRemovedBg":"#67060C","diffAddedLineNumberBg":"#033A16","diffRemovedLineNumberBg":"#67060C","markdownHeading":"#58A6FF","markdownLink":"#58A6FF","markdownCode":"#FF7B72","markdownEmph":"#E3B341","markdownStrong":"#D29922","markdownBlockQuote":"#8B949E","syntaxComment":"#8B949E","syntaxKeyword":"#FF7B72","syntaxFunction":"#BC8CFF","syntaxType":"#D29922","syntaxNumber":"#58A6FF","syntaxString":"#39C5CF","syntaxOperator":"#FF7B72"}},"gruvbox":{"appearance":"dark","colors":{"background":"#282828","backgroundPanel":"#3C3836","backgroundElement":"#504945","sidebarBg":"#282828","bubbleBg":"#3C3836","inputBg":"#3C3836","codeBlockBg":"#3C3836","codeHeaderBg":"#504945","text":"#EBDBB2","textMuted":"#928374","primary":"#83A598","secondary":"#D3869B","info":"#FABD2F","success":"#B8BB26","warning":"#FE8019","error":"#FB4934","border":"#665C54","borderActive":"#EBDBB2","diffAdded":"#98971A","diffRemoved":"#CC241D","diffAddedBg":"#32302F","diffRemovedBg":"#322929","diffAddedLineNumberBg":"#2A2827","diffRemovedLineNumberBg":"#2A2222","markdownHeading":"#83A598","markdownLink":"#8EC07C","markdownCode":"#FABD2F","markdownEmph":"#D3869B","markdownStrong":"#FE8019","markdownBlockQuote":"#928374","syntaxComment":"#928374","syntaxKeyword":"#FB4934","syntaxFunction":"#B8BB26","syntaxType":"#8EC07C","syntaxNumber":"#D3869B","syntaxString":"#FABD2F","syntaxOperator":"#FE8019"}},"kanagawa":{"appearance":"dark","colors":{"background":"#1F1F28","backgroundPanel":"#2A2A37","backgroundElement":"#363646","sidebarBg":"#1F1F28","bubbleBg":"#2A2A37","inputBg":"#2A2A37","codeBlockBg":"#2A2A37","codeHeaderBg":"#363646","text":"#DCD7BA","textMuted":"#727169","primary":"#7E9CD8","secondary":"#957FB8","info":"#76946A","success":"#98BB6C","warning":"#D7A657","error":"#E82424","border":"#54546D","borderActive":"#C38D9D","diffAdded":"#98BB6C","diffRemoved":"#E82424","diffAddedBg":"#252E25","diffRemovedBg":"#362020","diffAddedLineNumberBg":"#202820","diffRemovedLineNumberBg":"#2D1C1C","markdownHeading":"#957FB8","markdownLink":"#7E9CD8","markdownCode":"#98BB6C","markdownEmph":"#C38D9D","markdownStrong":"#D7A657","markdownBlockQuote":"#727169","syntaxComment":"#727169","syntaxKeyword":"#957FB8","syntaxFunction":"#7E9CD8","syntaxType":"#C38D9D","syntaxNumber":"#D7A657","syntaxString":"#98BB6C","syntaxOperator":"#D27E99"}},"lucent-orng":{"appearance":"light","colors":{"background":"transparent","backgroundPanel":"transparent","backgroundElement":"transparent","sidebarBg":"transparent","bubbleBg":"transparent","inputBg":"transparent","codeBlockBg":"transparent","codeHeaderBg":"transparent","text":"#EEEEEE","textMuted":"#808080","primary":"#EC5B2B","secondary":"#EE7948","info":"#56B6C2","success":"#6BA1E6","warning":"#EC5B2B","error":"#E06C75","border":"#EC5B2B","borderActive":"#EE7948","diffAdded":"#6BA1E6","diffRemoved":"#C53B53","diffAddedBg":"transparent","diffRemovedBg":"transparent","diffAddedLineNumberBg":"transparent","diffRemovedLineNumberBg":"transparent","markdownHeading":"#EC5B2B","markdownLink":"#EC5B2B","markdownCode":"#6BA1E6","markdownEmph":"#E5C07B","markdownStrong":"#EE7948","markdownBlockQuote":"#FFF7F1","syntaxComment":"#808080","syntaxKeyword":"#EC5B2B","syntaxFunction":"#EE7948","syntaxType":"#E5C07B","syntaxNumber":"#FFF7F1","syntaxString":"#6BA1E6","syntaxOperator":"#56B6C2"}},"material":{"appearance":"dark","colors":{"background":"#263238","backgroundPanel":"#1E272C","backgroundElement":"#37474F","sidebarBg":"#263238","bubbleBg":"#1E272C","inputBg":"#1E272C","codeBlockBg":"#1E272C","codeHeaderBg":"#37474F","text":"#EEFFFF","textMuted":"#546E7A","primary":"#82AAFF","secondary":"#C792EA","info":"#FFCB6B","success":"#C3E88D","warning":"#FFCB6B","error":"#F07178","border":"#37474F","borderActive":"#82AAFF","diffAdded":"#C3E88D","diffRemoved":"#F07178","diffAddedBg":"#2E3C2B","diffRemovedBg":"#3C2B2B","diffAddedLineNumberBg":"#2E3C2B","diffRemovedLineNumberBg":"#3C2B2B","markdownHeading":"#82AAFF","markdownLink":"#89DDFF","markdownCode":"#C3E88D","markdownEmph":"#FFCB6B","markdownStrong":"#FFCB6B","markdownBlockQuote":"#546E7A","syntaxComment":"#546E7A","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#FFCB6B","syntaxNumber":"#FFCB6B","syntaxString":"#C3E88D","syntaxOperator":"#89DDFF"}},"matrix":{"appearance":"dark","colors":{"background":"#0A0E0A","backgroundPanel":"#0E130D","backgroundElement":"#141C12","sidebarBg":"#0A0E0A","bubbleBg":"#0E130D","inputBg":"#0E130D","codeBlockBg":"#0E130D","codeHeaderBg":"#141C12","text":"#62FF94","textMuted":"#8CA391","primary":"#2EFF6A","secondary":"#00EFFF","info":"#30B3FF","success":"#62FF94","warning":"#E6FF57","error":"#FF4B4B","border":"#1E2A1B","borderActive":"#2EFF6A","diffAdded":"#1CC24B","diffRemoved":"#FF4B4B","diffAddedBg":"#132616","diffRemovedBg":"#261212","diffAddedLineNumberBg":"#0F1B11","diffRemovedLineNumberBg":"#1B1414","markdownHeading":"#00EFFF","markdownLink":"#30B3FF","markdownCode":"#1CC24B","markdownEmph":"#FFA83D","markdownStrong":"#E6FF57","markdownBlockQuote":"#8CA391","syntaxComment":"#8CA391","syntaxKeyword":"#C770FF","syntaxFunction":"#30B3FF","syntaxType":"#E6FF57","syntaxNumber":"#FFA83D","syntaxString":"#1CC24B","syntaxOperator":"#24F6D9"}},"mercury":{"appearance":"dark","colors":{"background":"#171721","backgroundPanel":"#10101A","backgroundElement":"#272735","sidebarBg":"#171721","bubbleBg":"#10101A","inputBg":"#10101A","codeBlockBg":"#10101A","codeHeaderBg":"#272735","text":"#DDDDE5","textMuted":"#9D9DA8","primary":"#8DA4F5","secondary":"#A7B6F8","info":"#77BECF","success":"#77C599","warning":"#FC9B6F","error":"#FC92B4","border":"#B4B7C81F","borderActive":"#8DA4F5","diffAdded":"#77C599","diffRemoved":"#FC92B4","diffAddedBg":"#77C59933","diffRemovedBg":"#FC92B433","diffAddedLineNumberBg":"#77C59933","diffRemovedLineNumberBg":"#FC92B433","markdownHeading":"#FFFFFF","markdownLink":"#8DA4F5","markdownCode":"#77C599","markdownEmph":"#FC9B6F","markdownStrong":"#F4F5F9","markdownBlockQuote":"#9D9DA8","syntaxComment":"#9D9DA8","syntaxKeyword":"#8DA4F5","syntaxFunction":"#8DA4F5","syntaxType":"#77BECF","syntaxNumber":"#FC9B6F","syntaxString":"#77C599","syntaxOperator":"#8DA4F5"}},"monokai":{"appearance":"dark","colors":{"background":"#272822","backgroundPanel":"#1E1F1C","backgroundElement":"#3E3D32","sidebarBg":"#272822","bubbleBg":"#1E1F1C","inputBg":"#1E1F1C","codeBlockBg":"#1E1F1C","codeHeaderBg":"#3E3D32","text":"#F8F8F2","textMuted":"#75715E","primary":"#66D9EF","secondary":"#AE81FF","info":"#FD971F","success":"#A6E22E","warning":"#E6DB74","error":"#F92672","border":"#3E3D32","borderActive":"#66D9EF","diffAdded":"#A6E22E","diffRemoved":"#F92672","diffAddedBg":"#1A3A1A","diffRemovedBg":"#3A1A1A","diffAddedLineNumberBg":"#1A3A1A","diffRemovedLineNumberBg":"#3A1A1A","markdownHeading":"#F92672","markdownLink":"#66D9EF","markdownCode":"#A6E22E","markdownEmph":"#E6DB74","markdownStrong":"#FD971F","markdownBlockQuote":"#75715E","syntaxComment":"#75715E","syntaxKeyword":"#F92672","syntaxFunction":"#A6E22E","syntaxType":"#66D9EF","syntaxNumber":"#AE81FF","syntaxString":"#E6DB74","syntaxOperator":"#F92672"}},"nightowl":{"appearance":"dark","colors":{"background":"#011627","backgroundPanel":"#0B253A","backgroundElement":"#0B253A","sidebarBg":"#011627","bubbleBg":"#0B253A","inputBg":"#0B253A","codeBlockBg":"#0B253A","codeHeaderBg":"#0B253A","text":"#D6DEEB","textMuted":"#5F7E97","primary":"#82AAFF","secondary":"#7FDBCA","info":"#82AAFF","success":"#C5E478","warning":"#ECC48D","error":"#EF5350","border":"#5F7E97","borderActive":"#82AAFF","diffAdded":"#C5E478","diffRemoved":"#EF5350","diffAddedBg":"#0A2E1A","diffRemovedBg":"#2D1B1B","diffAddedLineNumberBg":"#0A2E1A","diffRemovedLineNumberBg":"#2D1B1B","markdownHeading":"#82AAFF","markdownLink":"#7FDBCA","markdownCode":"#C5E478","markdownEmph":"#C792EA","markdownStrong":"#ECC48D","markdownBlockQuote":"#5F7E97","syntaxComment":"#637777","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#C5E478","syntaxNumber":"#F78C6C","syntaxString":"#ECC48D","syntaxOperator":"#7FDBCA"}},"nord":{"appearance":"dark","colors":{"background":"#2E3440","backgroundPanel":"#3B4252","backgroundElement":"#434C5E","sidebarBg":"#2E3440","bubbleBg":"#3B4252","inputBg":"#3B4252","codeBlockBg":"#3B4252","codeHeaderBg":"#434C5E","text":"#ECEFF4","textMuted":"#8B95A7","primary":"#88C0D0","secondary":"#81A1C1","info":"#88C0D0","success":"#A3BE8C","warning":"#D08770","error":"#BF616A","border":"#434C5E","borderActive":"#4C566A","diffAdded":"#A3BE8C","diffRemoved":"#BF616A","diffAddedBg":"#3B4252","diffRemovedBg":"#3B4252","diffAddedLineNumberBg":"#3B4252","diffRemovedLineNumberBg":"#3B4252","markdownHeading":"#88C0D0","markdownLink":"#81A1C1","markdownCode":"#A3BE8C","markdownEmph":"#D08770","markdownStrong":"#EBCB8B","markdownBlockQuote":"#8B95A7","syntaxComment":"#8B95A7","syntaxKeyword":"#81A1C1","syntaxFunction":"#88C0D0","syntaxType":"#8FBCBB","syntaxNumber":"#B48EAD","syntaxString":"#A3BE8C","syntaxOperator":"#81A1C1"}},"oc-2":{"appearance":"dark","colors":{"background":"#1F1F1F","backgroundPanel":"#1C1C1C","backgroundElement":"#232323","sidebarBg":"#1F1F1F","bubbleBg":"#1C1C1C","inputBg":"#1C1C1C","codeBlockBg":"#1C1C1C","codeHeaderBg":"#232323","text":"#EDEDED","textMuted":"#707070","primary":"#FAB283","secondary":"#5C9CF5","info":"#EDB2F1","success":"#12C905","warning":"#FCD53A","error":"#FC533A","border":"#282828","borderActive":"#AEAAA8","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#EDEDED","markdownLink":"#034CFF","markdownCode":"#FAB283","markdownEmph":"#EDEDED","markdownStrong":"#EDEDED","markdownBlockQuote":"#707070","syntaxComment":"#8F8F8F","syntaxKeyword":"#EDB2F1","syntaxFunction":"#FAB283","syntaxType":"#FCD53A","syntaxNumber":"#93E9F6","syntaxString":"#00CEB9","syntaxOperator":"#707070"}},"one-dark":{"appearance":"dark","colors":{"background":"#282C34","backgroundPanel":"#21252B","backgroundElement":"#353B45","sidebarBg":"#282C34","bubbleBg":"#21252B","inputBg":"#21252B","codeBlockBg":"#21252B","codeHeaderBg":"#353B45","text":"#ABB2BF","textMuted":"#5C6370","primary":"#61AFEF","secondary":"#C678DD","info":"#D19A66","success":"#98C379","warning":"#E5C07B","error":"#E06C75","border":"#393F4A","borderActive":"#61AFEF","diffAdded":"#98C379","diffRemoved":"#E06C75","diffAddedBg":"#2C382B","diffRemovedBg":"#3A2D2F","diffAddedLineNumberBg":"#283427","diffRemovedLineNumberBg":"#36292B","markdownHeading":"#C678DD","markdownLink":"#61AFEF","markdownCode":"#98C379","markdownEmph":"#E5C07B","markdownStrong":"#D19A66","markdownBlockQuote":"#5C6370","syntaxComment":"#5C6370","syntaxKeyword":"#C678DD","syntaxFunction":"#61AFEF","syntaxType":"#E5C07B","syntaxNumber":"#D19A66","syntaxString":"#98C379","syntaxOperator":"#56B6C2"}},"onedarkpro":{"appearance":"dark","colors":{"background":"#1E222A","backgroundPanel":"#282C34","backgroundElement":"#32363F","sidebarBg":"#1E222A","bubbleBg":"#282C34","inputBg":"#282C34","codeBlockBg":"#282C34","codeHeaderBg":"#32363F","text":"#ABB2BF","textMuted":"#6C717C","primary":"#61AFEF","secondary":"#5C9CF5","info":"#56B6C2","success":"#98C379","warning":"#E5C07B","error":"#E06C75","border":"#949BA7","borderActive":"#7E848F","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#ABB2BF","markdownLink":"#E06C75","markdownCode":"#61AFEF","markdownEmph":"#ABB2BF","markdownStrong":"#ABB2BF","markdownBlockQuote":"#6C717C","syntaxComment":"#5C6370","syntaxKeyword":"#C678DD","syntaxFunction":"#61AFEF","syntaxType":"#56B6C2","syntaxNumber":"#D19A66","syntaxString":"#98C379","syntaxOperator":"#6C717C"}},"opencode":{"appearance":"dark","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#FAB283","secondary":"#5C9CF5","info":"#56B6C2","success":"#7FD88F","warning":"#F5A742","error":"#E06C75","border":"#484848","borderActive":"#606060","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#9D7CD8","markdownLink":"#FAB283","markdownCode":"#7FD88F","markdownEmph":"#E5C07B","markdownStrong":"#F5A742","markdownBlockQuote":"#E5C07B","syntaxComment":"#808080","syntaxKeyword":"#9D7CD8","syntaxFunction":"#FAB283","syntaxType":"#E5C07B","syntaxNumber":"#F5A742","syntaxString":"#7FD88F","syntaxOperator":"#56B6C2"}},"orng":{"appearance":"dark","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#EC5B2B","secondary":"#EE7948","info":"#56B6C2","success":"#6BA1E6","warning":"#EC5B2B","error":"#E06C75","border":"#EC5B2B","borderActive":"#EE7948","diffAdded":"#6BA1E6","diffRemoved":"#C53B53","diffAddedBg":"#1A2A3D","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#162535","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#EC5B2B","markdownLink":"#EC5B2B","markdownCode":"#6BA1E6","markdownEmph":"#E5C07B","markdownStrong":"#EE7948","markdownBlockQuote":"#FFF7F1","syntaxComment":"#808080","syntaxKeyword":"#EC5B2B","syntaxFunction":"#EE7948","syntaxType":"#E5C07B","syntaxNumber":"#FFF7F1","syntaxString":"#6BA1E6","syntaxOperator":"#56B6C2"}},"osaka-jade":{"appearance":"dark","colors":{"background":"#111C18","backgroundPanel":"#1A2520","backgroundElement":"#23372B","sidebarBg":"#111C18","bubbleBg":"#1A2520","inputBg":"#1A2520","codeBlockBg":"#1A2520","codeHeaderBg":"#23372B","text":"#C1C497","textMuted":"#53685B","primary":"#2DD5B7","secondary":"#D2689C","info":"#2DD5B7","success":"#549E6A","warning":"#E5C736","error":"#FF5345","border":"#3D4A44","borderActive":"#2DD5B7","diffAdded":"#549E6A","diffRemoved":"#FF5345","diffAddedBg":"#15241C","diffRemovedBg":"#241515","diffAddedLineNumberBg":"#121F18","diffRemovedLineNumberBg":"#1F1212","markdownHeading":"#2DD5B7","markdownLink":"#8CD3CB","markdownCode":"#63B07A","markdownEmph":"#D2689C","markdownStrong":"#C1C497","markdownBlockQuote":"#53685B","syntaxComment":"#53685B","syntaxKeyword":"#2DD5B7","syntaxFunction":"#509475","syntaxType":"#549E6A","syntaxNumber":"#D2689C","syntaxString":"#63B07A","syntaxOperator":"#459451"}},"palenight":{"appearance":"dark","colors":{"background":"#292D3E","backgroundPanel":"#1E2132","backgroundElement":"#32364A","sidebarBg":"#292D3E","bubbleBg":"#1E2132","inputBg":"#1E2132","codeBlockBg":"#1E2132","codeHeaderBg":"#32364A","text":"#A6ACCD","textMuted":"#676E95","primary":"#82AAFF","secondary":"#C792EA","info":"#F78C6C","success":"#C3E88D","warning":"#FFCB6B","error":"#F07178","border":"#32364A","borderActive":"#82AAFF","diffAdded":"#C3E88D","diffRemoved":"#F07178","diffAddedBg":"#2E3C2B","diffRemovedBg":"#3C2B2B","diffAddedLineNumberBg":"#2E3C2B","diffRemovedLineNumberBg":"#3C2B2B","markdownHeading":"#C792EA","markdownLink":"#82AAFF","markdownCode":"#C3E88D","markdownEmph":"#FFCB6B","markdownStrong":"#F78C6C","markdownBlockQuote":"#676E95","syntaxComment":"#676E95","syntaxKeyword":"#C792EA","syntaxFunction":"#82AAFF","syntaxType":"#FFCB6B","syntaxNumber":"#F78C6C","syntaxString":"#C3E88D","syntaxOperator":"#89DDFF"}},"rosepine":{"appearance":"dark","colors":{"background":"#191724","backgroundPanel":"#1F1D2E","backgroundElement":"#26233A","sidebarBg":"#191724","bubbleBg":"#1F1D2E","inputBg":"#1F1D2E","codeBlockBg":"#1F1D2E","codeHeaderBg":"#26233A","text":"#E0DEF4","textMuted":"#6E6A86","primary":"#9CCFD8","secondary":"#C4A7E7","info":"#9CCFD8","success":"#31748F","warning":"#F6C177","error":"#EB6F92","border":"#403D52","borderActive":"#9CCFD8","diffAdded":"#31748F","diffRemoved":"#EB6F92","diffAddedBg":"#1F2D3A","diffRemovedBg":"#3A1F2D","diffAddedLineNumberBg":"#1F2D3A","diffRemovedLineNumberBg":"#3A1F2D","markdownHeading":"#C4A7E7","markdownLink":"#9CCFD8","markdownCode":"#31748F","markdownEmph":"#F6C177","markdownStrong":"#EB6F92","markdownBlockQuote":"#6E6A86","syntaxComment":"#6E6A86","syntaxKeyword":"#31748F","syntaxFunction":"#EBBCBA","syntaxType":"#9CCFD8","syntaxNumber":"#C4A7E7","syntaxString":"#F6C177","syntaxOperator":"#908CAA"}},"shadesofpurple":{"appearance":"dark","colors":{"background":"#1A102B","backgroundPanel":"#29203A","backgroundElement":"#392F49","sidebarBg":"#1A102B","bubbleBg":"#29203A","inputBg":"#29203A","codeBlockBg":"#29203A","codeHeaderBg":"#392F49","text":"#F5F0FF","textMuted":"#928BA0","primary":"#C792FF","secondary":"#5C9CF5","info":"#7DD4FF","success":"#7BE0B0","warning":"#FFD580","error":"#FF7AC6","border":"#D2CCDD","borderActive":"#AFA8BB","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#F5F0FF","markdownLink":"#FF7AC6","markdownCode":"#C792FF","markdownEmph":"#F5F0FF","markdownStrong":"#F5F0FF","markdownBlockQuote":"#928BA0","syntaxComment":"#B362FF","syntaxKeyword":"#FF9D00","syntaxFunction":"#C792FF","syntaxType":"#FAD000","syntaxNumber":"#FF628C","syntaxString":"#A5FF90","syntaxOperator":"#928BA0"}},"solarized":{"appearance":"dark","colors":{"background":"#002B36","backgroundPanel":"#073642","backgroundElement":"#073642","sidebarBg":"#002B36","bubbleBg":"#073642","inputBg":"#073642","codeBlockBg":"#073642","codeHeaderBg":"#073642","text":"#839496","textMuted":"#586E75","primary":"#268BD2","secondary":"#6C71C4","info":"#CB4B16","success":"#859900","warning":"#B58900","error":"#DC322F","border":"#073642","borderActive":"#586E75","diffAdded":"#859900","diffRemoved":"#DC322F","diffAddedBg":"#073642","diffRemovedBg":"#073642","diffAddedLineNumberBg":"#073642","diffRemovedLineNumberBg":"#073642","markdownHeading":"#268BD2","markdownLink":"#2AA198","markdownCode":"#859900","markdownEmph":"#B58900","markdownStrong":"#CB4B16","markdownBlockQuote":"#586E75","syntaxComment":"#586E75","syntaxKeyword":"#859900","syntaxFunction":"#268BD2","syntaxType":"#B58900","syntaxNumber":"#D33682","syntaxString":"#2AA198","syntaxOperator":"#859900"}},"synthwave84":{"appearance":"dark","colors":{"background":"#262335","backgroundPanel":"#1E1A29","backgroundElement":"#2A2139","sidebarBg":"#262335","bubbleBg":"#1E1A29","inputBg":"#1E1A29","codeBlockBg":"#1E1A29","codeHeaderBg":"#2A2139","text":"#FFFFFF","textMuted":"#848BBD","primary":"#36F9F6","secondary":"#FF7EDB","info":"#FF8B39","success":"#72F1B8","warning":"#FEDE5D","error":"#FE4450","border":"#495495","borderActive":"#36F9F6","diffAdded":"#72F1B8","diffRemoved":"#FE4450","diffAddedBg":"#1A3A2A","diffRemovedBg":"#3A1A2A","diffAddedLineNumberBg":"#1A3A2A","diffRemovedLineNumberBg":"#3A1A2A","markdownHeading":"#FF7EDB","markdownLink":"#36F9F6","markdownCode":"#72F1B8","markdownEmph":"#FEDE5D","markdownStrong":"#FF8B39","markdownBlockQuote":"#848BBD","syntaxComment":"#848BBD","syntaxKeyword":"#FF7EDB","syntaxFunction":"#FF8B39","syntaxType":"#36F9F6","syntaxNumber":"#B084EB","syntaxString":"#FEDE5D","syntaxOperator":"#FF7EDB"}},"system":{"appearance":"system","colors":{"background":"#0A0A0A","backgroundPanel":"#141414","backgroundElement":"#1E1E1E","sidebarBg":"#0A0A0A","bubbleBg":"#141414","inputBg":"#141414","codeBlockBg":"#141414","codeHeaderBg":"#1E1E1E","text":"#EEEEEE","textMuted":"#808080","primary":"#FAB283","secondary":"#5C9CF5","info":"#56B6C2","success":"#7FD88F","warning":"#F5A742","error":"#E06C75","border":"#484848","borderActive":"#606060","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#9D7CD8","markdownLink":"#FAB283","markdownCode":"#7FD88F","markdownEmph":"#E5C07B","markdownStrong":"#F5A742","markdownBlockQuote":"#E5C07B","syntaxComment":"#808080","syntaxKeyword":"#9D7CD8","syntaxFunction":"#FAB283","syntaxType":"#E5C07B","syntaxNumber":"#F5A742","syntaxString":"#7FD88F","syntaxOperator":"#56B6C2"},"stub":true},"tokyonight":{"appearance":"dark","colors":{"background":"#1A1B26","backgroundPanel":"#1E2030","backgroundElement":"#222436","sidebarBg":"#1A1B26","bubbleBg":"#1E2030","inputBg":"#1E2030","codeBlockBg":"#1E2030","codeHeaderBg":"#222436","text":"#C8D3F5","textMuted":"#828BB8","primary":"#82AAFF","secondary":"#C099FF","info":"#82AAFF","success":"#C3E88D","warning":"#FF966C","error":"#FF757F","border":"#737AA2","borderActive":"#9099B2","diffAdded":"#4FD6BE","diffRemoved":"#C53B53","diffAddedBg":"#20303B","diffRemovedBg":"#37222C","diffAddedLineNumberBg":"#1B2B34","diffRemovedLineNumberBg":"#2D1F26","markdownHeading":"#C099FF","markdownLink":"#82AAFF","markdownCode":"#C3E88D","markdownEmph":"#FFC777","markdownStrong":"#FF966C","markdownBlockQuote":"#FFC777","syntaxComment":"#828BB8","syntaxKeyword":"#C099FF","syntaxFunction":"#82AAFF","syntaxType":"#FFC777","syntaxNumber":"#FF966C","syntaxString":"#C3E88D","syntaxOperator":"#86E1FC"}},"vercel":{"appearance":"dark","colors":{"background":"#000000","backgroundPanel":"#1A1A1A","backgroundElement":"#292929","sidebarBg":"#000000","bubbleBg":"#1A1A1A","inputBg":"#1A1A1A","codeBlockBg":"#1A1A1A","codeHeaderBg":"#292929","text":"#EDEDED","textMuted":"#878787","primary":"#0070F3","secondary":"#52A8FF","info":"#52A8FF","success":"#46A758","warning":"#FFB224","error":"#E5484D","border":"#1F1F1F","borderActive":"#454545","diffAdded":"#63C46D","diffRemoved":"#FF6166","diffAddedBg":"#0B1D0F","diffRemovedBg":"#2A1314","diffAddedLineNumberBg":"#0F2613","diffRemovedLineNumberBg":"#3C1618","markdownHeading":"#BF7AF0","markdownLink":"#52A8FF","markdownCode":"#63C46D","markdownEmph":"#F2A700","markdownStrong":"#F75590","markdownBlockQuote":"#878787","syntaxComment":"#878787","syntaxKeyword":"#F75590","syntaxFunction":"#BF7AF0","syntaxType":"#0AC7AC","syntaxNumber":"#F2A700","syntaxString":"#63C46D","syntaxOperator":"#F75590"}},"vesper":{"appearance":"dark","colors":{"background":"#101010","backgroundPanel":"#101010","backgroundElement":"#101010","sidebarBg":"#101010","bubbleBg":"#101010","inputBg":"#101010","codeBlockBg":"#101010","codeHeaderBg":"#101010","text":"#FFF","textMuted":"#A0A0A0","primary":"#FFC799","secondary":"#99FFE4","info":"#FFC799","success":"#99FFE4","warning":"#FFC799","error":"#FF8080","border":"#282828","borderActive":"#FFC799","diffAdded":"#99FFE4","diffRemoved":"#FF8080","diffAddedBg":"#0D2818","diffRemovedBg":"#281A1A","diffAddedLineNumberBg":"#0D2818","diffRemovedLineNumberBg":"#281A1A","markdownHeading":"#FFC799","markdownLink":"#FFC799","markdownCode":"#A0A0A0","markdownEmph":"#FFF","markdownStrong":"#FFF","markdownBlockQuote":"#FFF","syntaxComment":"#8B8B8B","syntaxKeyword":"#A0A0A0","syntaxFunction":"#FFC799","syntaxType":"#FFC799","syntaxNumber":"#FFC799","syntaxString":"#99FFE4","syntaxOperator":"#A0A0A0"}},"zenburn":{"appearance":"dark","colors":{"background":"#3F3F3F","backgroundPanel":"#4F4F4F","backgroundElement":"#5F5F5F","sidebarBg":"#3F3F3F","bubbleBg":"#4F4F4F","inputBg":"#4F4F4F","codeBlockBg":"#4F4F4F","codeHeaderBg":"#5F5F5F","text":"#DCDCCC","textMuted":"#9F9F9F","primary":"#8CD0D3","secondary":"#DC8CC3","info":"#DFAF8F","success":"#7F9F7F","warning":"#F0DFAF","error":"#CC9393","border":"#5F5F5F","borderActive":"#8CD0D3","diffAdded":"#7F9F7F","diffRemoved":"#CC9393","diffAddedBg":"#4F5F4F","diffRemovedBg":"#5F4F4F","diffAddedLineNumberBg":"#4F5F4F","diffRemovedLineNumberBg":"#5F4F4F","markdownHeading":"#F0DFAF","markdownLink":"#8CD0D3","markdownCode":"#7F9F7F","markdownEmph":"#E0CF9F","markdownStrong":"#DFAF8F","markdownBlockQuote":"#9F9F9F","syntaxComment":"#7F9F7F","syntaxKeyword":"#F0DFAF","syntaxFunction":"#8CD0D3","syntaxType":"#93E0E3","syntaxNumber":"#8FB28F","syntaxString":"#CC9393","syntaxOperator":"#F0DFAF"}}}</script>
+
+<script>
+/* ===== 纯逻辑模块（无 DOM，可整体搬入 runtime/engine 侧；页面只调用它） ===== */
+(function (g) {
+'use strict';
+var BG_KEYS = ['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg'];
+var ALL_KEYS_37 = ['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg','text','textMuted','primary','secondary','info','success','warning','error','border','borderActive','diffAdded','diffRemoved','diffAddedBg','diffRemovedBg','diffAddedLineNumberBg','diffRemovedLineNumberBg','markdownHeading','markdownLink','markdownCode','markdownEmph','markdownStrong','markdownBlockQuote','syntaxComment','syntaxKeyword','syntaxFunction','syntaxType','syntaxNumber','syntaxString','syntaxOperator'];
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function full37(base32, fallback32) {
+  var c = {};
+  ALL_KEYS_37.forEach(function (k) {
+    if (k === 'sidebarBg') c[k] = base32.background || fallback32.background;
+    else if (k === 'bubbleBg' || k === 'inputBg' || k === 'codeBlockBg') c[k] = base32.backgroundPanel || fallback32.backgroundPanel;
+    else if (k === 'codeHeaderBg') c[k] = base32.backgroundElement || fallback32.backgroundElement;
+    else c[k] = base32[k] || fallback32[k] || '#888888';
+  });
+  return c;
+}
+function seedCustoms(PRESETS) {
+  var fb = PRESETS['opencode'].colors;
+  var a = full37(PRESETS['opencode'].colors, fb); a.primary = '#F5A742';
+  var b = full37(PRESETS['lucent-orng'].colors, fb); b.background = 'transparent';
+  return [
+    { id: 'my-amber', name: '我的琥珀', appearance: 'dark', colors: a },
+    { id: 'mist-light', name: '雾白透底', appearance: 'light', colors: b }
+  ];
+}
+function initialState(PRESETS) {
+  return {
+    applied: 'opencode',
+    customs: seedCustoms(PRESETS),
+    editor: null,
+    pop: null,
+    hl: null,
+    copy: 'idle',
+    last: '就绪：种子含 2 个自定义（my-amber / mist-light），已应用 opencode。',
+    confirmDelete: false,
+    err: ''
+  };
+}
+function slug(name) {
+  var s = String(name || '').trim().toLowerCase().replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24);
+  return s || 'custom';
+}
+function reducer(state, action, PRESETS) {
+  var s = clone(state);
+  s.err = '';
+  var ed = s.editor ? clone(s.editor) : null;
+  function note(t) { s.last = t; }
+  switch (action.type) {
+    case 'RESET':
+      return initialState(PRESETS);
+    case 'OPEN_NEW': {
+      var fb = PRESETS['opencode'].colors;
+      s.editor = { mode: 'new', targetId: null, name: '', appearance: 'dark', colors: full37(fb, fb), changed: [], dirty: false };
+      s.pop = null; s.confirmDelete = false;
+      note('打开编辑器：新增模式（外观默认 dark，底色取 opencode）。');
+      return s;
+    }
+    case 'OPEN_EDIT': {
+      if (!s.customs.length) { s.err = '暂无自定义主题，先新增。'; note('打开编辑失败：无自定义可编辑。'); return s; }
+      var t = s.customs[0];
+      s.editor = { mode: 'edit', targetId: t.id, name: t.name, appearance: t.appearance, colors: clone(t.colors), changed: [], dirty: false };
+      s.pop = null; s.confirmDelete = false;
+      note('打开编辑器：编辑模式，目标 ' + t.id + '。');
+      return s;
+    }
+    case 'CLOSE':
+      s.editor = null; s.pop = null; s.confirmDelete = false;
+      note('关闭编辑器（未保存的草稿丢弃——内存态）。');
+      return s;
+    case 'SET_NAME':
+      if (!s.editor) return s;
+      ed.name = String(action.name || ''); ed.dirty = true; s.editor = ed;
+      note('草稿重命名为「' + ed.name + '」。');
+      return s;
+    case 'SET_TARGET': {
+      if (!s.editor || s.editor.mode !== 'edit') return s;
+      var f = null;
+      s.customs.forEach(function (c) { if (c.id === action.id) f = c; });
+      if (!f) { s.err = '找不到目标 ' + action.id; return s; }
+      s.editor = { mode: 'edit', targetId: f.id, name: f.name, appearance: f.appearance, colors: clone(f.colors), changed: [], dirty: false };
+      s.confirmDelete = false;
+      note('编辑目标切换为 ' + f.id + '（草稿已重置为该主题存盘值）。');
+      return s;
+    }
+    case 'SET_APPEARANCE':
+      if (!s.editor) return s;
+      ed.appearance = action.value; ed.dirty = true;
+      if (ed.changed.indexOf('appearance') < 0) ed.changed.push('appearance');
+      s.editor = ed;
+      note('外观设为 ' + action.value + '。');
+      return s;
+    case 'LOAD_PRESET': {
+      if (!s.editor) return s;
+      var p = PRESETS[action.name];
+      if (!p) { s.err = '未知预置 ' + action.name; return s; }
+      var base = p.colors || PRESETS['opencode'].colors;
+      ed.colors = full37(base, PRESETS['opencode'].colors);
+      ed.appearance = p.appearance;
+      ed.dirty = true; ed.changed = ['preset:' + action.name];
+      s.editor = ed;
+      note('载入预置 ' + action.name + '：37 色已填入，外观同步为 ' + p.appearance + '。');
+      return s;
+    }
+    case 'SET_COLOR': {
+      if (!s.editor) return s;
+      var k = action.key, v = String(action.value || '').toUpperCase();
+      if (v !== 'TRANSPARENT' && !/^#([0-9A-F]{6})$/.test(v)) { s.err = '非法颜色 ' + action.value + '（仅 #RRGGBB 或 transparent）。'; return s; }
+      if (v === 'TRANSPARENT' && BG_KEYS.indexOf(k) < 0) { s.err = '只有 8 个背景类槽位可设 transparent：' + k + ' 不允许。'; note('拒绝 transparent：' + k + ' 非背景槽。'); return s; }
+      ed.colors[k] = v; ed.dirty = true;
+      if (ed.changed.indexOf(k) < 0) ed.changed.push(k);
+      s.editor = ed; s.pop = null;
+      note('色位 ' + k + ' 改为 ' + v + '（右侧预览与胶囊已同步）。');
+      return s;
+    }
+    case 'TOGGLE_TRANSPARENT': {
+      if (!s.editor) return s;
+      var kk = action.key;
+      if (BG_KEYS.indexOf(kk) < 0) { s.err = '只有背景类 8 槽可透底。'; return s; }
+      ed.colors[kk] = (ed.colors[kk] === 'transparent' ? PRESETS['opencode'].colors[kk] || '#141414' : 'transparent');
+      ed.dirty = true;
+      if (ed.changed.indexOf(kk) < 0) ed.changed.push(kk);
+      s.editor = ed;
+      note('色位 ' + kk + ' 透底切换为 ' + ed.colors[kk] + '。');
+      return s;
+    }
+    case 'SAVE': {
+      if (!s.editor) return s;
+      var nm = String(ed.name || '').trim();
+      if (!nm) { s.err = '主题名称不能为空（保存已拦截）。'; note('保存被拦：名称为空。'); return s; }
+      if (s.editor.mode === 'new') {
+        var baseId = slug(nm) || ('theme-' + Date.now());
+        var nid = baseId, n = 2;
+        while (s.customs.some(function (c) { return c.id === nid; })) { nid = baseId + '-' + (n++); }
+        s.customs.push({ id: nid, name: nm, appearance: ed.appearance, colors: clone(ed.colors) });
+        note('已保存新主题 custom:' + nid + '（面板新增一枚胶囊；面板外 DSH 未动）。');
+        s.editor = null; s.pop = null;
+        return s;
+      } else {
+        var idx = -1;
+        s.customs.forEach(function (c, i) { if (c.id === ed.targetId) idx = i; });
+        if (idx < 0) { s.err = '编辑目标已不存在。'; return s; }
+        s.customs[idx] = { id: ed.targetId, name: nm, appearance: ed.appearance, colors: clone(ed.colors) };
+        if (s.applied === ('custom:' + ed.targetId)) note('已保存并刷新正在应用的 custom:' + ed.targetId + '（编辑激活项时立即刷新）。');
+        else note('已保存 custom:' + ed.targetId + '（面板胶囊已更新；面板外 DSH 未动，点击胶囊才应用）。');
+        s.editor = null; s.pop = null; s.confirmDelete = false;
+        return s;
+      }
+    }
+    case 'DELETE_REQUEST':
+      s.confirmDelete = true;
+      note('删除需二次确认：再点一次确认删除才会执行。');
+      return s;
+    case 'DELETE_CANCEL':
+      s.confirmDelete = false;
+      note('已取消删除。');
+      return s;
+    case 'DELETE_CONFIRM': {
+      if (!s.editor || s.editor.mode !== 'edit') return s;
+      var did = ed.targetId;
+      s.customs = s.customs.filter(function (c) { return c.id !== did; });
+      if (s.applied === ('custom:' + did)) { s.applied = 'opencode'; note('已删除 custom:' + did + '，因正在应用，已平滑回退到 opencode。'); }
+      else note('已删除 custom:' + did + '。');
+      s.editor = null; s.pop = null; s.confirmDelete = false;
+      return s;
+    }
+    case 'APPLY': {
+      var aid = action.id;
+      if (aid.indexOf('custom:') === 0) {
+        var cid = aid.slice(7);
+        if (!s.customs.some(function (c) { return c.id === cid; })) { s.err = '该自定义已不存在（孤儿），保持当前应用不变。'; return s; }
+      }
+      s.applied = aid;
+      note('已应用 ' + aid + '（点击胶囊即应用；编辑器草稿不影响此处）。');
+      return s;
+    }
+    case 'COPY_PATH':
+      s.copy = 'done';
+      note('已复制存储目录路径（原型内模拟写剪贴板，按钮短暂显示 ✓ 已复制）。');
+      return s;
+    case 'COPY_RESET':
+      s.copy = 'idle';
+      return s;
+    case 'HOVER_KEY':
+      s.hl = action.key || null;
+      if (action.key) note('悬停 ' + action.key + '：右侧对应部件呼吸高亮中。');
+      return s;
+    case 'CLICK_SLOT':
+      if (!s.editor) { note('点击预览 ' + action.key + '：需先打开编辑器（新增/编辑）才会定位弹调色板。'); s.hl = action.key; return s; }
+      s.hl = action.key; s.pop = { key: action.key };
+      note('点击预览 ' + action.key + '：左侧已滚动定位并弹出调色板（所见即所点）。');
+      return s;
+    case 'OPEN_POP':
+      if (!s.editor) return s;
+      s.pop = { key: action.key }; s.hl = action.key;
+      note('打开调色板：' + action.key + '。');
+      return s;
+    case 'CLOSE_POP':
+      s.pop = null;
+      return s;
+    default:
+      return s;
+  }
+}
+g.Proto83Logic = { ALL_KEYS_37: ALL_KEYS_37, BG_KEYS: BG_KEYS, initialState: initialState, reducer: reducer, full37: full37, seedCustoms: seedCustoms };
+})(window);
+</script>
+
+<script>
+/* ===== 页面壳（唯一可碰 DOM 的地方；逻辑只进不出） ===== */
+(function () {
+'use strict';
+var PRESETS = JSON.parse(document.getElementById('preset-data').textContent);
+var L = window.Proto83Logic;
+var S = L.reducer(L.initialState(PRESETS), { type: '__init__' }, PRESETS);
+S = Object.assign(L.initialState(PRESETS), {});
+var DSH_DIR = '<DSH_HOME>/opencode-palette/custom-themes';
+var GROUPS = [
+  { id: 'bg', zh: '界面与背景', en: 'Surfaces · 8', keys: [
+    ['background','页面主底','Background','主对话区底',1],['backgroundPanel','面板中层','Panel','选中会话/气泡/代码底',1],
+    ['backgroundElement','浮起面','Elevated','悬浮提示/代码顶栏',1],['sidebarBg','侧边栏底','Sidebar','迷你侧边栏底',1],
+    ['bubbleBg','气泡底','Bubble','用户消息气泡',1],['inputBg','输入框底','Input','底部输入框',1],
+    ['codeBlockBg','代码块底','Code block','代码区底',1],['codeHeaderBg','代码顶栏','Code header','代码卡顶栏',1]] },
+  { id: 'text', zh: '文字', en: 'Text · 2', keys: [
+    ['text','主文字','Text','正文/输入文字',0],['textMuted','次级文字','Muted','占位/副标签',0]] },
+  { id: 'brand', zh: '品牌与状态', en: 'Brand & status · 6', keys: [
+    ['primary','主色','Primary','主按钮/选中描边',0],['secondary','次色','Secondary','次级芯片',0],
+    ['info','信息','Info','信息徽章',0],['success','成功','Success','成功徽章',0],
+    ['warning','警告','Warning','警告徽章',0],['error','错误','Error','错误徽章',0]] },
+  { id: 'border', zh: '边框', en: 'Border · 2', keys: [
+    ['border','常规边框','Border','分割线/卡片描边',0],['borderActive','高亮边框','Active border','输入聚焦外框',0]] },
+  { id: 'diff', zh: 'Diff 变更对比', en: 'Diff · 6', keys: [
+    ['diffAdded','新增文字','Added','新增行文字',0],['diffRemoved','删除文字','Removed','删除行文字',0],
+    ['diffAddedBg','新增行底','Added bg','新增行底色',0],['diffRemovedBg','删除行底','Removed bg','删除行底色',0],
+    ['diffAddedLineNumberBg','新增行号槽','Added gutter','新增行号底',0],['diffRemovedLineNumberBg','删除行号槽','Removed gutter','删除行号底',0]] },
+  { id: 'md', zh: 'Markdown 富文本', en: 'Markdown · 6', keys: [
+    ['markdownHeading','标题','Heading','回复标题',0],['markdownLink','链接','Link','超链接',0],
+    ['markdownCode','行内代码','Inline code','行内代码字',0],['markdownEmph','斜体','Emph','斜体字',0],
+    ['markdownStrong','粗体','Strong','粗体字',0],['markdownBlockQuote','引用','Quote','引用竖线+字',0]] },
+  { id: 'syn', zh: '代码语法高亮', en: 'Syntax · 7', keys: [
+    ['syntaxComment','注释','Comment','代码注释',0],['syntaxKeyword','关键字','Keyword','关键字',0],
+    ['syntaxFunction','函数','Function','函数名',0],['syntaxType','类型','Type','类型名',0],
+    ['syntaxNumber','数字','Number','数字',0],['syntaxString','字符串','String','字符串',0],
+    ['syntaxOperator','操作符','Operator','操作符',0]] }
+];
+var KEY_META = {};
+GROUPS.forEach(function (g) { g.keys.forEach(function (k) { KEY_META[k[0]] = { zh: k[1], en: k[2], use: k[3], trans: !!k[4], group: g.zh }; }); });
+var APPEAR_ZH = { dark: '强制深色', light: '强制浅色', system: '跟随系统' };
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function dispatch(a) { S = L.reducer(S, a, PRESETS); render(); }
+function chipStyle(colors, appearance, selected) {
+  var bg = colors.background;
+  var lightTrans = (appearance === 'light' && bg === 'transparent');
+  var face = lightTrans ? '#FFFFFF' : (bg === 'transparent' ? '#FFFFFF' : bg);
+  var fg = lightTrans ? '#1A1A1A' : (bg === 'transparent' ? '#1A1A1A' : colors.text);
+  return 'background:' + face + ';color:' + fg + ';border:' + (selected ? '2px solid ' + colors.primary : '1px solid ' + colors.primary);
+}
+/* ---- 状态面板 ---- */
+function renderState() {
+  var g = document.getElementById('stateGrid');
+  var ed = S.editor;
+  var cells = [
+    ['已应用（面板外 DSH）', esc(S.applied)],
+    ['自定义数量（不含 +新增/编辑）', String(S.customs.length)],
+    ['编辑器', ed ? esc(ed.mode + ' · ' + (ed.name || '（未命名）') + ' · ' + ed.appearance + ' · 改动' + ed.changed.length + '项') : '关闭'],
+    ['调色板 Popover', S.pop ? esc(S.pop.key) : '关闭'],
+    ['预览高亮', S.hl ? esc(S.hl) : '无'],
+    ['复制路径', S.copy === 'done' ? '✓ 已复制' : 'idle'],
+    ['待删除确认', S.confirmDelete ? '是（再点确认即删）' : '否'],
+    ['自定义列表', esc(S.customs.map(function (c) { return 'custom:' + c.id + '(' + c.appearance + ')'; }).join('、') || '空')]
+  ];
+  g.innerHTML = cells.map(function (c) { return '<div class="cell"><div class="k">' + c[0] + '</div><div class="v">' + c[1] + '</div></div>'; }).join('');
+  var lc = document.getElementById('lastChange');
+  lc.innerHTML = '上次变化：' + esc(S.last) + (S.err ? ' <span class="err">· ' + esc(S.err) + '</span>' : '') +
+    (ed && ed.changed.length ? ' <span style="color:#A9A9B3">· 改动键：' + esc(ed.changed.join('、')) + '</span>' : '');
+}
+/* ---- 自由操作 ---- */
+var FREE = [
+  ['打开·新增', function () { dispatch({ type: 'OPEN_NEW' }); }],
+  ['打开·编辑', function () { dispatch({ type: 'OPEN_EDIT' }); }],
+  ['关闭编辑器', function () { dispatch({ type: 'CLOSE' }); }],
+  ['载入 opencode', function () { if (!S.editor) dispatch({ type: 'OPEN_NEW' }); dispatch({ type: 'LOAD_PRESET', name: 'opencode' }); }],
+  ['载入 lucent-orng（→light）', function () { if (!S.editor) dispatch({ type: 'OPEN_NEW' }); dispatch({ type: 'LOAD_PRESET', name: 'lucent-orng' }); }],
+  ['外观→深色', function () { dispatch({ type: 'SET_APPEARANCE', value: 'dark' }); }],
+  ['外观→浅色', function () { dispatch({ type: 'SET_APPEARANCE', value: 'light' }); }],
+  ['外观→跟随系统', function () { dispatch({ type: 'SET_APPEARANCE', value: 'system' }); }],
+  ['随机改 primary', function () {
+    if (!S.editor) dispatch({ type: 'OPEN_NEW' });
+    var h = '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0').toUpperCase();
+    dispatch({ type: 'SET_COLOR', key: 'primary', value: h });
+  }],
+  ['透底 background', function () { if (!S.editor) dispatch({ type: 'OPEN_NEW' }); dispatch({ type: 'TOGGLE_TRANSPARENT', key: 'background' }); }],
+  ['保存主题', function () { dispatch({ type: 'SAVE' }); }],
+  ['复制存储目录路径', function () { doCopy(); }],
+  ['应用 my-amber', function () { dispatch({ type: 'APPLY', id: 'custom:my-amber' }); }],
+  ['应用 opencode', function () { dispatch({ type: 'APPLY', id: 'opencode' }); }],
+  ['重置种子', function () { dispatch({ type: 'RESET' }); }]
+];
+function renderFree() {
+  var r = document.getElementById('freeRow');
+  r.innerHTML = '';
+  FREE.forEach(function (f) {
+    var b = document.createElement('button');
+    b.className = 'abtn'; b.setAttribute('data-pi', '');
+    b.textContent = f[0]; b.onclick = f[1];
+    r.appendChild(b);
+  });
+}
+/* ---- 面板 mock ---- */
+function doCopy() {
+  dispatch({ type: 'COPY_PATH' });
+  try {
+    var p = DSH_DIR.replace('<DSH_HOME>', '~/.dsh');
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(p).catch(function () {});
+  } catch (e) {}
+  setTimeout(function () { S = L.reducer(S, { type: 'COPY_RESET' }, PRESETS); render(); }, 1400);
+}
+function renderPanel() {
+  var sp = document.getElementById('specialChips');
+  sp.innerHTML = '';
+  [['opencode', PRESETS['opencode'].colors], ['system', null]].forEach(function (it) {
+    var b = document.createElement('button');
+    b.className = 'chip'; b.setAttribute('data-pi', '');
+    if (it[0] === 'system') {
+      b.style.cssText = 'background:#0A0A0A;color:#E7E7EA;border:1px solid #555';
+      b.innerHTML = '<span class="dot" style="background:#8B8B95"></span>system（跟随系统）' + (S.applied === 'system' ? ' <i class="tick">✓</i>' : '');
+    } else {
+      var c = it[1];
+      b.style.cssText = chipStyle({ background: c.background, text: c.text, primary: c.primary }, 'dark', S.applied === 'opencode');
+      b.innerHTML = '<span class="dot" style="background:' + c.primary + '"></span>opencode' + (S.applied === 'opencode' ? ' <i class="tick" style="color:' + c.primary + '">✓</i>' : '');
+    }
+    b.onclick = (function (id) { return function () { dispatch({ type: 'APPLY', id: id }); }; })(it[0]);
+    sp.appendChild(b);
+  });
+  document.getElementById('customTitle').textContent = '● 自定义 Custom ' + S.customs.length;
+  var cb = document.getElementById('copyBtn');
+  cb.textContent = S.copy === 'done' ? '✓ 已复制' : '📋 复制存储目录路径';
+  cb.onclick = doCopy;
+  cb.title = DSH_DIR;
+  var cc = document.getElementById('customChips');
+  cc.innerHTML = '';
+  S.customs.forEach(function (t) {
+    var b = document.createElement('button');
+    b.className = 'chip' + (S.applied === ('custom:' + t.id) ? ' sel' : '');
+    b.setAttribute('data-pi', '');
+    b.style.cssText = chipStyle(t.colors, t.appearance, S.applied === ('custom:' + t.id));
+    b.innerHTML = '<span class="dot" style="background:' + t.colors.primary + '"></span>' + esc(t.name) +
+      (S.applied === ('custom:' + t.id) ? ' <i class="tick" style="color:' + t.colors.primary + '">✓</i>' : '');
+    b.title = '点击仅切换应用（custom:' + t.id + '），不进编辑';
+    b.onclick = (function (id) { return function () { dispatch({ type: 'APPLY', id: 'custom:' + id }); }; })(t.id);
+    cc.appendChild(b);
+  });
+  [['+ 新增', 'new'], ['✎ 编辑', 'edit']].forEach(function (it) {
+    var b = document.createElement('button');
+    b.className = 'chip op-chip'; b.setAttribute('data-pi', '');
+    b.textContent = it[0];
+    b.title = it[1] === 'new' ? '打开新增弹窗' : '打开编辑弹窗（弹窗内切换目标/删除）';
+    b.onclick = function () { dispatch({ type: it[1] === 'new' ? 'OPEN_NEW' : 'OPEN_EDIT' }); };
+    if (it[1] === 'edit' && !S.customs.length) { b.disabled = true; b.style.opacity = '.45'; }
+    cc.appendChild(b);
+  });
+  document.getElementById('appliedLine').textContent = '当前面板外应用：' + S.applied + '（编辑器内改色只动右侧预览，保存后才出胶囊，点胶囊才应用——除非编辑的正是已应用项，保存即刷新）';
+}
+/* ---- 编辑器弹窗 ---- */
+function hexOrTrans(v) { return v === 'transparent' ? 'transparent' : String(v || '').toUpperCase(); }
+function renderDlg() {
+  var root = document.getElementById('dlgRoot');
+  if (!S.editor) { root.innerHTML = ''; return; }
+  var ed = S.editor;
+  var presetNames = Object.keys(PRESETS).sort();
+  var html = '<div class="backdrop"><div class="dlg" role="dialog" aria-label="自定义主题编辑器">';
+  html += '<div class="dlg-top"><div class="row1"><span class="mode-tag">' + (ed.mode === 'new' ? '新增 NEW' : '编辑 EDIT') + '</span>';
+  if (ed.mode === 'edit') {
+    html += '<select class="txt" id="f-target">' + S.customs.map(function (c) {
+      return '<option value="' + esc(c.id) + '"' + (c.id === ed.targetId ? ' selected' : '') + '>' + esc(c.name + '（custom:' + c.id + '）') + '</option>';
+    }).join('') + '</select>';
+  }
+  html += '<input class="txt" id="f-name" placeholder="主题名称（必填）" value="' + esc(ed.name) + '">';
+  html += '<div class="seg" id="f-appear">' + ['dark', 'light', 'system'].map(function (v) {
+    var lab = v === 'dark' ? '🌙 深色' : (v === 'light' ? '☀️ 浅色' : '🖥️ 跟随系统');
+    return '<button data-pi data-v="' + v + '" class="' + (ed.appearance === v ? 'on' : '') + '">' + lab + '</button>';
+  }).join('') + '</div>';
+  if (ed.mode === 'edit') {
+    html += S.confirmDelete
+      ? '<button class="abtn danger" data-pi id="f-del2">确认删除？再点一次即删</button> <button class="abtn ghost" data-pi id="f-delcancel">取消</button>'
+      : '<button class="abtn danger" data-pi id="f-del">🗑 删除该主题</button>';
+  }
+  html += '</div>';
+  html += '<div class="presetwrap"><input class="txt" id="f-search" placeholder="从预置载入 🔍（38 款，敲字过滤）" style="min-width:230px">';
+  html += '<div class="presetlist" id="f-presets">' + presetNames.map(function (n) {
+    return '<button class="preset" data-pi data-n="' + esc(n) + '">' + esc(n) + '</button>';
+  }).join('') + '</div></div>';
+  html += '<div style="font-size:11px;color:#8B8B95">载入即填满 37 色并同步外观（system→system / lucent-orng→light / 其余→dark）；system 为桩（opencode 底色 + 跟随系统）。</div></div>';
+  html += '<div class="dlg-body"><div class="dlg-left" id="f-left">';
+  GROUPS.forEach(function (g) {
+    html += '<div class="gtitle">' + esc(g.zh) + ' <span style="color:#5C5C66">' + esc(g.en) + '</span></div>';
+    g.keys.forEach(function (kk) {
+      var k = kk[0], v = ed.colors[k];
+      var meta = KEY_META[k];
+      html += '<div class="crow" data-row="' + k + '"><div class="nm"><b>' + esc(meta.zh) + ' · ' + esc(k) + '</b><small>' + esc(meta.en + '｜' + meta.use + (meta.trans ? '｜可 transparent' : '')) + '</small></div>';
+      html += '<button class="sw" data-pi data-sw="' + k + '" style="background:' + (v === 'transparent' ? 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' : esc(v)) + '" title="打开调色板"></button>';
+      html += '<span class="hex">' + esc(hexOrTrans(v)) + '</span>';
+      if (meta.trans) html += '<button class="tbtn" data-pi data-tr="' + k + '">' + (v === 'transparent' ? '透底开' : '透底关') + '</button>';
+      html += '</div>';
+    });
+  });
+  html += '</div><div class="dlg-right">';
+  html += '<div class="capbar"><span style="font-size:12px;color:#8B8B95">胶囊实时预览</span><span id="capPrev"></span><span class="apptag">' + esc(APPEAR_ZH[ed.appearance]) + '</span></div>';
+  html += '<div class="mini" id="mini"></div>';
+  html += '<div style="font-size:11px;color:#8B8B95;margin-top:8px">悬停左侧行 → 右侧对应部件呼吸高亮；点击右侧任意部件 → 左侧定位并弹出调色板。</div>';
+  html += '</div></div>';
+  html += '<div class="dlg-foot"><span class="hint">保存只在自定义区生成/更新胶囊，不直接改面板外 DSH（除非编辑的正是已应用项）。取消直接丢弃草稿。</span>';
+  html += '<button class="abtn ghost" data-pi id="f-cancel">取消</button><button class="abtn primary" data-pi id="f-save">保存主题</button></div>';
+  html += '</div></div>';
+  root.innerHTML = html;
+  /* 胶囊预览 */
+  var cap = document.getElementById('capPrev');
+  var lightTrans = (ed.appearance === 'light' && ed.colors.background === 'transparent');
+  cap.innerHTML = '<span class="chip' + ' sel' + '" style="' + chipStyle(ed.colors, ed.appearance, true) + ';cursor:default"><span class="dot" style="background:' + esc(ed.colors.primary) + '"></span>' +
+    esc(ed.name || '（未命名）') + ' <i class="tick" style="color:' + esc(ed.colors.primary) + '">✓</i></span>' +
+    (lightTrans ? '<span style="font-size:11px;color:#8B8B95">（light+透底 → #FFFFFF 银灰底）</span>' : '');
+  renderMini(ed);
+  /* 事件 */
+  document.getElementById('f-cancel').onclick = function () { dispatch({ type: 'CLOSE' }); };
+  document.getElementById('f-save').onclick = function () { dispatch({ type: 'SAVE' }); };
+  var nm = document.getElementById('f-name');
+  nm.oninput = function () { S = L.reducer(S, { type: 'SET_NAME', name: nm.value }, PRESETS); renderState(); renderMini(S.editor); syncCap(); };
+  nm.onchange = function () { render(); };
+  var tg = document.getElementById('f-target');
+  if (tg) tg.onchange = function () { dispatch({ type: 'SET_TARGET', id: tg.value }); };
+  document.querySelectorAll('#f-appear button').forEach(function (b) {
+    b.onclick = function () { dispatch({ type: 'SET_APPEARANCE', value: b.getAttribute('data-v') }); };
+  });
+  var del = document.getElementById('f-del');
+  if (del) del.onclick = function () { dispatch({ type: 'DELETE_REQUEST' }); };
+  var del2 = document.getElementById('f-del2');
+  if (del2) del2.onclick = function () { dispatch({ type: 'DELETE_CONFIRM' }); };
+  var delc = document.getElementById('f-delcancel');
+  if (delc) delc.onclick = function () { dispatch({ type: 'DELETE_CANCEL' }); };
+  var sch = document.getElementById('f-search');
+  sch.oninput = function () {
+    var q = sch.value.trim().toLowerCase();
+    document.querySelectorAll('#f-presets .preset').forEach(function (b) {
+      b.style.display = (!q || b.getAttribute('data-n').toLowerCase().indexOf(q) >= 0) ? '' : 'none';
+    });
+  };
+  document.querySelectorAll('#f-presets .preset').forEach(function (b) {
+    b.onclick = function () { dispatch({ type: 'LOAD_PRESET', name: b.getAttribute('data-n') }); };
+  });
+  /* 左行 hover + sw */
+  document.querySelectorAll('#f-left .crow').forEach(function (row) {
+    var k = row.getAttribute('data-row');
+    row.onmouseenter = function () { S = L.reducer(S, { type: 'HOVER_KEY', key: k }, PRESETS); renderState(); paintHl(); };
+    row.onmouseleave = function () { S = L.reducer(S, { type: 'HOVER_KEY', key: null }, PRESETS); renderState(); paintHl(); };
+  });
+  document.querySelectorAll('[data-sw]').forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); placePop(b, b.getAttribute('data-sw')); };
+  });
+  document.querySelectorAll('[data-tr]').forEach(function (b) {
+    b.onclick = function (e) { e.stopPropagation(); dispatch({ type: 'TOGGLE_TRANSPARENT', key: b.getAttribute('data-tr') }); };
+  });
+  /* 右画布点击 */
+  document.querySelectorAll('#mini [data-slot]').forEach(function (el) {
+    el.style.cursor = 'pointer';
+    el.onclick = function (e) {
+      e.stopPropagation();
+      var k = el.getAttribute('data-slot');
+      S = L.reducer(S, { type: 'CLICK_SLOT', key: k }, PRESETS);
+      render(); scrollToRow(k);
+    };
+    el.onmouseenter = function () { S.hl = el.getAttribute('data-slot'); paintHl(); };
+    el.onmouseleave = function () { S.hl = null; paintHl(); };
+  });
+  if (S.pop) { scrollToRow(S.pop.key); openPop(S.pop.key); }
+  if (S.hl) paintHl();
+}
+function syncCap() {
+  var ed = S.editor; if (!ed) return;
+  var cap = document.getElementById('capPrev'); if (!cap) return;
+  cap.innerHTML = '<span class="chip sel" style="' + chipStyle(ed.colors, ed.appearance, true) + ';cursor:default"><span class="dot" style="background:' + esc(ed.colors.primary) + '"></span>' +
+    esc(ed.name || '（未命名）') + ' <i class="tick" style="color:' + esc(ed.colors.primary) + '">✓</i></span>';
+}
+function slotBg(v, fb) {
+  if (v === 'transparent') return fb;
+  return v;
+}
+function renderMini(ed) {
+  var c = ed.colors;
+  function tx(v) { return v === 'transparent' ? '#8B8B95' : v; }
+  var h = '';
+  h += '<div class="side" data-slot="sidebarBg" style="background:' + slotBg(c.sidebarBg, '#1A1A1E') + ';border-right:1px solid ' + c.border + '">';
+  h += '<div style="font-size:11px;color:' + tx(c.textMuted) + '">会话</div>';
+  h += '<div class="sess cur" data-slot="backgroundPanel" style="background:' + slotBg(c.backgroundPanel, '#232329') + ';color:' + tx(c.text) + '"><span class="bar" data-slot="primary" style="background:' + c.primary + '"></span> ministros · 当前</div>';
+  h += '<div class="sess" style="color:' + tx(c.textMuted) + '">aurora 草稿</div>';
+  h += '<div class="sess" style="color:' + tx(c.textMuted) + '">gruvbox 回顾</div>';
+  h += '</div>';
+  h += '<div class="main" data-slot="background" style="background:' + slotBg(c.background, '#101014') + '">';
+  h += '<div class="bubble" data-slot="bubbleBg" style="background:' + slotBg(c.bubbleBg, '#232329') + ';color:' + tx(c.text) + '"><span data-slot="text">把 primary 改成更亮的橙，气泡底用 backgroundPanel 继承。</span></div>';
+  h += '<div class="md" data-slot="backgroundPanel" style="background:' + slotBg(c.backgroundPanel, '#16161A') + ';color:' + tx(c.text) + ';border:1px solid ' + c.border + '">';
+  h += '<h4 data-slot="markdownHeading" style="color:' + c.markdownHeading + '">AI 回复标题（markdownHeading）</h4>';
+  h += '<div>正文 <strong data-slot="markdownStrong" style="color:' + c.markdownStrong + '">粗体</strong> 与 <em data-slot="markdownEmph" style="color:' + c.markdownEmph + '">斜体</em>，'
+    + '<a data-slot="markdownLink" style="color:' + c.markdownLink + '">链接示例</a>，'
+    + '<code data-slot="markdownCode" style="color:' + c.markdownCode + ';background:rgba(127,127,127,.15);border-radius:4px;padding:0 4px">行内代码</code>。</div>';
+  h += '<blockquote data-slot="markdownBlockQuote" style="border-left:3px solid ' + c.markdownBlockQuote + ';color:' + c.markdownBlockQuote + ';margin:6px 0;padding-left:8px">引用块：左竖线与文字同色</blockquote>';
+  h += '<hr data-slot="border" style="border-color:' + c.border + '">';
+  h += '<span class="tip" data-slot="backgroundElement" style="background:' + slotBg(c.backgroundElement, '#232329') + ';color:' + tx(c.text) + '">悬浮提示胶囊 backgroundElement</span>';
+  h += '</div>';
+  h += '<div class="codecard" data-slot="border" style="border-color:' + c.border + '"><div class="codehead" data-slot="codeHeaderBg" style="background:' + slotBg(c.codeHeaderBg, '#232329') + ';color:' + tx(c.textMuted) + '"><span>example.mjs</span><span data-slot="textMuted">js</span></div>';
+  h += '<div class="codepre" data-slot="codeBlockBg" style="background:' + slotBg(c.codeBlockBg, '#16161A') + ';color:' + tx(c.text) + '">';
+  h += '<span data-slot="syntaxComment" style="color:' + c.syntaxComment + '">// comment </span>'
+    + '<span data-slot="syntaxKeyword" style="color:' + c.syntaxKeyword + '">const </span>'
+    + '<span data-slot="syntaxFunction" style="color:' + c.syntaxFunction + '">run</span>'
+    + '<span data-slot="syntaxOperator" style="color:' + c.syntaxOperator + '"> = </span>'
+    + '<span data-slot="syntaxType" style="color:' + c.syntaxType + '">Theme</span>'
+    + '<span data-slot="syntaxNumber" style="color:' + c.syntaxNumber + '"> 37</span> '
+    + '<span data-slot="syntaxString" style="color:' + c.syntaxString + '">"ok"</span>';
+  h += '</div></div>';
+  h += '<div class="diffcard" data-slot="border" style="border-color:' + c.border + '">';
+  h += '<div class="drow"><div class="ln" data-slot="diffAddedLineNumberBg" style="background:' + c.diffAddedLineNumberBg + ';color:' + tx(c.textMuted) + '">12</div>'
+    + '<div class="tx" data-slot="diffAddedBg" style="background:' + c.diffAddedBg + ';color:' + c.diffAdded + '"><span data-slot="diffAdded">+ 新增行 diffAdded</span></div></div>';
+  h += '<div class="drow"><div class="ln" data-slot="diffRemovedLineNumberBg" style="background:' + c.diffRemovedLineNumberBg + ';color:' + tx(c.textMuted) + '">13</div>'
+    + '<div class="tx" data-slot="diffRemovedBg" style="background:' + c.diffRemovedBg + ';color:' + c.diffRemoved + '"><span data-slot="diffRemoved">- 删除行 diffRemoved</span></div></div>';
+  h += '</div>';
+  h += '<div class="badges"><span class="pbtn" data-slot="primary" style="background:' + c.primary + ';border-color:' + c.primary + ';color:' + pickText(c.primary) + '">主按钮</span>';
+  h += '<span class="pill" data-slot="secondary" style="background:' + c.secondary + '33;color:' + c.secondary + ';border:1px solid ' + c.secondary + '">次级</span>';
+  h += '<span class="pill" data-slot="info" style="background:' + c.info + '33;color:' + c.info + ';border:1px solid ' + c.info + '">info</span>';
+  h += '<span class="pill" data-slot="success" style="background:' + c.success + '33;color:' + c.success + ';border:1px solid ' + c.success + '">success</span>';
+  h += '<span class="pill" data-slot="warning" style="background:' + c.warning + '33;color:' + c.warning + ';border:1px solid ' + c.warning + '">warning</span>';
+  h += '<span class="pill" data-slot="error" style="background:' + c.error + '33;color:' + c.error + ';border:1px solid ' + c.error + '">error</span></div>';
+  h += '<div class="cinput" data-slot="inputBg" style="background:' + slotBg(c.inputBg, '#1C1C21') + ';border:1px solid ' + c.border + ';box-shadow:0 0 0 2px ' + c.borderActive + '55;color:' + tx(c.text) + '">'
+    + '输入消息… <span data-slot="textMuted" style="color:' + tx(c.textMuted) + '">（占位符 textMuted）</span></div>';
+  h += '<div style="font-size:11px;color:' + tx(c.textMuted) + '">输入框聚焦外框 = <span data-slot="borderActive" style="color:' + c.borderActive + '">borderActive</span></div>';
+  h += '</div>';
+  document.getElementById('mini').innerHTML = h;
+}
+function pickText(hex) {
+  if (!hex || hex === 'transparent') return '#141414';
+  var t = hex.replace('#', '');
+  var r = parseInt(t.slice(0, 2), 16), g = parseInt(t.slice(2, 4), 16), b = parseInt(t.slice(4, 6), 16);
+  var l = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return l > 0.6 ? '#141414' : '#F4F4F5';
+}
+function paintHl() {
+  document.querySelectorAll('#mini .hl').forEach(function (el) {
+    el.classList.remove('hl');
+    var b = el.querySelector(':scope > .slotbadge'); if (b) b.remove();
+  });
+  document.querySelectorAll('#f-left .crow.target').forEach(function (el) { el.classList.remove('target'); });
+  if (!S.hl) return;
+  document.querySelectorAll('#mini [data-slot="' + S.hl + '"]').forEach(function (el) {
+    el.classList.add('hl');
+    var s = document.createElement('span');
+    s.className = 'slotbadge'; s.textContent = S.hl;
+    el.appendChild(s);
+  });
+  var row = document.querySelector('#f-left [data-row="' + S.hl + '"]');
+  if (row) row.classList.add('target');
+}
+function scrollToRow(k) {
+  var row = document.querySelector('#f-left [data-row="' + k + '"]');
+  if (row && row.scrollIntoView) row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+}
+/* ---- Popover（自绘轻便调色板） ---- */
+function distinctColors(colors) {
+  var seen = [], out = [];
+  Object.keys(colors).forEach(function (k) {
+    var v = colors[k];
+    if (v === 'transparent' || seen.indexOf(v) >= 0) return;
+    seen.push(v); out.push(v);
+  });
+  return out.slice(0, 8);
+}
+function hexToHsv(hex) {
+  var t = String(hex).replace('#', '');
+  var r = parseInt(t.slice(0, 2), 16) / 255, g = parseInt(t.slice(2, 4), 16) / 255, b = parseInt(t.slice(4, 6), 16) / 255;
+  var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn, h = 0;
+  if (d !== 0) { if (mx === r) h = ((g - b) / d) % 6; else if (mx === g) h = (b - r) / d + 2; else h = (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
+  var s = mx === 0 ? 0 : d / mx, v = mx;
+  return { h: h, s: s, v: v };
+}
+function hsvToHex(h, s, v) {
+  var c = v * s, x = c * (1 - Math.abs(((h / 60) % 2) - 1)), m = v - c, r = 0, g = 0, b = 0;
+  if (h < 60) { r = c; g = x; } else if (h < 120) { r = x; g = c; } else if (h < 180) { g = c; b = x; }
+  else if (h < 240) { g = x; b = c; } else if (h < 300) { r = x; b = c; } else { r = c; b = x; }
+  function to(vv) { return Math.round((vv + m) * 255).toString(16).padStart(2, '0'); }
+  return ('#' + to(r) + to(g) + to(b)).toUpperCase();
+}
+function placePop(anchor, key) {
+  dispatch({ type: 'OPEN_POP', key: key });
+  openPop(key, anchor);
+}
+function openPop(key, anchor) {
+  var root = document.getElementById('popRoot');
+  var cur = S.editor.colors[key];
+  var base = cur === 'transparent' ? '#FAB283' : cur;
+  var hsv = hexToHsv(base);
+  var freq = distinctColors(S.editor.colors);
+  var meta = KEY_META[key];
+  var r = anchor ? anchor.getBoundingClientRect() : { left: window.innerWidth / 2, bottom: window.innerHeight / 2 };
+  var left = Math.min(window.innerWidth - 270, Math.max(10, (r.left || 0) + 40));
+  var top = Math.min(window.innerHeight - 330, Math.max(10, (r.bottom != null ? 0 : 120) + (anchor ? window.scrollY + r.bottom + 6 : 120)));
+  if (anchor) top = window.scrollY + r.bottom + 6;
+  var html = '<div class="pop" id="pop" style="left:' + left + 'px;top:' + top + 'px">';
+  html += '<h4>' + esc(meta.zh + ' · ' + key) + '</h4>';
+  html += '<div class="sv" id="sv"><div class="mk" id="mk"></div></div>';
+  html += '<input class="hue" type="range" id="hue" min="0" max="360" value="' + Math.round(hsv.h) + '">';
+  html += '<div style="font-size:11px;color:#8B8B95">本主题高频色快选</div><div class="freq">' +
+    freq.map(function (f) { return '<button data-pi data-f="' + f + '" style="background:' + f + '"></button>'; }).join('') + '</div>';
+  html += '<div class="prow"><input class="txt" id="hexIn" value="' + esc(cur === 'transparent' ? '#FAB283' : cur) + '" style="min-width:0;flex:1">';
+  if (meta.trans) html += '<label style="font-size:11px;color:#A9A9B3"><input type="checkbox" id="trCk"' + (cur === 'transparent' ? ' checked' : '') + '> transparent</label>';
+  html += '</div><div class="prow"><button class="abtn primary" data-pi id="popOk">确定</button><button class="abtn ghost" data-pi id="popX">关闭</button></div></div>';
+  root.innerHTML = html;
+  var sv = document.getElementById('sv'), mk = document.getElementById('mk'), hue = document.getElementById('hue');
+  var st = { h: hsv.h, s: hsv.s, v: hsv.v };
+  function paint() {
+    var pure = hsvToHex(st.h, 1, 1);
+    sv.style.background = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')';
+    sv.style.backgroundBlendMode = 'normal';
+    mk.style.left = (st.s * 100) + '%'; mk.style.top = ((1 - st.v) * 100) + '%';
+  }
+  function curHex() { return hsvToHex(st.h, st.s, st.v); }
+  paint();
+  function setFromEvent(e) {
+    var b = sv.getBoundingClientRect();
+    st.s = Math.min(1, Math.max(0, (e.clientX - b.left) / b.width));
+    st.v = 1 - Math.min(1, Math.max(0, (e.clientY - b.top) / b.height));
+    paint();
+  }
+  var down = false;
+  sv.onmousedown = function (e) { down = true; setFromEvent(e); };
+  window.onmousemove = function (e) { if (down) setFromEvent(e); };
+  window.onmouseup = function () { down = false; };
+  hue.oninput = function () { st.h = Number(hue.value); paint(); };
+  document.querySelectorAll('#pop [data-f]').forEach(function (b) {
+    b.onclick = function () { dispatch({ type: 'SET_COLOR', key: key, value: b.getAttribute('data-f') }); };
+  });
+  document.getElementById('popOk').onclick = function () {
+    var ck = document.getElementById('trCk');
+    if (ck && ck.checked) { dispatch({ type: 'SET_COLOR', key: key, value: 'transparent' }); return; }
+    var v = document.getElementById('hexIn').value.trim();
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) dispatch({ type: 'SET_COLOR', key: key, value: v.toUpperCase() });
+    else dispatch({ type: 'SET_COLOR', key: key, value: curHex() });
+  };
+  document.getElementById('popX').onclick = function () { dispatch({ type: 'CLOSE_POP' }); };
+  var ck0 = document.getElementById('trCk');
+  if (ck0) ck0.onchange = function () { if (ck0.checked) dispatch({ type: 'SET_COLOR', key: key, value: 'transparent' }); };
+}
+/* ---- 分步引导 ---- */
+var WALKS = [
+  { id: 'happy', name: 'A · 新增→保存→应用', desc: ' happy path：新增草稿 → 载入 opencode（外观同步 dark）→ 改 primary → 命名保存 → 点胶囊应用。看点：保存只出胶囊，应用靠点击。', steps: [
+    ['重置并打开新增', function () { dispatch({ type: 'RESET' }); dispatch({ type: 'OPEN_NEW' }); }],
+    ['载入 opencode', function () { dispatch({ type: 'LOAD_PRESET', name: 'opencode' }); }],
+    ['primary 改 #FF5A2B', function () { dispatch({ type: 'SET_COLOR', key: 'primary', value: '#FF5A2B' }); }],
+    ['命名“验证橙”', function () { dispatch({ type: 'SET_NAME', name: '验证橙' }); }],
+    ['保存（出胶囊）', function () { dispatch({ type: 'SAVE' }); }]
+  ] },
+  { id: 'trans', name: 'B · 透底浅色边缘', desc: '边缘：载入 lucent-orng（外观应同步 light）→ background 透底 → 胶囊走 #FFFFFF 银灰底 → 保存。看点：light+transparent 不黑底。', steps: [
+    ['重置并打开新增', function () { dispatch({ type: 'RESET' }); dispatch({ type: 'OPEN_NEW' }); }],
+    ['载入 lucent-orng', function () { dispatch({ type: 'LOAD_PRESET', name: 'lucent-orng' }); }],
+    ['background 透底', function () { dispatch({ type: 'TOGGLE_TRANSPARENT', key: 'background' }); }],
+    ['命名“雾白”并保存', function () { dispatch({ type: 'SET_NAME', name: '雾白' }); dispatch({ type: 'SAVE' }); }]
+  ] },
+  { id: 'active', name: 'C · 编辑激活项+删除回退', desc: '棘手：应用 my-amber → 编辑它并保存（应立即刷新）→ 删除它（应回退 opencode）。看点：生效边界与孤儿自愈。', steps: [
+    ['重置并应用 my-amber', function () { dispatch({ type: 'RESET' }); dispatch({ type: 'APPLY', id: 'custom:my-amber' }); }],
+    ['打开编辑（目标 my-amber）', function () { dispatch({ type: 'OPEN_EDIT' }); dispatch({ type: 'SET_TARGET', id: 'my-amber' }); }],
+    ['改 info 并保存', function () { dispatch({ type: 'SET_COLOR', key: 'info', value: '#2DD5B7' }); dispatch({ type: 'SAVE' }); }],
+    ['再编辑并删除（含确认）', function () { dispatch({ type: 'OPEN_EDIT' }); dispatch({ type: 'SET_TARGET', id: 'my-amber' }); dispatch({ type: 'DELETE_REQUEST' }); }],
+    ['确认删除（回退 opencode）', function () { dispatch({ type: 'DELETE_CONFIRM' }); }]
+  ] },
+  { id: 'link', name: 'D · 双向联动', desc: '联动：打开新增 → 悬停 syntaxString（右侧高亮）→ 点击代码字符串（左侧定位+弹窗）。看点：左悬右亮、右点左弹。', steps: [
+    ['重置并打开新增', function () { dispatch({ type: 'RESET' }); dispatch({ type: 'OPEN_NEW' }); }],
+    ['悬停 syntaxString', function () { dispatch({ type: 'HOVER_KEY', key: 'syntaxString' }); }],
+    ['点击画布字符串', function () { dispatch({ type: 'CLICK_SLOT', key: 'syntaxString' }); }]
+  ] },
+  { id: 'illegal', name: 'E · 非法尝试', desc: '应被拦：空名保存、非背景槽 transparent、删除取消。看点：原型把“不该发生”显式标出来。', steps: [
+    ['重置并打开新增', function () { dispatch({ type: 'RESET' }); dispatch({ type: 'OPEN_NEW' }); }],
+    ['空名保存（被拦）', function () { dispatch({ type: 'SAVE' }); }],
+    ['text 设 transparent（被拦）', function () { dispatch({ type: 'SET_COLOR', key: 'text', value: 'transparent' }); }],
+    ['打开编辑→删除→取消', function () { dispatch({ type: 'OPEN_EDIT' }); dispatch({ type: 'DELETE_REQUEST' }); dispatch({ type: 'DELETE_CANCEL' }); }]
+  ] },
+  { id: 'copy', name: 'F · 复制路径+动效', desc: '收尾：点复制路径（✓ 已复制 1.4s）→ 勾选 reduced-motion 对比悬浮位移消失。看点：反馈与无障碍降级。', steps: [
+    ['点复制路径', function () { doCopy(); }],
+    ['打开新增看悬浮', function () { dispatch({ type: 'OPEN_NEW' }); }]
+  ] }
+];
+var curWalk = 0, walkStep = 0;
+function renderWalk() {
+  var tabs = document.getElementById('walkTabs');
+  tabs.innerHTML = '';
+  WALKS.forEach(function (w, i) {
+    var b = document.createElement('button');
+    b.className = 'tab' + (i === curWalk ? ' on' : '');
+    b.setAttribute('data-pi', '');
+    b.textContent = w.name;
+    b.onclick = function () { curWalk = i; walkStep = 0; renderWalk(); };
+    tabs.appendChild(b);
+  });
+  var w = WALKS[curWalk];
+  document.getElementById('walkDesc').textContent = w.desc;
+  var box = document.getElementById('walkSteps');
+  box.innerHTML = '';
+  w.steps.forEach(function (st, i) {
+    var b = document.createElement('button');
+    b.className = 'stepbtn' + (i < walkStep ? ' done' : '') + (i === walkStep ? ' next' : '');
+    b.setAttribute('data-pi', '');
+    b.textContent = (i < walkStep ? '✓ ' : (i + 1) + '. ') + st[0];
+    b.onclick = function () { st[1](); walkStep = Math.max(walkStep, i + 1); renderWalk(); };
+    box.appendChild(b);
+  });
+  var r = document.createElement('button');
+  r.className = 'abtn ghost'; r.setAttribute('data-pi', '');
+  r.textContent = '重走本 Tab';
+  r.onclick = function () { walkStep = 0; renderWalk(); };
+  box.appendChild(r);
+}
+/* ---- 决策区 ---- */
+function renderDecide() {
+  var rows = [
+    '自定义区：Special 下独立区块（不进 GROUP_ORDER），标题 <code>● 自定义 N</code> + 右侧 <code>复制存储目录路径</code>；胶囊末尾固定 <code>+ 新增 / ✎ 编辑</code>；点击胶囊只应用。',
+    '弹窗：顶栏（名称/目标下拉/删除二次确认 + 预置检索载入 + 外观三段）｜左 7 组 37 行（名+用途微字+色块+HEX+背景槽透底钮）｜右胶囊条 + 微缩 DSH（37 槽 100% 落位）｜底栏 取消/保存。',
+    'Popover：SV 二维 + 色相条 + 本主题 8 色快选 + HEX 手写 + 背景槽 transparent 开关；右侧点击直达对应行并自动打开。',
+    '联动：左悬停 → 右呼吸描边 + 角标；右点击 → 左滚动 + 弹板。保存不碰外层 DSH，唯编辑激活项即时刷新；删激活项回退 opencode。',
+    '动效：<code>cubic-bezier(0.22,1,0.36,1) 150ms</code>，hover 上浮 1px + 柔光，active 缩 .98；<code>prefers-reduced-motion</code> 下只留颜色过渡。',
+    '红线：全文件零 <code>&lt;circle</code>（圆点 span，图标文字符号）；浅色透底胶囊走 <code>#FFFFFF/#1A1A1A</code>。'
+  ];
+  document.getElementById('decideBox').innerHTML = '<ul style="padding-left:18px;display:flex;flex-direction:column;gap:4px">' +
+    rows.map(function (r) { return '<li>' + r + '</li>'; }).join('') + '</ul>';
+}
+function render() {
+  renderState(); renderPanel(); renderDlg(); renderWalk(); renderDecide();
+  if (!document.getElementById('dlgRoot').innerHTML) document.getElementById('popRoot').innerHTML = '';
+}
+document.getElementById('rmToggle').onchange = function (e) { document.body.classList.toggle('rm', e.target.checked); };
+renderFree(); render();
+window.__proto83 = { dispatch: dispatch, getState: function () { return S; } };
+})();
+</script>
+</body>
+</html>
