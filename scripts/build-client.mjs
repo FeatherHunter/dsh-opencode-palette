@@ -28,7 +28,7 @@ const RUNTIME_DIR = join(ROOT, 'runtime')
 const PKG_DIR = join(ROOT, 'package')
 
 // 运行时模块（runtime/*.mjs：面板主体 client 与两侧共用常量 channel；自研更新状态机已删）
-const RUNTIME_MODULE_FILES = { client: 'client.mjs', channel: 'channel.mjs' }
+const RUNTIME_MODULE_FILES = { client: 'client.mjs', channel: 'channel.mjs', 'custom-color': 'custom-color.mjs', 'custom-store': 'custom-store.mjs', 'custom-editor': 'custom-editor.mjs', 'ui-fx': 'ui-fx.mjs' }
 
 // 构建期**内联**进浏览器 bundle 的 npm 包客户端入口（浏览器没有 node_modules，只能打进产物）。
 // 注意这与「宿主半的依赖」是两回事：宿主半那侧是真依赖，运行时从 node_modules 解析。
@@ -113,7 +113,7 @@ const MODULE_ORDER = [
   'log-client-switch-cache', 'log-client-transport', 'log-client-trace', 'log-client-switch-ops',
   'log-client-forward', 'log-client-send', 'log-client-write', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'grouping', 'index', 'update-tokens', 'float-geometry',
-  'channel', 'client',
+  'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
 ]
 
 const JSON_IMPORT_RE = /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/

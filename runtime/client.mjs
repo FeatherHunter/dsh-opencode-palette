@@ -1,7 +1,7 @@
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground } from './engine/index.mjs'
+import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS } from './engine/index.mjs'
 import { FONTS } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
@@ -9,10 +9,14 @@ import { codeFontStack } from './engine/generate.mjs'
 import { buildFontCandidates, collectLocalFonts } from './engine/local-fonts.mjs'
 import { computeMenuGeometry } from './engine/float-geometry.mjs'
 import { THEME_ZH, THEME_EN, themeSearchText } from './engine/zh-names.mjs'
-import { buildUpdateTokens } from './engine/update-tokens.mjs'
+import { buildUpdateTokens, buildUpdateTokensFromColors } from './engine/update-tokens.mjs'
 import { createClientLog } from 'dsh-log/client'
 import { mountUpdateEntry } from 'dsh-plugin-update/entry'
 import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
+import { clientSlug, filterCustomThemes, normalizeHexInput } from './custom-color.mjs'
+import { loadCustomCache, saveCustomCache, reconcileCustomThemes } from './custom-store.mjs'
+import { CustomEditor } from './custom-editor.mjs'
+import { UI_INTERACTIVE_ATTR, injectUiFx } from './ui-fx.mjs'
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
@@ -141,6 +145,173 @@ const I18N = {
   logOff: { zh: '关', en: 'Off' },
   logSwitchHint: { zh: '打开后把关键节点写入 <DSH_HOME>/logs/dsh-opencode-palette/；warn/error 恒记，不受此开关控制', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
   logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
+  // ── 自定义主题区（#86：原型 custom-editor-83 文案逐字，英文信息对等）──
+  customTitle: { zh: '自定义主题 {n}', en: 'Custom themes {n}' },
+  customCopyPath: { zh: '复制配置路径', en: 'Copy config path' },
+  customCopied: { zh: '已复制', en: 'Copied' },
+  customCopyFail: { zh: '复制失败，请手动复制', en: 'Copy failed — please copy it manually' },
+  customOther: { zh: '其他', en: 'Other' },
+  customChipTitle: { zh: '点击直接换上，不打开编辑', en: 'Click to apply, without opening the editor' },
+  customAdd: { zh: '新增', en: 'New' },
+  customAddTitle: { zh: '新建一个主题', en: 'Create a new theme' },
+  customEdit: { zh: '编辑', en: 'Edit' },
+  customEditTitle: { zh: '修改、删除已有主题', en: 'Edit or delete a saved theme' },
+  customEditEmpty: { zh: '暂无自定义主题，先新增。', en: 'No custom themes yet — create one first.' },
+  customSaveOk: { zh: '已保存 {name}', en: 'Saved {name}' },
+  customSaveFail: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
+  customDeleteOk: { zh: '已删除 {name}', en: 'Deleted {name}' },
+  customNameRequired: { zh: '主题名称不能为空（保存已拦截）。', en: 'Theme name cannot be empty (save blocked).' },
+  // ── 37 色编辑弹窗 ──
+  edModeNew: { zh: '新建', en: 'New' },
+  edModeEdit: { zh: '编辑', en: 'Edit' },
+  edEditing: { zh: '正在编辑 · {name}', en: 'Editing · {name}' },
+  edTagTitle: { zh: '当前正在编辑这个主题（存盘值）', en: 'The theme being edited (saved values)' },
+  edCloseTitle: { zh: '关闭', en: 'Close' },
+  edTargetTitle: { zh: '换一个已存的主题继续改（会先载入它存盘的颜色）', en: 'Switch to another saved theme (loads its saved colors)' },
+  edNamePh: { zh: '给主题起个名字', en: 'Name your theme' },
+  edNoName: { zh: '还没起名', en: 'Unnamed yet' },
+  edNameEmpty: { zh: '先起个名字', en: 'Name it first' },
+  edCapTitle: { zh: '以后在列表里的样子', en: 'How it will look in the list' },
+  edUnnamed: { zh: '（未命名）', en: '(Unnamed)' },
+  edPreset: { zh: '选基底', en: 'Pick a base' },
+  edPresetTitle: { zh: '选个底子开始调：载入后 37 色与外观一次填好', en: 'Start from a preset: loads all 37 colors and the appearance at once' },
+  edNoBase: { zh: '未选', en: 'None' },
+  edPresetSearch: { zh: '搜索预置主题', en: 'Search presets' },
+  edAppearance: { zh: '外观', en: 'Appearance' },
+  edDark: { zh: '深色', en: 'Dark' },
+  edDarkTitle: { zh: '深色：换上这个主题后一直是深色', en: 'Dark: always dark once applied' },
+  edLight: { zh: '浅色', en: 'Light' },
+  edLightTitle: { zh: '浅色：换上这个主题后一直是浅色', en: 'Light: always light once applied' },
+  edSystem: { zh: '跟随系统', en: 'System' },
+  edSystemTitle: { zh: '跟随系统：深浅跟系统走', en: 'Follow the system appearance' },
+  edTransparentFlag: { zh: '可设透明', en: 'Can be transparent' },
+  edPickTitle: { zh: '换个颜色', en: 'Pick a color' },
+  edLightNote: { zh: '（浅色下透明处显示为白色）', en: '(Transparent areas render as white in light mode)' },
+  edFreq: { zh: '本主题用过的颜色', en: 'Colors used in this theme' },
+  edTransparent: { zh: '透明', en: 'Transparent' },
+  edOk: { zh: '确定', en: 'OK' },
+  edClosePop: { zh: '关闭', en: 'Close' },
+  edDelete: { zh: '删除', en: 'Delete' },
+  edDelConfirm: { zh: '删除「{name}」？', en: 'Delete "{name}"?' },
+  edDelNote: { zh: '自定义主题删除后不可恢复。', en: 'Deleted custom themes cannot be recovered.' },
+  edDelYes: { zh: '确认删除', en: 'Delete' },
+  edDelNo: { zh: '取消', en: 'Cancel' },
+  edCancel: { zh: '取消', en: 'Cancel' },
+  edCancelTitle: { zh: '不保存，直接关闭', en: 'Close without saving' },
+  edSave: { zh: '保存主题', en: 'Save theme' },
+  edSaveTitle: { zh: '保存后出现在自定义主题里', en: 'Saves into your custom themes' },
+  edSaveNeedName: { zh: '先起个名字', en: 'Name it first' },
+  // ── 7 大分组 ──
+  'cgroup.bg': { zh: '界面与背景', en: 'Surfaces' },
+  'cgroup.text': { zh: '文字', en: 'Text' },
+  'cgroup.brand': { zh: '品牌与状态', en: 'Brand & status' },
+  'cgroup.border': { zh: '边框', en: 'Border' },
+  'cgroup.diff': { zh: '改动对比', en: 'Diff' },
+  'cgroup.md': { zh: 'Markdown', en: 'Markdown' },
+  'cgroup.syn': { zh: '代码高亮', en: 'Syntax' },
+  // ── 37 色位名 ──
+  'cslot.background': { zh: '背景', en: 'Background' },
+  'cslot.backgroundPanel': { zh: '面板', en: 'Panel' },
+  'cslot.backgroundElement': { zh: '元件', en: 'Element' },
+  'cslot.sidebarBg': { zh: '侧边栏', en: 'Sidebar' },
+  'cslot.bubbleBg': { zh: '气泡', en: 'Bubble' },
+  'cslot.inputBg': { zh: '输入框', en: 'Input' },
+  'cslot.codeBlockBg': { zh: '代码块', en: 'Code block' },
+  'cslot.codeHeaderBg': { zh: '代码块顶栏', en: 'Code header' },
+  'cslot.text': { zh: '正文', en: 'Text' },
+  'cslot.textMuted': { zh: '次要文字', en: 'Muted text' },
+  'cslot.primary': { zh: '品牌主色', en: 'Primary' },
+  'cslot.secondary': { zh: '品牌次色', en: 'Secondary' },
+  'cslot.info': { zh: '信息', en: 'Info' },
+  'cslot.success': { zh: '成功', en: 'Success' },
+  'cslot.warning': { zh: '警告', en: 'Warning' },
+  'cslot.error': { zh: '错误', en: 'Error' },
+  'cslot.border': { zh: '边框', en: 'Border' },
+  'cslot.borderActive': { zh: '选中边框', en: 'Active border' },
+  'cslot.diffAdded': { zh: '新增行', en: 'Added line' },
+  'cslot.diffRemoved': { zh: '删除行', en: 'Removed line' },
+  'cslot.diffAddedBg': { zh: '新增行底', en: 'Added bg' },
+  'cslot.diffRemovedBg': { zh: '删除行底', en: 'Removed bg' },
+  'cslot.diffAddedLineNumberBg': { zh: '新增行号底', en: 'Added line-no. bg' },
+  'cslot.diffRemovedLineNumberBg': { zh: '删除行号底', en: 'Removed line-no. bg' },
+  'cslot.markdownHeading': { zh: '标题', en: 'Heading' },
+  'cslot.markdownLink': { zh: '链接', en: 'Link' },
+  'cslot.markdownCode': { zh: '行内代码', en: 'Inline code' },
+  'cslot.markdownEmph': { zh: '斜体', en: 'Emphasis' },
+  'cslot.markdownStrong': { zh: '粗体', en: 'Strong' },
+  'cslot.markdownBlockQuote': { zh: '引用', en: 'Blockquote' },
+  'cslot.syntaxComment': { zh: '注释', en: 'Comment' },
+  'cslot.syntaxKeyword': { zh: '关键字', en: 'Keyword' },
+  'cslot.syntaxFunction': { zh: '函数', en: 'Function' },
+  'cslot.syntaxType': { zh: '类型', en: 'Type' },
+  'cslot.syntaxNumber': { zh: '数字', en: 'Number' },
+  'cslot.syntaxString': { zh: '字符串', en: 'String' },
+  'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
+  // ── 37 色位作用说明 ──
+  'cslotUse.background': { zh: '主窗口底', en: 'Main window backdrop' },
+  'cslotUse.backgroundPanel': { zh: '卡片与弹窗底', en: 'Cards and popover backdrop' },
+  'cslotUse.backgroundElement': { zh: '输入框与小块底', en: 'Inputs and small block backdrop' },
+  'cslotUse.sidebarBg': { zh: '左侧导航底', en: 'Left navigation backdrop' },
+  'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble backdrop' },
+  'cslotUse.inputBg': { zh: '底部输入框底', en: 'Bottom input backdrop' },
+  'cslotUse.codeBlockBg': { zh: '代码块底', en: 'Code block backdrop' },
+  'cslotUse.codeHeaderBg': { zh: '代码块顶栏底', en: 'Code block header backdrop' },
+  'cslotUse.text': { zh: '正文', en: 'Body copy' },
+  'cslotUse.textMuted': { zh: '时间与次要说明', en: 'Timestamps and secondary notes' },
+  'cslotUse.primary': { zh: '主按钮与选中态', en: 'Primary buttons and selection' },
+  'cslotUse.secondary': { zh: '徽章与次按钮', en: 'Badges and secondary buttons' },
+  'cslotUse.info': { zh: '链接与提示', en: 'Links and tips' },
+  'cslotUse.success': { zh: '通过与成功态', en: 'Pass and success states' },
+  'cslotUse.warning': { zh: '警告态', en: 'Warning states' },
+  'cslotUse.error': { zh: '错误与删除态', en: 'Errors and destructive states' },
+  'cslotUse.border': { zh: '分割线与描边', en: 'Dividers and outlines' },
+  'cslotUse.borderActive': { zh: '聚焦与高亮', en: 'Focus and highlight' },
+  'cslotUse.diffAdded': { zh: '＋行文字', en: 'Added-line text' },
+  'cslotUse.diffRemoved': { zh: '－行文字', en: 'Removed-line text' },
+  'cslotUse.diffAddedBg': { zh: '＋行底', en: 'Added-line backdrop' },
+  'cslotUse.diffRemovedBg': { zh: '－行底', en: 'Removed-line backdrop' },
+  'cslotUse.diffAddedLineNumberBg': { zh: '＋行行号底', en: 'Added line-number backdrop' },
+  'cslotUse.diffRemovedLineNumberBg': { zh: '－行行号底', en: 'Removed line-number backdrop' },
+  'cslotUse.markdownHeading': { zh: 'Markdown 标题', en: 'Markdown headings' },
+  'cslotUse.markdownLink': { zh: 'Markdown 链接与页内锚点', en: 'Markdown links and in-page anchors' },
+  'cslotUse.markdownCode': { zh: '行内代码与快捷键', en: 'Inline code and kbd' },
+  'cslotUse.markdownEmph': { zh: '斜体', en: 'Emphasis (italic)' },
+  'cslotUse.markdownStrong': { zh: '粗体', en: 'Strong (bold)' },
+  'cslotUse.markdownBlockQuote': { zh: '引用块竖线与文字', en: 'Quote bar and text' },
+  'cslotUse.syntaxComment': { zh: '注释', en: 'Comments' },
+  'cslotUse.syntaxKeyword': { zh: '关键字与控制流', en: 'Keywords and control flow' },
+  'cslotUse.syntaxFunction': { zh: '函数名', en: 'Function names' },
+  'cslotUse.syntaxType': { zh: '类型名', en: 'Type names' },
+  'cslotUse.syntaxNumber': { zh: '数字与布尔', en: 'Numbers and booleans' },
+  'cslotUse.syntaxString': { zh: '字符串', en: 'Strings' },
+  'cslotUse.syntaxOperator': { zh: '运算符与标点', en: 'Operators and punctuation' },
+  // ── 微缩预览画布填充文案（原型 mock 口径）──
+  miniSession: { zh: '会话', en: 'Session' },
+  miniCurrent: { zh: '默认 · 当前', en: 'Default · current' },
+  miniDraft: { zh: 'aurora 草稿', en: 'aurora draft' },
+  miniReview: { zh: 'gruvbox 回顾', en: 'gruvbox review' },
+  miniBubble: { zh: '这套配色看起来很舒服，再帮我看看深色下对比度够不够。', en: 'This palette looks comfy — check the dark-mode contrast too.' },
+  miniVerdict: { zh: '走查结论', en: 'Review verdict' },
+  miniPass1: { zh: '整体通过，', en: 'Overall pass,' },
+  miniPassStrong: { zh: '对比度', en: 'contrast' },
+  miniPass2: { zh: '与', en: 'and' },
+  miniGap: { zh: '间距', en: 'spacing' },
+  miniPass3: { zh: '达标，详见', en: 'pass — see' },
+  miniSpec: { zh: '设计规范', en: 'the spec' },
+  miniPass4: { zh: '，其余看', en: ', the rest in' },
+  miniNote: { zh: '备注。', en: 'Notes.' },
+  miniEmph: { zh: '这段是斜体，用来试强调色。', en: 'Italic sample for the emphasis color.' },
+  miniQuote: { zh: '好的主题是看不见的，只觉得舒服。', en: 'A good theme is invisible — it just feels right.' },
+  miniFile: { zh: 'example.mjs', en: 'example.mjs' },
+  miniBtnPrimary: { zh: '主按钮', en: 'Primary' },
+  miniBtnSecondary: { zh: '次按钮', en: 'Secondary' },
+  miniBtnInfo: { zh: '查看详情', en: 'Details' },
+  miniBadgeOk: { zh: '已启用', en: 'Enabled' },
+  miniWarn: { zh: '有 3 个槽对比度偏低，先看一眼预览', en: '3 slots are low-contrast — check the preview' },
+  miniErr: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
+  miniInputPh: { zh: '输入', en: 'Type' },
+  miniInputHint: { zh: '消息…', en: 'a message…' },
+  miniTip: { zh: '已同步到预览', en: 'Synced to preview' },
 }
 
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
@@ -232,6 +403,11 @@ export function createClient(slotTarget) {
     const mountedUpdateEntries = []
     function currentUpdateTokens() {
       try {
+        const cid = customIdOf(state.theme)
+        if (cid) {
+          const found = findCustom(cid)
+          if (found && found.colors) return buildUpdateTokensFromColors(found.colors, customAppearanceOf(found))
+        }
         return buildUpdateTokens(state.theme)
       } catch (e) {
         return undefined
@@ -281,6 +457,89 @@ export function createClient(slotTarget) {
       while (mountedUpdateEntries.length > 0) {
         try { mountedUpdateEntries.pop().unmount() } catch (err) { /* 忽略 */ }
       }
+    }
+    // ── 自定义主题（#86）：宿主目录单文件 .json 为真值，localStorage 只做离线/测试兜底 ──
+    // apply 顶层绝不无条件同步调 customThemesList（log-switch mock 会抛 unexpected phone）；
+    // 对账只发生在面板挂载 effect 与用户手势里，且恒经 Promise 包裹静默降级。
+    try { injectUiFx(typeof document !== 'undefined' ? document : null) } catch (e) { /* 忽略 */ }
+    let customCache = loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null)
+    function storageHandle() {
+      try { return globalThis.localStorage ? globalThis.localStorage : null } catch (e) { return null }
+    }
+    function findCustom(id) {
+      const list = customCache.themes || []
+      for (const t of list) { if (t && t.id === id) return t }
+      return null
+    }
+    function isCustomKey(key) { return typeof key === 'string' && key.indexOf('custom:') === 0 }
+    function customIdOf(key) { return isCustomKey(key) ? key.slice('custom:'.length) : null }
+    function customAppearanceOf(t) {
+      return t && (t.appearance === 'light' || t.appearance === 'system') ? t.appearance : 'dark'
+    }
+    function setCustomCacheData(data) {
+      customCache = {
+        themes: data && Array.isArray(data.themes) ? data.themes : [],
+        dirPath: data && typeof data.dirPath === 'string' ? data.dirPath : '',
+      }
+      try { saveCustomCache(storageHandle(), customCache) } catch (e) { /* 忽略 */ }
+    }
+    function reconcileCustom() {
+      try {
+        return reconcileCustomThemes(hostBridge, storageHandle()).then(function (res) {
+          if (res) setCustomCacheData(res)
+          return res
+        })
+      } catch (e) {
+        return Promise.resolve({ themes: customCache.themes, dirPath: customCache.dirPath, source: 'cache' })
+      }
+    }
+    function saveCustomTheme(payload) {
+      const p = payload || {}
+      let id = typeof p.id === 'string' && p.id ? p.id : null
+      if (!id) {
+        // 新建：客户端 slug 派生并避让已有用 id（宿主整单拒绝非法 id，故调用方必给合法值）
+        id = clientSlug(p.name) || 'theme'
+        const used = {}
+        for (const t of customCache.themes || []) { if (t && t.id) used[t.id] = true }
+        if (used[id]) {
+          let i = 2
+          while (used[id + '-' + i]) i++
+          id = id + '-' + i
+        }
+      }
+      const body = { id: id, name: p.name, appearance: p.appearance, colors: p.colors, basePreset: p.basePreset }
+      if (!hostBridge) return Promise.resolve({ ok: false, error: 'no-host' })
+      return Promise.resolve().then(function () {
+        return hostBridge.call('palette.customThemesSave', { theme: body })
+      }).then(function (res) {
+        if (res && res.ok === true) {
+          if (Array.isArray(res.themes)) setCustomCacheData(res)
+          // 正在生效的主题被改 → 同步刷新已生效样式；否则等用户点胶囊才应用
+          if (state.theme === 'custom:' + id && state.enabled) { applyStyle(); refreshUpdateTheme() }
+          return { ok: true, theme: res.theme || body }
+        }
+        return { ok: false, error: 'save-rejected' }
+      }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) } })
+    }
+    function deleteCustomTheme(id) {
+      if (!hostBridge) return Promise.resolve({ ok: false, error: 'no-host' })
+      return Promise.resolve().then(function () {
+        return hostBridge.call('palette.customThemesDelete', { id: id })
+      }).then(function (res) {
+        if (res && res.ok === true) {
+          if (Array.isArray(res.themes)) setCustomCacheData(res)
+          else {
+            setCustomCacheData({
+              themes: (customCache.themes || []).filter(function (t) { return !t || t.id !== id }),
+              dirPath: customCache.dirPath,
+            })
+          }
+          // 删的是正激活主题 → 回退 opencode（setTheme 内含应用+外观+更新刷新）
+          if (state.theme === 'custom:' + id) setTheme('opencode')
+          return { ok: true }
+        }
+        return { ok: false }
+      }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) } })
     }
     // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
     // 首帧渲染可先用这一次对账的本地快照，但面板每次挂载的校正必须 fresh 查询——
@@ -345,9 +604,17 @@ export function createClient(slotTarget) {
       // 2) 完整重生成
       let render
       try {
-        render = renderTheme(safeThemeName(state.theme), {
-          mode: state.mode, size: state.size, fontKey: state.fontKey,
-        })
+        const cid = customIdOf(state.theme)
+        if (cid) {
+          const found = findCustom(cid)
+          render = found
+            ? renderCustomTheme(found, { mode: state.mode, size: state.size, fontKey: state.fontKey })
+            : renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
+        } else {
+          render = renderTheme(safeThemeName(state.theme), {
+            mode: state.mode, size: state.size, fontKey: state.fontKey,
+          })
+        }
       } catch (e) {
         console.error('[dsh-opencode-palette] 渲染失败，回退默认主题:', e)
         render = renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
@@ -472,18 +739,11 @@ export function createClient(slotTarget) {
         } catch (e) { /* 忽略 */ }
       } catch (e) { /* 忽略 */ }
     }
-    function syncAppearanceForTheme(name) {
+    function syncAppearancePref(pref) {
       // 无跟随开关：只要启用就恒跟随（深色→dark、透光→light、system→system释放）
       if (!state.enabled) return
       // system 已是释放态时不写：宿主已为 system 即无主张，重写反而可能在 compat 宿主上落成具体值（#55）
-      if (name === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
-      let pref
-      if (name === 'system') pref = 'system'
-      else {
-        let translucent = false
-        try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
-        pref = translucent ? 'light' : 'dark'
-      }
+      if (pref === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
       let official = false
       try {
         if (theme && typeof theme.setTheme === 'function') {
@@ -497,6 +757,18 @@ export function createClient(slotTarget) {
       if (pref === 'system') { releaseAppearance(); return }
       projectAppearance(pref === 'dark')
     }
+    function syncAppearanceForTheme(name) {
+      if (!state.enabled) return
+      if (name === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
+      let pref
+      if (name === 'system') pref = 'system'
+      else {
+        let translucent = false
+        try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
+        pref = translucent ? 'light' : 'dark'
+      }
+      syncAppearancePref(pref)
+    }
     // ── 面板 API（与 React 组件共享）──
     function getState() { return { ...state } }
     function setTheme(name) {
@@ -504,6 +776,23 @@ export function createClient(slotTarget) {
       saveState(state)
       if (state.enabled) applyStyle()
       syncAppearanceForTheme(state.theme)
+      refreshUpdateTheme()
+    }
+    function setCustomTheme(id) {
+      const found = findCustom(id)
+      if (!found) {
+        // 缓存未命中时试一次宿主对账（用户手势路径，允许异步 RPC），仍无则忽略
+        try {
+          reconcileCustom().then(function () {
+            if (findCustom(id)) setCustomTheme(id)
+          }).catch(function () { /* 忽略 */ })
+        } catch (e) { /* 忽略 */ }
+        return
+      }
+      state = { ...state, theme: 'custom:' + id }
+      saveState(state)
+      if (state.enabled) applyStyle()
+      syncAppearancePref(customAppearanceOf(found))
       refreshUpdateTheme()
     }
     function setTypography(next) {
@@ -522,7 +811,15 @@ export function createClient(slotTarget) {
 
     // 启动：默认启用（与 v1.1.0 一致）。外观跟随在启动时对齐一次，但存量 system 主题跳过：
     // 启动是非手势路径，system 即无主张，不写偏好；点击 system 仍走官方写入口（显式手势）。
-    if (state.enabled) { applyStyle(); if (state.theme !== 'system') syncAppearanceForTheme(state.theme) }
+    // 自定义主题同理：仅 appearance 非 system 才对齐一次。
+    if (state.enabled) {
+      applyStyle()
+      const bootCid = customIdOf(state.theme)
+      if (bootCid) {
+        const bootFound = findCustom(bootCid)
+        if (bootFound && customAppearanceOf(bootFound) !== 'system') syncAppearancePref(customAppearanceOf(bootFound))
+      } else if (state.theme !== 'system') syncAppearanceForTheme(state.theme)
+    }
 
     // 调试钩子（控制台可用）
     if (typeof globalThis !== 'undefined') {
@@ -584,6 +881,16 @@ export function createClient(slotTarget) {
         const st = ui
         // 宿主明暗跟随：浅色下硬编码深色值须换 DSH 语义 token；开着面板切换系统主题时重渲染
         const [hostDark, setHostDark] = react.useState(isHostDark)
+        // ── 自定义主题区（#86）：首帧用 localStorage 兜底同步渲染，挂载后向宿主对账 ──
+        // effect 不跑 SSR；对账恒经 Promise 包裹静默降级（log-switch mock 零感知）
+        const [customData, setCustomData] = react.useState(function () {
+          try {
+            return loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null)
+          } catch (e) { return { themes: [], dirPath: '' } }
+        })
+        const [copied, setCopied] = react.useState(false)
+        const [editor, setEditor] = react.useState(null)
+        const [saveError, setSaveError] = react.useState(null)
 
         // 字体下拉：点击外部关闭
         react.useEffect(function () {
@@ -649,6 +956,17 @@ export function createClient(slotTarget) {
         // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
         react.useEffect(function () {
           return props.subscribeLocale(function () { setUi(props.getState()) })
+        }, [])
+
+        // 自定义主题对账：面板挂载时拉宿主真值（成功刷新胶囊 + 写缓存，失败静默留用缓存）
+        react.useEffect(function () {
+          let alive = true
+          try {
+            Promise.resolve().then(function () { return props.reconcileCustomThemes() }).then(function (res) {
+              if (alive && res) setCustomData({ themes: res.themes || [], dirPath: res.dirPath || '' })
+            }).catch(function () { /* 静默降级 */ })
+          } catch (e) { /* 静默降级 */ }
+          return function () { alive = false }
         }, [])
 
         // 明暗切换：body[data-ds-dark-theme] 增删时重渲染（浅色适配跟随）
@@ -930,6 +1248,234 @@ export function createClient(slotTarget) {
           ])
         }
 
+        // ── 自定义主题区（#86）：特殊分组下方的独立区块，不碰 GROUP_ORDER / themeNames ──
+        const copyIcon = function (checking) {
+          return h('svg', {
+            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+            style: { display: 'block' },
+          }, checking
+            ? [h('path', { key: 'ok', d: 'M20 6L9 17l-5-5' })]
+            : [h('path', { key: 'box', d: 'M9 9h11v11H9z' }), h('path', { key: 'page', d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })])
+        }
+        const fallbackCopy = function (text, done) {
+          try {
+            const d = typeof document !== 'undefined' ? document : null
+            if (!d || typeof d.createElement !== 'function') return false
+            const ta = d.createElement('textarea')
+            ta.value = text
+            if (!d.body || typeof d.body.appendChild !== 'function') return false
+            d.body.appendChild(ta)
+            if (ta && typeof ta.select === 'function') { try { ta.select() } catch (e) { /* 忽略 */ } }
+            let ok = false
+            if (typeof d.execCommand === 'function') { try { ok = d.execCommand('copy') } catch (e) { ok = false } }
+            if (typeof d.body.removeChild === 'function') { try { d.body.removeChild(ta) } catch (e) { /* 忽略 */ } }
+            if (ok && done) done()
+            return ok
+          } catch (e) { return false }
+        }
+        const copyDirPath = function () {
+          const text = (customData && customData.dirPath) || ''
+          if (!text) return
+          const done = function () {
+            setCopied(true)
+            try { setTimeout(function () { setCopied(false) }, 1400) } catch (e) { /* 忽略 */ }
+          }
+          try {
+            const nav = typeof navigator !== 'undefined' ? navigator : null
+            if (nav && nav.clipboard && typeof nav.clipboard.writeText === 'function') {
+              nav.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done) })
+              return
+            }
+          } catch (e) { /* 落到降级 */ }
+          fallbackCopy(text, done)
+        }
+        // 自定义主题胶囊（B1 方案：圆点 primary、底 background、字 text、边框 primary；
+        // light+transparent 走恒浅底；选中 2px 品牌边框 + ✓）
+        const customChip = function (t) {
+          const pv = props.customPreview(t) || {}
+          const key = 'custom:' + t.id
+          const isCur = key === st.theme
+          const chipBg = pv.translucent ? chipLightSurface : (pv.background || chipDarkSurface)
+          const chipFg = pv.translucent ? chipLightText : (pv.text || base)
+          return h('button', {
+            key: key,
+            title: tr('customChipTitle'),
+            onClick: function () { props.setCustomTheme(t.id); setUi(props.getState()) },
+            [UI_INTERACTIVE_ATTR]: '',
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: chipBg,
+              color: chipFg,
+              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (pv.primary || chipBorderFallback),
+              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
+              fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
+              outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
+            },
+          }, [
+            dot(pv.primary, 9),
+            t.name,
+            isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
+          ])
+        }
+        const funcCapsule = function (id, label, title, onClick, disabled) {
+          return h('button', {
+            key: id,
+            title: title,
+            onClick: onClick,
+            disabled: disabled ? true : undefined,
+            [UI_INTERACTIVE_ATTR]: '',
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: '#FAB283', color: '#141419',
+              border: '1px solid #FAB283', borderRadius: 20,
+              padding: '3px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              opacity: disabled ? 0.45 : 1,
+              fontFamily: 'var(--dsw-font-family)',
+            },
+          }, label)
+        }
+        const openNewEditor = function () {
+          setSaveError(null)
+          let base = {}
+          try {
+            const p = props.presetPalette('opencode', hostDark ? 'dark' : 'light')
+            if (p && p.colors) base = p.colors
+          } catch (e) { base = {} }
+          setEditor({ mode: 'new', seed: { id: null, name: '', appearance: 'dark', colors: base, basePreset: 'opencode' } })
+        }
+        const openEditEditor = function () {
+          const list = (customData && customData.themes) || []
+          // 尚无自定义主题 → 引导进入新增（票面二选一的前者）
+          if (!list.length) { openNewEditor(); return }
+          setSaveError(null)
+          const activeId = customIdOf(props.getState().theme)
+          const first = list.filter(function (x) { return x && x.id === activeId })[0] || list[0]
+          let base = {}
+          try {
+            const p = props.presetPalette(first.basePreset || 'opencode', hostDark ? 'dark' : 'light')
+            if (p && p.colors) base = p.colors
+          } catch (e) { base = {} }
+          setEditor({
+            mode: 'edit',
+            seed: {
+              id: first.id, name: first.name, appearance: first.appearance,
+              colors: Object.assign({}, base, first.colors), basePreset: first.basePreset || 'opencode',
+            },
+          })
+        }
+        const handleEditorSave = function (payload) {
+          if (!payload || !String(payload.name || '').trim()) return
+          setSaveError(null)
+          try {
+            Promise.resolve().then(function () { return props.saveCustomTheme(payload) }).then(function (res) {
+              if (res && res.ok) {
+                try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
+                setUi(props.getState())
+                setEditor(null)
+              } else {
+                setSaveError(tr('customSaveFail'))
+              }
+            }).catch(function () { setSaveError(tr('customSaveFail')) })
+          } catch (e) { setSaveError(tr('customSaveFail')) }
+        }
+        const handleEditorDelete = function (id) {
+          try {
+            Promise.resolve().then(function () { return props.deleteCustomTheme(id) }).then(function () {
+              try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
+              setUi(props.getState())
+              setEditor(null)
+            }).catch(function () { /* 保持弹窗，静默 */ })
+          } catch (e) { /* 保持弹窗，静默 */ }
+        }
+        const pick2 = function (key) {
+          const entry = I18N[key] || {}
+          return { zh: entry.zh !== undefined ? entry.zh : key, en: entry.en !== undefined ? entry.en : key }
+        }
+        const editorSlotMeta = function () {
+          const out = {}
+          for (const s of COLOR_SLOTS) {
+            out[s.key] = {
+              zh: (I18N['cslot.' + s.key] || {}).zh || s.key,
+              en: (I18N['cslot.' + s.key] || {}).en || s.key,
+              useZh: (I18N['cslotUse.' + s.key] || {}).zh || '',
+              useEn: (I18N['cslotUse.' + s.key] || {}).en || '',
+              allow: !!s.allowTransparent,
+            }
+          }
+          return out
+        }
+        const editorGroupMeta = function () {
+          return {
+            bg: pick2('cgroup.bg'), text: pick2('cgroup.text'), brand: pick2('cgroup.brand'),
+            border: pick2('cgroup.border'), diff: pick2('cgroup.diff'),
+            md: pick2('cgroup.md'), syn: pick2('cgroup.syn'),
+          }
+        }
+        const editorPresets = function () {
+          try {
+            const hm = hostDark ? 'dark' : 'light'
+            return themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
+          } catch (e) { return [] }
+        }
+        const editorPresetGroups = function (presets) {
+          try {
+            const names = presets.map(function (p) { return p.name })
+            const seen = {}
+            const buckets = props.groups('dark').map(function (g) {
+              const mine = g.themes.map(function (t) { return t.name }).filter(function (n) { return names.indexOf(n) >= 0 })
+              mine.forEach(function (n) { seen[n] = true })
+              return { title: tr('group.' + g.name), names: mine }
+            })
+            const rest = names.filter(function (n) { return !seen[n] })
+            if (rest.length) buckets.push({ title: tr('customOther'), names: rest })
+            return buckets.filter(function (b) { return b.names.length > 0 })
+          } catch (e) { return [] }
+        }
+        const renderCustomSection = function () {
+          const list = (customData && customData.themes) || []
+          const shownCustom = filterCustomThemes(list, query)
+          return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
+              dot('#FAB283', 8),
+              trf('customTitle', { n: list.length }),
+              h('span', { style: { flex: 1 } }),
+              h('button', {
+                title: (customData && customData.dirPath) || undefined,
+                onClick: copyDirPath,
+                [UI_INTERACTIVE_ATTR]: '',
+                style: {
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                  borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
+                  color: base, fontFamily: 'var(--dsw-font-family)',
+                },
+              }, [copyIcon(copied), copied ? tr('customCopied') : tr('customCopyPath')]),
+            ]),
+            h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, shownCustom.map(customChip).concat([
+              funcCapsule('+new', '+ ' + tr('customAdd'), tr('customAddTitle'), openNewEditor, false),
+              funcCapsule('~edit', '✎ ' + tr('customEdit'), list.length ? tr('customEditTitle') : tr('customEditEmpty'), openEditEditor, !list.length),
+            ])),
+          ])
+        }
+        const renderEditor = function () {
+          if (!editor) return null
+          const presets = editorPresets()
+          return h(CustomEditor, {
+            h: {
+              createElement: h,
+              useState: react.useState, useEffect: react.useEffect,
+              useMemo: react.useMemo, useRef: react.useRef,
+            },
+            tr: tr, trf: trf, lang: currentLang,
+            groups: props.slotGroups(), groupMeta: editorGroupMeta(), slotMeta: editorSlotMeta(),
+            editor: editor, customs: ((customData && customData.themes) || []).slice(),
+            presets: presets, presetGroups: editorPresetGroups(presets),
+            onSave: handleEditorSave, onDelete: handleEditorDelete,
+            onClose: function () { setEditor(null) },
+          })
+        }
+
 
 
         // ── 作者其他插件（底部引流位）──
@@ -1177,8 +1723,19 @@ export function createClient(slotTarget) {
                   h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
                 ])
               }),
+          // ── 自定义主题区（#86）：特殊分组下方的独立区块（+ 新增恒可见）──
+          renderCustomSection(),
           // ── 底部：作者其他插件（引流位）──
           authorCard,
+          // ── 37 色编辑弹窗（#86：仅编辑态渲染，SSR 首帧恒为 null）──
+          renderEditor(),
+          saveError ? h('div', {
+            style: {
+              position: 'fixed', zIndex: 3000, left: '50%', bottom: 24, transform: 'translateX(-50%)',
+              background: '#E5484D', color: '#fff', fontSize: 12, borderRadius: 8, padding: '8px 14px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+            },
+          }, saveError) : null,
         ])
       }
       // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
@@ -1210,6 +1767,15 @@ export function createClient(slotTarget) {
             }
           },
           previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
+          // 自定义主题（#86）：面板侧状态机入口，RPC 恒经 hostBridge 静默降级
+          customThemes: function () { return { themes: (customCache.themes || []).slice(), dirPath: customCache.dirPath } },
+          reconcileCustomThemes: reconcileCustom,
+          saveCustomTheme: saveCustomTheme,
+          deleteCustomTheme: deleteCustomTheme,
+          setCustomTheme: setCustomTheme,
+          customPreview: function (t) { try { return customPreviewColors(t) } catch (e) { return null } },
+          slotGroups: function () { return COLOR_SLOT_GROUPS },
+          presetPalette: function (name, hostMode) { try { return extractPresetPalette(name, hostMode) } catch (e) { return null } },
         }
       }
       // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）

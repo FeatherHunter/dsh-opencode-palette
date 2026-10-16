@@ -77,6 +77,174 @@
 
 - 2026-10-06 漏网补齐：`starTitle`／`issueTitle` 进词典走 `tr()`；入口 label 语言切换时重注册（宿主只在注册时读 label）；引流外链 `title` 冒号跟随语言（zh 全角 `：`／en 半角 `:`）。
 
+## 自定义主题编辑器 161 键（`runtime/client.mjs`，#86 新增，与代码 I18N 逐行对账）
+
+中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
+
+| key | 定稿 zh | 定稿 en | 状态 |
+|---|---|---|---|
+| `customTitle` | 自定义主题 {n} | Custom themes {n} | #86 新增 |
+| `customCopyPath` | 复制配置路径 | Copy config path | #86 新增 |
+| `customCopied` | 已复制 | Copied | #86 新增 |
+| `customCopyFail` | 复制失败，请手动复制 | Copy failed — please copy it manually | #86 新增 |
+| `customOther` | 其他 | Other | #86 新增 |
+| `customChipTitle` | 点击直接换上，不打开编辑 | Click to apply, without opening the editor | #86 新增 |
+| `customAdd` | 新增 | New | #86 新增 |
+| `customAddTitle` | 新建一个主题 | Create a new theme | #86 新增 |
+| `customEdit` | 编辑 | Edit | #86 新增 |
+| `customEditTitle` | 修改、删除已有主题 | Edit or delete a saved theme | #86 新增 |
+| `customEditEmpty` | 暂无自定义主题，先新增。 | No custom themes yet — create one first. | #86 新增 |
+| `customSaveOk` | 已保存 {name} | Saved {name} | #86 新增 |
+| `customSaveFail` | 保存失败，再试一次 | Save failed — try again | #86 新增 |
+| `customDeleteOk` | 已删除 {name} | Deleted {name} | #86 新增 |
+| `customNameRequired` | 主题名称不能为空（保存已拦截）。 | Theme name cannot be empty (save blocked). | #86 新增 |
+| `edModeNew` | 新建 | New | #86 新增 |
+| `edModeEdit` | 编辑 | Edit | #86 新增 |
+| `edEditing` | 正在编辑 · {name} | Editing · {name} | #86 新增 |
+| `edTagTitle` | 当前正在编辑这个主题（存盘值） | The theme being edited (saved values) | #86 新增 |
+| `edCloseTitle` | 关闭 | Close | #86 新增 |
+| `edTargetTitle` | 换一个已存的主题继续改（会先载入它存盘的颜色） | Switch to another saved theme (loads its saved colors) | #86 新增 |
+| `edNamePh` | 给主题起个名字 | Name your theme | #86 新增 |
+| `edNoName` | 还没起名 | Unnamed yet | #86 新增 |
+| `edNameEmpty` | 先起个名字 | Name it first | #86 新增 |
+| `edCapTitle` | 以后在列表里的样子 | How it will look in the list | #86 新增 |
+| `edUnnamed` | （未命名） | (Unnamed) | #86 新增 |
+| `edPreset` | 选基底 | Pick a base | #86 新增 |
+| `edPresetTitle` | 选个底子开始调：载入后 37 色与外观一次填好 | Start from a preset: loads all 37 colors and the appearance at once | #86 新增 |
+| `edNoBase` | 未选 | None | #86 新增 |
+| `edPresetSearch` | 搜索预置主题 | Search presets | #86 新增 |
+| `edAppearance` | 外观 | Appearance | #86 新增 |
+| `edDark` | 深色 | Dark | #86 新增 |
+| `edDarkTitle` | 深色：换上这个主题后一直是深色 | Dark: always dark once applied | #86 新增 |
+| `edLight` | 浅色 | Light | #86 新增 |
+| `edLightTitle` | 浅色：换上这个主题后一直是浅色 | Light: always light once applied | #86 新增 |
+| `edSystem` | 跟随系统 | System | #86 新增 |
+| `edSystemTitle` | 跟随系统：深浅跟系统走 | Follow the system appearance | #86 新增 |
+| `edTransparentFlag` | 可设透明 | Can be transparent | #86 新增 |
+| `edPickTitle` | 换个颜色 | Pick a color | #86 新增 |
+| `edLightNote` | （浅色下透明处显示为白色） | (Transparent areas render as white in light mode) | #86 新增 |
+| `edFreq` | 本主题用过的颜色 | Colors used in this theme | #86 新增 |
+| `edTransparent` | 透明 | Transparent | #86 新增 |
+| `edOk` | 确定 | OK | #86 新增 |
+| `edClosePop` | 关闭 | Close | #86 新增 |
+| `edDelete` | 删除 | Delete | #86 新增 |
+| `edDelConfirm` | 删除「{name}」？ | Delete "{name}"? | #86 新增 |
+| `edDelNote` | 自定义主题删除后不可恢复。 | Deleted custom themes cannot be recovered. | #86 新增 |
+| `edDelYes` | 确认删除 | Delete | #86 新增 |
+| `edDelNo` | 取消 | Cancel | #86 新增 |
+| `edCancel` | 取消 | Cancel | #86 新增 |
+| `edCancelTitle` | 不保存，直接关闭 | Close without saving | #86 新增 |
+| `edSave` | 保存主题 | Save theme | #86 新增 |
+| `edSaveTitle` | 保存后出现在自定义主题里 | Saves into your custom themes | #86 新增 |
+| `edSaveNeedName` | 先起个名字 | Name it first | #86 新增 |
+| `cgroup.bg` | 界面与背景 | Surfaces | #86 新增 |
+| `cgroup.text` | 文字 | Text | #86 新增 |
+| `cgroup.brand` | 品牌与状态 | Brand & status | #86 新增 |
+| `cgroup.border` | 边框 | Border | #86 新增 |
+| `cgroup.diff` | 改动对比 | Diff | #86 新增 |
+| `cgroup.md` | Markdown | Markdown | #86 新增 |
+| `cgroup.syn` | 代码高亮 | Syntax | #86 新增 |
+| `cslot.background` | 背景 | Background | #86 新增 |
+| `cslot.backgroundPanel` | 面板 | Panel | #86 新增 |
+| `cslot.backgroundElement` | 元件 | Element | #86 新增 |
+| `cslot.sidebarBg` | 侧边栏 | Sidebar | #86 新增 |
+| `cslot.bubbleBg` | 气泡 | Bubble | #86 新增 |
+| `cslot.inputBg` | 输入框 | Input | #86 新增 |
+| `cslot.codeBlockBg` | 代码块 | Code block | #86 新增 |
+| `cslot.codeHeaderBg` | 代码块顶栏 | Code header | #86 新增 |
+| `cslot.text` | 正文 | Text | #86 新增 |
+| `cslot.textMuted` | 次要文字 | Muted text | #86 新增 |
+| `cslot.primary` | 品牌主色 | Primary | #86 新增 |
+| `cslot.secondary` | 品牌次色 | Secondary | #86 新增 |
+| `cslot.info` | 信息 | Info | #86 新增 |
+| `cslot.success` | 成功 | Success | #86 新增 |
+| `cslot.warning` | 警告 | Warning | #86 新增 |
+| `cslot.error` | 错误 | Error | #86 新增 |
+| `cslot.border` | 边框 | Border | #86 新增 |
+| `cslot.borderActive` | 选中边框 | Active border | #86 新增 |
+| `cslot.diffAdded` | 新增行 | Added line | #86 新增 |
+| `cslot.diffRemoved` | 删除行 | Removed line | #86 新增 |
+| `cslot.diffAddedBg` | 新增行底 | Added bg | #86 新增 |
+| `cslot.diffRemovedBg` | 删除行底 | Removed bg | #86 新增 |
+| `cslot.diffAddedLineNumberBg` | 新增行号底 | Added line-no. bg | #86 新增 |
+| `cslot.diffRemovedLineNumberBg` | 删除行号底 | Removed line-no. bg | #86 新增 |
+| `cslot.markdownHeading` | 标题 | Heading | #86 新增 |
+| `cslot.markdownLink` | 链接 | Link | #86 新增 |
+| `cslot.markdownCode` | 行内代码 | Inline code | #86 新增 |
+| `cslot.markdownEmph` | 斜体 | Emphasis | #86 新增 |
+| `cslot.markdownStrong` | 粗体 | Strong | #86 新增 |
+| `cslot.markdownBlockQuote` | 引用 | Blockquote | #86 新增 |
+| `cslot.syntaxComment` | 注释 | Comment | #86 新增 |
+| `cslot.syntaxKeyword` | 关键字 | Keyword | #86 新增 |
+| `cslot.syntaxFunction` | 函数 | Function | #86 新增 |
+| `cslot.syntaxType` | 类型 | Type | #86 新增 |
+| `cslot.syntaxNumber` | 数字 | Number | #86 新增 |
+| `cslot.syntaxString` | 字符串 | String | #86 新增 |
+| `cslot.syntaxOperator` | 运算符 | Operator | #86 新增 |
+| `cslotUse.background` | 主窗口底 | Main window backdrop | #86 新增 |
+| `cslotUse.backgroundPanel` | 卡片与弹窗底 | Cards and popover backdrop | #86 新增 |
+| `cslotUse.backgroundElement` | 输入框与小块底 | Inputs and small block backdrop | #86 新增 |
+| `cslotUse.sidebarBg` | 左侧导航底 | Left navigation backdrop | #86 新增 |
+| `cslotUse.bubbleBg` | 用户消息气泡底 | User message bubble backdrop | #86 新增 |
+| `cslotUse.inputBg` | 底部输入框底 | Bottom input backdrop | #86 新增 |
+| `cslotUse.codeBlockBg` | 代码块底 | Code block backdrop | #86 新增 |
+| `cslotUse.codeHeaderBg` | 代码块顶栏底 | Code block header backdrop | #86 新增 |
+| `cslotUse.text` | 正文 | Body copy | #86 新增 |
+| `cslotUse.textMuted` | 时间与次要说明 | Timestamps and secondary notes | #86 新增 |
+| `cslotUse.primary` | 主按钮与选中态 | Primary buttons and selection | #86 新增 |
+| `cslotUse.secondary` | 徽章与次按钮 | Badges and secondary buttons | #86 新增 |
+| `cslotUse.info` | 链接与提示 | Links and tips | #86 新增 |
+| `cslotUse.success` | 通过与成功态 | Pass and success states | #86 新增 |
+| `cslotUse.warning` | 警告态 | Warning states | #86 新增 |
+| `cslotUse.error` | 错误与删除态 | Errors and destructive states | #86 新增 |
+| `cslotUse.border` | 分割线与描边 | Dividers and outlines | #86 新增 |
+| `cslotUse.borderActive` | 聚焦与高亮 | Focus and highlight | #86 新增 |
+| `cslotUse.diffAdded` | ＋行文字 | Added-line text | #86 新增 |
+| `cslotUse.diffRemoved` | －行文字 | Removed-line text | #86 新增 |
+| `cslotUse.diffAddedBg` | ＋行底 | Added-line backdrop | #86 新增 |
+| `cslotUse.diffRemovedBg` | －行底 | Removed-line backdrop | #86 新增 |
+| `cslotUse.diffAddedLineNumberBg` | ＋行行号底 | Added line-number backdrop | #86 新增 |
+| `cslotUse.diffRemovedLineNumberBg` | －行行号底 | Removed line-number backdrop | #86 新增 |
+| `cslotUse.markdownHeading` | Markdown 标题 | Markdown headings | #86 新增 |
+| `cslotUse.markdownLink` | Markdown 链接与页内锚点 | Markdown links and in-page anchors | #86 新增 |
+| `cslotUse.markdownCode` | 行内代码与快捷键 | Inline code and kbd | #86 新增 |
+| `cslotUse.markdownEmph` | 斜体 | Emphasis (italic) | #86 新增 |
+| `cslotUse.markdownStrong` | 粗体 | Strong (bold) | #86 新增 |
+| `cslotUse.markdownBlockQuote` | 引用块竖线与文字 | Quote bar and text | #86 新增 |
+| `cslotUse.syntaxComment` | 注释 | Comments | #86 新增 |
+| `cslotUse.syntaxKeyword` | 关键字与控制流 | Keywords and control flow | #86 新增 |
+| `cslotUse.syntaxFunction` | 函数名 | Function names | #86 新增 |
+| `cslotUse.syntaxType` | 类型名 | Type names | #86 新增 |
+| `cslotUse.syntaxNumber` | 数字与布尔 | Numbers and booleans | #86 新增 |
+| `cslotUse.syntaxString` | 字符串 | Strings | #86 新增 |
+| `cslotUse.syntaxOperator` | 运算符与标点 | Operators and punctuation | #86 新增 |
+| `miniSession` | 会话 | Session | #86 新增 |
+| `miniCurrent` | 默认 · 当前 | Default · current | #86 新增 |
+| `miniDraft` | aurora 草稿 | aurora draft | #86 新增 |
+| `miniReview` | gruvbox 回顾 | gruvbox review | #86 新增 |
+| `miniBubble` | 这套配色看起来很舒服，再帮我看看深色下对比度够不够。 | This palette looks comfy — check the dark-mode contrast too. | #86 新增 |
+| `miniVerdict` | 走查结论 | Review verdict | #86 新增 |
+| `miniPass1` | 整体通过， | Overall pass, | #86 新增 |
+| `miniPassStrong` | 对比度 | contrast | #86 新增 |
+| `miniPass2` | 与 | and | #86 新增 |
+| `miniGap` | 间距 | spacing | #86 新增 |
+| `miniPass3` | 达标，详见 | pass — see | #86 新增 |
+| `miniSpec` | 设计规范 | the spec | #86 新增 |
+| `miniPass4` | ，其余看 | , the rest in | #86 新增 |
+| `miniNote` | 备注。 | Notes. | #86 新增 |
+| `miniEmph` | 这段是斜体，用来试强调色。 | Italic sample for the emphasis color. | #86 新增 |
+| `miniQuote` | 好的主题是看不见的，只觉得舒服。 | A good theme is invisible — it just feels right. | #86 新增 |
+| `miniFile` | example.mjs | example.mjs | #86 新增 |
+| `miniBtnPrimary` | 主按钮 | Primary | #86 新增 |
+| `miniBtnSecondary` | 次按钮 | Secondary | #86 新增 |
+| `miniBtnInfo` | 查看详情 | Details | #86 新增 |
+| `miniBadgeOk` | 已启用 | Enabled | #86 新增 |
+| `miniWarn` | 有 3 个槽对比度偏低，先看一眼预览 | 3 slots are low-contrast — check the preview | #86 新增 |
+| `miniErr` | 保存失败，再试一次 | Save failed — try again | #86 新增 |
+| `miniInputPh` | 输入 | Type | #86 新增 |
+| `miniInputHint` | 消息… | a message… | #86 新增 |
+| `miniTip` | 已同步到预览 | Synced to preview | #86 新增 |
+
 ## 主题 38＋分组 9（`src/engine/zh-names.mjs` 单一来源，矩阵/故事卡同源）
 
 13 保留英文：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造：日光浴/复古凹槽/鮎/纸墨）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）；透光橙/纯橙对仗保留为范式；`system`＝跟随系统。
