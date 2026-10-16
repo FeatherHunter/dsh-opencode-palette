@@ -61,7 +61,6 @@ export function CustomEditor(props) {
   const [pop, setPop] = h.useState(null) // { key, hex, transparent, orig: { hex, transparent } }
   const [popPos, setPopPos] = h.useState(null)
   const [hl, setHl] = h.useState(null)
-  const [hlRects, setHlRects] = h.useState([])
   const [delConfirm, setDelConfirm] = h.useState(false)
   const [sysDark, setSysDark] = h.useState(function () {
     try {
@@ -74,6 +73,75 @@ export function CustomEditor(props) {
   })
   const dlgRef = h.useRef(null)
   const miniRef = h.useRef(null)
+  const rowRef = h.useRef(null)
+  const nameRef = h.useRef(null)
+  const targetRef = h.useRef(null)
+  const rrightRef = h.useRef(null)
+  // 顶栏拟宽（原型 fitWidth 口径：prototype.html:750-799，量字设输入/下拉宽，再定 dlg 宽 + 左列名齐宽）
+  h.useEffect(function () {
+    try {
+      const dlg = dlgRef.current
+      if (!dlg) return
+      const doc = (typeof document !== 'undefined') ? document : null
+      const win = (typeof window !== 'undefined') ? window : null
+      if (!doc || !win || !doc.createElement || !doc.body || !win.getComputedStyle) return
+      const textW = function (txt, cs) {
+        const m = doc.createElement('span')
+        m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + cs.fontSize + ';font-family:' + cs.fontFamily + ';font-weight:' + cs.fontWeight
+        m.textContent = txt
+        doc.body.appendChild(m)
+        const w = m.offsetWidth
+        m.remove()
+        return w
+      }
+      const sel = targetRef.current
+      if (sel && sel.options && sel.options.length) {
+        const selTxt = sel.options[sel.selectedIndex >= 0 ? sel.selectedIndex : 0].text
+        const cs = win.getComputedStyle(sel)
+        const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)
+        let sw = textW(selTxt, cs) + padX + 26
+        sel.style.flex = 'none'; sel.style.minWidth = '0'; sel.style.maxWidth = 'none'
+        sw = Math.max(80, Math.min(220, sw))
+        sel.style.width = sw + 'px'
+        let guard = 0
+        while (guard++ < 5 && sel.scrollWidth > sel.clientWidth + 1 && sw < 240) { sw += 8; sel.style.width = sw + 'px' }
+      }
+      const inp = nameRef.current
+      if (inp) {
+        const t = inp.value || inp.placeholder || ''
+        const cs = win.getComputedStyle(inp)
+        let nw = textW(t, cs) + 24
+        const req = inp.parentNode ? inp.parentNode.querySelector('span:last-child') : null
+        if (req && req !== inp && req.offsetWidth) nw += req.offsetWidth + 18
+        const cssMin = parseFloat(cs.minWidth)
+        if (!isNaN(cssMin)) nw = Math.max(nw, cssMin)
+        const final = Math.max(90, nw)
+        inp.style.width = final + 'px'
+      }
+      const row = rowRef.current
+      if (row && row.children) {
+        let need = 0, n = 0
+        const rr = rrightRef.current
+        Array.prototype.forEach.call(row.children, function (zone) {
+          if (rr && zone === rr) { need += zone.offsetWidth; n++; return }
+          Array.prototype.forEach.call(zone.children || [], function (it) {
+            if (it.querySelector && it.querySelector('input')) { need += (inp ? inp.offsetWidth : 150); n++; return }
+            need += it.offsetWidth; n++
+          })
+          if (!zone.children || !zone.children.length) { need += zone.offsetWidth; n++ }
+        })
+        need += 10 * Math.max(0, n - 1) + 32
+        dlg.style.width = Math.round(need) + 'px'
+      }
+      const nms = dlg.querySelectorAll('.nm')
+      if (nms && nms.length) {
+        let mw = 0
+        Array.prototype.forEach.call(nms, function (x) { mw = Math.max(mw, x.offsetWidth || 0) })
+        if (mw > 0) Array.prototype.forEach.call(nms, function (x) { x.style.width = mw + 'px' })
+      }
+    } catch (err) { /* 量字失败保持 CSS 回落 */ }
+  }, [name, targetSel, mode, basePreset, appearance, lang,
+    (props.customs || []).length, (props.presets || []).length])
   const rowRefs = h.useRef({})
   const svDrag = h.useRef(null)
 
@@ -123,31 +191,9 @@ export function CustomEditor(props) {
     } catch (err) { /* 定位失败则用默认位 */ }
   }, [pop ? pop.key : null])
 
-  // 高亮描边：量画布节点相对容器坐标（原型 paintHl 口径）
-  h.useEffect(function () {
-    if (!hl) { setHlRects([]); return }
-    try {
-      const root = miniRef.current
-      if (!root || typeof root.querySelectorAll !== 'function') return
-      const base = typeof root.getBoundingClientRect === 'function' ? root.getBoundingClientRect() : null
-      if (!base) return
-      const keys = [hl].concat(EXTRA_HL[hl] || [])
-      const rects = []
-      for (const k of keys) {
-        const nodes = root.querySelectorAll('[data-slot="' + k + '"]')
-        for (let i = 0; i < nodes.length; i++) {
-          const r = nodes[i].getBoundingClientRect()
-          rects.push({ left: r.left - base.left, top: r.top - base.top, width: r.width, height: r.height, key: k })
-        }
-      }
-      setHlRects(rects)
-    } catch (err) { /* 忽略 */ }
-  }, [hl, colors, appearance, sysDark])
-
   // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
   const miniLight = editorMiniLight(appearance, sysDark)
   const eff = function (key) { return effectiveSlotColor(key, colors, miniLight) }
-  const edgeHl = hl === 'border' || hl === 'borderActive'
 
   function setColor(key, hex, transparent) {
     setColors(function (prev) {
@@ -227,51 +273,61 @@ export function CustomEditor(props) {
     })
   }
 
-  // ── 左列：标题 + 基底 + 外观 + 37 色位行 ──
+  // ── 左列：37 色位行（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
   const leftRows = []
   for (const g of props.groups || []) {
     const gm = (props.groupMeta && props.groupMeta[g.id]) || { zh: g.id, en: g.id }
+    const hasTrans = g.keys.some(function (k) { return props.slotMeta && props.slotMeta[k] && props.slotMeta[k].allow })
     leftRows.push(e('div', {
       key: 'g-' + g.id,
-      style: { fontSize: '12px', fontWeight: 700, color: '#EDEDF2', margin: '12px 0 2px' },
-    }, lang === 'en' ? gm.en + ' · ' + g.keys.length : gm.zh + ' · ' + g.keys.length + ' 色'))
+      style: { fontSize: '12px', color: '#9D7CD8', margin: leftRows.length === 0 ? '0 0 6px' : '10px 0 6px' },
+    }, lang === 'en' ? gm.en : gm.zh, hasTrans ? e('span', {
+      style: { fontSize: '10px', color: '#7FD88F', border: '1px solid #3D9A57', borderRadius: '4px', padding: '0 6px', marginLeft: '6px', whiteSpace: 'nowrap' },
+    }, tr('edTransparentFlag')) : null))
     for (const key of g.keys) {
       const meta = (props.slotMeta && props.slotMeta[key]) || { zh: key, en: key, useZh: '', useEn: '', allow: false }
       const raw = colors[key]
       const isTrans = raw === 'transparent'
-      const shown = isTrans ? eff(key) : (normalizeHexInput(raw) || eff(key))
+      const shown = (isTrans ? eff(key) : (normalizeHexInput(raw) || eff(key))).toUpperCase()
       const label = lang === 'en' ? meta.en : meta.zh
       const use = lang === 'en' ? meta.useEn : meta.useZh
       const swStyle = isTrans
-        ? { background: 'linear-gradient(45deg,#3A3A42 25%,#55555E 25%,#55555E 50%,#3A3A42 50%,#3A3A42 75%,#55555E 75%)', backgroundSize: '8px 8px' }
+        ? { background: 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' }
         : { background: shown }
+      const isTarget = hl === key
       leftRows.push(e('div', {
-        key: 'row-' + key,
+        key: 'row-' + key, 'data-row': key,
         ref: function (el) { rowRefs.current[key] = el },
         onMouseEnter: function () { setHl(key) },
+        onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null) },
         style: {
-          display: 'flex', alignItems: 'center', gap: '8px', padding: '3px 6px', borderRadius: '6px',
-          background: hl === key ? 'rgba(250,178,131,0.12)' : 'transparent',
-          outline: hl === key ? '1px solid #FAB283' : '1px solid transparent',
+          display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '6px', padding: '5px 4px',
+          border: '1px solid ' + (isTarget ? '#FAB283' : 'transparent'), borderRadius: '8px',
+          background: isTarget ? '#1E1A14' : 'transparent',
+          cursor: 'default', position: 'relative',
         },
       },
+        e('div', { className: 'nm', style: { flex: '0 1 auto', minWidth: 0 } },
+          e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label),
+          e('small', { style: { display: 'block', fontSize: '11px', color: '#A0A0A8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
         e('button', {
           'data-slot-row': key,
           title: tr('edPickTitle'),
           onClick: function () { openPop(key) },
           [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           style: Object.assign({
-            width: '22px', height: '22px', borderRadius: '6px', cursor: 'pointer', flexShrink: 0,
-            border: '1px solid #55555E',
+            width: '30px', height: '22px', borderRadius: '6px', cursor: 'pointer', flex: 'none', padding: 0,
+            border: '1px solid #00000066',
           }, swStyle),
         }),
-        e('span', { style: { fontSize: '12px', color: '#EDEDF2', whiteSpace: 'nowrap' } }, label),
-        meta.allow ? e('span', {
-          style: { fontSize: '10px', color: '#FAB283', border: '1px solid #FAB283', borderRadius: '4px', padding: '0 4px', whiteSpace: 'nowrap' },
-        }, tr('edTransparentFlag')) : null,
-        e('span', { style: { fontSize: '11px', color: '#8B8B95', flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } }, use),
-        e('span', { style: { fontSize: '11px', color: isTrans ? '#FAB283' : '#C9C9D2', fontFamily: 'monospace', whiteSpace: 'nowrap' } },
-          isTrans ? 'transparent→' + shown : shown)
+        e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: '#C8C8D0', minWidth: 0, flex: 'none' } }, shown),
+        isTarget ? e('span', {
+          style: {
+            position: 'absolute', top: '-9px', right: '-6px', background: '#FAB283', color: '#141419',
+            fontSize: '10px', fontFamily: 'Consolas,monospace', borderRadius: '4px', padding: '0 6px',
+            pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 3,
+          },
+        }, key) : null
       ))
     }
   }
@@ -281,7 +337,7 @@ export function CustomEditor(props) {
     if (!pop) return null
     const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
     const hsv = hexToHsv(pop.hex)
-    const freq = distinctThemeColors(colors).slice(0, 12)
+    const freq = distinctThemeColors(colors).slice(0, 8)
     const onSv = function (ev) {
       try {
         const box = ev.currentTarget
@@ -315,39 +371,37 @@ export function CustomEditor(props) {
         }
       } catch (err) { /* 忽略 */ }
     }
-    const hueCss = 'linear-gradient(90deg,#F00,#FF0,#0F0,#0FF,#00F,#F0F,#F00)'
-    const svCss = 'linear-gradient(180deg,rgba(255,255,255,1) 0%,hsla(' + Math.round(hsv.h) + ',100%,50%,0) 0%),'
-      + 'linear-gradient(0deg,#000 0%,hsla(' + Math.round(hsv.h) + ',100%,50%,0) 100%),'
-      + 'hsl(' + Math.round(hsv.h) + ',100%,50%)'
+    const pure = hsvToHex({ h: hsv.h, s: 100, v: 100 })
+    const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
     return e('div', {
       key: 'pop',
       style: Object.assign({
-        position: 'absolute', zIndex: 30, width: '300px', background: '#1E1E24',
-        border: '1px solid #55555E', borderRadius: '10px', padding: '10px',
-        boxShadow: '0 8px 28px rgba(0,0,0,0.5)',
+        position: 'absolute', zIndex: 30, width: '250px', background: '#1B1B21',
+        border: '1px solid #3D3D47', borderRadius: '10px', padding: '12px',
+        boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos || { left: 40, top: 120 }),
     },
-      e('div', { style: { fontSize: '12px', fontWeight: 700, color: '#EDEDF2', marginBottom: '8px' } },
+      e('h4', { style: { fontSize: '12px', fontWeight: 700, margin: '0 0 8px', color: '#EDEDF2' } },
         lang === 'en' ? meta.en : meta.zh),
       e('div', {
         onMouseDown: startSv,
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: {
-          height: '120px', borderRadius: '8px', cursor: 'crosshair', position: 'relative',
-          background: svCss, border: '1px solid #55555E',
+          width: '100%', height: '120px', borderRadius: '8px', cursor: 'crosshair', position: 'relative',
+          background: svCss, border: '1px solid #00000088', marginBottom: '8px',
         },
       },
         e('div', {
           style: {
             position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
             border: '2px solid #fff', boxShadow: '0 0 0 1px #000',
-            left: 'calc(' + hsv.s.toFixed(1) + '% - 6px)', top: 'calc(' + (100 - hsv.v).toFixed(1) + '% - 6px)',
-            background: pop.hex,
+            left: hsv.s.toFixed(1) + '%', top: (100 - hsv.v).toFixed(1) + '%',
+            transform: 'translate(-6px,-6px)', pointerEvents: 'none',
           },
         })
       ),
       e('input', {
-        type: 'range', min: 0, max: 359, step: 1, value: Math.round(hsv.h),
+        type: 'range', min: 0, max: 360, step: 1, value: Math.round(hsv.h),
         'aria-label': 'Hue',
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         onChange: function (ev) {
@@ -355,22 +409,22 @@ export function CustomEditor(props) {
           setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
           setColor(pop.key, hex, false)
         },
-        style: { width: '100%', margin: '8px 0 2px', background: hueCss, borderRadius: '4px', height: '10px', appearance: 'none' },
+        style: { width: '100%', margin: '4px 0 8px' },
       }),
-      freq.length ? e('div', { style: { margin: '6px 0 2px' } },
-        e('div', { style: { fontSize: '11px', color: '#8B8B95', marginBottom: '4px' } }, tr('edFreq')),
-        e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '4px' } }, freq.map(function (c) {
+      freq.length ? e('div', null,
+        e('div', { style: { fontSize: '11px', color: '#8B8B95' } }, tr('edFreq')),
+        e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '6px 0' } }, freq.map(function (c) {
           return e('button', {
             key: 'fq-' + c, title: c,
             onClick: function () {
               setPop(Object.assign({}, pop, { hex: c, transparent: false }))
               setColor(pop.key, c, false)
             },
-            style: { width: '20px', height: '20px', borderRadius: '5px', background: c, border: c === pop.hex ? '2px solid #FAB283' : '1px solid #55555E', cursor: 'pointer' },
+            style: { width: '24px', height: '18px', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0, cursor: 'pointer' },
             [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           })
         }))) : null,
-      e('div', { style: { display: 'flex', gap: '6px', marginTop: '8px' } },
+      e('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: '6px' } },
         e('input', {
           value: pop.hex, spellCheck: false,
           onChange: function (ev) {
@@ -382,11 +436,11 @@ export function CustomEditor(props) {
               setColor(pop.key, norm, false)
             }
           },
-          style: { flex: 1, minWidth: 0, background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 8px', fontSize: '12px', fontFamily: 'monospace' },
+          style: { minWidth: 0, flex: 1, background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', fontFamily: 'Consolas,monospace' },
           [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         }),
         meta.allow ? e('label', {
-          style: { display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#EDEDF2', cursor: 'pointer', whiteSpace: 'nowrap' },
+          style: { fontSize: '11px', color: '#A9A9B3', cursor: 'pointer', whiteSpace: 'nowrap' },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         },
           e('input', {
@@ -399,20 +453,20 @@ export function CustomEditor(props) {
           }),
           tr('edTransparent')) : null
       ),
-      e('div', { style: { display: 'flex', justifyContent: 'flex-end', gap: '6px', marginTop: '8px' } },
+      e('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: '6px' } },
         e('button', {
           onClick: function () {
             const norm = normalizeHexInput(pop.hex)
             setColor(pop.key, norm || pop.hex, pop.transparent && !norm ? false : pop.transparent)
             setPop(null)
           },
-          style: { background: '#FAB283', color: '#141419', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
+          style: { background: '#FAB283', border: '1px solid #FAB283', color: '#141414', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         }, tr('edOk')),
         e('button', {
           onClick: function () { closePop(true) },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
+          style: { background: 'transparent', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
         }, tr('edClosePop'))
       )
     )
@@ -425,190 +479,236 @@ export function CustomEditor(props) {
     const match = function (n) {
       return !q || n.toLowerCase().indexOf(q) >= 0
     }
+    const findPreset = presetByName
     return e('div', {
       key: 'presetpop',
       style: {
-        position: 'absolute', zIndex: 30, top: '86px', left: '16px', width: '300px', maxHeight: '320px',
-        overflow: 'auto', background: '#1E1E24', border: '1px solid #55555E', borderRadius: '10px',
-        padding: '10px', boxShadow: '0 8px 28px rgba(0,0,0,0.5)',
+        position: 'absolute', zIndex: 30, top: '86px', left: '16px', width: '560px', maxWidth: '94%',
+        background: '#1B1B21', border: '1px solid #3D3D47', borderRadius: '10px',
+        padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       },
     },
       e('input', {
         value: presetQuery, placeholder: tr('edPresetSearch'),
         onChange: function (ev) { setPresetQuery(ev.target.value) },
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        style: { width: '100%', boxSizing: 'border-box', background: '#141419', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 8px', fontSize: '12px', marginBottom: '8px' },
+        style: { width: '100%', boxSizing: 'border-box', background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
       }),
-      (props.presetGroups || []).map(function (g) {
-        const names = (g.names || []).filter(match)
-        if (!names.length) return null
-        return e('div', { key: 'pg-' + g.title },
-          e('div', { style: { fontSize: '11px', color: '#8B8B95', margin: '6px 0 4px' } }, g.title),
-          e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '4px' } }, names.map(function (n) {
-            const p = (props.presets || []).filter(function (x) { return x.name === n })[0]
-            const dot = p && p.colors ? p.colors.primary : '#888'
-            return e('button', {
-              key: 'pp-' + n, title: n,
-              onClick: function () { if (p) loadPreset(p) },
-              [UI_INTERACTIVE_ATTR]: TIER_CHIP,
-              style: {
-                display: 'flex', alignItems: 'center', gap: '5px', background: '#26262E', color: '#EDEDF2',
-                border: '1px solid #3A3A42', borderRadius: '20px', padding: '3px 9px 3px 6px',
-                fontSize: '12px', cursor: 'pointer',
+      e('div', { style: { maxHeight: '280px', overflow: 'auto', background: '#1C1C21', border: '1px solid #33333A', borderRadius: '8px', padding: '8px 10px' } },
+        (props.presetGroups || []).map(function (g) {
+          const names = (g.names || []).filter(match)
+          if (!names.length) return null
+          const gcolor = g.color || '#8B8B95'
+          return e('div', { key: 'pg-' + g.title, style: { marginBottom: '10px' } },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: '#A9A9B3', marginBottom: '6px' } },
+              e('span', { style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: gcolor } }),
+              g.title,
+              e('span', { style: { fontSize: '11px', color: '#A9A9B3' } }, String((g.names || []).length))),
+            e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, names.map(function (n) {
+              const p = findPreset(n)
+              const cc = (p && p.colors) || {}
+              const transBg = cc.background === 'transparent'
+              const bg = transBg ? '#FFFFFF' : hexOr(cc.background, '#0A0A0A')
+              const fg = transBg ? '#1A1A1A' : hexOr(cc.text, '#E7E7EA')
+              const dot = hexOr(cc.primary, '#555')
+              const psel = basePreset === n
+              const label = presetLabelOf(n)
+              return e('button', {
+                key: 'pp-' + n,
+                title: lang === 'en' ? 'Use "' + label + '" as base' : '以「' + label + '」为基底',
+                onClick: function () { if (p) loadPreset(p) },
+                [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+                style: {
+                  display: 'inline-flex', alignItems: 'center', gap: '5px', background: bg, color: fg,
+                  border: (psel ? '2px solid #FAB283' : '1px solid ' + dot), borderRadius: '6px',
+                  padding: '3px 8px 3px 5px', margin: psel ? '-1px' : '0',
+                  fontSize: '11px', fontFamily: 'Consolas,Menlo,monospace', cursor: 'pointer', whiteSpace: 'nowrap',
+                },
               },
-            },
-              e('span', { style: { width: '10px', height: '10px', borderRadius: '50%', background: dot } }),
-              n)
-          })))
-      })
+                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: dot } }),
+                label,
+                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: (psel && !transBg) ? hexOr(cc.primary, '#FAB283') : fg, visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
+            })))
+        }))
     )
   }
 
-  // ── 右侧：顶部胶囊预览 + 微缩 DSH 仿真画布 ──
+  // 透明文本回退（原型 tx 口径：transparent 正文→灰，底盘透明另走 hexOrTrans）
+  const txOf = function (v) {
+    if (v === 'transparent') return miniLight ? '#6E6E78' : '#8B8B95'
+    return normalizeHexInput(v) || v
+  }
+  // 高亮字（原型 pickText 口径：prototype.html:877-883，按亮度取深/浅字）
+  const pickTextOn = function (hex) {
+    const n = normalizeHexInput(hex)
+    if (!n) return '#141414'
+    const r = parseInt(n.slice(1, 3), 16), g = parseInt(n.slice(3, 5), 16), b = parseInt(n.slice(5, 7), 16)
+    return ((0.299 * r + 0.587 * g + 0.114 * b) / 255) > 0.6 ? '#141414' : '#F4F4F5'
+  }
+  // md 底盘透明回退（原型 slotBg 口径：backgroundPanel 回退 #16161A，不是 #232329）
+  const mdBg = colors.backgroundPanel === 'transparent' ? (miniLight ? '#F7F7F8' : '#16161A') : colors.backgroundPanel
+
+  // ── 右侧：微缩 DSH 仿真画布（原型 renderMini 口径：side + main + bubble + md + code + diff + brow + cinput）──
   function renderMini() {
-    const node = function (slot, style, children, extra) {
-      return e('div', Object.assign({
+    const hlTargets = hl ? [hl].concat(EXTRA_HL[hl] || []) : []
+    const node = function (slot, style, children, extra, bare) {
+      const ringed = hlTargets.indexOf(slot) >= 0
+      const hlEdge = hl === 'border' || hl === 'borderActive'
+      const isEdge = ringed && hlEdge && slot === hl
+      const ring = ringed ? {
+        boxShadow: isEdge ? '0 0 0 2px #FAB283' : 'inset 0 0 0 2px #FAB283',
+        animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
+      } : null
+      const props2 = Object.assign({
         'data-slot': slot,
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) },
-        style: Object.assign({ cursor: 'pointer' }, style),
-      }, extra || {}), children)
+        onMouseEnter: function () { setHl(slot) },
+        onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
+        style: Object.assign({ cursor: bare ? 'default' : 'pointer', position: 'relative' }, style, ring),
+      }, extra || {})
+      if (!bare) {
+        props2[UI_INTERACTIVE_ATTR] = TIER_INPUT
+        props2.onClick = function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) }
+      }
+      return e('div', props2, children,
+        (hl && slot === hl) ? e('span', {
+          style: {
+            position: 'absolute', top: '-9px', right: '-6px', background: '#FAB283', color: '#141414',
+            fontSize: '10px', fontFamily: 'Consolas,monospace', borderRadius: '4px', padding: '0 6px',
+            pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 3,
+          },
+        }, slot) : null)
+    }
+    // 原型文本 span 口径：data-slot 透出定位，无交互（点击只绑 md/tip/hr/cap）
+    const t = function (slot, s, key) {
+      return e('span', { key: key, 'data-slot': slot }, s)
     }
     const codeLines = [
-      { n: '1', parts: [{ t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' }, { t: 'run', s: 'syntaxFunction' }, { t: ' = ', s: 'syntaxOperator' }, { t: 'Theme', s: 'syntaxType' }, { t: ' 37', s: 'syntaxNumber' }] },
-      { n: '2', parts: [{ t: '"ok"', s: 'syntaxString' }, { t: 'return ', s: 'syntaxKeyword' }, { t: '"done"', s: 'syntaxString' }, { t: ';', s: 'syntaxOperator' }] },
+      { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
+      { t: 'run', s: 'syntaxFunction' }, { t: ' = ', s: 'syntaxOperator' },
+      { t: 'Theme', s: 'syntaxType' }, { t: ' 37', s: 'syntaxNumber' },
+      { t: ' ', s: null }, { t: '"ok"', s: 'syntaxString' }, { t: '\n', s: null },
+      { t: 'return ', s: 'syntaxKeyword' }, { t: '"done"', s: 'syntaxString' },
+      { t: ';', s: 'syntaxOperator' },
     ]
+    const bgRaw = colors.background
+    const bgRes = bgRaw === 'transparent' ? (miniLight ? '#FFFFFF' : '#101014') : (normalizeHexInput(bgRaw) || '#101014')
+    const miniInv = pickTextOn(bgRes) === '#141414'
     return e('div', {
       ref: miniRef,
       style: {
         position: 'relative', borderRadius: '10px', overflow: 'hidden',
-        border: '1px solid ' + eff('border'), background: eff('background'),
-        display: 'flex', minHeight: '380px', textAlign: 'left',
+        border: '1px solid ' + (miniInv ? '#D8D8DE' : '#33333A'), background: 'transparent',
+        display: 'grid', gridTemplateColumns: 'max-content minmax(0,1fr)', minHeight: '540px', minWidth: 0, textAlign: 'left',
       },
     },
-      // 侧边栏
-      node('sidebarBg', { width: '86px', flexShrink: 0, background: eff('sidebarBg'), borderRight: '1px solid ' + eff('border'), padding: '8px 6px', display: 'flex', flexDirection: 'column', gap: '5px' }, [
-        node('text', { fontSize: '10px', fontWeight: 700, color: eff('text') }, tr('miniSession')),
-        node('textMuted', { fontSize: '9px', color: eff('textMuted') }, tr('miniCurrent'), { key: 'miniSub', 'data-slot': 'textMuted' }),
-        node('primary', { fontSize: '9px', color: eff('primary'), background: 'transparent', border: 'none', padding: 0 }, tr('miniDraft')),
-        node('secondary', { fontSize: '9px', color: eff('secondary') }, tr('miniReview')),
-      ]),
-      // 主列（原型 .main 口径：prototype.html:835，data-slot + 底色绑定，与根同值视觉无差）
-      e('div', {
-        'data-slot': 'background',
-        onClick: function () { clickSlot('background') },
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        style: { flex: 1, padding: '8px', display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0, background: eff('background') },
-      },
+      // 侧边栏（原型 .side/.sess 口径：标题与草稿行无 data-slot、无点击）
+      node('sidebarBg', { background: eff('sidebarBg'), borderRight: '1px solid ' + eff('border'), padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }, [
+        e('div', { key: 'sessT', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniSession')),
+        node('backgroundPanel', { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', position: 'relative', border: '1px solid transparent', background: eff('backgroundPanel'), color: txOf(colors.text) }, [node('primary', { position: 'absolute', left: 0, top: '6px', bottom: '6px', width: '3px', borderRadius: '2px', background: eff('primary'), padding: 0 }, null, { key: 'sessBar' }, true), e('span', { key: 'sessCurTx' }, tr('miniCurrent'))], { key: 'sessCur' }, true),
+        e('div', { key: 'sessD', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniDraft')),
+        e('div', { key: 'sessR', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniReview')),
+      ], { key: 'sessCol' }, true),
+      // 主列（原型 .main 口径：无点击，只有 data-slot）
+      node('background', {
+        flex: 1, padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px',
+        minWidth: 0, background: eff('background'),
+      }, [
         node('bubbleBg', {
-          alignSelf: 'flex-end', maxWidth: '90%', background: eff('bubbleBg'),
-          border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '5px 8px',
-          fontSize: '10px', color: eff('text'),
-        }, tr('miniBubble')),
-        node('markdownHeading', { fontSize: '11px', fontWeight: 700, color: eff('markdownHeading') }, tr('miniVerdict')),
-        // 结论段（原型 .md 口径：prototype.html:837，data-slot + 底色绑定）
-        e('div', {
-          'data-slot': 'backgroundPanel',
-          onClick: function () { clickSlot('backgroundPanel') },
-          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-          style: { fontSize: '10px', color: eff('text'), lineHeight: 1.6, background: eff('backgroundPanel') },
-        },
-          ...segJoin([
-            tr('miniPass1'),
-            node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong')),
-            tr('miniPass2'),
-            tr('miniGap'),
-            tr('miniPass3'),
-            node('markdownLink', { color: eff('markdownLink'), textDecoration: 'underline', display: 'inline' }, tr('miniSpec')),
-            tr('miniPass4'),
+          alignSelf: 'flex-end', maxWidth: '85%', background: eff('bubbleBg'), wordBreak: 'keep-all',
+          border: '1px solid ' + eff('border'), borderRadius: '10px', padding: '8px 12px',
+          fontSize: '12px', color: txOf(colors.text),
+        }, t('text', tr('miniBubble'), 'bubTx'), { key: 'bubble' }, true),
+        node('markdownHeading', { fontSize: '14px', fontWeight: 700, color: eff('markdownHeading'), marginBottom: '4px' }, tr('miniVerdict'), { key: 'miniH' }, true),
+        // 结论段（原型 .md 口径：一句话流程 + 行内 tip）
+        node('backgroundPanel', { fontSize: '12px', color: txOf(colors.text), lineHeight: 1.6, background: mdBg, border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '10px 12px' },
+          segJoin([
+            t('text', tr('miniPass1'), 'sgP1'),
+            node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong'), { key: 'sgS' }),
+            t('text', tr('miniPass2'), 'sgP2'),
+            node('markdownEmph', { fontStyle: 'italic', color: eff('markdownEmph'), display: 'inline' }, tr('miniGap'), { key: 'sgE' }),
+            t('text', tr('miniPass3'), 'sgP3'),
+            node('markdownLink', { color: eff('markdownLink'), textDecoration: 'underline', display: 'inline' }, tr('miniSpec'), { key: 'sgL' }),
+            t('text', tr('miniPass4'), 'sgP4'),
             node('markdownCode', {
-              color: eff('markdownCode'), background: 'rgba(127,127,127,0.18)',
-              borderRadius: '3px', padding: '0 3px', display: 'inline', fontFamily: 'monospace',
-            }, 'v2'),
-            tr('miniNote'),
+              color: eff('markdownCode'), background: 'rgba(127,127,127,0.15)',
+              borderRadius: '4px', padding: '0 4px', display: 'inline', fontFamily: 'Consolas,monospace',
+            }, 'v2', { key: 'sgC' }),
+            t('text', tr('miniNote'), 'sgN'),
+          ]).concat([
+            node('backgroundElement', {
+              fontSize: '11px', color: txOf(colors.text), background: eff('backgroundElement'),
+              borderRadius: '20px', padding: '2px 10px', marginTop: '6px', display: 'inline-block',
+              title: tr('miniTip'),
+            }, tr('miniTip'), { key: 'sgTip' }),
           ]),
-          e('div', null,
-            node('markdownEmph', { fontStyle: 'italic', color: eff('markdownEmph'), display: 'inline' }, tr('miniEmph')))
-        ),
+        { key: 'mdVerdict' }),
         node('markdownBlockQuote', {
-          borderLeft: '3px solid ' + eff('markdownBlockQuote'), color: eff('markdownBlockQuote'),
-          fontSize: '10px', padding: '2px 0 2px 8px',
-        }, tr('miniQuote'), { key: 'quote', 'data-slot': 'markdownBlockQuote' }),
-        node('border', { borderTop: '1px solid ' + eff('border'), height: 0 }, null, { key: 'mdHr', 'data-slot': 'border' }),
-        // 代码块
-        node('codeBlockBg', { background: eff('codeBlockBg'), border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden' },
-          e('div', null,
+          borderLeft: '3px solid ' + eff('markdownBlockQuote'), color: txOf(colors.markdownBlockQuote),
+          fontSize: '12px', paddingLeft: '8px', margin: '6px 0',
+        }, tr('miniQuote'), { key: 'quote' }, true),
+        node('border', { border: 0, borderTop: '1px solid ' + eff('border'), height: 0, margin: '8px 0' }, null, { key: 'mdHr' }),
+        // 代码块（原型 .codecard/.codehead/.codepre 口径：语法示例行，无点击）
+        node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden' },
+          e('div', { key: 'codeInner' },
             node('codeHeaderBg', {
               display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
-              padding: '3px 8px', fontSize: '9px', color: eff('textMuted'),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', { key: 'l' }, 'js')]),
-            codeLines.map(function (ln) {
-              return e('div', { key: 'cl-' + ln.n, style: { display: 'flex', fontSize: '10px', fontFamily: 'monospace', padding: '1px 8px' } },
-                e('span', { style: { width: '14px', color: eff('textMuted'), flexShrink: 0 } }, ln.n),
-                e('span', null, ln.parts.map(function (p, i) {
-                  return node(p.s, { color: eff(p.s), display: 'inline' }, p.t, { key: 'tk-' + ln.n + '-' + i, 'data-slot': p.s })
-                })))
-            })
-          )
-        ),
-        // Diff 块
-        e('div', { style: { border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden', fontSize: '10px', fontFamily: 'monospace' } },
-          node('diffAddedBg', { display: 'flex', background: eff('diffAddedBg') }, [
-            node('diffAddedLineNumberBg', { width: '18px', background: eff('diffAddedLineNumberBg'), color: eff('textMuted'), textAlign: 'center', flexShrink: 0 }, '+1', { key: 'aln' }),
-            node('diffAdded', { color: eff('diffAdded'), padding: '1px 6px' }, '+ background: #FFFFFF'),
-          ]),
-          node('diffRemovedBg', { display: 'flex', background: eff('diffRemovedBg') }, [
-            node('diffRemovedLineNumberBg', { width: '18px', background: eff('diffRemovedLineNumberBg'), color: eff('textMuted'), textAlign: 'center', flexShrink: 0 }, '-1', { key: 'rln' }),
-            node('diffRemoved', { color: eff('diffRemoved'), padding: '1px 6px' }, '- background: #101014'),
-          ])
-        ),
-        // 按钮徽章行
-        e('div', { style: { display: 'flex', gap: '5px', flexWrap: 'wrap', alignItems: 'center' } },
+              padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', { key: 'l', 'data-slot': 'textMuted' }, 'js')], { key: 'codeHead' }, true),
+            node('codeBlockBg', {
+              background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
+              fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
+            }, codeLines.map(function (p, i) {
+              return p.s ? e('span', { key: 'tk-' + i, 'data-slot': p.s, style: { color: eff(p.s) } }, p.t) : p.t
+            }), { key: 'codePre' }, true)
+          ), { key: 'codeBlock' }, true),
+        // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
+        node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden', fontSize: '11px', fontFamily: 'Consolas,monospace' }, [
+          node('diffAddedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffAddedBg') }, [
+            node('diffAddedLineNumberBg', { background: eff('diffAddedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '12', { key: 'aln' }, true),
+            node('diffAddedBg', { padding: '4px 8px', color: eff('diffAdded') }, t('diffAdded', '+ background: #FFFFFF', 'adTx'), { key: 'adTxBox' }, true),
+          ], { key: 'diffAdd' }, true),
+          node('diffRemovedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffRemovedBg') }, [
+            node('diffRemovedLineNumberBg', { background: eff('diffRemovedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '13', { key: 'rln' }, true),
+            node('diffRemovedBg', { padding: '4px 8px', color: eff('diffRemoved') }, t('diffRemoved', '- background: #101014', 'rmTx'), { key: 'rmTxBox' }, true),
+          ], { key: 'diffRm' }, true),
+        ], { key: 'diffBlock' }, true),
+        // 按钮徽章行（原型 .badges/.pbtn/.pill + 圆点状态行口径，无点击）
+        e('div', { key: 'brow', style: { display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', minWidth: 0 } }, [
           node('primary', {
-            background: eff('primary'), color: '#141419', borderRadius: '6px', padding: '3px 10px',
-            fontSize: '10px', fontWeight: 700,
-          }, tr('miniBtnPrimary')),
+            background: eff('primary'), border: '1px solid ' + eff('primary'), color: pickTextOn(colors.primary),
+            borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+          }, tr('miniBtnPrimary'), { key: 'bPri' }, true),
           node('secondary', {
-            background: 'transparent', color: eff('secondary'), border: '1px solid ' + eff('secondary'),
-            borderRadius: '6px', padding: '2px 10px', fontSize: '10px',
-          }, tr('miniBtnSecondary')),
-          node('info', { color: eff('info'), fontSize: '10px', textDecoration: 'underline' }, tr('miniBtnInfo')),
-          node('success', {
-            color: eff('success'), border: '1px solid ' + eff('success'), borderRadius: '10px',
-            fontSize: '9px', padding: '1px 8px',
-          }, tr('miniBadgeOk')),
-          node('warning', { color: eff('warning'), fontSize: '9px' }, tr('miniWarn')),
-          node('error', { color: eff('error'), fontSize: '9px' }, tr('miniErr'))
-        ),
-        // 输入框（原型 .cinput 口径：prototype.html:871，外框 border + 内圈 borderActive）
+            background: hexOr(colors.secondary, '#888888') + '33', color: eff('secondary'),
+            border: '1px solid ' + eff('secondary'), borderRadius: '20px', padding: '5px 14px',
+            fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+          }, tr('miniBtnSecondary'), { key: 'bSec' }, true),
+          node('info', {
+            background: eff('info'), border: '1px solid ' + eff('info'), color: pickTextOn(colors.info),
+            borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+          }, tr('miniBtnInfo'), { key: 'bInf' }, true),
+        ]),
+        e('div', { key: 'dotOk', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+          e('span', { key: 'dotOkD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('success'), flex: 'none' } }),
+          node('success', { color: eff('success') }, tr('miniBadgeOk'), { key: 'bOk' }, true),
+        ]),
+        e('div', { key: 'dotWarn', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+          e('span', { key: 'dotWarnD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('warning'), flex: 'none' } }),
+          node('warning', { color: eff('warning') }, tr('miniWarn'), { key: 'bWarn' }, true),
+        ]),
+        e('div', { key: 'dotErr', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+          e('span', { key: 'dotErrD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('error'), flex: 'none' } }),
+          node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }, true),
+        ]),
+        // 输入框（原型 .cinput 口径：内圈 borderActive 环 + 下方说明行，无点击）
         node('inputBg', {
           display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
-          border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive'),
-          borderRadius: '8px', padding: '5px 8px',
-          fontSize: '10px', color: eff('textMuted'),
-        }, [e('span', { key: 'ph' }, tr('miniInputPh')), node('text', { color: eff('text') }, tr('miniInputHint'))], { key: 'inputBox', 'data-slot': 'inputBg' })
-      ),
-      // 高亮描边 + 角标（原型 paintHl 口径）
-      hlRects.map(function (r, i) {
-        const isEdge = r.key === hl && edgeHl
-        return e('div', {
-          key: 'hl-' + i,
-          style: {
-            position: 'absolute', left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px',
-            borderRadius: '6px', pointerEvents: 'none',
-            border: isEdge ? '2px solid #FAB283' : '2px solid rgba(250,178,131,0.9)',
-            boxShadow: isEdge ? 'none' : 'inset 0 0 0 1px rgba(250,178,131,0.5)',
-            animation: 'dsh-pal-breathe 1.2s ease-in-out infinite',
-          },
-        })
-      }),
-      hl ? e('div', {
-        key: 'hlbadge',
-        style: {
-          position: 'absolute', left: '8px', bottom: '8px', background: '#FAB283', color: '#141419',
-          fontSize: '10px', fontWeight: 700, borderRadius: '4px', padding: '1px 6px', pointerEvents: 'none',
-        },
-      }, ((props.slotMeta && props.slotMeta[hl] && (lang === 'en' ? props.slotMeta[hl].en : props.slotMeta[hl].zh)) || hl)) : null
+          border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive') + '55',
+          borderRadius: '8px', padding: '8px 12px',
+          fontSize: '12px', color: txOf(colors.text),
+        }, [t('text', tr('miniInputPh'), 'ph'), e('span', { key: 'hint', 'data-slot': 'textMuted', style: { color: txOf(colors.textMuted) } }, tr('miniInputHint'))], { key: 'inputBox' }, true),
+        e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
+      ], { key: 'mainCol' }, true)
     )
   }
 
@@ -617,10 +717,52 @@ export function CustomEditor(props) {
     ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0] || {}).name || capName)
     : capName
 
+  const presetByName = function (n) {
+    return (props.presets || []).filter(function (x) { return x.name === n })[0] || null
+  }
+  const hexOr = function (v, fb) { return normalizeHexInput(v) || fb }
+  // 顶栏图标（原型 ICONS + SYSICON 口径：prototype.html:503/507-510/647，手绘 SVG，零 emoji）
+  const ICON_CHECK = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
+    e('path', { d: 'M2 6.5 4.8 9 10 3.5', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }))
+  const ICON_TRASH = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
+    e('path', { d: 'M2.3 3.3h7.4M4.6 3.3V2.4h2.8v.9M3.5 3.3l.5 6.3h4l.5-6.3M5.1 5.4v2.4M6.9 5.4v2.4', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' }))
+  const ICON_MOON = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
+    e('path', { d: 'M9.6 7.3A4.1 4.1 0 0 1 4.7 2.4a4.1 4.1 0 1 0 4.9 4.9z', fill: 'none', stroke: 'currentColor', strokeWidth: 1.3, strokeLinejoin: 'round' }))
+  const ICON_SUN = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
+    e('path', { d: 'M4.3 6a1.7 1.7 0 1 0 3.4 0 1.7 1.7 0 0 0-3.4 0z M6 1.5v1.3M6 9.2v1.3M1.5 6h1.3M9.2 6h1.3M2.8 2.8l.9.9M8.4 8.4l.9.9M9.2 2.8l-.9.9M3.6 8.4l-.8.8', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round' }))
+  const ICON_SYS = e('svg', { width: 13, height: 13, viewBox: '0 0 13 13', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
+    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z', fill: '#F4F4F5' }),
+    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: '#0B0B0E' }),
+    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: 'none', stroke: '#8B8B95', strokeWidth: 1 }))
+  // 顶栏徽标配色（原型 chipStyle/edtag/basechip 口径：用原值直显）
+  const capBgT = colors.background === 'transparent'
+  const capLightT = appearance === 'light' && capBgT
+  const capFace = capLightT ? '#FFFFFF' : (capBgT ? '#FFFFFF' : hexOr(colors.background, '#FFFFFF'))
+  const capFg = capLightT ? '#1A1A1A' : (capBgT ? '#1A1A1A' : hexOr(colors.text, '#000000'))
+  const capPrimary = hexOr(colors.primary, '#FAB283')
+  const editTgt = mode === 'edit' ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0]) || null) : null
+  const editTgtColors = (editTgt && editTgt.colors) || {}
+  const editTgtBgT = editTgtColors.background === 'transparent'
+  const edtagFace = editTgtBgT ? '#FFFFFF' : (normalizeHexInput(editTgtColors.background) || '#1C1C21')
+  const edtagFg = editTgtBgT ? '#1A1A1A' : (normalizeHexInput(editTgtColors.text) || '#C9C9D2')
+  const edtagPrimary = normalizeHexInput(editTgtColors.primary) || '#FAB283'
+  const baseFound = presetByName(basePreset)
+  const baseFoundColors = (baseFound && baseFound.colors) || {}
+  const baseFoundT = baseFoundColors.background === 'transparent'
+  const bpFace = baseFoundT ? '#FFFFFF' : hexOr(baseFoundColors.background, '#0A0A0A')
+  const bpFg = baseFoundT ? '#1A1A1A' : hexOr(baseFoundColors.text, '#E7E7EA')
+  const bpPrimary = hexOr(baseFoundColors.primary, '#555')
+  const bpDot = basePreset === 'system' ? '#8B8B95' : bpPrimary
+  const presetLabelOf = function (n) {
+    const p = presetByName(n)
+    if (props.presetLabel) { try { return props.presetLabel(n, p) || n } catch (err) { /* 回落 */ } }
+    return (p && p.title) || n
+  }
+
   return e('div', {
     style: {
-      position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.55)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+      position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.6)',
+      display: 'flex', alignItems: 'safe center', justifyContent: 'safe center', padding: '18px', overflow: 'auto',
     },
     onClick: function () { props.onClose() },
   },
@@ -628,157 +770,197 @@ export function CustomEditor(props) {
       ref: dlgRef,
       onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } },
       style: {
-        width: 'max-content', maxWidth: '96vw', maxHeight: '92vh', overflow: 'auto',
-        background: '#141419', border: '1px solid #3A3A42', borderRadius: '14px',
-        padding: '14px 16px', position: 'relative', color: '#EDEDF2',
+        width: 'max-content', maxWidth: '96vw', maxHeight: '95vh', overflow: 'hidden',
+        margin: 'auto', flex: 'none', background: '#141419', border: '1px solid #33333A',
+        borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: '#EDEDF2',
       },
     },
-      // 标题行（单行保字）
-      e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', whiteSpace: 'nowrap' } },
-        e('span', {
-          style: { fontSize: '11px', fontWeight: 700, background: '#FAB283', color: '#141419', borderRadius: '4px', padding: '1px 7px' },
-        }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')),
-        mode === 'edit' ? e('span', {
-          title: tr('edTagTitle'),
-          style: {
-            fontSize: '11px', color: '#C9C9D2', overflow: 'hidden', textOverflow: 'ellipsis',
-            maxWidth: '220px', border: '1px solid #3A3A42', borderRadius: '4px', padding: '1px 7px',
-          },
-        }, trf('edEditing', { name: shownName })) : null,
-        e('span', { style: { flex: 1 } }),
-        e('button', {
-          title: tr('edCloseTitle'), onClick: function () { props.onClose() },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: { background: 'transparent', color: '#8B8B95', border: 'none', fontSize: '15px', cursor: 'pointer', padding: '0 4px' },
-        }, '✕')
-      ),
-      // 名字 + 目标 + 胶囊预览
-      e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', flexWrap: 'wrap' } },
-        mode === 'edit' ? e('select', {
-          value: targetSel || '',
-          title: tr('edTargetTitle'),
-          onChange: function (ev) { switchTarget(ev.target.value) },
-          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-          style: { background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 6px', fontSize: '12px', maxWidth: '150px' },
-        }, (props.customs || []).map(function (t) {
-          return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
-        })) : null,
-        e('input', {
-          value: name, placeholder: tr('edNamePh'),
-          title: name.trim() ? '' : tr('edNameEmpty'),
-          onChange: function (ev) { setName(ev.target.value) },
-          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-          style: {
-            background: '#1E1E24', color: '#EDEDF2', border: '1px solid #55555E', borderRadius: '6px',
-            padding: '5px 9px', fontSize: '12px', width: '170px',
-          },
-        }),
-        !name.trim() ? e('span', { style: { fontSize: '11px', color: '#FAB283' } }, tr('edNoName')) : null,
-        e('span', { style: { flex: 1 } }),
-        e('span', {
-          title: tr('edCapTitle'),
-          style: {
-            display: 'inline-flex', alignItems: 'center', gap: '6px', borderRadius: '20px',
-            padding: '4px 12px 4px 8px', fontSize: '12px',
-            background: appearance === 'light' && colors.background === 'transparent' ? '#FFFFFF' : (normalizeHexInput(colors.background) || '#FFFFFF'),
-            color: normalizeHexInput(colors.text) || '#000',
-            border: '2px solid ' + (normalizeHexInput(colors.primary) || '#FAB283'),
-          },
-        },
-          e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', background: normalizeHexInput(colors.primary) || '#FAB283' } }),
-          capName,
-          e('span', null, '✓'))
-      ),
-      // 基底 + 外观
-      e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '10px', flexWrap: 'wrap' } },
-        e('button', {
-          title: tr('edPresetTitle'),
-          onClick: function () { setShowPresets(!showPresets) },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: {
-            background: '#26262E', color: '#EDEDF2', border: '1px solid #3A3A42', borderRadius: '6px',
-            padding: '4px 10px', fontSize: '12px', cursor: 'pointer',
-          },
-        }, tr('edPreset') + ' · ' + (basePreset || tr('edNoBase'))),
-        e('span', { style: { fontSize: '12px', color: '#8B8B95' } }, tr('edAppearance')),
-        ['dark', 'light', 'system'].map(function (a) {
-          const on = appearance === a
-          const label = a === 'dark' ? tr('edDark') : (a === 'light' ? tr('edLight') : tr('edSystem'))
-          const tip = a === 'dark' ? tr('edDarkTitle') : (a === 'light' ? tr('edLightTitle') : tr('edSystemTitle'))
-          return e('button', {
-            key: 'ap-' + a, title: tip,
-            onClick: function () { setAppearance(a) },
-            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-            style: {
-              background: on ? '#FAB283' : 'transparent', color: on ? '#141419' : '#C9C9D2',
-              border: '1px solid ' + (on ? '#FAB283' : '#55555E'), borderRadius: '6px',
-              padding: '4px 10px', fontSize: '12px', fontWeight: on ? 700 : 400, cursor: 'pointer',
+      // 顶栏（原型 .dlg-top > .row1：rleft + rright 单行；无 X 钮，关闭走取消/backdrop）
+      e('div', { style: { padding: '10px 16px', borderBottom: '1px solid #26262C', display: 'flex', flexDirection: 'column', gap: '8px' } },
+        e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'nowrap', overflow: 'visible' } },
+          e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } },
+            e('span', {
+              style: { fontSize: '16px', fontWeight: 700, color: '#E7E7EA', background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
+            }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')),
+            mode === 'edit' && editTgt ? e('span', {
+              title: tr('edTagTitle'),
+              style: {
+                fontSize: '13px', fontWeight: 700, borderRadius: '6px', padding: '3px 10px 3px 8px',
+                display: 'inline-flex', alignItems: 'center', gap: '6px', maxWidth: '170px',
+                overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flex: '0 1 auto', minWidth: 0, height: '32px',
+                background: edtagFace, color: edtagFg, border: '1px solid ' + edtagPrimary,
+              },
             },
-          }, label)
-        })
+              e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: edtagPrimary } }),
+              e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: '0 1 auto' } },
+                trf('edEditing', { name: shownName }))) : null,
+            mode === 'edit' ? e('select', {
+              ref: targetRef, id: 'f-target',
+              value: targetSel || '',
+              title: tr('edTargetTitle'),
+              onChange: function (ev) { switchTarget(ev.target.value) },
+              [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+              style: {
+                background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
+                padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '170px',
+              },
+            }, (props.customs || []).map(function (t) {
+              return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
+            })) : null,
+            e('span', { style: { position: 'relative', flex: '1 1 auto', minWidth: 0, display: 'flex' } },
+              e('input', {
+                ref: nameRef, id: 'f-name',
+                value: name, placeholder: tr('edNamePh'),
+                title: name.trim() ? '' : tr('edNameEmpty'),
+                'aria-invalid': !name.trim() ? 'true' : undefined,
+                onChange: function (ev) { setName(ev.target.value) },
+                [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+                style: Object.assign({
+                  background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
+                  padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: 0, width: '100%',
+                }, !name.trim() ? { borderColor: '#FF5252', boxShadow: '0 0 0 1px #FF5252' } : null),
+              }),
+              !name.trim() ? e('span', {
+                style: {
+                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                  fontSize: '11px', color: '#FF6B6B', border: '1px solid #FF5252', borderRadius: '4px',
+                  padding: '0 6px', pointerEvents: 'none', background: '#1C1C21', whiteSpace: 'nowrap',
+                },
+              }, tr('edNoName')) : null),
+            e('span', {
+              title: tr('edCapTitle'),
+              style: {
+                display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
+                padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
+                background: capFace, color: capFg, border: '1px solid ' + capPrimary,
+                cursor: 'default', flex: 'none', whiteSpace: 'nowrap',
+              },
+            },
+              e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: capPrimary } }),
+              capName,
+              e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700 } }, ICON_CHECK)),
+            capLightT ? e('span', { style: { fontSize: '11px', color: '#8B8B95', flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null,
+            e('button', {
+              title: tr('edPresetTitle'),
+              onClick: function () { setShowPresets(!showPresets) },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+              style: {
+                background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px',
+                padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
+                cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+              },
+            }, tr('edPreset'), basePreset
+              ? e('span', {
+                style: {
+                  display: 'inline-flex', alignItems: 'center', gap: '5px', borderRadius: '5px',
+                  padding: '1px 8px 1px 5px', fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
+                  background: bpFace, color: bpFg, border: '1px solid ' + bpPrimary,
+                },
+              },
+                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: bpDot } }),
+                presetLabelOf(basePreset))
+              : e('span', {
+                style: {
+                  display: 'inline-flex', alignItems: 'center', borderRadius: '5px', padding: '1px 8px',
+                  fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
+                  border: '1px dashed #55555F', color: '#8B8B95', background: 'transparent',
+                },
+              }, tr('edNoBase')))
+          ),
+          e('span', { ref: rrightRef, className: 'rright', style: { display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'nowrap', flex: 'none' } },
+            e('span', { style: { display: 'inline-flex', background: 'transparent', border: 0, padding: 0, gap: '6px', alignItems: 'center', flex: 'none' } },
+              ['dark', 'light', 'system'].map(function (a) {
+                const on = appearance === a
+                const label = a === 'dark' ? tr('edDark') : (a === 'light' ? tr('edLight') : tr('edSystem'))
+                const tip = a === 'dark' ? tr('edDarkTitle') : (a === 'light' ? tr('edLightTitle') : tr('edSystemTitle'))
+                const segBase = a === 'dark'
+                  ? { background: '#0B0B0E', borderColor: '#3A3A44', color: '#EDEDEF' }
+                  : (a === 'light'
+                    ? { background: 'rgba(244,244,245,.94)', borderColor: '#77777F', color: '#141417' }
+                    : { background: 'linear-gradient(to bottom right,#0B0B0E 0,#0B0B0E 50%,#F4F4F5 50%,#F4F4F5 100%)', borderColor: '#55555F' })
+                return e('button', {
+                  key: 'ap-' + a, title: tip,
+                  onClick: function () { setAppearance(a) },
+                  [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                  style: Object.assign({
+                    border: '1px solid', fontSize: '12px', display: 'inline-flex', alignItems: 'center',
+                    gap: '6px', cursor: 'pointer', height: '32px', padding: '0 14px', borderRadius: '7px',
+                    fontWeight: on ? 700 : 400, whiteSpace: 'nowrap',
+                  }, segBase, on ? { boxShadow: 'inset 0 0 0 2px #FAB283' } : null),
+                }, a === 'dark' ? ICON_MOON : (a === 'light' ? ICON_SUN : ICON_SYS), ' ', a === 'system' ? e('span', {
+                  style: {
+                    background: 'linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%)',
+                    WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent',
+                  },
+                }, label) : label)
+              })),
+            mode === 'edit' ? e('span', { style: { position: 'relative', display: 'inline-flex' } },
+              delConfirm ? e('span', {
+                role: 'alertdialog', 'aria-label': tr('edDelete'),
+                style: {
+                  position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 70,
+                  width: 'max-content', maxWidth: 'min(300px,86vw)', background: '#232329',
+                  border: '1px solid #4A4A55', borderRadius: '10px', padding: '10px 12px',
+                  boxShadow: '0 12px 32px rgba(0,0,0,.6)', display: 'flex', flexDirection: 'column', gap: '4px',
+                },
+              },
+                e('b', { style: { fontSize: '12px', color: '#F0F0F0' } }, trf('edDelConfirm', { name: shownName })),
+                e('small', { style: { fontSize: '11px', color: '#A9A9B3' } }, tr('edDelNote')),
+                e('span', { style: { display: 'flex', gap: '8px', marginTop: '6px' } },
+                  e('button', {
+                    onClick: function () { props.onDelete(targetSel || origId) },
+                    [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                    style: { background: '#2A1418', border: '1px solid #C53B53', color: '#F08A97', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+                  }, tr('edDelYes')),
+                  e('button', {
+                    onClick: function () { setDelConfirm(false) },
+                    [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                    style: { background: 'transparent', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+                  }, tr('edDelNo'))))
+                : e('button', {
+                  onClick: function () { setDelConfirm(true) },
+                  [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                  style: {
+                    background: '#2A1418', border: '1px solid #C53B53', color: '#F08A97', borderRadius: '7px',
+                    padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex',
+                    alignItems: 'center', gap: '6px', cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+                  },
+                }, ICON_TRASH, ' ', tr('edDelete'))) : null,
+            e('button', {
+              title: tr('edCancelTitle'), onClick: function () { props.onClose() },
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+              style: {
+                background: 'transparent', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px',
+                padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
+                cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+              },
+            }, tr('edCancel')),
+            e('button', {
+              title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
+              onClick: handleSave, disabled: !canSave,
+              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+              style: {
+                background: '#FAB283', border: '1px solid #FAB283', color: '#141414', borderRadius: '7px',
+                padding: '6px 12px', fontSize: '12px', fontWeight: 700, height: '32px', display: 'inline-flex',
+                alignItems: 'center', cursor: canSave ? 'pointer' : 'not-allowed', flex: 'none',
+                whiteSpace: 'nowrap', opacity: canSave ? 1 : 0.45,
+              },
+            }, tr('edSave'))
+          )
+        )
       ),
       renderPresetPop(),
-      // 主体：左列 + 右画布
-      e('div', { style: { display: 'flex', gap: '14px', marginTop: '10px', alignItems: 'flex-start' } },
-        e('div', { style: { width: '330px', flexShrink: 0 } }, leftRows),
+      // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）
+      e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, flex: 1, overflow: 'hidden' } },
+        e('div', { style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
         e('div', {
           style: {
-            flex: 1, minWidth: '420px', background: miniLight ? '#F4F4F5' : '#1E1E24',
-            borderRadius: '10px', padding: '10px',
+            overflow: 'auto', padding: '12px 14px', background: miniLight ? '#E2E2E6' : '#0D0D10', minWidth: 0,
           },
         },
-          miniLight ? e('div', { style: { fontSize: '11px', color: '#55555E', marginBottom: '6px' } }, tr('edLightNote')) : null,
-          renderMini(),
-          // 原型画布底部署名条：底色跟 backgroundElement、字色跟 text，可点定位（prototype.html:844）
-          e('div', {
-            'data-slot': 'backgroundElement',
-            onClick: function () { clickSlot('backgroundElement') },
-            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-            style: {
-              fontSize: '11px', background: eff('backgroundElement'), color: eff('text'),
-              borderRadius: '4px', padding: '2px 6px', marginTop: '6px', display: 'inline-block', cursor: 'pointer',
-            },
-          }, tr('miniTip')))
+          renderMini())
       ),
-      renderPop(),
-      // 底部：删除 + 取消/保存
-      e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px', marginTop: '12px' } },
-        mode === 'edit' ? (delConfirm
-          ? e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#EDEDF2' } },
-            trf('edDelConfirm', { name: shownName }),
-            e('small', { style: { color: '#8B8B95', fontSize: '11px' } }, tr('edDelNote')),
-            e('button', {
-              onClick: function () { props.onDelete(targetSel || origId) },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: { background: '#E5484D', color: '#fff', border: 'none', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' },
-            }, tr('edDelYes')),
-            e('button', {
-              onClick: function () { setDelConfirm(false) },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
-            }, tr('edDelNo')))
-          : e('button', {
-            onClick: function () { setDelConfirm(true) },
-            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-            style: { background: 'transparent', color: '#E5484D', border: '1px solid #E5484D', borderRadius: '6px', padding: '4px 12px', fontSize: '12px', cursor: 'pointer' },
-          }, tr('edDelete'))) : null,
-        e('span', { style: { flex: 1 } }),
-        e('button', {
-          title: tr('edCancelTitle'), onClick: function () { props.onClose() },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: { background: 'transparent', color: '#C9C9D2', border: '1px solid #55555E', borderRadius: '6px', padding: '5px 14px', fontSize: '12px', cursor: 'pointer' },
-        }, tr('edCancel')),
-        e('button', {
-          title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
-          onClick: handleSave, disabled: !canSave,
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: {
-            background: canSave ? '#FAB283' : '#3A3A42', color: canSave ? '#141419' : '#8B8B95',
-            border: 'none', borderRadius: '6px', padding: '5px 16px', fontSize: '12px', fontWeight: 700,
-            cursor: canSave ? 'pointer' : 'not-allowed',
-          },
-        }, tr('edSave'))
-      )
+      renderPop()
     )
   )
 }

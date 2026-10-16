@@ -187,7 +187,6 @@ const I18N = {
   edSystemTitle: { zh: '跟随系统：深浅跟系统走', en: 'Follow the system appearance' },
   edTransparentFlag: { zh: '可设透明', en: 'Can be transparent' },
   edPickTitle: { zh: '换个颜色', en: 'Pick a color' },
-  edLightNote: { zh: '（浅色下透明处显示为白色）', en: '(Transparent areas render as white in light mode)' },
   edFreq: { zh: '本主题用过的颜色', en: 'Colors used in this theme' },
   edTransparent: { zh: '透明', en: 'Transparent' },
   edOk: { zh: '确定', en: 'OK' },
@@ -288,7 +287,7 @@ const I18N = {
   'cslotUse.syntaxOperator': { zh: '运算符与标点', en: 'Operators and punctuation' },
   // ── 微缩预览画布填充文案（原型 mock 口径）──
   miniSession: { zh: '会话', en: 'Session' },
-  miniCurrent: { zh: '默认 · 当前', en: 'Default · current' },
+  miniCurrent: { zh: 'ministros · 当前', en: 'ministros · current' },
   miniDraft: { zh: 'aurora 草稿', en: 'aurora draft' },
   miniReview: { zh: 'gruvbox 回顾', en: 'gruvbox review' },
   miniBubble: { zh: '这套配色看起来很舒服，再帮我看看深色下对比度够不够。', en: 'This palette looks comfy — check the dark-mode contrast too.' },
@@ -312,6 +311,7 @@ const I18N = {
   miniErr: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
   miniInputPh: { zh: '输入', en: 'Type' },
   miniInputHint: { zh: '消息…', en: 'a message…' },
+  miniCaption: { zh: '输入框外框跟主题走', en: 'The input frame follows the theme' },
   miniTip: { zh: '已同步到预览', en: 'Synced to preview' },
 }
 
@@ -1439,14 +1439,14 @@ export function createClient(slotTarget) {
             const buckets = []
             const mineIp = safeIpPresets().map(function (p) { return p.name }).filter(function (n) { return names.indexOf(n) >= 0 })
             mineIp.forEach(function (n) { seen[n] = true })
-            if (mineIp.length) buckets.push({ title: tr('customIpPresets'), names: mineIp })
+            if (mineIp.length) buckets.push({ title: tr('customIpPresets'), names: mineIp, color: '#8B8B95' })
             props.groups('dark').forEach(function (g) {
               const mine = g.themes.map(function (t) { return t.name }).filter(function (n) { return names.indexOf(n) >= 0 })
               mine.forEach(function (n) { seen[n] = true })
-              if (mine.length) buckets.push({ title: tr('group.' + g.name), names: mine })
+              if (mine.length) buckets.push({ title: tr('group.' + g.name), names: mine, color: g.color || '#8B8B95' })
             })
             const rest = names.filter(function (n) { return !seen[n] })
-            if (rest.length) buckets.push({ title: tr('customOther'), names: rest })
+            if (rest.length) buckets.push({ title: tr('customOther'), names: rest, color: '#8B8B95' })
             return buckets.filter(function (b) { return b.names.length > 0 })
           } catch (e) { return [] }
         }
@@ -1524,6 +1524,11 @@ export function createClient(slotTarget) {
             groups: props.slotGroups(), groupMeta: editorGroupMeta(), slotMeta: editorSlotMeta(),
             editor: editor, customs: ((customData && customData.themes) || []).slice(),
             presets: presets, presetGroups: editorPresetGroups(presets),
+            presetLabel: function (n, p) {
+              if (n === 'system') return n
+              if (currentLang === 'zh') return THEME_ZH[n] || (p && p.title) || n
+              return THEME_EN[n] || n
+            },
             onSave: handleEditorSave, onDelete: handleEditorDelete,
             onClose: function () { setEditor(null) },
           })

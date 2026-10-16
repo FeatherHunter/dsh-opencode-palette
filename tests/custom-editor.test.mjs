@@ -81,6 +81,9 @@ test('effectiveSlotColor：transparent 走 FB，miniLight 翻 DARK2LIGHT', () =>
   // 非背景槽透明 → 原型兜底 #141414；真色不受 miniLight 翻转
   assert.equal(effectiveSlotColor('text', { text: 'transparent' }, false), '#141414')
   assert.equal(effectiveSlotColor('text', { text: '#ECEDE9' }, true), '#ECEDE9')
+  // 非透明槽位原值直出：浅色外观也不翻转（原型 slotBg：只有 transparent 才回退/翻转）
+  assert.equal(effectiveSlotColor('sidebarBg', { sidebarBg: '#1A1A1E' }, true), '#1A1A1E')
+  assert.equal(effectiveSlotColor('backgroundPanel', { backgroundPanel: '#232329' }, true), '#232329')
   assert.equal(SLOT_DARK2LIGHT['#232329'], '#FFFFFF', 'DARK2LIGHT 跟原型')
 })
 
@@ -462,13 +465,17 @@ test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () 
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('直渲检查'), '编辑中主题名渲染')
   assert.ok(html.includes(pal.colors.primary), '主色绑定到画布/行内样式')
-  // 36 槽直绑 data-slot；borderActive 无独立节点（与原型 .cinput 一致），经 inputBg 别名高亮
+  // 36 槽直绑 data-slot；borderActive 无独立节点（原型 .cinput 内圈环口径），经 inputBg 内圈环高亮
+  const noMiniNode = new Set(['borderActive'])
   for (const s of ENGINE_SLOTS) {
-    if (s.key === 'borderActive') continue
+    if (noMiniNode.has(s.key)) continue
     assert.ok(html.includes('data-slot="' + s.key + '"'), '槽位落位：' + s.key)
   }
   assert.ok(html.includes('data-slot="inputBg"'), 'borderActive 别名节点在场')
-  assert.ok(html.includes('inset 0 0 0 2px'), '输入框内圈 borderActive 高亮环（原型 :871）')
+  assert.ok(html.includes('inset 0 0 0 2px ' + pal.colors.borderActive + '55'), '输入框内圈 borderActive 环（原型 .cinput :871）')
+  assert.ok(html.includes('data-slot="backgroundElement"'), '行内 tip backgroundElement 节点在场（原型 :844）')
+  assert.ok(html.includes('T:miniCaption'), '输入框下方说明行在场（原型 :873）')
+  assert.ok(html.includes('background-clip:text'), '跟随系统标签渐变字（原型 :101）')
   assert.ok(html.includes('T:edSave'), '保存按钮在场（弹窗默认全量渲染）')
   assert.ok(html.includes('T:miniTip'), '原型署名条在场')
 })
@@ -476,9 +483,9 @@ test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () 
 test('弹窗直渲染：外观翻底盘跟编辑器走（c1 集成）', () => {
   const pal = enginePreset('opencode')
   const darkHtml = renderEditorPure('dark', pal.colors)
-  assert.ok(darkHtml.includes('#1E1E24'), '深色外观深底盘')
+  assert.ok(darkHtml.includes('#0D0D10'), '深色外观深底盘（原型 .dlg-right）')
   const lightHtml = renderEditorPure('light', pal.colors)
-  assert.ok(lightHtml.includes('#F4F4F5'), '浅色外观翻浅底盘（不跟 OS）')
+  assert.ok(lightHtml.includes('#E2E2E6'), '浅色外观翻浅底盘（不跟 OS，原型 host-light）')
 })
 
 test('预置载入同步：选基底 37 色 + 外观一次填好（loadPreset 接缝）', () => {

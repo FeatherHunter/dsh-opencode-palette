@@ -108,13 +108,14 @@ export const SLOT_DARK2LIGHT = {
   '#1C1C21': '#FFFFFF',
 }
 
-// 预览生效色：transparent 行显示 FB 生效色；miniLight（浅色外观）再翻 DARK2LIGHT
+// 预览生效色（原型 slotBg 口径：只有 transparent 才回退/翻转，非透明原值直出）
 export function effectiveSlotColor(key, colors, miniLight) {
   const c = colors ? colors[key] : undefined
-  let out = normalizeHexInput(c)
-  if (!out) out = SLOT_FB[key] || SLOT_FB_DEFAULT
-  if (miniLight && SLOT_DARK2LIGHT[out]) out = SLOT_DARK2LIGHT[out]
-  return out
+  const norm = normalizeHexInput(c)
+  if (norm) return norm
+  const fb = SLOT_FB[key] || SLOT_FB_DEFAULT
+  if (miniLight) return SLOT_DARK2LIGHT[fb] || '#FFFFFF'
+  return fb
 }
 
 // 编辑器预览底盘：跟编辑器外观走，不跟 OS（原型 effAppearance 口径：prototype.html:809-820）。

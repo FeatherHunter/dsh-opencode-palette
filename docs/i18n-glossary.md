@@ -123,7 +123,6 @@
 | `edSystemTitle` | 跟随系统：深浅跟系统走 | Follow the system appearance | #86 新增 |
 | `edTransparentFlag` | 可设透明 | Can be transparent | #86 新增 |
 | `edPickTitle` | 换个颜色 | Pick a color | #86 新增 |
-| `edLightNote` | （浅色下透明处显示为白色） | (Transparent areas render as white in light mode) | #86 新增 |
 | `edFreq` | 本主题用过的颜色 | Colors used in this theme | #86 新增 |
 | `edTransparent` | 透明 | Transparent | #86 新增 |
 | `edOk` | 确定 | OK | #86 新增 |
@@ -220,7 +219,7 @@
 | `cslotUse.syntaxString` | 字符串 | Strings | #86 新增 |
 | `cslotUse.syntaxOperator` | 运算符与标点 | Operators and punctuation | #86 新增 |
 | `miniSession` | 会话 | Session | #86 新增 |
-| `miniCurrent` | 默认 · 当前 | Default · current | #86 新增 |
+| `miniCurrent` | ministros · 当前 | ministros · current | #86 新增 |
 | `miniDraft` | aurora 草稿 | aurora draft | #86 新增 |
 | `miniReview` | gruvbox 回顾 | gruvbox review | #86 新增 |
 | `miniBubble` | 这套配色看起来很舒服，再帮我看看深色下对比度够不够。 | This palette looks comfy — check the dark-mode contrast too. | #86 新增 |
@@ -244,6 +243,7 @@
 | `miniErr` | 保存失败，再试一次 | Save failed — try again | #86 新增 |
 | `miniInputPh` | 输入 | Type | #86 新增 |
 | `miniInputHint` | 消息… | a message… | #86 新增 |
+| `miniCaption` | 输入框外框跟主题走 | The input frame follows the theme | #86 新增 |
 | `miniTip` | 已同步到预览 | Synced to preview | #86 新增 |
 
 ## 主题 38＋分组 9（`src/engine/zh-names.mjs` 单一来源，矩阵/故事卡同源）
