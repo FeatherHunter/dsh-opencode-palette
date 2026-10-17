@@ -1,0 +1,25 @@
+{
+  // P1：只做类型检查（noEmit），不迁任何源码。
+  // allowJs 让未迁的 .mjs 进入模块图；checkJs 先关：存量 ~606 个隐式 any/伪路径错误留到 P2/P3
+  // 逐组迁移时再逐文件打开（见 docs/research/ts-migration-typing-surface-105.md §6.4 阶段 1）。
+  // P2 起把 checkJs/文件覆盖范围随迁移组一起抬高，最终由 P4 验收。
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "strict": true,
+    "noEmit": true,
+    "allowJs": true,
+    "checkJs": false,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    // Node 原生类型剥离 + tsc 只转译的约束：只允许可擦除语法；相对导入允许写 .ts 并重写为 .js。
+    "erasableSyntaxOnly": true,
+    "rewriteRelativeImportExtensions": true
+  },
+  "include": ["types/**/*.ts", "runtime/**/*.mjs", "src/**/*.mjs", "scripts/**/*.mjs", "tests/**/*.mjs"],
+  "exclude": ["node_modules", "package", "prototypes", "docs"]
+}
