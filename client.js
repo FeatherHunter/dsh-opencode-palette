@@ -18745,6 +18745,57 @@ function needsReveal(view, row, pad) {
   return row.top < view.top + p || row.top + (row.height || 0) > bottom
 }
 
+// 调色板 Popover 尺寸（#94：原型把 250/350 硬编码在定位公式里，提成常量供纯函数与渲染共用）。
+const POP_W = 250
+const POP_H = 350
+
+// 弹板锚定定位纯函数（#94）：anchor / bounds 形如 getBoundingClientRect() 的
+// { left, top, right, bottom }；size = { width, height }。规则：
+//   1) 优先贴锚点下方（间距 gap）；
+//   2) 下方放不下翻上方；
+//   3) 水平对齐锚点左缘，再夹进 bounds 四边（各留 margin）；
+//   4) 上下都放不下时贴空间更大的一侧，并夹紧在 bounds 内（placement='clamped'）。
+// 返回 null 表示缺输入（调用方给兜底位）；SSR / 假宿主不抛。
+function popoverPosition(anchor, bounds, size, gap, margin) {
+  if (!anchor || !bounds || !size) return null
+  const w = size.width || 0
+  const h = size.height || 0
+  if (!w || !h) return null
+  const leftBound = bounds.left || 0
+  const topBound = bounds.top || 0
+  const rightBound = typeof bounds.right === 'number' ? bounds.right : leftBound + (bounds.width || 0)
+  const bottomBound = typeof bounds.bottom === 'number' ? bounds.bottom : topBound + (bounds.height || 0)
+  if (rightBound - leftBound < w || bottomBound - topBound < h) return null
+  const g = typeof gap === 'number' ? gap : 8
+  const m = typeof margin === 'number' ? margin : 10
+  const minLeft = leftBound + m
+  const maxLeft = rightBound - m - w
+  const minTop = topBound + m
+  const maxTop = bottomBound - m - h
+  let left = anchor.left
+  if (left > maxLeft) left = maxLeft
+  if (left < minLeft) left = minLeft
+  const below = anchor.bottom + g
+  const above = anchor.top - g - h
+  let top
+  let placement
+  if (below <= maxTop) {
+    top = below
+    placement = 'below'
+  } else if (above >= minTop) {
+    top = above
+    placement = 'above'
+  } else {
+    const roomBelow = bottomBound - anchor.bottom
+    const roomAbove = anchor.top - topBound
+    top = roomBelow >= roomAbove ? Math.min(below, maxTop) : Math.max(above, minTop)
+    if (top < minTop) top = minTop
+    if (top > maxTop) top = maxTop
+    placement = 'clamped'
+  }
+  return { left: Math.round(left), top: Math.round(top), placement: placement }
+}
+
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
 function presetToSeed(p) {
   const src = (p && p.colors) || {}
@@ -18957,29 +19008,44 @@ function CustomEditor(props) {
     } catch (err) { return undefined }
   }, [pop ? pop.key : null, showPresets])
 
-  // Popover 按行定位（原型 openPop/openPresetPop 视口坐标口径：fixed 弹窗，left/top 全是视口坐标）
-  // 定位失败时给一个兜底位（不能留 null：渲染侧要求「没定位就不渲染」，见 renderPop）。
+  // Popover 锚定「被点元素」定位（#94）：预览区任意 data-slot 控件点开后，弹板贴该控件原地出现。
+  // 规则见 popoverPosition（下方优先 → 翻上方 → 水平夹紧 → 两侧都放不下时夹紧）；
+  // 边界取「视口 ∩ 弹窗容器」，弹窗内滚动 / 窗口 resize 时重算，锚点失效安全收起。
   h.useEffect(function () {
-    if (!pop) { setPopPos(null); return }
-    try {
-      const row = rowRefs.current[pop.key]
-      const w = typeof window !== 'undefined' ? window : null
-      if (!row || !w || typeof row.getBoundingClientRect !== 'function') { setPopPos({ left: 40, top: 120 }); return }
-      const r = row.getBoundingClientRect()
-      const vw = w.innerWidth || 1280
-      const vh = w.innerHeight || 900
-      let left = Math.min(Math.max(10, vw - 270), Math.max(10, r.left + 40))
+    if (!pop) { setPopPos(null); return undefined }
+    const w = typeof window !== 'undefined' ? window : null
+    const d = typeof document !== 'undefined' ? document : null
+    function place() {
       try {
-        const pv = miniRef.current && miniRef.current.parentNode
-          ? miniRef.current.parentNode.getBoundingClientRect() : null
-        if (pv) left = Math.min(left, pv.left - 250 - 8)
-      } catch (err) { /* 忽略 */ }
-      left = Math.max(10, left)
-      const top0 = r.bottom + 6
-      const top = (top0 + 350 > vh) ? Math.max(10, r.top - 350 - 6) : Math.min(Math.max(10, vh - 350), Math.max(10, top0))
-      setPopPos({ left: Math.round(left), top: Math.round(top) })
-    } catch (err) { setPopPos({ left: 40, top: 120 }) }
-  }, [pop ? pop.key : null])
+        const anchorEl = pop.anchor && pop.anchor.isConnected === false
+          ? rowRefs.current[pop.key]
+          : (pop.anchor || rowRefs.current[pop.key])
+        if (!anchorEl) { setPop(null); return }
+        if (!w || typeof anchorEl.getBoundingClientRect !== 'function') { setPopPos({ left: 40, top: 120 }); return }
+        const ar = anchorEl.getBoundingClientRect()
+        const vw = w.innerWidth || 1280
+        const vh = w.innerHeight || 900
+        let bounds = { left: 0, top: 0, right: vw, bottom: vh }
+        const dlg = dlgRef.current
+        if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+          const dr = dlg.getBoundingClientRect()
+          bounds = {
+            left: Math.max(0, dr.left), top: Math.max(0, dr.top),
+            right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
+          }
+        }
+        setPopPos(popoverPosition(ar, bounds, { width: POP_W, height: POP_H }) || { left: 40, top: 120 })
+      } catch (err) { setPopPos({ left: 40, top: 120 }) }
+    }
+    place()
+    if (!w || typeof w.addEventListener !== 'function') return undefined
+    w.addEventListener('resize', place)
+    if (d && typeof d.addEventListener === 'function') d.addEventListener('scroll', place, true)
+    return function () {
+      w.removeEventListener('resize', place)
+      if (d && typeof d.removeEventListener === 'function') d.removeEventListener('scroll', place, true)
+    }
+  }, [pop ? pop.key : null, pop ? pop.anchor : null])
 
   // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
   h.useEffect(function () {
@@ -19016,14 +19082,18 @@ function CustomEditor(props) {
     })
   }
 
-  function openPop(key) {
+  function openPop(key, anchorEl) {
     const raw = colors[key]
     const norm = normalizeHexInput(raw)
+    // #94：换锚点先清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧；
+    // anchor = 被点的预览控件；没传（左列入口，票 B 再接）时定位 effect 回退到左列行。
+    setPopPos(null)
     setPop({
       key: key,
       hex: norm || effectiveSlotColor(key, colors, false),
       transparent: raw === 'transparent',
       orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
+      anchor: anchorEl || null,
     })
     setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
     setHl(key)
@@ -19058,11 +19128,12 @@ function CustomEditor(props) {
     } catch (err) { /* 忽略 */ }
   }
 
-  function clickSlot(key) {
-    // 右点击 → 左定位 + 自动弹板（data-slot 即色位 key）
+  function clickSlot(key, anchorEl) {
+    // #94：点预览控件 → 以被点元素为锚原地开弹板（不再把弹板夹到预览区左侧）；
+    // 左列联动只在该行不可见时滚动露出（取消强制居中，见 revealRow）。
     if (props.slotMeta && props.slotMeta[key]) {
-      scrollToRow(key)
-      openPop(key)
+      revealRow(key)
+      openPop(key, anchorEl)
     }
   }
 
@@ -19222,7 +19293,7 @@ function CustomEditor(props) {
     return e('div', {
       key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
-        position: 'fixed', zIndex: 60, width: '250px', background: TK.pop,
+        position: 'fixed', zIndex: 60, width: POP_W + 'px', background: TK.pop,
         border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos),
@@ -19410,10 +19481,13 @@ function CustomEditor(props) {
     const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
     // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
     // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
+    // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
     const bindSlot = function (slot) {
       return {
         onMouseEnter: function () { setHl(slot); revealRow(slot) },
         onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
+        onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot, ev.currentTarget) },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
       }
     }
     const node = function (slot, style, children, extra, bare) {
@@ -19421,21 +19495,17 @@ function CustomEditor(props) {
       const props2 = Object.assign({
         'data-slot': slot,
         className: ring ? HL_CLS : undefined,
-        style: Object.assign({ cursor: bare ? 'default' : 'pointer', position: 'relative' }, style, ring),
+        style: Object.assign({ cursor: 'pointer', position: 'relative' }, style, ring),
       }, bindSlot(slot), extra || {})
-      if (!bare) {
-        props2[UI_INTERACTIVE_ATTR] = TIER_INPUT
-        props2.onClick = function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) }
-      }
       // 小标签不再挂在节点内（用户 m08636 第 1 条：会被 .mini{overflow:hidden} 与滚动列裁掉）；
       // 改由弹窗根的 fixed 覆盖层统一渲染，锚点定位见 badgeAt effect。
       return e('div', props2, children)
     }
-    // 原型文本 span 口径：data-slot 透出定位，点击只绑 md/tip/hr/cap（原型 :736），
-    // 但悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
+    // 原型文本 span 口径：data-slot 透出定位；#94 起文本也全部可点（点击原地开弹板），
+    // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
     // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
     const t = function (slot, s, key) {
-      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }, bindSlot(slot)), s)
+      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: Object.assign({ cursor: 'pointer' }, ringStyle(slot) || {}) }, bindSlot(slot)), s)
     }
     const codeLines = [
       { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
@@ -19508,12 +19578,12 @@ function CustomEditor(props) {
             node('codeHeaderBg', {
               display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
               padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: ringStyle('textMuted') }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }, true),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ cursor: 'pointer' }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }, true),
             node('codeBlockBg', {
               background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
               fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
             }, codeLines.map(function (p, i) {
-              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s) }, ringStyle(p.s) || {}) }, bindSlot(p.s)), p.t) : p.t
+              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s), cursor: 'pointer' }, ringStyle(p.s) || {}) }, bindSlot(p.s)), p.t) : p.t
             }), { key: 'codePre' }, true)
           ), { key: 'codeBlock' }, true),
         // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
@@ -19561,7 +19631,7 @@ function CustomEditor(props) {
           border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive') + '55',
           borderRadius: '8px', padding: '8px 12px',
           fontSize: '12px', color: txOf(colors.text),
-        }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted) }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }, true),
+        }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted), cursor: 'pointer' }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }, true),
         e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
       ], { key: 'mainCol' }, true)
     )
@@ -19851,7 +19921,7 @@ function CustomEditor(props) {
   )
 }
 
-__mods["custom-editor"] = { slotRingStyle, needsReveal, presetToSeed, CustomEditor }
+__mods["custom-editor"] = { slotRingStyle, needsReveal, popoverPosition, presetToSeed, CustomEditor }
 })();
 (function () {
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
