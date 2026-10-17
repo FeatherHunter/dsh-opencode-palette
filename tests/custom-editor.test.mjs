@@ -447,13 +447,16 @@ function editorProps(appearance, colors) {
   }
 }
 
-function renderEditorPure(appearance, colors) {
+function renderEditorPure(appearance, colors, mode = 'new', tweak = null) {
   const saved = {}
   for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
     if (k in globalThis) { saved[k] = globalThis[k]; delete globalThis[k] }
   }
   try {
-    const el = _React.createElement(CustomEditor, editorProps(appearance, colors))
+    const props = editorProps(appearance, colors)
+    props.editor = { mode, seed: { id: mode === 'edit' ? 'seed-id' : null, name: '直渲检查', appearance, colors, basePreset: 'opencode' } }
+    if (tweak) tweak(props)
+    const el = _React.createElement(CustomEditor, props)
     return _ReactDOMServer.renderToString(el)
   } finally {
     for (const k of Object.keys(saved)) globalThis[k] = saved[k]
@@ -555,4 +558,32 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   assert.ok(hexInAt > 0 && !src.slice(hexInAt, hexInAt + 600).includes('Consolas'), 'hex 输入框非等宽字体（原型 .txt 口径 :991）')
   const fqAt = src.indexOf("key: 'fq-' + c,")
   assert.ok(fqAt > 0 && !src.slice(fqAt, fqAt + 500).includes('title:') && !src.slice(fqAt, fqAt + 500).includes('cursor'), '常用色块无 title/指针手势（原型 :990）')
+})
+
+// ── 弹窗尺寸口径（用户 m08383 亲定，覆盖原型：高度正好等于预览区、整屏居中、一行控件同高）──
+// 实测口径（Chrome 无头测量）：预览区 border-box 外高 540；右列上下 padding 12×2 → 主体 564；
+// 顶栏一行 32（原型全局 *{box-sizing:border-box} :10，行内样式必须补 border-box，否则 input/徽标按内容盒涨到 46/40）。
+test('弹窗尺寸：高度=预览区 564、纯 center 居中、一行控件同高 32', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  // 居中：改纯 center（safe center 在不支持的引擎里整条声明失效，会退化成拉伸/左上）
+  assert.ok(/align-items:center;justify-content:center;padding:18px/.test(html), 'backdrop 用纯 center 居中（用户 m08383）')
+  assert.ok(!src.includes('safe center'), '不再依赖 safe center（用户 m08383）')
+  assert.ok(html.includes('max-height:calc(100vh - 36px)'), '上限=可用区（100vh - backdrop 上下 padding），居中且小屏不裁切')
+  // 高度口径：预览区按 border-box 算外高 540，主体固定 564 = 540 + 12×2，不再被 flex:1 拉到 95vh 留白
+  assert.ok(html.includes('box-sizing:border-box;min-height:540px'), '预览区 border-box + 540（原型全局 reset :10 / .mini :150）')
+  assert.ok(html.includes('height:564px'), '主体高度 564，正好展示完全预览区')
+  assert.ok(src.includes("height: '564px', flex: '0 1 auto'"), '主体不再 flex:1 拉满，只在屏幕过矮时收缩')
+  // 一行控件同高 32：名称输入（新建态实测过 46）
+  const nameTag = (html.match(/<input[^>]*id="f-name"[^>]*>/) || [''])[0]
+  assert.ok(nameTag.includes('box-sizing:border-box'), '名称输入 border-box（否则 32+12 padding+2 边框=46）')
+  assert.ok(nameTag.includes('height:32px'), '名称输入高 32，与同行按钮/胶囊同高')
+  // 编辑态：edtag 徽标同口径（否则 32+3+3 padding+2 边框=40，把编辑顶栏撑到 61）
+  // editTgt 需要 customs 里存在同 id 的已存主题，否则徽标不渲染（组件 :802）
+  const editHtml = renderEditorPure('dark', pal.colors, 'edit', (p) => {
+    p.customs = [{ id: 'seed-id', name: '我的主题', appearance: 'dark', colors: pal.colors }]
+  })
+  const edtag = (editHtml.match(/<span[^>]*title="T:edTagTitle"[^>]*>/) || [''])[0]
+  assert.ok(edtag.includes('box-sizing:border-box') && edtag.includes('height:32px'), '编辑态 edtag 也是 32（border-box）')
 })

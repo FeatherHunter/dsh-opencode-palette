@@ -19192,7 +19192,7 @@ function CustomEditor(props) {
       style: {
         position: 'relative', borderRadius: '10px', overflow: 'hidden',
         border: '1px solid ' + (miniInv ? '#D8D8DE' : '#33333A'), background: 'transparent',
-        display: 'grid', gridTemplateColumns: 'max-content minmax(0,1fr)', minHeight: '540px', minWidth: 0, textAlign: 'left',
+        display: 'grid', gridTemplateColumns: 'max-content minmax(0,1fr)', boxSizing: 'border-box', minHeight: '540px', minWidth: 0, textAlign: 'left',
       },
     },
       // 侧边栏（原型 .side/.sess 口径：标题与草稿行无 data-slot、无点击）
@@ -19356,7 +19356,8 @@ function CustomEditor(props) {
   return e('div', {
     style: {
       position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.6)',
-      display: 'flex', alignItems: 'safe center', justifyContent: 'safe center', padding: '18px', overflow: 'auto',
+      // 居中口径（用户 m08383 亲定）：纯 center + 对话框 max-height 受可用区约束，任何引擎都居中且不裁切
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '18px', overflow: 'auto',
     },
     onClick: function () { props.onClose() },
   },
@@ -19366,7 +19367,8 @@ function CustomEditor(props) {
       ref: dlgRef,
       onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } },
       style: {
-        width: 'max-content', maxWidth: '96vw', maxHeight: '95vh', overflow: 'hidden',
+        // 高度由预览区唯一决定（用户 m08383：正好展示完全预览区）；-36px = backdrop 上下 padding，保证真居中
+        width: 'max-content', maxWidth: '96vw', maxHeight: 'calc(100vh - 36px)', overflow: 'hidden',
         margin: 'auto', flex: 'none', background: '#141419', border: '1px solid #33333A',
         borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: '#EDEDF2',
       },
@@ -19382,6 +19384,7 @@ function CustomEditor(props) {
               title: tr('edTagTitle'),
               style: {
                 fontSize: '13px', fontWeight: 700, borderRadius: '6px', padding: '3px 10px 3px 8px',
+                boxSizing: 'border-box',
                 display: 'inline-flex', alignItems: 'center', gap: '6px', maxWidth: '170px',
                 overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flex: '0 1 auto', minWidth: 0, height: '32px',
                 background: edtagFace, color: edtagFg, border: '1px solid ' + edtagPrimary,
@@ -19413,7 +19416,7 @@ function CustomEditor(props) {
                 [UI_INTERACTIVE_ATTR]: TIER_INPUT,
                 style: Object.assign({
                   background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
-                  padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: '170px', width: '100%',
+                  boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: '170px', width: '100%',
                 }, !name.trim() ? { borderColor: '#FF5252', boxShadow: '0 0 0 1px #FF5252' } : null),
               }),
               !name.trim() ? e('span', {
@@ -19545,8 +19548,9 @@ function CustomEditor(props) {
         )
       ),
       renderPresetPop(),
-      // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）
-      e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, flex: 1, overflow: 'hidden' } },
+      // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
+      // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
+      e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } },
         e('div', { style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
         e('div', {
           style: {
