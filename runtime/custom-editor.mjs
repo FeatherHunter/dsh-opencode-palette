@@ -104,55 +104,45 @@ export function needsReveal(view, row, pad) {
   return row.top < view.top + p || row.top + (row.height || 0) > bottom
 }
 
-// 调色板 Popover 尺寸（#94：原型把 250/350 硬编码在定位公式里，提成常量供纯函数与渲染共用）。
-const POP_W = 250
-const POP_H = 350
+// 调色板 Popover 盒子尺寸（#94 实测外框：内容宽 250 + 内边距/描边 26 = 276；高 318，37 槽位同高）。
+// 旧定位公式把 250（内容宽）当外框、350 当高度：实测右侧溢出 26px、翻转后与锚点间距 32-48px。
+// 渲染侧用 border-box + 本宽、定位侧用本尺寸，两处同源。
+const POP_W = 276
+const POP_H = 318
+// 锚定间距 / 边界留白 / 测量不可用时的兜底位（#94：纯函数、定位 effect 与测试共用同一来源）。
+const POP_GAP = 8
+const POP_MARGIN = 10
+const POP_FALLBACK = { left: 40, top: 120 }
 
 // 弹板锚定定位纯函数（#94）：anchor / bounds 形如 getBoundingClientRect() 的
-// { left, top, right, bottom }；size = { width, height }。规则：
-//   1) 优先贴锚点下方（间距 gap）；
-//   2) 下方放不下翻上方；
-//   3) 水平对齐锚点左缘，再夹进 bounds 四边（各留 margin）；
-//   4) 上下都放不下时贴空间更大的一侧，并夹紧在 bounds 内（placement='clamped'）。
-// 返回 null 表示缺输入（调用方给兜底位）；SSR / 假宿主不抛。
-export function popoverPosition(anchor, bounds, size, gap, margin) {
+// { left, top, right, bottom }；size = { width, height } 为外框尺寸。规则：
+//   1) 优先贴锚点下方（间距 POP_GAP），下方放不下翻上方；
+//   2) 水平对齐锚点左缘，再夹进 bounds 四边（各留 POP_MARGIN）；
+//   3) 上下都放不下时贴空间更大的一侧并夹紧在 bounds 内（可能与锚点相交）；
+//   4) 缺输入（anchor/bounds/size 或尺寸非正）返回 null，调用方给兜底位；SSR / 假宿主不抛。
+export function popoverPosition(anchor, bounds, size) {
   if (!anchor || !bounds || !size) return null
-  const w = size.width || 0
-  const h = size.height || 0
-  if (!w || !h) return null
-  const leftBound = bounds.left || 0
-  const topBound = bounds.top || 0
-  const rightBound = typeof bounds.right === 'number' ? bounds.right : leftBound + (bounds.width || 0)
-  const bottomBound = typeof bounds.bottom === 'number' ? bounds.bottom : topBound + (bounds.height || 0)
-  if (rightBound - leftBound < w || bottomBound - topBound < h) return null
-  const g = typeof gap === 'number' ? gap : 8
-  const m = typeof margin === 'number' ? margin : 10
-  const minLeft = leftBound + m
-  const maxLeft = rightBound - m - w
-  const minTop = topBound + m
-  const maxTop = bottomBound - m - h
-  let left = anchor.left
-  if (left > maxLeft) left = maxLeft
-  if (left < minLeft) left = minLeft
-  const below = anchor.bottom + g
-  const above = anchor.top - g - h
+  const w = size.width
+  const h = size.height
+  if (!(w > 0) || !(h > 0)) return null
+  const minLeft = bounds.left + POP_MARGIN
+  const maxLeft = bounds.right - POP_MARGIN - w
+  const minTop = bounds.top + POP_MARGIN
+  const maxTop = bounds.bottom - POP_MARGIN - h
+  const left = Math.max(minLeft, Math.min(anchor.left, maxLeft))
+  const below = anchor.bottom + POP_GAP
+  const above = anchor.top - POP_GAP - h
   let top
-  let placement
-  if (below <= maxTop) {
-    top = below
-    placement = 'below'
-  } else if (above >= minTop) {
-    top = above
-    placement = 'above'
-  } else {
-    const roomBelow = bottomBound - anchor.bottom
-    const roomAbove = anchor.top - topBound
-    top = roomBelow >= roomAbove ? Math.min(below, maxTop) : Math.max(above, minTop)
-    if (top < minTop) top = minTop
-    if (top > maxTop) top = maxTop
-    placement = 'clamped'
+  if (below >= minTop && below <= maxTop) top = below
+  else if (above >= minTop && above <= maxTop) top = above
+  else {
+    const roomBelow = bounds.bottom - anchor.bottom
+    const roomAbove = anchor.top - bounds.top
+    top = roomBelow >= roomAbove ? Math.max(below, minTop) : Math.min(above, maxTop)
   }
-  return { left: Math.round(left), top: Math.round(top), placement: placement }
+  if (top < minTop) top = minTop
+  if (top > maxTop) top = maxTop
+  return { left: Math.round(left), top: Math.round(top) }
 }
 
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
@@ -354,8 +344,10 @@ export function CustomEditor(props) {
           else setShowPresets(false)
           return
         }
-        // 对话框内、弹窗外：调色板保持原型行为（仅弹窗外且非 sw 行才 revert 由行点击接管）
-        if (pop && !(t && t.closest && t.closest('[data-sw="' + pop.key + '"]'))) closePop(true)
+        // 对话框内、弹窗外：调色板保持原型行为（仅弹窗外且非 sw 行才 revert 由行点击接管）；
+        // #94：点预览区 [data-slot] 控件不当作「点外面」——同控件再点保持弹板，换控件由 clickSlot 换锚重定位。
+        const keepOpen = t && t.closest && (t.closest('[data-sw="' + pop.key + '"]') || t.closest('[data-slot]'))
+        if (pop && !keepOpen) closePop(true)
         else if (!pop && showPresets) setShowPresets(false)
       } catch (err) { /* 忽略 */ }
     }
@@ -367,34 +359,50 @@ export function CustomEditor(props) {
     } catch (err) { return undefined }
   }, [pop ? pop.key : null, showPresets])
 
-  // Popover 锚定「被点元素」定位（#94）：预览区任意 data-slot 控件点开后，弹板贴该控件原地出现。
-  // 规则见 popoverPosition（下方优先 → 翻上方 → 水平夹紧 → 两侧都放不下时夹紧）；
-  // 边界取「视口 ∩ 弹窗容器」，弹窗内滚动 / 窗口 resize 时重算，锚点失效安全收起。
+  // Popover 定位（#94）：两条入口各自一分支——
+  //  · 预览区控件点开（pop.anchor 有值）：贴被点元素锚定，规则见 popoverPosition；边界 = 视口 ∩ 弹窗；
+  //    锚点已从 DOM 移除（React 换节点）→ 安全收起，不回滚已调颜色；
+  //  · 左列色块入口（无 anchor，票 B 再接）：沿用 #82 旧口径（夹到预览左侧），本票不动。
+  // 弹窗内滚动 / 窗口 resize 时重算。
   h.useEffect(function () {
     if (!pop) { setPopPos(null); return undefined }
     const w = typeof window !== 'undefined' ? window : null
     const d = typeof document !== 'undefined' ? document : null
     function place() {
       try {
-        const anchorEl = pop.anchor && pop.anchor.isConnected === false
-          ? rowRefs.current[pop.key]
-          : (pop.anchor || rowRefs.current[pop.key])
-        if (!anchorEl) { setPop(null); return }
-        if (!w || typeof anchorEl.getBoundingClientRect !== 'function') { setPopPos({ left: 40, top: 120 }); return }
-        const ar = anchorEl.getBoundingClientRect()
-        const vw = w.innerWidth || 1280
-        const vh = w.innerHeight || 900
-        let bounds = { left: 0, top: 0, right: vw, bottom: vh }
-        const dlg = dlgRef.current
-        if (dlg && typeof dlg.getBoundingClientRect === 'function') {
-          const dr = dlg.getBoundingClientRect()
-          bounds = {
-            left: Math.max(0, dr.left), top: Math.max(0, dr.top),
-            right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
+        const vw = (w && w.innerWidth) || 1280
+        const vh = (w && w.innerHeight) || 900
+        if (pop.anchor) {
+          // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
+          if (pop.anchor.isConnected === false) { setPop(null); return }
+          if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
+          const ar = pop.anchor.getBoundingClientRect()
+          let bounds = { left: 0, top: 0, right: vw, bottom: vh }
+          const dlg = dlgRef.current
+          if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+            const dr = dlg.getBoundingClientRect()
+            bounds = {
+              left: Math.max(0, dr.left), top: Math.max(0, dr.top),
+              right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
+            }
           }
+          const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }) || POP_FALLBACK
+          setPopPos({ left: pos.left, top: pos.top })
+          return
         }
-        setPopPos(popoverPosition(ar, bounds, { width: POP_W, height: POP_H }) || { left: 40, top: 120 })
-      } catch (err) { setPopPos({ left: 40, top: 120 }) }
+        // 左列色块入口（票 #93 再接）：维持 #82 旧定位
+        const rowEl = rowRefs.current[pop.key]
+        if (!rowEl) { setPop(null); return }
+        if (!w || typeof rowEl.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
+        const r = rowEl.getBoundingClientRect()
+        let left = Math.min(Math.max(10, vw - 270), Math.max(10, r.left + 40))
+        const mini = miniRef.current
+        if (mini && typeof mini.getBoundingClientRect === 'function') {
+          left = Math.min(left, mini.getBoundingClientRect().left - 250 - 8)
+        }
+        const top = Math.min(Math.max(10, r.bottom + 6), vh - 350 - 10)
+        setPopPos({ left: Math.round(left), top: Math.round(top) })
+      } catch (err) { setPopPos(POP_FALLBACK) }
     }
     place()
     if (!w || typeof w.addEventListener !== 'function') return undefined
@@ -444,15 +452,17 @@ export function CustomEditor(props) {
   function openPop(key, anchorEl) {
     const raw = colors[key]
     const norm = normalizeHexInput(raw)
-    // #94：换锚点先清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧；
-    // anchor = 被点的预览控件；没传（左列入口，票 B 再接）时定位 effect 回退到左列行。
+    const anchor = anchorEl || null
+    // #94：同一预览控件再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
+    // 换锚点才清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧。
+    if (pop && pop.key === key && pop.anchor === anchor && popPos) return
     setPopPos(null)
     setPop({
       key: key,
       hex: norm || effectiveSlotColor(key, colors, false),
       transparent: raw === 'transparent',
       orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
-      anchor: anchorEl || null,
+      anchor: anchor,
     })
     setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
     setHl(key)
@@ -652,7 +662,8 @@ export function CustomEditor(props) {
     return e('div', {
       key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
-        position: 'fixed', zIndex: 60, width: POP_W + 'px', background: TK.pop,
+        // #94：border-box + 显式宽高 = 定位常量同源（实测外框 276×318）；内容按当前版式恰好铺满。
+        position: 'fixed', zIndex: 60, boxSizing: 'border-box', width: POP_W + 'px', height: POP_H + 'px', background: TK.pop,
         border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos),
@@ -838,6 +849,10 @@ export function CustomEditor(props) {
     const ringOf = function (slot) { return slotRingStyle(hl, slot) }
     const ringStyle = function (slot) { return ringOf(slot) || undefined }
     const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
+    // 可点文本 span 的合并样式（#94：t() 与三处裸 span 共用；ring 覆盖 cursor 之外的描边键）。
+    const clickableSpanStyle = function (slot, base) {
+      return Object.assign({ cursor: 'pointer' }, base || {}, ringStyle(slot) || {})
+    }
     // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
     // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
     // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
@@ -849,7 +864,7 @@ export function CustomEditor(props) {
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
       }
     }
-    const node = function (slot, style, children, extra, bare) {
+    const node = function (slot, style, children, extra) {
       const ring = ringOf(slot)
       const props2 = Object.assign({
         'data-slot': slot,
@@ -864,7 +879,7 @@ export function CustomEditor(props) {
     // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
     // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
     const t = function (slot, s, key) {
-      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: Object.assign({ cursor: 'pointer' }, ringStyle(slot) || {}) }, bindSlot(slot)), s)
+      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot)), s)
     }
     const codeLines = [
       { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
@@ -888,10 +903,10 @@ export function CustomEditor(props) {
       // 侧边栏（原型 .side/.sess 口径：标题与草稿行无 data-slot、无点击）
       node('sidebarBg', { background: eff('sidebarBg'), borderRight: '1px solid ' + eff('border'), padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }, [
         e('div', { key: 'sessT', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniSession')),
-        node('backgroundPanel', { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', position: 'relative', border: '1px solid transparent', background: eff('backgroundPanel'), color: txOf(colors.text) }, [node('primary', { position: 'absolute', left: 0, top: '6px', bottom: '6px', width: '3px', borderRadius: '2px', background: eff('primary'), padding: 0 }, null, { key: 'sessBar' }, true), e('span', { key: 'sessCurTx' }, tr('miniCurrent'))], { key: 'sessCur' }, true),
+        node('backgroundPanel', { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', position: 'relative', border: '1px solid transparent', background: eff('backgroundPanel'), color: txOf(colors.text) }, [node('primary', { position: 'absolute', left: 0, top: '6px', bottom: '6px', width: '3px', borderRadius: '2px', background: eff('primary'), padding: 0 }, null, { key: 'sessBar' }), e('span', { key: 'sessCurTx' }, tr('miniCurrent'))], { key: 'sessCur' }),
         e('div', { key: 'sessD', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniDraft')),
         e('div', { key: 'sessR', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniReview')),
-      ], { key: 'sessCol' }, true),
+      ], { key: 'sessCol' }),
       // 主列（原型 .main 口径：无点击，只有 data-slot）
       node('background', {
         flex: 1, padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px',
@@ -901,8 +916,8 @@ export function CustomEditor(props) {
           alignSelf: 'flex-end', maxWidth: '85%', background: eff('bubbleBg'), wordBreak: 'keep-all',
           border: '1px solid ' + eff('border'), borderRadius: '10px', padding: '8px 12px',
           fontSize: '12px', color: txOf(colors.text),
-        }, t('text', tr('miniBubble'), 'bubTx'), { key: 'bubble' }, true),
-        node('markdownHeading', { fontSize: '14px', fontWeight: 700, color: eff('markdownHeading'), marginBottom: '4px' }, tr('miniVerdict'), { key: 'miniH' }, true),
+        }, t('text', tr('miniBubble'), 'bubTx'), { key: 'bubble' }),
+        node('markdownHeading', { fontSize: '14px', fontWeight: 700, color: eff('markdownHeading'), marginBottom: '4px' }, tr('miniVerdict'), { key: 'miniH' }),
         // 结论段（原型 .md 口径：一句话流程 + 行内 tip）
         node('backgroundPanel', { fontSize: '12px', color: txOf(colors.text), lineHeight: 1.6, background: mdBg, border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '10px 12px' },
           segJoin([
@@ -929,7 +944,7 @@ export function CustomEditor(props) {
         node('markdownBlockQuote', {
           borderLeft: '3px solid ' + eff('markdownBlockQuote'), color: txOf(colors.markdownBlockQuote),
           fontSize: '12px', paddingLeft: '8px', margin: '6px 0',
-        }, tr('miniQuote'), { key: 'quote' }, true),
+        }, tr('miniQuote'), { key: 'quote' }),
         node('border', { border: 0, borderTop: '1px solid ' + eff('border'), height: 0, margin: '8px 0' }, null, { key: 'mdHr' }),
         // 代码块（原型 .codecard/.codehead/.codepre 口径：语法示例行，无点击）
         node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden' },
@@ -937,62 +952,66 @@ export function CustomEditor(props) {
             node('codeHeaderBg', {
               display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
               padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ cursor: 'pointer' }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }, true),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted') }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }),
             node('codeBlockBg', {
               background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
               fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
             }, codeLines.map(function (p, i) {
-              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s), cursor: 'pointer' }, ringStyle(p.s) || {}) }, bindSlot(p.s)), p.t) : p.t
-            }), { key: 'codePre' }, true)
-          ), { key: 'codeBlock' }, true),
+              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: clickableSpanStyle(p.s, { color: eff(p.s) }) }, bindSlot(p.s)), p.t) : p.t
+            }), { key: 'codePre' })
+          ), { key: 'codeBlock' }),
         // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
         node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden', fontSize: '11px', fontFamily: 'Consolas,monospace' }, [
           node('diffAddedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffAddedBg') }, [
-            node('diffAddedLineNumberBg', { background: eff('diffAddedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '12', { key: 'aln' }, true),
-            node('diffAddedBg', { padding: '4px 8px', color: eff('diffAdded') }, t('diffAdded', '+ background: #FFFFFF', 'adTx'), { key: 'adTxBox' }, true),
-          ], { key: 'diffAdd' }, true),
+            node('diffAddedLineNumberBg', { background: eff('diffAddedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '12', { key: 'aln' }),
+            node('diffAddedBg', { padding: '4px 8px', color: eff('diffAdded') }, t('diffAdded', '+ background: #FFFFFF', 'adTx'), { key: 'adTxBox' }),
+          ], { key: 'diffAdd' }),
           node('diffRemovedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffRemovedBg') }, [
-            node('diffRemovedLineNumberBg', { background: eff('diffRemovedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '13', { key: 'rln' }, true),
-            node('diffRemovedBg', { padding: '4px 8px', color: eff('diffRemoved') }, t('diffRemoved', '- background: #101014', 'rmTx'), { key: 'rmTxBox' }, true),
-          ], { key: 'diffRm' }, true),
-        ], { key: 'diffBlock' }, true),
+            node('diffRemovedLineNumberBg', { background: eff('diffRemovedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '13', { key: 'rln' }),
+            node('diffRemovedBg', { padding: '4px 8px', color: eff('diffRemoved') }, t('diffRemoved', '- background: #101014', 'rmTx'), { key: 'rmTxBox' }),
+          ], { key: 'diffRm' }),
+        ], { key: 'diffBlock' }),
         // 按钮徽章行（原型 .badges/.pbtn/.pill + 圆点状态行口径，无点击）
         e('div', { key: 'brow', style: { display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', minWidth: 0 } }, [
           node('primary', {
             background: eff('primary'), border: '1px solid ' + eff('primary'), color: pickTextOn(colors.primary),
             borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnPrimary'), { key: 'bPri' }, true),
+          }, tr('miniBtnPrimary'), { key: 'bPri' }),
           node('secondary', {
             background: hexOr(colors.secondary, '#888888') + '33', color: eff('secondary'),
             border: '1px solid ' + eff('secondary'), borderRadius: '20px', padding: '5px 14px',
             fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnSecondary'), { key: 'bSec' }, true),
+          }, tr('miniBtnSecondary'), { key: 'bSec' }),
           node('info', {
             background: eff('info'), border: '1px solid ' + eff('info'), color: pickTextOn(colors.info),
             borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnInfo'), { key: 'bInf' }, true),
+          }, tr('miniBtnInfo'), { key: 'bInf' }),
         ]),
         e('div', { key: 'dotOk', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
           e('span', { key: 'dotOkD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('success'), flex: 'none' } }),
-          node('success', { color: eff('success') }, tr('miniBadgeOk'), { key: 'bOk' }, true),
+          node('success', { color: eff('success') }, tr('miniBadgeOk'), { key: 'bOk' }),
         ]),
         e('div', { key: 'dotWarn', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
           e('span', { key: 'dotWarnD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('warning'), flex: 'none' } }),
-          node('warning', { color: eff('warning') }, tr('miniWarn'), { key: 'bWarn' }, true),
+          node('warning', { color: eff('warning') }, tr('miniWarn'), { key: 'bWarn' }),
         ]),
         e('div', { key: 'dotErr', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
           e('span', { key: 'dotErrD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('error'), flex: 'none' } }),
-          node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }, true),
+          node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }),
         ]),
-        // 输入框（原型 .cinput 口径：内圈 borderActive 环 + 下方说明行，无点击）
-        node('inputBg', {
-          display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
-          border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive') + '55',
-          borderRadius: '8px', padding: '8px 12px',
-          fontSize: '12px', color: txOf(colors.text),
-        }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted), cursor: 'pointer' }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }, true),
+        // 输入框（原型 .cinput 口径：borderActive 环 + 下方说明行）。#94：环从 inputBg 内圈 boxShadow
+        // 独立成可点节点，37 个色位在预览区各有自己的可点控件（点环开 borderActive，点内开 inputBg）。
+        node('borderActive', {
+          borderRadius: '9px', border: '2px solid ' + eff('borderActive') + '55', padding: '2px',
+        }, [
+          node('inputBg', {
+            display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
+            border: '1px solid ' + eff('border'), borderRadius: '7px', padding: '8px 10px',
+            fontSize: '12px', color: txOf(colors.text),
+          }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted', { color: txOf(colors.textMuted) }) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }),
+        ], { key: 'inputWrap' }),
         e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
-      ], { key: 'mainCol' }, true)
+      ], { key: 'mainCol' })
     )
   }
 

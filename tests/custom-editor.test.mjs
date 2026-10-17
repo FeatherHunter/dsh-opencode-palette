@@ -497,14 +497,14 @@ test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () 
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('直渲检查'), '编辑中主题名渲染')
   assert.ok(html.includes(pal.colors.primary), '主色绑定到画布/行内样式')
-  // 36 槽直绑 data-slot；borderActive 无独立节点（原型 .cinput 内圈环口径），经 inputBg 内圈环高亮
-  const noMiniNode = new Set(['borderActive'])
+  // 37 槽全部直绑 data-slot（#94：borderActive 从 inputBg 内圈 boxShadow 独立成包裹节点，
+  // 预览区 37 个色位各有自己的可点控件 —— 点环开 borderActive，点内开 inputBg）
   for (const s of ENGINE_SLOTS) {
-    if (noMiniNode.has(s.key)) continue
     assert.ok(html.includes('data-slot="' + s.key + '"'), '槽位落位：' + s.key)
   }
-  assert.ok(html.includes('data-slot="inputBg"'), 'borderActive 别名节点在场')
-  assert.ok(html.includes('inset 0 0 0 2px ' + pal.colors.borderActive + '55'), '输入框内圈 borderActive 环（原型 .cinput :871）')
+  assert.equal(ENGINE_SLOTS.length, 37, '37 色位全落位')
+  assert.ok(html.includes('data-slot="inputBg"'), '输入框本体内层节点在场')
+  assert.ok(/border:2px solid #[0-9A-Fa-f]{6}55/.test(html), 'borderActive 独立描边环（可点，原型 .cinput :871 的半透明环）')
   assert.ok(html.includes('data-slot="backgroundElement"'), '行内 tip backgroundElement 节点在场（原型 :844）')
   assert.ok(html.includes('T:miniCaption'), '输入框下方说明行在场（原型 :873）')
   assert.ok(html.includes('background-clip:text'), '跟随系统标签渐变字（原型 :101）')
@@ -647,7 +647,9 @@ test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦
 
 test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
-  assert.ok(src.includes("Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: Object.assign({ cursor: 'pointer' }, ringStyle(slot) || {}) }, bindSlot(slot))"), 't() 文本 span 吃圈 + 吃悬浮 + 可点开弹板（一句话的每个组成部分）')
+  assert.ok(src.includes("Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot))"), 't() 文本 span 吃圈 + 吃悬浮 + 可点开弹板（一句话的每个组成部分）')
+  assert.ok(src.includes('const clickableSpanStyle = function (slot, base)'), '可点文本 span 的合并样式收口到一处（#94 code-review）')
+  assert.equal((src.match(/clickableSpanStyle\(/g) || []).length, 4, 't() + 3 处裸 span = 4 处引用（定义行不计）')
   assert.ok(src.includes("'data-slot': p.s, className: ringCls(p.s)"), '代码块 token span 吃圈')
   assert.equal((src.match(/'data-slot': 'textMuted', className: ringCls\('textMuted'\)/g) || []).length, 2, 'textMuted 两处（代码头 js + 输入说明）都吃圈')
   // 结构门禁：data-slot 落点共 5 处，每处都必须接圈（新增裸 data-slot 会打破计数，逼作者接线）
@@ -812,7 +814,8 @@ test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再
   assert.ok(src.includes('}, popPos)'), '调色板坐标只来自定位状态')
   assert.ok(src.includes('}, presetPos)'), '预置弹窗坐标只来自定位状态')
   // 兜底位仍要留给「量不到锚点」的失败路径：否则弹窗永远不出现，比闪一下更糟。
-  assert.ok(src.includes('setPopPos({ left: 40, top: 120 })'), '调色板量不到锚点时给兜底位')
+  assert.ok(src.includes('const POP_FALLBACK = { left: 40, top: 120 }'), '调色板兜底位提成常量（#94 code-review：三处重复收口）')
+  assert.ok(src.includes('setPopPos(POP_FALLBACK)'), '调色板量不到锚点时给兜底位')
   assert.ok(src.includes('setPresetPos({ left: 10, top: 140 })'), '预置弹窗量不到锚点时给兜底位')
 })
 
@@ -820,7 +823,9 @@ test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再
 // 弹板定位纯函数：默认贴锚点下方（间距 POP_GAP）→ 下方空间不足翻上方 → 水平对齐锚点左缘并夹进
 // 「视口 ∩ 弹窗」边界（四边各留 POP_MARGIN）→ 两侧都放不下时贴空间更大的一侧夹紧。
 // 验收口径（票面）：弹板完整落在视口内；与被点元素 rect 相交或间距 ≤8px（四角场景同样成立）。
-const POP_SIZE = { width: 250, height: 350 }
+// 尺寸 = 真 DOM 实测外框 276×318（旧 250/350 是内容宽/设计高的估算，正是 #94 review 的「间距 >8px」根因）；
+// 渲染侧 border-box + 显式宽高，所以常量与 getBoundingClientRect 恒等。
+const POP_SIZE = { width: 276, height: 318 }
 
 function anchorRect(left, top, width, height) {
   return { left, top, right: left + width, bottom: top + height, width, height }
@@ -842,16 +847,15 @@ function assertInside(pos, bounds, margin, label) {
 test('#94：popoverPosition —— 下方优先、底部翻转、水平夹紧（视口 1280×900）', () => {
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
   const mid = popoverPosition(anchorRect(400, 200, 60, 20), viewport, POP_SIZE)
-  assert.equal(mid.placement, 'below', '默认贴锚点下方')
   assert.equal(mid.left, 400, '水平对齐锚点左缘')
   assert.equal(mid.top, 228, '下方间距 = POP_GAP 8')
+  assert.equal('placement' in mid, false, '不把测试用 placement 字段带进坐标（#94 code-review）')
   const bottom = popoverPosition(anchorRect(400, 800, 60, 20), viewport, POP_SIZE)
-  assert.equal(bottom.placement, 'above', '底部空间不足翻上方')
-  assert.equal(bottom.top, 442, '上方定位 = 锚点顶 − 8 − 弹板高 350')
+  assert.equal(bottom.top, 474, '底部空间不足翻上方 = 锚点顶 − 8 − 弹板高 318')
   const leftEdge = popoverPosition(anchorRect(0, 300, 80, 20), viewport, POP_SIZE)
   assert.equal(leftEdge.left, 10, '左缘夹到视口内边距 10')
   const rightEdge = popoverPosition(anchorRect(1200, 300, 80, 20), viewport, POP_SIZE)
-  assert.equal(rightEdge.left, 1020, '右缘夹紧（1280 − 10 − 250）')
+  assert.equal(rightEdge.left, 994, '右缘夹紧（1280 − 10 − 276）')
   assert.equal(popoverPosition(null, viewport, POP_SIZE), null, '无锚点返回 null（调用方给兜底位）')
   assert.equal(popoverPosition(anchorRect(10, 10, 40, 20), null, POP_SIZE), null, '无边界返回 null')
   assert.equal(popoverPosition(anchorRect(10, 10, 0, 0), viewport, { width: 0, height: 0 }), null, '无尺寸返回 null')
@@ -871,10 +875,11 @@ test('#94：popoverPosition —— 锚点在视口四角时弹板完整落在视
     assertInside(pos, viewport, 10, '四角 ' + JSON.stringify(a))
     assert.ok(popRectGap(a, pos) <= 8, '与被点元素间距 ≤8px：' + JSON.stringify({ a, pos }))
   }
-  // 视口比弹板矮：两边都放不下时按边界夹紧（不越界），placement 标记为 clamped。
+  // 视口比弹板矮：两边都放不下时按边界夹紧（不越界；#94 review：不把 placement 当坐标带出去）。
   const shortVp = { left: 0, top: 0, right: 1280, bottom: 500 }
   const clamped = popoverPosition(anchorRect(600, 240, 40, 20), shortVp, POP_SIZE)
-  assert.equal(clamped.placement, 'clamped', '两侧都放不下 → 夹紧')
+  assert.ok(clamped, '矮视口仍给结果')
+  assert.equal(clamped.top, 172, '两侧都放不下 → 夹在视口下边界内（500 − 10 − 318）')
   assertInside(clamped, shortVp, 10, '矮视口')
 })
 
@@ -883,7 +888,7 @@ test('#94：popoverPosition —— 以「视口 ∩ 弹窗」为边界，弹板�
   const pos = popoverPosition(anchorRect(830, 300, 50, 20), dialog, POP_SIZE)
   assert.ok(pos, '弹窗内锚点有结果')
   assertInside(pos, dialog, 10, '弹窗边界')
-  assert.equal(pos.left, 640, '右缘按弹窗右边界夹紧（900 − 10 − 250）')
+  assert.equal(pos.left, 614, '右缘按弹窗右边界夹紧（900 − 10 − 276）')
   const leftSide = popoverPosition(anchorRect(310, 300, 40, 20), dialog, POP_SIZE)
   assert.equal(leftSide.left, 310, '左缘在弹窗内时仍对齐锚点（不被视口公式推走）')
 })
@@ -905,18 +910,28 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   // 3) openPop 记录锚点并清旧坐标（防旧位闪帧）。
   const oi = src.indexOf('function openPop(key, anchorEl)')
   assert.ok(oi > 0, 'openPop 接收 anchorEl')
-  const oseg = src.slice(oi, oi + 700)
-  assert.ok(oseg.includes('anchor: anchorEl || null'), 'pop 状态记住被点元素')
-  assert.ok(oseg.includes('setPopPos(null)'), '开新弹板先清旧坐标')
-  // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算，锚点失效安全收起。
+  const oseg = src.slice(oi, oi + 800)
+  assert.ok(oseg.includes('const anchor = anchorEl || null'), '锚点归一成 anchor')
+  assert.ok(oseg.includes('anchor: anchor'), 'pop 状态记住被点元素')
+  assert.ok(oseg.includes('if (pop && pop.key === key && pop.anchor === anchor && popPos) return'), '同一预览控件再点保持弹板（不重置坐标、保留编辑中颜色）')
+  assert.ok(oseg.includes('setPopPos(null)'), '换锚点开新弹板先清旧坐标')
+  // 3b) 点预览 [data-slot] 控件不算「点弹窗外」：否则同控件重开会先被 mousedown revert 一次。
+  assert.ok(src.includes('const keepOpen') && src.includes("t.closest('[data-slot]')") && src.includes('if (pop && !keepOpen) closePop(true)'), '预览控件点击不当作弹窗外关闭')
+  // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算；锚点脱离 DOM 安全收起。
   assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H })'), '锚点 rect 走纯函数定位')
   assert.ok(src.includes('Math.max(0, dr.left)') && src.includes('Math.min(vw, dr.right)'), '边界 = 视口 ∩ 弹窗')
   assert.ok(src.includes("w.addEventListener('resize', place)"), '窗口 resize 重算位置')
   assert.ok(src.includes("d.addEventListener('scroll', place, true)"), '弹窗内滚动重算位置（捕获阶段）')
-  assert.ok(src.includes('if (!anchorEl) { setPop(null); return }'), '锚点失效安全收起（不回滚已调颜色）')
-  // 5) 旧的「夹到预览区左侧」逻辑退役；弹板尺寸提成常量。
-  assert.equal(src.includes('vw - 270'), false, '旧视口右夹公式退役')
-  assert.equal(src.includes('pv.left - 250 - 8'), false, '旧预览区左夹公式退役')
-  assert.ok(src.includes('const POP_W = 250') && src.includes('const POP_H = 350'), '弹板尺寸常量')
-  assert.ok(src.includes("width: POP_W + 'px'"), '渲染宽走常量')
+  assert.ok(src.includes('if (pop.anchor.isConnected === false) { setPop(null); return }'), '锚点脱离 DOM 安全收起（不回滚已调颜色，也不改挂到左列）')
+  assert.ok(src.includes('if (!rowEl) { setPop(null); return }'), '左列入口连行都找不到时才收起')
+  // 5) 预览锚定分支不用旧夹公式；左列入口（票 #93 再接）仍保留 #82 旧口径，本票不改其行为。
+  assert.equal(src.includes('pv.left - 250 - 8'), false, '预览锚定分支无旧「夹到预览左侧」公式')
+  const leftEntryAt = src.indexOf('// 左列色块入口（票 #93 再接）：维持 #82 旧定位')
+  assert.ok(leftEntryAt > 0, '左列入口分支显式标注留给 #93')
+  const lseg = src.slice(leftEntryAt, leftEntryAt + 700)
+  assert.ok(lseg.includes('vw - 270') && lseg.includes('- 250 - 8') && lseg.includes('- 350 - 10'), '左列入口暂沿用 #82 旧公式（票 B 统一）')
+  // 6) 尺寸/间距常量单源，渲染侧 border-box + 显式宽高 = 实测外框（276×318）。
+  assert.ok(src.includes('const POP_W = 276') && src.includes('const POP_H = 318'), '弹板尺寸常量 = 实测外框')
+  assert.ok(src.includes('const POP_GAP = 8') && src.includes('const POP_MARGIN = 10') && src.includes('const POP_FALLBACK = { left: 40, top: 120 }'), '间距/留白/兜底常量单源')
+  assert.ok(src.includes("boxSizing: 'border-box'") && src.includes("width: POP_W + 'px'") && src.includes("height: POP_H + 'px'"), '渲染宽高走常量（border-box 外框与定位常量恒等）')
 })
