@@ -568,7 +568,9 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   const pal = enginePreset('opencode')
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('class="rleft"'), '顶栏左组带 rleft 类（原型 :622）')
-  assert.ok(html.includes('min-width:170px'), '名称输入 min-width 170（原型 .txt :88）')
+  // 原型 .txt :88 是 min-width:170 的自动宽（fitWidth 还会按输入文本量宽）；
+  // 用户 m09433 要求「一开始固定好宽度、输入名字不再变宽」→ 此处改为断言固定宽 200（口径偏离见 m09433 用例）。
+  assert.ok(html.includes('min-width:200px') && html.includes('max-width:200px'), '名称输入固定宽 200（用户 m09433，取代原型 :88 自动宽）')
   assert.ok(html.includes('border:2px solid '), '顶部胶囊 2px 选中边（原型 chipStyle sel :518）')
   assert.ok(html.includes('margin:-1px'), '顶部胶囊 2px 边距补偿（原型 .chip.sel :55）')
   assert.ok(html.includes('@supports') && html.includes('.syslabel'), '跟随系统双色字走原生 @supports（原型 :101）')
@@ -715,4 +717,19 @@ test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 c
   // 悬浮因此跟着「最内层命中元素」走 —— 联动的才是用户真正悬停的那个色位。
   assert.equal((src.match(/bindSlot\(/g) || []).length, 5, 'data-slot 落点数变化必须同步接悬浮')
   assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点仍是 5 处')
+})
+
+// ── 用户 m09433：主题名输入框一开始固定好宽度，输入名字不再让它变宽 ──
+// 真 DOM 实测（.scratch-ed-dom.mjs namewidth 场景，Chrome 无头 + React 真 hooks）：
+//   改前：输入框随内容跳（初始 170 / 20 字 243 / 2 字 170 / 清空 184，行 882→1125，弹窗跟着变宽）；
+//   钉死 200 后：5 个状态（初始 / 20 字 / 2 字 / 清空 / 40+ 字）恒 200，1280 视口顶行溢出 0；
+//   1000 视口空闲态溢出 0（试过 240：会加出 18px 溢出，故取 200）；40+ 字极端名溢出 236，比改前的 612 收敛。
+test('m09433：主题名输入框固定 200px 宽，不随输入内容变宽', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes('const NAME_INPUT_W = 200'), '固定宽度常量 = 200')
+  // 弹窗是 width:max-content：只给 flex-basis 挡不住按内容自量宽，必须 width/min/max 三处全钉死 + 不伸缩。
+  assert.ok(src.includes("flex: '0 0 auto', width: NAME_INPUT_W + 'px', minWidth: NAME_INPUT_W + 'px', maxWidth: NAME_INPUT_W + 'px'"), 'width/min/max 全钉死且不参与伸缩')
+  assert.equal(src.includes("flex: 1, minWidth: '170px', width: '100%'"), false, '旧的自动宽度写法已移除')
+  assert.equal(src.includes("flex: '1 1 auto', minWidth: 0, display: 'flex'"), false, '名字包裹盒不再吃剩余宽度')
+  assert.ok(src.includes("flex: '0 0 auto', minWidth: 0, display: 'flex'"), '包裹盒贴住固定宽输入框（角标定位才对得上）')
 })

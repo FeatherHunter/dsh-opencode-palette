@@ -48,6 +48,13 @@ export function slotRingStyle(hl, slot) {
 // 视野内边距（px）：行边缘到列表上下沿留一点余量，贴边也当没进视野（用户 m09226 的「出现在视野中」）。
 const REVEAL_PAD = 8
 
+// 主题名输入框固定宽度（用户 m09433：一开始固定好宽度，输入名字不再让它变宽）。
+// 原型 fitWidth 是「按输入文本量宽」（prototype.html:782 `textW(inp.value||placeholder)+24`、:788 `inp.style.width`），
+// 本票按用户口径偏离，钉死 200px：≈改前新建态实测 184 的观感、略宽好打字；1000 宽视口下顶行仍不溢出
+// （实测 240 会在 1000 视口加出 18px 溢出；200 归零）。注意弹窗是 width:max-content，光给 flex-basis
+// 不够 —— 输入框在 max-content 环境里会按内容自量宽，必须 width/min/max 全钉死且 flex:0 0 auto 才稳。
+const NAME_INPUT_W = 200
+
 // 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
 // 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
 // 纯函数接缝：view/row 形如 getBoundingClientRect() 的结果（只用到 top / height）。
@@ -1001,7 +1008,7 @@ export function CustomEditor(props) {
             }, (props.customs || []).map(function (t) {
               return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
             })) : null,
-            e('span', { style: { position: 'relative', flex: '1 1 auto', minWidth: 0, display: 'flex' } },
+            e('span', { style: { position: 'relative', flex: '0 0 auto', minWidth: 0, display: 'flex' } },
               e('input', {
                 ref: nameRef, id: 'f-name',
                 value: name, placeholder: tr('edNamePh'),
@@ -1011,7 +1018,9 @@ export function CustomEditor(props) {
                 [UI_INTERACTIVE_ATTR]: TIER_INPUT,
                 style: Object.assign({
                   background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
-                  boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px', flex: 1, minWidth: '170px', width: '100%',
+                  boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px',
+                  // 固定宽度（用户 m09433）：width/min/max 全钉死 + 不参与伸缩（flex:0 0 auto）→ 输入内容再长也不变宽。
+                  flex: '0 0 auto', width: NAME_INPUT_W + 'px', minWidth: NAME_INPUT_W + 'px', maxWidth: NAME_INPUT_W + 'px',
                 }, !name.trim() ? { borderColor: '#FF5252', boxShadow: '0 0 0 1px #FF5252' } : null),
               }),
               !name.trim() ? e('span', {
