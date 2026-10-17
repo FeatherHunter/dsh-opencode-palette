@@ -226,7 +226,7 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
 test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
   const pkg = JSON.parse(read('package/package.json'))
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.6' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.7' })
   assert.equal(pkg.engines.node, '>=22', '更新包 0.18.x 要求 node >=22')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')

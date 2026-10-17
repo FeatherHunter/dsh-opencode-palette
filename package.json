@@ -21,7 +21,7 @@
   "homepage": "https://github.com/FeatherHunter/dsh-opencode-palette",
   "bugs": { "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues" },
   "dependencies": {
-    "dsh-plugin-update": "0.18.6"
+    "dsh-plugin-update": "0.18.7"
   },
   "devDependencies": {
     "dsh-log": "0.3.4",
