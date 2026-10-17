@@ -581,7 +581,7 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   // #94 起调色板改为「锚定被点元素」的 popoverPosition 纯函数（下方优先/翻转/夹紧），
   // 旧的「视口右夹 + 预览区左夹」公式退役；预置弹窗仍是原型视口坐标公式（原型 :1061-1062），照旧 pin。
   assert.ok(src.includes('vw - W - 20') && src.includes('vh - 430'), '预置弹窗视口坐标公式（原型 :1061-1062）')
-  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H })'), '#94 调色板定位走锚点纯函数')
+  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.side)'), '#94/#93 调色板定位走锚点纯函数（按入口类型选纵向/侧向规则）')
   // m09582 需求 2 之后这些字面量改走宿主 token，兜底值仍是原型色（见末条 m09582-2 用例）。
   assert.ok(src.includes("outline: psel ? '1px solid ' + TK.accent : undefined"), '选中基底描边走强调色 token（原型 realChipStyle :537）')
   assert.ok(src.includes('color: TK.accent, visibility: psel ?'), '基底对勾恒强调色（原型 realChipInner :542）')
@@ -893,6 +893,41 @@ test('#94：popoverPosition —— 以「视口 ∩ 弹窗」为边界，弹板�
   assert.equal(leftSide.left, 310, '左缘在弹窗内时仍对齐锚点（不被视口公式推走）')
 })
 
+// ── 票 #93：左列色块入口原地打开调色盘（复用 #94 锚点引擎，侧向优先）──
+// 规则：优先贴入口色块右侧（POP_GAP 8）、垂直居中；右侧空间不足翻左侧；最终夹进「视口 ∩ 弹窗」。
+// 验收口径（票面）：弹板与入口色块 rect 相交或间距 ≤8px、完整落在视口内、不压住入口色块。
+test('#93：popoverPosition —— 左列入口贴色块右侧垂直居中，放不下翻左侧', () => {
+  const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
+  const mid = popoverPosition(anchorRect(200, 300, 30, 22), viewport, POP_SIZE, 'right')
+  assert.equal(mid.left, 238, '贴色块右侧 = 锚点右 + 8')
+  assert.equal(mid.top, 152, '垂直居中 = 锚点中心 − 弹板高/2（300 + (22 − 318)/2）')
+  assert.equal(popRectGap(anchorRect(200, 300, 30, 22), mid), 8, '与入口色块间距 ≤8px')
+  const flip = popoverPosition(anchorRect(1200, 300, 30, 22), viewport, POP_SIZE, 'right')
+  assert.equal(flip.left, 916, '右侧放不下翻左侧 = 锚点左 − 8 − 276')
+  assert.ok(flip.left + POP_SIZE.width <= 1200, '翻左后不压住入口色块')
+  const firstRow = popoverPosition(anchorRect(200, 0, 30, 22), viewport, POP_SIZE, 'right')
+  assert.equal(firstRow.top, 10, '首行垂直居中夹到上边距 10')
+  const lastRow = popoverPosition(anchorRect(200, 878, 30, 22), viewport, POP_SIZE, 'right')
+  assert.equal(lastRow.top, 572, '末行夹到下边界（900 − 10 − 318）')
+})
+
+test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整落在边界内', () => {
+  const narrow = { left: 40, top: 60, right: 1000, bottom: 760 } // 960 宽弹窗
+  const a = anchorRect(800, 300, 30, 22)
+  const pos = popoverPosition(a, narrow, POP_SIZE, 'right')
+  assert.ok(pos, '窄弹窗有结果')
+  assertInside(pos, narrow, 10, '窄弹窗')
+  assert.ok(pos.left + POP_SIZE.width <= a.left, '右侧放不下 → 翻到入口左侧（不压住色块）')
+  assert.ok(popRectGap(a, pos) <= 8, '与入口间距 ≤8px（翻左）')
+  // 色块左右两侧都放不下 276px：仍给出结果并夹在边界内（可能相交，但不出界、间距 ≤8px）。
+  const tight = { left: 40, top: 60, right: 620, bottom: 760 }
+  const b = anchorRect(300, 300, 30, 22)
+  const p2 = popoverPosition(b, tight, POP_SIZE, 'right')
+  assert.ok(p2, '两侧都不足时仍有结果')
+  assertInside(p2, tight, 10, '两侧不足仍不越界')
+  assert.ok(popRectGap(b, p2) <= 8, '两侧不足时间距仍 ≤8px')
+})
+
 test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不可见才滚动（源码结构）', () => {
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
   // 1) 所有 data-slot 载体（node 块 / t 文本 span / 代码 token / textMuted ×2）统一从 bindSlot 拿点击，
@@ -907,29 +942,31 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   assert.ok(cseg.includes('revealRow(key)'), '左列改用 revealRow（已在视野就不动）')
   assert.ok(cseg.includes('openPop(key, anchorEl)'), '被点元素透传给 openPop')
   assert.equal(cseg.includes('scrollToRow('), false, '不再强制 scrollToRow 居中')
-  // 3) openPop 记录锚点并清旧坐标（防旧位闪帧）。
-  const oi = src.indexOf('function openPop(key, anchorEl)')
-  assert.ok(oi > 0, 'openPop 接收 anchorEl')
-  const oseg = src.slice(oi, oi + 800)
+  // 3) openPop 记录锚点/侧向偏好并清旧坐标（防旧位闪帧）。
+  const oi = src.indexOf('function openPop(key, anchorEl, side)')
+  assert.ok(oi > 0, 'openPop 接收 anchorEl 与侧向偏好')
+  const oseg = src.slice(oi, oi + 1100)
   assert.ok(oseg.includes('const anchor = anchorEl || null'), '锚点归一成 anchor')
+  assert.ok(oseg.includes("const prefer = side === 'right' ? 'right' : 'below'"), '#93 侧向偏好归一（默认下方）')
+  assert.ok(oseg.includes('side: prefer'), 'pop 状态记录侧向偏好')
   assert.ok(oseg.includes('anchor: anchor'), 'pop 状态记住被点元素')
-  assert.ok(oseg.includes('if (pop && pop.key === key && pop.anchor === anchor && popPos) return'), '同一预览控件再点保持弹板（不重置坐标、保留编辑中颜色）')
+  assert.ok(oseg.includes('if (pop && pop.key === key && pop.anchor === anchor && pop.side === prefer && popPos) return'), '同一入口再点保持弹板（不重置坐标、保留编辑中颜色）')
   assert.ok(oseg.includes('setPopPos(null)'), '换锚点开新弹板先清旧坐标')
   // 3b) 点预览 [data-slot] 控件不算「点弹窗外」：否则同控件重开会先被 mousedown revert 一次。
   assert.ok(src.includes('const keepOpen') && src.includes("t.closest('[data-slot]')") && src.includes('if (pop && !keepOpen) closePop(true)'), '预览控件点击不当作弹窗外关闭')
   // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算；锚点脱离 DOM 安全收起。
-  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H })'), '锚点 rect 走纯函数定位')
+  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.side)'), '锚点 rect 走纯函数定位（按入口类型选纵向/侧向规则）')
   assert.ok(src.includes('Math.max(0, dr.left)') && src.includes('Math.min(vw, dr.right)'), '边界 = 视口 ∩ 弹窗')
   assert.ok(src.includes("w.addEventListener('resize', place)"), '窗口 resize 重算位置')
   assert.ok(src.includes("d.addEventListener('scroll', place, true)"), '弹窗内滚动重算位置（捕获阶段）')
   assert.ok(src.includes('if (pop.anchor.isConnected === false) { setPop(null); return }'), '锚点脱离 DOM 安全收起（不回滚已调颜色，也不改挂到左列）')
-  assert.ok(src.includes('if (!rowEl) { setPop(null); return }'), '左列入口连行都找不到时才收起')
-  // 5) 预览锚定分支不用旧夹公式；左列入口（票 #93 再接）仍保留 #82 旧口径，本票不改其行为。
-  assert.equal(src.includes('pv.left - 250 - 8'), false, '预览锚定分支无旧「夹到预览左侧」公式')
-  const leftEntryAt = src.indexOf('// 左列色块入口（票 #93 再接）：维持 #82 旧定位')
-  assert.ok(leftEntryAt > 0, '左列入口分支显式标注留给 #93')
-  const lseg = src.slice(leftEntryAt, leftEntryAt + 700)
-  assert.ok(lseg.includes('vw - 270') && lseg.includes('- 250 - 8') && lseg.includes('- 350 - 10'), '左列入口暂沿用 #82 旧公式（票 B 统一）')
+  assert.equal(src.includes('rowRefs.current[pop.key]'), false, '定位 effect 不再回退左列行：每个入口自己就是锚点')
+  // 5) #93：左列色块入口也走同一锚点引擎 —— 旧「夹到预览区左侧」公式全部退役。
+  assert.equal(src.includes('vw - 270'), false, '旧左列定位公式（vw − 270）已移除')
+  assert.equal(src.includes('- 250 - 8'), false, '旧「夹到预览区左侧」（−250−8）已移除')
+  assert.equal(src.includes('- 350 - 10'), false, '旧纵向夹紧（−350−10）已移除')
+  assert.equal(src.includes('左列色块入口（票 #93 再接）'), false, '「票 #93 再接」占位分支已删除')
+  assert.ok(src.includes("onClick: function (ev) { openPop(key, ev.currentTarget, 'right') }"), '左列色块入口把自身元素作为锚点（侧向定位）')
   // 6) 尺寸/间距常量单源，渲染侧 border-box + 显式宽高 = 实测外框（276×318）。
   assert.ok(src.includes('const POP_W = 276') && src.includes('const POP_H = 318'), '弹板尺寸常量 = 实测外框')
   assert.ok(src.includes('const POP_GAP = 8') && src.includes('const POP_MARGIN = 10') && src.includes('const POP_FALLBACK = { left: 40, top: 120 }'), '间距/留白/兜底常量单源')

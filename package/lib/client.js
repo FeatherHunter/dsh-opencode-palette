@@ -18766,12 +18766,13 @@ const POP_MARGIN = 10
 const POP_FALLBACK = { left: 40, top: 120 }
 
 // 弹板锚定定位纯函数（#94）：anchor / bounds 形如 getBoundingClientRect() 的
-// { left, top, right, bottom }；size = { width, height } 为外框尺寸。规则：
-//   1) 优先贴锚点下方（间距 POP_GAP），下方放不下翻上方；
-//   2) 水平对齐锚点左缘，再夹进 bounds 四边（各留 POP_MARGIN）；
-//   3) 上下都放不下时贴空间更大的一侧并夹紧在 bounds 内（可能与锚点相交）；
-//   4) 缺输入（anchor/bounds/size 或尺寸非正）返回 null，调用方给兜底位；SSR / 假宿主不抛。
-function popoverPosition(anchor, bounds, size) {
+// { left, top, right, bottom }；size = { width, height } 为外框尺寸；side 为首选方向：
+//   'below'（默认）= 预览区控件：优先贴锚点下方（间距 POP_GAP），下方放不下翻上方；
+//   'right' = 左列色块入口（#93）：优先贴入口右侧垂直居中，右侧放不下翻左侧；
+//   两个方向都放不下时贴剩余空间更大的一侧并夹紧在 bounds 内（可能与锚点相交）；
+//   四边各留 POP_MARGIN。缺输入（anchor/bounds/size 或尺寸非正）返回 null，
+//   调用方给兜底位；SSR / 假宿主不抛。
+function popoverPosition(anchor, bounds, size, side) {
   if (!anchor || !bounds || !size) return null
   const w = size.width
   const h = size.height
@@ -18780,16 +18781,33 @@ function popoverPosition(anchor, bounds, size) {
   const maxLeft = bounds.right - POP_MARGIN - w
   const minTop = bounds.top + POP_MARGIN
   const maxTop = bounds.bottom - POP_MARGIN - h
-  const left = Math.max(minLeft, Math.min(anchor.left, maxLeft))
-  const below = anchor.bottom + POP_GAP
-  const above = anchor.top - POP_GAP - h
+  let left
   let top
-  if (below >= minTop && below <= maxTop) top = below
-  else if (above >= minTop && above <= maxTop) top = above
-  else {
-    const roomBelow = bounds.bottom - anchor.bottom
-    const roomAbove = anchor.top - bounds.top
-    top = roomBelow >= roomAbove ? Math.max(below, minTop) : Math.min(above, maxTop)
+  if (side === 'right') {
+    // #93：左列入口 —— 贴入口右侧垂直居中，右侧放不下翻左侧，两侧都不够按空间大的一侧夹紧。
+    const right = anchor.right + POP_GAP
+    const flipped = anchor.left - POP_GAP - w
+    if (right <= maxLeft) left = right
+    else if (flipped >= minLeft) left = flipped
+    else {
+      const roomRight = bounds.right - anchor.right
+      const roomLeft = anchor.left - bounds.left
+      left = roomRight >= roomLeft ? Math.min(right, maxLeft) : Math.max(flipped, minLeft)
+    }
+    left = Math.max(minLeft, Math.min(left, maxLeft))
+    const ah = typeof anchor.height === 'number' ? anchor.height : anchor.bottom - anchor.top
+    top = anchor.top + (ah - h) / 2
+  } else {
+    left = Math.max(minLeft, Math.min(anchor.left, maxLeft))
+    const below = anchor.bottom + POP_GAP
+    const above = anchor.top - POP_GAP - h
+    if (below >= minTop && below <= maxTop) top = below
+    else if (above >= minTop && above <= maxTop) top = above
+    else {
+      const roomBelow = bounds.bottom - anchor.bottom
+      const roomAbove = anchor.top - bounds.top
+      top = roomBelow >= roomAbove ? Math.max(below, minTop) : Math.min(above, maxTop)
+    }
   }
   if (top < minTop) top = minTop
   if (top > maxTop) top = maxTop
@@ -19010,11 +19028,11 @@ function CustomEditor(props) {
     } catch (err) { return undefined }
   }, [pop ? pop.key : null, showPresets])
 
-  // Popover 定位（#94）：两条入口各自一分支——
-  //  · 预览区控件点开（pop.anchor 有值）：贴被点元素锚定，规则见 popoverPosition；边界 = 视口 ∩ 弹窗；
-  //    锚点已从 DOM 移除（React 换节点）→ 安全收起，不回滚已调颜色；
-  //  · 左列色块入口（无 anchor，票 B 再接）：沿用 #82 旧口径（夹到预览左侧），本票不动。
-  // 弹窗内滚动 / 窗口 resize 时重算。
+  // Popover 定位（#94 / #93）：两个入口都锚定被点元素——
+  //  · 预览区控件：pop.side='below'，贴被点元素下方（规则见 popoverPosition）；
+  //  · 左列色块入口：pop.side='right'，贴该行色块右侧垂直居中；
+  //    边界 = 视口 ∩ 弹窗；锚点已从 DOM 移除 → 安全收起，不回滚已调颜色；
+  //    弹窗内滚动 / 窗口 resize 时重算。
   h.useEffect(function () {
     if (!pop) { setPopPos(null); return undefined }
     const w = typeof window !== 'undefined' ? window : null
@@ -19023,36 +19041,23 @@ function CustomEditor(props) {
       try {
         const vw = (w && w.innerWidth) || 1280
         const vh = (w && w.innerHeight) || 900
-        if (pop.anchor) {
-          // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
-          if (pop.anchor.isConnected === false) { setPop(null); return }
-          if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
-          const ar = pop.anchor.getBoundingClientRect()
-          let bounds = { left: 0, top: 0, right: vw, bottom: vh }
-          const dlg = dlgRef.current
-          if (dlg && typeof dlg.getBoundingClientRect === 'function') {
-            const dr = dlg.getBoundingClientRect()
-            bounds = {
-              left: Math.max(0, dr.left), top: Math.max(0, dr.top),
-              right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
-            }
+        // 两个入口都必须带锚点（预览控件 / 左列色块自身）；缺了就安全收起。
+        if (!pop.anchor) { setPop(null); return }
+        // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
+        if (pop.anchor.isConnected === false) { setPop(null); return }
+        if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
+        const ar = pop.anchor.getBoundingClientRect()
+        let bounds = { left: 0, top: 0, right: vw, bottom: vh }
+        const dlg = dlgRef.current
+        if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+          const dr = dlg.getBoundingClientRect()
+          bounds = {
+            left: Math.max(0, dr.left), top: Math.max(0, dr.top),
+            right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
           }
-          const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }) || POP_FALLBACK
-          setPopPos({ left: pos.left, top: pos.top })
-          return
         }
-        // 左列色块入口（票 #93 再接）：维持 #82 旧定位
-        const rowEl = rowRefs.current[pop.key]
-        if (!rowEl) { setPop(null); return }
-        if (!w || typeof rowEl.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
-        const r = rowEl.getBoundingClientRect()
-        let left = Math.min(Math.max(10, vw - 270), Math.max(10, r.left + 40))
-        const mini = miniRef.current
-        if (mini && typeof mini.getBoundingClientRect === 'function') {
-          left = Math.min(left, mini.getBoundingClientRect().left - 250 - 8)
-        }
-        const top = Math.min(Math.max(10, r.bottom + 6), vh - 350 - 10)
-        setPopPos({ left: Math.round(left), top: Math.round(top) })
+        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.side) || POP_FALLBACK
+        setPopPos({ left: pos.left, top: pos.top })
       } catch (err) { setPopPos(POP_FALLBACK) }
     }
     place()
@@ -19063,7 +19068,7 @@ function CustomEditor(props) {
       w.removeEventListener('resize', place)
       if (d && typeof d.removeEventListener === 'function') d.removeEventListener('scroll', place, true)
     }
-  }, [pop ? pop.key : null, pop ? pop.anchor : null])
+  }, [pop ? pop.key : null, pop ? pop.anchor : null, pop ? pop.side : null])
 
   // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
   h.useEffect(function () {
@@ -19100,13 +19105,15 @@ function CustomEditor(props) {
     })
   }
 
-  function openPop(key, anchorEl) {
+  function openPop(key, anchorEl, side) {
     const raw = colors[key]
     const norm = normalizeHexInput(raw)
     const anchor = anchorEl || null
-    // #94：同一预览控件再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
+    // 侧向偏好：#93 左列色块入口贴右侧；预览控件默认贴下方。
+    const prefer = side === 'right' ? 'right' : 'below'
+    // #94：同一入口再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
     // 换锚点才清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧。
-    if (pop && pop.key === key && pop.anchor === anchor && popPos) return
+    if (pop && pop.key === key && pop.anchor === anchor && pop.side === prefer && popPos) return
     setPopPos(null)
     setPop({
       key: key,
@@ -19114,6 +19121,7 @@ function CustomEditor(props) {
       transparent: raw === 'transparent',
       orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
       anchor: anchor,
+      side: prefer,
     })
     setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
     setHl(key)
@@ -19245,7 +19253,7 @@ function CustomEditor(props) {
         e('button', {
           'data-slot-row': key,
           title: tr('edPickTitle'),
-          onClick: function () { openPop(key) },
+          onClick: function (ev) { openPop(key, ev.currentTarget, 'right') },
           [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           style: Object.assign({
             width: '30px', height: '22px', borderRadius: '6px', cursor: 'pointer', flex: 'none', padding: 0,
