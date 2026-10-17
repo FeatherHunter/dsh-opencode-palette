@@ -18378,19 +18378,6 @@ function hsvToHex(hsv) {
   return rgbToHex(hsvToRgb(hsv))
 }
 
-// 本主题用过的颜色：保序去重，跳过 transparent 与非法值（原型 freq 口径）
-function distinctThemeColors(colors) {
-  const out = []
-  const seen = new Set()
-  const c = colors || {}
-  for (const k of Object.keys(c)) {
-    const norm = normalizeHexInput(c[k])
-    if (!norm || seen.has(norm)) continue
-    seen.add(norm)
-    out.push(norm)
-  }
-  return out
-}
 
 // 客户端 id 推导（宿主 CUSTOM_ID_PATTERN /^[A-Za-z0-9_-]{1,64}$/ 的子集）：
 // 小写 ASCII，连续分隔符收敛为单连字符；中文/纯符号/空 → null（调用方转编辑态提示起名）
@@ -18539,14 +18526,6 @@ function rgbToHex(rgb) {
   return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b)
 }
 
-// getComputedStyle 的 'rgb()/rgba()' → hex；透明（alpha=0）返回 null（吸管降级路径用）。
-function rgbStringToHex(s) {
-  if (typeof s !== 'string') return null
-  const m = s.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*(?:,\s*([0-9.]+)\s*)?\)$/i)
-  if (!m) return null
-  if (m[4] !== undefined && Number(m[4]) === 0) return null
-  return rgbToHex({ r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) })
-}
 
 // { h, s, v } → { h, s, l }（s/l 为 0-100）
 function hsvToHsl(hsv) {
@@ -18595,6 +18574,7 @@ function contrastRatio(hexA, hexB) {
 }
 
 // 对比度基准槽：文字对背景、背景槽反过来对文字、其余（品牌/语法/边框/改动/Markdown）对面板。
+// 这 8 个 key 由 src/engine/map-dsh.mjs 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
 const BG_SLOTS = [
   'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
   'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
@@ -18626,7 +18606,7 @@ function pickRecentColors(colors, currentKey, priorityKeys, max) {
   return out.slice(0, lim)
 }
 
-__mods["custom-color"] = { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, clientSlug, SLOT_FB, SLOT_DARK2LIGHT, effectiveSlotColor, editorMiniLight, filterCustomThemes, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, rgbStringToHex, hsvToHsl, hslToHsv, hueStops, relativeLuminance, contrastRatio, contrastRefSlot, pickRecentColors }
+__mods["custom-color"] = { normalizeHexInput, hexToHsv, hsvToHex, clientSlug, SLOT_FB, SLOT_DARK2LIGHT, effectiveSlotColor, editorMiniLight, filterCustomThemes, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, relativeLuminance, contrastRatio, BG_SLOTS, contrastRefSlot, pickRecentColors }
 })();
 (function () {
 // custom-store.mjs — 自定义主题本地缓存与宿主对账（#86）
@@ -18802,7 +18782,7 @@ __mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, TIER_CHIP, TIER_BUTTON, 
 })();
 (function () {
 // custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
-// 交互与文案口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源）。
+// 交互与文案口径 #86 起对齐 prototypes/custom-editor-83.prototype.html；#95 起调色盘以 docs/research/palette-picker-survey.md + 票内 resolution 为准。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 const { normalizeHexInput, hexToHsv, hsvToHex, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } = __mods["custom-color"]
 const { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } = __mods["ui-fx"]
@@ -18908,7 +18888,7 @@ function needsReveal(view, row, pad) {
 }
 
 // 取色器 Popover 盒子尺寸（#95 重构：内容宽 294 = 320 − 内边距 24 − 描边 2，故外框宽 320；
-// 高度 388 = 内边距 24 + 标题 30 + SV 136 + 色相轨 22 + 数值行 34 + 主题色 44 + HEX 行 34 + 透明行 26 + footer 30 + 间隙）。
+// 高 388（border-box）= 内边距 24 + 内容 364：标题 ~26 + SV 136 + 色相轨 14 + 数值行 26 + 主题色 ~40 + HEX 行 26 + 透明行 20 + footer 30 + 行距 7×6=42；footer 用 margin-top:auto 吸收余量。
 // 渲染侧 border-box + 本宽高、定位侧用本尺寸，两处同源（#94 口径不变：常量必须等于 getBoundingClientRect）。
 const POP_W = 320
 const POP_H = 388
@@ -18999,6 +18979,12 @@ function presetToSeed(p) {
 const PICK_SV_H = 136
 const PICK_HUE_H = 14
 const PICK_RECENT_MAX = 10
+// PalettePicker props（#95，纯展示、可独立 renderToString）：
+//   h: { createElement, useState, useEffect, useRef }, tr, trf
+//   label: 色位显示名；allowTransparent: 是否 8 个背景槽之一
+//   value: { hex, transparent }；recent: [hex]；contrastRefHex: 对比度基准色
+//   initialHsv: 可选 { h, s, v }（重开同一槽位时父组件回填上次色相，避免从 hex 反推）
+//   onApply(hex, transparent, hsv): 每次改动 live commit；onCancel(): 回滚关闭；onDone(): 保留关闭
 function PalettePicker(props) {
   const h = props.h
   const e = h.createElement
@@ -19010,7 +18996,11 @@ function PalettePicker(props) {
   function clamp01(n) { return Math.min(1, Math.max(0, n)) }
   function wrapH(n) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0 }
   function clampPct(n) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0 }
-  const startHsv = hexToHsv(startHex)
+  // 关掉再点开同一槽位：父组件回填上次 {h,s,v}，避免从 hex 反推（灰/黑会丢色相，R1 残留）。
+  const memoHsv = props.initialHsv
+  const startHsv = (memoHsv && isFinite(memoHsv.h) && isFinite(memoHsv.s) && isFinite(memoHsv.v))
+    ? { h: wrapH(memoHsv.h), s: clampPct(memoHsv.s), v: clampPct(memoHsv.v) }
+    : hexToHsv(startHex)
   const [pick, setPick] = h.useState(function () {
     return { h: startHsv.h, s: startHsv.s, v: startHsv.v, transparent: !!value.transparent }
   })
@@ -19030,45 +19020,53 @@ function PalettePicker(props) {
   const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
   const stops = hueStops(100, 100)
   const hueCss = 'linear-gradient(to right,' + stops.map(function (c, i) { return c + ' ' + (i * 100 / 12).toFixed(2) + '%' }).join(',') + ')'
-  const eyeOk = (function () {
-    try { return typeof window !== 'undefined' && typeof window.EyeDropper === 'function' } catch (err) { return false }
-  })()
+  // EyeDropper 能力探测进 effect（渲染期不碰 window；SSR 首帧 disabled，挂载后按宿主能力启用）。
+  const [eyeOk, setEyeOk] = h.useState(false)
+  h.useEffect(function () {
+    try { setEyeOk(typeof window !== 'undefined' && typeof window.EyeDropper === 'function') } catch (err) { /* 保持禁用 */ }
+  }, [])
 
-  // 直接推进 HSV（拖拽/数值/色相轨）：h 由状态保留，S/V 用本次输入（不做 mergeHsv —— 那是 hex 回填专用）。
-  function push(hsvNext, transparent) {
-    const next = {
-      h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v),
-      transparent: !!transparent,
-    }
-    const hex = rgbToHex(hsvToRgb(next))
-    setPick(next)
-    setHexText(next.transparent ? '' : hex)
+  // 单一提交路径：state（h/s/v + transparent）→ hex 投影 → 通知父组件 live commit。
+  function commit(next, transparent, hex, noticeKey) {
+    setPick({ h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v), transparent: !!transparent })
+    setHexText(transparent ? '' : hex)
     setHexError(false)
-    setNotice('')
-    if (typeof props.onApply === 'function') props.onApply(hex, next.transparent)
+    setNotice(noticeKey || '')
+    if (typeof props.onApply === 'function') props.onApply(hex, !!transparent, { h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v) })
+  }
+  // 拖拽/数值/色相轨：直接推进 HSV（h 由状态保留；mergeHsv 只服务 hex 回填）。
+  function push(hsvNext) {
+    const next = { h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v) }
+    commit(next, false, rgbToHex(hsvToRgb(next)), '')
   }
   // hex / 吸管 / 主题色回填：走 mergeHsv 保留黑/灰时无意义的 h、s（R1）。
   function pushHex(parsed, transparent) {
-    const hsv = mergeHsv(pick, hexToHsv(parsed.hex))
-    setPick({ h: hsv.h, s: hsv.s, v: hsv.v, transparent: !!transparent })
-    setHexText(transparent ? '' : parsed.hex)
-    setHexError(false)
-    setNotice(parsed.alphaDropped ? 'edAlphaDropped' : '')
-    if (typeof props.onApply === 'function') props.onApply(parsed.hex, !!transparent)
+    commit(mergeHsv(pick, hexToHsv(parsed.hex)), transparent, parsed.hex, parsed.alphaDropped ? 'edAlphaDropped' : '')
+  }
+  // RGB/HSL 数值输入：同样走 mergeHsv（输入灰/黑时保留色相，R1 残留修复）。
+  function commitRgb(rgbNext) {
+    const next = mergeHsv(pick, rgbToHsv(rgbNext))
+    commit(next, false, rgbToHex(rgbNext), '')
+  }
+  function commitHsl(hslNext) {
+    const next = mergeHsv(pick, hslToHsv(hslNext))
+    commit(next, false, rgbToHex(hsvToRgb(next)), '')
   }
   function svFrom(ev) {
     const el = svRef.current
     if (!el || typeof el.getBoundingClientRect !== 'function') return
     const r = el.getBoundingClientRect()
-    push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 }, false)
+    push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 })
   }
   function svDown(ev) {
+    if (pick.transparent) return
     try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'sv' } catch (err) { drag.current = 'sv' }
     svFrom(ev)
   }
   function svMove(ev) { if (drag.current !== 'sv') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } svFrom(ev) }
   function svUp(ev) { if (drag.current !== 'sv') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
   function svKey(ev) {
+    if (pick.transparent) return
     const step = ev.shiftKey ? 10 : 1
     const k = ev.key
     let ds = 0
@@ -19079,21 +19077,23 @@ function PalettePicker(props) {
     else if (k === 'ArrowDown') dv = -step
     else return
     try { ev.preventDefault() } catch (err) { /* 忽略 */ }
-    push({ h: pick.h, s: pick.s + ds, v: pick.v + dv }, false)
+    push({ h: pick.h, s: pick.s + ds, v: pick.v + dv })
   }
   function hueFrom(ev) {
     const el = hueRef.current
     if (!el || typeof el.getBoundingClientRect !== 'function') return
     const r = el.getBoundingClientRect()
-    push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v }, false)
+    push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v })
   }
   function hueDown(ev) {
+    if (pick.transparent) return
     try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'hue' } catch (err) { drag.current = 'hue' }
     hueFrom(ev)
   }
   function hueMove(ev) { if (drag.current !== 'hue') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } hueFrom(ev) }
   function hueUp(ev) { if (drag.current !== 'hue') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
   function hueKey(ev) {
+    if (pick.transparent) return
     const k = ev.key
     const step = ev.shiftKey ? 10 : 1
     let dh = 0
@@ -19105,15 +19105,10 @@ function PalettePicker(props) {
     else if (k === 'End') dh = 360 - pick.h
     else return
     try { ev.preventDefault() } catch (err) { /* 忽略 */ }
-    push({ h: pick.h + dh, s: pick.s, v: pick.v }, false)
+    push({ h: pick.h + dh, s: pick.s, v: pick.v })
   }
   function toggleTransparent(on) {
-    const hex = rgbToHex(hsvToRgb(pick))
-    setPick({ h: pick.h, s: pick.s, v: pick.v, transparent: !!on })
-    setHexText(on ? '' : hex)
-    setHexError(false)
-    setNotice('')
-    if (typeof props.onApply === 'function') props.onApply(hex, !!on)
+    commit(pick, !!on, rgbToHex(hsvToRgb(pick)), '')
   }
   function onHexChange(ev) {
     const raw = ev.target.value
@@ -19160,20 +19155,20 @@ function PalettePicker(props) {
   }
   const fields = model === 'rgb'
     ? [
-        { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, set: function (n) { const next = rgbToHsv({ r: n, g: rgb.g, b: rgb.b }); push({ h: next.h, s: next.s, v: next.v }, false) } },
-        { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, set: function (n) { const next = rgbToHsv({ r: rgb.r, g: n, b: rgb.b }); push({ h: next.h, s: next.s, v: next.v }, false) } },
-        { k: 'b', label: 'B', aria: 'B', val: rgb.b, max: 255, set: function (n) { const next = rgbToHsv({ r: rgb.r, g: rgb.g, b: n }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+        { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, get: function () { return rgb.r }, set: function (n) { commitRgb({ r: n, g: rgb.g, b: rgb.b }) } },
+        { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, get: function () { return rgb.g }, set: function (n) { commitRgb({ r: rgb.r, g: n, b: rgb.b }) } },
+        { k: 'b', label: 'B', aria: 'B', val: rgb.b, max: 255, get: function () { return rgb.b }, set: function (n) { commitRgb({ r: rgb.r, g: rgb.g, b: n }) } },
       ]
     : (model === 'hsl'
         ? [
-            { k: 'h', label: 'H', aria: tr('edHue'), val: hsl.h, max: 360, set: function (n) { const next = hslToHsv({ h: n, s: hsl.s, l: hsl.l }); push({ h: next.h, s: next.s, v: next.v }, false) } },
-            { k: 's', label: 'S', aria: tr('edSat'), val: hsl.s, max: 100, set: function (n) { const next = hslToHsv({ h: hsl.h, s: n, l: hsl.l }); push({ h: next.h, s: next.s, v: next.v }, false) } },
-            { k: 'l', label: 'L', aria: tr('edLightness'), val: hsl.l, max: 100, set: function (n) { const next = hslToHsv({ h: hsl.h, s: hsl.s, l: n }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+            { k: 'h', label: 'H', aria: tr('edHue'), val: hsl.h, max: 360, get: function () { return hsl.h }, set: function (n) { commitHsl({ h: n, s: hsl.s, l: hsl.l }) } },
+            { k: 's', label: 'S', aria: tr('edSat'), val: hsl.s, max: 100, get: function () { return hsl.s }, set: function (n) { commitHsl({ h: hsl.h, s: n, l: hsl.l }) } },
+            { k: 'l', label: 'L', aria: tr('edLightness'), val: hsl.l, max: 100, get: function () { return hsl.l }, set: function (n) { commitHsl({ h: hsl.h, s: hsl.s, l: n }) } },
           ]
         : [
-            { k: 'h', label: 'H', aria: tr('edHue'), val: pick.h, max: 360, set: function (n) { push({ h: n, s: pick.s, v: pick.v }, false) } },
-            { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, set: function (n) { push({ h: pick.h, s: n, v: pick.v }, false) } },
-            { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, set: function (n) { push({ h: pick.h, s: pick.s, v: n }, false) } },
+            { k: 'h', label: 'H', aria: tr('edHue'), val: pick.h, max: 360, get: function () { return pick.h }, set: function (n) { push({ h: n, s: pick.s, v: pick.v }) } },
+            { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, get: function () { return pick.s }, set: function (n) { push({ h: pick.h, s: n, v: pick.v }) } },
+            { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, get: function () { return pick.v }, set: function (n) { push({ h: pick.h, s: pick.s, v: n }) } },
           ])
   const ticks = []
   for (let i = 0; i < 13; i++) {
@@ -19259,10 +19254,19 @@ function PalettePicker(props) {
           }, f.label),
           e('input', {
             key: 'n-' + f.k, type: 'number', min: 0, max: f.max, step: 1, value: String(Math.round(f.val)),
-            'aria-label': f.aria,
+            'aria-label': f.aria, title: tr('edSvHint'),
+            disabled: pick.transparent ? true : undefined,
             onChange: function (ev) { const n = Number(ev.target.value); if (isFinite(n)) f.set(n) },
+            // 键盘微调：↑↓ ±1，Shift ×10（最低保证：任一维都能键盘微调）。
+            onKeyDown: function (ev) {
+              if (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown') return
+              try { ev.preventDefault() } catch (err) { /* 忽略 */ }
+              const step = (ev.shiftKey ? 10 : 1) * (ev.key === 'ArrowUp' ? 1 : -1)
+              const cur = Number(f.get())
+              f.set((isFinite(cur) ? cur : 0) + step)
+            },
             [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-            style: Object.assign({}, numStyle),
+            style: Object.assign({}, numStyle, pick.transparent ? { opacity: 0.45, cursor: 'default' } : {}),
           })
         )
       })
@@ -19441,6 +19445,8 @@ function CustomEditor(props) {
   const rowRefs = h.useRef({})
   const leftColRef = h.useRef(null)
   const svDrag = h.useRef(null)
+  // #95：按色位记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
+  const pickMem = h.useRef({})
 
   // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
   // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
@@ -19810,6 +19816,10 @@ function CustomEditor(props) {
     const recent = pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)
     // WCAG 对比度基准槽：文字对背景、背景槽对文字、其余对面板（与 map-dsh 语义一致）。
     const refHex = effectiveSlotColor(contrastRefSlot(pop.key), colors, false)
+    // 重开同一槽位：父组件记住的 {h,s,v} 仅在 hex 没被外部改动时回填（否则按当前 hex 反推）。
+    const memo = pickMem.current[pop.key]
+    const memoHex = pop.transparent ? '' : (normalizeHexInput(pop.hex) || '')
+    const initialHsv = (memo && memo.hex === memoHex) ? memo.hsv : null
     return e('div', {
       key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
@@ -19820,16 +19830,21 @@ function CustomEditor(props) {
       }, popPos),
     },
       e(PalettePicker, {
-        h: h, tr: tr, trf: trf, lang: lang,
+        h: h, tr: tr, trf: trf,
         label: lang === 'en' ? meta.en : meta.zh,
-        slotKey: pop.key,
         allowTransparent: !!meta.allow,
         value: { hex: pop.hex, transparent: pop.transparent },
-        colors: colors,
+        initialHsv: initialHsv,
         recent: recent,
         contrastRefHex: refHex,
         // 任何改动即 live commit（R2）：颜色已写进编辑中的主题，关闭时不再回滚。
-        onApply: function (hex, transparent) {
+        onApply: function (hex, transparent, hsv) {
+          if (hsv && isFinite(hsv.h) && isFinite(hsv.s) && isFinite(hsv.v)) {
+            pickMem.current[pop.key] = {
+              hex: transparent ? '' : hex,
+              hsv: { h: Number(hsv.h), s: Number(hsv.s), v: Number(hsv.v) },
+            }
+          }
           setColor(pop.key, hex, transparent)
           setPop(function (prev) { return prev ? Object.assign({}, prev, { hex: hex, transparent: transparent }) : prev })
         },

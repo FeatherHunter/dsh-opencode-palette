@@ -7,7 +7,6 @@ import {
   normalizeHexInput,
   hexToHsv,
   hsvToHex,
-  distinctThemeColors,
   clientSlug,
   effectiveSlotColor,
   editorMiniLight,
@@ -17,13 +16,13 @@ import {
   hsvToRgb,
   rgbToHsv,
   rgbToHex,
-  rgbStringToHex,
   hsvToHsl,
   hslToHsv,
   hueStops,
   relativeLuminance,
   contrastRatio,
   contrastRefSlot,
+  BG_SLOTS,
   pickRecentColors,
   SLOT_FB,
   SLOT_DARK2LIGHT,
@@ -68,11 +67,6 @@ test('hexToHsv/hsvToHex：往返一致，主色相正确', () => {
   assert.deepEqual(hexToHsv('#FFFFFF'), { h: 0, s: 0, v: 100 })
 })
 
-// ── 本主题用色（去重保序，跳过 transparent/非法）──
-test('distinctThemeColors：保序去重，跳过 transparent 与非法值', () => {
-  const got = distinctThemeColors({ a: '#FF0000', b: 'transparent', c: '#ff0000', d: '#00FF00', e: 'oops' })
-  assert.deepEqual(got, ['#FF0000', '#00FF00'])
-})
 
 // ── 客户端 slug（宿主 CUSTOM_ID_PATTERN 的子集）──
 test('clientSlug：ASCII 小写连字符，中文/空返回 null', () => {
@@ -426,13 +420,15 @@ test('#95：取色器 15 条新文案 —— 双语同在 I18N 与词表（新�
     ['edAlphaDropped', '已忽略透明度', 'Alpha ignored'],
     ['edCopy', '复制色值', 'Copy value'],
     ['edColorModel', '色彩模型（点击切换）', 'Color model (click to switch)'],
+    ['edEyedropperOff', '当前环境不支持吸管，可用下方主题色', 'Eyedropper unavailable; use theme colors below'],
+    ['edHueAria', '色相 {v} 度', 'Hue {v} degrees'],
+    ['edSvHint', '方向键微调，Shift 加速', 'Arrow keys to adjust, Shift for larger steps'],
   ]
   for (const [key, zh, en] of keys) {
     assert.ok(src.includes(key + ": { zh: '" + zh + "', en: '" + en + "' }"), 'I18N 缺键/中英不匹配：' + key)
     assert.ok(md.includes('`' + key + '`'), '词表缺行：' + key)
   }
-  assert.ok(src.includes('edEyedropperOff'), '吸管不可用说明键在场')
-  assert.ok(src.includes('edHueAria'), '色相 aria 模板键在场')
+
   assert.ok(src.includes('edSvHint'), 'SV 键盘提示键在场')
 })
 
@@ -633,7 +629,7 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   // #95：常用色块改为「主题色按分组优先级 10 个」，带 hex title（悬停可见具体值）与指针手势。
   const rcAt = src.indexOf("key: 'rc-' + i")
   assert.ok(rcAt > 0 && src.slice(rcAt, rcAt + 420).includes('data-picker-recent-swatch'), '常用色块走主题色 + data-picker-recent-swatch 标记')
-  assert.ok(src.slice(rcAt, rcAt + 420).includes('cursor'), '常用色块保留指针手势（可点）')
+  assert.ok(src.slice(rcAt, rcAt + 420).includes("cursor: 'pointer'"), '常用色块保留指针手势（可点）')
 })
 
 // ── 弹窗尺寸口径（用户 m08383 亲定，覆盖原型：高度正好等于预览区、整屏居中、一行控件同高）──
@@ -1069,10 +1065,6 @@ test('#95：RGB/HSV/HSL 互转与 hex 投影', () => {
   assert.ok(Math.abs(back.h - 210) < 1e-9 && Math.abs(back.s - 72) < 1e-9 && Math.abs(back.v - 98) < 1e-9, 'HSL 往返不漂移')
   assert.equal(rgbToHex({ r: 250, g: 178, b: 131 }), '#FAB283')
   assert.equal(rgbToHex({ r: 0, g: 0, b: 0 }), '#000000')
-  assert.equal(rgbStringToHex('rgb(250, 178, 131)'), '#FAB283', '吸管降级：计算色 rgb() → hex')
-  assert.equal(rgbStringToHex('rgba(35, 35, 41, 0.8)'), '#232329')
-  assert.equal(rgbStringToHex('rgba(0, 0, 0, 0)'), null, '透明像素跳过')
-  assert.equal(rgbStringToHex('nope'), null)
 })
 
 test('#95：hueStops —— 13 个 30° 停、用当前 S/V 生成（非纯色相）', () => {
@@ -1125,12 +1117,9 @@ function pickerProps(over) {
     h: mockHooks(),
     tr: (k) => 'T:' + k,
     trf: (k, o) => 'T:' + k + JSON.stringify(o || {}),
-    lang: 'zh',
     label: '主色',
-    slotKey: 'primary',
     allowTransparent: false,
     value: { hex: '#FAB283', transparent: false },
-    colors: { primary: '#FAB283', background: '#0A0A0A', text: '#ECEDE9', border: '#55555E' },
     recent: ['#0A0A0A', '#ECEDE9', '#55555E'],
     contrastRefHex: '#000000',
     onApply: () => {},
@@ -1178,7 +1167,7 @@ test('#95：PalettePicker —— 透明槽/对比度/最近色/初始值', () =>
   const plain = renderPicker({ slotKey: 'primary' })
   assert.equal(plain.includes('type="checkbox"'), false, '非背景槽不显示透明行')
   assert.ok(plain.includes('data-picker-part="transparent"'), '透明行占位保留（弹板高度恒定）')
-  const bg = renderPicker({ slotKey: 'background', allowTransparent: true, value: { hex: 'transparent', transparent: true } })
+  const bg = renderPicker({ allowTransparent: true, value: { hex: 'transparent', transparent: true } })
   assert.ok(bg.includes('type="checkbox"'), '8 个背景槽才有透明勾选')
   const dark = renderPicker({ value: { hex: '#000000', transparent: false }, contrastRefHex: '#FFFFFF' })
   assert.ok(dark.includes('21.0:1'), '对比徽章：黑白 21:1')
@@ -1187,6 +1176,16 @@ test('#95：PalettePicker —— 透明槽/对比度/最近色/初始值', () =>
   assert.ok(few.includes('T:edContrastLow') || few.includes('低'), '低对比提示')
   assert.ok(renderPicker().includes('#ECEDE9'), '最近色渲染')
   assert.equal((renderPicker().match(/data-picker-recent-swatch/g) || []).length, 3, '最近色 3 个（按传入优先级）')
+})
+
+test('#95：PalettePicker —— 重开同一槽位保留上次 H/S/V（initialHsv 优先于 hex 反推，R1 残留）', () => {
+  const plain = renderPicker({ value: { hex: '#000000', transparent: false } })
+  assert.ok(plain.includes('aria-valuenow="0"'), '无记忆时黑/灰按 hex 反推色相为 0（旧行为）')
+  const kept = renderPicker({ value: { hex: '#000000', transparent: false }, initialHsv: { h: 24, s: 100, v: 0 } })
+  assert.ok(kept.includes('aria-valuenow="24"'), '重开时回填记忆色相 24（不因 hex=#000000 丢成 0）')
+  assert.equal(kept.includes('aria-valuenow="0"'), false, '记忆生效时不再回落到 0°')
+  const bad = renderPicker({ value: { hex: '#000000', transparent: false }, initialHsv: { h: NaN, s: 0, v: 0 } })
+  assert.ok(bad.includes('aria-valuenow="0"'), '非法记忆值被忽略，退回 hex 反推')
 })
 
 test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无原生 range/禁 circle）', () => {
@@ -1207,8 +1206,24 @@ test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无�
   assert.ok(src.includes('e(PalettePicker, {'), 'renderPop 内部交给 PalettePicker 展示组件')
   assert.ok(src.includes('pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)'), '主题色按分组优先级取（R7）')
   assert.ok(src.includes('effectiveSlotColor(contrastRefSlot(pop.key), colors, false)'), '对比度基准槽映射到真实主题色')
-  assert.ok(src.includes('onApply: function (hex, transparent)') && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
+  assert.ok(src.includes('onApply: function (hex, transparent, hsv)') && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
+  // Spec 复核：#95 残留——重开同一槽位保色相、RGB/HSL 灰输入不丢色相、数字框 Shift 步进。
+  assert.ok(src.includes('initialHsv'), '父组件按槽位记忆 H/S/V，重开时回填')
+  assert.ok(src.includes('pickMem.current[pop.key]'), '记忆读写都按色位 key（openPop 关闭后仍保留）')
+  assert.ok(src.includes('function commitRgb(') && src.includes('function commitHsl('), 'RGB/HSL 数值输入走 mergeHsv（灰/黑保留色相）')
+  assert.ok(src.includes("ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown'") && src.includes('ev.shiftKey ? 10 : 1'), '数字输入 ↑↓ 微调 + Shift ×10')
   assert.ok(src.includes("d.addEventListener('keydown', onKey)") && src.includes("ev.key === 'Escape'"), 'Esc = 取消并回滚')
   assert.ok(src.includes("if (pop && !keepOpen) closePop(false)"), '点弹板外 = 保留并关闭（R2）')
   assert.ok(src.includes("tr('edSvHint')"), 'SV 键盘提示使用新文案键')
+  // #95 review：透明槽只读、EyeDropper 探测进 effect、live commit 单一提交路径。
+  assert.ok(src.includes('if (pick.transparent) return'), '透明槽下 SV/色相拖拽与键盘不改色（与 aria-disabled 一致）')
+  assert.ok(src.includes('disabled: pick.transparent ? true : undefined'), '透明槽下数值输入禁用')
+  assert.ok(src.includes('setEyeOk(') && src.includes('h.useEffect(function ()'), '吸管能力探测进 effect（渲染期不碰 window）')
+  assert.ok(src.includes('function commit(next, transparent, hex, noticeKey)'), 'live commit 单一提交路径（去重）')
+})
+
+// ── #95：对比度基准背景槽跨文件对账（防 BG_SLOTS 与引擎单一真相源漂移）──
+test('#95：BG_SLOTS 与引擎 COLOR_SLOTS.allowTransparent 一致', () => {
+  const fromEngine = ENGINE_SLOTS.filter((s) => s.allowTransparent).map((s) => s.key).sort()
+  assert.deepEqual(BG_SLOTS.slice().sort(), fromEngine)
 })

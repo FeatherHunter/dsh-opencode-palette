@@ -42,19 +42,6 @@ export function hsvToHex(hsv) {
   return rgbToHex(hsvToRgb(hsv))
 }
 
-// 本主题用过的颜色：保序去重，跳过 transparent 与非法值（原型 freq 口径）
-export function distinctThemeColors(colors) {
-  const out = []
-  const seen = new Set()
-  const c = colors || {}
-  for (const k of Object.keys(c)) {
-    const norm = normalizeHexInput(c[k])
-    if (!norm || seen.has(norm)) continue
-    seen.add(norm)
-    out.push(norm)
-  }
-  return out
-}
 
 // 客户端 id 推导（宿主 CUSTOM_ID_PATTERN /^[A-Za-z0-9_-]{1,64}$/ 的子集）：
 // 小写 ASCII，连续分隔符收敛为单连字符；中文/纯符号/空 → null（调用方转编辑态提示起名）
@@ -203,14 +190,6 @@ export function rgbToHex(rgb) {
   return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b)
 }
 
-// getComputedStyle 的 'rgb()/rgba()' → hex；透明（alpha=0）返回 null（吸管降级路径用）。
-export function rgbStringToHex(s) {
-  if (typeof s !== 'string') return null
-  const m = s.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*(?:,\s*([0-9.]+)\s*)?\)$/i)
-  if (!m) return null
-  if (m[4] !== undefined && Number(m[4]) === 0) return null
-  return rgbToHex({ r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) })
-}
 
 // { h, s, v } → { h, s, l }（s/l 为 0-100）
 export function hsvToHsl(hsv) {
@@ -259,7 +238,8 @@ export function contrastRatio(hexA, hexB) {
 }
 
 // 对比度基准槽：文字对背景、背景槽反过来对文字、其余（品牌/语法/边框/改动/Markdown）对面板。
-const BG_SLOTS = [
+// 这 8 个 key 由 src/engine/map-dsh.mjs 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
+export const BG_SLOTS = [
   'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
   'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
 ]
