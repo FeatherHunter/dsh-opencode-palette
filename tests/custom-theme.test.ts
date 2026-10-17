@@ -1,4 +1,4 @@
-// custom-theme.test.mjs — #87§1：37 色引擎管线单测（#84 API 落码时只有 stash 级验证，此处逐项钉死）
+// custom-theme.test.ts — #87§1：37 色引擎管线单测（#84 API 落码时只有 stash 级验证，此处逐项钉死）
 //   - COLOR_SLOTS 精确 37（32 标准 + 5 DSH 独立槽位），分组 8/2/6/2/6/6/7，透明 8 槽全在 bg
 //   - normalizeThemeColors 回填链 + 纯函数 + 显式值不动
 //   - 基线恒等：38 内置主题 5 扩展变量 == 文档继承源（透明时双双缺席）
@@ -15,9 +15,15 @@ import {
 import { buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
 
 // css 声明抽值：body,body[...]--var:value;…（变量唯一，首命中即准）
-function cssVar(css, name) {
+function cssVar(css: string, name: string): string | null {
   const m = css.match(new RegExp(name.replace(/-/g, '\\-') + ':([^;]+);'))
   return m ? m[1] : null
+}
+
+// extractPresetPalette().colors 是 ResolvedColorMap（值里理论上可含 ColorError 对象）。
+// 预置色板全部是纯色串，测试按纯色表收窄，好直接喂给 renderCustomTheme / customPreviewColors。
+function paletteColors(name: string): Record<string, string> {
+  return extractPresetPalette(name).colors as Record<string, string>
 }
 
 test('COLOR_SLOTS 精确 37：32 标准 + 5 扩展，分组/透明/回填元数据齐', () => {
@@ -31,7 +37,7 @@ test('COLOR_SLOTS 精确 37：32 标准 + 5 扩展，分组/透明/回填元数�
   assert.equal(COLOR_SLOT_GROUPS.reduce((n, g) => n + g.keys.length, 0), 37)
   const trans = COLOR_SLOTS.filter((s) => s.allowTransparent).map((s) => s.key).sort()
   assert.deepEqual(trans, ['background', 'backgroundElement', 'backgroundPanel', 'bubbleBg', 'codeBlockBg', 'codeHeaderBg', 'inputBg', 'sidebarBg'])
-  const fallbacks = {}
+  const fallbacks: Record<string, string> = {}
   for (const s of COLOR_SLOTS) if (s.fallback) fallbacks[s.key] = s.fallback
   assert.deepEqual(fallbacks, {
     sidebarBg: 'background',
@@ -98,7 +104,7 @@ test('extractPresetPalette：opencode/dark、lucent-orng/light+8 透明、system
 })
 
 test('renderCustomTheme：custom: 前缀 + appearance 归一 + 6 变量精确覆盖 + 双槽 token + transparent 跳过', () => {
-  const base = extractPresetPalette('opencode').colors
+  const base = paletteColors('opencode')
   const colors = Object.assign({}, base, {
     sidebarBg: '#112233',
     bubbleBg: '#223344',
@@ -127,7 +133,7 @@ test('renderCustomTheme：custom: 前缀 + appearance 归一 + 6 变量精确覆
 })
 
 test('customPreviewColors：三外观 + light+transparent 胶囊口径 + 四色直通', () => {
-  const base = extractPresetPalette('opencode').colors
+  const base = paletteColors('opencode')
   const dark = customPreviewColors({ appearance: 'dark', colors: base })
   assert.equal(dark.translucent, false)
   assert.equal(dark.primary, base.primary)
@@ -149,7 +155,7 @@ test('customPreviewColors：三外观 + light+transparent 胶囊口径 + 四色�
 })
 
 test('buildUpdateTokensFromColors：system 无色，其余单套直驱', () => {
-  const base = extractPresetPalette('opencode').colors
+  const base = paletteColors('opencode')
   assert.equal(buildUpdateTokensFromColors(base, 'system'), undefined)
   const dark = buildUpdateTokensFromColors(base, 'dark')
   assert.ok(dark && typeof dark === 'object', 'dark 回 token 表')

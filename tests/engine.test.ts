@@ -1,4 +1,4 @@
-// engine.test.mjs — 引擎单测（node --test tests/，无需浏览器）
+// engine.test.ts — 引擎单测（node --test tests/，无需浏览器）
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -7,7 +7,7 @@ import {
 } from '../src/engine/index.ts'
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText, contrastRatio as engineContrastRatio, blendOntoBase } from '../src/engine/resolve.ts'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.ts'
-import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.ts'
+import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview, type GroupKey, type PreviewColors } from '../src/engine/grouping.ts'
 import { THEME_ZH, THEME_EN, THEME_ZH_LEGACY, themeSearchText } from '../src/engine/zh-names.ts'
 import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.ts'
 import { BUNDLED_FONTS } from '../src/engine/font-face.ts'
@@ -18,6 +18,28 @@ import {
   collectLocalFonts, dedupeFamilies, measureMonospaceFonts, buildFontCandidates, MONO_PROBE_TEXT,
   FONT_ENUM_UNAVAILABLE, FONT_ENUM_DENIED, FONT_ENUM_BLOCKED, FONT_ENUM_EMPTY, FONT_ENUM_FAILED,
 } from '../src/engine/local-fonts.ts'
+
+// 引擎返回结构未导出类型（generate.ts 的 TokenMap/GeneratedTheme 是模块内部实现），
+// 单测里用 ReturnType 推导，避免为了测试把内部类型升成公开 API。
+type EngineGroups = ReturnType<typeof themeGroups>
+
+// zh-names.ts 的两张表是精确键对象（不是 Record），动态按键索引前先放宽；
+// 键集完整性由本文件「单源对账」用例单独把关。
+const THEME_EN_BY_KEY: Record<string, string> = THEME_EN
+const THEME_ZH_BY_KEY: Record<string, string> = THEME_ZH
+const THEME_ZH_LEGACY_BY_KEY: Record<string, string[]> = THEME_ZH_LEGACY
+
+/** 构造完整 PreviewColors：用例只关心个别槽，其余留空。 */
+function colorsOf(over: Partial<PreviewColors>): PreviewColors {
+  return { background: null, text: null, primary: null, accent: null, error: null, warning: null, success: null, ...over }
+}
+
+/** 取主题预览色；缺失即测试失败（报出主题名与外观）。 */
+function previewOf(name: string, mode?: string): PreviewColors {
+  const p = previewColors(name, mode)
+  assert.ok(p, name + '/' + (mode || 'dark') + ' 预览缺失')
+  return p
+}
 
 const TYPO = { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 
@@ -80,7 +102,7 @@ test('OpenCode 官方主题: 关键色与官方 JSON 一致', () => {
   assert.equal(r.tokens['--dsw-alias-brand-primary'].dark, '#FAB283')
   assert.equal(r.tokens['--shiki-token-keyword'].dark, '#9D7CD8')
   assert.equal(r.tokens['--shiki-token-function'].dark, '#FAB283')
-  const p = previewColors('opencode')
+  const p = previewOf('opencode')
   assert.equal(p.background, '#0A0A0A')
   assert.equal(p.primary, '#FAB283')
 })
@@ -123,7 +145,8 @@ test('设置面板导航项悬停不变式: hover/active/accent 全部主题齐�
     if (isSystem(name)) continue
     const r = renderTheme(name, TYPO)
     for (const v of ['--dsw-specific-sidebar-nav-item-hover', '--dsw-specific-sidebar-nav-item-active', '--dsw-specific-sidebar-nav-item-active-accent']) {
-      assert.ok(r.tokens[v] && /^rgba\(/.test(r.tokens[v].dark), name + ' 缺/异常 ' + v)
+      const dark = r.tokens[v] && r.tokens[v].dark
+      assert.ok(dark && /^rgba\(/.test(dark), name + ' 缺/异常 ' + v)
     }
   }
 })
@@ -151,11 +174,10 @@ test('确定性: 同一输入两次渲染完全一致', () => {
 
 test('previewColors: 38 主题全部可预览（hex 或 null）', () => {
   for (const name of themeNames()) {
-    const p = previewColors(name)
-    assert.ok(p, name + ' 预览缺失')
-    for (const k of ['background', 'primary', 'accent']) {
+    const p = previewOf(name)
+    for (const k of ['background', 'primary', 'accent'] as const) {
       const v = p[k]
-      assert.ok(v === null || /^#[0-9A-F]{6,8}$/.test(v), name + ' ' + k + ' 非法: ' + v)
+      assert.ok(v === null || v === undefined || /^#[0-9A-F]{6,8}$/.test(v), name + ' ' + k + ' 非法: ' + v)
     }
   }
 })
@@ -211,7 +233,11 @@ test('色系分组: 38 主题全覆盖且不重复，组序符合 GROUP_ORDER', 
 
 test('色系分组: 特殊/透明主题归位，暖橙含 opencode', () => {
   const groups = themeGroups()
-  const by = (g) => groups.find((x) => x.name === g).themes.map((t) => t.name)
+  const by = (g: GroupKey): string[] => {
+    const group = groups.find((x) => x.name === g)
+    assert.ok(group, g + ' 组应存在')
+    return group.themes.map((t) => t.name)
+  }
   assert.ok(by('special').includes('system'))
   assert.ok(by('transparent').includes('lucent-orng'))
   assert.ok(by('warm').includes('opencode'))
@@ -235,7 +261,7 @@ test('单源对账（#60/#67）：listThemes 38 == THEME_ZH 38 == THEME_EN 38 �
 
 test('THEME_EN（#67）：英文官方名成表——非空、无重名、只有 opencode 与 id 同形', () => {
   const names = themeNames()
-  const values = names.map((n) => THEME_EN[n])
+  const values = names.map((n) => THEME_EN_BY_KEY[n])
   assert.ok(values.every((v) => typeof v === 'string' && v.length > 0), '每个主题都要有非空英文名')
   assert.equal(new Set(values).size, 38, '英文名不得重名（重名则界面上分不出两款）')
   assert.deepEqual(values.filter((v, i) => v === names[i]), ['opencode'], '只有 opencode 的官方名与内部 id 同形，其余不得再裸奔')
@@ -262,11 +288,11 @@ test('旧名搜索别名（#66）：废生造四名只进索引、不进正名',
   const pairs = [['solarized', '日光浴'], ['gruvbox', '复古凹槽'], ['ayu', '鮎'], ['flexoki', '纸墨']]
   assert.deepEqual(Object.keys(THEME_ZH_LEGACY).sort(), pairs.map((p) => p[0]).sort(), '别名表键集就是这四名（加名要先改票）')
   for (const [key, old] of pairs) {
-    assert.deepEqual(THEME_ZH_LEGACY[key], [old], key + ' 的旧名对不上')
+    assert.deepEqual(THEME_ZH_LEGACY_BY_KEY[key], [old], key + ' 的旧名对不上')
     assert.ok(themeNames().includes(key), '别名键必须在注册表里：' + key)
-    assert.equal(THEME_ZH[key], THEME_EN[key], key + ' 正名应保留英文（中英同形）')
+    assert.equal(THEME_ZH_BY_KEY[key], THEME_EN_BY_KEY[key], key + ' 正名应保留英文（中英同形）')
     // 双向可达：内部 id / 正名 / 旧名，三者任一命中同一款（面板过滤＝themeSearchText().toLowerCase().indexOf(q)）
-    for (const q of [key, THEME_ZH[key], old]) {
+    for (const q of [key, THEME_ZH_BY_KEY[key], old]) {
       assert.ok(themeSearchText(key).toLowerCase().includes(q.toLowerCase()), '搜不到「' + q + '」（' + key + '）')
     }
   }
@@ -290,8 +316,8 @@ test('词表单源对账（#67）：docs/i18n-glossary.md 的 en 列 / 中文终
   }
   assert.equal(rows.length, 38, '词表主题行应为 38 行（表被改动就要同步代码两表）')
   for (const row of rows) {
-    assert.equal(THEME_EN[row.key], row.en, 'THEME_EN 与词表 en 列不一致：' + row.key)
-    assert.equal(THEME_ZH[row.key], row.zh, 'THEME_ZH 与词表中文终稿列不一致：' + row.key)
+    assert.equal(THEME_EN_BY_KEY[row.key], row.en, 'THEME_EN 与词表 en 列不一致：' + row.key)
+    assert.equal(THEME_ZH_BY_KEY[row.key], row.zh, 'THEME_ZH 与词表中文终稿列不一致：' + row.key)
   }
   assert.deepEqual([...rows.map((r) => r.key)].sort(), [...themeNames()].sort(), '词表主题键集应与注册表一致')
 })
@@ -306,8 +332,8 @@ test('hueOf 色相计算: 红≈0 绿≈120 蓝≈240，中性 → -2', () => {
 })
 
 test('groupOf: system → special，透明背景 → transparent', () => {
-  assert.equal(groupOf('system', { background: '#000', primary: '#FFF' }), 'special')
-  assert.equal(groupOf('lucent-orng', resolvePreview('lucent-orng')), 'transparent')
+  assert.equal(groupOf('system', colorsOf({ background: '#000', primary: '#FFF' })), 'special')
+  assert.equal(groupOf('lucent-orng', previewOf('lucent-orng')), 'transparent')
 })
 test('fonts: 3 OFL families inlined as @font-face', () => {
   assert.deepEqual(BUNDLED_FONTS, ['JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Inter', 'IBM Plex Mono'])
@@ -327,7 +353,7 @@ test('fonts: system theme also carries bundled fonts, no color tokens', () => {
 
 test('tokens: elevation ladder (panel/element) follows opencode steps', () => {
   const r = renderTheme('opencode', TYPO)
-  const t = (k) => r.tokens[k].dark
+  const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
   assert.equal(t('--dsw-alias-bg-base'), '#0A0A0A')
   assert.equal(t('--dsw-alias-markdown-tag'), t('--dsw-alias-markdown-code-block'))
   assert.equal(t('--dsw-specific-bubble'), t('--dsw-alias-markdown-code-block'))
@@ -409,19 +435,32 @@ test('fonts: Maple Mono NF CN 不随包（CJK 体积），但预设与回退栈�
 // 假 host document：家族名在 installed 内 → 量宽不同于「确定不存在」的家族（= 本机已装）
 // 同时模拟浏览器行为：fontFamily 不是「配对引号包住的家族名」就当声明被丢弃（等于回退字体），
 // 这样引号写错这类会让所有字体都判成未装的 bug 会被测出来。
-function fakeDoc(installed) {
-  const body = { appendChild: (el) => { el.parentNode = body }, removeChild: (el) => { el.parentNode = null } }
+interface FakeProbeHost {
+  appendChild(child: FakeProbeElement): void
+  removeChild(child: FakeProbeElement): void
+}
+interface FakeProbeElement {
+  style: { cssText: string; fontFamily: string }
+  textContent: string
+  parentNode: FakeProbeHost | FakeProbeElement | null
+  getBoundingClientRect(): { width: number }
+}
+function fakeDoc(installed: string[]) {
+  const body: FakeProbeHost = {
+    appendChild: (el) => { el.parentNode = body },
+    removeChild: (el) => { el.parentNode = null },
+  }
   return {
     body,
-    createElement: () => {
+    createElement: (): FakeProbeElement => {
       // 模拟浏览器：家族名不是「配对双引号整体包住」的合法值时，整条 font-family 声明被丢弃（读回 ''）
       const style = {
         cssText: '',
         _ff: '',
-        get fontFamily() { return this._ff },
-        set fontFamily(v) { this._ff = /^"[^"]+"$/.test(String(v)) ? String(v) : '' },
+        get fontFamily(): string { return this._ff },
+        set fontFamily(v: string) { this._ff = /^"[^"]+"$/.test(String(v)) ? String(v) : '' },
       }
-      const el = {
+      const el: FakeProbeElement = {
         style, textContent: '', parentNode: null,
         getBoundingClientRect() {
           const m = /^"([^"]+)"$/.exec(style.fontFamily)
@@ -448,7 +487,7 @@ test('字体可用性：环境不支持量宽时保守判可用（绝不误灰�
   const noDoc = createFontAvailability(() => undefined, BUNDLED_FONTS)
   assert.equal(noDoc('Maple Mono NF CN'), true, '无 document 时不得误判缺失')
   assert.equal(noDoc('Consolas'), true, '无 document 时不得误判缺失')
-  const noLayout = createFontAvailability(() => ({ body: {}, createElement: () => ({ style: {}, textContent: '' }) }), BUNDLED_FONTS)
+  const noLayout = createFontAvailability(() => ({ body: { appendChild: () => {} }, createElement: () => ({ style: { cssText: '', fontFamily: '' }, textContent: '' }) }), BUNDLED_FONTS)
   assert.equal(noLayout('Consolas'), true, '量不出宽度时不得误判缺失')
   const broken = createFontAvailability(() => ({ body: { appendChild: () => {} }, createElement: () => { throw new Error('boom') } }), BUNDLED_FONTS)
   assert.equal(broken('Consolas'), true, '量宽抛异常时不得误判缺失')
@@ -459,7 +498,7 @@ test('字体可用性：环境不支持量宽时保守判可用（绝不误灰�
 
 // ── #11 任意系统字体：族名净化 / 安全包裹 / 回退栈合成 ──
 
-const cssVar = (css, name) => {
+const cssVar = (css: string, name: string): string | null => {
   const m = new RegExp('--' + name + ':([^;]*)').exec(css)
   return m ? m[1] : null
 }
@@ -474,7 +513,7 @@ test('字体族名净化：放行真实字体名，拒绝能逃出注入 <style>
   }
   assert.equal(sanitizeFontName(null), null, '非字符串应拒绝')
   assert.equal(sanitizeFontName(42), null, '非字符串应拒绝')
-  assert.equal(sanitizeFontName('x'.repeat(FONT_NAME_MAX)).length, FONT_NAME_MAX, '上限之内应放行')
+  assert.equal(sanitizeFontName('x'.repeat(FONT_NAME_MAX))!.length, FONT_NAME_MAX, '上限之内应放行')
   assert.equal(sanitizeFontName('x'.repeat(FONT_NAME_MAX + 1)), null, '超长应拒绝')
 })
 
@@ -491,6 +530,7 @@ test('字体族名安全包裹：恒配对引号，拒绝时返回 null（绝不
 test('自定义字体进代码字体栈首位：其后仍是随包 OFL 字体与 CJK 回退（#11 最小复现）', () => {
   const css = buildTypographyCss({ mode: 'mono', size: 13, fontKey: 'Hack Nerd Font' })
   const code = cssVar(css, 'ds-font-family-code')
+  assert.ok(code)
   assert.equal(code.indexOf("'Hack Nerd Font'"), 0, '用户字体未置栈首（仍被静默降级）')
   assert.ok(code.endsWith("'PingFang SC','Microsoft YaHei'"), 'CJK 回退被破坏（缺字会掉到 SimSun）')
   assert.ok(code.includes("'JetBrains Mono'"), '随包 OFL 字体应从第二位起保留')
@@ -500,7 +540,9 @@ test('自定义字体进代码字体栈首位：其后仍是随包 OFL 字体与
   assert.equal(cssVar(css, 'dsw-font-family'), code, 'mode=mono 正文与代码同栈')
   const tui = buildTypographyCss({ mode: 'tui', size: 13, fontKey: 'Hack Nerd Font' })
   assert.equal(cssVar(tui, 'dsw-font-family'), SANS_STACK, 'mode=tui 正文必须固定 SANS_STACK')
-  assert.equal(cssVar(tui, 'ds-font-family-code').indexOf("'Hack Nerd Font'"), 0, 'mode=tui 下自定义字体仍作用于代码')
+  const tuiCode = cssVar(tui, 'ds-font-family-code')
+  assert.ok(tuiCode)
+  assert.equal(tuiCode.indexOf("'Hack Nerd Font'"), 0, 'mode=tui 下自定义字体仍作用于代码')
 })
 
 test('非法族名不逃逸注入的 <style>：一律落回默认预设栈，且原文不进 CSS', () => {
@@ -537,7 +579,7 @@ test('本机字体枚举：成功去重 + 等宽置顶 + 字母序（非等宽�
   // 等宽置顶（Hack Nerd Font / JetBrains Mono / Sarasa Mono SC / Zed Mono），非等宽的 Arial 沉底
   assert.deepEqual(res.fonts, ['Hack Nerd Font', 'JetBrains Mono', 'Sarasa Mono SC', 'Zed Mono', 'Arial'])
   assert.equal(res.fonts.indexOf('Sarasa Mono SC'), res.fonts.lastIndexOf('Sarasa Mono SC'), '同族不得重复列出')
-  assert.equal(res.mono.Arial, undefined, '非等宽不进等宽表')
+  assert.equal(res.mono?.['Arial'], undefined, '非等宽不进等宽表')
 })
 
 test('本机字体枚举：失败各有其因，绝不抛异常（无 API / 拒授权 / 手势或可见性 / 空清单）', async () => {
@@ -573,7 +615,7 @@ test('等宽判定：canvas 实测宽度（不靠字体名猜），量不了就�
   const ctx = {
     set font(v) { family = String(v) },
     get font() { return family },
-    measureText(ch) { return { width: family.indexOf('真等宽体') >= 0 ? 16 : (ch === 'W' ? 24 : 9) } },
+    measureText(ch: string) { return { width: family.indexOf('真等宽体') >= 0 ? 16 : (ch === 'W' ? 24 : 9) } },
   }
   const doc = { createElement: () => ({ getContext: () => ctx }) }
   const mono = measureMonospaceFonts(doc, ['真等宽体', '比例体', 'Mono Sans 比例体'])
@@ -592,7 +634,7 @@ test('等宽判定：探针字符必须含异宽对，否则判定没有区分�
 })
 
 test('候选分级：预设恒在（置顶 + 兜底），本机字体在后并按枚举顺序（等宽置顶）', () => {
-  const avail = (k) => k === 'Consolas' // 只装 Consolas 的机器
+  const avail = (k: string): boolean => k === 'Consolas' // 只装 Consolas 的机器
   const cands = buildFontCandidates(['Hack Nerd Font', 'Maple Mono NF CN'], avail, { 'Hack Nerd Font': true }, Object.keys(FONTS), BUNDLED_FONTS)
   const presets = cands.filter((c) => c.isPreset)
   assert.deepEqual(presets.map((c) => c.key), Object.keys(FONTS), '预设分区应保持既有顺序且一个不少')
@@ -644,7 +686,7 @@ test('DSH 0.1.7 F1 链接：--dsw-alias-link 跟主题走且高特异度规则�
 
 test('DSH 0.1.7 F2 新头部：--dsl-code-block-background 与横幅同源、与块底拉开台阶', () => {
   const r = renderTheme('opencode', TYPO)
-  const t = (k) => r.tokens[k].dark
+  const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
   assert.equal(t('--dsl-code-block-background'), '#1E1E1E', '新头部应拿浮起层')
   assert.equal(t('--dsw-alias-markdown-code-block-banner'), '#1E1E1E', '老横幅保留且同值')
   assert.equal(t('--dsw-alias-markdown-code-block'), '#141414', '块底为中层')
@@ -690,7 +732,7 @@ test('DSH 0.1.7 F4 新卡片字号：随字号档缩放，默认还原上游密�
 
 test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛异常', () => {
   const r = renderTheme('opencode', TYPO)
-  const t = (k) => r.tokens[k] && r.tokens[k].dark
+  const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
   assert.equal(t('--dsw-alias-code-diff-added'), '#4FD6BE', 'code-diff-added 达标原样透出 diffAdded')
   // issue 80：删除对原值 #C53B53 on #37222C 仅 2.89，兜底提亮前景并压暗背景到达标（加深红 tint 向黑）
   assert.equal(t('--dsw-alias-code-diff-deleted'), '#CB4F64', 'code-diff-deleted 兜底提亮后达标')
@@ -723,7 +765,7 @@ test('diff 可读性兜底：全主题删除/新增文本-背景 >= 4.5 且增�
   for (const name of themeNames()) {
     if (name === 'system') continue
     const r = renderTheme(name, TYPO)
-    const t = (k) => r.tokens[k] && r.tokens[k].dark
+    const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
     const delFg = t('--dsw-alias-code-diff-deleted')
     const delBgRaw = t('--dsw-alias-file-diff-deleted-bg')
     // lucent 系透明委托画布：背景透明跳过，不污染宿主默认（前景 marker 保留）
@@ -731,7 +773,7 @@ test('diff 可读性兜底：全主题删除/新增文本-背景 >= 4.5 且增�
     assert.ok(delFg && delBgRaw, name + ' 删除对不应缺槽（桌面主题已补齐）')
     const json = getThemeJson(name)
     const base = resolveThemeColors(json, 'dark').background
-    const eff = (v) => (/^#[0-9a-fA-F]{8}$/.test(v) ? blendOntoBase(v, base) : v)
+    const eff = (v: string): string => (/^#[0-9a-fA-F]{8}$/.test(v) ? blendOntoBase(v, base) : v)
     const cDel = engineContrastRatio(delFg, eff(delBgRaw))
     assert.ok(cDel >= 4.5, name + ' 删除对对比度应 >= 4.5，实测 ' + cDel.toFixed(2))
     const addFg = t('--dsw-alias-code-diff-added')
@@ -797,7 +839,7 @@ test('颜色 CSS：委托按外观分区，自持维持联合选择器', () => {
 })
 
 // issue 45：委托主题浅色正文对比度达标（AA 4.5:1）
-function relLum(hex) {
+function relLum(hex: string): number {
   const n = parseInt(String(hex).slice(1), 16)
   const ch = [(n >> 16) & 255, (n >> 8) & 255, n & 255].map((v) => {
     v /= 255
@@ -805,24 +847,26 @@ function relLum(hex) {
   })
   return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2]
 }
-function contrastRatio(a, b) {
+function contrastRatio(a: string, b: string): number {
   const [x, y] = [relLum(a), relLum(b)].sort((p, q) => q - p)
   return (x + 0.05) / (y + 0.05)
 }
 test('委托主题浅色正文对比度达标', () => {
   const r = renderTheme('lucent-orng', TYPO)
   const fg = r.tokens['--dsw-alias-label-primary'].light
+  assert.ok(fg)
   assert.ok(contrastRatio(fg, '#FFFFFF') >= 4.5, 'vs 纯白底未达 AA: ' + fg)
   assert.ok(contrastRatio(fg, '#FAFAFA') >= 4.5, 'vs 浅灰底未达 AA: ' + fg)
 })
 
 // issue 45：预览支持外观参数，缺省保持深色（调用方兼容）
 test('previewColors/themeGroups 支持外观参数', () => {
-  assert.equal(previewColors('lucent-orng').text, '#EEEEEE')
-  assert.equal(previewColors('lucent-orng', 'light').text, '#1A1A1A')
-  assert.equal(previewColors('lucent-orng', 'light').background, null)
+  assert.equal(previewOf('lucent-orng').text, '#EEEEEE')
+  assert.equal(previewOf('lucent-orng', 'light').text, '#1A1A1A')
+  assert.equal(previewOf('lucent-orng', 'light').background, null)
   const g = themeGroups('light')
   const t = g.flatMap((x) => x.themes).find((x) => x.name === 'lucent-orng')
+  assert.ok(t, 'lucent-orng 应在分组里')
   assert.equal(t.colors.text, '#1A1A1A')
 })
 
@@ -831,8 +875,8 @@ test('分组稳定性（issue 47）：明暗外观下分组一致、预览色跟
   const dark = themeGroups('dark')
   const light = themeGroups('light')
   assert.deepEqual(light.map((g) => g.name), dark.map((g) => g.name), '组顺序/组集合不得随外观漂移')
-  const toMap = (groups) => {
-    const m = new Map()
+  const toMap = (groups: EngineGroups): Map<string, GroupKey> => {
+    const m = new Map<string, GroupKey>()
     for (const g of groups) for (const t of g.themes) m.set(t.name, g.name)
     return m
   }
@@ -840,7 +884,11 @@ test('分组稳定性（issue 47）：明暗外观下分组一致、预览色跟
   const lm = toMap(light)
   assert.deepEqual([...dm.keys()].sort(), [...lm.keys()].sort(), '主题集合不得随外观变化')
   for (const [name, g] of dm) assert.equal(lm.get(name), g, name + ' 分组随外观漂移：' + g + ' → ' + lm.get(name))
-  const pick = (groups, n) => groups.flatMap((g) => g.themes).find((t) => t.name === n).colors
+  const pick = (groups: EngineGroups, n: string): PreviewColors => {
+    const t = groups.flatMap((g) => g.themes).find((x) => x.name === n)
+    assert.ok(t, n + ' 应在分组里')
+    return t.colors
+  }
   assert.notEqual(pick(light, 'opencode').primary, pick(dark, 'opencode').primary, 'opencode 明暗预览色应不同')
   assert.equal(pick(light, 'lucent-orng').text, '#1A1A1A', '委托主题浅色文字仍须跟随')
 })

@@ -6,6 +6,10 @@
 // 故意偏离官方签名的两处（升级复核时重点看）：
 //   1. DshTokenModes 的 light/dark 放宽为可选 —— src/engine/generate.ts 的 delegated 画布分支 在 delegated 画布下只写一半。
 //   2. DshLocaleService.register 的 namespace 放宽为 string —— 官方是 LocaleNamespaceMap 泛型键。
+// 与 #105 §6.2 草案的偏离（宿主半迁移时按实际调用补齐；落地后以本文件为准）：
+//   3. DshTimerService 增加 timeout —— §6.2 草案 / §6.3 表只记了 setTimeout，但 cordis-plugin-timer@1.1.7
+//      的 TimerService mixin 同时提供 timeout 与 setTimeout（setTimeout 是 timeout 的废弃别名），
+//      且 dsh-log 的 LogTimer 取的就是 timeout（runtime/host.ts 把它交给 dsh-log 落日志），故按运行时形状补齐。
 // 说明：docs/research/ts-migration-typing-surface-105.md §6.2 是设计草案，落地后以本文件为准。
 // 动态版自由变量 host 无官方 d.ts（runner README 约定固定名）；若 runner 改成 invoke 语义需同步本文件。
 
@@ -68,6 +72,8 @@ interface DshLocaleService {
 
 interface DshTimerService {
   setTimeout(handler: () => void, delay: number): () => void
+  /** cordis-plugin-timer 的 TimerService.timeout：回调式调度，返回值是清理器（dsh-log 的 LogTimer 即此形状） */
+  timeout(handler: () => void, delay: number): () => void
 }
 
 interface DshConnectionService {

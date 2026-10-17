@@ -1,17 +1,17 @@
-// build-client.ts — 零依赖 mini-bundler：npm 包客户端入口内联 + src/engine（tsc 转译产物）+ runtime → 浏览器 bundle 与宿主半
+// build-client.ts — 零依赖 mini-bundler：npm 包客户端入口内联 + src/engine/runtime（tsc 转译产物）→ 浏览器 bundle 与宿主半
 // 产出:
 //   package/lib/client.js             包版（window.__ModuleLoader__.load CJS bundle）
 //   client.js                         动态版（cordis_define code.client 函数体）
-//   package/lib/index.js              宿主半（runtime/host.mjs 原样 + 版本已注入）
+//   package/lib/index.js              宿主半（runtime/host.ts 的 tsc 转译输出）
 //   package/lib/event-list.json       事件清单（runtime/event-list.json 副本）
-//   package/lib/channel.mjs           两侧共用常量（runtime/channel.mjs 副本）
+//   package/lib/channel.js            两侧共用常量（runtime/channel.ts 的 tsc 转译输出）
 //   package/package.json              产物包声明（版本取自根 package.json）
 //   package/README.md                 用户文档副本
 //
-// 输入形态（P2 / 决策 D1「C-lite」）：
-//   engine —— 源码是 `src/engine/*.ts`，本脚本消费的是 `tsc -p tsconfig.build.json` 的转译产物
-//            `dist/src/engine/*.js`（类型已被 tsc 剥掉）；bundler 自身仍保持零依赖、逐行文本转换。
-//   runtime —— 仍是 `runtime/*.mjs` 原样文本（P3 才转 TS）。
+// 输入形态（P2 决策 D1「C-lite」；P3 把 runtime 也并入）：
+//   engine / runtime —— 源码是 `.ts`，本脚本消费的是 `tsc -p tsconfig.build.json` 的转译产物
+//            `dist/src/engine/*.js` 与 `dist/runtime/*.js`（类型已被 tsc 剥掉，相对导入已被
+//            `rewriteRelativeImportExtensions` 改写成 `.js`）；bundler 自身仍保持零依赖、逐行文本转换。
 //
 // 依赖形态（2026-09-30 起）：
 //   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.11`）。
@@ -30,6 +30,7 @@ import { parseLine } from './lib/source-parser.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const DIST_ENGINE_DIR = join(ROOT, 'dist', 'src', 'engine')
+const DIST_RUNTIME_DIR = join(ROOT, 'dist', 'runtime')
 const THEMES_DIR = join(ROOT, 'src', 'themes')
 const CUSTOM_PRESETS_DIR = join(ROOT, 'src', 'custom-presets')
 const RUNTIME_DIR = join(ROOT, 'runtime')
@@ -62,8 +63,8 @@ interface VendorNamePair {
   exported: string
 }
 
-// 运行时模块（runtime/*.mjs：面板主体 client 与两侧共用常量 channel；自研更新状态机已删）
-const RUNTIME_MODULE_FILES: Record<string, string> = { client: 'client.mjs', channel: 'channel.mjs', 'custom-color': 'custom-color.mjs', 'custom-store': 'custom-store.mjs', 'custom-editor': 'custom-editor.mjs', 'ui-fx': 'ui-fx.mjs' }
+// 运行时模块（runtime/*.ts 的转译产物：面板主体 client 与两侧共用常量 channel；自研更新状态机已删）
+const RUNTIME_MODULE_FILES: Record<string, string> = { client: 'client.js', channel: 'channel.js', 'custom-color': 'custom-color.js', 'custom-store': 'custom-store.js', 'custom-editor': 'custom-editor.js', 'ui-fx': 'ui-fx.js' }
 
 // 构建期**内联**进浏览器 bundle 的 npm 包客户端入口（浏览器没有 node_modules，只能打进产物）。
 // 注意这与「宿主半的依赖」是两回事：宿主半那侧是真依赖，运行时从 node_modules 解析。
@@ -260,8 +261,8 @@ async function loadModule(key: string): Promise<string> {
     return transformPackageModule(text, inline.spec)
   }
   const runtimeFile = RUNTIME_MODULE_FILES[key]
-  // engine 读 tsc 转译产物（dist/src/engine/*.js），runtime 仍读源码 .mjs
-  const file = runtimeFile ? join(RUNTIME_DIR, runtimeFile) : join(DIST_ENGINE_DIR, key + '.js')
+  // engine / runtime 都读 tsc 转译产物：dist/src/engine/*.js 与 dist/runtime/*.js
+  const file = runtimeFile ? join(DIST_RUNTIME_DIR, runtimeFile) : join(DIST_ENGINE_DIR, key + '.js')
   const text = await readSource(file)
   const lines = text.split('\n')
   const body: string[] = []
@@ -324,8 +325,8 @@ async function packageVersion(): Promise<string> {
 
 async function main(): Promise<void> {
   const version = await packageVersion()
-  if (!existsSync(join(DIST_ENGINE_DIR, 'index.js'))) {
-    throw new Error('[build] dist/src/engine 未生成：先跑 `npx tsc -p tsconfig.build.json`（npm run build 已包含这一步）')
+  if (!existsSync(join(DIST_ENGINE_DIR, 'index.js')) || !existsSync(join(DIST_RUNTIME_DIR, 'client.js'))) {
+    throw new Error('[build] dist 未生成：先跑 `npx tsc -p tsconfig.build.json`（npm run build 已包含这一步）')
   }
   // 面板版本号：源码占位统一替换为当前版本（包版/动态版一致）
   const modules = (await bundleModules()).split('__PALETTE_VERSION__').join(version)
@@ -342,7 +343,7 @@ async function main(): Promise<void> {
     ' * dsh-opencode-palette v' + version + ' — 浏览器半（构建产物，勿手改）',
     ' * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入',
     ' * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）',
-    ' * 源：src/engine/*.ts（tsc 转译产物）+ runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口',
+    ' * 源：src/engine/*.ts + runtime/*.ts（均为 tsc 转译产物）+ npm 包 dsh-log / dsh-plugin-update 的客户端入口',
     ' */',
     'window.__ModuleLoader__.load({',
     '  id: ' + q(ID) + ',',
@@ -372,9 +373,9 @@ async function main(): Promise<void> {
     'return { apply: __mods[' + qClient + '].createClient(' + qTool + ') }',
   ].join('\n') + '\n'
 
-  // ── 3) 宿主半（runtime/host.mjs 原样复制；版本已在源码里读自己的 package.json，无需注入）──
+  // ── 3) 宿主半（runtime/host.ts 的 tsc 转译输出；版本已在源码里读自己的 package.json，无需注入）──
   // 换行同样归一：产物字节与平台无关
-  const host = (await readFile(join(RUNTIME_DIR, 'host.mjs'), 'utf8')).replace(/\r\n/g, '\n')
+  const host = (await readFile(join(DIST_RUNTIME_DIR, 'host.js'), 'utf8')).replace(/\r\n/g, '\n')
 
   // ── 4) 产物包元数据 ──
   const pkgJson = {
@@ -405,7 +406,7 @@ async function main(): Promise<void> {
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。
     // node >=22：更新包 0.7.x 的 engines 要求（它按包名解析目标包，用到较新的 node:module 行为）
-    engines: { node: '>=22', dsh: '>=0.2.0-rc.1' },
+    engines: { node: '>=22.18.0', dsh: '>=0.2.0-rc.1' },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
       client: {
@@ -425,8 +426,10 @@ async function main(): Promise<void> {
   await writeFile(join(PKG_DIR, 'lib', 'client.js'), pkgBundle)
   await writeFile(join(PKG_DIR, 'lib', 'index.js'), host)
   await copyFile(join(RUNTIME_DIR, 'event-list.json'), join(PKG_DIR, 'lib', 'event-list.json'))
-  // 宿主半与浏览器半共用的接线常量：宿主半按相对路径 import 它，随包一起发
-  await copyFile(join(RUNTIME_DIR, 'channel.mjs'), join(PKG_DIR, 'lib', 'channel.mjs'))
+  // 宿主半与浏览器半共用的接线常量：宿主半按相对路径 import 它，随包一起发（转译输出，扩展名 .js）
+  await copyFile(join(DIST_RUNTIME_DIR, 'channel.js'), join(PKG_DIR, 'lib', 'channel.js'))
+  // P3：channel 从「原样复制的 .mjs」改为 tsc 转译输出的 .js；清掉旧扩展名残留，保证产物树确定
+  await rm(join(PKG_DIR, 'lib', 'channel.mjs'), { force: true })
   await writeFile(join(PKG_DIR, 'package.json'), JSON.stringify(pkgJson, null, 2) + '\n')
   // npm 包 README 用英文版（GitHub 首页 README.md 为中文版）；showcase 真实截图块不进包
   //（npm 保持 SVG 轻量，且 showcase 不在 package.json files 白名单，带图会渲染破裂）

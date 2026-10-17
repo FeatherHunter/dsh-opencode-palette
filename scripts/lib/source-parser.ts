@@ -11,6 +11,9 @@
 // 兼容两种文本风格：
 //   现行手写风格：单引号、无行尾分号、`.mjs` 后缀
 //   tsc 默认 emit：双引号、行尾分号、`.js` 后缀（C-lite：bundler 消费 tsc 转译产物）
+// 相对说明符同时接受 `./x` 与 `../src/engine/x`（P3 起 runtime 用真实相对路径引引擎源码，
+// tsc emit 后成 `../src/engine/x.js`；返回的 specifier 去掉开头的 `./`，`../` 原样保留，
+// bundler 一律只取最后一段作模块键）。
 // 仍然只匹配**单行**语句：构建器按行处理，tsc 不会把 import/export 声明拆成多行。
 // 未识别的行原样返回 null，由调用方决定保留/报错。
 
@@ -53,8 +56,8 @@ export type ParsedLine = JsonImportStatement | JsImportStatement | PkgImportStat
 
 // 组语义：1=本地名 2=引号 3=说明符（含 ./，与旧实现一致） 4=type 值的引号
 const JSON_IMPORT_RE = /^import\s+([A-Za-z_$][A-Za-z0-9_$]*)\s+from\s+(['"])([^'"]+\.json)\2\s+with\s*\{\s*type\s*:\s*(['"])json\4\s*\}\s*;?$/
-// 组语义：1=解构名列表 2=引号 3=说明符（`./` 之后、扩展名之前，与旧实现一致）
-const JS_IMPORT_RE = /^import\s*\{\s*([^}]+?)\s*\}\s*from\s*(['"])\.\/([A-Za-z0-9_/-]+)\.m?js\2\s*;?$/
+// 组语义：1=解构名列表 2=引号 3=相对说明符（可带 `./` 或 `../` 前缀，扩展名之前）
+const JS_IMPORT_RE = /^import\s*\{\s*([^}]+?)\s*\}\s*from\s*(['"])((?:\.{1,2}\/)+[A-Za-z0-9_/.-]*[A-Za-z0-9_/-])\.m?js\2\s*;?$/
 // 组语义同 JS import：1=解构名列表 2=引号 3=包说明符
 const PKG_IMPORT_RE = /^import\s*\{\s*([^}]+?)\s*\}\s*from\s*(['"])([a-z0-9-]+\/[a-z0-9-]+)\2\s*;?$/
 const TYPE_IMPORT_RE = /^import\s+type\s/
@@ -71,7 +74,8 @@ export function parseLine(line: string): ParsedLine | null {
   // `import type { X } from './x.js'` 与 JS/PKG import 同形，必须先判掉
   if (TYPE_IMPORT_RE.test(line)) return { type: 'type-import' }
   m = line.match(JS_IMPORT_RE)
-  if (m) return { type: 'js-import', names: m[1], specifier: m[3] }
+  // 去掉开头的 `./`（与旧实现返回的 specifier 口径一致）；`../` 前缀保留，调用方只取最后一段。
+  if (m) return { type: 'js-import', names: m[1], specifier: m[3].replace(/^(?:\.\/)+/, '') }
   m = line.match(PKG_IMPORT_RE)
   if (m) return { type: 'pkg-import', names: m[1], specifier: m[3] }
   m = line.match(EXPORT_RE)

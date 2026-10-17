@@ -1,4 +1,4 @@
-// group-boundary.test.mjs — #68 色系边界冻结（青绿/青蓝/冷蓝）pin 测试
+// group-boundary.test.ts — #68 色系边界冻结（青绿/青蓝/冷蓝）pin 测试
 // 结论与理由见 src/engine/grouping.ts 的「色系边界冻结」注释；本文件把「冻结」变成会红的门：
 //   1) 阈值 pin：160/200/230 的 ±1° 探针各落一侧（改阈值就红）；
 //   2) 归属 pin：边界两侧最近主题钉死在各自组（主题数据升级越界就红）；
@@ -6,38 +6,58 @@
 //   4) 分区完整性：三组非空且在色相轴上连续；
 //   5) 中文名体例 pin：青字头 ×2 ＋ 冷字头 ×1；
 //   6) dark 基线 pin（issue 47）：明暗两套预览色不得改变分组成员。
-// 只读引擎与源码，不需要构建（渲染侧的词典断言见 tests/panel-render.test.mjs）。
+// 只读引擎与源码，不需要构建（渲染侧的词典断言见 tests/panel-render.test.ts）。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { themeNames } from '../src/engine/index.ts'
-import { themeGroups, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.ts'
+import {
+  themeGroups,
+  hueOf,
+  groupOf,
+  resolvePreview,
+  type GroupKey,
+  type PreviewColors,
+} from '../src/engine/grouping.ts'
 
 // HSV(h,100%,100%) → #rrggbb：给 hueOf 一个高饱和探针（低饱和会被判成中性 -2，探不到阈值）
-function hsvHex(h) {
-  const f = (n) => {
+function hsvHex(h: number): string {
+  const f = (n: number): number => {
     const k = (n + h / 60) % 6
     return Math.round(255 * (1 - Math.max(0, Math.min(k, 4 - k, 1))))
   }
   return '#' + [f(5), f(3), f(1)].map((v) => v.toString(16).padStart(2, '0')).join('')
 }
-const probeGroup = (h) => groupOf('probe', { background: '#000000', primary: hsvHex(h) })
+
+// groupOf 只关心背景/主色这两槽；其余槽按「无」填充，保持 PreviewColors 完整。
+function probeColors(primary: string): PreviewColors {
+  return { background: '#000000', primary, text: null, accent: null, error: null, warning: null, success: null }
+}
+
+const probeGroup = (h: number): GroupKey => groupOf('probe', probeColors(hsvHex(h)))
 
 // 票内三条边界：下侧组/上侧组 ＋ 两侧最近主题（同 hue 并列时取注册表序第一个，实测表见 #68）
-const BOUNDARIES = [
+const BOUNDARIES: { at: number; lower: GroupKey; upper: GroupKey; below: string; above: string }[] = [
   { at: 160, lower: 'teal', upper: 'cyan-blue', below: 'gruvbox', above: 'osaka-jade' },
   { at: 200, lower: 'cyan-blue', upper: 'cool-blue', below: 'nord', above: 'ayu' },
   { at: 230, lower: 'cool-blue', upper: 'violet', below: 'mercury', above: 'aura' },
 ]
 const MIN_MARGIN = 2 // 度：实测最小 2.0（Ayu 202.0 对边界 200）
 
-function hueByName() {
-  const m = {}
-  for (const n of themeNames()) m[n] = hueOf(resolvePreview(n, 'dark').primary)
+/** resolvePreview 对注册表内主题恒有值；缺失即测试数据出错，直接断言失败。 */
+function previewOf(name: string): PreviewColors {
+  const colors = resolvePreview(name, 'dark')
+  assert.ok(colors, name + ' 应有预览色')
+  return colors
+}
+
+function hueByName(): Record<string, number> {
+  const m: Record<string, number> = {}
+  for (const n of themeNames()) m[n] = hueOf(previewOf(n).primary)
   return m
 }
-function membersOf(mode) {
-  const m = {}
+function membersOf(mode: string): Record<string, GroupKey> {
+  const m: Record<string, GroupKey> = {}
   for (const g of themeGroups(mode)) for (const t of g.themes) m[t.name] = g.name
   return m
 }
@@ -71,23 +91,29 @@ test('边界余量跳闸线（#68）：三条票内边界两侧最近主题 ≥2
 
 test('分区完整性（#68）：青绿/青蓝/冷蓝非空且在色相轴上连续', () => {
   const groups = themeGroups('dark')
-  const by = (g) => groups.find((x) => x.name === g)
+  const by = (g: GroupKey) => groups.find((x) => x.name === g)
   const hue = hueByName()
-  const hs = (g) => by(g).themes.map((t) => hue[t.name])
-  for (const g of ['teal', 'cyan-blue', 'cool-blue']) {
-    assert.ok(by(g) && by(g).themes.length >= 2, g + ' 组不应为空或孤例')
+  const hs = (g: GroupKey): number[] => {
+    const group = by(g)
+    assert.ok(group, g + ' 组应存在')
+    return group.themes.map((t) => hue[t.name])
+  }
+  const keys: GroupKey[] = ['teal', 'cyan-blue', 'cool-blue']
+  for (const g of keys) {
+    const group = by(g)
+    assert.ok(group && group.themes.length >= 2, g + ' 组不应为空或孤例')
   }
   assert.ok(Math.max(...hs('teal')) < Math.min(...hs('cyan-blue')), '青绿与青蓝在色相轴上必须连续')
   assert.ok(Math.max(...hs('cyan-blue')) < Math.min(...hs('cool-blue')), '青蓝与冷蓝在色相轴上必须连续')
 })
 
 test('中文名体例 pin（#68）：青字头 ×2 ＋ 冷字头 ×1', () => {
-  const src = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
-  const zhOf = (key) => {
+  const src = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
+  const zhOf = (key: string): string => {
     const line = src.split(String.fromCharCode(10)).find((l) => l.trim().startsWith("'" + key + "':"))
-    assert.ok(line, 'runtime/client.mjs 缺中文名：' + key)
+    assert.ok(line, 'runtime/client.ts 缺中文名：' + key)
     const m = line.match(/zh: '([^']+)'/)
-    assert.ok(m, 'runtime/client.mjs 的 ' + key + ' 缺 zh 字段')
+    assert.ok(m, 'runtime/client.ts 的 ' + key + ' 缺 zh 字段')
     return m[1]
   }
   assert.equal(zhOf('group.teal'), '青绿')

@@ -1,6 +1,6 @@
-// ui-fx.mjs — 配置面板全局交互动效（#86 建立，#88 分级扩展；SSR 零污染架构）
+// ui-fx.ts — 配置面板全局交互动效（#86 建立，#88 分级扩展；SSR 零污染架构）
 // 零导入。只提供「面板专属样式表 + 钩子属性名 + 档位常量」：既有主题胶囊/分段按钮的
-// SSR 内联 style 字符串一个字符都不碰（tests/panel-render.test.mjs 的
+// SSR 内联 style 字符串一个字符都不碰（tests/panel-render.test.ts 的
 // chipSegment 子串断言全集必须继续通过），动效只挂到数据属性钩子上。
 // #88 拍板：`!important` 只允许出现在 :hover / :active / :focus-visible 状态选择器内，
 // 且颜色一律取主题变量，绝不写死深色；@media (prefers-reduced-motion: reduce) 全量降级。
@@ -83,13 +83,26 @@ const REDUCED = '@media (prefers-reduced-motion: reduce){' + ANY + '{transition:
 
 export const UI_FX_CSS = [BASE, LEGACY, CHIP_FX, BUTTON_FX, ROW_FX, SWATCH_FX, INPUT_FX, SWITCH_FX, REDUCED].join('')
 
+// 宿主 document 的最小可注入面：真实调用传全局 document，测试传 partial 假件；
+// 用结构类型而不是 DOM 的 Document，避免把 SSR 兜底路径误标成「必须有真 DOM」。
+interface FxElement {
+  textContent: string | null
+  setAttribute?: (name: string, value: string) => void
+}
+
+interface FxDocument {
+  readonly head: { appendChild(node: unknown): unknown } | null
+  createElement(tag: string): FxElement | null
+}
+
 let uiFxInjected = false
 
 // 注入面板专属 <style data-dsh-opencode-palette-ui>（幂等；假宿主/无 head 静默 false）
-export function injectUiFx(doc) {
+export function injectUiFx(doc: FxDocument | null | undefined): boolean {
   try {
     if (uiFxInjected) return false
-    const d = doc || (typeof document !== 'undefined' ? document : null)
+    // 类型：真 document 结构化满足 FxDocument；标注避免与 DOM lib 的 Document 形成联合后调用面分叉。
+    const d: FxDocument | null = doc || (typeof document !== 'undefined' ? document : null)
     if (!d || !d.head || typeof d.head.appendChild !== 'function') return false
     if (typeof d.createElement !== 'function') return false
     const el = d.createElement('style')

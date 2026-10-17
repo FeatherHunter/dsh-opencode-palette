@@ -1,43 +1,116 @@
-// runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
+// runtime/client.ts — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets, getIpPreset } from './engine/index.mjs'
-import { FONTS } from './engine/map-dsh.mjs'
-import { BUNDLED_FONTS } from './engine/font-face.mjs'
-import { createFontAvailability } from './engine/font-avail.mjs'
-import { codeFontStack } from './engine/generate.mjs'
-import { buildFontCandidates, collectLocalFonts } from './engine/local-fonts.mjs'
-import { computeMenuGeometry } from './engine/float-geometry.mjs'
-import { THEME_ZH, THEME_EN, themeSearchText } from './engine/zh-names.mjs'
-import { buildUpdateTokens, buildUpdateTokensFromColors } from './engine/update-tokens.mjs'
+import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets, getIpPreset } from '../src/engine/index.ts'
+import { FONTS } from '../src/engine/map-dsh.ts'
+import { BUNDLED_FONTS } from '../src/engine/font-face.ts'
+import { createFontAvailability } from '../src/engine/font-avail.ts'
+import { codeFontStack } from '../src/engine/generate.ts'
+import { buildFontCandidates, collectLocalFonts } from '../src/engine/local-fonts.ts'
+import { computeMenuGeometry } from '../src/engine/float-geometry.ts'
+import { THEME_ZH, THEME_EN, themeSearchText } from '../src/engine/zh-names.ts'
+import { buildUpdateTokens, buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
 import { createClientLog } from 'dsh-log/client'
 import { mountUpdateEntry } from 'dsh-plugin-update/entry'
-import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.mjs'
-import { clientSlug, filterCustomThemes, normalizeHexInput } from './custom-color.mjs'
-import { loadCustomCache, saveCustomCache, reconcileCustomThemes } from './custom-store.mjs'
-import { CustomEditor } from './custom-editor.mjs'
-import { TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_ROW, TIER_SWITCH, UI_INTERACTIVE_ATTR, injectUiFx } from './ui-fx.mjs'
+import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.ts'
+import { clientSlug, filterCustomThemes, normalizeHexInput } from './custom-color.ts'
+import { loadCustomCache, saveCustomCache, reconcileCustomThemes } from './custom-store.ts'
+import { CustomEditor } from './custom-editor.ts'
+import { TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_ROW, TIER_SWITCH, UI_INTERACTIVE_ATTR, injectUiFx } from './ui-fx.ts'
+
+// ── 局部类型（纯类型迁移用；只在编译期存在，不影响运行时）──
+// 动态版宿主注入的 React 对象：只声明本文件用到的 API；元素/子节点对 TS 保持 unknown。
+interface ReactApi {
+  createElement: (type: unknown, props?: unknown, ...children: unknown[]) => unknown
+  // any: 状态值在事件回调里被整体替换（含 null 起步与惰性初值），宿主 Dispatch 类型本侧无声明；
+  // 这里只约束调用形状（initial 可以是值或惰性函数）
+  useState: (initial?: unknown) => [any, (next: any) => void]
+  useEffect: (effect: () => void | (() => void), deps?: unknown[]) => void
+  useMemo: <T>(factory: () => T, deps?: unknown[]) => T
+  // any: useRef 的 current 在事件回调里被反复赋成 DOM 节点/布尔值，跨 React 生命周期，无本侧类型可依
+  useRef: (initial?: unknown) => { current: any }
+}
+
+// 动态版宿主把 React 挂在 globalThis 上（宿主无 d.ts）：唯一窄化点用的宿主形状
+type ReactHost = { React?: ReactApi }
+
+// 面板状态：DEFAULT_STATE 的形状；localStorage 里的旧值按此展开（字段只增不减）
+interface PaletteState {
+  enabled: boolean
+  theme: string
+  mode: string
+  size: number
+  fontKey: string
+  followAppearance: boolean
+}
+
+// i18n 条目：面板只有 zh/en 两语，其余 locale 名按索引签名兜底
+interface LocalePair { zh: string; en: string; [lang: string]: string }
+
+// 宿主桥：两条方言（connection.rpc / 动态版 host）归一后的形状
+interface HostBridge {
+  // any: RPC 回包由宿主定义（{ ok, value|error, themes, dirPath, enabled… }），本侧只逐字段读，无 d.ts 可窄化
+  call: (phone: string, args: unknown) => Promise<any>
+}
+
+// 引擎导出的元素类型：从函数返回类型反推，避免手抄第二份定义
+type FontCandidate = ReturnType<typeof buildFontCandidates>[number]
+type ThemeGroup = ReturnType<typeof themeGroups>[number]
+type ThemeEntry = ThemeGroup['themes'][number]
+type IpPresetRecord = ReturnType<typeof listIpPresets>[number]
+
+// 本机字体清单缓存：一次枚举的结论（candidates 供面板渲染，reason/ok 供「读不到」文案与重试）
+interface FontListCache {
+  candidates: FontCandidate[]
+  count: number
+  reason: string | null
+  ok: boolean
+}
+
+// 自定义主题记录：宿主目录单文件 .json / 编辑器回传。本侧只读 id/name/appearance/colors，
+// 其余字段随版本演进，整体转交引擎（引擎侧 CustomTheme 字段全可选，兼容）。
+interface CustomThemeRecord {
+  id: string
+  name: string
+  appearance?: string | null
+  colors?: Record<string, string | undefined> | null
+  basePreset?: string | null
+  [extra: string]: unknown
+}
+
+// 外观投影前的文档快照（只在无 ctx.theme.setTheme 的旧宿主上做「写文档 + 恢复」用）
+interface DocumentSnapshot {
+  bodyDark: boolean | null
+  scheme: string | null
+  source: string | null
+}
 
 const STORAGE_KEY = 'dsh.opencode-palette.v2'
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
-// 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
+// 构建时由 scripts/build-client.ts 替换为 package.json 版本（面板底部署小字）
 const PALETTE_VERSION = '__PALETTE_VERSION__'
 
-function getReact() {
-  if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
-  if (typeof globalThis !== 'undefined' && globalThis.React) return globalThis.React
+function getReact(): ReactApi | null {
+  if (typeof require === 'function') { try { return require('react') as ReactApi } catch (e) { /* 动态版无 require */ } }
+  // 动态版宿主把 React 挂在 globalThis 上（宿主无 d.ts），此处是唯一窄化点。
+  // 同一个 const 引用上做真值判断与返回，才能让编译器把 React 收窄成非 undefined；
+  // as 只补类型、运行时就是 globalThis，两处读取语义与原守卫顺序一致。
+  if (typeof globalThis !== 'undefined') {
+    const reactHost = globalThis as unknown as ReactHost
+    if (reactHost.React) return reactHost.React
+  }
   return null
 }
 
 // ── 宿主桥：浏览器半调宿主半的电话 ──
 // 两条方言都要接：
 //   1) 包版（本插件装成 npm 包）：ctx.get('connection').rpc.call('/api', 'opencode-palette', { method, payload })
-//      走宿主 connection.fetch.register 注册的精确路由；两个常量来自 runtime/channel.mjs（两侧同一份）。
+//      走宿主 connection.fetch.register 注册的精确路由；两个常量来自 runtime/channel.ts（两侧同一份）。
 //   2) 动态版（cordis_define）：runner 给闭包注入自由变量 host，直接 host.call(电话名, 入参)。
 // 都没有时返回 null，整块更新功能降级隐藏（不影响主题面板本身）。
-function rpcCall(rpc, phone, args) {
+function rpcCall(rpc: DshConnectionService['rpc'], phone: string, args: unknown): Promise<unknown> {
   return Promise.resolve(rpc.call(CHANNEL, ENDPOINT, { method: phone, payload: args })).then(function (res) {
     if (res && res.ok) return res.value
     const why = res && res.error && res.error.message ? res.error.message : 'rpc failed: ' + phone
@@ -45,23 +118,24 @@ function rpcCall(rpc, phone, args) {
   })
 }
 
-function createHostBridge(ctx) {
+function createHostBridge(ctx: DshContext | null): HostBridge | null {
   try {
     const connection = ctx && typeof ctx.get === 'function' ? ctx.get('connection') : null
     const rpc = connection && connection.rpc ? connection.rpc : null
     if (rpc && typeof rpc.call === 'function') {
-      return { call: function (phone, args) { return rpcCall(rpc, phone, args) } }
+      return { call: function (phone: string, args: unknown) { return rpcCall(rpc, phone, args) } }
     }
   } catch (e) { /* 落到下一条方言 */ }
   try {
+    // ! 只补类型：declare var 的窄化在闭包里会丢失，运行时仍由上面的 if 守卫
     if (typeof host !== 'undefined' && host && typeof host.call === 'function') {
-      return { call: function (phone, args) { return host.call(phone, args) } }
+      return { call: function (phone: string, args: unknown) { return host!.call(phone, args) } }
     }
   } catch (e) { /* 无宿主 */ }
   return null
 }
 
-function loadState() {
+function loadState(): PaletteState {
   try {
     // 新键优先；旧插件（dsh-opencode-tui-theme）的键命中则一次性迁移
     let raw = globalThis.localStorage && localStorage.getItem(STORAGE_KEY)
@@ -81,13 +155,13 @@ function loadState() {
   return { ...DEFAULT_STATE }
 }
 
-function saveState(state) {
+function saveState(state: PaletteState) {
   try {
     if (globalThis.localStorage) localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch (e) { /* 忽略持久化失败 */ }
 }
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
-const I18N = {
+const I18N: Record<string, LocalePair> = {
   panelName: { zh: 'OpenCode调色板', en: 'OpenCode Palette' },
   // 计数为派生数据：{n} 取 themeNames().length（37 静态＋system，恒≥2，英文恒复数），转抄 38 必漂（34→38 前车）。
   subtitle: { zh: '{n} 款 OpenCode 官方配色主题，点击即切换', en: '{n} official OpenCode themes — click to switch' },
@@ -341,7 +415,7 @@ function getLang() {
 
 // 字体可用性：随包字体（OFL 内联 @font-face）恒可用；本机字体（SF Mono / Consolas /
 // Maple Mono NF CN 等）缺失即灰显提示（仍可选中，回退栈保证不断字）。
-// 判定实现（宽度对比法）与理由见 engine/font-avail.mjs。
+// 判定实现（宽度对比法）与理由见 engine/font-avail.ts。
 const isFontAvailable = createFontAvailability(
   () => (typeof document === 'undefined' ? undefined : document),
   BUNDLED_FONTS
@@ -350,10 +424,11 @@ const isFontAvailable = createFontAvailability(
 // ── 本机字体清单（枚举 → 去重 → 等宽置顶 → 候选分级）──
 // 缓存：一次会话只读一次本机清单（同一次枚举的结论对面板多次开合都成立）；
 // 面板侧只在「读不到」时给「重试」入口，重试才强制重读。
-let localFontsCache = null
-function collectFontCandidates() {
+let localFontsCache: FontListCache | null = null
+function collectFontCandidates(): Promise<FontListCache> {
   const scope = typeof window === 'undefined' ? null : window
-  return collectLocalFonts(scope).then(function (res) {
+  // FontScope 未导出（只含 navigator/document/queryLocalFonts 三个可选字段）；运行时传的就是 window
+  return collectLocalFonts(scope as Parameters<typeof collectLocalFonts>[0]).then(function (res) {
     const candidates = buildFontCandidates(res.ok ? res.fonts : [], isFontAvailable, res.mono, Object.keys(FONTS), BUNDLED_FONTS)
     localFontsCache = {
       candidates: candidates,
@@ -365,7 +440,7 @@ function collectFontCandidates() {
   })
 }
 
-// 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
+// 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.ts 的 CSS 约定一致）
 // 未知环境（SSR/旧宿主/mock 缺 body）回退 true = 保持现有深色视觉，绝不误伤深色主题
 function isHostDark() {
   try {
@@ -375,9 +450,9 @@ function isHostDark() {
 }
 
 // 把 key → {zh,en} 表转成 locale 服务注册形态 {zh: {...}, en: {...}}
-function toLocaleDicts(i18n) {
-  const zh = {}
-  const en = {}
+function toLocaleDicts(i18n: Record<string, LocalePair>) {
+  const zh: Record<string, string> = {}
+  const en: Record<string, string> = {}
   for (const key in i18n) {
     const pair = i18n[key]
     zh[key] = pair.zh
@@ -388,14 +463,14 @@ function toLocaleDicts(i18n) {
 
 
 // 生成注入物并注入：token 层 + <style> 层；幂等（先清后注入）
-export function createClient(slotTarget) {
-  return function apply(ctx) {
+export function createClient(slotTarget: string) {
+  return function apply(ctx: DshContext) {
     const theme = ctx.get('theme')
     const slots = ctx.get('slots')
 
     let state = loadState()
-    let tokenDispose = null
-    let styleTag = null
+    let tokenDispose: (() => void) | null = null
+    let styleTag: HTMLStyleElement | null = null
     // ── 宿主桥 + 日志骨架 + 更新入口件（宿主不可用时更新块不挂载，不影响主题面板）──
     const hostBridge = createHostBridge(ctx)
     const clientLog = createClientLog(
@@ -417,7 +492,8 @@ export function createClient(slotTarget) {
     // 入口按钮去底（头行是宿主地盘）：只覆盖入口作用域的 buttonBg 为透明——dialog 根 .dsh-upd
     // 不在 .dsh-upd-entry 内故不受影响；按钮自身指定值胜过祖先 inline tokens 的继承值。上游改名则静默回退到主题色块。
     const UPDATE_ENTRY_TRANSPARENT_BG = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
-    const mountedUpdateEntries = []
+    // any: 入口件实例由 dsh-plugin-update 生成（含 setThemeTokens/unmount），本侧只做鸭子调用
+    const mountedUpdateEntries: any[] = []
     function currentUpdateTokens() {
       try {
         const iid = ipIdOf(state.theme)
@@ -446,7 +522,7 @@ export function createClient(slotTarget) {
     function updateLocaleSource() {
       return {
         getActive: function () { return currentLocale() },
-        subscribe: function (cb) {
+        subscribe: function (cb: () => void) {
           localeListeners.push(cb)
           return function () {
             const i = localeListeners.indexOf(cb)
@@ -455,13 +531,13 @@ export function createClient(slotTarget) {
         },
       }
     }
-    function mountUpdateButton(container) {
+    function mountUpdateButton(container: HTMLElement | null) {
       if (!hostBridge || !container || typeof container.innerHTML !== 'string') return null
       try {
         const entry = mountUpdateEntry(container, {
           pluginId: PLUGIN_ID,
           prefix: PHONE_PREFIX,
-          call: function (phone, args) { return hostBridge.call(phone, args) },
+          call: function (phone: string, args: unknown) { return hostBridge.call(phone, args) },
           variant: 'button',
           theme: 'default',
           openOn: 'always',
@@ -484,30 +560,35 @@ export function createClient(slotTarget) {
     // apply 顶层绝不无条件同步调 customThemesList（log-switch mock 会抛 unexpected phone）；
     // 对账只发生在面板挂载 effect 与用户手势里，且恒经 Promise 包裹静默降级。
     try { injectUiFx(typeof document !== 'undefined' ? document : null) } catch (e) { /* 忽略 */ }
-    let customCache = loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null)
+    // 缓存形状由 custom-store 的 loadCustomCache 给出；themes 里是用户保存的自定义主题记录
+    // as：custom-store 那侧未导出类型，且条目只保证 id/name 可读（unknown）、其余透传；
+    // 本侧沿用既有读法（id/name 必填），内容校验与兜底在下方使用点
+    let customCache: { themes: CustomThemeRecord[]; dirPath: string } =
+      loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null) as { themes: CustomThemeRecord[]; dirPath: string }
     function storageHandle() {
       try { return globalThis.localStorage ? globalThis.localStorage : null } catch (e) { return null }
     }
-    function findCustom(id) {
+    function findCustom(id: string | null) {
       const list = customCache.themes || []
       for (const t of list) { if (t && t.id === id) return t }
       return null
     }
-    function isCustomKey(key) { return typeof key === 'string' && key.indexOf('custom:') === 0 }
-    function customIdOf(key) { return isCustomKey(key) ? key.slice('custom:'.length) : null }
+    function isCustomKey(key: string) { return typeof key === 'string' && key.indexOf('custom:') === 0 }
+    function customIdOf(key: string) { return isCustomKey(key) ? key.slice('custom:'.length) : null }
     // ── 预置 IP 主题（用户口径 m08573）：与内置 38 同属「预置」，同区展示、点击直接生效；
-    // 唯一区别是渲染来源——IP 走静态 bundle（ip-presets.mjs），恒不写 DSH 自定义目录。
+    // 唯一区别是渲染来源——IP 走静态 bundle（ip-presets.ts），恒不写 DSH 自定义目录。
     // 只有用户新增/存盘的自定义主题才落盘，激活键 custom:<id>；两者前缀并列，互不冒充。
-    function isIpKey(key) { return typeof key === 'string' && key.indexOf('ip:') === 0 }
-    function ipIdOf(key) { return isIpKey(key) ? key.slice('ip:'.length) : null }
-    function findIpPreset(id) {
+    function isIpKey(key: string) { return typeof key === 'string' && key.indexOf('ip:') === 0 }
+    function ipIdOf(key: string) { return isIpKey(key) ? key.slice('ip:'.length) : null }
+    function findIpPreset(id: string) {
       if (typeof id !== 'string' || !id) return null
       try { return getIpPreset(id) } catch (e) { return null }
     }
-    function customAppearanceOf(t) {
+    // 记录外观归一：只认 light/system，其余（含缺失）按 dark（与引擎/更新件同一口径）
+    function customAppearanceOf(t: { appearance?: string | null } | null | undefined) {
       return t && (t.appearance === 'light' || t.appearance === 'system') ? t.appearance : 'dark'
     }
-    function setCustomCacheData(data) {
+    function setCustomCacheData(data: { themes?: unknown; dirPath?: unknown } | null | undefined) {
       customCache = {
         themes: data && Array.isArray(data.themes) ? data.themes : [],
         dirPath: data && typeof data.dirPath === 'string' ? data.dirPath : '',
@@ -524,13 +605,13 @@ export function createClient(slotTarget) {
         return Promise.resolve({ themes: customCache.themes, dirPath: customCache.dirPath, source: 'cache' })
       }
     }
-    function saveCustomTheme(payload) {
-      const p = payload || {}
+    function saveCustomTheme(payload: Record<string, unknown> | null | undefined) {
+      const p: Record<string, unknown> = payload || {}
       let id = typeof p.id === 'string' && p.id ? p.id : null
       if (!id) {
         // 新建：客户端 slug 派生并避让已有用 id（宿主整单拒绝非法 id，故调用方必给合法值）
         id = clientSlug(p.name) || 'theme'
-        const used = {}
+        const used: Record<string, boolean> = {}
         for (const t of customCache.themes || []) { if (t && t.id) used[t.id] = true }
         if (used[id]) {
           let i = 2
@@ -552,7 +633,7 @@ export function createClient(slotTarget) {
         return { ok: false, error: 'save-rejected' }
       }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) } })
     }
-    function deleteCustomTheme(id) {
+    function deleteCustomTheme(id: string) {
       if (!hostBridge) return Promise.resolve({ ok: false, error: 'no-host' })
       return Promise.resolve().then(function () {
         return hostBridge.call('palette.customThemesDelete', { id: id })
@@ -575,26 +656,26 @@ export function createClient(slotTarget) {
     // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
     // 首帧渲染可先用这一次对账的本地快照，但面板每次挂载的校正必须 fresh 查询——
     // 复用启动快照会在写成功后把新值覆回旧值（issue 42：打开后重进被关闭）。
-    let logSwitchReady = null
+    let logSwitchReady: ReturnType<typeof clientLog.reconcileLogSwitch> | null = null
     try { logSwitchReady = clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
     try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
 
     // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
     const localeSvc = ctx.get('locale') || ctx.locale || null
     const LOCALE_NS = 'opencode-palette'
-    let dictDispose = null
-    let localeUnsub = null
-    let currentLang = localeSvc ? localeSvc.getLocale().active : getLang()
-    const localeListeners = []
+    let dictDispose: (() => void) | null = null
+    let localeUnsub: (() => void) | null = null
+    let currentLang: string = localeSvc ? localeSvc.getLocale().active : getLang()
+    const localeListeners: Array<() => void> = []
     // 入口重注册钩：语言切换时让宿主重读入口 label（注册函数在面板段定义，此处只留钩位）
-    let reregisterEntries = null
+    let reregisterEntries: (() => void) | null = null
     function currentLocale() { return localeSvc ? localeSvc.getLocale().active : getLang() }
-    function tr(key) {
+    function tr(key: string) {
       const entry = I18N[key]
       return entry ? (entry[currentLang] !== undefined ? entry[currentLang] : key) : key
     }
     // 带占位符的文案：trf('updateToVersion', { v: '1.8.0' })
-    function trf(key, vars) {
+    function trf(key: string, vars: Record<string, unknown>) {
       let text = tr(key)
       for (const name in vars) {
         if (Object.prototype.hasOwnProperty.call(vars, name)) text = text.split('{' + name + '}').join(String(vars[name]))
@@ -623,7 +704,7 @@ export function createClient(slotTarget) {
       try { dictDispose = localeSvc.register(LOCALE_NS, toLocaleDicts(I18N)) } catch (e) { /* 忽略 */ }
     }
 
-    function safeThemeName(name) {
+    function safeThemeName(name: string) {
       const names = themeNames()
       return names.indexOf(name) >= 0 ? name : DEFAULT_STATE.theme
     }
@@ -679,13 +760,13 @@ export function createClient(slotTarget) {
     const DARK_ATTR = 'data-ds-dark-theme'
     const SOURCE_ATTR = 'data-ds-theme-source'
     let appearanceManaged = false
-    let appearanceBefore = null
-    let appearanceProjected = null
+    let appearanceBefore: DocumentSnapshot | null = null
+    let appearanceProjected: DocumentSnapshot | null = null
     let appearanceFallbackLogged = false
-    let lastOfficialPref = null
-    let officialBeforePref = null
+    let lastOfficialPref: string | null = null
+    let officialBeforePref: string | null | undefined = null
     let officialBeforeRecorded = false
-    function readHostPreference() {
+    function readHostPreference(): string | undefined {
       try {
         if (!theme || typeof theme.getTheme !== 'function') return undefined
         const snap = theme.getTheme()
@@ -694,7 +775,7 @@ export function createClient(slotTarget) {
         return p === undefined ? undefined : p
       } catch (e) { return undefined }
     }
-    function verifyHostPreference(pref) {
+    function verifyHostPreference(pref: string) {
       const cur = readHostPreference()
       if (cur === undefined) return true
       return cur === pref
@@ -714,7 +795,7 @@ export function createClient(slotTarget) {
       appearanceFallbackLogged = true
       try { clientLog.log('info', 'host.call', { method: 'appearance-fallback', latencyMs: 0, ok: true, kind: 'fallback', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
     }
-    function snapshotDocument() {
+    function snapshotDocument(): DocumentSnapshot | null {
       try {
         const de = typeof document !== 'undefined' ? document.documentElement : null
         const body = typeof document !== 'undefined' ? document.body : null
@@ -725,7 +806,7 @@ export function createClient(slotTarget) {
         }
       } catch (e) { return null }
     }
-    function projectAppearance(dark) {
+    function projectAppearance(dark: boolean) {
       try {
         if (typeof document === 'undefined' || !document.body || !document.documentElement) return
         if (!appearanceManaged) { appearanceManaged = true; appearanceBefore = snapshotDocument() }
@@ -751,8 +832,8 @@ export function createClient(slotTarget) {
         if (!prev || typeof document === 'undefined' || !document.body || !document.documentElement) return
         const de = document.documentElement
         // 只释放我们自己写的值：中途被宿主/用户改过的信号一律不动（陈旧快照不覆盖新写入）
-        const cur = snapshotDocument() || {}
-        const ours = function (key) { return projected && cur[key] === projected[key] }
+        const cur: Partial<DocumentSnapshot> = snapshotDocument() || {}
+        const ours = function (key: keyof DocumentSnapshot) { return projected && cur[key] === projected[key] }
         try {
           if (!de.style || !ours('scheme')) { /* 不是我们写的则不动 */ }
           else if (prev.scheme) de.style.colorScheme = prev.scheme
@@ -771,7 +852,7 @@ export function createClient(slotTarget) {
         } catch (e) { /* 忽略 */ }
       } catch (e) { /* 忽略 */ }
     }
-    function syncAppearancePref(pref) {
+    function syncAppearancePref(pref: string) {
       // 无跟随开关：只要启用就恒跟随（深色→dark、透光→light、system→system释放）
       if (!state.enabled) return
       // system 已是释放态时不写：宿主已为 system 即无主张，重写反而可能在 compat 宿主上落成具体值（#55）
@@ -789,10 +870,10 @@ export function createClient(slotTarget) {
       if (pref === 'system') { releaseAppearance(); return }
       projectAppearance(pref === 'dark')
     }
-    function syncAppearanceForTheme(name) {
+    function syncAppearanceForTheme(name: string) {
       if (!state.enabled) return
       if (name === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
-      let pref
+      let pref: string
       if (name === 'system') pref = 'system'
       else {
         let translucent = false
@@ -803,7 +884,7 @@ export function createClient(slotTarget) {
     }
     // ── 面板 API（与 React 组件共享）──
     function getState() { return { ...state } }
-    function setTheme(name) {
+    function setTheme(name: string) {
       state = { ...state, theme: safeThemeName(name) }
       saveState(state)
       if (state.enabled) applyStyle()
@@ -812,7 +893,7 @@ export function createClient(slotTarget) {
     }
     // 预置 IP 主题：与内置主题同一入口的「点击即生效」，不落盘（用户口径 m08573）。
     // 找不到（bundle 里没有这个 id）则原样不动，绝不静默换成别的主题。
-    function setIpTheme(id) {
+    function setIpTheme(id: string) {
       const ip = findIpPreset(id)
       if (!ip) return false
       state = { ...state, theme: 'ip:' + id }
@@ -822,7 +903,7 @@ export function createClient(slotTarget) {
       refreshUpdateTheme()
       return true
     }
-    function setCustomTheme(id) {
+    function setCustomTheme(id: string) {
       const found = findCustom(id)
       if (!found) {
         // 缓存未命中时试一次宿主对账（用户手势路径，允许异步 RPC），仍无则忽略
@@ -839,7 +920,7 @@ export function createClient(slotTarget) {
       syncAppearancePref(customAppearanceOf(found))
       refreshUpdateTheme()
     }
-    function setTypography(next) {
+    function setTypography(next: Partial<PaletteState>) {
       state = { ...state, ...next }
       saveState(state)
       if (state.enabled) applyStyle()
@@ -849,7 +930,7 @@ export function createClient(slotTarget) {
       saveState(state)
       if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme); refreshUpdateTheme() } else { clearStyle(); restoreOfficialOnStop(); releaseAppearance() }
     }
-    function refresh(nextMode, nextSize, nextFont) {
+    function refresh(nextMode: string, nextSize: number, nextFont: string) {
       setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont })
     }
 
@@ -881,10 +962,13 @@ export function createClient(slotTarget) {
     }
 
     // ── 设置面板（组合 1：排印置顶 + 色系分组标签 + mini 芯片）──
-    let disposePanel = null
+    let disposePanel: (() => void) | null = null
     if (slots !== undefined && typeof document !== 'undefined') {
-      const Panel = function (props) {
-        const react = getReact()
+      // any: 注入对象由下方 paletteApi() 生成、被 Panel 消费，两处字段随版本演进；这里按鸭子调用，
+      // 各字段的语义在 paletteApi() 上逐个注释（面板内部只做渲染，不做类型自证）。
+      const Panel = function (props: any) {
+        // 面板只会在宿主挂载 React 之后渲染；null 分支是动态版无 require 时的兜底，不会走到这里
+        const react = getReact() as ReactApi
         const h = react.createElement
         const [query, setQuery] = react.useState('')
         const [fontOpen, setFontOpen] = react.useState(false)
@@ -903,7 +987,7 @@ export function createClient(slotTarget) {
         // （z-index 再高也逃不出去）；null = 菜单关闭
         const [fontAnchor, setFontAnchor] = react.useState(null)
         // 量一次锚点并定位：true = 已定位，false = 锚点不可见（调用方关菜单，不乱放）
-        const placeFontMenu = function (menuW, menuH) {
+        const placeFontMenu = function (menuW: number | null, menuH: number | null) {
           try {
             if (typeof window === 'undefined' || !fontBtnRef.current || typeof fontBtnRef.current.getBoundingClientRect !== 'function') return false
             const r = fontBtnRef.current.getBoundingClientRect()
@@ -943,7 +1027,7 @@ export function createClient(slotTarget) {
         // 字体下拉：点击外部关闭
         react.useEffect(function () {
           if (!fontOpen && !sizeOpen) return
-          function onDoc(e) {
+          function onDoc(e: Event) {
             if (fontRef.current && !fontRef.current.contains(e.target)) setFontOpen(false)
             if (sizeRef.current && !sizeRef.current.contains(e.target)) setSizeOpen(false)
           }
@@ -970,7 +1054,7 @@ export function createClient(slotTarget) {
             if (!placeFontMenu(s.w, s.h)) { setFontOpen(false); setFontAnchor(null) }
           }
           reposition()
-          function onScroll(e) {
+          function onScroll(e: Event) {
             try {
               if (fontMenuRef.current && e && e.target && fontMenuRef.current.contains(e.target)) return
             } catch (err) { /* 含不住就当外部滚动 */ }
@@ -1034,16 +1118,17 @@ export function createClient(slotTarget) {
         const shown = q === ''
           ? props.groups('dark')
           : props.groups('dark')
-              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return themeSearchText(t.name).toLowerCase().indexOf(q) >= 0 }) } })
-              .filter(function (g) { return g.themes.length > 0 })
+              .map(function (g: ThemeGroup) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t: ThemeEntry) { return themeSearchText(t.name).toLowerCase().indexOf(q) >= 0 }) } })
+              .filter(function (g: { themes: unknown[] }) { return g.themes.length > 0 })
 
         const muted = 'var(--dsw-alias-label-secondary)'
         const base = 'var(--dsw-alias-label-primary)'
         // 主题显示名：中文界面用中文名、英文界面用官方名（system 走 i18n 文案）；
         // 两表都缺键才退回内部 id（slug 兜底，键集由单源对账 pin 住）
-        const themeLabel = function (name) {
+        const themeLabel = function (name: string) {
           if (name === 'system') return name
-          return currentLang === 'zh' ? (THEME_ZH[name] || name) : (THEME_EN[name] || name)
+          // THEME_ZH/EN 是字面量表（键=主题 id，动态取用），取用点按 string 索引
+          return currentLang === 'zh' ? ((THEME_ZH as Record<string, string>)[name] || name) : ((THEME_EN as Record<string, string>)[name] || name)
         }
         const fieldLabel = { fontSize: 11, color: muted }
         const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }
@@ -1066,13 +1151,13 @@ export function createClient(slotTarget) {
         const chipLightText = '#1A1A1A'
         // issue 48：预览色恒为深色基线，直接取主题文字色；
         // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
-        const chipText = function (colors) {
+        const chipText = function (colors: { text?: string | null } | null | undefined) {
           if (colors && colors.text) return colors.text
           return base
         }
 
         // 分段按钮控件
-        const seg = function (value, options, onChange) {
+        const seg = function (value: string, options: Array<{ value: string; label: string }>, onChange: (value: string) => void) {
           return h('div', { style: { display: 'inline-flex', background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: 2, gap: 2 } },
             options.map(function (opt) {
               const on = opt.value === value
@@ -1090,7 +1175,7 @@ export function createClient(slotTarget) {
             }))
         }
         // 通用下拉（字号）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
-        const dd = function (open, setOpen, ref, labelNode, items) {
+        const dd = function (open: boolean, setOpen: (next: boolean) => void, ref: unknown, labelNode: unknown, items: unknown) {
           return h('div', { ref: ref, style: { position: 'relative' } }, [
             h('button', {
               onClick: function () { setOpen(!open) },
@@ -1111,7 +1196,7 @@ export function createClient(slotTarget) {
             }, items) : null,
           ])
         }
-        const dot = function (color, size) {
+        const dot = function (color: string | null | undefined, size: number) {
           return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || dotFallback, display: 'inline-block', flex: 'none' } })
         }
 
@@ -1136,7 +1221,7 @@ export function createClient(slotTarget) {
           setFontList(null)
         }
         // 候选行：族名按自己的字体渲染（预览即所得）；未装灰显标注，确实装在本机的标「已装」/「等宽」
-        const fontItem = function (k) {
+        const fontItem = function (k: FontCandidate) {
           const on = k.key === st.fontKey
           const suffix = k.ok && k.installed ? '(' + (k.mono ? tr('fontMono') : tr('fontLocal')) + ')' : (k.ok ? '' : '(' + tr('fontNotInstalled') + ')')
           return h('div', {
@@ -1173,7 +1258,7 @@ export function createClient(slotTarget) {
         // 分组标题：非点击的分区线（替代旧“本机字体 · 90”文本分隔）。
         // 文本用主题色 var(--dsw-alias-brand-primary)（随当前 opencode 主题走 primary），
         // 数量做成描边徽章 + 中间细分割线，不再用“·”拼接字符串。
-        const secHeader = function (key, label, count) {
+        const secHeader = function (key: string, label: string, count: number | null | undefined) {
           const badge = (count === null || count === undefined) ? null : h('span', {
             key: 'n',
             style: {
@@ -1201,7 +1286,7 @@ export function createClient(slotTarget) {
             badge,
           ])
         }
-        const menuItem = function (key, label, onClick) {
+        const menuItem = function (key: string, label: string, onClick: () => void) {
           return h('div', {
             key: key,
             onClick: onClick,
@@ -1211,10 +1296,10 @@ export function createClient(slotTarget) {
         }
         const fontMenu = function () {
           const q = fontQuery.trim().toLowerCase()
-          const match = function (k) { return q === '' || k.key.toLowerCase().indexOf(q) >= 0 }
-          const presets = candidates.filter(function (k) { return k.isPreset && match(k) })
+          const match = function (k: FontCandidate) { return q === '' || k.key.toLowerCase().indexOf(q) >= 0 }
+          const presets = candidates.filter(function (k: FontCandidate) { return k.isPreset && match(k) })
           // 枚举到的本机字体已按「等宽置顶 + 字母序」排好，这里只做过滤与截断（大清单别一次铺满 DOM）
-          const all = candidates.filter(function (k) { return !k.isPreset && match(k) })
+          const all = candidates.filter(function (k: FontCandidate) { return !k.isPreset && match(k) })
           const locals = all.slice(0, 400)
           const rows = []
           if (presets.length > 0) {
@@ -1229,8 +1314,8 @@ export function createClient(slotTarget) {
           return h('div', null, [
             h('input', {
               value: fontQuery,
-              onChange: function (e) { setFontQuery(e.target.value) },
-              onClick: function (e) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
+              onChange: function (e: { target: { value: string } }) { setFontQuery(e.target.value) },
+              onClick: function (e: { stopPropagation?: () => void }) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
               [UI_INTERACTIVE_ATTR]: TIER_INPUT,
               placeholder: tr('fontSearch'),
               style: {
@@ -1276,7 +1361,7 @@ export function createClient(slotTarget) {
 
         // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
         // 透光恒浅底深字（浅色一眼可辨）；system 跟宿主（浅白/深黑），选中 system 的外观效果等同停用（只留排印，颜色与外观接管全释放）
-        const chip = function (t) {
+        const chip = function (t: ThemeEntry) {
           const isCur = t.name === st.theme
           const c = t.colors
           const translucent = t.name !== 'system' && delegatesBackground(t.name)
@@ -1315,7 +1400,7 @@ export function createClient(slotTarget) {
             return p.name.toLowerCase().indexOf(qq) >= 0 || String(p.title || '').toLowerCase().indexOf(qq) >= 0
           })
         }
-        const ipChip = function (p) {
+        const ipChip = function (p: IpPresetRecord) {
           const key = 'ip:' + p.name
           const isCur = key === st.theme
           const c = p.colors || {}
@@ -1355,7 +1440,7 @@ export function createClient(slotTarget) {
         }
 
         // ── 自定义主题区（#86）：特殊分组下方的独立区块，不碰 GROUP_ORDER / themeNames ──
-        const copyIcon = function (checking) {
+        const copyIcon = function (checking: boolean) {
           return h('svg', {
             width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
             stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
@@ -1364,7 +1449,7 @@ export function createClient(slotTarget) {
             ? [h('path', { key: 'ok', d: 'M20 6L9 17l-5-5' })]
             : [h('path', { key: 'box', d: 'M9 9h11v11H9z' }), h('path', { key: 'page', d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })])
         }
-        const fallbackCopy = function (text, done) {
+        const fallbackCopy = function (text: string, done?: () => void) {
           try {
             const d = typeof document !== 'undefined' ? document : null
             if (!d || typeof d.createElement !== 'function') return false
@@ -1398,7 +1483,7 @@ export function createClient(slotTarget) {
         }
         // 自定义主题胶囊（B1 方案：圆点 primary、底 background、字 text、边框 primary；
         // light+transparent 走恒浅底；选中 2px 品牌边框 + ✓）
-        const customChip = function (t) {
+        const customChip = function (t: CustomThemeRecord) {
           const pv = props.customPreview(t) || {}
           const key = 'custom:' + t.id
           const isCur = key === st.theme
@@ -1424,7 +1509,7 @@ export function createClient(slotTarget) {
             isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
           ])
         }
-        const funcCapsule = function (id, label, title, onClick, disabled) {
+        const funcCapsule = function (id: string, label: string, title: string | undefined, onClick: () => void, disabled: boolean) {
           return h('button', {
             key: id,
             title: title,
@@ -1457,7 +1542,7 @@ export function createClient(slotTarget) {
           if (!list.length) return
           setSaveError(null)
           const activeId = customIdOf(props.getState().theme)
-          const first = list.filter(function (x) { return x && x.id === activeId })[0] || list[0]
+          const first = list.filter(function (x: CustomThemeRecord) { return x && x.id === activeId })[0] || list[0]
           let base = {}
           try {
             const p = props.presetPalette(first.basePreset || 'opencode', hostDark ? 'dark' : 'light')
@@ -1471,7 +1556,7 @@ export function createClient(slotTarget) {
             },
           })
         }
-        const handleEditorSave = function (payload) {
+        const handleEditorSave = function (payload: Record<string, unknown> | null | undefined) {
           if (!payload || !String(payload.name || '').trim()) return
           setSaveError(null)
           try {
@@ -1486,7 +1571,7 @@ export function createClient(slotTarget) {
             }).catch(function () { setSaveError(tr('customSaveFail')) })
           } catch (e) { setSaveError(tr('customSaveFail')) }
         }
-        const handleEditorDelete = function (id) {
+        const handleEditorDelete = function (id: string) {
           try {
             Promise.resolve().then(function () { return props.deleteCustomTheme(id) }).then(function () {
               try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
@@ -1495,18 +1580,19 @@ export function createClient(slotTarget) {
             }).catch(function () { /* 保持弹窗，静默 */ })
           } catch (e) { /* 保持弹窗，静默 */ }
         }
-        const pick2 = function (key) {
-          const entry = I18N[key] || {}
+        const pick2 = function (key: string) {
+          // I18N 缺失键在运行时是 undefined，这里按空对象兜底（空对象没有 zh/en，落到 key）
+          const entry: Partial<LocalePair> = I18N[key] || {}
           return { zh: entry.zh !== undefined ? entry.zh : key, en: entry.en !== undefined ? entry.en : key }
         }
         const editorSlotMeta = function () {
-          const out = {}
+          const out: Record<string, { zh: string; en: string; useZh: string; useEn: string; allow: boolean }> = {}
           for (const s of COLOR_SLOTS) {
             out[s.key] = {
-              zh: (I18N['cslot.' + s.key] || {}).zh || s.key,
-              en: (I18N['cslot.' + s.key] || {}).en || s.key,
-              useZh: (I18N['cslotUse.' + s.key] || {}).zh || '',
-              useEn: (I18N['cslotUse.' + s.key] || {}).en || '',
+              zh: (I18N['cslot.' + s.key] || ({} as Partial<LocalePair>)).zh || s.key,
+              en: (I18N['cslot.' + s.key] || ({} as Partial<LocalePair>)).en || s.key,
+              useZh: (I18N['cslotUse.' + s.key] || ({} as Partial<LocalePair>)).zh || '',
+              useEn: (I18N['cslotUse.' + s.key] || ({} as Partial<LocalePair>)).en || '',
               allow: !!s.allowTransparent,
             }
           }
@@ -1526,31 +1612,31 @@ export function createClient(slotTarget) {
           try {
             const hm = hostDark ? 'dark' : 'light'
             const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
-            // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.mjs）。
+            // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.ts）。
             return builtins.concat(safeIpPresets())
           } catch (e) { return [] }
         }
-        const editorPresetGroups = function (presets) {
+        const editorPresetGroups = function (presets: Array<{ name: string; title?: string }>) {
           try {
-            const names = presets.map(function (p) { return p.name })
-            const seen = {}
-            const buckets = []
-            const mineIp = safeIpPresets().map(function (p) { return p.name }).filter(function (n) { return names.indexOf(n) >= 0 })
-            mineIp.forEach(function (n) { seen[n] = true })
+            const names = presets.map(function (p: { name: string }) { return p.name })
+            const seen: Record<string, boolean> = {}
+            const buckets: Array<{ title: string; names: string[]; color: string }> = []
+            const mineIp = safeIpPresets().map(function (p: IpPresetRecord) { return p.name }).filter(function (n: string) { return names.indexOf(n) >= 0 })
+            mineIp.forEach(function (n: string) { seen[n] = true })
             if (mineIp.length) buckets.push({ title: tr('customIpPresets'), names: mineIp, color: '#8B8B95' })
-            props.groups('dark').forEach(function (g) {
-              const mine = g.themes.map(function (t) { return t.name }).filter(function (n) { return names.indexOf(n) >= 0 })
-              mine.forEach(function (n) { seen[n] = true })
+            props.groups('dark').forEach(function (g: ThemeGroup) {
+              const mine = g.themes.map(function (t: ThemeEntry) { return t.name }).filter(function (n: string) { return names.indexOf(n) >= 0 })
+              mine.forEach(function (n: string) { seen[n] = true })
               if (mine.length) buckets.push({ title: tr('group.' + g.name), names: mine, color: g.color || '#8B8B95' })
             })
-            const rest = names.filter(function (n) { return !seen[n] })
+            const rest = names.filter(function (n: string) { return !seen[n] })
             if (rest.length) buckets.push({ title: tr('customOther'), names: rest, color: '#8B8B95' })
-            return buckets.filter(function (b) { return b.names.length > 0 })
+            return buckets.filter(function (b: { names: string[] }) { return b.names.length > 0 })
           } catch (e) { return [] }
         }
         // 点自定义胶囊：换上该存盘主题。命中不了（缓存旧/文件被外部删）→ setCustomTheme 内部先对账一次，
         // 仍无则原样不动；这里绝不代用户写盘，也绝不把主题悄悄换回第一个（用户口径 m08573）。
-        const applyCustomChip = function (t) {
+        const applyCustomChip = function (t: CustomThemeRecord) {
           if (!t || typeof t.id !== 'string' || !t.id) return
           props.setCustomTheme(t.id)
           setUi(props.getState())
@@ -1558,7 +1644,9 @@ export function createClient(slotTarget) {
         // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 21 套在上方 IP 预置组，恒不写盘。
         const renderCustomSection = function () {
           const list = (customData && customData.themes) || []
-          const shownCustom = filterCustomThemes(list, query)
+          // filterCustomThemes 只保证按 id/name 过滤（那侧类型是 { id?: unknown; name?: unknown }），
+          // 本侧渲染按 CustomThemeRecord 读，缺失字段由 customChip/引擎逐点兜底
+          const shownCustom = filterCustomThemes(list, query) as CustomThemeRecord[]
           return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
               dot('#FAB283', 8),
@@ -1595,10 +1683,11 @@ export function createClient(slotTarget) {
             groups: props.slotGroups(), groupMeta: editorGroupMeta(), slotMeta: editorSlotMeta(),
             editor: editor, customs: ((customData && customData.themes) || []).slice(),
             presets: presets, presetGroups: editorPresetGroups(presets),
-            presetLabel: function (n, p) {
+            presetLabel: function (n: string, p: { title?: string } | null | undefined) {
               if (n === 'system') return n
-              if (currentLang === 'zh') return THEME_ZH[n] || (p && p.title) || n
-              return THEME_EN[n] || n
+              // THEME_ZH/EN 是字面量表（键=主题 id，动态取用），取用点按 string 索引
+              if (currentLang === 'zh') return (THEME_ZH as Record<string, string>)[n] || (p && p.title) || n
+              return (THEME_EN as Record<string, string>)[n] || n
             },
             onSave: handleEditorSave, onDelete: handleEditorDelete,
             onClose: function () { setEditor(null) },
@@ -1691,7 +1780,7 @@ export function createClient(slotTarget) {
           }
         }, [])
         // 新包入口件挂载容器：头行右侧原位；宿主不可用时 mountUpdateButton 回 null，不渲染。
-        // data-update-entry 是产物级断言锚点（tests/update-panel.test.mjs），不是样式钩子。
+        // data-update-entry 是产物级断言锚点（tests/update-panel.test.ts），不是样式钩子。
         const updateButton = hostBridge
           ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' } })
           : null
@@ -1838,7 +1927,7 @@ export function createClient(slotTarget) {
           h('input', {
             placeholder: tr('search'),
             value: query,
-            onChange: function (e) { setQuery(e.target.value) },
+            onChange: function (e: { target: { value: string } }) { setQuery(e.target.value) },
             [UI_INTERACTIVE_ATTR]: TIER_INPUT,
             style: {
               width: '100%', maxWidth: 380,
@@ -1849,7 +1938,7 @@ export function createClient(slotTarget) {
           }),
           shown.length === 0 && ipMatchList().length === 0
             ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, tr('noMatch'))
-            : shown.map(function (g) {
+            : shown.map(function (g: ThemeGroup) {
                 return h('div', { key: g.name, style: { marginBottom: 10 } }, [
                   h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
                     dot(g.color, 8),
@@ -1897,9 +1986,9 @@ export function createClient(slotTarget) {
           // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
           collectFonts: collectFontCandidates,
           // 面板文案（测试/调试用，走同一份双语表）
-          text: function (key, vars) { return vars ? trf(key, vars) : tr(key) },
-          groups: function (mode) { return themeGroups(mode || 'dark') },
-          subscribeLocale: function (fn) {
+          text: function (key: string, vars?: Record<string, unknown>) { return vars ? trf(key, vars) : tr(key) },
+          groups: function (mode: string) { return themeGroups(mode || 'dark') },
+          subscribeLocale: function (fn: () => void) {
             localeListeners.push(fn)
             return function () {
               const i = localeListeners.indexOf(fn)
@@ -1913,21 +2002,22 @@ export function createClient(slotTarget) {
           saveCustomTheme: saveCustomTheme,
           deleteCustomTheme: deleteCustomTheme,
           setCustomTheme: setCustomTheme,
-          customPreview: function (t) { try { return customPreviewColors(t) } catch (e) { return null } },
+          customPreview: function (t: CustomThemeRecord) { try { return customPreviewColors(t) } catch (e) { return null } },
           slotGroups: function () { return COLOR_SLOT_GROUPS },
-          presetPalette: function (name, hostMode) { try { return extractPresetPalette(name, hostMode) } catch (e) { return null } },
+          presetPalette: function (name: string, hostMode?: string) { try { return extractPresetPalette(name, hostMode) } catch (e) { return null } },
         }
       }
       // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
       // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
-      let disposeSection = null
+      let disposeSection: (() => void) | null = null
       // 入口 label 跟随语言：宿主只在注册时读一次 label（中文启动后切英文，入口仍中文），
       // 故语言变化时 dispose 旧注册再重注一次，让宿主重读新语言 label。幂等，失败静默。
       function registerEntries() {
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
         try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
-        disposePanel = slots.inject(slotTarget, function () {
-          return slots.register({
+        // ! 只补类型：slots 已由外层 if 守卫非 undefined，但闭包（registerEntries）内窄化失效
+        disposePanel = slots!.inject(slotTarget, function () {
+          return slots!.register({
             name: slotTarget,
             id: 'opencode-palette',
             order: 30,
@@ -1937,8 +2027,8 @@ export function createClient(slotTarget) {
         })
         disposeSection = null
         if (slotTarget === 'settings.plugins.tab') {
-          disposeSection = slots.inject('settings.section', function () {
-            return slots.register({
+          disposeSection = slots!.inject('settings.section', function () {
+            return slots!.register({
               name: 'settings.section',
               id: 'opencode-palette',
               order: 16,
@@ -1958,6 +2048,9 @@ export function createClient(slotTarget) {
       return function () {
         try { clearStyle() } catch (e) { /* 忽略 */ }
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
+        // 既有事实：disposeSection 声明在上方 if 块内（块外不可见），此处引用在运行时抛 ReferenceError，
+        // 被下面的 try/catch 吞掉。补类型不改行为，故只压错误（修作用域属于行为变更，另开票处理）。
+        // @ts-expect-error
         try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
         try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
         try { if (dictDispose) dictDispose() } catch (e) { /* 忽略 */ }

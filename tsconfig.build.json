@@ -1,7 +1,9 @@
 {
-  // P2：tsc 只转译（C-lite）—— src/engine 的 .ts 输出到 dist/src/engine/*.js，
+  // P3：tsc 只转译（C-lite）—— `src/engine/*.ts` → `dist/src/engine/*.js`，`runtime/*.ts` → `dist/runtime/*.js`，
   // 由零依赖 mini-bundler（scripts/build-client.ts）逐行读取；不产 sourcemap、不内联 helpers、不 minify。
-  // scripts/ 不 emit：Node 22.18+ 原生类型剥离直跑 .ts（engines 门槛在 P3 bump 后收口）。
+  // 宿主半（runtime/host.ts）与 channel 也走这份 emit：产物 package/lib/index.js、package/lib/channel.js
+  // 是 tsc 转译输出（S2），不再原样复制源码。
+  // scripts/ 不 emit：Node 22.18+ 原生类型剥离直跑 .ts（engines 门槛已 bump 到 >=22.18.0）。
   // dist/ 不入库；`npm run emit` 先清空 dist 再转译，避免删/改名的模块在 dist 里静默复活（确定性产物）。
   // 注意：resolveJsonModule 会把被 import 的 37+21 个主题/预设 JSON 复制进 dist/src/{themes,custom-presets}；
   // bundler 的 JSON 内联直接读 src/，不读这些副本——它们只是 tsc 的附带产物，随 dist 一起被忽略。
@@ -17,5 +19,8 @@
     "sourceMap": false,
     "removeComments": false
   },
-  "include": ["src/engine/**/*.ts"]
+  // ambient 声明（types/dsh.d.ts）必须进 emit 程序，否则 runtime 里的 DshContext/host 全局会 TS2304；
+  // 用 files 精确引入，避免把 types/dsh-usage.fixture.ts 也编译进 dist（fixture 只服务 base typecheck）。
+  "files": ["types/dsh.d.ts"],
+  "include": ["src/engine/**/*.ts", "runtime/**/*.ts"]
 }

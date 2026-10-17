@@ -1,4 +1,4 @@
-// custom-editor.test.mjs — issue 86 回归：自定义主题纯函数缝（颜色/存储/动效）
+// custom-editor.test.ts — issue 86 回归：自定义主题纯函数缝（颜色/存储/动效）
 // 直接 import runtime 源码（这三个模块零导入，打包前后同一语义），先红后绿的 TDD 缝。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -26,19 +26,26 @@ import {
   pickRecentColors,
   SLOT_FB,
   SLOT_DARK2LIGHT,
-} from '../runtime/custom-color.mjs'
+} from '../runtime/custom-color.ts'
 import {
   CUSTOM_CACHE_KEY,
   loadCustomCache,
   saveCustomCache,
   reconcileCustomThemes,
-} from '../runtime/custom-store.mjs'
-import { UI_FX_CSS, UI_STYLE_ATTR, injectUiFx, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH } from '../runtime/ui-fx.mjs'
+} from '../runtime/custom-store.ts'
+import { UI_FX_CSS, UI_STYLE_ATTR, injectUiFx, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH } from '../runtime/ui-fx.ts'
 
-function memoryStorage() {
-  const map = new Map()
+// 测试用假 localStorage：只实现断言用到的那几个方法。
+interface TestStorage {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+  removeItem?(key: string): void
+}
+
+function memoryStorage(): TestStorage {
+  const map = new Map<string, string>()
   return {
-    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    getItem: (k) => map.get(k) ?? null,
     setItem: (k, v) => { map.set(k, String(v)) },
     removeItem: (k) => { map.delete(k) },
   }
@@ -135,7 +142,7 @@ test('loadCustomCache/saveCustomCache：往返一致，坏数据/无存储回空
 test('reconcileCustomThemes：成功写缓存，失败回缓存，绝不抛', async () => {
   const st = memoryStorage()
   const server = { themes: [{ id: 's', name: 'S' }], dirPath: 'D:\\srv' }
-  const bridge = { call: async (phone) => {
+  const bridge = { call: async (phone: string) => {
     assert.equal(phone, 'palette.customThemesList')
     return { ok: true, dirPath: server.dirPath, themes: server.themes }
   } }
@@ -203,7 +210,8 @@ test('injectUiFx：幂等注入，假宿主（无 head/querySelector）不抛', 
   assert.equal(injectUiFx(fakeDoc), false)
   assert.equal(appended, 1)
   assert.equal(injectUiFx(null), false)
-  assert.equal(injectUiFx({}), false)
+  // 假宿主缺 head/createElement：FxDocument 未导出，用参数类型断言表达「结构不足的宿主」。
+  assert.equal(injectUiFx({} as unknown as Parameters<typeof injectUiFx>[0]), false)
 })
 
 // ── #86 验收集成（走构建产物 package/lib/client.js，与 panel-render 同构）──
@@ -215,13 +223,54 @@ const _require = createRequire(import.meta.url)
 const _React = _require('react')
 const _ReactDOMServer = _require('react-dom/server')
 
-function loadCustomPanel(opts = {}) {
+// bundle 注册进 slots 的面板 props（测试实际读到的那些 API）。
+interface PanelProps {
+  setIpTheme(id: string): boolean
+  getState(): { theme: string }
+  reconcileCustomThemes(): Promise<{ source: string; themes: unknown[]; dirPath: string }>
+  saveCustomTheme(theme: Record<string, unknown>): Promise<{ ok: boolean }>
+  deleteCustomTheme(id: string): Promise<{ ok: boolean }>
+  setCustomTheme(id: string): void
+  slotGroups(): Array<{ id: string; keys: string[] }>
+  presetPalette(name: string, mode: string): { appearance: string; colors: Record<string, string> }
+  customPreview(theme: Record<string, unknown>): { primary: string }
+}
+
+interface PanelDescriptor {
+  inject(): PanelProps
+}
+
+interface PanelModule {
+  apply(ctx: unknown): void
+}
+
+interface BundleEntry {
+  id: string
+  factory(require: (id: string) => unknown): PanelModule
+}
+
+interface LoadedEntry {
+  id: string
+  exports: PanelModule
+}
+
+interface PanelOptions {
+  hostDark?: boolean
+  lang?: string
+  storage?: TestStorage
+}
+
+// any: 测试要临时伪造/删除浏览器全局（window/document/localStorage/matchMedia），
+// 它们在 DOM lib 里是真实只读类型，只有把 globalThis 当口袋才放得下假实现。
+const fakeGlobal: any = globalThis
+
+function loadCustomPanel(opts: PanelOptions = {}): { html: string; panelProps: PanelProps } {
   const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
-  const loaded = []
-  global.window = globalThis
-  delete globalThis.queryLocalFonts
-  globalThis.__ModuleLoader__ = {
-    load(entry) {
+  const loaded: LoadedEntry[] = []
+  fakeGlobal.window = globalThis
+  delete fakeGlobal.queryLocalFonts
+  fakeGlobal.__ModuleLoader__ = {
+    load(entry: BundleEntry) {
       loaded.push({
         id: entry.id,
         exports: entry.factory((id) => {
@@ -231,12 +280,12 @@ function loadCustomPanel(opts = {}) {
       })
     },
   }
-  const bodyAttrs = {}
+  const bodyAttrs: Record<string, string> = {}
   if (opts.hostDark !== false) bodyAttrs['data-ds-dark-theme'] = ''
-  global.document = {
+  fakeGlobal.document = {
     head: { appendChild: () => {} },
     body: {
-      hasAttribute: (k) => bodyAttrs[k] !== undefined,
+      hasAttribute: (k: string) => bodyAttrs[k] !== undefined,
       appendChild: () => {},
       removeChild: () => {},
     },
@@ -245,41 +294,57 @@ function loadCustomPanel(opts = {}) {
     addEventListener: () => {},
     removeEventListener: () => {},
   }
-  global.localStorage = opts.storage
+  fakeGlobal.localStorage = opts.storage
   runInThisContext(code, { filename: 'package/lib/client.js' })
   const p = loaded[0].exports
-  let panelCmp = null
-  let panelProps = null
+  let panelCmp: unknown = null
+  let panelProps: PanelProps | null = null
   const slots = {
-    inject: (slot, cb) => { cb(); return () => {} },
-    register: (desc, cmp) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
+    inject: (slot: string, cb: () => void) => { cb(); return () => {} },
+    register: (desc: PanelDescriptor, cmp: unknown) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
   }
   const ctx = {
-    get: (k) => {
+    get: (k: string) => {
       if (k === 'theme') return { overrideTokens: () => () => {} }
       if (k === 'slots') return slots
       return undefined // 无 connection（hostBridge null）→ 自定义 RPC 全走静默降级
     },
-    effect: (fn) => { fn() },
+    effect: (fn: () => void) => { fn() },
   }
   p.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
-  const html = _ReactDOMServer.renderToString(_React.createElement(panelCmp, panelProps))
-  return { html, panelProps }
+  assert.ok(panelProps, '面板组件未注入 props')
+  const props: PanelProps = panelProps
+  const html: string = _ReactDOMServer.renderToString(_React.createElement(panelCmp, props))
+  return { html, panelProps: props }
+}
+
+// 渲染期零 DOM：临时摘掉浏览器全局，跑完（无论抛不抛）原样装回。
+function withRealDomGlobals<T>(fn: () => T): T {
+  const saved: Record<string, unknown> = {}
+  for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
+    if (k in fakeGlobal) { saved[k] = fakeGlobal[k]; delete fakeGlobal[k] }
+  }
+  try {
+    return fn()
+  } finally {
+    for (const k of Object.keys(saved)) fakeGlobal[k] = saved[k]
+  }
 }
 
 // ✎ 编辑按钮是否带 disabled 属性（空态置灰，原型 :606）
-function editBtnDisabled(html) {
+function editBtnDisabled(html: string): boolean {
   const at = html.indexOf('✎ 编辑')
   assert.ok(at >= 0, '✎ 编辑按钮应渲染')
   const open = html.lastIndexOf('<button', at)
   assert.ok(open >= 0, '应找到按钮起始标签')
   return html.slice(open, at).includes('disabled')
 }
-function seedStorage(customs) {  const map = new Map()
+function seedStorage(customs: unknown): TestStorage {
+  const map = new Map<string, string>()
   map.set('dsh.opencode-palette.customThemes', JSON.stringify(customs))
   return {
-    getItem: (k) => (map.has(k) ? map.get(k) : null),
+    getItem: (k) => map.get(k) ?? null,
     setItem: (k, v) => { map.set(k, String(v)) },
     removeItem: (k) => { map.delete(k) },
   }
@@ -393,7 +458,7 @@ test('词表对账（#86/#95）：glossary 自定义编辑器行 == 代码 I18N�
     if (m) rows.push({ key: m[1], zh: m[2].trim(), en: m[3].trim() })
   }
   assert.equal(rows.length, 176, '词表 #86/#95 行应为 176 行（改 I18N 必须同步词表）')
-  const src = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8').replace(/\r/g, '')
+  const src = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8').replace(/\r/g, '')
   const seen = new Set()
   for (const row of rows) {
     assert.equal(seen.has(row.key), false, '词表键重复：' + row.key)
@@ -406,7 +471,7 @@ test('词表对账（#86/#95）：glossary 自定义编辑器行 == 代码 I18N�
 
 test('#95：取色器 15 条新文案 —— 双语同在 I18N 与词表（新增行同样 #95 定稿）', () => {
   const md = readFileSync(new URL('../docs/i18n-glossary.md', import.meta.url), 'utf8').replace(/\r/g, '')
-  const src = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8').replace(/\r/g, '')
+  const src = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8').replace(/\r/g, '')
   const keys = [
     ['edHue', '色相', 'Hue'],
     ['edSat', '饱和度', 'Saturation'],
@@ -464,24 +529,27 @@ test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', (
 // ── 弹窗直渲染（源码级 CustomEditor + 桩 hooks + 真 reactSSR）──
 // 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
 // 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
-import { CustomEditor, PalettePicker, presetToSeed, slotRingStyle, needsReveal, popoverPosition } from '../runtime/custom-editor.mjs'
+import { CustomEditor, PalettePicker, presetToSeed, slotRingStyle, needsReveal, popoverPosition } from '../runtime/custom-editor.ts'
 import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.ts'
 
 function mockHooks() {
   return {
     createElement: _React.createElement,
-    useState: (init) => [typeof init === 'function' ? init() : init, () => {}],
+    useState: (init: unknown) => [typeof init === 'function' ? (init as () => unknown)() : init, () => {}],
     useEffect: () => {},
-    useRef: (v) => ({ current: v }),
+    useRef: (v: unknown) => ({ current: v }),
   }
 }
 
-function editorProps(appearance, colors) {
-  const slotMeta = {}
+// 编辑器/取色器的 props 是运行期拼出来的口袋对象（组件本身 props 无类型），测试只按键读写。
+type EditorProps = Record<string, unknown>
+
+function editorProps(appearance: string, colors: Record<string, unknown>): EditorProps {
+  const slotMeta: Record<string, { zh: string; en: string; useZh: string; useEn: string; allow: boolean }> = {}
   for (const s of ENGINE_SLOTS) {
     slotMeta[s.key] = { zh: s.key, en: s.key, useZh: s.key, useEn: s.key, allow: s.allowTransparent }
   }
-  const groupMeta = {}
+  const groupMeta: Record<string, { zh: string; en: string }> = {}
   const groups = [
     { id: 'bg', keys: ENGINE_SLOTS.filter((s) => s.group === 'bg').map((s) => s.key) },
     { id: 'text', keys: ['text', 'textMuted'] },
@@ -494,8 +562,8 @@ function editorProps(appearance, colors) {
   for (const g of groups) groupMeta[g.id] = { zh: g.id, en: g.id }
   return {
     h: mockHooks(),
-    tr: (k) => 'T:' + k,
-    trf: (k, o) => 'T:' + k + JSON.stringify(o || {}),
+    tr: (k: string) => 'T:' + k,
+    trf: (k: string, o?: unknown) => 'T:' + k + JSON.stringify(o || {}),
     lang: 'zh',
     groups,
     groupMeta,
@@ -511,27 +579,26 @@ function editorProps(appearance, colors) {
   }
 }
 
-function renderEditorPure(appearance, colors, mode = 'new', tweak = null) {
-  const saved = {}
-  for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
-    if (k in globalThis) { saved[k] = globalThis[k]; delete globalThis[k] }
-  }
-  try {
+function renderEditorPure(
+  appearance: string,
+  colors: Record<string, unknown>,
+  mode = 'new',
+  tweak: ((props: EditorProps) => void) | null = null,
+): string {
+  return withRealDomGlobals(() => {
     const props = editorProps(appearance, colors)
     props.editor = { mode, seed: { id: mode === 'edit' ? 'seed-id' : null, name: '直渲检查', appearance, colors, basePreset: 'opencode' } }
     if (tweak) tweak(props)
     const el = _React.createElement(CustomEditor, props)
-    return _ReactDOMServer.renderToString(el)
-  } finally {
-    for (const k of Object.keys(saved)) globalThis[k] = saved[k]
-  }
+    return _ReactDOMServer.renderToString(el) as string
+  })
 }
 
 test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () => {
   const pal = enginePreset('opencode')
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('直渲检查'), '编辑中主题名渲染')
-  assert.ok(html.includes(pal.colors.primary), '主色绑定到画布/行内样式')
+  assert.ok(html.includes(String(pal.colors.primary)), '主色绑定到画布/行内样式')
   // 37 槽全部直绑 data-slot（#94：borderActive 从 inputBg 内圈 boxShadow 独立成包裹节点，
   // 预览区 37 个色位各有自己的可点控件 —— 点环开 borderActive，点内开 inputBg）
   for (const s of ENGINE_SLOTS) {
@@ -566,7 +633,7 @@ test('预置载入同步：选基底 37 色 + 外观一次填好（loadPreset �
 })
 
 test('弹窗不直连换肤：源码无换肤调用（改色只动预览，不碰弹窗外主题）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   for (const ban of ['renderTheme', 'applyStyle', 'overrideTokens', 'buildUpdateTokens', 'setThemeTokens']) {
     assert.equal(src.includes(ban), false, '弹窗源码不应直连换肤：' + ban)
   }
@@ -575,7 +642,7 @@ test('弹窗不直连换肤：源码无换肤调用（改色只动预览，不�
 // ── #88：弹窗内全部可交互控件的动效钩子覆盖 ──
 // 判据：行内 cursor:pointer 的可点控件必须挂 data-palette-interactive；37 色块走 swatch 档；
 // 拾色面/输入框（Popover 展开才渲染）在源码里必须用 input 档，不允许档位空转。
-function modalInteractiveTags(html) {
+function modalInteractiveTags(html: string): string[] {
   return (html.match(/<[a-zA-Z][^>]*>/g) || []).filter((t) => t.includes('cursor:pointer'))
 }
 
@@ -588,7 +655,7 @@ test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', ()
   const swatches = (html.match(/data-palette-interactive="swatch"/g) || []).length
   assert.ok(swatches >= 37, '37 色块必须走 swatch 档，实测：' + swatches)
   assert.ok((html.match(/data-palette-interactive="button"/g) || []).length >= 3, '外观分段/关闭/保存等按钮走 button 档')
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes('UI_INTERACTIVE_ATTR'), '弹窗源码必须消费钩子属性')
   // 预置载入胶囊只在载入 Popover 展开时渲染，SSR 渲不到 → 档位用源码级断言守（不空转）
   assert.ok(src.includes('TIER_CHIP'), '预置载入胶囊应走 chip 档')
@@ -610,13 +677,14 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   assert.ok(html.includes('margin:-1px'), '顶部胶囊 2px 边距补偿（原型 .chip.sel :55）')
   assert.ok(html.includes('@supports') && html.includes('.syslabel'), '跟随系统双色字走原生 @supports（原型 :101）')
   assert.ok(html.includes('color:#F0F0F0'), 'syslabel 回落纯色（原型 :100）')
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("maxWidth: '230px'"), '基底下拉 max-width 230（原型 :94，编辑态才渲染故走源码断言）')
   assert.equal((src.match(/position: 'fixed', zIndex: 60/g) || []).length, 2, '调色板+预置弹窗均为 fixed（原型 .pop :185）')
   // #94 起调色板改为「锚定被点元素」的 popoverPosition 纯函数（下方优先/翻转/夹紧），
   // 旧的「视口右夹 + 预览区左夹」公式退役；预置弹窗仍是原型视口坐标公式（原型 :1061-1062），照旧 pin。
   assert.ok(src.includes('vw - W - 20') && src.includes('vh - 430'), '预置弹窗视口坐标公式（原型 :1061-1062）')
-  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide)'), '#94/#93 调色板定位走锚点纯函数（按入口类型选纵向/侧向规则）')
+  // P3 起源码是 .ts（参数带注解），用正则容忍 `: Type` 再钉调用形状。
+  assert.ok(/popoverPosition\(ar, bounds, \{ width: POP_W, height: POP_H \}, \w+\.preferSide\)/.test(src), '#94/#93 调色板定位走锚点纯函数（按入口类型选纵向/侧向规则）')
   // m09582 需求 2 之后这些字面量改走宿主 token，兜底值仍是原型色（见末条 m09582-2 用例）。
   assert.ok(src.includes("outline: psel ? '1px solid ' + TK.accent : undefined"), '选中基底描边走强调色 token（原型 realChipStyle :537）')
   assert.ok(src.includes('color: TK.accent, visibility: psel ?'), '基底对勾恒强调色（原型 realChipInner :542）')
@@ -638,7 +706,7 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
 test('弹窗尺寸：高度=预览区 564、纯 center 居中、一行控件同高 32', () => {
   const pal = enginePreset('opencode')
   const html = renderEditorPure('dark', pal.colors)
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   // 居中：改纯 center（safe center 在不支持的引擎里整条声明失效，会退化成拉伸/左上）
   assert.ok(/align-items:center;justify-content:center;padding:18px/.test(html), 'backdrop 用纯 center 居中（用户 m08383）')
   assert.ok(!src.includes('safe center'), '不再依赖 safe center（用户 m08383）')
@@ -664,15 +732,22 @@ test('弹窗尺寸：高度=预览区 564、纯 center 居中、一行控件同�
 // 真 DOM 实测数据（Chrome 无头 + React 真 hooks，见 .scratch-ed-dom.mjs）：
 //   左列 scrollH=2010 clientH=564 scrollbarColor=rgba(0,0,0,0)（不滑动不可见）；
 //   行标签 gap=6（标题右边缘 +6）、vcenterDelta=2、不压色块；预览标签 fixed z=9999 且在视口内。
+// 命中色位时必有一圈：把「必须有结果」收成断言 + 非空类型，断言口只关心圈文本。
+function ringOf(hl: string | null, slot: string): { boxShadow: string; animation: string } {
+  const ring = slotRingStyle(hl, slot)
+  assert.ok(ring, '该色位应被圈：' + slot)
+  return ring
+}
+
 test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦点圈（纯函数缝）', () => {
   for (const s of ENGINE_SLOTS) {
     const ring = slotRingStyle(s.key, s.key)
     assert.ok(ring && !ring.boxShadow.includes('undefined'), '色位自身必须被圈：' + s.key)
   }
   assert.equal(ENGINE_SLOTS.length, 37, '37 色位')
-  assert.ok(slotRingStyle('text', 'text').boxShadow.startsWith('inset'), '普通色位内圈（原型 .hl）')
-  assert.ok(slotRingStyle('border', 'border').boxShadow.startsWith('0 0 0 2px'), 'border 外圈（原型 .hl-edge）')
-  assert.ok(slotRingStyle('borderActive', 'borderActive').boxShadow.startsWith('0 0 0 2px'), 'borderActive 外圈')
+  assert.ok(ringOf('text', 'text').boxShadow.startsWith('inset'), '普通色位内圈（原型 .hl）')
+  assert.ok(ringOf('border', 'border').boxShadow.startsWith('0 0 0 2px'), 'border 外圈（原型 .hl-edge）')
+  assert.ok(ringOf('borderActive', 'borderActive').boxShadow.startsWith('0 0 0 2px'), 'borderActive 外圈')
   // EXTRA_HL 别名：border 系命中时同圈（原型 paintHl:896-900 的 .side/.md/.cinput 口径）
   for (const alias of ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg']) {
     assert.ok(slotRingStyle('border', alias), 'border 别名同圈：' + alias)
@@ -683,9 +758,10 @@ test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦
 })
 
 test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot))"), 't() 文本 span 吃圈 + 吃悬浮 + 可点开弹板（一句话的每个组成部分）')
-  assert.ok(src.includes('const clickableSpanStyle = function (slot, base)'), '可点文本 span 的合并样式收口到一处（#94 code-review）')
+  // P3 起参数带注解（slot: string, base?: StyleObject），只要定义仍在 function 形态收口即可。
+  assert.ok(src.includes('const clickableSpanStyle = function (slot'), '可点文本 span 的合并样式收口到一处（#94 code-review）')
   assert.equal((src.match(/clickableSpanStyle\(/g) || []).length, 4, 't() + 3 处裸 span = 4 处引用（定义行不计）')
   assert.ok(src.includes("'data-slot': p.s, className: ringCls(p.s)"), '代码块 token span 吃圈')
   assert.equal((src.match(/'data-slot': 'textMuted', className: ringCls\('textMuted'\)/g) || []).length, 2, 'textMuted 两处（代码头 js + 输入说明）都吃圈')
@@ -694,7 +770,7 @@ test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）
 })
 
 test('m08636-1：预览小标签改挂 fixed 覆盖层，层级高于预览区且不被容器裁', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("position: 'fixed', zIndex: 9999"), 'fixed 覆盖层 + zIndex 9999（原型 badge 挂 body :908 口径）')
   assert.equal(src.includes("top: '-9px', right: '-6px'"), false, '节点内小标签已移除（原会被 .mini{overflow:hidden} 裁掉）')
   assert.ok(src.includes("mini.querySelector('[data-slot=\"' + hl + '\"]')"), '锚点 = 预览里第一个命中元素（原型 matches[0] :903）')
@@ -719,7 +795,7 @@ test('m08636-2：左列滚动条不滑动时不可见，右画布列隐藏滚动
 })
 
 test('m08636-3：左列悬浮小标签贴标题控件右侧（不再压行角）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("left: 'calc(100% + 6px)'"), '标签挂标题右边缘 +6（原型 paintHl:928）')
   assert.ok(src.includes("transform: 'translate(' + (-rowShift) + 'px, -50%)'"), '垂直居中 + 长名夹紧位移（原型 :929-931）')
   assert.ok(src.includes("shift = unRight - (rr.right - 4)"), '夹紧：右边缘不越行右边界 4px（原型 :929）')
@@ -750,9 +826,11 @@ test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 c
   assert.equal(needsReveal(view, flushTop, 8), false, '贴边（留 REVEAL_PAD 余量）也算进视野')
   assert.equal(needsReveal(view, { top: 660, height: 64 }, 8), true, '下沿只压一点也要滑')
   assert.equal(needsReveal(null, inside, 8), false, '无测量不动（假宿主/SSR 不抛）')
-  assert.equal(needsReveal(view, {}, 8), false, '行未挂载不动')
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
-  assert.ok(src.includes('function revealRow(key)') && src.includes('revealRow(slot)'), '预览悬浮入口接 revealRow')
+  // 行未挂载时 row 为 null/空对象：用 Parameters 索引拿签名里的行测量类型（RevealRect 未导出），
+  // 保持「缺测量属性 → 不滑」的运行时语义不变。
+  assert.equal(needsReveal(view, {} as unknown as Parameters<typeof needsReveal>[1], 8), false, '行未挂载不动')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
+  assert.ok(/function revealRow\(key(?::\s*[^)]+)?\)/.test(src) && src.includes('revealRow(slot)'), '预览悬浮入口接 revealRow')
   assert.ok(src.includes("row.scrollIntoView({ block: 'center', behavior: 'smooth' })"), '滑动口径 = 原型 scrollToRow :938（居中 + 平滑）')
   assert.equal(src.includes("block: 'nearest'"), false, '旧 nearest 口径已收敛到原型')
   assert.ok(src.includes("ref: leftColRef, className: 'dspe-dlg-left'"), '左列挂 ref（量视野用）')
@@ -771,7 +849,7 @@ test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 c
 //   关键坑（真 DOM 抓到）：弹窗 width:max-content 会把「内容宽」算进整窗宽度 —— 只钉区宽不够，
 //   输入框 width:100%（百分比在自量宽里按 auto）与胶囊的无上限内容宽都会把 dlg 宽带着跑（实测 718~878 跳动）。
 test('m09582-1：名字区定宽 322 —— 胶囊随名字变长、输入框变短，总量不变', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes('const NAME_INPUT_W = 200'), '输入框基准宽 200（保留 m09433 的观感）')
   assert.ok(src.includes('const NAME_ZONE_W = 322'), '名字区总宽 = 200 + 8 + 114（输入框基准 + 间隙 + 新建态胶囊实测宽）')
   assert.ok(src.includes('const NAME_INPUT_MIN = 90'), '输入框可缩下限 90')
@@ -800,7 +878,7 @@ test('m09582-1：名字区定宽 322 —— 胶囊随名字变长、输入框变
 test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑主题色）', () => {
   const pal = enginePreset('opencode')
   const html = renderEditorPure('dark', pal.colors)
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(html.includes('background:var(--dsw-alias-bg-layer-1, #141419)'), '弹窗底走 bg-layer-1')
   assert.ok(html.includes('background:var(--dsw-alias-bg-layer-2, #1C1C21)'), '输入框/按钮底走 bg-layer-2')
   assert.ok(html.includes('color:var(--dsw-alias-label-primary, #E7E7EA)'), '正文色走 label-primary')
@@ -814,7 +892,7 @@ test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑�
   const map = readFileSync(join(import.meta.dirname, '..', 'src', 'engine', 'map-dsh.ts'), 'utf8')
   const known = new Set(map.match(/--dsw-alias-[a-z0-9-]+/g) || [])
   const unknown = used.filter((t) => !known.has(t))
-  assert.equal(unknown.join(','), '', '所有 token 都在 map-dsh.mjs 映射表内')
+  assert.equal(unknown.join(','), '', '所有 token 都在 map-dsh.ts 映射表内')
   // 预览区除外：画布底色/顶栏预览胶囊/外观 seg 仍由「被编辑主题」与「外观选项」决定。
   assert.ok(src.includes("background: miniLight ? '#E2E2E6' : '#0D0D10'"), '右画布底色仍随被编辑主题外观')
   assert.ok(src.includes("background: capFace, color: capFg, border: '2px solid ' + capPrimary"), '顶栏预览胶囊仍显被编辑主题色')
@@ -830,7 +908,7 @@ test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑�
 //     （rrightRight 1284 > dlgRight 1232；名字越长约糟，最长名可溢出 573px）；
 //   改后（按需换行）：顶栏落成两行，rowOverflow 0、rrightRight 1215 < dlgRight 1232，无裁剪。
 test('m09582-3：窄视口顶栏按需换行 —— 控件不被弹窗裁掉（用户口径优先于原型 nowrap）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap'"), '顶栏按需换行（原型 .row1 是 nowrap）')
   assert.ok(src.includes("maxWidth: '96vw'"), '弹窗仍留 96vw 视口上限：回退手段是换行，不是放宽上限')
 })
@@ -843,7 +921,7 @@ test('m09582-3：窄视口顶栏按需换行 —— 控件不被弹窗裁掉（�
 //        调色板     insert=(40,120) → t50=(189,203)；
 //   改后 预置弹窗 raf1=null（首帧还没渲染）→ insert=t30=(540,112)；调色板 insert=t50=final=(189,203)。
 test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再左上角闪一下）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes('if (!pop || !popPos) return null'), '调色板：没定位就不渲染')
   assert.ok(src.includes('if (!showPresets || !presetPos) return null'), '预置弹窗：没定位就不渲染')
   assert.equal((src.match(/popPos \|\|/g) || []).length, 0, '不许再用 popPos || 兜底位画首帧')
@@ -862,42 +940,54 @@ test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再
 // 验收口径（票面）：弹板完整落在视口内；与被点元素 rect 相交或间距 ≤8px（四角场景同样成立）。
 // 尺寸 = #95 取色器盒实测外框 320×388（内容 294 = 320 − padding 24 − border 2；高度构成见 runtime 注释）；
 // 渲染侧 border-box + 显式宽高，所以常量与 getBoundingClientRect 恒等。
-const POP_SIZE = { width: 320, height: 388 }
-// 左列入口色块外框（runtime 的单源是 swatch 样式 30×22；这里只作锚点 rect 的测试夹具）。
-const SWATCH = { width: 30, height: 22 }
+interface Rect { left: number; top: number; right: number; bottom: number }
+interface Size { width: number; height: number }
+interface Point { left: number; top: number }
 
-function anchorRect(left, top, width, height) {
+const POP_SIZE: Size = { width: 320, height: 388 }
+// 左列入口色块外框（runtime 的单源是 swatch 样式 30×22；这里只作锚点 rect 的测试夹具）。
+const SWATCH: Size = { width: 30, height: 22 }
+
+function anchorRect(left: number, top: number, width: number, height: number): Rect & Size {
   return { left, top, right: left + width, bottom: top + height, width, height }
 }
 
-function popRectGap(anchor, pos) {
+function popRectGap(anchor: Rect, pos: Point): number {
   const xGap = Math.max(0, Math.max(anchor.left - (pos.left + POP_SIZE.width), pos.left - anchor.right))
   const yGap = Math.max(0, Math.max(anchor.top - (pos.top + POP_SIZE.height), pos.top - anchor.bottom))
   return Math.max(xGap, yGap)
 }
 
-function assertInside(pos, bounds, margin, label) {
+function assertInside(pos: Point, bounds: Rect, margin: number, label: string): void {
   assert.ok(pos.left >= bounds.left + margin, label + '：左边不越界')
   assert.ok(pos.top >= bounds.top + margin, label + '：上边不越界')
   assert.ok(pos.left + POP_SIZE.width <= bounds.right - margin, label + '：右边不越界')
   assert.ok(pos.top + POP_SIZE.height <= bounds.bottom - margin, label + '：下边不越界')
 }
 
+// popoverPosition 在「缺输入」时返回 null 是设计行为（见下面的 null 用例）；夹具都期望有坐标，
+// 这里把「必须有结果」变成断言 + 类型收窄，调用点就不用逐处 assert.ok。
+function placed(anchor: Rect | null, bounds: Rect | null, size: Size = POP_SIZE, preferSide?: 'below' | 'right'): Point {
+  const pos = popoverPosition(anchor, bounds, size, preferSide)
+  assert.ok(pos, '夹具应能算出弹板坐标')
+  return pos
+}
+
 test('#94：popoverPosition —— 下方优先、底部翻转、水平夹紧（视口 1280×900）', () => {
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
-  const mid = popoverPosition(anchorRect(400, 200, 60, 20), viewport, POP_SIZE)
+  const mid = placed(anchorRect(400, 200, 60, 20), viewport)
   assert.equal(mid.left, 400, '水平对齐锚点左缘')
   assert.equal(mid.top, 228, '下方间距 = POP_GAP 8')
   assert.equal('placement' in mid, false, '不把测试用 placement 字段带进坐标（#94 code-review）')
-  const bottom = popoverPosition(anchorRect(400, 800, 60, 20), viewport, POP_SIZE)
+  const bottom = placed(anchorRect(400, 800, 60, 20), viewport)
   assert.equal(bottom.top, 404, '底部空间不足翻上方 = 锚点顶 − 8 − 弹板高 388')
-  const leftEdge = popoverPosition(anchorRect(0, 300, 80, 20), viewport, POP_SIZE)
+  const leftEdge = placed(anchorRect(0, 300, 80, 20), viewport)
   assert.equal(leftEdge.left, 10, '左缘夹到视口内边距 10')
-  const rightEdge = popoverPosition(anchorRect(1200, 300, 80, 20), viewport, POP_SIZE)
+  const rightEdge = placed(anchorRect(1200, 300, 80, 20), viewport)
   assert.equal(rightEdge.left, 950, '右缘夹紧（1280 − 10 − 320）')
-  assert.equal(popoverPosition(null, viewport, POP_SIZE), null, '无锚点返回 null（调用方给兜底位）')
-  assert.equal(popoverPosition(anchorRect(10, 10, 40, 20), null, POP_SIZE), null, '无边界返回 null')
-  assert.equal(popoverPosition(anchorRect(10, 10, 0, 0), viewport, { width: 0, height: 0 }), null, '无尺寸返回 null')
+  assert.equal(popoverPosition(null, viewport, POP_SIZE, 'below'), null, '无锚点返回 null（调用方给兜底位）')
+  assert.equal(popoverPosition(anchorRect(10, 10, 40, 20), null, POP_SIZE, 'below'), null, '无边界返回 null')
+  assert.equal(popoverPosition(anchorRect(10, 10, 0, 0), viewport, { width: 0, height: 0 }, 'below'), null, '无尺寸返回 null')
 })
 
 test('#94：popoverPosition —— 锚点在视口四角时弹板完整落在视口内且贴近被点元素', () => {
@@ -909,14 +999,14 @@ test('#94：popoverPosition —— 锚点在视口四角时弹板完整落在视
     anchorRect(1212, 872, 60, 20),   // 右下
   ]
   for (const a of corners) {
-    const pos = popoverPosition(a, viewport, POP_SIZE)
+    const pos = popoverPosition(a, viewport, POP_SIZE, 'below')
     assert.ok(pos, '四角都要有结果')
     assertInside(pos, viewport, 10, '四角 ' + JSON.stringify(a))
     assert.ok(popRectGap(a, pos) <= 8, '与被点元素间距 ≤8px：' + JSON.stringify({ a, pos }))
   }
   // 视口比弹板矮：两边都放不下时按边界夹紧（不越界；#94 review：不把 placement 当坐标带出去）。
   const shortVp = { left: 0, top: 0, right: 1280, bottom: 500 }
-  const clamped = popoverPosition(anchorRect(600, 240, 40, 20), shortVp, POP_SIZE)
+  const clamped = popoverPosition(anchorRect(600, 240, 40, 20), shortVp, POP_SIZE, 'below')
   assert.ok(clamped, '矮视口仍给结果')
   assert.equal(clamped.top, 102, '两侧都放不下 → 夹在视口下边界内（500 − 10 − 388）')
   assertInside(clamped, shortVp, 10, '矮视口')
@@ -924,11 +1014,11 @@ test('#94：popoverPosition —— 锚点在视口四角时弹板完整落在视
 
 test('#94：popoverPosition —— 以「视口 ∩ 弹窗」为边界，弹板不越出编辑弹窗', () => {
   const dialog = { left: 300, top: 100, right: 900, bottom: 700 }
-  const pos = popoverPosition(anchorRect(830, 300, 50, 20), dialog, POP_SIZE)
+  const pos = popoverPosition(anchorRect(830, 300, 50, 20), dialog, POP_SIZE, 'below')
   assert.ok(pos, '弹窗内锚点有结果')
   assertInside(pos, dialog, 10, '弹窗边界')
   assert.equal(pos.left, 570, '右缘按弹窗右边界夹紧（900 − 10 − 320）')
-  const leftSide = popoverPosition(anchorRect(310, 300, 40, 20), dialog, POP_SIZE)
+  const leftSide = placed(anchorRect(310, 300, 40, 20), dialog)
   assert.equal(leftSide.left, 310, '左缘在弹窗内时仍对齐锚点（不被视口公式推走）')
 })
 
@@ -937,16 +1027,16 @@ test('#94：popoverPosition —— 以「视口 ∩ 弹窗」为边界，弹板�
 // 验收口径（票面）：弹板与入口色块 rect 相交或间距 ≤8px、完整落在视口内、不压住入口色块。
 test('#93：popoverPosition —— 左列入口贴色块右侧垂直居中，放不下翻左侧', () => {
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
-  const mid = popoverPosition(anchorRect(200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  const mid = placed(anchorRect(200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(mid.left, 238, '贴色块右侧 = 锚点右 + 8')
   assert.equal(mid.top, 117, '垂直居中 = 锚点中心 − 弹板高/2（300 + (22 − 388)/2）')
   assert.equal(popRectGap(anchorRect(200, 300, SWATCH.width, SWATCH.height), mid), 8, '与入口色块间距 ≤8px')
-  const flip = popoverPosition(anchorRect(1200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  const flip = placed(anchorRect(1200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(flip.left, 872, '右侧放不下翻左侧 = 锚点左 − 8 − 320')
   assert.ok(flip.left + POP_SIZE.width <= 1200, '翻左后不压住入口色块')
-  const firstRow = popoverPosition(anchorRect(200, 0, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  const firstRow = placed(anchorRect(200, 0, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(firstRow.top, 10, '首行垂直居中夹到上边距 10')
-  const lastRow = popoverPosition(anchorRect(200, 878, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  const lastRow = placed(anchorRect(200, 878, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(lastRow.top, 502, '末行夹到下边界（900 − 10 − 388）')
 })
 
@@ -969,14 +1059,14 @@ test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整
   assert.equal(popRectGap(b, p2), 8, '退到下方后与入口间距 ≤8px')
   // 上下都有空间时优先退到上方（更常见的「向上翻」）；锚点在下半区。
   const b2 = anchorRect(300, 600, SWATCH.width, SWATCH.height)
-  const p3 = popoverPosition(b2, tight, POP_SIZE, 'right')
+  const p3 = placed(b2, tight, POP_SIZE, 'right')
   assert.equal(p3.top, 204, '左右都放不下 → 退到入口上方（顶边 − 8 − 388）')
   assert.equal(p3.top + POP_SIZE.height, 592, '上方兜底不遮住入口（弹板底 592 < 入口顶 600）')
 })
 
 test('#93：popoverPosition —— 非整数锚点/边界下坐标取整且间距仍 ≤8px', () => {
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
-  const frac = popoverPosition(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  const frac = placed(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(frac.left, 238, '贴右侧：floor(锚点右) + 8，间距 7.5px ≤ 8')
   assert.equal(frac.top, 118, '垂直居中取整')
   assert.ok(Number.isInteger(frac.left) && Number.isInteger(frac.top), '坐标恒为整数（不会出现 8.5px 间距）')
@@ -984,21 +1074,21 @@ test('#93：popoverPosition —— 非整数锚点/边界下坐标取整且间�
 })
 
 test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不可见才滚动（源码结构）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   // 1) 所有 data-slot 载体（node 块 / t 文本 span / 代码 token / textMuted ×2）统一从 bindSlot 拿点击，
   //    并把被点 DOM 元素透传给 clickSlot（锚点来源）。
   assert.ok(src.includes('onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot, ev.currentTarget) }'), '被点元素传给 clickSlot')
   assert.equal((src.match(/bindSlot\(/g) || []).length, 5, '5 处 data-slot 载体统一走 bindSlot')
   assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点数不变')
   // 2) clickSlot：左列改为 revealRow（已在视野就不动），不再强制 scrollToRow 居中。
-  const ci = src.indexOf('function clickSlot(key, anchorEl)')
+  const ci = src.search(/function clickSlot\(key(?::\s*[^,)]+)?,\s*anchorEl(?::\s*[^)]+)?\)/)
   assert.ok(ci > 0, 'clickSlot 接收 anchorEl')
   const cseg = src.slice(ci, ci + 420)
   assert.ok(cseg.includes('revealRow(key)'), '左列改用 revealRow（已在视野就不动）')
   assert.ok(cseg.includes('openPop(key, anchorEl)'), '被点元素透传给 openPop')
   assert.equal(cseg.includes('scrollToRow('), false, '不再强制 scrollToRow 居中')
   // 3) openPop 记录锚点/首选方向并清旧坐标（防旧位闪帧）。
-  const oi = src.indexOf('function openPop(key, anchorEl, preferSide)')
+  const oi = src.search(/function openPop\(key(?::\s*[^,)]+)?,\s*anchorEl(?::\s*[^,)]+)?,\s*preferSide\??(?::\s*[^)]+)?\)/)
   assert.ok(oi > 0, 'openPop 接收 anchorEl 与首选方向')
   const oseg = src.slice(oi, oi + 1100)
   assert.ok(oseg.includes('const anchor = anchorEl || null'), '锚点归一成 anchor')
@@ -1012,11 +1102,13 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   assert.equal(src.includes("data-sw="), false, '去掉失效的 data-sw 选择器（无元素渲染该属性）')
   assert.ok(src.includes('if (pop && !keepOpen) closePop(false)'), '#95 起点弹板外 = 保留颜色直接关闭（回滚只走 Esc/取消）')
   // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算；锚点脱离 DOM 安全收起。
-  assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide)'), '锚点 rect 走纯函数定位（按入口类型选纵向/侧向规则）')
+  // P3 起源码是 .ts（参数带注解），用正则容忍 `: Type` 再钉调用形状。
+  assert.ok(/popoverPosition\(ar, bounds, \{ width: POP_W, height: POP_H \}, \w+\.preferSide\)/.test(src), '锚点 rect 走纯函数定位（按入口类型选纵向/侧向规则）')
   assert.ok(src.includes('Math.max(0, dr.left)') && src.includes('Math.min(vw, dr.right)'), '边界 = 视口 ∩ 弹窗')
   assert.ok(src.includes("w.addEventListener('resize', place)"), '窗口 resize 重算位置')
   assert.ok(src.includes("d.addEventListener('scroll', place, true)"), '弹窗内滚动重算位置（捕获阶段）')
-  assert.ok(src.includes('if (pop.anchor.isConnected === false) { setPop(null); return }'), '锚点脱离 DOM 安全收起（不回滚已调颜色，也不改挂到左列）')
+  // P3 起 effect 内用局部别名 cur（= pop 的窄化引用），变量名不参与契约：pop/cur 都认。
+  assert.ok(/if \((?:pop|cur)\.anchor\.isConnected === false\) \{ setPop\(null\); return \}/.test(src), '锚点脱离 DOM 安全收起（不回滚已调颜色，也不改挂到左列）')
   assert.equal(src.includes('rowRefs.current[pop.key]'), false, '定位 effect 不再回退左列行：每个入口自己就是锚点')
   // 5) #93：左列色块入口也走同一锚点引擎 —— 旧「夹到预览区左侧」公式全部退役。
   assert.equal(src.includes('vw - 270'), false, '旧左列定位公式（vw − 270）已移除')
@@ -1112,11 +1204,11 @@ test('#95：pickRecentColors —— 按分组优先级取 10 个、跳过当前�
 })
 
 // ── #95 取色器展示组件（可独立 renderToString 的结构缝）──
-function pickerProps(over) {
-  const base = {
+function pickerProps(over: Record<string, unknown> = {}): Record<string, unknown> {
+  const base: Record<string, unknown> = {
     h: mockHooks(),
-    tr: (k) => 'T:' + k,
-    trf: (k, o) => 'T:' + k + JSON.stringify(o || {}),
+    tr: (k: string) => 'T:' + k,
+    trf: (k: string, o?: unknown) => 'T:' + k + JSON.stringify(o || {}),
     label: '主色',
     allowTransparent: false,
     value: { hex: '#FAB283', transparent: false },
@@ -1126,19 +1218,13 @@ function pickerProps(over) {
     onCancel: () => {},
     onDone: () => {},
   }
-  return Object.assign(base, over || {})
+  return Object.assign(base, over)
 }
 
-function renderPicker(over) {
-  const saved = {}
-  for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
-    if (k in globalThis) { saved[k] = globalThis[k]; delete globalThis[k] }
-  }
-  try {
-    return _ReactDOMServer.renderToString(_React.createElement(PalettePicker, pickerProps(over)))
-  } finally {
-    for (const k of Object.keys(saved)) globalThis[k] = saved[k]
-  }
+function renderPicker(over: Record<string, unknown> = {}): string {
+  return withRealDomGlobals(
+    () => _ReactDOMServer.renderToString(_React.createElement(PalettePicker, pickerProps(over))) as string,
+  )
 }
 
 test('#95：PalettePicker —— 结构部件齐全且可独立 SSR（无需交互）', () => {
@@ -1189,7 +1275,7 @@ test('#95：PalettePicker —— 重开同一槽位保留上次 H/S/V（initialH
 })
 
 test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无原生 range/禁 circle）', () => {
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes('export function PalettePicker'), 'PalettePicker 必须是可 import 的导出（SSR 测试缝）')
   assert.equal(src.includes("type: 'range'"), false, '原生 input range 退役（自绘色相轨）')
   assert.ok(src.includes('setPointerCapture'), '拖拽用 Pointer Events + setPointerCapture')
@@ -1206,7 +1292,7 @@ test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无�
   assert.ok(src.includes('e(PalettePicker, {'), 'renderPop 内部交给 PalettePicker 展示组件')
   assert.ok(src.includes('pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)'), '主题色按分组优先级取（R7）')
   assert.ok(src.includes('effectiveSlotColor(contrastRefSlot(pop.key), colors, false)'), '对比度基准槽映射到真实主题色')
-  assert.ok(src.includes('onApply: function (hex, transparent, hsv)') && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
+  assert.ok(/onApply: function \(hex(?::\s*[^,)]+)?,\s*transparent(?::\s*[^,)]+)?,\s*hsv(?::\s*[^)]+)?\)/.test(src) && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
   // Spec 复核：#95 残留——重开同一槽位保色相、RGB/HSL 灰输入不丢色相、数字框 Shift 步进。
   assert.ok(src.includes('initialHsv'), '父组件按槽位记忆 H/S/V，重开时回填')
   assert.ok(src.includes('pickMem.current[pop.key]'), '记忆读写都按色位 key（openPop 关闭后仍保留）')
@@ -1219,7 +1305,8 @@ test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无�
   assert.ok(src.includes('if (pick.transparent) return'), '透明槽下 SV/色相拖拽与键盘不改色（与 aria-disabled 一致）')
   assert.ok(src.includes('disabled: pick.transparent ? true : undefined'), '透明槽下数值输入禁用')
   assert.ok(src.includes('setEyeOk(') && src.includes('h.useEffect(function ()'), '吸管能力探测进 effect（渲染期不碰 window）')
-  assert.ok(src.includes('function commit(next, transparent, hex, noticeKey)'), 'live commit 单一提交路径（去重）')
+  // P3 起签名带注解：function commit(next: Hsv, transparent: boolean, hex: string, noticeKey: string)
+  assert.ok(/function commit\(next(?::\s*[^,)]+)?,\s*transparent(?::\s*[^,)]+)?,\s*hex(?::\s*[^,)]+)?,\s*noticeKey(?::\s*[^)]+)?\)/.test(src), 'live commit 单一提交路径（去重）')
 })
 
 // ── #95：对比度基准背景槽跨文件对账（防 BG_SLOTS 与引擎单一真相源漂移）──

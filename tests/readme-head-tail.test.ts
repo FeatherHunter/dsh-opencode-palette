@@ -1,4 +1,4 @@
-// readme-head-tail.test.mjs — 钉住中英首页的「头部与尾部」定稿（票 #34）
+// readme-head-tail.test.ts — 钉住中英首页的「头部与尾部」定稿（票 #34）
 //
 // 断言对象是读者最终看到的文档文本：三份文档当纯文本读，只断字符串与链接目标，
 // 不联网取 shields 图、不解析 markdown 结构（同 panel-render 的 file-text 路子）。
@@ -22,8 +22,8 @@ const PKG = readFileSync(join(ROOT, 'package', 'README.md'), 'utf8')
 const SHOWCASE_RE = /<!-- showcase:start -->[\s\S]*?<!-- showcase:end -->\r?\n?/
 
 // 头部 = 文件开头到 showcase 标记之前；胶囊行只应出现在这一段里
-const headOf = (t) => t.split('<!-- showcase:start -->')[0]
-const count = (t, needle) => t.split(needle).length - 1
+const headOf = (t: string): string => t.split('<!-- showcase:start -->')[0]
+const count = (t: string, needle: string): number => t.split(needle).length - 1
 
 // ── 五枚胶囊：标签 + 链接目标（#28 定稿；排布与动态/写死选型归 #29）──
 const CAPSULES = {
@@ -208,7 +208,7 @@ test('面板词条与主体段落未被本轮改动（只动头尾）', () => {
 // 中文页与英文页的头部应逐行同形（标题 / 导航 / 卖点 / 镜像卖点 / 求星 / 五枚胶囊），
 // 任一侧多写或少写一句都会在这里红 —— 这正是英文页必须删掉第二句卖点的原因。
 test('顶部区：中英两页头部逐行同形，任一侧多写一句就红', () => {
-  const shape = (t) => t.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
+  const shape = (t: string): string[] => t.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
     if (/^<h1/.test(l)) return 'H1'
     if (l.includes('🌐')) return 'NAV'
     if (/^\*\*.+\*\*$/.test(l)) return 'BOLD'

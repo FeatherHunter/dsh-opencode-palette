@@ -1,12 +1,32 @@
-// custom-color.mjs — 自定义主题编辑器的纯颜色工具（#86）
-// 零导入：打包前后同一语义，可被 tests/custom-editor.test.mjs 直接 import。
+// custom-color.ts — 自定义主题编辑器的纯颜色工具（#86）
+// 零导入：打包前后同一语义，可被 tests/custom-editor.test.ts 直接 import。
 // 算法口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源），
 // 唯一改动：hexToHsv 保留浮点精度（原型 Math.round 会丢精度导致往返漂移），显示层自行取整。
 
 const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
 
+// 颜色模型（h: 0-360 浮点，s/v/l: 0-100）。外部/缓存回填的字段不可信，入参一律「可缺省」，函数内 clamp 兜底。
+interface Hsv { h: number; s: number; v: number }
+interface Rgb { r: number; g: number; b: number }
+interface Hsl { h: number; s: number; l: number }
+
+// 主题色板：槽位名 → 颜色值（外部数据形状不可信，读取侧统一 unknown 窄化）。
+type ColorMap = Record<string, unknown>
+
+// 列表/搜索里主题的最小可读面（只用到 name/id；宿主回包与缓存主题都按此收）。
+interface CustomThemeLike {
+  readonly id?: unknown
+  readonly name?: unknown
+}
+
+// 宽松 HEX 解析结果。
+interface ParsedHex {
+  hex: string
+  alphaDropped: boolean
+}
+
 // HEX 手写输入归一化：#RGB/#RRGGBB（容忍首尾空白）→ 大写 #RRGGBB；其余 null
-export function normalizeHexInput(s) {
+export function normalizeHexInput(s: unknown): string | null {
   if (typeof s !== 'string') return null
   const t = s.trim()
   if (!HEX_RE.test(t)) return null
@@ -15,10 +35,10 @@ export function normalizeHexInput(s) {
   return '#' + h.toUpperCase()
 }
 
-function byteTo01(byte) { return byte / 255 }
+function byteTo01(byte: number): number { return byte / 255 }
 
 // #RRGGBB → { h: 0-360, s: 0-100, v: 0-100 }（浮点，不取整，保证 hsvToHex 往返）
-export function hexToHsv(hex) {
+export function hexToHsv(hex: unknown): Hsv {
   const n = normalizeHexInput(hex) || '#000000'
   const r = byteTo01(parseInt(n.slice(1, 3), 16))
   const g = byteTo01(parseInt(n.slice(3, 5), 16))
@@ -38,14 +58,14 @@ export function hexToHsv(hex) {
 }
 
 // { h, s, v } → #RRGGBB（仅最终字节取整）
-export function hsvToHex(hsv) {
+export function hsvToHex(hsv: Partial<Hsv> | null | undefined): string {
   return rgbToHex(hsvToRgb(hsv))
 }
 
 
 // 客户端 id 推导（宿主 CUSTOM_ID_PATTERN /^[A-Za-z0-9_-]{1,64}$/ 的子集）：
 // 小写 ASCII，连续分隔符收敛为单连字符；中文/纯符号/空 → null（调用方转编辑态提示起名）
-export function clientSlug(name) {
+export function clientSlug(name: unknown): string | null {
   if (typeof name !== 'string') return null
   let s = name.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '-').replace(/^-+|-+$/g, '')
   if (!s) return null
@@ -55,7 +75,7 @@ export function clientSlug(name) {
 }
 
 // 透明槽的预览生效色（原型 hexOrTrans 口径：custom-editor-83.prototype.html:612-615，逐字对齐）
-export const SLOT_FB = {
+export const SLOT_FB: Record<string, string> = {
   background: '#101014',
   backgroundPanel: '#232329',
   backgroundElement: '#232329',
@@ -68,7 +88,7 @@ export const SLOT_FB = {
 const SLOT_FB_DEFAULT = '#141414'
 
 // 浅色底盘翻转（原型 FB_DARK2LIGHT 口径：custom-editor-83.prototype.html:808，逐字对齐）
-export const SLOT_DARK2LIGHT = {
+export const SLOT_DARK2LIGHT: Record<string, string> = {
   '#1A1A1E': '#F4F4F5',
   '#232329': '#FFFFFF',
   '#101014': '#FFFFFF',
@@ -77,7 +97,7 @@ export const SLOT_DARK2LIGHT = {
 }
 
 // 预览生效色（原型 slotBg 口径：只有 transparent 才回退/翻转，非透明原值直出）
-export function effectiveSlotColor(key, colors, miniLight) {
+export function effectiveSlotColor(key: string, colors: ColorMap | null | undefined, miniLight: boolean): string {
   const c = colors ? colors[key] : undefined
   const norm = normalizeHexInput(c)
   if (norm) return norm
@@ -88,14 +108,14 @@ export function effectiveSlotColor(key, colors, miniLight) {
 
 // 编辑器预览底盘：跟编辑器外观走，不跟 OS（原型 effAppearance 口径：prototype.html:809-820）。
 // appearance 恒 light → 浅；恒 dark → 深；system → 看 sysDark（OS 深色？深：浅）。
-export function editorMiniLight(appearance, sysDark) {
+export function editorMiniLight(appearance: string, sysDark: boolean | undefined): boolean {
   if (appearance === 'light') return true
   if (appearance === 'dark') return false
   return sysDark === false
 }
 
 // 搜索过滤：name/id 子串（大小写不敏感）；空串全回（+新增由调用方始终保留）
-export function filterCustomThemes(list, query) {
+export function filterCustomThemes(list: readonly CustomThemeLike[] | null | undefined, query: unknown): CustomThemeLike[] {
   const arr = Array.isArray(list) ? list : []
   const q = String(query || '').trim().toLowerCase()
   if (!q) return arr.slice()
@@ -108,17 +128,17 @@ export function filterCustomThemes(list, query) {
 
 // ── #95 取色器重构：颜色模型纯函数（零依赖，TDD 接缝）──
 
-function clampNum(x, lo, hi) {
+function clampNum(x: unknown, lo: number, hi: number): number {
   const n = Number(x)
   if (!isFinite(n)) return lo
   return Math.min(hi, Math.max(lo, n))
 }
 
-function clampByte(x) { return Math.round(clampNum(x, 0, 255)) }
+function clampByte(x: unknown): number { return Math.round(clampNum(x, 0, 255)) }
 
 // 从外部 hex 回填 HSV 时保留「无意义的维度」（R1）：V=0（黑）时 h 与 s 都无意义、S=0（灰）时 h 无意义。
 // 这是「拖到黑/灰后色相回弹成红」的根治：色相由状态保留，不靠 hex 反推。
-export function mergeHsv(prev, next) {
+export function mergeHsv(prev: Partial<Hsv> | null | undefined, next: Partial<Hsv> | null | undefined): Hsv {
   const p = prev || {}
   const n = next || {}
   const v = clampNum(n.v, 0, 100)
@@ -129,7 +149,7 @@ export function mergeHsv(prev, next) {
 
 // 宽松 HEX 解析（#95 粘贴/吸管/输入共用）：容忍首尾空白、全角 ＃、缺 #、#RGB、#RGBA、#RRGGBBAA。
 // 返回 { hex: '#RRGGBB', alphaDropped }；无法解析返回 null。
-export function parseHexInputLoose(s) {
+export function parseHexInputLoose(s: unknown): ParsedHex | null {
   if (typeof s !== 'string') return null
   const t0 = s.trim().replace(/＃/g, '#').replace(/#/g, '').replace(/\s+/g, '')
   if (!/^[0-9a-fA-F]+$/.test(t0)) return null
@@ -143,7 +163,7 @@ export function parseHexInputLoose(s) {
 }
 
 // { h, s, v } → { r, g, b }（0-255 整数）
-export function hsvToRgb(hsv) {
+export function hsvToRgb(hsv: Partial<Hsv> | null | undefined): Rgb {
   const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
   const s = clampNum(hsv && hsv.s, 0, 100) / 100
   const v = clampNum(hsv && hsv.v, 0, 100) / 100
@@ -166,7 +186,7 @@ export function hsvToRgb(hsv) {
 }
 
 // { r, g, b }（0-255）→ { h: 0-360 浮点, s: 0-100, v: 0-100 }
-export function rgbToHsv(rgb) {
+export function rgbToHsv(rgb: Partial<Rgb> | null | undefined): Hsv {
   const r = clampByte(rgb && rgb.r) / 255
   const g = clampByte(rgb && rgb.g) / 255
   const b = clampByte(rgb && rgb.b) / 255
@@ -185,14 +205,14 @@ export function rgbToHsv(rgb) {
 }
 
 // { r, g, b }（0-255）→ #RRGGBB
-export function rgbToHex(rgb) {
-  const to = (x) => clampByte(x).toString(16).padStart(2, '0').toUpperCase()
+export function rgbToHex(rgb: Partial<Rgb> | null | undefined): string {
+  const to = (x: unknown) => clampByte(x).toString(16).padStart(2, '0').toUpperCase()
   return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b)
 }
 
 
 // { h, s, v } → { h, s, l }（s/l 为 0-100）
-export function hsvToHsl(hsv) {
+export function hsvToHsl(hsv: Partial<Hsv> | null | undefined): Hsl {
   const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
   const s = clampNum(hsv && hsv.s, 0, 100) / 100
   const v = clampNum(hsv && hsv.v, 0, 100) / 100
@@ -202,7 +222,7 @@ export function hsvToHsl(hsv) {
 }
 
 // { h, s, l }（s/l 为 0-100）→ { h, s, v }
-export function hslToHsv(hsl) {
+export function hslToHsv(hsl: Partial<Hsl> | null | undefined): Hsv {
   const h = ((Number(hsl && hsl.h) % 360) + 360) % 360
   const s = clampNum(hsl && hsl.s, 0, 100) / 100
   const l = clampNum(hsl && hsl.l, 0, 100) / 100
@@ -212,16 +232,16 @@ export function hslToHsv(hsl) {
 }
 
 // 色相轨的 13 个 30° 停（0/30/…/360），用「当前 S/V」生成真实渐变（不是纯色相条，R4 缓解）。
-export function hueStops(s, v) {
-  const out = []
+export function hueStops(s: number, v: number): string[] {
+  const out: string[] = []
   for (let i = 0; i < 13; i++) out.push(hsvToHex({ h: i * 30, s: s, v: v }))
   return out
 }
 
 // WCAG 相对亮度与对比度（只提示、不自动改色）。
-export function relativeLuminance(hex) {
+export function relativeLuminance(hex: unknown): number {
   const n = normalizeHexInput(hex) || '#000000'
-  const chan = function (c) {
+  const chan = function (c: number): number {
     const x = c / 255
     return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
   }
@@ -231,19 +251,19 @@ export function relativeLuminance(hex) {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
-export function contrastRatio(hexA, hexB) {
+export function contrastRatio(hexA: unknown, hexB: unknown): number {
   const a = relativeLuminance(hexA)
   const b = relativeLuminance(hexB)
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
 }
 
 // 对比度基准槽：文字对背景、背景槽反过来对文字、其余（品牌/语法/边框/改动/Markdown）对面板。
-// 这 8 个 key 由 src/engine/map-dsh.mjs 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
+// 这 8 个 key 由 src/engine/map-dsh.ts 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
 export const BG_SLOTS = [
   'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
   'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
 ]
-export function contrastRefSlot(slotKey) {
+export function contrastRefSlot(slotKey: string): string {
   if (slotKey === 'text' || slotKey === 'textMuted') return 'background'
   if (BG_SLOTS.indexOf(slotKey) >= 0) return 'text'
   return 'backgroundPanel'
@@ -251,12 +271,12 @@ export function contrastRefSlot(slotKey) {
 
 // 「本主题用过的颜色」：按分组优先级取前 max 个（R7：品牌/语法色不再被 8 个背景色挤掉），
 // 跳过当前槽自身的现值；入参 priorityKeys 为按优先级排好的色位 key 列表。
-export function pickRecentColors(colors, currentKey, priorityKeys, max) {
+export function pickRecentColors(colors: ColorMap | null | undefined, currentKey: string | null | undefined, priorityKeys: readonly string[] | null | undefined, max: number): string[] {
   const c = colors || {}
   const lim = max > 0 ? max : 10
-  const out = []
-  const seen = new Set()
-  const consider = function (k) {
+  const out: string[] = []
+  const seen = new Set<string>()
+  const consider = function (k: string) {
     if (k === currentKey) return
     const norm = normalizeHexInput(c[k])
     if (!norm || seen.has(norm)) return

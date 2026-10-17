@@ -1,4 +1,4 @@
-// panel-render.test.mjs — 面板渲染回归测试
+// panel-render.test.ts — 面板渲染回归测试
 // 用 DSH app 的真实 React 把设置面板 renderToString，抓渲染期错误（如变量遮蔽/括号失衡）
 // 前置：先 npm run build 产出 package/lib/client.js 再跑本测试
 import { test } from 'node:test'
@@ -6,23 +6,34 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { runInThisContext } from 'node:vm'
+import type { FunctionComponent, ReactElement } from 'react'
 import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.ts'
+
+type ReactModule = typeof import('react')
+
+// react-dom 没有随包 @types（本仓只装了 @types/react），这里只声明本测试用到的受用面。
+interface ReactDOMServerLike {
+  renderToString(element: ReactElement): string
+}
 
 // React 解析：优先本仓 devDependencies（自包含、不受宿主安装位变动影响），
 // 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，
 // 硬编码该路径会让测试在换机/升级后直接崩，故解析失败时报明确修复指引）。
-function loadReact() {
+function loadReact(): { React: ReactModule; ReactDOMServer: ReactDOMServerLike } {
   const candidates = [
     createRequire(import.meta.url),
     createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/'),
   ]
-  let missing = null
+  let missing: unknown = null
   for (const req of candidates) {
     try {
-      return { React: req('react'), ReactDOMServer: req('react-dom/server') }
+      return {
+        React: req('react') as ReactModule,
+        ReactDOMServer: req('react-dom/server') as ReactDOMServerLike,
+      }
     } catch (e) { missing = e }
   }
-  throw new Error('缺 react / react-dom（面板渲染测试前置）——先在本仓执行 `npm install` 装 devDependencies。原因：' + (missing && missing.message))
+  throw new Error('缺 react / react-dom（面板渲染测试前置）——先在本仓执行 `npm install` 装 devDependencies。原因：' + (missing instanceof Error ? missing.message : String(missing)))
 }
 
 const { React, ReactDOMServer } = loadReact()
@@ -30,20 +41,136 @@ const { React, ReactDOMServer } = loadReact()
 // 引流卡片固定指向的三个兄弟插件仓库（顺序即渲染顺序）
 const AUTHOR_REPOS = ['dsh-mattpocock-skills-deck', 'dsh-prompt', 'dsh-im-companion']
 // 出现次数统计（用于「不多不少、每行一次」断言）
-function occurrences(hay, needle) {
+function occurrences(hay: string, needle: string): number {
   return hay.split(needle).length - 1
+}
+
+// ── 被测产物 / DOM / locale 的最小类型面（bundle 是运行期求值的 JS，边界处显式断言）──
+
+interface LocalFontFamily {
+  family: string
+  style?: string
+}
+
+interface FontCandidate {
+  key: string
+  isPreset: boolean
+  isLocal: boolean
+  ok: boolean
+}
+
+interface FontScanCache {
+  ok: boolean
+  reason?: string
+  count?: number
+  candidates: FontCandidate[]
+}
+
+interface PanelProps {
+  text(key: string, params?: Record<string, number>): string
+  collectFonts(): Promise<FontScanCache>
+  setTheme(theme: string): void
+  toggle(): void
+  setFollowAppearance?: (enabled: boolean) => void
+}
+
+type PanelComponent = FunctionComponent<PanelProps>
+
+interface ClientExports {
+  apply(ctx: unknown): void
+}
+
+interface StorageLike {
+  getItem(key: string): string | null
+  setItem(key: string, value: string): void
+}
+
+interface MockElement {
+  dataset: Record<string, string>
+  parentNode: MockBody | null
+  textContent: string
+  style: { cssText: string; fontFamily: string }
+  getBoundingClientRect(): { width: number }
+}
+
+interface MockBody {
+  hasAttribute(name: string): boolean
+  getAttribute(name: string): string | null
+  setAttribute(name: string, value: string): void
+  removeAttribute(name: string): void
+  appendChild(el: MockElement): void
+  removeChild(el: MockElement): void
+}
+
+interface MockContext2D {
+  font: string
+  measureText(ch: string): { width: number }
+}
+
+interface MockCanvas {
+  getContext(kind: string): MockContext2D | null
+}
+
+interface MockDocumentElement {
+  lang: string
+  style: {
+    colorScheme: string
+    removeProperty(property: string): void
+  }
+  _attrs: Record<string, string>
+  hasAttribute(name: string): boolean
+  getAttribute(name: string): string | null
+  setAttribute(name: string, value: string): void
+  removeAttribute(name: string): void
+}
+
+interface MockDocument {
+  head: { appendChild(el: MockElement): void }
+  body: MockBody
+  createElement(tag: string): MockElement | MockCanvas
+  documentElement: MockDocumentElement
+  addEventListener(): void
+  removeEventListener(): void
+}
+
+interface ModuleLoaderEntry {
+  id: string
+  factory(require: (id: string) => unknown): unknown
+}
+
+// globalThis 上的浏览器/加载器扩展（Node 类型里没有，用窄化替身声明）
+interface TestGlobals {
+  window?: unknown
+  queryLocalFonts?: () => Promise<LocalFontFamily[]>
+  __ModuleLoader__?: { load(entry: ModuleLoaderEntry): void }
+  document?: MockDocument
+  __docEl?: MockDocumentElement
+  localStorage?: StorageLike
+}
+
+const g = globalThis as unknown as TestGlobals
+
+type LocaleDict = Record<string, string>
+type LocaleDicts = Record<string, LocaleDict>
+
+interface LocaleService {
+  register(ns: string, localeDicts: LocaleDicts): () => void
+  getLocale(): { active: string; locales: { id: string }[]; revision: number }
+  subscribe(fn: () => void): () => boolean
+  setActive(id: string): void
+  dictFor(ns: string, locale: string, key: string): string | undefined
 }
 
 // 迷你 locale 服务 mock：对齐 @deepseek-ai/dsh-client-locale 的受用面
 // （register / getLocale / subscribe），外加测试专用 setActive 触发语言切换
-function makeLocale(initial) {
-  const dicts = new Map()
-  const listeners = new Set()
+function makeLocale(initial: string): LocaleService {
+  const dicts = new Map<string, Map<string, LocaleDict>>()
+  const listeners = new Set<() => void>()
   let active = initial
   let revision = 0
   return {
     register(ns, localeDicts) {
-      const locales = new Map()
+      const locales = new Map<string, LocaleDict>()
       for (const loc of Object.keys(localeDicts)) locales.set(loc, localeDicts[loc])
       dicts.set(ns, locales)
       revision++
@@ -74,20 +201,72 @@ function makeLocale(initial) {
   }
 }
 
+interface SlotRegistration {
+  label(): string
+  inject(): PanelProps
+}
+
+interface SlotApi {
+  inject(slot: string, cb: () => void): () => void
+  register(desc: SlotRegistration, cmp: unknown): () => void
+}
+
+interface ThemeService {
+  overrideTokens(): () => void
+  getTheme(): { preference: string }
+  setTheme?(id: string): void
+}
+
+interface SavedState {
+  enabled: boolean
+  theme: string
+  mode: string
+  size: number
+  fontKey: string
+  followAppearance: boolean
+}
+
+interface LoadPanelOptions {
+  lang?: string
+  locale?: LocaleService | null
+  queryLocalFonts?: () => Promise<LocalFontFamily[]>
+  installedFonts?: string[]
+  hostDark?: boolean
+  disabled?: boolean
+  fontKey?: string
+  savedTheme?: string
+  noOfficialSetTheme?: boolean
+  throwingSetTheme?: boolean
+  stuckPref?: string
+}
+
+interface LoadPanelResult {
+  html: string
+  panelCmp: PanelComponent
+  panelProps: PanelProps
+  locale: LocaleService | null
+  text: PanelProps['text']
+  collectFonts: PanelProps['collectFonts']
+  bodyAttrs: Record<string, string>
+  themeCalls: string[]
+  docEl: MockDocumentElement
+  registrations: SlotRegistration[]
+}
+
 // loadPanel(opts)：opts.lang = 回退用 document.documentElement.lang；
 // opts.locale = locale 服务 mock（缺省走 DOM 回退路径）
-function loadPanel(opts = {}) {
+function loadPanel(opts: LoadPanelOptions = {}): LoadPanelResult {
   const lang = opts.lang ?? 'en'
   const locale = opts.locale ?? null
   const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
-  const loaded = []
+  const loaded: { id: string; exports: unknown }[] = []
   // 浏览器里 window === globalThis：把 window 指回 globalThis，别做一个「window.document 不存在」的假宿主
   // （等宽判定要经 window.document 建 canvas，假宿主会让它静默退化成「都非等宽」，测试就白测了）
-  global.window = globalThis
+  g.window = globalThis
   // 本机字体枚举（opts.queryLocalFonts 未给 → 模拟不支持该 API 的宿主：存在性判断要能兜住）
-  if (opts.queryLocalFonts) globalThis.queryLocalFonts = opts.queryLocalFonts
-  else delete globalThis.queryLocalFonts
-  globalThis.__ModuleLoader__ = {
+  if (opts.queryLocalFonts) g.queryLocalFonts = opts.queryLocalFonts
+  else delete g.queryLocalFonts
+  g.__ModuleLoader__ = {
     load(entry) {
       loaded.push({
         id: entry.id,
@@ -100,9 +279,9 @@ function loadPanel(opts = {}) {
   }
   // 本机已装字体（供宽度对比检测的 mock）：缺省只装 Consolas，对齐常见 Windows 环境
   const installedFonts = opts.installedFonts ?? ['Consolas']
-  const bodyAttrs = {}
+  const bodyAttrs: Record<string, string> = {}
   if (opts.hostDark !== false) bodyAttrs['data-ds-dark-theme'] = ''
-  const body = {
+  const body: MockBody = {
     // 宿主明暗 mock：hostDark=false → 浅色（无 data-ds-dark-theme）；缺省/true → 深色；
     // 属性可写（set/remove 同步进 store），供外观跟随断言
     hasAttribute: (k) => bodyAttrs[k] !== undefined,
@@ -113,20 +292,33 @@ function loadPanel(opts = {}) {
     removeChild: (el) => { el.parentNode = null },
   }
   // canvas mock（等宽判定用）：族名含「真等宽」→ i 与 W 同宽；其余比例体（i 窄 W 宽）
-  const canvas2d = {
+  const canvas2d: MockContext2D = {
     font: '',
     measureText(ch) {
       const mono = String(canvas2d.font).indexOf('\u771f\u7b49\u5bbd') >= 0
       return { width: mono ? 16 : (ch === 'W' ? 24 : 9) }
     },
   }
-  global.document = {
+  // 文档根 mock：colorScheme 样式 + source 属性可写，供投影断言
+  const documentElement: MockDocumentElement = {
+    lang: lang,
+    style: {
+      colorScheme: '',
+      removeProperty(k) { if (k === 'color-scheme') this.colorScheme = '' },
+    },
+    _attrs: {},
+    hasAttribute(k) { return this._attrs[k] !== undefined },
+    getAttribute(k) { return this._attrs[k] !== undefined ? this._attrs[k] : null },
+    setAttribute(k, v) { this._attrs[k] = String(v) },
+    removeAttribute(k) { delete this._attrs[k] },
+  }
+  g.document = {
     head: { appendChild: () => {} },
     body: body,
     // 量宽 mock：家族名在 installedFonts 内 → 宽度不同于「确定不存在」的家族 → 判定已装
     createElement: (tag) => {
       if (tag === 'canvas') return { getContext: (kind) => (kind === '2d' ? canvas2d : null) }
-      const el = {
+      const el: MockElement = {
         dataset: {}, parentNode: null, textContent: '',
         style: { cssText: '', fontFamily: '' },
         getBoundingClientRect() {
@@ -137,67 +329,66 @@ function loadPanel(opts = {}) {
       }
       return el
     },
-    // 文档根 mock：colorScheme 样式 + source 属性可写，供投影断言
-    documentElement: {
-      lang: lang,
-      style: {
-        colorScheme: '',
-        removeProperty(k) { if (k === 'color-scheme') this.colorScheme = '' },
-      },
-      _attrs: {},
-      hasAttribute(k) { return this._attrs[k] !== undefined },
-      getAttribute(k) { return this._attrs[k] !== undefined ? this._attrs[k] : null },
-      setAttribute(k, v) { this._attrs[k] = String(v) },
-      removeAttribute(k) { delete this._attrs[k] },
-    },
+    documentElement: documentElement,
     addEventListener: () => {},
     removeEventListener: () => {},
   }
-  global.__docEl = global.document.documentElement
+  g.__docEl = documentElement
   // 注：Node 22 的 navigator 只读；getLang 以 document.documentElement.lang 为主信号源
   // opts.savedTheme 预置存量主题（覆盖缺省 opencode），用于启动路径断言
-  const savedState = opts.savedTheme
+  const savedState: SavedState | null = opts.savedTheme
     ? { enabled: true, theme: opts.savedTheme, mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
     : null
-  global.localStorage = savedState
-    ? { getItem: () => JSON.stringify(savedState), setItem: () => {} }
+  g.localStorage = savedState
+    ? { getItem: () => JSON.stringify(savedState) ?? null, setItem: () => {} }
     : opts.disabled
-    ? { getItem: () => JSON.stringify({ enabled: false, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }), setItem: () => {} }
+    ? { getItem: () => JSON.stringify({ enabled: false, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }) ?? null, setItem: () => {} }
     : opts.fontKey
-      ? { getItem: () => JSON.stringify({ enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: opts.fontKey }), setItem: () => {} }
+      ? { getItem: () => JSON.stringify({ enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: opts.fontKey }) ?? null, setItem: () => {} }
       : undefined
   // 扫描门禁：eval 语法即高危（DANGEROUS_DYNAMIC_EXECUTION）；在当前上下文执行同一产物字节，语义与直接求值一致（仅测试）。
   runInThisContext(code, { filename: 'package/lib/client.js' })
-  const p = loaded[0].exports
-  let panelCmp = null
-  let panelProps = null
+  const first = loaded[0]
+  assert.ok(first, '产物应注册模块')
+  const p = first.exports as ClientExports
+  let panelCmp: PanelComponent | null = null
+  let panelProps: PanelProps | null = null
   // 入口注册记录：每次 register（含语言切换触发的重注册）都留一份 desc，供入口 label 跟随断言
-  const registrations = []
-  const slots = {
-    inject: (slot, cb) => { cb(); return () => {} },
-    register: (desc, cmp) => { registrations.push(desc); panelCmp = cmp; panelProps = desc.inject(); return () => {} },
+  const registrations: SlotRegistration[] = []
+  const slots: SlotApi = {
+    inject: (_slot, cb) => { cb(); return () => {} },
+    register: (desc, cmp) => {
+      registrations.push(desc)
+      panelCmp = cmp as PanelComponent
+      panelProps = desc.inject()
+      return () => {}
+    },
   }
   // theme mock：官方 setTheme 可用时记录调用并翻转 mock 偏好（模拟宿主）；
   // opts.noOfficialSetTheme 模拟旧宿主走投影降级；opts.throwingSetTheme 模拟 facade 语义不符抛错；
   // opts.stuckPref 让偏好恒为某值（模拟异步宿主未落地），触发 verify 失败走降级
-  const themeCalls = []
+  const themeCalls: string[] = []
   let mockPref = opts.stuckPref !== undefined ? opts.stuckPref : (opts.hostDark !== false ? 'dark' : 'light')
-  const themeSvc = { overrideTokens: () => () => {}, getTheme: () => ({ preference: mockPref }) }
+  const themeSvc: ThemeService = { overrideTokens: () => () => {}, getTheme: () => ({ preference: mockPref }) }
   if (opts.throwingSetTheme) themeSvc.setTheme = () => { throw new Error('facade mismatch') }
   else if (!opts.noOfficialSetTheme) themeSvc.setTheme = (id) => { themeCalls.push(id); if (opts.stuckPref === undefined) mockPref = id }
   const ctx = {
-    get: (k) => {
+    get: (k: string): unknown => {
       if (k === 'theme') return themeSvc
       if (k === 'slots') return slots
       if (k === 'locale' && locale) return locale
       return undefined
     },
-    effect: (fn) => { fn() },
+    effect: (fn: () => void): void => { fn() },
   }
   p.apply(ctx)
-  assert.ok(panelCmp, '面板组件未注册')
-  const html = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { html, panelCmp, panelProps, locale, text: panelProps.text, collectFonts: panelProps.collectFonts, bodyAttrs, themeCalls, docEl: global.document.documentElement, registrations }
+  // 注册回调在 apply 期间才写 panelCmp / panelProps；TS 看不到闭包赋值，这里显式取回再窄化
+  const cmp = panelCmp as PanelComponent | null
+  assert.ok(cmp, '面板组件未注册')
+  const props = panelProps as PanelProps | null
+  assert.ok(props, '面板属性未注册')
+  const html = ReactDOMServer.renderToString(React.createElement(cmp, props))
+  return { html, panelCmp: cmp, panelProps: props, locale, text: props.text, collectFonts: props.collectFonts, bodyAttrs, themeCalls, docEl: documentElement, registrations }
 }
 
 test('面板渲染（DOM 回退·英文）：不抛错，输出英文品牌标题与主题芯片', () => {
@@ -337,13 +528,13 @@ test('浅色宿主已停用：无深色硬编码残留，选中态走 DSH 语义
 // 取某主题芯片 button 片段（断言其行内样式用）。
 // 只在 <button>…</button> 段内认 label：页面别处也有同名子串（星标链接 URL 里就有 opencode），
 // 按 indexOf 取会静默测到别的按钮上。
-function chipSegment(html, label) {
+function chipSegment(html: string, label: string): string {
   const re = /<button[\s\S]*?<\/button>/g
-  let m
+  let m: RegExpExecArray | null
   while ((m = re.exec(html))) {
     if (m[0].includes(label)) return m[0]
   }
-  assert.ok(false, '缺芯片：' + label)
+  assert.fail('缺芯片：' + label)
 }
 
 test('深色回退（未知宿主）：深色硬编码原样保留', () => {
@@ -360,7 +551,7 @@ test('深色回退（未知宿主）：深色硬编码原样保留', () => {
 })
 
 test('芯片名对账（#67 对抗）：中英两侧 38 款都走名表，内部 id 不作显示名', () => {
-  const cases = [
+  const cases: [string, string, Record<string, string>][] = [
     ['zh', loadPanel({ lang: 'zh-CN' }).html, THEME_ZH],
     ['en', loadPanel({ lang: 'en' }).html, THEME_EN],
   ]
@@ -382,6 +573,8 @@ test('透光提示：深色英文界面下委托芯片带英文提示，自持�
   assert.ok(!opaque.includes('title='), '自持画布芯片不应带透光提示')
 })
 
+// 产物是 tsc emit 形态（双引号、分号、类型已剥离）：下面只匹配标识符与字符串字面量内容，
+// 这些不随 emit 变形；不要加依赖单引号或无分号的模式。
 test('构建产物：英文官方名表与搜索索引都在产物里（#67）', () => {
   const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
   assert.ok(code.includes('Tokyo Night'), '产物缺 THEME_EN 官方名表（未重建？）')
@@ -408,14 +601,14 @@ test('构建产物：下拉与菜单浅色分支及宿主跟随逻辑存在', ()
   assert.ok(code.includes('data-ds-dark-theme'), '明暗跟随订阅缺失')
 })
 
-test("\u9762\u677f\u5e95\u90e8\u5c0f\u5b57\u663e\u793a\u5f53\u524d\u7248\u672c\u53f7", () => {
-  const pkg = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
-  const { html } = loadPanel({ lang: "zh-CN" })
-  assert.ok(html.includes("v" + pkg.version), "\u7f3a\u7248\u672c\u53f7\u5c0f\u5b57 v" + pkg.version)
-  assert.ok(html.includes("https://github.com/FeatherHunter/dsh-opencode-palette\""), "\u7f3a\u661f\u6807\u94fe\u63a5")
-  assert.ok(html.includes("/issues\""), "\u7f3aISSUE\u94fe\u63a5")
-  assert.ok(html.indexOf("\u591c\u7a7a\u4e2d\u6700\u4eae") >= 0, "\u7f3a\u661f\u6807hover")
-  assert.ok(html.includes("ISSUE"), "\u7f3aISSUE hover")
+test('面板底部小字显示当前版本号', () => {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
+  const { html } = loadPanel({ lang: 'zh-CN' })
+  assert.ok(html.includes('v' + pkg.version), '缺版本号小字 v' + pkg.version)
+  assert.ok(html.includes('https://github.com/FeatherHunter/dsh-opencode-palette"'), '缺星标链接')
+  assert.ok(html.includes('/issues"'), '缺ISSUE链接')
+  assert.ok(html.indexOf('夜空中最亮') >= 0, '缺星标hover')
+  assert.ok(html.includes('ISSUE'), '缺ISSUE hover')
 })
 
 test('星标 hover 文案尾部带 🌹', () => {
@@ -519,7 +712,7 @@ test('代码字体按钮：显示选中族名本身，并按该字体渲染（�
 })
 
 test('本机字体枚举：读得到清单时，候选含去重后的本机字体（非预设也在），并给出计数提示', async () => {
-  const fonts = [
+  const fonts: LocalFontFamily[] = [
     { family: 'Hack Nerd Font' }, { family: 'Hack Nerd Font', style: 'Bold' },
     { family: '思源等宽' }, { family: 'Arial' },
   ]
@@ -561,7 +754,7 @@ test('本机字体枚举：读不到清单时退回预设列表并给提示（�
 })
 
 test('本机字体枚举：读到的字体会进「本机字体」分区，等宽置顶但比例项同样可选', async () => {
-  const fonts = [{ family: '比例体' }, { family: '真等宽体' }]
+  const fonts: LocalFontFamily[] = [{ family: '比例体' }, { family: '真等宽体' }]
   const { collectFonts } = loadPanel({ lang: 'zh-CN', queryLocalFonts: () => Promise.resolve(fonts) })
   const cache = await collectFonts()
   const locals = cache.candidates.filter((k) => !k.isPreset)
@@ -572,7 +765,7 @@ test('本机字体枚举：读到的字体会进「本机字体」分区，等�
 })
 
 test('字体分组标题：不用“·”拼接，文本走主题色 + 数量徽章 + 分割线', () => {
-  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  const code = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
   assert.ok(code.includes('secHeader('), '缺分组标题组件 secHeader')
   assert.ok(!code.includes("tr('fontLocals') + ' · '"), '旧“本机字体 · N”拼接仍在')
   assert.ok(code.includes('var(--dsw-alias-brand-primary)'), '分组标题未用主题色')
@@ -585,7 +778,7 @@ test('2.0.7 头行带日志开关（默认关）与落点提示', () => {
   assert.ok(html.includes('日志 关'), '缺日志开关（默认应为关）')
   assert.ok(html.includes('logs/dsh-opencode-palette'), '缺日志落点提示（hover 文案）')
   // 开关走 dsh-log 的 setLogSwitch，面板自己不写开关文件
-  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  const code = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
   assert.ok(code.includes('setLogSwitch'), '面板没有调日志包的开关接口')
   assert.ok(!code.includes('log-switch-dsh-opencode-palette.json'), '面板不得自己写开关文件（会成第二份真源）')
 })
@@ -682,7 +875,7 @@ test('2.0.7 英文界面：日志开关也走双语', () => {
 
 test('面板计数走 trf 派生（#60）：themeCount/subtitle 模板含 {n}，渲染值取 themeNames().length', () => {
   // 模板在源码里：转抄 38 必漂（34→38 前车），派生是唯一正解（n 恒≥2，英文恒复数，见注释）
-  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  const code = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
   assert.ok(code.includes("'{n} 款 OpenCode 官方配色主题"), 'subtitle zh 模板缺 {n}')
   assert.ok(code.includes("'{n} official OpenCode themes"), 'subtitle en 模板缺 {n}')
   assert.ok(code.includes("'{n} 款 · 按色系分组'"), 'themeCount zh 模板缺 {n}')
@@ -698,7 +891,7 @@ test('面板计数走 trf 派生（#60）：themeCount/subtitle 模板含 {n}，
 })
 
 test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
-  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  const code = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
   // 悬浮菜单统一最高层级（旧 zIndex 20 会被兄弟内容盖住）
   assert.ok(!code.includes('zIndex: 20'), '不应再有 zIndex: 20 的悬浮菜单')
   assert.ok(code.includes('zIndex: 1000'), '悬浮菜单应提至 1000')
@@ -733,8 +926,8 @@ test('字体下拉不被裁：悬浮层级 + 宽度约束 + 行省略', () => {
 // 判据：行内 cursor:pointer 的可点控件必须挂 data-palette-interactive，一个不漏；
 // 主题胶囊走 chip 档（悬浮 + 周围边框变亮，用户点名效果）；可见档位齐备；
 // row/input 档只在展开的下拉/菜单里渲染，用源码级断言守住「档位不空转」。
-function panelInteractiveTags(html) {
-  return (html.match(/<[a-zA-Z][^>]*>/g) || []).filter((t) => t.includes('cursor:pointer'))
+function panelInteractiveTags(html: string): string[] {
+  return (html.match(/<[a-zA-Z][^>]*>/g) ?? []).filter((t) => t.includes('cursor:pointer'))
 }
 
 test('#88 主面板：可点控件全挂动效钩子，一个不漏', () => {
@@ -752,9 +945,9 @@ test('#88 主面板：主题胶囊走 chip 档，可见档位齐备，源码档�
   for (const tier of ['chip', 'button', 'switch']) {
     assert.ok(html.includes('data-palette-interactive="' + tier + '"'), '缺可见档位：' + tier)
   }
-  const code = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8')
+  const code = readFileSync(new URL('../runtime/client.ts', import.meta.url), 'utf8')
   for (const tier of ['TIER_CHIP', 'TIER_BUTTON', 'TIER_ROW', 'TIER_INPUT', 'TIER_SWITCH']) {
-    assert.ok(code.includes(tier), 'client.mjs 缺档位使用：' + tier)
+    assert.ok(code.includes(tier), 'runtime/client.ts 缺档位使用：' + tier)
   }
   assert.equal(code.includes("[UI_INTERACTIVE_ATTR]: ''"), false, '旧空值钩子应全部升级为具名档位')
 })

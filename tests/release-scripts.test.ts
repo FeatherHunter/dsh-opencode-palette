@@ -1,5 +1,5 @@
 /**
- * release-scripts.test.mjs — 发布脚本门禁
+ * release-scripts.test.ts — 发布脚本门禁
  *
  * 为什么需要这道门禁（2026-09-30 真机踩过）：
  * scripts/*.ps1 由 Windows PowerShell 5.1 执行（DSH 弹窗用的是

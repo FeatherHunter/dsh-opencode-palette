@@ -2,7 +2,7 @@
  * dsh-opencode-palette v2.1.3 — 浏览器半（构建产物，勿手改）
  * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入
  * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）
- * 源：src/engine/*.ts（tsc 转译产物）+ runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口
+ * 源：src/engine/*.ts + runtime/*.ts（均为 tsc 转译产物）+ npm 包 dsh-log / dsh-plugin-update 的客户端入口
  */
 window.__ModuleLoader__.load({
   id: "dsh-opencode-palette",
@@ -18695,7 +18695,7 @@ __mods["float-geometry"] = { MENU_GAP, MENU_MIN_WIDTH, MENU_EDGE, MENU_MAX_HEIGH
 })();
 (function () {
 /**
- * runtime/channel.mjs — 浏览器半与宿主半共用的接线常量（单一真源）
+ * runtime/channel.ts — 浏览器半与宿主半共用的接线常量（单一真源）
  *
  * 两侧必须逐个对上，写错一个就整条通道静默不通，所以只在这里定义一次：
  *   - 宿主半用 fetch.register 注册精确路由 ROUTE_PATH；
@@ -18704,577 +18704,605 @@ __mods["float-geometry"] = { MENU_GAP, MENU_MIN_WIDTH, MENU_EDGE, MENU_MAX_HEIGH
  * 命名规则（DSH 连接服务）：通道 CHANNEL 必须匹配 /^\/[A-Za-z0-9._~-]+$/（单段，故只能 /api）；
  * 端点 ENDPOINT 必须匹配 /^[A-Za-z0-9_$.-]+$/。真正的电话名在请求体里，不受这条限制。
  */
-
 /** /api 载体上的通道名（与 deck、im-companion 同构：DSH 公开的精确路由载体）。 */
-const CHANNEL = '/api'
+const CHANNEL = '/api';
 /** 本插件的端点名；注册路径 = CHANNEL + '/' + ENDPOINT。 */
-const ENDPOINT = 'opencode-palette'
+const ENDPOINT = 'opencode-palette';
 /** 宿主注册的精确路径，客户端拼出的路径必须与它一致。 */
-const ROUTE_PATH = CHANNEL + '/' + ENDPOINT
-
+const ROUTE_PATH = CHANNEL + '/' + ENDPOINT;
 /** 插件标识（日志落盘目录、更新环境指纹、事件清单三处共用一个值）。 */
-const PLUGIN_ID = 'dsh-opencode-palette'
+const PLUGIN_ID = 'dsh-opencode-palette';
 /** 电话名前缀：日志电话与更新电话共用，电话名由两侧从包函数派生（产物里不写字面量，见接线门禁）。 */
-const PHONE_PREFIX = 'palette'
+const PHONE_PREFIX = 'palette';
 /**
  * 自定义主题存储电话（#85）：宿主半与浏览器半共用的电话名表（单一真源）。
  *
  * 注：票面写「在 PHONE_METHODS 中新增」，但本文件此前并无 PHONE_METHODS 表
  * （日志/更新电话名由 dsh-log / dsh-plugin-update 包函数派生，不在此定义）——
  * 自定义主题电话是本插件自己的电话，无上游包可派生，故在此新建该表，
- * 两侧（runtime/host.mjs 注册、面板客户端调用）只从这里读，不写字面量。
+ * 两侧（runtime/host.ts 注册、面板客户端调用）只从这里读，不写字面量。
  *
  * #89 修正（重要）：这里曾存的是不带前缀的裸名（'customThemesSave'），而浏览器半发的是
- * 带前缀的 'palette.customThemesSave' —— 桥（client.mjs 的 createHostBridge/rpcCall）
+ * 带前缀的 'palette.customThemesSave' —— 桥（client.ts 的 createHostBridge/rpcCall）
  * **不替调用方加前缀**，原样放进请求体 payload.method，宿主 dispatch 也按原样查表，
  * 于是三者对不上：回 { ok:false, error:'unknown phone: …' }（不是抛错，历史版本连日志都不落），
  * 界面只看到「保存失败」，存盘 / 删除全死、列表静默回退缓存。
  * **带前缀才是对的**（与日志电话、更新电话同形）。浏览器半的调用点写的是与下面完全相同的
- * 字面量：runtime/client.mjs 的 save/delete、runtime/custom-store.mjs 的 list ——
- * 改下面的值就必须同步改那三处，tests/custom-themes-storage.test.mjs 有门禁盯着。
+ * 字面量：runtime/client.ts 的 save/delete、runtime/custom-store.ts 的 list ——
+ * 改下面的值就必须同步改那三处，tests/custom-themes-storage.test.ts 有门禁盯着。
  */
 const PHONE_METHODS = {
-  customThemesList: PHONE_PREFIX + '.customThemesList',
-  customThemesSave: PHONE_PREFIX + '.customThemesSave',
-  customThemesDelete: PHONE_PREFIX + '.customThemesDelete',
-}
+    customThemesList: PHONE_PREFIX + '.customThemesList',
+    customThemesSave: PHONE_PREFIX + '.customThemesSave',
+    customThemesDelete: PHONE_PREFIX + '.customThemesDelete',
+};
 /** 要检查更新的那个包（本插件自己）。 */
-const TARGET_PACKAGE_NAME = 'dsh-opencode-palette'
-
+const TARGET_PACKAGE_NAME = 'dsh-opencode-palette';
 /** 浏览器半向宿主半回一个失败的调用结果（宿主不可用时用，形状与宿主回包一致）。 */
-const HOST_UNAVAILABLE = 'host-unavailable'
+const HOST_UNAVAILABLE = 'host-unavailable';
 
 __mods["channel"] = { CHANNEL, ENDPOINT, ROUTE_PATH, PLUGIN_ID, PHONE_PREFIX, PHONE_METHODS, TARGET_PACKAGE_NAME, HOST_UNAVAILABLE }
 })();
 (function () {
-// custom-color.mjs — 自定义主题编辑器的纯颜色工具（#86）
-// 零导入：打包前后同一语义，可被 tests/custom-editor.test.mjs 直接 import。
+// custom-color.ts — 自定义主题编辑器的纯颜色工具（#86）
+// 零导入：打包前后同一语义，可被 tests/custom-editor.test.ts 直接 import。
 // 算法口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源），
 // 唯一改动：hexToHsv 保留浮点精度（原型 Math.round 会丢精度导致往返漂移），显示层自行取整。
-
-const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/
-
+const HEX_RE = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 // HEX 手写输入归一化：#RGB/#RRGGBB（容忍首尾空白）→ 大写 #RRGGBB；其余 null
 function normalizeHexInput(s) {
-  if (typeof s !== 'string') return null
-  const t = s.trim()
-  if (!HEX_RE.test(t)) return null
-  let h = t.slice(1)
-  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]
-  return '#' + h.toUpperCase()
+    if (typeof s !== 'string')
+        return null;
+    const t = s.trim();
+    if (!HEX_RE.test(t))
+        return null;
+    let h = t.slice(1);
+    if (h.length === 3)
+        h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    return '#' + h.toUpperCase();
 }
-
-function byteTo01(byte) { return byte / 255 }
-
+function byteTo01(byte) { return byte / 255; }
 // #RRGGBB → { h: 0-360, s: 0-100, v: 0-100 }（浮点，不取整，保证 hsvToHex 往返）
 function hexToHsv(hex) {
-  const n = normalizeHexInput(hex) || '#000000'
-  const r = byteTo01(parseInt(n.slice(1, 3), 16))
-  const g = byteTo01(parseInt(n.slice(3, 5), 16))
-  const b = byteTo01(parseInt(n.slice(5, 7), 16))
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const d = max - min
-  let h = 0
-  if (d !== 0) {
-    if (max === r) h = 60 * (((g - b) / d) % 6)
-    else if (max === g) h = 60 * ((b - r) / d + 2)
-    else h = 60 * ((r - g) / d + 4)
-  }
-  if (h < 0) h += 360
-  const s = max === 0 ? 0 : (d / max) * 100
-  return { h: h, s: s, v: max * 100 }
+    const n = normalizeHexInput(hex) || '#000000';
+    const r = byteTo01(parseInt(n.slice(1, 3), 16));
+    const g = byteTo01(parseInt(n.slice(3, 5), 16));
+    const b = byteTo01(parseInt(n.slice(5, 7), 16));
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d !== 0) {
+        if (max === r)
+            h = 60 * (((g - b) / d) % 6);
+        else if (max === g)
+            h = 60 * ((b - r) / d + 2);
+        else
+            h = 60 * ((r - g) / d + 4);
+    }
+    if (h < 0)
+        h += 360;
+    const s = max === 0 ? 0 : (d / max) * 100;
+    return { h: h, s: s, v: max * 100 };
 }
-
 // { h, s, v } → #RRGGBB（仅最终字节取整）
 function hsvToHex(hsv) {
-  return rgbToHex(hsvToRgb(hsv))
+    return rgbToHex(hsvToRgb(hsv));
 }
-
-
 // 客户端 id 推导（宿主 CUSTOM_ID_PATTERN /^[A-Za-z0-9_-]{1,64}$/ 的子集）：
 // 小写 ASCII，连续分隔符收敛为单连字符；中文/纯符号/空 → null（调用方转编辑态提示起名）
 function clientSlug(name) {
-  if (typeof name !== 'string') return null
-  let s = name.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '-').replace(/^-+|-+$/g, '')
-  if (!s) return null
-  if (s.length > 64) s = s.slice(0, 64).replace(/-+$/g, '')
-  if (!s) return null
-  return s
+    if (typeof name !== 'string')
+        return null;
+    let s = name.trim().toLowerCase().replace(/[^a-z0-9_]+/g, '-').replace(/^-+|-+$/g, '');
+    if (!s)
+        return null;
+    if (s.length > 64)
+        s = s.slice(0, 64).replace(/-+$/g, '');
+    if (!s)
+        return null;
+    return s;
 }
-
 // 透明槽的预览生效色（原型 hexOrTrans 口径：custom-editor-83.prototype.html:612-615，逐字对齐）
 const SLOT_FB = {
-  background: '#101014',
-  backgroundPanel: '#232329',
-  backgroundElement: '#232329',
-  sidebarBg: '#1A1A1E',
-  bubbleBg: '#232329',
-  inputBg: '#1C1C21',
-  codeBlockBg: '#16161A',
-  codeHeaderBg: '#232329',
-}
-const SLOT_FB_DEFAULT = '#141414'
-
+    background: '#101014',
+    backgroundPanel: '#232329',
+    backgroundElement: '#232329',
+    sidebarBg: '#1A1A1E',
+    bubbleBg: '#232329',
+    inputBg: '#1C1C21',
+    codeBlockBg: '#16161A',
+    codeHeaderBg: '#232329',
+};
+const SLOT_FB_DEFAULT = '#141414';
 // 浅色底盘翻转（原型 FB_DARK2LIGHT 口径：custom-editor-83.prototype.html:808，逐字对齐）
 const SLOT_DARK2LIGHT = {
-  '#1A1A1E': '#F4F4F5',
-  '#232329': '#FFFFFF',
-  '#101014': '#FFFFFF',
-  '#16161A': '#F7F7F8',
-  '#1C1C21': '#FFFFFF',
-}
-
+    '#1A1A1E': '#F4F4F5',
+    '#232329': '#FFFFFF',
+    '#101014': '#FFFFFF',
+    '#16161A': '#F7F7F8',
+    '#1C1C21': '#FFFFFF',
+};
 // 预览生效色（原型 slotBg 口径：只有 transparent 才回退/翻转，非透明原值直出）
 function effectiveSlotColor(key, colors, miniLight) {
-  const c = colors ? colors[key] : undefined
-  const norm = normalizeHexInput(c)
-  if (norm) return norm
-  const fb = SLOT_FB[key] || SLOT_FB_DEFAULT
-  if (miniLight) return SLOT_DARK2LIGHT[fb] || '#FFFFFF'
-  return fb
+    const c = colors ? colors[key] : undefined;
+    const norm = normalizeHexInput(c);
+    if (norm)
+        return norm;
+    const fb = SLOT_FB[key] || SLOT_FB_DEFAULT;
+    if (miniLight)
+        return SLOT_DARK2LIGHT[fb] || '#FFFFFF';
+    return fb;
 }
-
 // 编辑器预览底盘：跟编辑器外观走，不跟 OS（原型 effAppearance 口径：prototype.html:809-820）。
 // appearance 恒 light → 浅；恒 dark → 深；system → 看 sysDark（OS 深色？深：浅）。
 function editorMiniLight(appearance, sysDark) {
-  if (appearance === 'light') return true
-  if (appearance === 'dark') return false
-  return sysDark === false
+    if (appearance === 'light')
+        return true;
+    if (appearance === 'dark')
+        return false;
+    return sysDark === false;
 }
-
 // 搜索过滤：name/id 子串（大小写不敏感）；空串全回（+新增由调用方始终保留）
 function filterCustomThemes(list, query) {
-  const arr = Array.isArray(list) ? list : []
-  const q = String(query || '').trim().toLowerCase()
-  if (!q) return arr.slice()
-  return arr.filter(function (t) {
-    const name = String((t && t.name) || '').toLowerCase()
-    const id = String((t && t.id) || '').toLowerCase()
-    return name.indexOf(q) >= 0 || id.indexOf(q) >= 0
-  })
+    const arr = Array.isArray(list) ? list : [];
+    const q = String(query || '').trim().toLowerCase();
+    if (!q)
+        return arr.slice();
+    return arr.filter(function (t) {
+        const name = String((t && t.name) || '').toLowerCase();
+        const id = String((t && t.id) || '').toLowerCase();
+        return name.indexOf(q) >= 0 || id.indexOf(q) >= 0;
+    });
 }
-
 // ── #95 取色器重构：颜色模型纯函数（零依赖，TDD 接缝）──
-
 function clampNum(x, lo, hi) {
-  const n = Number(x)
-  if (!isFinite(n)) return lo
-  return Math.min(hi, Math.max(lo, n))
+    const n = Number(x);
+    if (!isFinite(n))
+        return lo;
+    return Math.min(hi, Math.max(lo, n));
 }
-
-function clampByte(x) { return Math.round(clampNum(x, 0, 255)) }
-
+function clampByte(x) { return Math.round(clampNum(x, 0, 255)); }
 // 从外部 hex 回填 HSV 时保留「无意义的维度」（R1）：V=0（黑）时 h 与 s 都无意义、S=0（灰）时 h 无意义。
 // 这是「拖到黑/灰后色相回弹成红」的根治：色相由状态保留，不靠 hex 反推。
 function mergeHsv(prev, next) {
-  const p = prev || {}
-  const n = next || {}
-  const v = clampNum(n.v, 0, 100)
-  const s = v === 0 ? clampNum(p.s, 0, 100) : clampNum(n.s, 0, 100)
-  const h = (v === 0 || s === 0) ? clampNum(p.h, 0, 360) : clampNum(n.h, 0, 360)
-  return { h: h, s: s, v: v }
+    const p = prev || {};
+    const n = next || {};
+    const v = clampNum(n.v, 0, 100);
+    const s = v === 0 ? clampNum(p.s, 0, 100) : clampNum(n.s, 0, 100);
+    const h = (v === 0 || s === 0) ? clampNum(p.h, 0, 360) : clampNum(n.h, 0, 360);
+    return { h: h, s: s, v: v };
 }
-
 // 宽松 HEX 解析（#95 粘贴/吸管/输入共用）：容忍首尾空白、全角 ＃、缺 #、#RGB、#RGBA、#RRGGBBAA。
 // 返回 { hex: '#RRGGBB', alphaDropped }；无法解析返回 null。
 function parseHexInputLoose(s) {
-  if (typeof s !== 'string') return null
-  const t0 = s.trim().replace(/＃/g, '#').replace(/#/g, '').replace(/\s+/g, '')
-  if (!/^[0-9a-fA-F]+$/.test(t0)) return null
-  let t = t0
-  let alphaDropped = false
-  if (t.length === 8) { t = t.slice(0, 6); alphaDropped = true }
-  else if (t.length === 4) { t = t.slice(0, 3); alphaDropped = true }
-  if (t.length === 3) t = t[0] + t[0] + t[1] + t[1] + t[2] + t[2]
-  if (t.length !== 6) return null
-  return { hex: '#' + t.toUpperCase(), alphaDropped: alphaDropped }
+    if (typeof s !== 'string')
+        return null;
+    const t0 = s.trim().replace(/＃/g, '#').replace(/#/g, '').replace(/\s+/g, '');
+    if (!/^[0-9a-fA-F]+$/.test(t0))
+        return null;
+    let t = t0;
+    let alphaDropped = false;
+    if (t.length === 8) {
+        t = t.slice(0, 6);
+        alphaDropped = true;
+    }
+    else if (t.length === 4) {
+        t = t.slice(0, 3);
+        alphaDropped = true;
+    }
+    if (t.length === 3)
+        t = t[0] + t[0] + t[1] + t[1] + t[2] + t[2];
+    if (t.length !== 6)
+        return null;
+    return { hex: '#' + t.toUpperCase(), alphaDropped: alphaDropped };
 }
-
 // { h, s, v } → { r, g, b }（0-255 整数）
 function hsvToRgb(hsv) {
-  const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
-  const s = clampNum(hsv && hsv.s, 0, 100) / 100
-  const v = clampNum(hsv && hsv.v, 0, 100) / 100
-  const i = Math.floor(h / 60)
-  const f = h / 60 - i
-  const p = v * (1 - s)
-  const q = v * (1 - f * s)
-  const t = v * (1 - (1 - f) * s)
-  let r = 0
-  let g = 0
-  let b = 0
-  const m = ((i % 6) + 6) % 6
-  if (m === 0) { r = v; g = t; b = p }
-  else if (m === 1) { r = q; g = v; b = p }
-  else if (m === 2) { r = p; g = v; b = t }
-  else if (m === 3) { r = p; g = q; b = v }
-  else if (m === 4) { r = t; g = p; b = v }
-  else { r = v; g = p; b = q }
-  return { r: clampByte(r * 255), g: clampByte(g * 255), b: clampByte(b * 255) }
+    const h = ((Number(hsv && hsv.h) % 360) + 360) % 360;
+    const s = clampNum(hsv && hsv.s, 0, 100) / 100;
+    const v = clampNum(hsv && hsv.v, 0, 100) / 100;
+    const i = Math.floor(h / 60);
+    const f = h / 60 - i;
+    const p = v * (1 - s);
+    const q = v * (1 - f * s);
+    const t = v * (1 - (1 - f) * s);
+    let r = 0;
+    let g = 0;
+    let b = 0;
+    const m = ((i % 6) + 6) % 6;
+    if (m === 0) {
+        r = v;
+        g = t;
+        b = p;
+    }
+    else if (m === 1) {
+        r = q;
+        g = v;
+        b = p;
+    }
+    else if (m === 2) {
+        r = p;
+        g = v;
+        b = t;
+    }
+    else if (m === 3) {
+        r = p;
+        g = q;
+        b = v;
+    }
+    else if (m === 4) {
+        r = t;
+        g = p;
+        b = v;
+    }
+    else {
+        r = v;
+        g = p;
+        b = q;
+    }
+    return { r: clampByte(r * 255), g: clampByte(g * 255), b: clampByte(b * 255) };
 }
-
 // { r, g, b }（0-255）→ { h: 0-360 浮点, s: 0-100, v: 0-100 }
 function rgbToHsv(rgb) {
-  const r = clampByte(rgb && rgb.r) / 255
-  const g = clampByte(rgb && rgb.g) / 255
-  const b = clampByte(rgb && rgb.b) / 255
-  const max = Math.max(r, g, b)
-  const min = Math.min(r, g, b)
-  const d = max - min
-  let h = 0
-  if (d !== 0) {
-    if (max === r) h = 60 * (((g - b) / d) % 6)
-    else if (max === g) h = 60 * ((b - r) / d + 2)
-    else h = 60 * ((r - g) / d + 4)
-  }
-  if (h < 0) h += 360
-  const s = max === 0 ? 0 : (d / max) * 100
-  return { h: h, s: s, v: max * 100 }
+    const r = clampByte(rgb && rgb.r) / 255;
+    const g = clampByte(rgb && rgb.g) / 255;
+    const b = clampByte(rgb && rgb.b) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const d = max - min;
+    let h = 0;
+    if (d !== 0) {
+        if (max === r)
+            h = 60 * (((g - b) / d) % 6);
+        else if (max === g)
+            h = 60 * ((b - r) / d + 2);
+        else
+            h = 60 * ((r - g) / d + 4);
+    }
+    if (h < 0)
+        h += 360;
+    const s = max === 0 ? 0 : (d / max) * 100;
+    return { h: h, s: s, v: max * 100 };
 }
-
 // { r, g, b }（0-255）→ #RRGGBB
 function rgbToHex(rgb) {
-  const to = (x) => clampByte(x).toString(16).padStart(2, '0').toUpperCase()
-  return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b)
+    const to = (x) => clampByte(x).toString(16).padStart(2, '0').toUpperCase();
+    return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b);
 }
-
-
 // { h, s, v } → { h, s, l }（s/l 为 0-100）
 function hsvToHsl(hsv) {
-  const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
-  const s = clampNum(hsv && hsv.s, 0, 100) / 100
-  const v = clampNum(hsv && hsv.v, 0, 100) / 100
-  const l = v * (1 - s / 2)
-  const sl = (l === 0 || l === 1) ? 0 : (v - l) / Math.min(l, 1 - l)
-  return { h: h, s: sl * 100, l: l * 100 }
+    const h = ((Number(hsv && hsv.h) % 360) + 360) % 360;
+    const s = clampNum(hsv && hsv.s, 0, 100) / 100;
+    const v = clampNum(hsv && hsv.v, 0, 100) / 100;
+    const l = v * (1 - s / 2);
+    const sl = (l === 0 || l === 1) ? 0 : (v - l) / Math.min(l, 1 - l);
+    return { h: h, s: sl * 100, l: l * 100 };
 }
-
 // { h, s, l }（s/l 为 0-100）→ { h, s, v }
 function hslToHsv(hsl) {
-  const h = ((Number(hsl && hsl.h) % 360) + 360) % 360
-  const s = clampNum(hsl && hsl.s, 0, 100) / 100
-  const l = clampNum(hsl && hsl.l, 0, 100) / 100
-  const v = l + s * Math.min(l, 1 - l)
-  const sv = v === 0 ? 0 : 2 * (1 - l / v)
-  return { h: h, s: sv * 100, v: v * 100 }
+    const h = ((Number(hsl && hsl.h) % 360) + 360) % 360;
+    const s = clampNum(hsl && hsl.s, 0, 100) / 100;
+    const l = clampNum(hsl && hsl.l, 0, 100) / 100;
+    const v = l + s * Math.min(l, 1 - l);
+    const sv = v === 0 ? 0 : 2 * (1 - l / v);
+    return { h: h, s: sv * 100, v: v * 100 };
 }
-
 // 色相轨的 13 个 30° 停（0/30/…/360），用「当前 S/V」生成真实渐变（不是纯色相条，R4 缓解）。
 function hueStops(s, v) {
-  const out = []
-  for (let i = 0; i < 13; i++) out.push(hsvToHex({ h: i * 30, s: s, v: v }))
-  return out
+    const out = [];
+    for (let i = 0; i < 13; i++)
+        out.push(hsvToHex({ h: i * 30, s: s, v: v }));
+    return out;
 }
-
 // WCAG 相对亮度与对比度（只提示、不自动改色）。
 function relativeLuminance(hex) {
-  const n = normalizeHexInput(hex) || '#000000'
-  const chan = function (c) {
-    const x = c / 255
-    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
-  }
-  const r = chan(parseInt(n.slice(1, 3), 16))
-  const g = chan(parseInt(n.slice(3, 5), 16))
-  const b = chan(parseInt(n.slice(5, 7), 16))
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    const n = normalizeHexInput(hex) || '#000000';
+    const chan = function (c) {
+        const x = c / 255;
+        return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+    };
+    const r = chan(parseInt(n.slice(1, 3), 16));
+    const g = chan(parseInt(n.slice(3, 5), 16));
+    const b = chan(parseInt(n.slice(5, 7), 16));
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
-
 function contrastRatio(hexA, hexB) {
-  const a = relativeLuminance(hexA)
-  const b = relativeLuminance(hexB)
-  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+    const a = relativeLuminance(hexA);
+    const b = relativeLuminance(hexB);
+    return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
-
 // 对比度基准槽：文字对背景、背景槽反过来对文字、其余（品牌/语法/边框/改动/Markdown）对面板。
-// 这 8 个 key 由 src/engine/map-dsh.mjs 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
+// 这 8 个 key 由 src/engine/map-dsh.ts 的 COLOR_SLOTS.allowTransparent 定义；测试跨文件对账防漂移。
 const BG_SLOTS = [
-  'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
-  'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
-]
+    'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
+    'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
+];
 function contrastRefSlot(slotKey) {
-  if (slotKey === 'text' || slotKey === 'textMuted') return 'background'
-  if (BG_SLOTS.indexOf(slotKey) >= 0) return 'text'
-  return 'backgroundPanel'
+    if (slotKey === 'text' || slotKey === 'textMuted')
+        return 'background';
+    if (BG_SLOTS.indexOf(slotKey) >= 0)
+        return 'text';
+    return 'backgroundPanel';
 }
-
 // 「本主题用过的颜色」：按分组优先级取前 max 个（R7：品牌/语法色不再被 8 个背景色挤掉），
 // 跳过当前槽自身的现值；入参 priorityKeys 为按优先级排好的色位 key 列表。
 function pickRecentColors(colors, currentKey, priorityKeys, max) {
-  const c = colors || {}
-  const lim = max > 0 ? max : 10
-  const out = []
-  const seen = new Set()
-  const consider = function (k) {
-    if (k === currentKey) return
-    const norm = normalizeHexInput(c[k])
-    if (!norm || seen.has(norm)) return
-    seen.add(norm)
-    out.push(norm)
-  }
-  const order = Array.isArray(priorityKeys) ? priorityKeys : []
-  for (let i = 0; i < order.length; i++) consider(order[i])
-  const keys = Object.keys(c)
-  for (let i = 0; i < keys.length; i++) consider(keys[i])
-  return out.slice(0, lim)
+    const c = colors || {};
+    const lim = max > 0 ? max : 10;
+    const out = [];
+    const seen = new Set();
+    const consider = function (k) {
+        if (k === currentKey)
+            return;
+        const norm = normalizeHexInput(c[k]);
+        if (!norm || seen.has(norm))
+            return;
+        seen.add(norm);
+        out.push(norm);
+    };
+    const order = Array.isArray(priorityKeys) ? priorityKeys : [];
+    for (let i = 0; i < order.length; i++)
+        consider(order[i]);
+    const keys = Object.keys(c);
+    for (let i = 0; i < keys.length; i++)
+        consider(keys[i]);
+    return out.slice(0, lim);
 }
 
 __mods["custom-color"] = { normalizeHexInput, hexToHsv, hsvToHex, clientSlug, SLOT_FB, SLOT_DARK2LIGHT, effectiveSlotColor, editorMiniLight, filterCustomThemes, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, relativeLuminance, contrastRatio, BG_SLOTS, contrastRefSlot, pickRecentColors }
 })();
 (function () {
-// custom-store.mjs — 自定义主题本地缓存与宿主对账（#86）
+// custom-store.ts — 自定义主题本地缓存与宿主对账（#86）
 // 零导入，打包前后同一语义。localStorage 只做离线/测试兜底，真值恒在宿主。
-
 // 命名空间键（与 STORAGE_KEY 同前缀，避免与宿主其他数据碰撞；
 // 票面「缓存一份 customThemes」指缓存内容，键名按仓内习惯加前缀）。
-const CUSTOM_CACHE_KEY = 'dsh.opencode-palette.customThemes'
-
+const CUSTOM_CACHE_KEY = 'dsh.opencode-palette.customThemes';
 function emptyCustomCache() {
-  return { themes: [], dirPath: '' }
+    return { themes: [], dirPath: '' };
 }
-
 // 读缓存：坏数据/无存储一律回空（绝不抛，SSR 安全）
 function loadCustomCache(storage) {
-  try {
-    if (!storage || typeof storage.getItem !== 'function') return emptyCustomCache()
-    const raw = storage.getItem(CUSTOM_CACHE_KEY)
-    if (!raw) return emptyCustomCache()
-    const data = JSON.parse(raw)
-    if (!data || !Array.isArray(data.themes)) return emptyCustomCache()
-    return {
-      themes: data.themes,
-      dirPath: typeof data.dirPath === 'string' ? data.dirPath : '',
+    try {
+        if (!storage || typeof storage.getItem !== 'function')
+            return emptyCustomCache();
+        const raw = storage.getItem(CUSTOM_CACHE_KEY);
+        if (!raw)
+            return emptyCustomCache();
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.themes))
+            return emptyCustomCache();
+        return {
+            themes: data.themes,
+            dirPath: typeof data.dirPath === 'string' ? data.dirPath : '',
+        };
     }
-  } catch (e) { return emptyCustomCache() }
+    catch (e) {
+        return emptyCustomCache();
+    }
 }
-
 // 写缓存：成功 true，失败 false（绝不抛）
 function saveCustomCache(storage, data) {
-  try {
-    if (!storage || typeof storage.setItem !== 'function') return false
-    const themes = data && Array.isArray(data.themes) ? data.themes : []
-    const dirPath = data && typeof data.dirPath === 'string' ? data.dirPath : ''
-    storage.setItem(CUSTOM_CACHE_KEY, JSON.stringify({ themes: themes, dirPath: dirPath }))
-    return true
-  } catch (e) { return false }
+    try {
+        if (!storage || typeof storage.setItem !== 'function')
+            return false;
+        const themes = data && Array.isArray(data.themes) ? data.themes : [];
+        const dirPath = data && typeof data.dirPath === 'string' ? data.dirPath : '';
+        storage.setItem(CUSTOM_CACHE_KEY, JSON.stringify({ themes: themes, dirPath: dirPath }));
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
 }
-
 // 对账：RPC 成功用宿主值并写缓存；抛错/无桥/坏回包静默回缓存。
-// bridge = { call(phone, args) }（client.mjs 的 hostBridge），绝不抛。
+// bridge = { call(phone, args) }（client.ts 的 hostBridge），绝不抛。
 function reconcileCustomThemes(bridge, storage) {
-  const fallback = function () {
-    const cached = loadCustomCache(storage)
-    return { themes: cached.themes, dirPath: cached.dirPath, source: 'cache' }
-  }
-  try {
-    if (!bridge || typeof bridge.call !== 'function') return Promise.resolve(fallback())
-    return Promise.resolve().then(function () {
-      return bridge.call('palette.customThemesList', {})
-    }).then(function (res) {
-      if (res && res.ok === true && Array.isArray(res.themes)) {
-        const data = {
-          themes: res.themes,
-          dirPath: typeof res.dirPath === 'string' ? res.dirPath : '',
-        }
-        saveCustomCache(storage, data)
-        return { themes: data.themes, dirPath: data.dirPath, source: 'rpc' }
-      }
-      return fallback()
-    }).catch(function () { return fallback() })
-  } catch (e) { return Promise.resolve(fallback()) }
+    const fallback = function () {
+        const cached = loadCustomCache(storage);
+        return { themes: cached.themes, dirPath: cached.dirPath, source: 'cache' };
+    };
+    try {
+        if (!bridge || typeof bridge.call !== 'function')
+            return Promise.resolve(fallback());
+        return Promise.resolve().then(function () {
+            return bridge.call('palette.customThemesList', {});
+        }).then(function (res) {
+            if (res && res.ok === true && Array.isArray(res.themes)) {
+                const data = {
+                    themes: res.themes,
+                    dirPath: typeof res.dirPath === 'string' ? res.dirPath : '',
+                };
+                saveCustomCache(storage, data);
+                return { themes: data.themes, dirPath: data.dirPath, source: 'rpc' };
+            }
+            return fallback();
+        }).catch(function () { return fallback(); });
+    }
+    catch (e) {
+        return Promise.resolve(fallback());
+    }
 }
 
 __mods["custom-store"] = { CUSTOM_CACHE_KEY, emptyCustomCache, loadCustomCache, saveCustomCache, reconcileCustomThemes }
 })();
 (function () {
-// ui-fx.mjs — 配置面板全局交互动效（#86 建立，#88 分级扩展；SSR 零污染架构）
+// ui-fx.ts — 配置面板全局交互动效（#86 建立，#88 分级扩展；SSR 零污染架构）
 // 零导入。只提供「面板专属样式表 + 钩子属性名 + 档位常量」：既有主题胶囊/分段按钮的
-// SSR 内联 style 字符串一个字符都不碰（tests/panel-render.test.mjs 的
+// SSR 内联 style 字符串一个字符都不碰（tests/panel-render.test.ts 的
 // chipSegment 子串断言全集必须继续通过），动效只挂到数据属性钩子上。
 // #88 拍板：`!important` 只允许出现在 :hover / :active / :focus-visible 状态选择器内，
 // 且颜色一律取主题变量，绝不写死深色；@media (prefers-reduced-motion: reduce) 全量降级。
-
 // 钩子属性名（新元素按需标记，旧元素绝不加）
-const UI_INTERACTIVE_ATTR = 'data-palette-interactive'
-
+const UI_INTERACTIVE_ATTR = 'data-palette-interactive';
 // 面板专属样式表标记（注入的 <style> 标签属性）
-const UI_STYLE_ATTR = 'data-dsh-opencode-palette-ui'
-
+const UI_STYLE_ATTR = 'data-dsh-opencode-palette-ui';
 // 档位常量：钩子属性的取值。空值/未登记取值 = 历史通用档（#86 的 3 处空值钩子）。
-const TIER_CHIP = 'chip'
-const TIER_BUTTON = 'button'
-const TIER_ROW = 'row'
-const TIER_SWATCH = 'swatch'
-const TIER_INPUT = 'input'
-const TIER_SWITCH = 'switch'
-
+const TIER_CHIP = 'chip';
+const TIER_BUTTON = 'button';
+const TIER_ROW = 'row';
+const TIER_SWATCH = 'swatch';
+const TIER_INPUT = 'input';
+const TIER_SWITCH = 'switch';
 // 选择器骨架（构建期拼好，避免样式表里出现跨行拼接）
-const ANY = '[' + UI_INTERACTIVE_ATTR + ']'
-const CHIP = '[data-palette-interactive="' + TIER_CHIP + '"]'
-const BUTTON = '[data-palette-interactive="' + TIER_BUTTON + '"]'
-const ROW = '[data-palette-interactive="' + TIER_ROW + '"]'
-const SWATCH = '[data-palette-interactive="' + TIER_SWATCH + '"]'
-const INPUT = '[data-palette-interactive="' + TIER_INPUT + '"]'
-const SWITCH = '[data-palette-interactive="' + TIER_SWITCH + '"]'
-
+const ANY = '[' + UI_INTERACTIVE_ATTR + ']';
+const CHIP = '[data-palette-interactive="' + TIER_CHIP + '"]';
+const BUTTON = '[data-palette-interactive="' + TIER_BUTTON + '"]';
+const ROW = '[data-palette-interactive="' + TIER_ROW + '"]';
+const SWATCH = '[data-palette-interactive="' + TIER_SWATCH + '"]';
+const INPUT = '[data-palette-interactive="' + TIER_INPUT + '"]';
+const SWITCH = '[data-palette-interactive="' + TIER_SWITCH + '"]';
 // 统一时限/曲线：#83 原型锁定的 cubic-bezier(0.22,1,0.36,1) 150–160ms。
 // 只动 transform / box-shadow / border-color / background-color / color / filter（零布局抖动）。
-const EASE = 'cubic-bezier(0.22,1,0.36,1)'
+const EASE = 'cubic-bezier(0.22,1,0.36,1)';
 const BASE = ANY + '{transition:transform 0.16s ' + EASE + ',box-shadow 0.16s ' + EASE +
-  ',border-color 0.16s ease,background-color 0.16s ease,color 0.16s ease,filter 0.16s ease;}'
-
+    ',border-color 0.16s ease,background-color 0.16s ease,color 0.16s ease,filter 0.16s ease;}';
 // 历史通用档（#86 的 3 处空值钩子）：只认空值，向后兼容旧标记。
 // #88 实测修正：裸 [data-palette-interactive] 的选择器特异度 (0,3,1) 高于各具名档 (0,2,0)，
 // 由 <button> 承载的胶囊/按钮档会被它抢走 box-shadow（品牌色外环丢失）→ 必须限定空值。
-const LEGACY_ANY = '[' + UI_INTERACTIVE_ATTR + '=""]'
+const LEGACY_ANY = '[' + UI_INTERACTIVE_ATTR + '=""]';
 const LEGACY = 'button' + LEGACY_ANY + ':hover:not(:disabled){transform:translateY(-1px);' +
-  'box-shadow:0 2px 10px rgba(0,0,0,0.35);border-color:var(--dsw-alias-brand-primary) !important;}' +
-  'button' + LEGACY_ANY + ':active:not(:disabled){transform:scale(0.98);}' +
-  'button' + LEGACY_ANY + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
-
+    'box-shadow:0 2px 10px rgba(0,0,0,0.35);border-color:var(--dsw-alias-brand-primary) !important;}' +
+    'button' + LEGACY_ANY + ':active:not(:disabled){transform:scale(0.98);}' +
+    'button' + LEGACY_ANY + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}';
 // chip 档：主题胶囊上浮 + 周围边框提亮 + 品牌色外环（用户点名效果）
 const CHIP_FX = CHIP + ':hover{transform:translateY(-1px);border-color:var(--dsw-alias-brand-primary) !important;' +
-  'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 3px 10px rgba(0,0,0,0.35);}' +
-  CHIP + ':active{transform:translateY(0) scale(0.98);}' +
-  CHIP + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}'
-
+    'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary),0 3px 10px rgba(0,0,0,0.35);}' +
+    CHIP + ':active{transform:translateY(0) scale(0.98);}' +
+    CHIP + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}';
 // button 档：底色/亮度提亮 + 边框变亮 + 微抬升（filter 不覆盖内联底色，主题无关）
 const BUTTON_FX = BUTTON + ':hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.08);' +
-  'border-color:var(--dsw-alias-brand-primary) !important;box-shadow:0 2px 8px rgba(0,0,0,0.30);}' +
-  BUTTON + ':active:not(:disabled){transform:scale(0.98);filter:brightness(0.97);}' +
-  BUTTON + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
-
+    'border-color:var(--dsw-alias-brand-primary) !important;box-shadow:0 2px 8px rgba(0,0,0,0.30);}' +
+    BUTTON + ':active:not(:disabled){transform:scale(0.98);filter:brightness(0.97);}' +
+    BUTTON + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}';
 // row 档：下拉/菜单/字体行背景高亮 + 右移 1px
 const ROW_FX = ROW + ':hover{background-color:var(--dsw-alias-interactive-bg-hover) !important;transform:translateX(1px);}' +
-  ROW + ':active{transform:translateX(1px) scale(0.995);}' +
-  ROW + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;}'
-
+    ROW + ':active{transform:translateX(1px) scale(0.995);}' +
+    ROW + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:-2px;}';
 // swatch 档：色块/快选色卡微放大 + 品牌色描边（不改色，避免误导选色）
 const SWATCH_FX = SWATCH + ':hover{transform:scale(1.12);border-color:var(--dsw-alias-brand-primary) !important;' +
-  'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}' +
-  SWATCH + ':active{transform:scale(1.02);}' +
-  SWATCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}'
-
+    'box-shadow:0 0 0 1px var(--dsw-alias-brand-primary);}' +
+    SWATCH + ':active{transform:scale(1.02);}' +
+    SWATCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:1px;}';
 // input 档：输入框/拾色面/预览部件悬停描边 + 聚焦光环（不位移，兼容面状元素）
 const INPUT_FX = INPUT + ':hover{border-color:var(--dsw-alias-brand-primary) !important;' +
-  'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}' +
-  INPUT + ':focus-visible{outline:none;border-color:var(--dsw-alias-brand-primary) !important;' +
-  'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}'
-
+    'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}' +
+    INPUT + ':focus-visible{outline:none;border-color:var(--dsw-alias-brand-primary) !important;' +
+    'box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}';
 // switch 档：开关轨道悬停光环 + 按压回弹（滑块过渡由内联样式承担，不碰）
 const SWITCH_FX = SWITCH + ':hover{box-shadow:0 0 0 2px var(--dsw-alias-interactive-bg-hover-accent);}' +
-  SWITCH + ':active{transform:scale(0.95);}' +
-  SWITCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}'
-
+    SWITCH + ':active{transform:scale(0.95);}' +
+    SWITCH + ':focus-visible{outline:2px solid var(--dsw-alias-brand-primary);outline-offset:2px;}';
 // reduced-motion 全量降级：无过渡、无位移、无外发光
 const REDUCED = '@media (prefers-reduced-motion: reduce){' + ANY + '{transition:none;}' +
-  ANY + ':hover,' + ANY + ':active{transform:none !important;box-shadow:none !important;filter:none !important;}}'
-
-const UI_FX_CSS = [BASE, LEGACY, CHIP_FX, BUTTON_FX, ROW_FX, SWATCH_FX, INPUT_FX, SWITCH_FX, REDUCED].join('')
-
-let uiFxInjected = false
-
+    ANY + ':hover,' + ANY + ':active{transform:none !important;box-shadow:none !important;filter:none !important;}}';
+const UI_FX_CSS = [BASE, LEGACY, CHIP_FX, BUTTON_FX, ROW_FX, SWATCH_FX, INPUT_FX, SWITCH_FX, REDUCED].join('');
+let uiFxInjected = false;
 // 注入面板专属 <style data-dsh-opencode-palette-ui>（幂等；假宿主/无 head 静默 false）
 function injectUiFx(doc) {
-  try {
-    if (uiFxInjected) return false
-    const d = doc || (typeof document !== 'undefined' ? document : null)
-    if (!d || !d.head || typeof d.head.appendChild !== 'function') return false
-    if (typeof d.createElement !== 'function') return false
-    const el = d.createElement('style')
-    if (!el) return false
-    el.textContent = UI_FX_CSS
-    if (el.setAttribute) el.setAttribute(UI_STYLE_ATTR, '')
-    d.head.appendChild(el)
-    uiFxInjected = true
-    return true
-  } catch (e) { return false }
+    try {
+        if (uiFxInjected)
+            return false;
+        // 类型：真 document 结构化满足 FxDocument；标注避免与 DOM lib 的 Document 形成联合后调用面分叉。
+        const d = doc || (typeof document !== 'undefined' ? document : null);
+        if (!d || !d.head || typeof d.head.appendChild !== 'function')
+            return false;
+        if (typeof d.createElement !== 'function')
+            return false;
+        const el = d.createElement('style');
+        if (!el)
+            return false;
+        el.textContent = UI_FX_CSS;
+        if (el.setAttribute)
+            el.setAttribute(UI_STYLE_ATTR, '');
+        d.head.appendChild(el);
+        uiFxInjected = true;
+        return true;
+    }
+    catch (e) {
+        return false;
+    }
 }
 
 __mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH, UI_FX_CSS, injectUiFx }
 })();
 (function () {
-// custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
+// custom-editor.ts — 37 色自定义主题编辑弹窗（#86）
 // 交互与文案口径 #86 起对齐 prototypes/custom-editor-83.prototype.html；#95 起调色盘以 docs/research/palette-picker-survey.md + 票内 resolution 为准。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
 const { normalizeHexInput, hexToHsv, hsvToHex, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } = __mods["custom-color"]
 const { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } = __mods["ui-fx"]
-
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
 // 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
 // 别名改写为真实 data-slot：border 系所有被 border 描边的节点 + borderActive 内圈节点。
 const EXTRA_HL = {
-  border: ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg'],
-  borderActive: ['inputBg'],
-}
-
+    border: ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg'],
+    borderActive: ['inputBg'],
+};
 // 焦点圈类名（用户 m08636 第 4 条）：凡被 hl 命中的元素（node 节点与纯 span）都带此类，
 // 供 badge 定位时按 DOM 顺序取第一个命中（原型 paintHl:903 的 `matches[0] || extras[0]` 口径）。
-const HL_CLS = 'dspe-hl'
-
+const HL_CLS = 'dspe-hl';
 // 弹窗滚动条口径（原型 prototype.html:143-148）：左列表不滑动时看不见（悬停才现），右画布列直接隐藏。
 // 走弹窗内 <style> 挂载（与 syslabel 同法，随弹窗卸载），不写进全局 ui-fx 样式表（那是面板级动效）。
 const DLG_CSS = [
-  '.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}',
-  '.dspe-dlg-left:hover{scrollbar-color:var(--dsw-alias-scrollbar-hover-l1, #3A3A44) transparent}',
-  '.dspe-dlg-left::-webkit-scrollbar{width:10px;height:10px}',
-  '.dspe-dlg-left::-webkit-scrollbar-track{background:transparent}',
-  '.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent;border:2px solid transparent;border-radius:8px}',
-  '.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:var(--dsw-alias-scrollbar-hover-l1, #3A3A44);background-clip:padding-box;border:2px solid transparent;border-radius:8px}',
-  '.dspe-dlg-left::-webkit-scrollbar-thumb:hover{background:var(--dsw-alias-scrollbar-hover-l1, #4A4A55);background-clip:padding-box;border:2px solid transparent}',
-  '.dspe-dlg-right{scrollbar-width:none}',
-  '.dspe-dlg-right::-webkit-scrollbar{display:none;width:0 !important;height:0 !important}',
-].join('')
-
+    '.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}',
+    '.dspe-dlg-left:hover{scrollbar-color:var(--dsw-alias-scrollbar-hover-l1, #3A3A44) transparent}',
+    '.dspe-dlg-left::-webkit-scrollbar{width:10px;height:10px}',
+    '.dspe-dlg-left::-webkit-scrollbar-track{background:transparent}',
+    '.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent;border:2px solid transparent;border-radius:8px}',
+    '.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:var(--dsw-alias-scrollbar-hover-l1, #3A3A44);background-clip:padding-box;border:2px solid transparent;border-radius:8px}',
+    '.dspe-dlg-left::-webkit-scrollbar-thumb:hover{background:var(--dsw-alias-scrollbar-hover-l1, #4A4A55);background-clip:padding-box;border:2px solid transparent}',
+    '.dspe-dlg-right{scrollbar-width:none}',
+    '.dspe-dlg-right::-webkit-scrollbar{display:none;width:0 !important;height:0 !important}',
+].join('');
 // ── 弹窗 chrome 语义 token（用户 m09582 需求 2：编辑/新增弹窗整体跟随当前系统主题，预览区除外）──
-// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源：src/engine/map-dsh.mjs），
+// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源：src/engine/map-dsh.ts），
 // 所以弹窗 chrome 直接吃 var() 就同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参。
 // 末尾兜底值 = 改造前的深色字面量：宿主没定义该 token 时观感与今天完全一致。
 // 不在此列（表达的是「被编辑主题」或「外观选项」本身，不随宿主走）：预览画布、右列画布底色、
 // 顶栏预览胶囊（capFace/capFg/capPrimary）、外观 seg 的深浅双色、色位 swatch 自身描边与透明棋盘格。
 const TK = {
-  win: 'var(--dsw-alias-bg-layer-1, #141419)',
-  panel: 'var(--dsw-alias-bg-layer-2, #1C1C21)',
-  pop: 'var(--dsw-alias-bg-overlay, #1B1B21)',
-  pop2: 'var(--dsw-alias-bg-overlay, #232329)',
-  border: 'var(--dsw-alias-border-l1, #33333A)',
-  borderStrong: 'var(--dsw-alias-border-l2, #3D3D47)',
-  borderStrong2: 'var(--dsw-alias-border-l2, #4A4A55)',
-  faint: 'var(--dsw-alias-border-l3, #55555F)',
-  divider: 'var(--dsw-alias-border-l1, #26262C)',
-  text: 'var(--dsw-alias-label-primary, #E7E7EA)',
-  textStrong: 'var(--dsw-alias-label-primary, #EDEDF2)',
-  text2: 'var(--dsw-alias-label-secondary, #A9A9B3)',
-  text3: 'var(--dsw-alias-label-tertiary, #8B8B95)',
-  accent: 'var(--dsw-alias-brand-primary, #FAB283)',
-  accentFg: 'var(--dsw-alias-label-primary-foreground, #141414)',
-  btnFill: 'var(--dsw-alias-button-primary-fill, #FAB283)',
-  hover: 'var(--dsw-alias-interactive-bg-hover, #1A1A20)',
-  danger: 'var(--dsw-alias-state-error-primary, #FF5252)',
-  dangerText: 'var(--dsw-alias-state-error-primary, #FF6B6B)',
-  dangerBorder: 'var(--dsw-alias-state-error-secondary, #C53B53)',
-  dangerSoft: 'var(--dsw-alias-state-error-secondary, #F08A97)',
-  dangerBg: 'var(--dsw-alias-interactive-bg-hover-danger, #2A1418)',
-}
-
+    win: 'var(--dsw-alias-bg-layer-1, #141419)',
+    panel: 'var(--dsw-alias-bg-layer-2, #1C1C21)',
+    pop: 'var(--dsw-alias-bg-overlay, #1B1B21)',
+    pop2: 'var(--dsw-alias-bg-overlay, #232329)',
+    border: 'var(--dsw-alias-border-l1, #33333A)',
+    borderStrong: 'var(--dsw-alias-border-l2, #3D3D47)',
+    borderStrong2: 'var(--dsw-alias-border-l2, #4A4A55)',
+    faint: 'var(--dsw-alias-border-l3, #55555F)',
+    divider: 'var(--dsw-alias-border-l1, #26262C)',
+    text: 'var(--dsw-alias-label-primary, #E7E7EA)',
+    textStrong: 'var(--dsw-alias-label-primary, #EDEDF2)',
+    text2: 'var(--dsw-alias-label-secondary, #A9A9B3)',
+    text3: 'var(--dsw-alias-label-tertiary, #8B8B95)',
+    accent: 'var(--dsw-alias-brand-primary, #FAB283)',
+    accentFg: 'var(--dsw-alias-label-primary-foreground, #141414)',
+    btnFill: 'var(--dsw-alias-button-primary-fill, #FAB283)',
+    hover: 'var(--dsw-alias-interactive-bg-hover, #1A1A20)',
+    danger: 'var(--dsw-alias-state-error-primary, #FF5252)',
+    dangerText: 'var(--dsw-alias-state-error-primary, #FF6B6B)',
+    dangerBorder: 'var(--dsw-alias-state-error-secondary, #C53B53)',
+    dangerSoft: 'var(--dsw-alias-state-error-secondary, #F08A97)',
+    dangerBg: 'var(--dsw-alias-interactive-bg-hover-danger, #2A1418)',
+};
 // 焦点圈样式（原型 .hl/.hl-edge 口径：prototype.html:175-178 + paintHl:893）。
 // 纯函数接缝：凡被 hl 命中的色位一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
 // 用户 m08636 第 4 条要求「37 个色位命中时预览里每个受影响元素都被圈住」，
 // 所以 node 容器与纯 span（t 文本、代码 token、textMuted 行）必须共用这一处判定。
 function slotRingStyle(hl, slot) {
-  if (!hl) return null
-  const targets = [hl].concat(EXTRA_HL[hl] || [])
-  if (targets.indexOf(slot) < 0) return null
-  const isEdge = (hl === 'border' || hl === 'borderActive') && slot === hl
-  return {
-    boxShadow: isEdge ? '0 0 0 2px ' + TK.accent : 'inset 0 0 0 2px ' + TK.accent,
-    animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
-  }
+    if (!hl)
+        return null;
+    const targets = [hl].concat(EXTRA_HL[hl] || []);
+    if (targets.indexOf(slot) < 0)
+        return null;
+    const isEdge = (hl === 'border' || hl === 'borderActive') && slot === hl;
+    return {
+        boxShadow: isEdge ? '0 0 0 2px ' + TK.accent : 'inset 0 0 0 2px ' + TK.accent,
+        animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
+    };
 }
-
 // 视野内边距（px）：行边缘到列表上下沿留一点余量，贴边也当没进视野（用户 m09226 的「出现在视野中」）。
-const REVEAL_PAD = 8
-
+const REVEAL_PAD = 8;
 // 名字区固定总宽（用户 m09433「输入框别因输入变宽」→ 用户 m09582 需求 1「胶囊仍可随名字变长、输入框可变短，总量不变」）。
 // 原型 fitWidth 是「按输入文本量宽」（prototype.html:782 `textW(inp.value||placeholder)+24`、:788 `inp.style.width`），
 // 本票按用户口径偏离：钉死「输入框 + 预览胶囊」这一区的总宽，区内自由分配。
@@ -19284,37 +19312,34 @@ const REVEAL_PAD = 8
 // 注意弹窗是 width:max-content：名字区必须 width/min/max 三向钉死才不参与 max-content 自量宽。
 // 区内两件也不能把「内容宽」泄漏给外层 max-content（实测：只钉区宽时 dlg 宽仍随名字在 718~878 间跳）——
 // 输入框 width:0 + flex-basis:0（百分比宽在自量宽里按 auto 算、会跟着 value 长度跑）、胶囊 max-width 封顶。
-const NAME_INPUT_W = 200
-const NAME_ZONE_W = 322
-const NAME_INPUT_MIN = 90
+const NAME_INPUT_W = 200;
+const NAME_ZONE_W = 322;
+const NAME_INPUT_MIN = 90;
 // 胶囊自身上限 = 区宽 − 间隙 − 输入框下限（322 − 8 − 90 = 224）；超过就打省略号。
-const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN
-
+const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN;
 // 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
 // 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
 // 纯函数接缝：view/row 形如 getBoundingClientRect() 的结果（只用到 top / height）。
 function needsReveal(view, row, pad) {
-  if (!view || !row) return false
-  const p = typeof pad === 'number' ? pad : 0
-  const bottom = view.top + (view.height || 0) - p
-  return row.top < view.top + p || row.top + (row.height || 0) > bottom
+    if (!view || !row)
+        return false;
+    const p = typeof pad === 'number' ? pad : 0;
+    const bottom = view.top + (view.height || 0) - p;
+    return row.top < view.top + p || row.top + (row.height || 0) > bottom;
 }
-
 // 取色器 Popover 盒子尺寸（#95 重构：内容宽 294 = 320 − 内边距 24 − 描边 2，故外框宽 320；
 // 高 388（border-box）= 内边距 24 + 内容 364：标题 ~26 + SV 136 + 色相轨 14 + 数值行 26 + 主题色 ~40 + HEX 行 26 + 透明行 20 + footer 30 + 行距 7×6=42；footer 用 margin-top:auto 吸收余量。
 // 渲染侧 border-box + 本宽高、定位侧用本尺寸，两处同源（#94 口径不变：常量必须等于 getBoundingClientRect）。
-const POP_W = 320
-const POP_H = 388
+const POP_W = 320;
+const POP_H = 388;
 // 锚定间距 / 边界留白 / 测量不可用时的兜底位（#94：纯函数、定位 effect 与测试共用同一来源）。
-const POP_GAP = 8
-const POP_MARGIN = 10
-const POP_FALLBACK = { left: 40, top: 120 }
-
+const POP_GAP = 8;
+const POP_MARGIN = 10;
+const POP_FALLBACK = { left: 40, top: 120 };
 // 弹板首选方向（#93）：预览区控件贴锚点下方；左列色块入口贴入口右侧。
 // 只在这两个常量里出现一次字面量，调用方一律引用常量（避免拼写错误静默降级成贴下方）。
-const PLACE_BELOW = 'below'
-const PLACE_RIGHT = 'right'
-
+const PLACE_BELOW = 'below';
+const PLACE_RIGHT = 'right';
 // 弹板锚定定位纯函数（#94）：anchor / bounds 形如 getBoundingClientRect() 的
 // { left, top, right, bottom }；size = { width, height } 为外框尺寸；preferSide 为首选方向
 // （放不下会翻转/夹紧，所以是「偏好」不是结果）：
@@ -19324,62 +19349,71 @@ const PLACE_RIGHT = 'right'
 //   四边各留 POP_MARGIN。缺输入（anchor/bounds/size 或尺寸非正）返回 null，
 //   调用方给兜底位；SSR / 假宿主不抛。
 function popoverPosition(anchor, bounds, size, preferSide) {
-  if (!anchor || !bounds || !size) return null
-  const w = size.width
-  const h = size.height
-  if (!(w > 0) || !(h > 0)) return null
-  // 坐标全部取整：非整数锚点/边界（flex 居中在奇数视口宽度下会出 .5）若直接四舍五入，
-  // 「间距 8px」可能变成 8.5px；这里朝锚点方向 floor/ceil，保证贴边间距 ≤8px 且完整落在边界内。
-  const minLeft = Math.ceil(bounds.left + POP_MARGIN)
-  const maxLeft = Math.floor(bounds.right - POP_MARGIN - w)
-  const minTop = Math.ceil(bounds.top + POP_MARGIN)
-  const maxTop = Math.floor(bounds.bottom - POP_MARGIN - h)
-  let left
-  let top
-  if (preferSide === PLACE_RIGHT) {
-    // #93：左列入口 —— 贴入口右侧垂直居中；右侧放不下翻左侧；左右都放不下退到入口上方/下方
-    // （水平对齐入口），尽量不遮住入口；实在放不下才按剩余空间大的一侧夹紧（可能与锚点相交）。
-    const right = Math.floor(anchor.right) + POP_GAP
-    const flipped = Math.ceil(anchor.left) - POP_GAP - w
-    if (right <= maxLeft) left = right
-    else if (flipped >= minLeft) left = flipped
-    else {
-      const above = Math.ceil(anchor.top) - POP_GAP - h
-      const below = Math.floor(anchor.bottom) + POP_GAP
-      left = Math.round(anchor.left)
-      if (above >= minTop) top = above
-      else if (below <= maxTop) top = below
-      else {
-        left = bounds.right - anchor.right >= anchor.left - bounds.left ? right : flipped
-        top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2)
-      }
+    if (!anchor || !bounds || !size)
+        return null;
+    const w = size.width;
+    const h = size.height;
+    if (!(w > 0) || !(h > 0))
+        return null;
+    // 坐标全部取整：非整数锚点/边界（flex 居中在奇数视口宽度下会出 .5）若直接四舍五入，
+    // 「间距 8px」可能变成 8.5px；这里朝锚点方向 floor/ceil，保证贴边间距 ≤8px 且完整落在边界内。
+    const minLeft = Math.ceil(bounds.left + POP_MARGIN);
+    const maxLeft = Math.floor(bounds.right - POP_MARGIN - w);
+    const minTop = Math.ceil(bounds.top + POP_MARGIN);
+    const maxTop = Math.floor(bounds.bottom - POP_MARGIN - h);
+    let left;
+    let top;
+    if (preferSide === PLACE_RIGHT) {
+        // #93：左列入口 —— 贴入口右侧垂直居中；右侧放不下翻左侧；左右都放不下退到入口上方/下方
+        // （水平对齐入口），尽量不遮住入口；实在放不下才按剩余空间大的一侧夹紧（可能与锚点相交）。
+        const right = Math.floor(anchor.right) + POP_GAP;
+        const flipped = Math.ceil(anchor.left) - POP_GAP - w;
+        if (right <= maxLeft)
+            left = right;
+        else if (flipped >= minLeft)
+            left = flipped;
+        else {
+            const above = Math.ceil(anchor.top) - POP_GAP - h;
+            const below = Math.floor(anchor.bottom) + POP_GAP;
+            left = Math.round(anchor.left);
+            if (above >= minTop)
+                top = above;
+            else if (below <= maxTop)
+                top = below;
+            else {
+                left = bounds.right - anchor.right >= anchor.left - bounds.left ? right : flipped;
+                top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2);
+            }
+        }
+        if (typeof top !== 'number')
+            top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2);
     }
-    if (typeof top !== 'number') top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2)
-  } else {
-    // #94：预览区控件 —— 水平对齐锚点左缘；贴锚点下方，下方放不下翻上方。
-    left = Math.round(anchor.left)
-    const below = Math.floor(anchor.bottom) + POP_GAP
-    const above = Math.ceil(anchor.top) - POP_GAP - h
-    if (below >= minTop && below <= maxTop) top = below
-    else if (above >= minTop && above <= maxTop) top = above
     else {
-      top = bounds.bottom - anchor.bottom >= anchor.top - bounds.top
-        ? Math.max(below, minTop)
-        : Math.min(above, maxTop)
+        // #94：预览区控件 —— 水平对齐锚点左缘；贴锚点下方，下方放不下翻上方。
+        left = Math.round(anchor.left);
+        const below = Math.floor(anchor.bottom) + POP_GAP;
+        const above = Math.ceil(anchor.top) - POP_GAP - h;
+        if (below >= minTop && below <= maxTop)
+            top = below;
+        else if (above >= minTop && above <= maxTop)
+            top = above;
+        else {
+            top = bounds.bottom - anchor.bottom >= anchor.top - bounds.top
+                ? Math.max(below, minTop)
+                : Math.min(above, maxTop);
+        }
     }
-  }
-  left = Math.max(minLeft, Math.min(left, maxLeft))
-  if (top < minTop) top = minTop
-  if (top > maxTop) top = maxTop
-  return { left: left, top: top }
+    left = Math.max(minLeft, Math.min(left, maxLeft));
+    if (top < minTop)
+        top = minTop;
+    if (top > maxTop)
+        top = maxTop;
+    return { left: left, top: top };
 }
-
-// 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
 function presetToSeed(p) {
-  const src = (p && p.colors) || {}
-  return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined }
+    const src = (p && p.colors) || {};
+    return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined };
 }
-
 // ── #95 取色器（PalettePicker）：调研驱动的重构版调色盘 ──
 // 设计定稿（票内 resolution）：320×388 精确控制版 —— 标题（色位名 + hex 可点复制）/
 // SV 面板 / 自绘横向色相轨（13 个 30° 常驻淡刻度 + focus-visible）/ H·S·V↔RGB↔HSL 数值行
@@ -19389,9 +19423,9 @@ function presetToSeed(p) {
 // hex / 吸管 / 主题色回填一律走 mergeHsv（保留无意义维度）。
 // 交互语义（R2）：任何改动即 live commit（onApply）；点弹板外 = 保留并关闭、Esc/取消 = 回滚
 // （回滚由父组件 closePop(true) 负责，本组件只发取消信号）。
-const PICK_SV_H = 136
-const PICK_HUE_H = 14
-const PICK_RECENT_MAX = 10
+const PICK_SV_H = 136;
+const PICK_HUE_H = 14;
+const PICK_RECENT_MAX = 10;
 // PalettePicker props（#95，纯展示、可独立 renderToString）：
 //   h: { createElement, useState, useEffect, useRef }, tr, trf
 //   label: 色位显示名；allowTransparent: 是否 8 个背景槽之一
@@ -19399,351 +19433,387 @@ const PICK_RECENT_MAX = 10
 //   initialHsv: 可选 { h, s, v }（重开同一槽位时父组件回填上次色相，避免从 hex 反推）
 //   onApply(hex, transparent, hsv): 每次改动 live commit；onCancel(): 回滚关闭；onDone(): 保留关闭
 function PalettePicker(props) {
-  const h = props.h
-  const e = h.createElement
-  const tr = props.tr
-  const trf = props.trf
-  const allow = !!props.allowTransparent
-  const value = props.value || { hex: '#000000', transparent: false }
-  const startHex = normalizeHexInput(value.hex) || '#000000'
-  function clamp01(n) { return Math.min(1, Math.max(0, n)) }
-  function wrapH(n) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0 }
-  function clampPct(n) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0 }
-  // 关掉再点开同一槽位：父组件回填上次 {h,s,v}，避免从 hex 反推（灰/黑会丢色相，R1 残留）。
-  const memoHsv = props.initialHsv
-  const startHsv = (memoHsv && isFinite(memoHsv.h) && isFinite(memoHsv.s) && isFinite(memoHsv.v))
-    ? { h: wrapH(memoHsv.h), s: clampPct(memoHsv.s), v: clampPct(memoHsv.v) }
-    : hexToHsv(startHex)
-  const [pick, setPick] = h.useState(function () {
-    return { h: startHsv.h, s: startHsv.s, v: startHsv.v, transparent: !!value.transparent }
-  })
-  const [hexText, setHexText] = h.useState(value.transparent ? '' : startHex)
-  const [hexError, setHexError] = h.useState(false)
-  const [notice, setNotice] = h.useState('')
-  const [model, setModel] = h.useState('hsv')
-  const drag = h.useRef(null)
-  const svRef = h.useRef(null)
-  const hueRef = h.useRef(null)
-  const curHex = pick.transparent ? '' : rgbToHex(hsvToRgb(pick))
-  const rgb = hsvToRgb(pick)
-  const hsl = hsvToHsl(pick)
-  const refHex = normalizeHexInput(props.contrastRefHex)
-  const ratio = refHex && !pick.transparent ? contrastRatio(curHex, refHex) : null
-  const pure = hsvToHex({ h: pick.h, s: 100, v: 100 })
-  const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
-  const stops = hueStops(100, 100)
-  const hueCss = 'linear-gradient(to right,' + stops.map(function (c, i) { return c + ' ' + (i * 100 / 12).toFixed(2) + '%' }).join(',') + ')'
-  // EyeDropper 能力探测进 effect（渲染期不碰 window；SSR 首帧 disabled，挂载后按宿主能力启用）。
-  const [eyeOk, setEyeOk] = h.useState(false)
-  h.useEffect(function () {
-    try { setEyeOk(typeof window !== 'undefined' && typeof window.EyeDropper === 'function') } catch (err) { /* 保持禁用 */ }
-  }, [])
-
-  // 单一提交路径：state（h/s/v + transparent）→ hex 投影 → 通知父组件 live commit。
-  function commit(next, transparent, hex, noticeKey) {
-    setPick({ h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v), transparent: !!transparent })
-    setHexText(transparent ? '' : hex)
-    setHexError(false)
-    setNotice(noticeKey || '')
-    if (typeof props.onApply === 'function') props.onApply(hex, !!transparent, { h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v) })
-  }
-  // 拖拽/数值/色相轨：直接推进 HSV（h 由状态保留；mergeHsv 只服务 hex 回填）。
-  function push(hsvNext) {
-    const next = { h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v) }
-    commit(next, false, rgbToHex(hsvToRgb(next)), '')
-  }
-  // hex / 吸管 / 主题色回填：走 mergeHsv 保留黑/灰时无意义的 h、s（R1）。
-  function pushHex(parsed, transparent) {
-    commit(mergeHsv(pick, hexToHsv(parsed.hex)), transparent, parsed.hex, parsed.alphaDropped ? 'edAlphaDropped' : '')
-  }
-  // RGB/HSL 数值输入：同样走 mergeHsv（输入灰/黑时保留色相，R1 残留修复）。
-  function commitRgb(rgbNext) {
-    const next = mergeHsv(pick, rgbToHsv(rgbNext))
-    commit(next, false, rgbToHex(rgbNext), '')
-  }
-  function commitHsl(hslNext) {
-    const next = mergeHsv(pick, hslToHsv(hslNext))
-    commit(next, false, rgbToHex(hsvToRgb(next)), '')
-  }
-  function svFrom(ev) {
-    const el = svRef.current
-    if (!el || typeof el.getBoundingClientRect !== 'function') return
-    const r = el.getBoundingClientRect()
-    push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 })
-  }
-  function svDown(ev) {
-    if (pick.transparent) return
-    try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'sv' } catch (err) { drag.current = 'sv' }
-    svFrom(ev)
-  }
-  function svMove(ev) { if (drag.current !== 'sv') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } svFrom(ev) }
-  function svUp(ev) { if (drag.current !== 'sv') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
-  function svKey(ev) {
-    if (pick.transparent) return
-    const step = ev.shiftKey ? 10 : 1
-    const k = ev.key
-    let ds = 0
-    let dv = 0
-    if (k === 'ArrowLeft') ds = -step
-    else if (k === 'ArrowRight') ds = step
-    else if (k === 'ArrowUp') dv = step
-    else if (k === 'ArrowDown') dv = -step
-    else return
-    try { ev.preventDefault() } catch (err) { /* 忽略 */ }
-    push({ h: pick.h, s: pick.s + ds, v: pick.v + dv })
-  }
-  function hueFrom(ev) {
-    const el = hueRef.current
-    if (!el || typeof el.getBoundingClientRect !== 'function') return
-    const r = el.getBoundingClientRect()
-    push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v })
-  }
-  function hueDown(ev) {
-    if (pick.transparent) return
-    try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'hue' } catch (err) { drag.current = 'hue' }
-    hueFrom(ev)
-  }
-  function hueMove(ev) { if (drag.current !== 'hue') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } hueFrom(ev) }
-  function hueUp(ev) { if (drag.current !== 'hue') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
-  function hueKey(ev) {
-    if (pick.transparent) return
-    const k = ev.key
-    const step = ev.shiftKey ? 10 : 1
-    let dh = 0
-    if (k === 'ArrowLeft' || k === 'ArrowDown') dh = -step
-    else if (k === 'ArrowRight' || k === 'ArrowUp') dh = step
-    else if (k === 'PageDown') dh = -15
-    else if (k === 'PageUp') dh = 15
-    else if (k === 'Home') dh = -pick.h
-    else if (k === 'End') dh = 360 - pick.h
-    else return
-    try { ev.preventDefault() } catch (err) { /* 忽略 */ }
-    push({ h: pick.h + dh, s: pick.s, v: pick.v })
-  }
-  function toggleTransparent(on) {
-    commit(pick, !!on, rgbToHex(hsvToRgb(pick)), '')
-  }
-  function onHexChange(ev) {
-    const raw = ev.target.value
-    setHexText(raw)
-    const parsed = parseHexInputLoose(raw)
-    if (!parsed) { setHexError(raw.trim().length > 0); setNotice(''); return }
-    pushHex(parsed, false)
-  }
-  function onHexBlur() {
-    if (!parseHexInputLoose(hexText)) { setHexText(pick.transparent ? '' : curHex); setHexError(false) }
-  }
-  function copyHex() {
-    try {
-      const txt = pick.transparent ? 'transparent' : curHex
-      const nb = typeof navigator !== 'undefined' ? navigator : null
-      if (nb && nb.clipboard && typeof nb.clipboard.writeText === 'function') {
-        const p = nb.clipboard.writeText(txt)
-        if (p && typeof p.catch === 'function') p.catch(function () { /* 忽略 */ })
-      }
-    } catch (err) { /* 忽略：剪贴板不可用静默 */ }
-  }
-  function pickScreen() {
-    try {
-      const w = typeof window !== 'undefined' ? window : null
-      if (!w || typeof w.EyeDropper !== 'function') return
-      const ed = new w.EyeDropper()
-      Promise.resolve(ed.open()).then(function (res) {
-        const parsed = parseHexInputLoose(res && res.sRGBHex)
-        if (!parsed) return
-        pushHex(parsed, false)
-      }).catch(function () { /* 用户取消/权限拒绝：静默 */ })
-    } catch (err) { /* 非安全上下文等：静默降级到下方主题色 */ }
-  }
-  function cycleModel() {
-    setModel(model === 'hsv' ? 'rgb' : (model === 'rgb' ? 'hsl' : 'hsv'))
-  }
-  function cancel() { if (typeof props.onCancel === 'function') props.onCancel() }
-  function done() { if (typeof props.onDone === 'function') props.onDone() }
-  const modelLabel = model === 'rgb' ? 'RGB' : (model === 'hsl' ? 'HSL' : 'HSV')
-  const numStyle = {
-    width: '100%', height: '26px', boxSizing: 'border-box', background: TK.panel, color: TK.text,
-    border: '1px solid ' + TK.border, borderRadius: '6px', padding: '0 6px 0 16px', fontSize: '11px',
-    textAlign: 'right',
-  }
-  const fields = model === 'rgb'
-    ? [
-        { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, get: function () { return rgb.r }, set: function (n) { commitRgb({ r: n, g: rgb.g, b: rgb.b }) } },
-        { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, get: function () { return rgb.g }, set: function (n) { commitRgb({ r: rgb.r, g: n, b: rgb.b }) } },
-        { k: 'b', label: 'B', aria: 'B', val: rgb.b, max: 255, get: function () { return rgb.b }, set: function (n) { commitRgb({ r: rgb.r, g: rgb.g, b: n }) } },
-      ]
-    : (model === 'hsl'
+    const h = props.h;
+    const e = h.createElement;
+    const tr = props.tr;
+    const trf = props.trf;
+    const allow = !!props.allowTransparent;
+    const value = props.value || { hex: '#000000', transparent: false };
+    const startHex = normalizeHexInput(value.hex) || '#000000';
+    function clamp01(n) { return Math.min(1, Math.max(0, n)); }
+    function wrapH(n) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0; }
+    function clampPct(n) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0; }
+    // 关掉再点开同一槽位：父组件回填上次 {h,s,v}，避免从 hex 反推（灰/黑会丢色相，R1 残留）。
+    const memoHsv = props.initialHsv;
+    const startHsv = (memoHsv && isFinite(memoHsv.h) && isFinite(memoHsv.s) && isFinite(memoHsv.v))
+        ? { h: wrapH(memoHsv.h), s: clampPct(memoHsv.s), v: clampPct(memoHsv.v) }
+        : hexToHsv(startHex);
+    const [pick, setPick] = h.useState(function () {
+        return { h: startHsv.h, s: startHsv.s, v: startHsv.v, transparent: !!value.transparent };
+    });
+    const [hexText, setHexText] = h.useState(value.transparent ? '' : startHex);
+    const [hexError, setHexError] = h.useState(false);
+    const [notice, setNotice] = h.useState('');
+    const [model, setModel] = h.useState('hsv');
+    const drag = h.useRef(null);
+    const svRef = h.useRef(null);
+    const hueRef = h.useRef(null);
+    const curHex = pick.transparent ? '' : rgbToHex(hsvToRgb(pick));
+    const rgb = hsvToRgb(pick);
+    const hsl = hsvToHsl(pick);
+    const refHex = normalizeHexInput(props.contrastRefHex);
+    const ratio = refHex && !pick.transparent ? contrastRatio(curHex, refHex) : null;
+    const pure = hsvToHex({ h: pick.h, s: 100, v: 100 });
+    const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')';
+    const stops = hueStops(100, 100);
+    const hueCss = 'linear-gradient(to right,' + stops.map(function (c, i) { return c + ' ' + (i * 100 / 12).toFixed(2) + '%'; }).join(',') + ')';
+    // EyeDropper 能力探测进 effect（渲染期不碰 window；SSR 首帧 disabled，挂载后按宿主能力启用）。
+    const [eyeOk, setEyeOk] = h.useState(false);
+    h.useEffect(function () {
+        try {
+            setEyeOk(typeof window !== 'undefined' && typeof window.EyeDropper === 'function');
+        }
+        catch (err) { /* 保持禁用 */ }
+    }, []);
+    // 单一提交路径：state（h/s/v + transparent）→ hex 投影 → 通知父组件 live commit。
+    function commit(next, transparent, hex, noticeKey) {
+        setPick({ h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v), transparent: !!transparent });
+        setHexText(transparent ? '' : hex);
+        setHexError(false);
+        setNotice(noticeKey || '');
+        if (typeof props.onApply === 'function')
+            props.onApply(hex, !!transparent, { h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v) });
+    }
+    // 拖拽/数值/色相轨：直接推进 HSV（h 由状态保留；mergeHsv 只服务 hex 回填）。
+    function push(hsvNext) {
+        const next = { h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v) };
+        commit(next, false, rgbToHex(hsvToRgb(next)), '');
+    }
+    // hex / 吸管 / 主题色回填：走 mergeHsv 保留黑/灰时无意义的 h、s（R1）。
+    function pushHex(parsed, transparent) {
+        commit(mergeHsv(pick, hexToHsv(parsed.hex)), transparent, parsed.hex, parsed.alphaDropped ? 'edAlphaDropped' : '');
+    }
+    // RGB/HSL 数值输入：同样走 mergeHsv（输入灰/黑时保留色相，R1 残留修复）。
+    function commitRgb(rgbNext) {
+        const next = mergeHsv(pick, rgbToHsv(rgbNext));
+        commit(next, false, rgbToHex(rgbNext), '');
+    }
+    function commitHsl(hslNext) {
+        const next = mergeHsv(pick, hslToHsv(hslNext));
+        commit(next, false, rgbToHex(hsvToRgb(next)), '');
+    }
+    function svFrom(ev) {
+        const el = svRef.current;
+        if (!el || typeof el.getBoundingClientRect !== 'function')
+            return;
+        const r = el.getBoundingClientRect();
+        push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 });
+    }
+    function svDown(ev) {
+        if (pick.transparent)
+            return;
+        try {
+            ev.preventDefault();
+            if (ev.currentTarget && ev.currentTarget.setPointerCapture)
+                ev.currentTarget.setPointerCapture(ev.pointerId);
+            drag.current = 'sv';
+        }
+        catch (err) {
+            drag.current = 'sv';
+        }
+        svFrom(ev);
+    }
+    function svMove(ev) { if (drag.current !== 'sv')
+        return; try {
+        ev.preventDefault();
+    }
+    catch (err) { /* 忽略 */ } svFrom(ev); }
+    function svUp(ev) { if (drag.current !== 'sv')
+        return; drag.current = null; try {
+        if (ev.currentTarget && ev.currentTarget.releasePointerCapture)
+            ev.currentTarget.releasePointerCapture(ev.pointerId);
+    }
+    catch (err) { /* 忽略 */ } }
+    function svKey(ev) {
+        if (pick.transparent)
+            return;
+        const step = ev.shiftKey ? 10 : 1;
+        const k = ev.key;
+        let ds = 0;
+        let dv = 0;
+        if (k === 'ArrowLeft')
+            ds = -step;
+        else if (k === 'ArrowRight')
+            ds = step;
+        else if (k === 'ArrowUp')
+            dv = step;
+        else if (k === 'ArrowDown')
+            dv = -step;
+        else
+            return;
+        try {
+            ev.preventDefault();
+        }
+        catch (err) { /* 忽略 */ }
+        push({ h: pick.h, s: pick.s + ds, v: pick.v + dv });
+    }
+    function hueFrom(ev) {
+        const el = hueRef.current;
+        if (!el || typeof el.getBoundingClientRect !== 'function')
+            return;
+        const r = el.getBoundingClientRect();
+        push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v });
+    }
+    function hueDown(ev) {
+        if (pick.transparent)
+            return;
+        try {
+            ev.preventDefault();
+            if (ev.currentTarget && ev.currentTarget.setPointerCapture)
+                ev.currentTarget.setPointerCapture(ev.pointerId);
+            drag.current = 'hue';
+        }
+        catch (err) {
+            drag.current = 'hue';
+        }
+        hueFrom(ev);
+    }
+    function hueMove(ev) { if (drag.current !== 'hue')
+        return; try {
+        ev.preventDefault();
+    }
+    catch (err) { /* 忽略 */ } hueFrom(ev); }
+    function hueUp(ev) { if (drag.current !== 'hue')
+        return; drag.current = null; try {
+        if (ev.currentTarget && ev.currentTarget.releasePointerCapture)
+            ev.currentTarget.releasePointerCapture(ev.pointerId);
+    }
+    catch (err) { /* 忽略 */ } }
+    function hueKey(ev) {
+        if (pick.transparent)
+            return;
+        const k = ev.key;
+        const step = ev.shiftKey ? 10 : 1;
+        let dh = 0;
+        if (k === 'ArrowLeft' || k === 'ArrowDown')
+            dh = -step;
+        else if (k === 'ArrowRight' || k === 'ArrowUp')
+            dh = step;
+        else if (k === 'PageDown')
+            dh = -15;
+        else if (k === 'PageUp')
+            dh = 15;
+        else if (k === 'Home')
+            dh = -pick.h;
+        else if (k === 'End')
+            dh = 360 - pick.h;
+        else
+            return;
+        try {
+            ev.preventDefault();
+        }
+        catch (err) { /* 忽略 */ }
+        push({ h: pick.h + dh, s: pick.s, v: pick.v });
+    }
+    function toggleTransparent(on) {
+        commit(pick, !!on, rgbToHex(hsvToRgb(pick)), '');
+    }
+    function onHexChange(ev) {
+        const raw = ev.target.value;
+        setHexText(raw);
+        const parsed = parseHexInputLoose(raw);
+        if (!parsed) {
+            setHexError(raw.trim().length > 0);
+            setNotice('');
+            return;
+        }
+        pushHex(parsed, false);
+    }
+    function onHexBlur() {
+        if (!parseHexInputLoose(hexText)) {
+            setHexText(pick.transparent ? '' : curHex);
+            setHexError(false);
+        }
+    }
+    function copyHex() {
+        try {
+            const txt = pick.transparent ? 'transparent' : curHex;
+            const nb = typeof navigator !== 'undefined' ? navigator : null;
+            if (nb && nb.clipboard && typeof nb.clipboard.writeText === 'function') {
+                const p = nb.clipboard.writeText(txt);
+                if (p && typeof p.catch === 'function')
+                    p.catch(function () { });
+            }
+        }
+        catch (err) { /* 忽略：剪贴板不可用静默 */ }
+    }
+    function pickScreen() {
+        try {
+            const w = typeof window !== 'undefined' ? window : null;
+            if (!w || typeof w.EyeDropper !== 'function')
+                return;
+            const ed = new w.EyeDropper();
+            Promise.resolve(ed.open()).then(function (res) {
+                const parsed = parseHexInputLoose(res && res.sRGBHex);
+                if (!parsed)
+                    return;
+                pushHex(parsed, false);
+            }).catch(function () { });
+        }
+        catch (err) { /* 非安全上下文等：静默降级到下方主题色 */ }
+    }
+    function cycleModel() {
+        setModel(model === 'hsv' ? 'rgb' : (model === 'rgb' ? 'hsl' : 'hsv'));
+    }
+    function cancel() { if (typeof props.onCancel === 'function')
+        props.onCancel(); }
+    function done() { if (typeof props.onDone === 'function')
+        props.onDone(); }
+    const modelLabel = model === 'rgb' ? 'RGB' : (model === 'hsl' ? 'HSL' : 'HSV');
+    const numStyle = {
+        width: '100%', height: '26px', boxSizing: 'border-box', background: TK.panel, color: TK.text,
+        border: '1px solid ' + TK.border, borderRadius: '6px', padding: '0 6px 0 16px', fontSize: '11px',
+        textAlign: 'right',
+    };
+    const fields = model === 'rgb'
         ? [
-            { k: 'h', label: 'H', aria: tr('edHue'), val: hsl.h, max: 360, get: function () { return hsl.h }, set: function (n) { commitHsl({ h: n, s: hsl.s, l: hsl.l }) } },
-            { k: 's', label: 'S', aria: tr('edSat'), val: hsl.s, max: 100, get: function () { return hsl.s }, set: function (n) { commitHsl({ h: hsl.h, s: n, l: hsl.l }) } },
-            { k: 'l', label: 'L', aria: tr('edLightness'), val: hsl.l, max: 100, get: function () { return hsl.l }, set: function (n) { commitHsl({ h: hsl.h, s: hsl.s, l: n }) } },
-          ]
-        : [
-            { k: 'h', label: 'H', aria: tr('edHue'), val: pick.h, max: 360, get: function () { return pick.h }, set: function (n) { push({ h: n, s: pick.s, v: pick.v }) } },
-            { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, get: function () { return pick.s }, set: function (n) { push({ h: pick.h, s: n, v: pick.v }) } },
-            { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, get: function () { return pick.v }, set: function (n) { push({ h: pick.h, s: pick.s, v: n }) } },
-          ])
-  const ticks = []
-  for (let i = 0; i < 13; i++) {
-    ticks.push(e('span', {
-      key: 't' + i, 'aria-hidden': 'true',
-      style: { position: 'absolute', left: (i * 100 / 12).toFixed(4) + '%', top: '1px', width: '1px', height: '4px', background: 'rgba(255,255,255,0.55)', pointerEvents: 'none' },
-    }))
-  }
-  return e('div', {
-    'data-picker-part': 'root',
-    style: { display: 'flex', flexDirection: 'column', gap: '6px', height: '100%', boxSizing: 'border-box', color: TK.text },
-  },
-    e('style', null, '.dpe-picker-focus:focus-visible{outline:2px solid ' + TK.accent + ';outline-offset:2px}'),
-    e('div', { 'data-picker-part': 'title', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' } },
-      e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } }, props.label || ''),
-      e('button', {
+            { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, get: function () { return rgb.r; }, set: function (n) { commitRgb({ r: n, g: rgb.g, b: rgb.b }); } },
+            { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, get: function () { return rgb.g; }, set: function (n) { commitRgb({ r: rgb.r, g: n, b: rgb.b }); } },
+            { k: 'b', label: 'B', aria: 'B', val: rgb.b, max: 255, get: function () { return rgb.b; }, set: function (n) { commitRgb({ r: rgb.r, g: rgb.g, b: n }); } },
+        ]
+        : (model === 'hsl'
+            ? [
+                { k: 'h', label: 'H', aria: tr('edHue'), val: hsl.h, max: 360, get: function () { return hsl.h; }, set: function (n) { commitHsl({ h: n, s: hsl.s, l: hsl.l }); } },
+                { k: 's', label: 'S', aria: tr('edSat'), val: hsl.s, max: 100, get: function () { return hsl.s; }, set: function (n) { commitHsl({ h: hsl.h, s: n, l: hsl.l }); } },
+                { k: 'l', label: 'L', aria: tr('edLightness'), val: hsl.l, max: 100, get: function () { return hsl.l; }, set: function (n) { commitHsl({ h: hsl.h, s: hsl.s, l: n }); } },
+            ]
+            : [
+                { k: 'h', label: 'H', aria: tr('edHue'), val: pick.h, max: 360, get: function () { return pick.h; }, set: function (n) { push({ h: n, s: pick.s, v: pick.v }); } },
+                { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, get: function () { return pick.s; }, set: function (n) { push({ h: pick.h, s: n, v: pick.v }); } },
+                { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, get: function () { return pick.v; }, set: function (n) { push({ h: pick.h, s: pick.s, v: n }); } },
+            ]);
+    const ticks = [];
+    for (let i = 0; i < 13; i++) {
+        ticks.push(e('span', {
+            key: 't' + i, 'aria-hidden': 'true',
+            style: { position: 'absolute', left: (i * 100 / 12).toFixed(4) + '%', top: '1px', width: '1px', height: '4px', background: 'rgba(255,255,255,0.55)', pointerEvents: 'none' },
+        }));
+    }
+    return e('div', {
+        'data-picker-part': 'root',
+        style: { display: 'flex', flexDirection: 'column', gap: '6px', height: '100%', boxSizing: 'border-box', color: TK.text },
+    }, e('style', null, '.dpe-picker-focus:focus-visible{outline:2px solid ' + TK.accent + ';outline-offset:2px}'), e('div', { 'data-picker-part': 'title', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' } }, e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } }, props.label || ''), e('button', {
         'data-picker-part': 'copy', type: 'button', title: tr('edCopy'), 'aria-label': tr('edCopy'),
         onClick: copyHex,
         [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         style: { border: 'none', background: 'transparent', color: TK.text2, fontSize: '11px', fontFamily: 'Consolas,monospace', padding: '0 2px', cursor: 'pointer' },
-      }, pick.transparent ? tr('edTransparent') : curHex)
-    ),
-    e('div', {
-      'data-picker-part': 'sv', ref: svRef, role: 'group', tabIndex: 0,
-      'aria-label': tr('edSat') + ' / ' + tr('edVal'), title: tr('edSvHint'),
-      'aria-disabled': pick.transparent ? 'true' : undefined,
-      onPointerDown: svDown, onPointerMove: svMove, onPointerUp: svUp, onKeyDown: svKey,
-      className: 'dpe-picker-focus',
-      [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-      style: {
-        position: 'relative', width: '100%', height: PICK_SV_H + 'px', boxSizing: 'border-box',
-        borderRadius: '8px', background: svCss, border: '1px solid #00000088',
-        cursor: pick.transparent ? 'default' : 'crosshair', touchAction: 'none',
-        opacity: pick.transparent ? 0.45 : 1,
-      },
-    },
-      e('div', {
+    }, pick.transparent ? tr('edTransparent') : curHex)), e('div', {
+        'data-picker-part': 'sv', ref: svRef, role: 'group', tabIndex: 0,
+        'aria-label': tr('edSat') + ' / ' + tr('edVal'), title: tr('edSvHint'),
+        'aria-disabled': pick.transparent ? 'true' : undefined,
+        onPointerDown: svDown, onPointerMove: svMove, onPointerUp: svUp, onKeyDown: svKey,
+        className: 'dpe-picker-focus',
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+        style: {
+            position: 'relative', width: '100%', height: PICK_SV_H + 'px', boxSizing: 'border-box',
+            borderRadius: '8px', background: svCss, border: '1px solid #00000088',
+            cursor: pick.transparent ? 'default' : 'crosshair', touchAction: 'none',
+            opacity: pick.transparent ? 0.45 : 1,
+        },
+    }, e('div', {
         'data-picker-part': 'sv-handle',
         style: {
-          position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
-          border: '2px solid #fff', boxShadow: '0 0 0 1px #000', pointerEvents: 'none',
-          left: pick.s.toFixed(1) + '%', top: (100 - pick.v).toFixed(1) + '%',
-          transform: 'translate(-6px,-6px)',
+            position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
+            border: '2px solid #fff', boxShadow: '0 0 0 1px #000', pointerEvents: 'none',
+            left: pick.s.toFixed(1) + '%', top: (100 - pick.v).toFixed(1) + '%',
+            transform: 'translate(-6px,-6px)',
         },
-      })
-    ),
-    e('div', {
-      'data-picker-part': 'hue', ref: hueRef, role: 'slider', tabIndex: 0,
-      'aria-label': tr('edHue'), 'aria-valuemin': 0, 'aria-valuemax': 360,
-      'aria-valuenow': Math.round(pick.h),
-      'aria-valuetext': trf('edHueAria', { v: Math.round(pick.h) }),
-      onPointerDown: hueDown, onPointerMove: hueMove, onPointerUp: hueUp, onKeyDown: hueKey,
-      className: 'dpe-picker-focus',
-      [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-      style: {
-        position: 'relative', width: '100%', height: PICK_HUE_H + 'px', boxSizing: 'border-box',
-        borderRadius: '7px', background: hueCss, border: '1px solid #00000066',
-        cursor: pick.transparent ? 'default' : 'pointer', touchAction: 'none',
-        opacity: pick.transparent ? 0.45 : 1,
-      },
-    },
-      ticks,
-      e('div', {
+    })), e('div', {
+        'data-picker-part': 'hue', ref: hueRef, role: 'slider', tabIndex: 0,
+        'aria-label': tr('edHue'), 'aria-valuemin': 0, 'aria-valuemax': 360,
+        'aria-valuenow': Math.round(pick.h),
+        'aria-valuetext': trf('edHueAria', { v: Math.round(pick.h) }),
+        onPointerDown: hueDown, onPointerMove: hueMove, onPointerUp: hueUp, onKeyDown: hueKey,
+        className: 'dpe-picker-focus',
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: {
-          position: 'absolute', top: '50%', left: (pick.h / 360 * 100).toFixed(4) + '%',
-          width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #fff',
-          boxShadow: '0 0 0 1px #000', transform: 'translate(-8px,-50%)', pointerEvents: 'none',
+            position: 'relative', width: '100%', height: PICK_HUE_H + 'px', boxSizing: 'border-box',
+            borderRadius: '7px', background: hueCss, border: '1px solid #00000066',
+            cursor: pick.transparent ? 'default' : 'pointer', touchAction: 'none',
+            opacity: pick.transparent ? 0.45 : 1,
         },
-      })
-    ),
-    e('div', { 'data-picker-part': 'hsv', style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-      e('button', {
+    }, ticks, e('div', {
+        style: {
+            position: 'absolute', top: '50%', left: (pick.h / 360 * 100).toFixed(4) + '%',
+            width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #fff',
+            boxShadow: '0 0 0 1px #000', transform: 'translate(-8px,-50%)', pointerEvents: 'none',
+        },
+    })), e('div', { 'data-picker-part': 'hsv', style: { display: 'flex', alignItems: 'center', gap: '6px' } }, e('button', {
         'data-picker-part': 'model', type: 'button', title: tr('edColorModel'), 'aria-label': tr('edColorModel'),
         onClick: cycleModel,
         [UI_INTERACTIVE_ATTR]: TIER_CHIP,
         style: { height: '26px', width: '38px', boxSizing: 'border-box', border: '1px solid ' + TK.border, background: TK.panel, color: TK.text2, borderRadius: '6px', fontSize: '11px', cursor: 'pointer', padding: 0 },
-      }, modelLabel),
-      fields.map(function (f) {
-        return e('span', { key: 'nf-' + f.k, style: { position: 'relative', flex: 1, minWidth: 0, height: '26px', display: 'block' } },
-          e('span', {
+    }, modelLabel), fields.map(function (f) {
+        return e('span', { key: 'nf-' + f.k, style: { position: 'relative', flex: 1, minWidth: 0, height: '26px', display: 'block' } }, e('span', {
             'aria-hidden': 'true',
             style: { position: 'absolute', left: '6px', top: 0, lineHeight: '26px', fontSize: '9px', color: TK.text3, pointerEvents: 'none' },
-          }, f.label),
-          e('input', {
+        }, f.label), e('input', {
             key: 'n-' + f.k, type: 'number', min: 0, max: f.max, step: 1, value: String(Math.round(f.val)),
             'aria-label': f.aria, title: tr('edSvHint'),
             disabled: pick.transparent ? true : undefined,
-            onChange: function (ev) { const n = Number(ev.target.value); if (isFinite(n)) f.set(n) },
+            onChange: function (ev) { const n = Number(ev.target.value); if (isFinite(n))
+                f.set(n); },
             // 键盘微调：↑↓ ±1，Shift ×10（最低保证：任一维都能键盘微调）。
             onKeyDown: function (ev) {
-              if (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown') return
-              try { ev.preventDefault() } catch (err) { /* 忽略 */ }
-              const step = (ev.shiftKey ? 10 : 1) * (ev.key === 'ArrowUp' ? 1 : -1)
-              const cur = Number(f.get())
-              f.set((isFinite(cur) ? cur : 0) + step)
+                if (ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown')
+                    return;
+                try {
+                    ev.preventDefault();
+                }
+                catch (err) { /* 忽略 */ }
+                const step = (ev.shiftKey ? 10 : 1) * (ev.key === 'ArrowUp' ? 1 : -1);
+                const cur = Number(f.get());
+                f.set((isFinite(cur) ? cur : 0) + step);
             },
             [UI_INTERACTIVE_ATTR]: TIER_INPUT,
             style: Object.assign({}, numStyle, pick.transparent ? { opacity: 0.45, cursor: 'default' } : {}),
-          })
-        )
-      })
-    ),
-    e('div', { 'data-picker-part': 'recent', style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
-      e('div', { style: { fontSize: '11px', color: TK.text3 } }, tr('edFreq')),
-      e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } }, (Array.isArray(props.recent) ? props.recent : []).slice(0, PICK_RECENT_MAX).map(function (c, i) {
+        }));
+    })), e('div', { 'data-picker-part': 'recent', style: { display: 'flex', flexDirection: 'column', gap: '4px' } }, e('div', { style: { fontSize: '11px', color: TK.text3 } }, tr('edFreq')), e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } }, (Array.isArray(props.recent) ? props.recent : []).slice(0, PICK_RECENT_MAX).map(function (c, i) {
         return e('button', {
-          key: 'rc-' + i, type: 'button', title: c, 'data-picker-recent-swatch': c,
-          onClick: function () { const parsed = parseHexInputLoose(c); if (parsed) pushHex(parsed, false) },
-          [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
-          style: { width: '20px', height: '20px', boxSizing: 'border-box', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0, cursor: 'pointer' },
-        })
-      }))
-    ),
-    e('div', { 'data-picker-part': 'hex', style: { display: 'flex', alignItems: 'center', gap: '6px' } },
-      e('input', {
+            key: 'rc-' + i, type: 'button', title: c, 'data-picker-recent-swatch': c,
+            onClick: function () { const parsed = parseHexInputLoose(c); if (parsed)
+                pushHex(parsed, false); },
+            [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
+            style: { width: '20px', height: '20px', boxSizing: 'border-box', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0, cursor: 'pointer' },
+        });
+    }))), e('div', { 'data-picker-part': 'hex', style: { display: 'flex', alignItems: 'center', gap: '6px' } }, e('input', {
         'data-picker-part': 'hex-input', value: hexText, spellCheck: false, placeholder: '#RRGGBB',
         'aria-label': 'HEX', 'aria-invalid': hexError ? 'true' : 'false',
         onChange: onHexChange, onBlur: onHexBlur,
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         style: { minWidth: 0, flex: 1, height: '26px', boxSizing: 'border-box', background: TK.panel, color: TK.text, border: '1px solid ' + (hexError ? TK.danger : TK.border), borderRadius: '6px', padding: '0 8px', fontSize: '12px' },
-      }),
-      e('button', {
+    }), e('button', {
         'data-picker-part': 'eyedropper', type: 'button', title: eyeOk ? tr('edEyedropper') : tr('edEyedropperOff'),
         'aria-label': tr('edEyedropper'), disabled: !eyeOk, onClick: pickScreen,
         [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         style: { width: '28px', height: '26px', boxSizing: 'border-box', borderRadius: '6px', border: '1px solid ' + TK.border, background: TK.panel, color: eyeOk ? TK.text : TK.text3, cursor: eyeOk ? 'pointer' : 'default', fontSize: '13px', padding: 0 },
-      }, e('span', {
+    }, e('span', {
         'aria-hidden': 'true',
         style: { display: 'inline-block', width: '13px', height: '13px', position: 'relative', transform: 'rotate(45deg)' },
-      },
-        e('span', { key: 'eye-bulb', style: { position: 'absolute', left: '3px', top: 0, width: '7px', height: '6px', borderRadius: '2px 2px 0 0', background: 'currentColor' } }),
-        e('span', { key: 'eye-stem', style: { position: 'absolute', left: '5px', top: '6px', width: '3px', height: '5px', background: 'currentColor' } }),
-        e('span', { key: 'eye-tip', style: { position: 'absolute', left: '4px', top: '11px', width: 0, height: 0, borderLeft: '2px solid transparent', borderRight: '2px solid transparent', borderTop: '3px solid currentColor' } })
-      )),
-      e('span', {
+    }, e('span', { key: 'eye-bulb', style: { position: 'absolute', left: '3px', top: 0, width: '7px', height: '6px', borderRadius: '2px 2px 0 0', background: 'currentColor' } }), e('span', { key: 'eye-stem', style: { position: 'absolute', left: '5px', top: '6px', width: '3px', height: '5px', background: 'currentColor' } }), e('span', { key: 'eye-tip', style: { position: 'absolute', left: '4px', top: '11px', width: 0, height: 0, borderLeft: '2px solid transparent', borderRight: '2px solid transparent', borderTop: '3px solid currentColor' } }))), e('span', {
         'data-picker-part': 'contrast', title: tr('edContrast'),
         style: { minWidth: '58px', flex: '0 0 auto', textAlign: 'right', whiteSpace: 'nowrap', fontSize: '11px', color: ratio !== null && ratio < 4.5 ? TK.dangerSoft : TK.text2, fontFamily: 'Consolas,monospace' },
-      }, ratio === null ? '—' : (ratio.toFixed(1) + ':1' + (ratio < 4.5 ? ' ' + tr('edContrastLow') : '')))
-    ),
-    e('div', { 'data-picker-part': 'transparent', style: { height: '20px', display: 'flex', alignItems: 'center', gap: '6px' } },
-      allow ? e('label', {
+    }, ratio === null ? '—' : (ratio.toFixed(1) + ':1' + (ratio < 4.5 ? ' ' + tr('edContrastLow') : '')))), e('div', { 'data-picker-part': 'transparent', style: { height: '20px', display: 'flex', alignItems: 'center', gap: '6px' } }, allow ? e('label', {
         style: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: TK.text2, cursor: 'pointer' },
         [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
-      },
-        e('input', { type: 'checkbox', checked: pick.transparent, onChange: function (ev) { toggleTransparent(!!ev.target.checked) } }),
-        tr('edTransparent')) : null,
-      notice ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr(notice)) : null,
-      hexError ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr('edInvalidHex')) : null
-    ),
-    e('div', { 'data-picker-part': 'footer', style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: 'auto' } },
-      e('button', {
+    }, e('input', { type: 'checkbox', checked: pick.transparent, onChange: function (ev) { toggleTransparent(!!ev.target.checked); } }), tr('edTransparent')) : null, notice ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr(notice)) : null, hexError ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr('edInvalidHex')) : null), e('div', { 'data-picker-part': 'footer', style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: 'auto' } }, e('button', {
         type: 'button', onClick: cancel, [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         style: { flex: 1, height: '30px', boxSizing: 'border-box', background: 'transparent', color: TK.text, border: '1px solid ' + TK.border, borderRadius: '7px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
-      }, tr('edCancel')),
-      e('button', {
+    }, tr('edCancel')), e('button', {
         type: 'button', onClick: done, [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         style: { flex: 1, height: '30px', boxSizing: 'border-box', background: TK.btnFill, border: '1px solid ' + TK.btnFill, color: TK.accentFg, borderRadius: '7px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
-      }, tr('edDone'))
-    )
-  )
+    }, tr('edDone'))));
 }
-
 // props: {
 //   h: { createElement, useState, useEffect, useMemo, useRef }, tr, trf,
 //   groups: [{ id, keys }], groupMeta: { id: { zh, en } },
@@ -19756,1061 +19826,1072 @@ function PalettePicker(props) {
 //   onSave(payload): Promise, onDelete(id): Promise, onClose()
 // }
 function CustomEditor(props) {
-  const h = props.h
-  const e = h.createElement
-  const tr = props.tr
-  const trf = props.trf
-  const lang = props.lang === 'en' ? 'en' : 'zh'
-  //  verdict 长句按语言连接：中文无缝拼接，英文词间补空格（I18N 串本身不带首尾空格，词表可逐行对账）。
-  function segJoin(parts) {
-    if (lang !== 'en') return parts
-    const out = []
-    for (let i = 0; i < parts.length; i++) {
-      if (i > 0) out.push(' ')
-      out.push(parts[i])
-    }
-    return out
-  }
-  const seed = (props.editor && props.editor.seed) || {}
-  const mode = (props.editor && props.editor.mode) === 'edit' ? 'edit' : 'new'
-
-  const [name, setName] = h.useState(typeof seed.name === 'string' ? seed.name : '')
-  const [appearance, setAppearance] = h.useState(
-    seed.appearance === 'light' || seed.appearance === 'system' ? seed.appearance : 'dark'
-  )
-  const [colors, setColors] = h.useState(Object.assign({}, seed.colors || {}))
-  const [basePreset, setBasePreset] = h.useState(typeof seed.basePreset === 'string' ? seed.basePreset : 'opencode')
-  const [origId] = h.useState(typeof seed.id === 'string' ? seed.id : null)
-  const [targetSel, setTargetSel] = h.useState(typeof seed.id === 'string' ? seed.id : null)
-  const [showPresets, setShowPresets] = h.useState(false)
-  const [presetQuery, setPresetQuery] = h.useState('')
-  const [pop, setPop] = h.useState(null) // { key, hex, transparent, orig: { hex, transparent } }
-  const [popPos, setPopPos] = h.useState(null)
-  const [presetPos, setPresetPos] = h.useState(null)
-  const [hl, setHl] = h.useState(null)
-  const [hovered, setHovered] = h.useState(null)
-  // 预览小标签的视口坐标（用户 m08636 第 1 条：标签层级要高于预览区、不被所在容器裁掉）。
-  // 原型把 badge 挂到 document.body 并 position:fixed（prototype.html:906-919），
-  // 这里等价地做成 fixed 覆盖层元素（fixed 不被祖先 overflow 裁剪），坐标由 effect 量第一个命中节点得出。
-  const [badgeAt, setBadgeAt] = h.useState(null)
-  // 左列小标签的长名夹紧量（原型 paintHl:929-930 的 row.clientWidth 夹紧；默认 0 = 紧贴标题右侧）
-  const [rowShift, setRowShift] = h.useState(0)
-  const [delConfirm, setDelConfirm] = h.useState(false)
-  const [sysDark, setSysDark] = h.useState(function () {
-    try {
-      const w = typeof window !== 'undefined' ? window : null
-      const mm = w && typeof w.matchMedia === 'function'
-        ? w.matchMedia('(prefers-color-scheme: dark)')
-        : null
-      return mm ? !!mm.matches : true
-    } catch (err) { return true }
-  })
-  const presetBtnRef = h.useRef(null)
-  const dlgRef = h.useRef(null)
-  const miniRef = h.useRef(null)
-  const rowRef = h.useRef(null)
-  const nameRef = h.useRef(null)
-  const targetRef = h.useRef(null)
-  const rrightRef = h.useRef(null)
-  // 编辑态下拉「按选中项文字定宽」+ 左列 .nm 齐宽（原型 fitWidth 口径：prototype.html:750-799 的这两段仍在）。
-  // 名字区与弹窗总宽已交回 CSS（定宽名字区 + width:max-content），见下方注释（用户 m09582 需求 1）。
-  h.useEffect(function () {
-    try {
-      const dlg = dlgRef.current
-      if (!dlg) return
-      const doc = (typeof document !== 'undefined') ? document : null
-      const win = (typeof window !== 'undefined') ? window : null
-      if (!doc || !win || !doc.createElement || !doc.body || !win.getComputedStyle) return
-      const textW = function (txt, cs) {
-        const m = doc.createElement('span')
-        m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + cs.fontSize + ';font-family:' + cs.fontFamily + ';font-weight:' + cs.fontWeight
-        m.textContent = txt
-        doc.body.appendChild(m)
-        const w = m.offsetWidth
-        m.remove()
-        return w
-      }
-      const sel = targetRef.current
-      if (sel && sel.options && sel.options.length) {
-        const selTxt = sel.options[sel.selectedIndex >= 0 ? sel.selectedIndex : 0].text
-        const cs = win.getComputedStyle(sel)
-        const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth)
-        let sw = textW(selTxt, cs) + padX + 26
-        sel.style.flex = 'none'; sel.style.minWidth = '0'; sel.style.maxWidth = 'none'
-        sw = Math.max(80, Math.min(220, sw))
-        sel.style.width = sw + 'px'
-        let guard = 0
-        while (guard++ < 5 && sel.scrollWidth > sel.clientWidth + 1 && sw < 240) { sw += 8; sel.style.width = sw + 'px' }
-      }
-      // 名字区自 m09582 起是定宽区（CSS flex 分配，见 NAME_ZONE_W），输入框宽度与弹窗总宽都不再量字设定：
-      // 原型 fitWidth 的这两段（prototype.html:782-788 量字定输入框宽、:790-799 累加定 dlg 宽）已失效且有害 ——
-      // 累加里含输入框的即时宽度，会把「名字越长弹窗越窄」带回来（实测 dlg 722~882 随名字跳、顶行溢出 106~230px）。
-      // 现在弹窗宽交给 CSS width:max-content（名字区已定值，max-content 实测恒定），顶行不再溢出。
-      const nms = dlg.querySelectorAll('.nm')
-      if (nms && nms.length) {
-        let mw = 0
-        Array.prototype.forEach.call(nms, function (x) { mw = Math.max(mw, x.offsetWidth || 0) })
-        if (mw > 0) Array.prototype.forEach.call(nms, function (x) { x.style.width = mw + 'px' })
-      }
-    } catch (err) { /* 量字失败保持 CSS 回落 */ }
-  }, [name, targetSel, mode, basePreset, appearance, lang,
-    (props.customs || []).length, (props.presets || []).length])
-  const rowRefs = h.useRef({})
-  const leftColRef = h.useRef(null)
-  const svDrag = h.useRef(null)
-  // #95：按色位记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
-  const pickMem = h.useRef({})
-
-  // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
-  // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
-  // 挂 fixed 覆盖层，永不进预览容器，因此不会被 .mini{overflow:hidden} 或滚动列裁掉。
-  // 宽度用等宽 10px 估算（原型量字后回落 90，同为估算；估算只影响左右贴合度，不影响可见性）。
-  // 左列标签：原型按 row.clientWidth 夹紧（:929-930），这里同样把越界量算成左移像素，避免长色位名顶出列表被 overflow 裁掉。
-  h.useEffect(function () {
-    try {
-      const win = typeof window !== 'undefined' ? window : null
-      const mini = miniRef.current
-      const dlg = dlgRef.current
-      if (!hl) { setBadgeAt(null); setRowShift(0); return }
-      if (win && mini && typeof mini.querySelector === 'function') {
-        const direct = mini.querySelector('[data-slot="' + hl + '"]')
-        const el = direct || mini.querySelector('.' + HL_CLS)
-        if (el && typeof el.getBoundingClientRect === 'function') {
-          const r = el.getBoundingClientRect()
-          const bw = String(hl).length * 6.4 + 12
-          const small = r.width < bw + 12
-          let top = r.top - 9
-          let left = small ? r.right + 6 : r.right - bw + 6
-          if (top < 28) top = r.top + 4
-          if (dlg && typeof dlg.getBoundingClientRect === 'function') {
-            const dr = dlg.getBoundingClientRect()
-            if (top < dr.top + 4) top = r.top + 4
-          }
-          if (left < 4) left = 4
-          const vw = win.innerWidth || 0
-          if (vw && left + bw > vw - 4) left = vw - bw - 4
-          setBadgeAt({ top: Math.round(top), left: Math.round(left) })
-        } else setBadgeAt(null)
-      } else setBadgeAt(null)
-      // 行标签夹紧：量到的是「已左移」后的位置，先加回 rowShift 还原，再按行边界重算（自洽，不累积漂移）
-      let shift = 0
-      const rowEl = dlg && typeof dlg.querySelector === 'function' ? dlg.querySelector('[data-row="' + hl + '"]') : null
-      const keyEl = rowEl && rowEl.querySelector ? rowEl.querySelector('.dspe-keypop') : null
-      if (rowEl && keyEl && typeof rowEl.getBoundingClientRect === 'function') {
-        const rr = rowEl.getBoundingClientRect()
-        const kr = keyEl.getBoundingClientRect()
-        const unRight = kr.right + rowShift
-        const unLeft = kr.left + rowShift
-        if (unRight > rr.right - 4) shift = unRight - (rr.right - 4)
-        if (unLeft - shift < rr.left + 4) shift = unLeft - (rr.left + 4)
-        shift = Math.max(0, Math.round(shift))
-      }
-      setRowShift(shift)
-    } catch (err) { setBadgeAt(null); setRowShift(0) }
-  }, [hl, colors, appearance, sysDark]) // 不直接依赖 miniLight：它在组件体后段才声明，此处求值会踩 TDZ；appearance/sysDark 是它的全部输入，等价
-
-  // 跟随系统：监听 OS 明暗翻转重绘预览（原型 matchMedia 口径）
-  h.useEffect(function () {
-    try {
-      const w = typeof window !== 'undefined' ? window : null
-      if (!w || typeof w.matchMedia !== 'function') return undefined
-      const mq = w.matchMedia('(prefers-color-scheme: dark)')
-      const fn = function (ev) { setSysDark(!!(ev && ev.matches)) }
-      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', fn)
-      else if (typeof mq.addListener === 'function') mq.addListener(fn)
-      return function () {
-        if (typeof mq.removeEventListener === 'function') mq.removeEventListener('change', fn)
-        else if (typeof mq.removeListener === 'function') mq.removeListener(fn)
-      }
-    } catch (err) { return undefined }
-  }, [])
-
-  // 点弹窗外关闭 Popover（#95 语义：调色板内部 live commit，点外面 = 保留颜色直接关闭；
-  // 回滚只走 Esc/取消。预置弹窗仍是直接收起）
-  h.useEffect(function () {
-    if (!pop && !showPresets) return undefined
-    const onDown = function (ev) {
-      try {
-        const t = ev.target
-        const inPop = t && t.closest && (t.closest('#pop') || t.closest('#presetPop') || t.closest('#f-presetbtn'))
-        if (inPop) return
-        const root = dlgRef.current
-        if (root && root.contains && !root.contains(t)) {
-          if (pop) closePop(false)
-          else setShowPresets(false)
-          return
+    const h = props.h;
+    const e = h.createElement;
+    const tr = props.tr;
+    const trf = props.trf;
+    const lang = props.lang === 'en' ? 'en' : 'zh';
+    //  verdict 长句按语言连接：中文无缝拼接，英文词间补空格（I18N 串本身不带首尾空格，词表可逐行对账）。
+    function segJoin(parts) {
+        if (lang !== 'en')
+            return parts;
+        const out = [];
+        for (let i = 0; i < parts.length; i++) {
+            if (i > 0)
+                out.push(' ');
+            out.push(parts[i]);
         }
-        // 对话框内、弹窗外：#94 起预览区 [data-slot] 控件与 #93 起左列色块入口
-        // [data-slot-row] 都是「调色盘入口」——点它们不算「点外面」：同入口再点保持弹板，
-        // 换入口由 openPop 换锚重定位。#95 起调色板内部 live commit，点其余区域 = 保留颜色直接关闭
-        //（R2：改完色去点下一个位置，不能把刚调的色静默回滚；回滚只走 Esc/取消）。
-        const keepOpen = t && t.closest && (t.closest('[data-slot]') || t.closest('[data-slot-row]'))
-        if (pop && !keepOpen) closePop(false)
-        else if (!pop && showPresets) setShowPresets(false)
-      } catch (err) { /* 忽略 */ }
+        return out;
     }
-    try {
-      const d = typeof document !== 'undefined' ? document : null
-      if (!d || typeof d.addEventListener !== 'function') return undefined
-      d.addEventListener('mousedown', onDown)
-      return function () { d.removeEventListener('mousedown', onDown) }
-    } catch (err) { return undefined }
-  }, [pop ? pop.key : null, showPresets])
-
-  // Esc = 取消并回滚（#95 R2 语义；点弹板外 = 保留关闭，两者分工见上）。
-  h.useEffect(function () {
-    if (!pop) return undefined
-    const onKey = function (ev) {
-      try {
-        if (ev && (ev.key === 'Escape' || ev.key === 'Esc')) closePop(true)
-      } catch (err) { /* 忽略 */ }
-    }
-    try {
-      const d = typeof document !== 'undefined' ? document : null
-      if (!d || typeof d.addEventListener !== 'function') return undefined
-      d.addEventListener('keydown', onKey)
-      return function () { d.removeEventListener('keydown', onKey) }
-    } catch (err) { return undefined }
-  }, [pop ? pop.key : null])
-
-  // Popover 定位（#94 / #93）：两个入口都锚定被点元素——
-  //  · 预览区控件：pop.preferSide=PLACE_BELOW，贴被点元素下方（规则见 popoverPosition）；
-  //  · 左列色块入口：pop.preferSide=PLACE_RIGHT，贴该行色块右侧垂直居中；
-  //    边界 = 视口 ∩ 弹窗；锚点已从 DOM 移除 → 安全收起，不回滚已调颜色；
-  //    弹窗内滚动 / 窗口 resize 时重算。
-  h.useEffect(function () {
-    if (!pop) { setPopPos(null); return undefined }
-    const w = typeof window !== 'undefined' ? window : null
-    const d = typeof document !== 'undefined' ? document : null
-    function place() {
-      try {
-        const vw = (w && w.innerWidth) || 1280
-        const vh = (w && w.innerHeight) || 900
-        // 两个入口（预览控件 / 左列色块）都携带锚点，见 openPop 调用点。
-        // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
-        if (pop.anchor.isConnected === false) { setPop(null); return }
-        if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
-        const ar = pop.anchor.getBoundingClientRect()
-        let bounds = { left: 0, top: 0, right: vw, bottom: vh }
-        const dlg = dlgRef.current
-        if (dlg && typeof dlg.getBoundingClientRect === 'function') {
-          const dr = dlg.getBoundingClientRect()
-          bounds = {
-            left: Math.max(0, dr.left), top: Math.max(0, dr.top),
-            right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
-          }
+    const seed = (props.editor && props.editor.seed) || {};
+    const mode = (props.editor && props.editor.mode) === 'edit' ? 'edit' : 'new';
+    const [name, setName] = h.useState(typeof seed.name === 'string' ? seed.name : '');
+    const [appearance, setAppearance] = h.useState(seed.appearance === 'light' || seed.appearance === 'system' ? seed.appearance : 'dark');
+    const [colors, setColors] = h.useState(Object.assign({}, seed.colors || {}));
+    const [basePreset, setBasePreset] = h.useState(typeof seed.basePreset === 'string' ? seed.basePreset : 'opencode');
+    const [origId] = h.useState(typeof seed.id === 'string' ? seed.id : null);
+    const [targetSel, setTargetSel] = h.useState(typeof seed.id === 'string' ? seed.id : null);
+    const [showPresets, setShowPresets] = h.useState(false);
+    const [presetQuery, setPresetQuery] = h.useState('');
+    const [pop, setPop] = h.useState(null); // { key, hex, transparent, orig: { hex, transparent } }
+    const [popPos, setPopPos] = h.useState(null);
+    const [presetPos, setPresetPos] = h.useState(null);
+    const [hl, setHl] = h.useState(null);
+    const [hovered, setHovered] = h.useState(null);
+    // 预览小标签的视口坐标（用户 m08636 第 1 条：标签层级要高于预览区、不被所在容器裁掉）。
+    // 原型把 badge 挂到 document.body 并 position:fixed（prototype.html:906-919），
+    // 这里等价地做成 fixed 覆盖层元素（fixed 不被祖先 overflow 裁剪），坐标由 effect 量第一个命中节点得出。
+    const [badgeAt, setBadgeAt] = h.useState(null);
+    // 左列小标签的长名夹紧量（原型 paintHl:929-930 的 row.clientWidth 夹紧；默认 0 = 紧贴标题右侧）
+    const [rowShift, setRowShift] = h.useState(0);
+    const [delConfirm, setDelConfirm] = h.useState(false);
+    const [sysDark, setSysDark] = h.useState(function () {
+        try {
+            const w = typeof window !== 'undefined' ? window : null;
+            const mm = w && typeof w.matchMedia === 'function'
+                ? w.matchMedia('(prefers-color-scheme: dark)')
+                : null;
+            return mm ? !!mm.matches : true;
         }
-        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide) || POP_FALLBACK
-        setPopPos({ left: pos.left, top: pos.top })
-      } catch (err) { setPopPos(POP_FALLBACK) }
-    }
-    place()
-    if (!w || typeof w.addEventListener !== 'function') return undefined
-    w.addEventListener('resize', place)
-    if (d && typeof d.addEventListener === 'function') d.addEventListener('scroll', place, true)
-    return function () {
-      w.removeEventListener('resize', place)
-      if (d && typeof d.removeEventListener === 'function') d.removeEventListener('scroll', place, true)
-    }
-  }, [pop ? pop.key : null, pop ? pop.anchor : null])
-
-  // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
-  h.useEffect(function () {
-    if (!showPresets) { setPresetPos(null); return }
-    try {
-      const w = typeof window !== 'undefined' ? window : null
-      if (!w) { setPresetPos({ left: 10, top: 140 }); return }
-      const W = 560
-      const vw = w.innerWidth || 1280
-      const vh = w.innerHeight || 900
-      const btn = presetBtnRef.current
-      const r = btn && typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null
-      const left = Math.min(Math.max(10, vw - W - 20), Math.max(10, r ? r.left : vw / 2 - W / 2))
-      const top = Math.min(Math.max(10, vh - 430), Math.max(10, r ? r.bottom + 6 : 140))
-      setPresetPos({ left: Math.round(left), top: Math.round(top) })
-    } catch (err) { setPresetPos({ left: 10, top: 140 }) }
-  }, [showPresets])
-
-  // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
-  const miniLight = editorMiniLight(appearance, sysDark)
-  const eff = function (key) { return effectiveSlotColor(key, colors, miniLight) }
-
-  function setColor(key, hex, transparent) {
-    setColors(function (prev) {
-      const next = Object.assign({}, prev)
-      if (transparent) {
-        // 仅 8 背景槽可设透明（其余回 FB，保持预览与宿主归一化一致）
-        const allow = props.slotMeta && props.slotMeta[key] && props.slotMeta[key].allow
-        next[key] = allow ? 'transparent' : effectiveSlotColor(key, prev, false)
-      } else {
-        next[key] = hex
-      }
-      return next
-    })
-  }
-
-  function openPop(key, anchorEl, preferSide) {
-    const raw = colors[key]
-    const norm = normalizeHexInput(raw)
-    const anchor = anchorEl || null
-    // 首选方向（#93）：左列色块入口贴右侧；预览控件默认贴下方。
-    const place = preferSide === PLACE_RIGHT ? PLACE_RIGHT : PLACE_BELOW
-    // #94：同一入口再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
-    // 换锚点才清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧。
-    if (pop && pop.key === key && pop.anchor === anchor && popPos) return
-    setPopPos(null)
-    setPop({
-      key: key,
-      hex: norm || effectiveSlotColor(key, colors, false),
-      transparent: raw === 'transparent',
-      orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
-      anchor: anchor,
-      preferSide: place,
-    })
-    setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
-    setHl(key)
-  }
-
-  function closePop(revert) {
-    if (revert && pop) {
-      const o = pop.orig
-      setColor(pop.key, o.hex, o.transparent)
-    }
-    setPop(null)
-  }
-
-  // 左列定位（原型 scrollToRow 口径：prototype.html:936-938 = block center + behavior smooth）。
-  function scrollToRow(key) {
-    try {
-      const row = rowRefs.current[key]
-      if (row && typeof row.scrollIntoView === 'function') row.scrollIntoView({ block: 'center', behavior: 'smooth' })
-    } catch (err) { /* 忽略 */ }
-  }
-
-  // 预览 → 左列联动（用户 m09226）：行已在视野里就不动，否则按原型口径滑到可见。
-  function revealRow(key) {
-    try {
-      const row = rowRefs.current[key]
-      if (!row) return
-      const col = leftColRef.current
-      if (col && typeof col.getBoundingClientRect === 'function' && typeof row.getBoundingClientRect === 'function') {
-        if (!needsReveal(col.getBoundingClientRect(), row.getBoundingClientRect(), REVEAL_PAD)) return
-      }
-      scrollToRow(key)
-    } catch (err) { /* 忽略 */ }
-  }
-
-  function clickSlot(key, anchorEl) {
-    // #94：点预览控件 → 以被点元素为锚原地开弹板（不再把弹板夹到预览区左侧）；
-    // 左列联动只在该行不可见时滚动露出（取消强制居中，见 revealRow）。
-    if (props.slotMeta && props.slotMeta[key]) {
-      revealRow(key)
-      openPop(key, anchorEl)
-    }
-  }
-
-  function loadPreset(p) {
-    const seed = presetToSeed(p)
-    setColors(seed.colors)
-    setAppearance(seed.appearance)
-    setBasePreset(seed.basePreset)
-    setShowPresets(false)
-    setPresetQuery('')
-  }
-
-  function switchTarget(id) {
-    const found = (props.customs || []).filter(function (t) { return t.id === id })[0]
-    if (!found) return
-    setTargetSel(id)
-    setName(found.name)
-    setAppearance(found.appearance)
-    setColors(Object.assign({}, found.colors))
-    setBasePreset(found.basePreset || 'opencode')
-    setDelConfirm(false)
-  }
-
-  const canSave = name.trim().length > 0
-
-  function handleSave() {
-    if (!canSave) return
-    props.onSave({
-      id: mode === 'edit' ? (targetSel || origId) : null,
-      name: name.trim(),
-      appearance: appearance,
-      colors: colors,
-      basePreset: basePreset,
-    })
-  }
-
-  // ── 左列：37 色位行（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
-  const leftRows = []
-  for (const g of props.groups || []) {
-    const gm = (props.groupMeta && props.groupMeta[g.id]) || { zh: g.id, en: g.id }
-    const hasTrans = g.keys.some(function (k) { return props.slotMeta && props.slotMeta[k] && props.slotMeta[k].allow })
-    leftRows.push(e('div', {
-      key: 'g-' + g.id,
-      style: { fontSize: '12px', color: '#9D7CD8', margin: leftRows.length === 0 ? '0 0 6px' : '10px 0 6px' },
-    }, lang === 'en' ? gm.en : gm.zh, hasTrans ? e('span', {
-      style: { fontSize: '10px', color: 'var(--dsw-alias-state-success-primary, #7FD88F)', border: '1px solid var(--dsw-alias-state-success-secondary, #3D9A57)', borderRadius: '4px', padding: '0 6px', marginLeft: '6px', whiteSpace: 'nowrap' },
-    }, tr('edTransparentFlag')) : null))
-    for (const key of g.keys) {
-      const meta = (props.slotMeta && props.slotMeta[key]) || { zh: key, en: key, useZh: '', useEn: '', allow: false }
-      const raw = colors[key]
-      const isTrans = raw === 'transparent'
-      const shown = (isTrans ? eff(key) : (normalizeHexInput(raw) || eff(key))).toUpperCase()
-      const label = lang === 'en' ? meta.en : meta.zh
-      const use = lang === 'en' ? meta.useEn : meta.useZh
-      const swStyle = isTrans
-        ? { background: 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' }
-        : { background: shown }
-      const isTarget = hl === key
-      const isHovered = hovered === key && !isTarget
-      leftRows.push(e('div', {
-        key: 'row-' + key, 'data-row': key,
-        ref: function (el) { rowRefs.current[key] = el },
-        onMouseEnter: function () { setHl(key); setHovered(key) },
-        onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null); setHovered(null) },
-        style: {
-          display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '6px', padding: '5px 4px',
-          border: '1px solid ' + (isTarget ? TK.accent : (isHovered ? 'var(--dsw-alias-border-l2-darkmode-thin, #2A2A31)' : 'transparent')), borderRadius: '8px',
-          background: isTarget ? 'var(--dsw-alias-interactive-bg-hover-accent, #1E1A14)' : (isHovered ? TK.hover : 'transparent'),
-          cursor: 'default', position: 'relative',
-        },
-      },
-        e('div', { className: 'nm', style: { flex: '0 1 auto', minWidth: 0 } },
-          // 标题控件与小标签同一相对定位盒（用户 m08636 第 3 条：标签贴标题控件右侧）。
-          // 原型是量字后 absolute 定位（paintHl:928 `b.offsetLeft + b.offsetWidth + 6`，按 row.clientWidth 夹紧）；
-          // 这里用 inline-block 包裹 + left:100% 免量字等价实现，垂直居中于标题行。
-          e('span', { style: { position: 'relative', display: 'inline-block', maxWidth: '100%' } },
-            e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label),
-            isTarget ? e('span', {
-              className: 'dspe-keypop',
-              style: {
-                position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
-                transform: 'translate(' + (-rowShift) + 'px, -50%)',
-                background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
-                borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 4,
-              },
-            }, key) : null
-          ),
-          e('small', { style: { display: 'block', fontSize: '11px', color: 'var(--dsw-alias-label-tertiary, #A0A0A8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
-        e('button', {
-          'data-slot-row': key,
-          title: tr('edPickTitle'),
-          onClick: function (ev) { openPop(key, ev.currentTarget, PLACE_RIGHT) },
-          [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
-          style: Object.assign({
-            width: '30px', height: '22px', borderRadius: '6px', cursor: 'pointer', flex: 'none', padding: 0,
-            border: '1px solid #00000066',
-          }, swStyle),
-        }),
-        e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: 'var(--dsw-alias-label-secondary, #C8C8D0)', minWidth: 0, flex: 'none' } }, shown),
-      ))
-    }
-  }
-
-  // ── 取色器 Popover（#95）──
-  // 内部交给 PalettePicker（可独立 SSR 的展示组件），外层只负责 fixed 定位、实时提交与关闭语义。
-  function renderPop() {
-    // 没定位就不渲染：定位是异步 effect，先按兜底位渲染会在屏幕左上角闪一帧再跳（用户 m10028）。
-    if (!pop || !popPos) return null
-    const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
-    // 主题色按分组优先级排序（R7：品牌/语法色不再被 8 个背景色挤掉），跳过当前槽自身（pickRecentColors 内处理）。
-    const priority = []
-    const groups = props.groups || []
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].id === 'bg') continue
-      for (let j = 0; j < groups[i].keys.length; j++) priority.push(groups[i].keys[j])
-    }
-    for (let i = 0; i < groups.length; i++) {
-      if (groups[i].id !== 'bg') continue
-      for (let j = 0; j < groups[i].keys.length; j++) priority.push(groups[i].keys[j])
-    }
-    const recent = pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)
-    // WCAG 对比度基准槽：文字对背景、背景槽对文字、其余对面板（与 map-dsh 语义一致）。
-    const refHex = effectiveSlotColor(contrastRefSlot(pop.key), colors, false)
-    // 重开同一槽位：父组件记住的 {h,s,v} 仅在 hex 没被外部改动时回填（否则按当前 hex 反推）。
-    const memo = pickMem.current[pop.key]
-    const memoHex = pop.transparent ? '' : (normalizeHexInput(pop.hex) || '')
-    const initialHsv = (memo && memo.hex === memoHex) ? memo.hsv : null
-    return e('div', {
-      key: 'pop', id: 'pop', 'data-key': pop.key,
-      style: Object.assign({
-        // #95：取色器盒外框（border-box + 显式宽高 = 定位常量同源，两者恒等）。
-        position: 'fixed', zIndex: 60, boxSizing: 'border-box', width: POP_W + 'px', height: POP_H + 'px', background: TK.pop,
-        border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
-        boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-      }, popPos),
-    },
-      e(PalettePicker, {
-        h: h, tr: tr, trf: trf,
-        label: lang === 'en' ? meta.en : meta.zh,
-        allowTransparent: !!meta.allow,
-        value: { hex: pop.hex, transparent: pop.transparent },
-        initialHsv: initialHsv,
-        recent: recent,
-        contrastRefHex: refHex,
-        // 任何改动即 live commit（R2）：颜色已写进编辑中的主题，关闭时不再回滚。
-        onApply: function (hex, transparent, hsv) {
-          if (hsv && isFinite(hsv.h) && isFinite(hsv.s) && isFinite(hsv.v)) {
-            pickMem.current[pop.key] = {
-              hex: transparent ? '' : hex,
-              hsv: { h: Number(hsv.h), s: Number(hsv.s), v: Number(hsv.v) },
+        catch (err) {
+            return true;
+        }
+    });
+    const presetBtnRef = h.useRef(null);
+    const dlgRef = h.useRef(null);
+    const miniRef = h.useRef(null);
+    const rowRef = h.useRef(null);
+    const nameRef = h.useRef(null);
+    const targetRef = h.useRef(null);
+    const rrightRef = h.useRef(null);
+    // 编辑态下拉「按选中项文字定宽」+ 左列 .nm 齐宽（原型 fitWidth 口径：prototype.html:750-799 的这两段仍在）。
+    // 名字区与弹窗总宽已交回 CSS（定宽名字区 + width:max-content），见下方注释（用户 m09582 需求 1）。
+    h.useEffect(function () {
+        try {
+            const dlg = dlgRef.current;
+            if (!dlg)
+                return;
+            const doc = (typeof document !== 'undefined') ? document : null;
+            const win = (typeof window !== 'undefined') ? window : null;
+            if (!doc || !win || !doc.createElement || !doc.body || !win.getComputedStyle)
+                return;
+            const textW = function (txt, cs) {
+                const m = doc.createElement('span');
+                m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + cs.fontSize + ';font-family:' + cs.fontFamily + ';font-weight:' + cs.fontWeight;
+                m.textContent = txt;
+                doc.body.appendChild(m);
+                const w = m.offsetWidth;
+                m.remove();
+                return w;
+            };
+            const sel = targetRef.current;
+            if (sel && sel.options && sel.options.length) {
+                const selTxt = sel.options[sel.selectedIndex >= 0 ? sel.selectedIndex : 0].text;
+                const cs = win.getComputedStyle(sel);
+                const padX = parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + parseFloat(cs.borderLeftWidth) + parseFloat(cs.borderRightWidth);
+                let sw = textW(selTxt, cs) + padX + 26;
+                sel.style.flex = 'none';
+                sel.style.minWidth = '0';
+                sel.style.maxWidth = 'none';
+                sw = Math.max(80, Math.min(220, sw));
+                sel.style.width = sw + 'px';
+                let guard = 0;
+                while (guard++ < 5 && sel.scrollWidth > sel.clientWidth + 1 && sw < 240) {
+                    sw += 8;
+                    sel.style.width = sw + 'px';
+                }
             }
-          }
-          setColor(pop.key, hex, transparent)
-          setPop(function (prev) { return prev ? Object.assign({}, prev, { hex: hex, transparent: transparent }) : prev })
-        },
-        onCancel: function () { closePop(true) },
-        onDone: function () { closePop(false) },
-      })
-    )
-  }
-
-  // ── 预置主题 Popover ──
-  function renderPresetPop() {
-    // 同上：定位（异步 effect）没算出来之前不渲染，避免「左上角闪一帧再跳到选基底按钮下方」。
-    if (!showPresets || !presetPos) return null
-    const q = presetQuery.trim().toLowerCase()
-    const match = function (n) {
-      if (!q) return true
-      const hay = (n + ' ' + presetLabelOf(n)).toLowerCase()
-      return hay.indexOf(q) >= 0
+            // 名字区自 m09582 起是定宽区（CSS flex 分配，见 NAME_ZONE_W），输入框宽度与弹窗总宽都不再量字设定：
+            // 原型 fitWidth 的这两段（prototype.html:782-788 量字定输入框宽、:790-799 累加定 dlg 宽）已失效且有害 ——
+            // 累加里含输入框的即时宽度，会把「名字越长弹窗越窄」带回来（实测 dlg 722~882 随名字跳、顶行溢出 106~230px）。
+            // 现在弹窗宽交给 CSS width:max-content（名字区已定值，max-content 实测恒定），顶行不再溢出。
+            const nms = dlg.querySelectorAll('.nm');
+            if (nms && nms.length) {
+                let mw = 0;
+                Array.prototype.forEach.call(nms, function (x) { mw = Math.max(mw, x.offsetWidth || 0); });
+                if (mw > 0)
+                    Array.prototype.forEach.call(nms, function (x) { x.style.width = mw + 'px'; });
+            }
+        }
+        catch (err) { /* 量字失败保持 CSS 回落 */ }
+    }, [name, targetSel, mode, basePreset, appearance, lang,
+        (props.customs || []).length, (props.presets || []).length]);
+    const rowRefs = h.useRef({});
+    const leftColRef = h.useRef(null);
+    const svDrag = h.useRef(null);
+    // #95：按色位记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
+    const pickMem = h.useRef({});
+    // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
+    // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
+    // 挂 fixed 覆盖层，永不进预览容器，因此不会被 .mini{overflow:hidden} 或滚动列裁掉。
+    // 宽度用等宽 10px 估算（原型量字后回落 90，同为估算；估算只影响左右贴合度，不影响可见性）。
+    // 左列标签：原型按 row.clientWidth 夹紧（:929-930），这里同样把越界量算成左移像素，避免长色位名顶出列表被 overflow 裁掉。
+    h.useEffect(function () {
+        try {
+            const win = typeof window !== 'undefined' ? window : null;
+            const mini = miniRef.current;
+            const dlg = dlgRef.current;
+            if (!hl) {
+                setBadgeAt(null);
+                setRowShift(0);
+                return;
+            }
+            if (win && mini && typeof mini.querySelector === 'function') {
+                const direct = mini.querySelector('[data-slot="' + hl + '"]');
+                const el = direct || mini.querySelector('.' + HL_CLS);
+                if (el && typeof el.getBoundingClientRect === 'function') {
+                    const r = el.getBoundingClientRect();
+                    const bw = String(hl).length * 6.4 + 12;
+                    const small = r.width < bw + 12;
+                    let top = r.top - 9;
+                    let left = small ? r.right + 6 : r.right - bw + 6;
+                    if (top < 28)
+                        top = r.top + 4;
+                    if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+                        const dr = dlg.getBoundingClientRect();
+                        if (top < dr.top + 4)
+                            top = r.top + 4;
+                    }
+                    if (left < 4)
+                        left = 4;
+                    const vw = win.innerWidth || 0;
+                    if (vw && left + bw > vw - 4)
+                        left = vw - bw - 4;
+                    setBadgeAt({ top: Math.round(top), left: Math.round(left) });
+                }
+                else
+                    setBadgeAt(null);
+            }
+            else
+                setBadgeAt(null);
+            // 行标签夹紧：量到的是「已左移」后的位置，先加回 rowShift 还原，再按行边界重算（自洽，不累积漂移）
+            let shift = 0;
+            const rowEl = dlg && typeof dlg.querySelector === 'function' ? dlg.querySelector('[data-row="' + hl + '"]') : null;
+            const keyEl = rowEl && rowEl.querySelector ? rowEl.querySelector('.dspe-keypop') : null;
+            if (rowEl && keyEl && typeof rowEl.getBoundingClientRect === 'function') {
+                const rr = rowEl.getBoundingClientRect();
+                const kr = keyEl.getBoundingClientRect();
+                const unRight = kr.right + rowShift;
+                const unLeft = kr.left + rowShift;
+                if (unRight > rr.right - 4)
+                    shift = unRight - (rr.right - 4);
+                if (unLeft - shift < rr.left + 4)
+                    shift = unLeft - (rr.left + 4);
+                shift = Math.max(0, Math.round(shift));
+            }
+            setRowShift(shift);
+        }
+        catch (err) {
+            setBadgeAt(null);
+            setRowShift(0);
+        }
+    }, [hl, colors, appearance, sysDark]); // 不直接依赖 miniLight：它在组件体后段才声明，此处求值会踩 TDZ；appearance/sysDark 是它的全部输入，等价
+    // 跟随系统：监听 OS 明暗翻转重绘预览（原型 matchMedia 口径）
+    h.useEffect(function () {
+        try {
+            const w = typeof window !== 'undefined' ? window : null;
+            if (!w || typeof w.matchMedia !== 'function')
+                return undefined;
+            const mq = w.matchMedia('(prefers-color-scheme: dark)');
+            const fn = function (ev) { setSysDark(!!(ev && ev.matches)); };
+            if (typeof mq.addEventListener === 'function')
+                mq.addEventListener('change', fn);
+            else if (typeof mq.addListener === 'function')
+                mq.addListener(fn);
+            return function () {
+                if (typeof mq.removeEventListener === 'function')
+                    mq.removeEventListener('change', fn);
+                else if (typeof mq.removeListener === 'function')
+                    mq.removeListener(fn);
+            };
+        }
+        catch (err) {
+            return undefined;
+        }
+    }, []);
+    // 点弹窗外关闭 Popover（#95 语义：调色板内部 live commit，点外面 = 保留颜色直接关闭；
+    // 回滚只走 Esc/取消。预置弹窗仍是直接收起）
+    h.useEffect(function () {
+        if (!pop && !showPresets)
+            return undefined;
+        const onDown = function (ev) {
+            try {
+                // DOM 事件 target 恒为节点；文本节点没有 closest，既有 closest 存在性守卫保留原样。
+                const t = ev.target;
+                const inPop = t && t.closest && (t.closest('#pop') || t.closest('#presetPop') || t.closest('#f-presetbtn'));
+                if (inPop)
+                    return;
+                const root = dlgRef.current;
+                if (root && root.contains && !root.contains(t)) {
+                    if (pop)
+                        closePop(false);
+                    else
+                        setShowPresets(false);
+                    return;
+                }
+                // 对话框内、弹窗外：#94 起预览区 [data-slot] 控件与 #93 起左列色块入口
+                // [data-slot-row] 都是「调色盘入口」——点它们不算「点外面」：同入口再点保持弹板，
+                // 换入口由 openPop 换锚重定位。#95 起调色板内部 live commit，点其余区域 = 保留颜色直接关闭
+                //（R2：改完色去点下一个位置，不能把刚调的色静默回滚；回滚只走 Esc/取消）。
+                const keepOpen = t && t.closest && (t.closest('[data-slot]') || t.closest('[data-slot-row]'));
+                if (pop && !keepOpen)
+                    closePop(false);
+                else if (!pop && showPresets)
+                    setShowPresets(false);
+            }
+            catch (err) { /* 忽略 */ }
+        };
+        try {
+            const d = typeof document !== 'undefined' ? document : null;
+            if (!d || typeof d.addEventListener !== 'function')
+                return undefined;
+            d.addEventListener('mousedown', onDown);
+            return function () { d.removeEventListener('mousedown', onDown); };
+        }
+        catch (err) {
+            return undefined;
+        }
+    }, [pop ? pop.key : null, showPresets]);
+    // Esc = 取消并回滚（#95 R2 语义；点弹板外 = 保留关闭，两者分工见上）。
+    h.useEffect(function () {
+        if (!pop)
+            return undefined;
+        const onKey = function (ev) {
+            try {
+                if (ev && (ev.key === 'Escape' || ev.key === 'Esc'))
+                    closePop(true);
+            }
+            catch (err) { /* 忽略 */ }
+        };
+        try {
+            const d = typeof document !== 'undefined' ? document : null;
+            if (!d || typeof d.addEventListener !== 'function')
+                return undefined;
+            d.addEventListener('keydown', onKey);
+            return function () { d.removeEventListener('keydown', onKey); };
+        }
+        catch (err) {
+            return undefined;
+        }
+    }, [pop ? pop.key : null]);
+    // Popover 定位（#94 / #93）：两个入口都锚定被点元素——
+    //  · 预览区控件：pop.preferSide=PLACE_BELOW，贴被点元素下方（规则见 popoverPosition）；
+    //  · 左列色块入口：pop.preferSide=PLACE_RIGHT，贴该行色块右侧垂直居中；
+    //    边界 = 视口 ∩ 弹窗；锚点已从 DOM 移除 → 安全收起，不回滚已调颜色；
+    //    弹窗内滚动 / 窗口 resize 时重算。
+    h.useEffect(function () {
+        if (!pop) {
+            setPopPos(null);
+            return undefined;
+        }
+        // 闭包（place）里 TS 的控制流不跨函数边界，先取出窄化后的同一引用；运行时无变化。
+        const cur = pop;
+        const w = typeof window !== 'undefined' ? window : null;
+        const d = typeof document !== 'undefined' ? document : null;
+        function place() {
+            try {
+                const vw = (w && w.innerWidth) || 1280;
+                const vh = (w && w.innerHeight) || 900;
+                // 两个入口（预览控件 / 左列色块）都携带锚点，见 openPop 调用点。
+                // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
+                if (cur.anchor.isConnected === false) {
+                    setPop(null);
+                    return;
+                }
+                if (!w || typeof cur.anchor.getBoundingClientRect !== 'function') {
+                    setPopPos(POP_FALLBACK);
+                    return;
+                }
+                const ar = cur.anchor.getBoundingClientRect();
+                let bounds = { left: 0, top: 0, right: vw, bottom: vh };
+                const dlg = dlgRef.current;
+                if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+                    const dr = dlg.getBoundingClientRect();
+                    bounds = {
+                        left: Math.max(0, dr.left), top: Math.max(0, dr.top),
+                        right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
+                    };
+                }
+                const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, cur.preferSide) || POP_FALLBACK;
+                setPopPos({ left: pos.left, top: pos.top });
+            }
+            catch (err) {
+                setPopPos(POP_FALLBACK);
+            }
+        }
+        place();
+        if (!w || typeof w.addEventListener !== 'function')
+            return undefined;
+        w.addEventListener('resize', place);
+        if (d && typeof d.addEventListener === 'function')
+            d.addEventListener('scroll', place, true);
+        return function () {
+            w.removeEventListener('resize', place);
+            if (d && typeof d.removeEventListener === 'function')
+                d.removeEventListener('scroll', place, true);
+        };
+    }, [pop ? pop.key : null, pop ? pop.anchor : null]);
+    // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
+    h.useEffect(function () {
+        if (!showPresets) {
+            setPresetPos(null);
+            return;
+        }
+        try {
+            const w = typeof window !== 'undefined' ? window : null;
+            if (!w) {
+                setPresetPos({ left: 10, top: 140 });
+                return;
+            }
+            const W = 560;
+            const vw = w.innerWidth || 1280;
+            const vh = w.innerHeight || 900;
+            const btn = presetBtnRef.current;
+            const r = btn && typeof btn.getBoundingClientRect === 'function' ? btn.getBoundingClientRect() : null;
+            const left = Math.min(Math.max(10, vw - W - 20), Math.max(10, r ? r.left : vw / 2 - W / 2));
+            const top = Math.min(Math.max(10, vh - 430), Math.max(10, r ? r.bottom + 6 : 140));
+            setPresetPos({ left: Math.round(left), top: Math.round(top) });
+        }
+        catch (err) {
+            setPresetPos({ left: 10, top: 140 });
+        }
+    }, [showPresets]);
+    // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
+    const miniLight = editorMiniLight(appearance, sysDark);
+    const eff = function (key) { return effectiveSlotColor(key, colors, miniLight); };
+    function setColor(key, hex, transparent) {
+        setColors(function (prev) {
+            const next = Object.assign({}, prev);
+            if (transparent) {
+                // 仅 8 背景槽可设透明（其余回 FB，保持预览与宿主归一化一致）
+                const allow = props.slotMeta && props.slotMeta[key] && props.slotMeta[key].allow;
+                next[key] = allow ? 'transparent' : effectiveSlotColor(key, prev, false);
+            }
+            else {
+                next[key] = hex;
+            }
+            return next;
+        });
     }
-    const findPreset = presetByName
-    const visGroups = (props.presetGroups || []).map(function (g) {
-      return { g: g, names: (g.names || []).filter(match) }
-    }).filter(function (x) { return x.names.length > 0 })
-    return e('div', {
-      key: 'presetpop', id: 'presetPop',
-      style: Object.assign({
-        position: 'fixed', zIndex: 60, width: '560px', maxWidth: '94vw',
-        background: TK.pop, border: '1px solid ' + TK.borderStrong, borderRadius: '10px',
-        padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-      }, presetPos),
-    },
-      e('input', {
-        value: presetQuery, placeholder: tr('edPresetSearch'),
-        onChange: function (ev) { setPresetQuery(ev.target.value) },
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        style: { width: '100%', boxSizing: 'border-box', background: TK.panel, color: TK.text, border: '1px solid ' + TK.border, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
-      }),
-      e('div', { style: { maxHeight: '280px', overflow: 'auto', background: TK.panel, border: '1px solid ' + TK.border, borderRadius: '8px', padding: '8px 10px' } },
-        visGroups.map(function (x, gi) {
-          const g = x.g
-          const names = x.names
-          const gcolor = g.color || TK.text3
-          return e('div', { key: 'pg-' + g.title, style: { marginBottom: gi < visGroups.length - 1 ? '10px' : '0' } },
-            e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: TK.text2, marginBottom: '6px' } },
-              e('span', { style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: gcolor } }),
-              g.title,
-              e('span', { style: { fontSize: '11px', color: TK.text2 } }, String((g.names || []).length))),
-            e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, names.map(function (n) {
-              const p = findPreset(n)
-              const cc = (p && p.colors) || {}
-              const transBg = cc.background === 'transparent'
-              const bg = transBg ? '#FFFFFF' : (n === 'system' ? '#0A0A0A' : hexOr(cc.background, '#0A0A0A'))
-              const fg = transBg ? '#1A1A1A' : hexOr(cc.text, '#E7E7EA')
-              const dot = n === 'system' ? '#8B8B95' : hexOr(cc.primary, '#555')
-              const psel = basePreset === n
-              const label = presetLabelOf(n)
-              return e('button', {
-                key: 'pp-' + n,
-                title: lang === 'en' ? 'Use "' + label + '" as base' : '以「' + label + '」为基底',
-                onClick: function () { if (p) loadPreset(p) },
-                [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+    function openPop(key, anchorEl, preferSide) {
+        const raw = colors[key];
+        const norm = normalizeHexInput(raw);
+        const anchor = anchorEl || null;
+        // 首选方向（#93）：左列色块入口贴右侧；预览控件默认贴下方。
+        const place = preferSide === PLACE_RIGHT ? PLACE_RIGHT : PLACE_BELOW;
+        // #94：同一入口再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
+        // 换锚点才清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧。
+        if (pop && pop.key === key && pop.anchor === anchor && popPos)
+            return;
+        setPopPos(null);
+        setPop({
+            key: key,
+            hex: norm || effectiveSlotColor(key, colors, false),
+            transparent: raw === 'transparent',
+            orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
+            anchor: anchor,
+            preferSide: place,
+        });
+        setShowPresets(false); // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
+        setHl(key);
+    }
+    function closePop(revert) {
+        if (revert && pop) {
+            const o = pop.orig;
+            setColor(pop.key, o.hex, o.transparent);
+        }
+        setPop(null);
+    }
+    // 左列定位（原型 scrollToRow 口径：prototype.html:936-938 = block center + behavior smooth）。
+    function scrollToRow(key) {
+        try {
+            const row = rowRefs.current[key];
+            if (row && typeof row.scrollIntoView === 'function')
+                row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }
+        catch (err) { /* 忽略 */ }
+    }
+    // 预览 → 左列联动（用户 m09226）：行已在视野里就不动，否则按原型口径滑到可见。
+    function revealRow(key) {
+        try {
+            const row = rowRefs.current[key];
+            if (!row)
+                return;
+            const col = leftColRef.current;
+            if (col && typeof col.getBoundingClientRect === 'function' && typeof row.getBoundingClientRect === 'function') {
+                if (!needsReveal(col.getBoundingClientRect(), row.getBoundingClientRect(), REVEAL_PAD))
+                    return;
+            }
+            scrollToRow(key);
+        }
+        catch (err) { /* 忽略 */ }
+    }
+    function clickSlot(key, anchorEl) {
+        // #94：点预览控件 → 以被点元素为锚原地开弹板（不再把弹板夹到预览区左侧）；
+        // 左列联动只在该行不可见时滚动露出（取消强制居中，见 revealRow）。
+        if (props.slotMeta && props.slotMeta[key]) {
+            revealRow(key);
+            openPop(key, anchorEl);
+        }
+    }
+    function loadPreset(p) {
+        const seed = presetToSeed(p);
+        setColors(seed.colors);
+        setAppearance(seed.appearance);
+        setBasePreset(seed.basePreset);
+        setShowPresets(false);
+        setPresetQuery('');
+    }
+    function switchTarget(id) {
+        const found = (props.customs || []).filter(function (t) { return t.id === id; })[0];
+        if (!found)
+            return;
+        setTargetSel(id);
+        setName(found.name);
+        setAppearance(found.appearance);
+        setColors(Object.assign({}, found.colors));
+        setBasePreset(found.basePreset || 'opencode');
+        setDelConfirm(false);
+    }
+    const canSave = name.trim().length > 0;
+    function handleSave() {
+        if (!canSave)
+            return;
+        props.onSave({
+            id: mode === 'edit' ? (targetSel || origId) : null,
+            name: name.trim(),
+            appearance: appearance,
+            colors: colors,
+            basePreset: basePreset,
+        });
+    }
+    // ── 左列：37 色位行（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
+    const leftRows = [];
+    for (const g of props.groups || []) {
+        const gm = (props.groupMeta && props.groupMeta[g.id]) || { zh: g.id, en: g.id };
+        const hasTrans = g.keys.some(function (k) { return props.slotMeta && props.slotMeta[k] && props.slotMeta[k].allow; });
+        leftRows.push(e('div', {
+            key: 'g-' + g.id,
+            style: { fontSize: '12px', color: '#9D7CD8', margin: leftRows.length === 0 ? '0 0 6px' : '10px 0 6px' },
+        }, lang === 'en' ? gm.en : gm.zh, hasTrans ? e('span', {
+            style: { fontSize: '10px', color: 'var(--dsw-alias-state-success-primary, #7FD88F)', border: '1px solid var(--dsw-alias-state-success-secondary, #3D9A57)', borderRadius: '4px', padding: '0 6px', marginLeft: '6px', whiteSpace: 'nowrap' },
+        }, tr('edTransparentFlag')) : null));
+        for (const key of g.keys) {
+            const meta = (props.slotMeta && props.slotMeta[key]) || { zh: key, en: key, useZh: '', useEn: '', allow: false };
+            const raw = colors[key];
+            const isTrans = raw === 'transparent';
+            const shown = (isTrans ? eff(key) : (normalizeHexInput(raw) || eff(key))).toUpperCase();
+            const label = lang === 'en' ? meta.en : meta.zh;
+            const use = lang === 'en' ? meta.useEn : meta.useZh;
+            const swStyle = isTrans
+                ? { background: 'repeating-linear-gradient(45deg,#888 0 4px,#fff 4px 8px)' }
+                : { background: shown };
+            const isTarget = hl === key;
+            const isHovered = hovered === key && !isTarget;
+            leftRows.push(e('div', {
+                key: 'row-' + key, 'data-row': key,
+                ref: function (el) { rowRefs.current[key] = el; },
+                onMouseEnter: function () { setHl(key); setHovered(key); },
+                onMouseLeave: function () { if (!pop || pop.key !== key)
+                    setHl(null); setHovered(null); },
                 style: {
-                  display: 'inline-flex', alignItems: 'center', gap: '5px', background: bg, color: fg,
-                  border: (psel ? '2px solid ' + TK.accent : '1px solid ' + dot), borderRadius: '6px',
-                  padding: '3px 8px 3px 5px', margin: psel ? '-1px' : '0',
-                  fontSize: '11px', fontFamily: 'Consolas,Menlo,monospace', cursor: 'pointer', whiteSpace: 'nowrap',
-                  outline: psel ? '1px solid ' + TK.accent : undefined,
+                    display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '6px', padding: '5px 4px',
+                    border: '1px solid ' + (isTarget ? TK.accent : (isHovered ? 'var(--dsw-alias-border-l2-darkmode-thin, #2A2A31)' : 'transparent')), borderRadius: '8px',
+                    background: isTarget ? 'var(--dsw-alias-interactive-bg-hover-accent, #1E1A14)' : (isHovered ? TK.hover : 'transparent'),
+                    cursor: 'default', position: 'relative',
                 },
-              },
-                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: dot } }),
-                label,
-                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: TK.accent, visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
-            })))
-        }))
-    )
-  }
-
-  // 透明文本回退（原型 tx 口径：transparent 正文→灰，底盘透明另走 hexOrTrans）
-  const txOf = function (v) {
-    if (v === 'transparent') return miniLight ? '#6E6E78' : '#8B8B95'
-    return normalizeHexInput(v) || v
-  }
-  // 高亮字（原型 pickText 口径：prototype.html:877-883，按亮度取深/浅字）
-  const pickTextOn = function (hex) {
-    const n = normalizeHexInput(hex)
-    if (!n) return '#141414'
-    const r = parseInt(n.slice(1, 3), 16), g = parseInt(n.slice(3, 5), 16), b = parseInt(n.slice(5, 7), 16)
-    return ((0.299 * r + 0.587 * g + 0.114 * b) / 255) > 0.6 ? '#141414' : '#F4F4F5'
-  }
-  // md 底盘透明回退（原型 slotBg 口径：backgroundPanel 回退 #16161A，不是 #232329）
-  const mdBg = colors.backgroundPanel === 'transparent' ? (miniLight ? '#F7F7F8' : '#16161A') : colors.backgroundPanel
-
-  // ── 右侧：微缩 DSH 仿真画布（原型 renderMini 口径：side + main + bubble + md + code + diff + brow + cinput）──
-  function renderMini() {
-    // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个色位命中的每一个预览元素都要被圈住；
-    // 此前只有 node 会圈，纯 span 命中被漏掉）
-    const ringOf = function (slot) { return slotRingStyle(hl, slot) }
-    const ringStyle = function (slot) { return ringOf(slot) || undefined }
-    const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
-    // 可点文本 span 的合并样式（#94：t() 与三处裸 span 共用；ring 覆盖 cursor 之外的描边键）。
-    const clickableSpanStyle = function (slot, base) {
-      return Object.assign({ cursor: 'pointer' }, base || {}, ringStyle(slot) || {})
+            }, e('div', { className: 'nm', style: { flex: '0 1 auto', minWidth: 0 } }, 
+            // 标题控件与小标签同一相对定位盒（用户 m08636 第 3 条：标签贴标题控件右侧）。
+            // 原型是量字后 absolute 定位（paintHl:928 `b.offsetLeft + b.offsetWidth + 6`，按 row.clientWidth 夹紧）；
+            // 这里用 inline-block 包裹 + left:100% 免量字等价实现，垂直居中于标题行。
+            e('span', { style: { position: 'relative', display: 'inline-block', maxWidth: '100%' } }, e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label), isTarget ? e('span', {
+                className: 'dspe-keypop',
+                style: {
+                    position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
+                    transform: 'translate(' + (-rowShift) + 'px, -50%)',
+                    background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
+                    borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 4,
+                },
+            }, key) : null), e('small', { style: { display: 'block', fontSize: '11px', color: 'var(--dsw-alias-label-tertiary, #A0A0A8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)), e('button', {
+                'data-slot-row': key,
+                title: tr('edPickTitle'),
+                onClick: function (ev) { openPop(key, ev.currentTarget, PLACE_RIGHT); },
+                [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
+                style: Object.assign({
+                    width: '30px', height: '22px', borderRadius: '6px', cursor: 'pointer', flex: 'none', padding: 0,
+                    border: '1px solid #00000066',
+                }, swStyle),
+            }), e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: 'var(--dsw-alias-label-secondary, #C8C8D0)', minWidth: 0, flex: 'none' } }, shown)));
+        }
     }
-    // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
-    // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
-    // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
-    const bindSlot = function (slot) {
-      return {
-        onMouseEnter: function () { setHl(slot); revealRow(slot) },
-        onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
-        onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot, ev.currentTarget) },
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-      }
-    }
-    const node = function (slot, style, children, extra) {
-      const ring = ringOf(slot)
-      const props2 = Object.assign({
-        'data-slot': slot,
-        className: ring ? HL_CLS : undefined,
-        style: Object.assign({ cursor: 'pointer', position: 'relative' }, style, ring),
-      }, bindSlot(slot), extra || {})
-      // 小标签不再挂在节点内（用户 m08636 第 1 条：会被 .mini{overflow:hidden} 与滚动列裁掉）；
-      // 改由弹窗根的 fixed 覆盖层统一渲染，锚点定位见 badgeAt effect。
-      return e('div', props2, children)
-    }
-    // 原型文本 span 口径：data-slot 透出定位；#94 起文本也全部可点（点击原地开弹板），
-    // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
-    // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
-    const t = function (slot, s, key) {
-      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot)), s)
-    }
-    const codeLines = [
-      { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
-      { t: 'run', s: 'syntaxFunction' }, { t: ' = ', s: 'syntaxOperator' },
-      { t: 'Theme', s: 'syntaxType' }, { t: ' 37', s: 'syntaxNumber' },
-      { t: ' ', s: null }, { t: '"ok"', s: 'syntaxString' }, { t: '\n', s: null },
-      { t: 'return ', s: 'syntaxKeyword' }, { t: '"done"', s: 'syntaxString' },
-      { t: ';', s: 'syntaxOperator' },
-    ]
-    const bgRaw = colors.background
-    const bgRes = bgRaw === 'transparent' ? (miniLight ? '#FFFFFF' : '#101014') : (normalizeHexInput(bgRaw) || '#101014')
-    const miniInv = pickTextOn(bgRes) === '#141414'
-    return e('div', {
-      ref: miniRef,
-      style: {
-        position: 'relative', borderRadius: '10px', overflow: 'hidden',
-        border: '1px solid ' + (miniInv ? '#D8D8DE' : '#33333A'), background: 'transparent',
-        display: 'grid', gridTemplateColumns: 'max-content minmax(0,1fr)', boxSizing: 'border-box', minHeight: '540px', minWidth: 0, textAlign: 'left',
-      },
-    },
-      // 侧边栏（原型 .side/.sess 口径：标题与草稿行无 data-slot、无点击）
-      node('sidebarBg', { background: eff('sidebarBg'), borderRight: '1px solid ' + eff('border'), padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }, [
-        e('div', { key: 'sessT', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniSession')),
-        node('backgroundPanel', { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', position: 'relative', border: '1px solid transparent', background: eff('backgroundPanel'), color: txOf(colors.text) }, [node('primary', { position: 'absolute', left: 0, top: '6px', bottom: '6px', width: '3px', borderRadius: '2px', background: eff('primary'), padding: 0 }, null, { key: 'sessBar' }), e('span', { key: 'sessCurTx' }, tr('miniCurrent'))], { key: 'sessCur' }),
-        e('div', { key: 'sessD', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniDraft')),
-        e('div', { key: 'sessR', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniReview')),
-      ], { key: 'sessCol' }),
-      // 主列（原型 .main 口径：无点击，只有 data-slot）
-      node('background', {
-        flex: 1, padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px',
-        minWidth: 0, background: eff('background'),
-      }, [
-        node('bubbleBg', {
-          alignSelf: 'flex-end', maxWidth: '85%', background: eff('bubbleBg'), wordBreak: 'keep-all',
-          border: '1px solid ' + eff('border'), borderRadius: '10px', padding: '8px 12px',
-          fontSize: '12px', color: txOf(colors.text),
-        }, t('text', tr('miniBubble'), 'bubTx'), { key: 'bubble' }),
-        node('markdownHeading', { fontSize: '14px', fontWeight: 700, color: eff('markdownHeading'), marginBottom: '4px' }, tr('miniVerdict'), { key: 'miniH' }),
-        // 结论段（原型 .md 口径：一句话流程 + 行内 tip）
-        node('backgroundPanel', { fontSize: '12px', color: txOf(colors.text), lineHeight: 1.6, background: mdBg, border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '10px 12px' },
-          segJoin([
-            t('text', tr('miniPass1'), 'sgP1'),
-            node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong'), { key: 'sgS' }),
-            t('text', tr('miniPass2'), 'sgP2'),
-            node('markdownEmph', { fontStyle: 'italic', color: eff('markdownEmph'), display: 'inline' }, tr('miniGap'), { key: 'sgE' }),
-            t('text', tr('miniPass3'), 'sgP3'),
-            node('markdownLink', { color: eff('markdownLink'), textDecoration: 'underline', display: 'inline' }, tr('miniSpec'), { key: 'sgL' }),
-            t('text', tr('miniPass4'), 'sgP4'),
-            node('markdownCode', {
-              color: eff('markdownCode'), background: 'rgba(127,127,127,0.15)',
-              borderRadius: '4px', padding: '0 4px', display: 'inline', fontFamily: 'Consolas,monospace',
-            }, 'v2', { key: 'sgC' }),
-            t('text', tr('miniNote'), 'sgN'),
-          ]).concat([
-            node('backgroundElement', {
-              fontSize: '11px', color: txOf(colors.text), background: eff('backgroundElement'),
-              borderRadius: '20px', padding: '2px 10px', marginTop: '6px', display: 'inline-block',
-              title: tr('miniTip'),
-            }, tr('miniTip'), { key: 'sgTip' }),
-          ]),
-        { key: 'mdVerdict' }),
-        node('markdownBlockQuote', {
-          borderLeft: '3px solid ' + eff('markdownBlockQuote'), color: txOf(colors.markdownBlockQuote),
-          fontSize: '12px', paddingLeft: '8px', margin: '6px 0',
-        }, tr('miniQuote'), { key: 'quote' }),
-        node('border', { border: 0, borderTop: '1px solid ' + eff('border'), height: 0, margin: '8px 0' }, null, { key: 'mdHr' }),
-        // 代码块（原型 .codecard/.codehead/.codepre 口径：语法示例行，无点击）
-        node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden' },
-          e('div', { key: 'codeInner' },
-            node('codeHeaderBg', {
-              display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
-              padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted') }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }),
-            node('codeBlockBg', {
-              background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
-              fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
-            }, codeLines.map(function (p, i) {
-              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: clickableSpanStyle(p.s, { color: eff(p.s) }) }, bindSlot(p.s)), p.t) : p.t
-            }), { key: 'codePre' })
-          ), { key: 'codeBlock' }),
-        // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
-        node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden', fontSize: '11px', fontFamily: 'Consolas,monospace' }, [
-          node('diffAddedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffAddedBg') }, [
-            node('diffAddedLineNumberBg', { background: eff('diffAddedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '12', { key: 'aln' }),
-            node('diffAddedBg', { padding: '4px 8px', color: eff('diffAdded') }, t('diffAdded', '+ background: #FFFFFF', 'adTx'), { key: 'adTxBox' }),
-          ], { key: 'diffAdd' }),
-          node('diffRemovedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffRemovedBg') }, [
-            node('diffRemovedLineNumberBg', { background: eff('diffRemovedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '13', { key: 'rln' }),
-            node('diffRemovedBg', { padding: '4px 8px', color: eff('diffRemoved') }, t('diffRemoved', '- background: #101014', 'rmTx'), { key: 'rmTxBox' }),
-          ], { key: 'diffRm' }),
-        ], { key: 'diffBlock' }),
-        // 按钮徽章行（原型 .badges/.pbtn/.pill + 圆点状态行口径，无点击）
-        e('div', { key: 'brow', style: { display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', minWidth: 0 } }, [
-          node('primary', {
-            background: eff('primary'), border: '1px solid ' + eff('primary'), color: pickTextOn(colors.primary),
-            borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnPrimary'), { key: 'bPri' }),
-          node('secondary', {
-            background: hexOr(colors.secondary, '#888888') + '33', color: eff('secondary'),
-            border: '1px solid ' + eff('secondary'), borderRadius: '20px', padding: '5px 14px',
-            fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnSecondary'), { key: 'bSec' }),
-          node('info', {
-            background: eff('info'), border: '1px solid ' + eff('info'), color: pickTextOn(colors.info),
-            borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
-          }, tr('miniBtnInfo'), { key: 'bInf' }),
-        ]),
-        e('div', { key: 'dotOk', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
-          e('span', { key: 'dotOkD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('success'), flex: 'none' } }),
-          node('success', { color: eff('success') }, tr('miniBadgeOk'), { key: 'bOk' }),
-        ]),
-        e('div', { key: 'dotWarn', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
-          e('span', { key: 'dotWarnD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('warning'), flex: 'none' } }),
-          node('warning', { color: eff('warning') }, tr('miniWarn'), { key: 'bWarn' }),
-        ]),
-        e('div', { key: 'dotErr', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
-          e('span', { key: 'dotErrD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('error'), flex: 'none' } }),
-          node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }),
-        ]),
-        // 输入框（原型 .cinput 口径：borderActive 环 + 下方说明行）。#94：环从 inputBg 内圈 boxShadow
-        // 独立成可点节点，37 个色位在预览区各有自己的可点控件（点环开 borderActive，点内开 inputBg）。
-        node('borderActive', {
-          borderRadius: '9px', border: '2px solid ' + eff('borderActive') + '55', padding: '2px',
-        }, [
-          node('inputBg', {
-            display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
-            border: '1px solid ' + eff('border'), borderRadius: '7px', padding: '8px 10px',
-            fontSize: '12px', color: txOf(colors.text),
-          }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted', { color: txOf(colors.textMuted) }) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }),
-        ], { key: 'inputWrap' }),
-        e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
-      ], { key: 'mainCol' })
-    )
-  }
-
-  const capName = name.trim() || tr('edUnnamed')
-  const shownName = mode === 'edit' && targetSel
-    ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0] || {}).name || capName)
-    : capName
-
-  const presetByName = function (n) {
-    return (props.presets || []).filter(function (x) { return x.name === n })[0] || null
-  }
-  const hexOr = function (v, fb) { return normalizeHexInput(v) || fb }
-  // 顶栏图标（原型 ICONS + SYSICON 口径：prototype.html:503/507-510/647，手绘 SVG，零 emoji）
-  const ICON_CHECK = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
-    e('path', { d: 'M2 6.5 4.8 9 10 3.5', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }))
-  const ICON_TRASH = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
-    e('path', { d: 'M2.3 3.3h7.4M4.6 3.3V2.4h2.8v.9M3.5 3.3l.5 6.3h4l.5-6.3M5.1 5.4v2.4M6.9 5.4v2.4', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' }))
-  const ICON_MOON = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
-    e('path', { d: 'M9.6 7.3A4.1 4.1 0 0 1 4.7 2.4a4.1 4.1 0 1 0 4.9 4.9z', fill: 'none', stroke: 'currentColor', strokeWidth: 1.3, strokeLinejoin: 'round' }))
-  const ICON_SUN = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
-    e('path', { d: 'M4.3 6a1.7 1.7 0 1 0 3.4 0 1.7 1.7 0 0 0-3.4 0z M6 1.5v1.3M6 9.2v1.3M1.5 6h1.3M9.2 6h1.3M2.8 2.8l.9.9M8.4 8.4l.9.9M9.2 2.8l-.9.9M3.6 8.4l-.8.8', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round' }))
-  const ICON_SYS = e('svg', { width: 13, height: 13, viewBox: '0 0 13 13', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
-    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z', fill: '#F4F4F5' }),
-    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: '#0B0B0E' }),
-    e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: 'none', stroke: '#8B8B95', strokeWidth: 1 }))
-  // 顶栏徽标配色（原型 chipStyle/edtag/basechip 口径：用原值直显）
-  const capBgT = colors.background === 'transparent'
-  const capLightT = appearance === 'light' && capBgT
-  const capFace = capLightT ? '#FFFFFF' : (capBgT ? '#FFFFFF' : hexOr(colors.background, '#FFFFFF'))
-  const capFg = capLightT ? '#1A1A1A' : (capBgT ? '#1A1A1A' : hexOr(colors.text, '#000000'))
-  const capPrimary = hexOr(colors.primary, '#FAB283')
-  const editTgt = mode === 'edit' ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0]) || null) : null
-  const editTgtColors = (editTgt && editTgt.colors) || {}
-  const editTgtBgT = editTgtColors.background === 'transparent'
-  const edtagFace = editTgtBgT ? '#FFFFFF' : (normalizeHexInput(editTgtColors.background) || '#1C1C21')
-  const edtagFg = editTgtBgT ? '#1A1A1A' : (normalizeHexInput(editTgtColors.text) || '#C9C9D2')
-  const edtagPrimary = normalizeHexInput(editTgtColors.primary) || '#FAB283'
-  const baseFound = presetByName(basePreset)
-  const baseFoundColors = (baseFound && baseFound.colors) || {}
-  const baseFoundT = baseFoundColors.background === 'transparent'
-  const bpFace = baseFoundT ? '#FFFFFF' : hexOr(baseFoundColors.background, '#0A0A0A')
-  const bpFg = baseFoundT ? '#1A1A1A' : hexOr(baseFoundColors.text, '#E7E7EA')
-  const bpPrimary = hexOr(baseFoundColors.primary, '#555')
-  const bpDot = basePreset === 'system' ? '#8B8B95' : bpPrimary
-  const presetLabelOf = function (n) {
-    const p = presetByName(n)
-    if (props.presetLabel) { try { return props.presetLabel(n, p) || n } catch (err) { /* 回落 */ } }
-    return (p && p.title) || n
-  }
-
-  return e('div', {
-    style: {
-      position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.6)',
-      // 居中口径（用户 m08383 亲定）：纯 center + 对话框 max-height 受可用区约束，任何引擎都居中且不裁切
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '18px', overflow: 'auto',
-    },
-    onClick: function () { props.onClose() },
-  },
-    // 原型 .seg-system 双色字口径（prototype.html:100-101，原样搬运；不支持的浏览器回落 #F0F0F0 纯色）
-    e('style', { key: 'syslabel-css' }, '@supports ((-webkit-background-clip:text) or (background-clip:text)){.seg button.seg-system .syslabel{background:linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}}'),
-    // 滚动条口径（原型 :143-148）：左列表悬停才现，右画布列隐藏（用户 m08636 第 2 条）
-    e('style', { key: 'dlg-scrollcss' }, DLG_CSS),
-    e('div', {
-      ref: dlgRef,
-      onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } },
-      style: {
-        // 高度由预览区唯一决定（用户 m08383：正好展示完全预览区）；-36px = backdrop 上下 padding，保证真居中
-        width: 'max-content', maxWidth: '96vw', maxHeight: 'calc(100vh - 36px)', overflow: 'hidden',
-        margin: 'auto', flex: 'none', background: TK.win, border: '1px solid ' + TK.border,
-        borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: TK.textStrong,
-      },
-    },
-      // 顶栏（原型 .dlg-top > .row1：rleft + rright 单行；无 X 钮，关闭走取消/backdrop）
-      e('div', { style: { padding: '10px 16px', borderBottom: '1px solid ' + TK.divider, display: 'flex', flexDirection: 'column', gap: '8px' } },
-        // 原型 .row1 是 nowrap；这里改 wrap：窄视口下弹窗被 maxWidth:96vw 卡住、顶行内容更宽时会换行，
-        // 而不是把外观三连顶到弹窗外面（编辑态顶行要约 1257px，1256 视口的 96vw 只有 1205 → 实测外溢 66px，
-        // 改前名字越长越糟、最长名可外溢 573px）。用户口径优先于原型：宁可行落成两行，也不许控件被裁。
-        e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', overflow: 'visible' } },
-          e('span', { className: 'rleft', style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } },
-            e('span', {
-              style: { fontSize: '16px', fontWeight: 700, color: TK.text, background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
-            }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')),
-            mode === 'edit' && editTgt ? e('span', {
-              title: tr('edTagTitle'),
-              style: {
-                fontSize: '13px', fontWeight: 700, borderRadius: '6px', padding: '3px 10px 3px 8px',
-                boxSizing: 'border-box',
-                display: 'inline-flex', alignItems: 'center', gap: '6px', maxWidth: '170px',
-                overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flex: '0 1 auto', minWidth: 0, height: '32px',
-                background: edtagFace, color: edtagFg, border: '1px solid ' + edtagPrimary,
-              },
+    // ── 取色器 Popover（#95）──
+    // 内部交给 PalettePicker（可独立 SSR 的展示组件），外层只负责 fixed 定位、实时提交与关闭语义。
+    function renderPop() {
+        // 没定位就不渲染：定位是异步 effect，先按兜底位渲染会在屏幕左上角闪一帧再跳（用户 m10028）。
+        if (!pop || !popPos)
+            return null;
+        const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false };
+        // 主题色按分组优先级排序（R7：品牌/语法色不再被 8 个背景色挤掉），跳过当前槽自身（pickRecentColors 内处理）。
+        const priority = [];
+        const groups = props.groups || [];
+        for (let i = 0; i < groups.length; i++) {
+            if (groups[i].id === 'bg')
+                continue;
+            for (let j = 0; j < groups[i].keys.length; j++)
+                priority.push(groups[i].keys[j]);
+        }
+        for (let i = 0; i < groups.length; i++) {
+            if (groups[i].id !== 'bg')
+                continue;
+            for (let j = 0; j < groups[i].keys.length; j++)
+                priority.push(groups[i].keys[j]);
+        }
+        const recent = pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX);
+        // WCAG 对比度基准槽：文字对背景、背景槽对文字、其余对面板（与 map-dsh 语义一致）。
+        const refHex = effectiveSlotColor(contrastRefSlot(pop.key), colors, false);
+        // 重开同一槽位：父组件记住的 {h,s,v} 仅在 hex 没被外部改动时回填（否则按当前 hex 反推）。
+        const memo = pickMem.current[pop.key];
+        const memoHex = pop.transparent ? '' : (normalizeHexInput(pop.hex) || '');
+        const initialHsv = (memo && memo.hex === memoHex) ? memo.hsv : null;
+        return e('div', {
+            key: 'pop', id: 'pop', 'data-key': pop.key,
+            style: Object.assign({
+                // #95：取色器盒外框（border-box + 显式宽高 = 定位常量同源，两者恒等）。
+                position: 'fixed', zIndex: 60, boxSizing: 'border-box', width: POP_W + 'px', height: POP_H + 'px', background: TK.pop,
+                border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+            }, popPos),
+        }, e(PalettePicker, {
+            h: h, tr: tr, trf: trf,
+            label: lang === 'en' ? meta.en : meta.zh,
+            allowTransparent: !!meta.allow,
+            value: { hex: pop.hex, transparent: pop.transparent },
+            initialHsv: initialHsv,
+            recent: recent,
+            contrastRefHex: refHex,
+            // 任何改动即 live commit（R2）：颜色已写进编辑中的主题，关闭时不再回滚。
+            onApply: function (hex, transparent, hsv) {
+                if (hsv && isFinite(hsv.h) && isFinite(hsv.s) && isFinite(hsv.v)) {
+                    pickMem.current[pop.key] = {
+                        hex: transparent ? '' : hex,
+                        hsv: { h: Number(hsv.h), s: Number(hsv.s), v: Number(hsv.v) },
+                    };
+                }
+                setColor(pop.key, hex, transparent);
+                setPop(function (prev) { return prev ? Object.assign({}, prev, { hex: hex, transparent: transparent }) : prev; });
             },
-              e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: edtagPrimary } }),
-              e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: '0 1 auto' } },
-                trf('edEditing', { name: shownName }))) : null,
-            mode === 'edit' ? e('select', {
-              ref: targetRef, id: 'f-target',
-              value: targetSel || '',
-              title: tr('edTargetTitle'),
-              onChange: function (ev) { switchTarget(ev.target.value) },
-              [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-              style: {
-                background: TK.panel, border: '1px solid ' + TK.border , color: TK.text, borderRadius: '6px',
-                padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '230px',
-              },
-            }, (props.customs || []).map(function (t) {
-              return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
-            })) : null,
-            // 名字区（用户 m09582 需求 1）：定宽 NAME_ZONE_W，区内「输入框 + 预览胶囊」自由分配 ——
-            // 胶囊随名字变长 → 输入框等比变短（下限 NAME_INPUT_MIN）；胶囊到顶后自己收窄打省略号。整行总量不变。
-            e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto', width: NAME_ZONE_W + 'px', minWidth: NAME_ZONE_W + 'px', maxWidth: NAME_ZONE_W + 'px' } },
-              e('span', { style: { position: 'relative', flex: '1 1 0px', minWidth: NAME_INPUT_MIN + 'px', display: 'flex' } },
-                e('input', {
-                  ref: nameRef, id: 'f-name',
-                  value: name, placeholder: tr('edNamePh'),
-                  title: name.trim() ? '' : tr('edNameEmpty'),
-                  'aria-invalid': !name.trim() ? 'true' : undefined,
-                  onChange: function (ev) { setName(ev.target.value) },
-                  [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-                  style: Object.assign({
-                    background: TK.panel, border: '1px solid ' + TK.border, color: TK.text, borderRadius: '6px',
-                    boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px',
-                    // 区内自由伸缩：宽度给 0（百分比宽会被 max-content 当成 auto、按输入内容自量宽，进而把弹窗带宽），
-                    // 实际宽度全部由 flex 在定宽区内分配 —— 胶囊越长输入框越短。
-                    flex: '1 1 0px', width: '0px', minWidth: 0,
-                  }, !name.trim() ? { borderColor: TK.danger, boxShadow: '0 0 0 1px ' + TK.danger } : null),
-                }),
-                !name.trim() ? e('span', {
-                  style: {
-                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                    fontSize: '11px', color: TK.dangerText, border: '1px solid ' + TK.danger, borderRadius: '4px',
-                    padding: '0 6px', pointerEvents: 'none', background: TK.panel, whiteSpace: 'nowrap',
-                  },
-                }, tr('edNoName')) : null),
-              e('span', {
-                title: tr('edCapTitle'),
-                style: {
-                  display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
-                  padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
-                  background: capFace, color: capFg, border: '2px solid ' + capPrimary, margin: '-1px',
-                  cursor: 'default', flex: '0 1 auto', minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap',
-                  // 封顶：胶囊的「内容宽」同样会漏进弹窗 max-content 自量宽，加上限后整窗宽度才真正恒定。
-                  maxWidth: NAME_CAP_MAX + 'px',
-                },
-              },
-                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: capPrimary } }),
-                // 名字超长时胶囊内省略号收尾（区宽到顶后胶囊才被压缩，见上一行 flex）。
-                e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 } }, capName),
-                e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700, flex: 'none' } }, ICON_CHECK))),
-            capLightT ? e('span', { style: { fontSize: '11px', color: TK.text3, flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null,
-            e('button', {
-              ref: presetBtnRef, id: 'f-presetbtn',
-              title: tr('edPresetTitle'),
-              onClick: function () { setPop(null); setShowPresets(!showPresets) },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: {
-                background: TK.panel, border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px',
-                padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
-                cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
-              },
-            }, tr('edPreset'), basePreset
-              ? e('span', {
-                style: {
-                  display: 'inline-flex', alignItems: 'center', gap: '5px', borderRadius: '5px',
-                  padding: '1px 8px 1px 5px', fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
-                  background: bpFace, color: bpFg, border: '1px solid ' + bpPrimary,
-                },
-              },
-                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: bpDot } }),
-                presetLabelOf(basePreset))
-              : e('span', {
-                style: {
-                  display: 'inline-flex', alignItems: 'center', borderRadius: '5px', padding: '1px 8px',
-                  fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
-                  border: '1px dashed ' + TK.faint, color: TK.text3, background: 'transparent',
-                },
-              }, tr('edNoBase')))
-          ),
-          e('span', { ref: rrightRef, className: 'rright', style: { display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'nowrap', flex: 'none' } },
-            e('span', { className: 'seg', style: { display: 'inline-flex', background: 'transparent', border: 0, padding: 0, gap: '6px', alignItems: 'center', flex: 'none' } },
-              ['dark', 'light', 'system'].map(function (a) {
-                const on = appearance === a
-                const label = a === 'dark' ? tr('edDark') : (a === 'light' ? tr('edLight') : tr('edSystem'))
-                const tip = a === 'dark' ? tr('edDarkTitle') : (a === 'light' ? tr('edLightTitle') : tr('edSystemTitle'))
-                const segBase = a === 'dark'
-                  ? { background: '#0B0B0E', borderColor: '#3A3A44', color: '#EDEDEF' }
-                  : (a === 'light'
-                    ? { background: 'rgba(244,244,245,.94)', borderColor: '#77777F', color: '#141417' }
-                    : { background: 'linear-gradient(to bottom right,#0B0B0E 0,#0B0B0E 50%,#F4F4F5 50%,#F4F4F5 100%)', borderColor: '#55555F' })
+            onCancel: function () { closePop(true); },
+            onDone: function () { closePop(false); },
+        }));
+    }
+    // ── 预置主题 Popover ──
+    function renderPresetPop() {
+        // 同上：定位（异步 effect）没算出来之前不渲染，避免「左上角闪一帧再跳到选基底按钮下方」。
+        if (!showPresets || !presetPos)
+            return null;
+        const q = presetQuery.trim().toLowerCase();
+        const match = function (n) {
+            if (!q)
+                return true;
+            const hay = (n + ' ' + presetLabelOf(n)).toLowerCase();
+            return hay.indexOf(q) >= 0;
+        };
+        const findPreset = presetByName;
+        const visGroups = (props.presetGroups || []).map(function (g) {
+            return { g: g, names: (g.names || []).filter(match) };
+        }).filter(function (x) { return x.names.length > 0; });
+        return e('div', {
+            key: 'presetpop', id: 'presetPop',
+            style: Object.assign({
+                position: 'fixed', zIndex: 60, width: '560px', maxWidth: '94vw',
+                background: TK.pop, border: '1px solid ' + TK.borderStrong, borderRadius: '10px',
+                padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+            }, presetPos),
+        }, e('input', {
+            value: presetQuery, placeholder: tr('edPresetSearch'),
+            onChange: function (ev) { setPresetQuery(ev.target.value); },
+            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+            style: { width: '100%', boxSizing: 'border-box', background: TK.panel, color: TK.text, border: '1px solid ' + TK.border, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
+        }), e('div', { style: { maxHeight: '280px', overflow: 'auto', background: TK.panel, border: '1px solid ' + TK.border, borderRadius: '8px', padding: '8px 10px' } }, visGroups.map(function (x, gi) {
+            const g = x.g;
+            const names = x.names;
+            const gcolor = g.color || TK.text3;
+            return e('div', { key: 'pg-' + g.title, style: { marginBottom: gi < visGroups.length - 1 ? '10px' : '0' } }, e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: TK.text2, marginBottom: '6px' } }, e('span', { style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: gcolor } }), g.title, e('span', { style: { fontSize: '11px', color: TK.text2 } }, String((g.names || []).length))), e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, names.map(function (n) {
+                const p = findPreset(n);
+                const cc = (p && p.colors) || {};
+                const transBg = cc.background === 'transparent';
+                const bg = transBg ? '#FFFFFF' : (n === 'system' ? '#0A0A0A' : hexOr(cc.background, '#0A0A0A'));
+                const fg = transBg ? '#1A1A1A' : hexOr(cc.text, '#E7E7EA');
+                const dot = n === 'system' ? '#8B8B95' : hexOr(cc.primary, '#555');
+                const psel = basePreset === n;
+                const label = presetLabelOf(n);
                 return e('button', {
-                  key: 'ap-' + a, title: tip, className: 'seg-' + a + (on ? ' on' : ''),
-                  onClick: function () { setAppearance(a) },
-                  [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                  style: Object.assign({
-                    border: '1px solid', fontSize: '12px', display: 'inline-flex', alignItems: 'center',
-                    gap: '6px', cursor: 'pointer', height: '32px', padding: '0 14px', borderRadius: '7px',
-                    fontWeight: on ? 700 : 400, whiteSpace: 'nowrap',
-                  }, segBase, on ? { boxShadow: 'inset 0 0 0 2px ' + TK.accent } : null),
-                }, a === 'dark' ? ICON_MOON : (a === 'light' ? ICON_SUN : ICON_SYS), ' ', a === 'system' ? e('span', {
-                  className: 'syslabel',
-                  style: { color: '#F0F0F0' },
-                }, label) : label)
-              })),
-            mode === 'edit' ? e('span', { style: { position: 'relative', display: 'inline-flex' } },
-              delConfirm ? e('span', {
-                role: 'alertdialog', 'aria-label': tr('edDelete'),
-                style: {
-                  position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 70,
-                  width: 'max-content', maxWidth: 'min(300px,86vw)', background: TK.pop2,
-                  border: '1px solid ' + TK.borderStrong2, borderRadius: '10px', padding: '10px 12px',
-                  boxShadow: '0 12px 32px rgba(0,0,0,.6)', display: 'flex', flexDirection: 'column', gap: '4px',
-                },
-              },
-                e('b', { style: { fontSize: '12px', color: TK.text } }, trf('edDelConfirm', { name: shownName })),
-                e('small', { style: { fontSize: '11px', color: TK.text2 } }, tr('edDelNote')),
-                e('span', { style: { display: 'flex', gap: '8px', marginTop: '6px' } },
-                  e('button', {
-                    onClick: function () { props.onDelete(targetSel || origId) },
-                    [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                    style: { background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder , color: TK.dangerSoft, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
-                  }, tr('edDelYes')),
-                  e('button', {
-                    onClick: function () { setDelConfirm(false) },
-                    [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                    style: { background: 'transparent', border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
-                  }, tr('edDelNo'))))
-                : e('button', {
-                  onClick: function () { setDelConfirm(true) },
-                  [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                  style: {
-                    background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder , color: TK.dangerSoft, borderRadius: '7px',
-                    padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex',
-                    alignItems: 'center', gap: '6px', cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
-                  },
-                }, ICON_TRASH, ' ', tr('edDelete'))) : null,
-            e('button', {
-              title: tr('edCancelTitle'), onClick: function () { props.onClose() },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: {
-                background: 'transparent', border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px',
-                padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
-                cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
-              },
-            }, tr('edCancel')),
-            e('button', {
-              title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
-              onClick: handleSave, disabled: !canSave,
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: {
-                background: TK.btnFill, border: '1px solid ' + TK.btnFill , color: TK.accentFg, borderRadius: '7px',
-                padding: '6px 12px', fontSize: '12px', fontWeight: 700, height: '32px', display: 'inline-flex',
-                alignItems: 'center', cursor: canSave ? 'pointer' : 'not-allowed', flex: 'none',
-                whiteSpace: 'nowrap', opacity: canSave ? 1 : 0.45,
-              },
-            }, tr('edSave'))
-          )
-        )
-      ),
-      renderPresetPop(),
-      // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
-      // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
-      e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } },
-        e('div', { ref: leftColRef, className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid ' + TK.divider, minWidth: 0 } }, leftRows),
-        e('div', {
-          className: 'dspe-dlg-right',
-          style: {
-            overflow: 'auto', padding: '12px 14px', background: miniLight ? '#E2E2E6' : '#0D0D10', minWidth: 0,
-          },
+                    key: 'pp-' + n,
+                    title: lang === 'en' ? 'Use "' + label + '" as base' : '以「' + label + '」为基底',
+                    onClick: function () { if (p)
+                        loadPreset(p); },
+                    [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+                    style: {
+                        display: 'inline-flex', alignItems: 'center', gap: '5px', background: bg, color: fg,
+                        border: (psel ? '2px solid ' + TK.accent : '1px solid ' + dot), borderRadius: '6px',
+                        padding: '3px 8px 3px 5px', margin: psel ? '-1px' : '0',
+                        fontSize: '11px', fontFamily: 'Consolas,Menlo,monospace', cursor: 'pointer', whiteSpace: 'nowrap',
+                        outline: psel ? '1px solid ' + TK.accent : undefined,
+                    },
+                }, e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: dot } }), label, e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: TK.accent, visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK));
+            })));
+        })));
+    }
+    // 透明文本回退（原型 tx 口径：transparent 正文→灰，底盘透明另走 hexOrTrans）
+    const txOf = function (v) {
+        if (v === 'transparent')
+            return miniLight ? '#6E6E78' : '#8B8B95';
+        return normalizeHexInput(v) || v;
+    };
+    // 高亮字（原型 pickText 口径：prototype.html:877-883，按亮度取深/浅字）
+    const pickTextOn = function (hex) {
+        const n = normalizeHexInput(hex);
+        if (!n)
+            return '#141414';
+        const r = parseInt(n.slice(1, 3), 16), g = parseInt(n.slice(3, 5), 16), b = parseInt(n.slice(5, 7), 16);
+        return ((0.299 * r + 0.587 * g + 0.114 * b) / 255) > 0.6 ? '#141414' : '#F4F4F5';
+    };
+    // md 底盘透明回退（原型 slotBg 口径：backgroundPanel 回退 #16161A，不是 #232329）
+    const mdBg = colors.backgroundPanel === 'transparent' ? (miniLight ? '#F7F7F8' : '#16161A') : colors.backgroundPanel;
+    // ── 右侧：微缩 DSH 仿真画布（原型 renderMini 口径：side + main + bubble + md + code + diff + brow + cinput）──
+    function renderMini() {
+        // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个色位命中的每一个预览元素都要被圈住；
+        // 此前只有 node 会圈，纯 span 命中被漏掉）
+        const ringOf = function (slot) { return slotRingStyle(hl, slot); };
+        const ringStyle = function (slot) { return ringOf(slot) || undefined; };
+        const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined; };
+        // 可点文本 span 的合并样式（#94：t() 与三处裸 span 共用；ring 覆盖 cursor 之外的描边键）。
+        const clickableSpanStyle = function (slot, base) {
+            return Object.assign({ cursor: 'pointer' }, base || {}, ringStyle(slot) || {});
+        };
+        // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
+        // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
+        // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
+        const bindSlot = function (slot) {
+            return {
+                onMouseEnter: function () { setHl(slot); revealRow(slot); },
+                onMouseLeave: function () { if (!pop || pop.key !== slot)
+                    setHl(null); },
+                onClick: function (ev) { try {
+                    ev.stopPropagation();
+                }
+                catch (err) { /* 忽略 */ } clickSlot(slot, ev.currentTarget); },
+                [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+            };
+        };
+        const node = function (slot, style, children, extra) {
+            const ring = ringOf(slot);
+            const props2 = Object.assign({
+                'data-slot': slot,
+                className: ring ? HL_CLS : undefined,
+                style: Object.assign({ cursor: 'pointer', position: 'relative' }, style, ring),
+            }, bindSlot(slot), extra || {});
+            // 小标签不再挂在节点内（用户 m08636 第 1 条：会被 .mini{overflow:hidden} 与滚动列裁掉）；
+            // 改由弹窗根的 fixed 覆盖层统一渲染，锚点定位见 badgeAt effect。
+            return e('div', props2, children);
+        };
+        // 原型文本 span 口径：data-slot 透出定位；#94 起文本也全部可点（点击原地开弹板），
+        // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
+        // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
+        const t = function (slot, s, key) {
+            return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot)), s);
+        };
+        const codeLines = [
+            { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
+            { t: 'run', s: 'syntaxFunction' }, { t: ' = ', s: 'syntaxOperator' },
+            { t: 'Theme', s: 'syntaxType' }, { t: ' 37', s: 'syntaxNumber' },
+            { t: ' ', s: null }, { t: '"ok"', s: 'syntaxString' }, { t: '\n', s: null },
+            { t: 'return ', s: 'syntaxKeyword' }, { t: '"done"', s: 'syntaxString' },
+            { t: ';', s: 'syntaxOperator' },
+        ];
+        const bgRaw = colors.background;
+        const bgRes = bgRaw === 'transparent' ? (miniLight ? '#FFFFFF' : '#101014') : (normalizeHexInput(bgRaw) || '#101014');
+        const miniInv = pickTextOn(bgRes) === '#141414';
+        return e('div', {
+            ref: miniRef,
+            style: {
+                position: 'relative', borderRadius: '10px', overflow: 'hidden',
+                border: '1px solid ' + (miniInv ? '#D8D8DE' : '#33333A'), background: 'transparent',
+                display: 'grid', gridTemplateColumns: 'max-content minmax(0,1fr)', boxSizing: 'border-box', minHeight: '540px', minWidth: 0, textAlign: 'left',
+            },
+        }, 
+        // 侧边栏（原型 .side/.sess 口径：标题与草稿行无 data-slot、无点击）
+        node('sidebarBg', { background: eff('sidebarBg'), borderRight: '1px solid ' + eff('border'), padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }, [
+            e('div', { key: 'sessT', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniSession')),
+            node('backgroundPanel', { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', position: 'relative', border: '1px solid transparent', background: eff('backgroundPanel'), color: txOf(colors.text) }, [node('primary', { position: 'absolute', left: 0, top: '6px', bottom: '6px', width: '3px', borderRadius: '2px', background: eff('primary'), padding: 0 }, null, { key: 'sessBar' }), e('span', { key: 'sessCurTx' }, tr('miniCurrent'))], { key: 'sessCur' }),
+            e('div', { key: 'sessD', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniDraft')),
+            e('div', { key: 'sessR', style: { borderRadius: '6px', padding: '6px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: '6px', border: '1px solid transparent', color: txOf(colors.textMuted) } }, tr('miniReview')),
+        ], { key: 'sessCol' }), 
+        // 主列（原型 .main 口径：无点击，只有 data-slot）
+        node('background', {
+            flex: 1, padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px',
+            minWidth: 0, background: eff('background'),
+        }, [
+            node('bubbleBg', {
+                alignSelf: 'flex-end', maxWidth: '85%', background: eff('bubbleBg'), wordBreak: 'keep-all',
+                border: '1px solid ' + eff('border'), borderRadius: '10px', padding: '8px 12px',
+                fontSize: '12px', color: txOf(colors.text),
+            }, t('text', tr('miniBubble'), 'bubTx'), { key: 'bubble' }),
+            node('markdownHeading', { fontSize: '14px', fontWeight: 700, color: eff('markdownHeading'), marginBottom: '4px' }, tr('miniVerdict'), { key: 'miniH' }),
+            // 结论段（原型 .md 口径：一句话流程 + 行内 tip）
+            node('backgroundPanel', { fontSize: '12px', color: txOf(colors.text), lineHeight: 1.6, background: mdBg, border: '1px solid ' + eff('border'), borderRadius: '8px', padding: '10px 12px' }, segJoin([
+                t('text', tr('miniPass1'), 'sgP1'),
+                node('markdownStrong', { fontWeight: 700, color: eff('markdownStrong'), display: 'inline' }, tr('miniPassStrong'), { key: 'sgS' }),
+                t('text', tr('miniPass2'), 'sgP2'),
+                node('markdownEmph', { fontStyle: 'italic', color: eff('markdownEmph'), display: 'inline' }, tr('miniGap'), { key: 'sgE' }),
+                t('text', tr('miniPass3'), 'sgP3'),
+                node('markdownLink', { color: eff('markdownLink'), textDecoration: 'underline', display: 'inline' }, tr('miniSpec'), { key: 'sgL' }),
+                t('text', tr('miniPass4'), 'sgP4'),
+                node('markdownCode', {
+                    color: eff('markdownCode'), background: 'rgba(127,127,127,0.15)',
+                    borderRadius: '4px', padding: '0 4px', display: 'inline', fontFamily: 'Consolas,monospace',
+                }, 'v2', { key: 'sgC' }),
+                t('text', tr('miniNote'), 'sgN'),
+            ]).concat([
+                node('backgroundElement', {
+                    fontSize: '11px', color: txOf(colors.text), background: eff('backgroundElement'),
+                    borderRadius: '20px', padding: '2px 10px', marginTop: '6px', display: 'inline-block',
+                    title: tr('miniTip'),
+                }, tr('miniTip'), { key: 'sgTip' }),
+            ]), { key: 'mdVerdict' }),
+            node('markdownBlockQuote', {
+                borderLeft: '3px solid ' + eff('markdownBlockQuote'), color: txOf(colors.markdownBlockQuote),
+                fontSize: '12px', paddingLeft: '8px', margin: '6px 0',
+            }, tr('miniQuote'), { key: 'quote' }),
+            node('border', { border: 0, borderTop: '1px solid ' + eff('border'), height: 0, margin: '8px 0' }, null, { key: 'mdHr' }),
+            // 代码块（原型 .codecard/.codehead/.codepre 口径：语法示例行，无点击）
+            node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden' }, e('div', { key: 'codeInner' }, node('codeHeaderBg', {
+                display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
+                padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted') }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }), node('codeBlockBg', {
+                background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
+                fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
+            }, codeLines.map(function (p, i) {
+                return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: clickableSpanStyle(p.s, { color: eff(p.s) }) }, bindSlot(p.s)), p.t) : p.t;
+            }), { key: 'codePre' })), { key: 'codeBlock' }),
+            // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
+            node('border', { background: 'transparent', border: '1px solid ' + eff('border'), borderRadius: '8px', overflow: 'hidden', fontSize: '11px', fontFamily: 'Consolas,monospace' }, [
+                node('diffAddedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffAddedBg') }, [
+                    node('diffAddedLineNumberBg', { background: eff('diffAddedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '12', { key: 'aln' }),
+                    node('diffAddedBg', { padding: '4px 8px', color: eff('diffAdded') }, t('diffAdded', '+ background: #FFFFFF', 'adTx'), { key: 'adTxBox' }),
+                ], { key: 'diffAdd' }),
+                node('diffRemovedBg', { display: 'grid', gridTemplateColumns: '34px 1fr', background: eff('diffRemovedBg') }, [
+                    node('diffRemovedLineNumberBg', { background: eff('diffRemovedLineNumberBg'), color: txOf(colors.textMuted), padding: '4px 6px', textAlign: 'right' }, '13', { key: 'rln' }),
+                    node('diffRemovedBg', { padding: '4px 8px', color: eff('diffRemoved') }, t('diffRemoved', '- background: #101014', 'rmTx'), { key: 'rmTxBox' }),
+                ], { key: 'diffRm' }),
+            ], { key: 'diffBlock' }),
+            // 按钮徽章行（原型 .badges/.pbtn/.pill + 圆点状态行口径，无点击）
+            e('div', { key: 'brow', style: { display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center', minWidth: 0 } }, [
+                node('primary', {
+                    background: eff('primary'), border: '1px solid ' + eff('primary'), color: pickTextOn(colors.primary),
+                    borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+                }, tr('miniBtnPrimary'), { key: 'bPri' }),
+                node('secondary', {
+                    background: hexOr(colors.secondary, '#888888') + '33', color: eff('secondary'),
+                    border: '1px solid ' + eff('secondary'), borderRadius: '20px', padding: '5px 14px',
+                    fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+                }, tr('miniBtnSecondary'), { key: 'bSec' }),
+                node('info', {
+                    background: eff('info'), border: '1px solid ' + eff('info'), color: pickTextOn(colors.info),
+                    borderRadius: '7px', padding: '5px 16px', fontSize: '12px', fontWeight: 700, lineHeight: 1.2,
+                }, tr('miniBtnInfo'), { key: 'bInf' }),
+            ]),
+            e('div', { key: 'dotOk', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+                e('span', { key: 'dotOkD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('success'), flex: 'none' } }),
+                node('success', { color: eff('success') }, tr('miniBadgeOk'), { key: 'bOk' }),
+            ]),
+            e('div', { key: 'dotWarn', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+                e('span', { key: 'dotWarnD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('warning'), flex: 'none' } }),
+                node('warning', { color: eff('warning') }, tr('miniWarn'), { key: 'bWarn' }),
+            ]),
+            e('div', { key: 'dotErr', style: { display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px' } }, [
+                e('span', { key: 'dotErrD', style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: eff('error'), flex: 'none' } }),
+                node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }),
+            ]),
+            // 输入框（原型 .cinput 口径：borderActive 环 + 下方说明行）。#94：环从 inputBg 内圈 boxShadow
+            // 独立成可点节点，37 个色位在预览区各有自己的可点控件（点环开 borderActive，点内开 inputBg）。
+            node('borderActive', {
+                borderRadius: '9px', border: '2px solid ' + eff('borderActive') + '55', padding: '2px',
+            }, [
+                node('inputBg', {
+                    display: 'flex', alignItems: 'center', gap: '6px', background: eff('inputBg'),
+                    border: '1px solid ' + eff('border'), borderRadius: '7px', padding: '8px 10px',
+                    fontSize: '12px', color: txOf(colors.text),
+                }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: clickableSpanStyle('textMuted', { color: txOf(colors.textMuted) }) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }),
+            ], { key: 'inputWrap' }),
+            e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
+        ], { key: 'mainCol' }));
+    }
+    const capName = name.trim() || tr('edUnnamed');
+    const shownName = mode === 'edit' && targetSel
+        ? (((props.customs || []).filter(function (t) { return t.id === targetSel; })[0] || {}).name || capName)
+        : capName;
+    const presetByName = function (n) {
+        return (props.presets || []).filter(function (x) { return x.name === n; })[0] || null;
+    };
+    const hexOr = function (v, fb) { return normalizeHexInput(v) || fb; };
+    // 顶栏图标（原型 ICONS + SYSICON 口径：prototype.html:503/507-510/647，手绘 SVG，零 emoji）
+    const ICON_CHECK = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } }, e('path', { d: 'M2 6.5 4.8 9 10 3.5', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }));
+    const ICON_TRASH = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } }, e('path', { d: 'M2.3 3.3h7.4M4.6 3.3V2.4h2.8v.9M3.5 3.3l.5 6.3h4l.5-6.3M5.1 5.4v2.4M6.9 5.4v2.4', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round', strokeLinejoin: 'round' }));
+    const ICON_MOON = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } }, e('path', { d: 'M9.6 7.3A4.1 4.1 0 0 1 4.7 2.4a4.1 4.1 0 1 0 4.9 4.9z', fill: 'none', stroke: 'currentColor', strokeWidth: 1.3, strokeLinejoin: 'round' }));
+    const ICON_SUN = e('svg', { width: 12, height: 12, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } }, e('path', { d: 'M4.3 6a1.7 1.7 0 1 0 3.4 0 1.7 1.7 0 0 0-3.4 0z M6 1.5v1.3M6 9.2v1.3M1.5 6h1.3M9.2 6h1.3M2.8 2.8l.9.9M8.4 8.4l.9.9M9.2 2.8l-.9.9M3.6 8.4l-.8.8', fill: 'none', stroke: 'currentColor', strokeWidth: 1.2, strokeLinecap: 'round' }));
+    const ICON_SYS = e('svg', { width: 13, height: 13, viewBox: '0 0 13 13', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } }, e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z', fill: '#F4F4F5' }), e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: '#0B0B0E' }), e('path', { d: 'M6.5 1.2 A5.3 5.3 0 0 0 6.5 11.8 Z M6.5 1.2 A5.3 5.3 0 0 1 6.5 11.8 Z', fill: 'none', stroke: '#8B8B95', strokeWidth: 1 }));
+    // 顶栏徽标配色（原型 chipStyle/edtag/basechip 口径：用原值直显）
+    const capBgT = colors.background === 'transparent';
+    const capLightT = appearance === 'light' && capBgT;
+    const capFace = capLightT ? '#FFFFFF' : (capBgT ? '#FFFFFF' : hexOr(colors.background, '#FFFFFF'));
+    const capFg = capLightT ? '#1A1A1A' : (capBgT ? '#1A1A1A' : hexOr(colors.text, '#000000'));
+    const capPrimary = hexOr(colors.primary, '#FAB283');
+    const editTgt = mode === 'edit' ? (((props.customs || []).filter(function (t) { return t.id === targetSel; })[0]) || null) : null;
+    const editTgtColors = (editTgt && editTgt.colors) || {};
+    const editTgtBgT = editTgtColors.background === 'transparent';
+    const edtagFace = editTgtBgT ? '#FFFFFF' : (normalizeHexInput(editTgtColors.background) || '#1C1C21');
+    const edtagFg = editTgtBgT ? '#1A1A1A' : (normalizeHexInput(editTgtColors.text) || '#C9C9D2');
+    const edtagPrimary = normalizeHexInput(editTgtColors.primary) || '#FAB283';
+    const baseFound = presetByName(basePreset);
+    const baseFoundColors = (baseFound && baseFound.colors) || {};
+    const baseFoundT = baseFoundColors.background === 'transparent';
+    const bpFace = baseFoundT ? '#FFFFFF' : hexOr(baseFoundColors.background, '#0A0A0A');
+    const bpFg = baseFoundT ? '#1A1A1A' : hexOr(baseFoundColors.text, '#E7E7EA');
+    const bpPrimary = hexOr(baseFoundColors.primary, '#555');
+    const bpDot = basePreset === 'system' ? '#8B8B95' : bpPrimary;
+    const presetLabelOf = function (n) {
+        const p = presetByName(n);
+        if (props.presetLabel) {
+            try {
+                return props.presetLabel(n, p) || n;
+            }
+            catch (err) { /* 回落 */ }
+        }
+        return (p && p.title) || n;
+    };
+    return e('div', {
+        style: {
+            position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.6)',
+            // 居中口径（用户 m08383 亲定）：纯 center + 对话框 max-height 受可用区约束，任何引擎都居中且不裁切
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '18px', overflow: 'auto',
         },
-          renderMini())
-      ),
-      renderPop(),
-      // 预览小标签（用户 m08636 第 1 条：层级高于预览区、不被容器遮挡）。
-      // 原型挂 document.body + position:fixed + zIndex 9999（prototype.html:906-919）；这里等价做成
-      // 弹窗内的 fixed 覆盖层（fixed 不被祖先 overflow 裁剪），坐标来自 badgeAt effect 的实测。
-      badgeAt && hl ? e('span', {
+        onClick: function () { props.onClose(); },
+    }, 
+    // 原型 .seg-system 双色字口径（prototype.html:100-101，原样搬运；不支持的浏览器回落 #F0F0F0 纯色）
+    e('style', { key: 'syslabel-css' }, '@supports ((-webkit-background-clip:text) or (background-clip:text)){.seg button.seg-system .syslabel{background:linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}}'), 
+    // 滚动条口径（原型 :143-148）：左列表悬停才现，右画布列隐藏（用户 m08636 第 2 条）
+    e('style', { key: 'dlg-scrollcss' }, DLG_CSS), e('div', {
+        ref: dlgRef,
+        onClick: function (ev) { try {
+            ev.stopPropagation();
+        }
+        catch (err) { /* 忽略 */ } },
+        style: {
+            // 高度由预览区唯一决定（用户 m08383：正好展示完全预览区）；-36px = backdrop 上下 padding，保证真居中
+            width: 'max-content', maxWidth: '96vw', maxHeight: 'calc(100vh - 36px)', overflow: 'hidden',
+            margin: 'auto', flex: 'none', background: TK.win, border: '1px solid ' + TK.border,
+            borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: TK.textStrong,
+        },
+    }, 
+    // 顶栏（原型 .dlg-top > .row1：rleft + rright 单行；无 X 钮，关闭走取消/backdrop）
+    e('div', { style: { padding: '10px 16px', borderBottom: '1px solid ' + TK.divider, display: 'flex', flexDirection: 'column', gap: '8px' } }, 
+    // 原型 .row1 是 nowrap；这里改 wrap：窄视口下弹窗被 maxWidth:96vw 卡住、顶行内容更宽时会换行，
+    // 而不是把外观三连顶到弹窗外面（编辑态顶行要约 1257px，1256 视口的 96vw 只有 1205 → 实测外溢 66px，
+    // 改前名字越长越糟、最长名可外溢 573px）。用户口径优先于原型：宁可行落成两行，也不许控件被裁。
+    e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', overflow: 'visible' } }, e('span', { className: 'rleft', style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } }, e('span', {
+        style: { fontSize: '16px', fontWeight: 700, color: TK.text, background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
+    }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')), mode === 'edit' && editTgt ? e('span', {
+        title: tr('edTagTitle'),
+        style: {
+            fontSize: '13px', fontWeight: 700, borderRadius: '6px', padding: '3px 10px 3px 8px',
+            boxSizing: 'border-box',
+            display: 'inline-flex', alignItems: 'center', gap: '6px', maxWidth: '170px',
+            overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', flex: '0 1 auto', minWidth: 0, height: '32px',
+            background: edtagFace, color: edtagFg, border: '1px solid ' + edtagPrimary,
+        },
+    }, e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: edtagPrimary } }), e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0, flex: '0 1 auto' } }, trf('edEditing', { name: shownName }))) : null, mode === 'edit' ? e('select', {
+        ref: targetRef, id: 'f-target',
+        value: targetSel || '',
+        title: tr('edTargetTitle'),
+        onChange: function (ev) { switchTarget(ev.target.value); },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+        style: {
+            background: TK.panel, border: '1px solid ' + TK.border, color: TK.text, borderRadius: '6px',
+            padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '230px',
+        },
+    }, (props.customs || []).map(function (t) {
+        return e('option', { key: 'tg-' + t.id, value: t.id }, t.name);
+    })) : null, 
+    // 名字区（用户 m09582 需求 1）：定宽 NAME_ZONE_W，区内「输入框 + 预览胶囊」自由分配 ——
+    // 胶囊随名字变长 → 输入框等比变短（下限 NAME_INPUT_MIN）；胶囊到顶后自己收窄打省略号。整行总量不变。
+    e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto', width: NAME_ZONE_W + 'px', minWidth: NAME_ZONE_W + 'px', maxWidth: NAME_ZONE_W + 'px' } }, e('span', { style: { position: 'relative', flex: '1 1 0px', minWidth: NAME_INPUT_MIN + 'px', display: 'flex' } }, e('input', {
+        ref: nameRef, id: 'f-name',
+        value: name, placeholder: tr('edNamePh'),
+        title: name.trim() ? '' : tr('edNameEmpty'),
+        'aria-invalid': !name.trim() ? 'true' : undefined,
+        onChange: function (ev) { setName(ev.target.value); },
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+        style: Object.assign({
+            background: TK.panel, border: '1px solid ' + TK.border, color: TK.text, borderRadius: '6px',
+            boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px',
+            // 区内自由伸缩：宽度给 0（百分比宽会被 max-content 当成 auto、按输入内容自量宽，进而把弹窗带宽），
+            // 实际宽度全部由 flex 在定宽区内分配 —— 胶囊越长输入框越短。
+            flex: '1 1 0px', width: '0px', minWidth: 0,
+        }, !name.trim() ? { borderColor: TK.danger, boxShadow: '0 0 0 1px ' + TK.danger } : null),
+    }), !name.trim() ? e('span', {
+        style: {
+            position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+            fontSize: '11px', color: TK.dangerText, border: '1px solid ' + TK.danger, borderRadius: '4px',
+            padding: '0 6px', pointerEvents: 'none', background: TK.panel, whiteSpace: 'nowrap',
+        },
+    }, tr('edNoName')) : null), e('span', {
+        title: tr('edCapTitle'),
+        style: {
+            display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
+            padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
+            background: capFace, color: capFg, border: '2px solid ' + capPrimary, margin: '-1px',
+            cursor: 'default', flex: '0 1 auto', minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap',
+            // 封顶：胶囊的「内容宽」同样会漏进弹窗 max-content 自量宽，加上限后整窗宽度才真正恒定。
+            maxWidth: NAME_CAP_MAX + 'px',
+        },
+    }, e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: capPrimary } }), 
+    // 名字超长时胶囊内省略号收尾（区宽到顶后胶囊才被压缩，见上一行 flex）。
+    e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 } }, capName), e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700, flex: 'none' } }, ICON_CHECK))), capLightT ? e('span', { style: { fontSize: '11px', color: TK.text3, flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null, e('button', {
+        ref: presetBtnRef, id: 'f-presetbtn',
+        title: tr('edPresetTitle'),
+        onClick: function () { setPop(null); setShowPresets(!showPresets); },
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: {
+            background: TK.panel, border: '1px solid ' + TK.border, color: TK.text, borderRadius: '7px',
+            padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
+            cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+        },
+    }, tr('edPreset'), basePreset
+        ? e('span', {
+            style: {
+                display: 'inline-flex', alignItems: 'center', gap: '5px', borderRadius: '5px',
+                padding: '1px 8px 1px 5px', fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
+                background: bpFace, color: bpFg, border: '1px solid ' + bpPrimary,
+            },
+        }, e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: bpDot } }), presetLabelOf(basePreset))
+        : e('span', {
+            style: {
+                display: 'inline-flex', alignItems: 'center', borderRadius: '5px', padding: '1px 8px',
+                fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
+                border: '1px dashed ' + TK.faint, color: TK.text3, background: 'transparent',
+            },
+        }, tr('edNoBase')))), e('span', { ref: rrightRef, className: 'rright', style: { display: 'flex', alignItems: 'center', gap: '8px', marginLeft: 'auto', flexWrap: 'nowrap', flex: 'none' } }, e('span', { className: 'seg', style: { display: 'inline-flex', background: 'transparent', border: 0, padding: 0, gap: '6px', alignItems: 'center', flex: 'none' } }, ['dark', 'light', 'system'].map(function (a) {
+        const on = appearance === a;
+        const label = a === 'dark' ? tr('edDark') : (a === 'light' ? tr('edLight') : tr('edSystem'));
+        const tip = a === 'dark' ? tr('edDarkTitle') : (a === 'light' ? tr('edLightTitle') : tr('edSystemTitle'));
+        const segBase = a === 'dark'
+            ? { background: '#0B0B0E', borderColor: '#3A3A44', color: '#EDEDEF' }
+            : (a === 'light'
+                ? { background: 'rgba(244,244,245,.94)', borderColor: '#77777F', color: '#141417' }
+                : { background: 'linear-gradient(to bottom right,#0B0B0E 0,#0B0B0E 50%,#F4F4F5 50%,#F4F4F5 100%)', borderColor: '#55555F' });
+        return e('button', {
+            key: 'ap-' + a, title: tip, className: 'seg-' + a + (on ? ' on' : ''),
+            onClick: function () { setAppearance(a); },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+            style: Object.assign({
+                border: '1px solid', fontSize: '12px', display: 'inline-flex', alignItems: 'center',
+                gap: '6px', cursor: 'pointer', height: '32px', padding: '0 14px', borderRadius: '7px',
+                fontWeight: on ? 700 : 400, whiteSpace: 'nowrap',
+            }, segBase, on ? { boxShadow: 'inset 0 0 0 2px ' + TK.accent } : null),
+        }, a === 'dark' ? ICON_MOON : (a === 'light' ? ICON_SUN : ICON_SYS), ' ', a === 'system' ? e('span', {
+            className: 'syslabel',
+            style: { color: '#F0F0F0' },
+        }, label) : label);
+    })), mode === 'edit' ? e('span', { style: { position: 'relative', display: 'inline-flex' } }, delConfirm ? e('span', {
+        role: 'alertdialog', 'aria-label': tr('edDelete'),
+        style: {
+            position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 70,
+            width: 'max-content', maxWidth: 'min(300px,86vw)', background: TK.pop2,
+            border: '1px solid ' + TK.borderStrong2, borderRadius: '10px', padding: '10px 12px',
+            boxShadow: '0 12px 32px rgba(0,0,0,.6)', display: 'flex', flexDirection: 'column', gap: '4px',
+        },
+    }, e('b', { style: { fontSize: '12px', color: TK.text } }, trf('edDelConfirm', { name: shownName })), e('small', { style: { fontSize: '11px', color: TK.text2 } }, tr('edDelNote')), e('span', { style: { display: 'flex', gap: '8px', marginTop: '6px' } }, e('button', {
+        onClick: function () { props.onDelete(targetSel || origId); },
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder, color: TK.dangerSoft, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+    }, tr('edDelYes')), e('button', {
+        onClick: function () { setDelConfirm(false); },
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { background: 'transparent', border: '1px solid ' + TK.border, color: TK.text, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+    }, tr('edDelNo'))))
+        : e('button', {
+            onClick: function () { setDelConfirm(true); },
+            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+            style: {
+                background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder, color: TK.dangerSoft, borderRadius: '7px',
+                padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex',
+                alignItems: 'center', gap: '6px', cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+            },
+        }, ICON_TRASH, ' ', tr('edDelete'))) : null, e('button', {
+        title: tr('edCancelTitle'), onClick: function () { props.onClose(); },
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: {
+            background: 'transparent', border: '1px solid ' + TK.border, color: TK.text, borderRadius: '7px',
+            padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
+            cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
+        },
+    }, tr('edCancel')), e('button', {
+        title: canSave ? tr('edSaveTitle') : tr('edSaveNeedName'),
+        onClick: handleSave, disabled: !canSave,
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: {
+            background: TK.btnFill, border: '1px solid ' + TK.btnFill, color: TK.accentFg, borderRadius: '7px',
+            padding: '6px 12px', fontSize: '12px', fontWeight: 700, height: '32px', display: 'inline-flex',
+            alignItems: 'center', cursor: canSave ? 'pointer' : 'not-allowed', flex: 'none',
+            whiteSpace: 'nowrap', opacity: canSave ? 1 : 0.45,
+        },
+    }, tr('edSave'))))), renderPresetPop(), 
+    // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
+    // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
+    e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } }, e('div', { ref: leftColRef, className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid ' + TK.divider, minWidth: 0 } }, leftRows), e('div', {
+        className: 'dspe-dlg-right',
+        style: {
+            overflow: 'auto', padding: '12px 14px', background: miniLight ? '#E2E2E6' : '#0D0D10', minWidth: 0,
+        },
+    }, renderMini())), renderPop(), 
+    // 预览小标签（用户 m08636 第 1 条：层级高于预览区、不被容器遮挡）。
+    // 原型挂 document.body + position:fixed + zIndex 9999（prototype.html:906-919）；这里等价做成
+    // 弹窗内的 fixed 覆盖层（fixed 不被祖先 overflow 裁剪），坐标来自 badgeAt effect 的实测。
+    badgeAt && hl ? e('span', {
         key: 'slotbadge-pop',
         style: {
-          position: 'fixed', zIndex: 9999, top: badgeAt.top + 'px', left: badgeAt.left + 'px',
-          background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
-          borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap',
+            position: 'fixed', zIndex: 9999, top: badgeAt.top + 'px', left: badgeAt.left + 'px',
+            background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
+            borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap',
         },
-      }, hl) : null
-    )
-  )
+    }, hl) : null));
 }
 
 __mods["custom-editor"] = { slotRingStyle, needsReveal, popoverPosition, presetToSeed, PalettePicker, CustomEditor }
 })();
 (function () {
-// runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
+// runtime/client.ts — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
 const { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets, getIpPreset } = __mods["index"]
@@ -20829,1957 +20910,2316 @@ const { clientSlug, filterCustomThemes, normalizeHexInput } = __mods["custom-col
 const { loadCustomCache, saveCustomCache, reconcileCustomThemes } = __mods["custom-store"]
 const { CustomEditor } = __mods["custom-editor"]
 const { TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_ROW, TIER_SWITCH, UI_INTERACTIVE_ATTR, injectUiFx } = __mods["ui-fx"]
-
-const STORAGE_KEY = 'dsh.opencode-palette.v2'
+const STORAGE_KEY = 'dsh.opencode-palette.v2';
 // 兼容迁移：旧插件（dsh-opencode-tui-theme）的本地设置键，读到即迁移到新键
-const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
-const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
-// 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.1.3'
-
+const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2';
+const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true };
+// 构建时由 scripts/build-client.ts 替换为 package.json 版本（面板底部署小字）
+const PALETTE_VERSION = '2.1.3';
 function getReact() {
-  if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
-  if (typeof globalThis !== 'undefined' && globalThis.React) return globalThis.React
-  return null
+    if (typeof require === 'function') {
+        try {
+            return require('react');
+        }
+        catch (e) { /* 动态版无 require */ }
+    }
+    // 动态版宿主把 React 挂在 globalThis 上（宿主无 d.ts），此处是唯一窄化点。
+    // 同一个 const 引用上做真值判断与返回，才能让编译器把 React 收窄成非 undefined；
+    // as 只补类型、运行时就是 globalThis，两处读取语义与原守卫顺序一致。
+    if (typeof globalThis !== 'undefined') {
+        const reactHost = globalThis;
+        if (reactHost.React)
+            return reactHost.React;
+    }
+    return null;
 }
-
 // ── 宿主桥：浏览器半调宿主半的电话 ──
 // 两条方言都要接：
 //   1) 包版（本插件装成 npm 包）：ctx.get('connection').rpc.call('/api', 'opencode-palette', { method, payload })
-//      走宿主 connection.fetch.register 注册的精确路由；两个常量来自 runtime/channel.mjs（两侧同一份）。
+//      走宿主 connection.fetch.register 注册的精确路由；两个常量来自 runtime/channel.ts（两侧同一份）。
 //   2) 动态版（cordis_define）：runner 给闭包注入自由变量 host，直接 host.call(电话名, 入参)。
 // 都没有时返回 null，整块更新功能降级隐藏（不影响主题面板本身）。
 function rpcCall(rpc, phone, args) {
-  return Promise.resolve(rpc.call(CHANNEL, ENDPOINT, { method: phone, payload: args })).then(function (res) {
-    if (res && res.ok) return res.value
-    const why = res && res.error && res.error.message ? res.error.message : 'rpc failed: ' + phone
-    throw new Error(why)
-  })
+    return Promise.resolve(rpc.call(CHANNEL, ENDPOINT, { method: phone, payload: args })).then(function (res) {
+        if (res && res.ok)
+            return res.value;
+        const why = res && res.error && res.error.message ? res.error.message : 'rpc failed: ' + phone;
+        throw new Error(why);
+    });
 }
-
 function createHostBridge(ctx) {
-  try {
-    const connection = ctx && typeof ctx.get === 'function' ? ctx.get('connection') : null
-    const rpc = connection && connection.rpc ? connection.rpc : null
-    if (rpc && typeof rpc.call === 'function') {
-      return { call: function (phone, args) { return rpcCall(rpc, phone, args) } }
+    try {
+        const connection = ctx && typeof ctx.get === 'function' ? ctx.get('connection') : null;
+        const rpc = connection && connection.rpc ? connection.rpc : null;
+        if (rpc && typeof rpc.call === 'function') {
+            return { call: function (phone, args) { return rpcCall(rpc, phone, args); } };
+        }
     }
-  } catch (e) { /* 落到下一条方言 */ }
-  try {
-    if (typeof host !== 'undefined' && host && typeof host.call === 'function') {
-      return { call: function (phone, args) { return host.call(phone, args) } }
+    catch (e) { /* 落到下一条方言 */ }
+    try {
+        // ! 只补类型：declare var 的窄化在闭包里会丢失，运行时仍由上面的 if 守卫
+        if (typeof host !== 'undefined' && host && typeof host.call === 'function') {
+            return { call: function (phone, args) { return host.call(phone, args); } };
+        }
     }
-  } catch (e) { /* 无宿主 */ }
-  return null
+    catch (e) { /* 无宿主 */ }
+    return null;
 }
-
 function loadState() {
-  try {
-    // 新键优先；旧插件（dsh-opencode-tui-theme）的键命中则一次性迁移
-    let raw = globalThis.localStorage && localStorage.getItem(STORAGE_KEY)
-    if (!raw && globalThis.localStorage) {
-      const legacy = localStorage.getItem(LEGACY_STORAGE_KEY)
-      if (legacy) {
-        raw = legacy
-        try { localStorage.setItem(STORAGE_KEY, legacy) } catch (e) { /* 忽略 */ }
-      }
+    try {
+        // 新键优先；旧插件（dsh-opencode-tui-theme）的键命中则一次性迁移
+        let raw = globalThis.localStorage && localStorage.getItem(STORAGE_KEY);
+        if (!raw && globalThis.localStorage) {
+            const legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+            if (legacy) {
+                raw = legacy;
+                try {
+                    localStorage.setItem(STORAGE_KEY, legacy);
+                }
+                catch (e) { /* 忽略 */ }
+            }
+        }
+        if (raw) {
+            const s = JSON.parse(raw);
+            // 跟随开关已下线：恒跟随，存量 false 迁移为 true，不给用户选择
+            return { ...DEFAULT_STATE, ...s, followAppearance: true };
+        }
     }
-    if (raw) {
-      const s = JSON.parse(raw)
-      // 跟随开关已下线：恒跟随，存量 false 迁移为 true，不给用户选择
-      return { ...DEFAULT_STATE, ...s, followAppearance: true }
-    }
-  } catch (e) { /* 存储不可用则用默认 */ }
-  return { ...DEFAULT_STATE }
+    catch (e) { /* 存储不可用则用默认 */ }
+    return { ...DEFAULT_STATE };
 }
-
 function saveState(state) {
-  try {
-    if (globalThis.localStorage) localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
-  } catch (e) { /* 忽略持久化失败 */ }
+    try {
+        if (globalThis.localStorage)
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+    catch (e) { /* 忽略持久化失败 */ }
 }
 // ── i18n：面板文案双语表（跟随 DSH 界面语言，官方 locale 服务为信号源）──
 const I18N = {
-  panelName: { zh: 'OpenCode调色板', en: 'OpenCode Palette' },
-  // 计数为派生数据：{n} 取 themeNames().length（37 静态＋system，恒≥2，英文恒复数），转抄 38 必漂（34→38 前车）。
-  subtitle: { zh: '{n} 款 OpenCode 官方配色主题，点击即切换', en: '{n} official OpenCode themes — click to switch' },
-  enabled: { zh: '已启用', en: 'Enabled' },
-  disabled: { zh: '已停用', en: 'Disabled' },
-  disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
-  enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
-  // 头行 star／issue 图标的悬浮气泡：此前硬编码中文未进词典，英文界面漏网（2026-10-06 补）
-  starTitle: { zh: '你的 ⭐是我夜空中最亮的星 🌹', en: 'Star this project on GitHub' },
-  issueTitle: { zh: '任何功能需求、故障、建议、意见都可以提ISSUE', en: 'Report bugs or request features in Issues' },
-  typography: { zh: '字体字号', en: 'Typography' },
-  bodyStyle: { zh: '正文样式', en: 'Body style' },
-  mono: { zh: '全部文字', en: 'All text' },
-  sans: { zh: '仅代码', en: 'Code only' },
-  fontSize: { zh: '字号', en: 'Font size' },
-  codeFont: { zh: '代码字体', en: 'Code font' },
-  fontNotInstalled: { zh: '本机未装', en: 'Not installed on this machine' },
-  fontLocal: { zh: '本地', en: 'Local' },
-  fontMono: { zh: '等宽', en: 'Mono' },
-  fontPresets: { zh: '常用预设', en: 'Common presets' },
-  fontLocals: { zh: '本机字体', en: 'Installed on this machine' },
-  fontSearch: { zh: '搜索本机字体…', en: 'Search installed fonts…' },
-  fontNoMatch: { zh: '没有匹配的字体', en: 'No matching fonts' },
-  fontCounting: { zh: '正在读取本机字体…', en: 'Reading installed fonts…' },
-  fontLoadedCount: { zh: '已读取本机 {n} 款字体', en: '{n} fonts found on this machine' },
-  fontScanFail: { zh: '未能读取本机字体清单，先列出常用预设', en: 'Could not read the font list — showing the common presets' },
-  fontScanDenied: { zh: '本机字体访问被拒绝，浏览器地址栏授权后再试；先列出常用预设', en: 'Font access was denied — allow it in the browser address bar, then retry; showing the common presets' },
-  fontScanUnsupported: { zh: '当前环境不支持读取本机字体清单，先列出常用预设', en: 'This environment cannot list installed fonts — showing the common presets' },
-  fontScanEmpty: { zh: '本机字体清单为空，先列出常用预设', en: 'The font list came back empty — showing the common presets' },
-  fontRetry: { zh: '重试', en: 'Retry' },
-  themeSection: { zh: '主题', en: 'Themes' },
-  themeCount: { zh: '{n} 款 · 按色系分组', en: '{n} themes · by color family' },
-  search: { zh: '搜索主题…', en: 'Search themes…' },
-  noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
-  systemDefault: { zh: 'system（跟随系统）', en: 'system (follow system)' },
-  translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
-  'group.warm': { zh: '暖橙', en: 'Warm' },
-  'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
-  'group.teal': { zh: '青绿', en: 'Teal' },
-  'group.cyan-blue': { zh: '青蓝', en: 'Cyan-blue' },
-  'group.cool-blue': { zh: '冷蓝', en: 'Cool blue' },
-  'group.violet': { zh: '蓝紫', en: 'Violet' },
-  'group.neutral': { zh: '中性', en: 'Neutral' },
-  'group.transparent': { zh: '透明', en: 'Transparent' },
-  'group.special': { zh: '特殊', en: 'Special' },
-  // 底部「作者其他插件」引流卡片（兄弟插件导流位，对齐 MattSkillsDeck 同款卡片）
-  authorPlugins: { zh: '作者其他插件', en: 'More from the author' },
-  authorPluginOpen: { zh: '在新窗口打开', en: 'Open in new window' },
-  'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
-  'authorPlugin.prompt': { zh: '保存常用 prompt 预设，一键注入开发任务', en: 'Save your prompt presets, inject them into a dev task with one click' },
-  'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
-  // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
-  logSwitch: { zh: '日志', en: 'Log' },
-  logOn: { zh: '开', en: 'On' },
-  logOff: { zh: '关', en: 'Off' },
-  logSwitchHint: { zh: '打开后把关键节点写入 <DSH_HOME>/logs/dsh-opencode-palette/；warn/error 恒记，不受此开关控制', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
-  logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
-  // ── 自定义主题区（#86：原型 custom-editor-83 文案逐字，英文信息对等）──
-  customTitle: { zh: '自定义主题 {n}', en: 'Custom themes {n}' },
-  customCopyPath: { zh: '复制配置路径', en: 'Copy config path' },
-  customCopied: { zh: '已复制', en: 'Copied' },
-  customCopyFail: { zh: '复制失败，请手动复制', en: 'Copy failed — please copy it manually' },
-  customOther: { zh: '其他', en: 'Other' },
-  customIpPresets: { zh: 'IP 预置', en: 'IP presets' },
-  customChipTitle: { zh: '点击直接换上，不打开编辑', en: 'Click to apply, without opening the editor' },
-  customAdd: { zh: '新增', en: 'New' },
-  customAddTitle: { zh: '新建一个主题', en: 'Create a new theme' },
-  customEdit: { zh: '编辑', en: 'Edit' },
-  customEditTitle: { zh: '修改、删除已有主题', en: 'Edit or delete a saved theme' },
-  customEditEmpty: { zh: '暂无自定义主题，先新增。', en: 'No custom themes yet — create one first.' },
-  customSaveOk: { zh: '已保存 {name}', en: 'Saved {name}' },
-  customSaveFail: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
-  customDeleteOk: { zh: '已删除 {name}', en: 'Deleted {name}' },
-  customNameRequired: { zh: '主题名称不能为空（保存已拦截）。', en: 'Theme name cannot be empty (save blocked).' },
-  // ── 37 色编辑弹窗 ──
-  edModeNew: { zh: '新建', en: 'New' },
-  edModeEdit: { zh: '编辑', en: 'Edit' },
-  edEditing: { zh: '正在编辑 · {name}', en: 'Editing · {name}' },
-  edTagTitle: { zh: '当前正在编辑这个主题（存盘值）', en: 'The theme being edited (saved values)' },
-  edCloseTitle: { zh: '关闭', en: 'Close' },
-  edTargetTitle: { zh: '换一个已存的主题继续改（会先载入它存盘的颜色）', en: 'Switch to another saved theme (loads its saved colors)' },
-  edNamePh: { zh: '给主题起个名字', en: 'Name your theme' },
-  edNoName: { zh: '还没起名', en: 'Unnamed yet' },
-  edNameEmpty: { zh: '先起个名字', en: 'Name it first' },
-  edCapTitle: { zh: '以后在列表里的样子', en: 'How it will look in the list' },
-  edUnnamed: { zh: '（未命名）', en: '(Unnamed)' },
-  edPreset: { zh: '选基底', en: 'Pick a base' },
-  edPresetTitle: { zh: '选个底子开始调：载入后 37 色与外观一次填好', en: 'Start from a preset: loads all 37 colors and the appearance at once' },
-  edNoBase: { zh: '未选', en: 'None' },
-  edPresetSearch: { zh: '搜索预置主题', en: 'Search presets' },
-  edAppearance: { zh: '外观', en: 'Appearance' },
-  edDark: { zh: '深色', en: 'Dark' },
-  edDarkTitle: { zh: '深色：换上这个主题后一直是深色', en: 'Dark: always dark once applied' },
-  edLight: { zh: '浅色', en: 'Light' },
-  edLightTitle: { zh: '浅色：换上这个主题后一直是浅色', en: 'Light: always light once applied' },
-  edSystem: { zh: '跟随系统', en: 'System' },
-  edSystemTitle: { zh: '跟随系统：深浅跟系统走', en: 'Follow the system appearance' },
-  edTransparentFlag: { zh: '可设透明', en: 'Can be transparent' },
-  edPickTitle: { zh: '换个颜色', en: 'Pick a color' },
-  edFreq: { zh: '本主题用过的颜色', en: 'Colors used in this theme' },
-  edTransparent: { zh: '透明', en: 'Transparent' },
-  edOk: { zh: '确定', en: 'OK' },
-  edClosePop: { zh: '关闭', en: 'Close' },
-  // ── #95 取色器（PalettePicker）──
-  edHue: { zh: '色相', en: 'Hue' },
-  edSat: { zh: '饱和度', en: 'Saturation' },
-  edVal: { zh: '明度', en: 'Brightness' },
-  edLightness: { zh: '亮度', en: 'Lightness' },
-  edDone: { zh: '完成', en: 'Done' },
-  edEyedropper: { zh: '吸管取色', en: 'Pick from screen' },
-  edEyedropperOff: { zh: '当前环境不支持吸管，可用下方主题色', en: 'Eyedropper unavailable; use theme colors below' },
-  edContrast: { zh: '对比度', en: 'Contrast' },
-  edContrastLow: { zh: '对比不足', en: 'Low contrast' },
-  edInvalidHex: { zh: '请输入 #RGB 或 #RRGGBB', en: 'Enter #RGB or #RRGGBB' },
-  edAlphaDropped: { zh: '已忽略透明度', en: 'Alpha ignored' },
-  edCopy: { zh: '复制色值', en: 'Copy value' },
-  edHueAria: { zh: '色相 {v} 度', en: 'Hue {v} degrees' },
-  edSvHint: { zh: '方向键微调，Shift 加速', en: 'Arrow keys to adjust, Shift for larger steps' },
-  edColorModel: { zh: '色彩模型（点击切换）', en: 'Color model (click to switch)' },
-  edDelete: { zh: '删除', en: 'Delete' },
-  edDelConfirm: { zh: '删除「{name}」？', en: 'Delete "{name}"?' },
-  edDelNote: { zh: '自定义主题删除后不可恢复。', en: 'Deleted custom themes cannot be recovered.' },
-  edDelYes: { zh: '确认删除', en: 'Delete' },
-  edDelNo: { zh: '取消', en: 'Cancel' },
-  edCancel: { zh: '取消', en: 'Cancel' },
-  edCancelTitle: { zh: '不保存，直接关闭', en: 'Close without saving' },
-  edSave: { zh: '保存主题', en: 'Save theme' },
-  edSaveTitle: { zh: '保存后出现在自定义主题里', en: 'Saves into your custom themes' },
-  edSaveNeedName: { zh: '先起个名字', en: 'Name it first' },
-  // ── 7 大分组 ──
-  'cgroup.bg': { zh: '背景与表面', en: 'Surfaces' },
-  'cgroup.text': { zh: '文字', en: 'Text' },
-  'cgroup.brand': { zh: '品牌与状态', en: 'Brand & status' },
-  'cgroup.border': { zh: '边框', en: 'Border' },
-  'cgroup.diff': { zh: '改动对比', en: 'Diff' },
-  'cgroup.md': { zh: 'Markdown', en: 'Markdown' },
-  'cgroup.syn': { zh: '代码高亮', en: 'Syntax' },
-  // ── 37 色位名 ──
-  'cslot.background': { zh: '背景', en: 'Background' },
-  'cslot.backgroundPanel': { zh: '浮起面', en: 'Raised surface' },
-  'cslot.backgroundElement': { zh: '浮层', en: 'Overlays' },
-  'cslot.sidebarBg': { zh: '侧边栏', en: 'Sidebar' },
-  'cslot.bubbleBg': { zh: '气泡', en: 'Bubble' },
-  'cslot.inputBg': { zh: '输入框', en: 'Input' },
-  'cslot.codeBlockBg': { zh: '代码块', en: 'Code block' },
-  'cslot.codeHeaderBg': { zh: '代码块顶栏', en: 'Code header' },
-  'cslot.text': { zh: '主要文字', en: 'Primary text' },
-  'cslot.textMuted': { zh: '次要文字', en: 'Secondary text' },
-  'cslot.primary': { zh: '品牌主色', en: 'Brand primary' },
-  'cslot.secondary': { zh: '空闲', en: 'Idle' },
-  'cslot.info': { zh: '信息', en: 'Info' },
-  'cslot.success': { zh: '成功', en: 'Success' },
-  'cslot.warning': { zh: '警告', en: 'Warning' },
-  'cslot.error': { zh: '错误', en: 'Error' },
-  'cslot.border': { zh: '边框', en: 'Border' },
-  'cslot.borderActive': { zh: '强边框', en: 'Strong border' },
-  'cslot.diffAdded': { zh: '新增文字', en: 'Added text' },
-  'cslot.diffRemoved': { zh: '删除文字', en: 'Removed text' },
-  'cslot.diffAddedBg': { zh: '新增行底', en: 'Added line bg' },
-  'cslot.diffRemovedBg': { zh: '删除行底', en: 'Removed line bg' },
-  'cslot.diffAddedLineNumberBg': { zh: '新增行号底', en: 'Added gutter' },
-  'cslot.diffRemovedLineNumberBg': { zh: '删除行号底', en: 'Removed gutter' },
-  'cslot.markdownHeading': { zh: '标题', en: 'Heading' },
-  'cslot.markdownLink': { zh: '链接', en: 'Link' },
-  'cslot.markdownCode': { zh: '行内代码', en: 'Inline code' },
-  'cslot.markdownEmph': { zh: '斜体文字', en: 'Italic text' },
-  'cslot.markdownStrong': { zh: '粗体文字', en: 'Bold text' },
-  'cslot.markdownBlockQuote': { zh: '引用', en: 'Blockquote' },
-  'cslot.syntaxComment': { zh: '注释', en: 'Comment' },
-  'cslot.syntaxKeyword': { zh: '关键字', en: 'Keyword' },
-  'cslot.syntaxFunction': { zh: '函数', en: 'Function' },
-  'cslot.syntaxType': { zh: '参数', en: 'Parameter' },
-  'cslot.syntaxNumber': { zh: '数字', en: 'Number' },
-  'cslot.syntaxString': { zh: '字符串', en: 'String' },
-  'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
-  // ── 37 色位作用说明 ──
-  'cslotUse.background': { zh: '窗口与各层底色', en: 'Window and layered surfaces' },
-  'cslotUse.backgroundPanel': { zh: '标签、多选与浮起按钮底', en: 'Tags, multi-select and raised buttons' },
-  'cslotUse.backgroundElement': { zh: '选择器、选中卡片、Toast、提示与引用块竖线', en: 'Selectors, active cards, toasts, tips and quote bars' },
-  'cslotUse.sidebarBg': { zh: '侧边栏与标题行底', en: 'Sidebar and title row' },
-  'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble' },
-  'cslotUse.inputBg': { zh: '消息输入框与登录框底', en: 'Message input and login box' },
-  'cslotUse.codeBlockBg': { zh: '代码块底', en: 'Code block' },
-  'cslotUse.codeHeaderBg': { zh: '代码块顶栏底', en: 'Code header' },
-  'cslotUse.text': { zh: '主要文字、按钮字与代码默认色', en: 'Primary text, button labels and code foreground' },
-  'cslotUse.textMuted': { zh: '次要文字、说明与菜单图标', en: 'Captions, hints and menu icons' },
-  'cslotUse.primary': { zh: '主按钮、品牌强调与选中态', en: 'Primary buttons, accents and selection' },
-  'cslotUse.secondary': { zh: '空闲状态圆点', en: 'Idle status dot' },
-  'cslotUse.info': { zh: '徽章字、选中图标与强调按钮', en: 'Badge text, selected icons and accent buttons' },
-  'cslotUse.success': { zh: '成功状态与通过标识', en: 'Success states and pass marks' },
-  'cslotUse.warning': { zh: '警告状态与提示条', en: 'Warning states and banners' },
-  'cslotUse.error': { zh: '错误状态与危险操作', en: 'Errors and destructive actions' },
-  'cslotUse.border': { zh: '分割线、hr 与弱边框', en: 'Dividers, hr and subtle borders' },
-  'cslotUse.borderActive': { zh: '强边框、聚焦与滚动条悬停', en: 'Strong borders, focus and scrollbar hover' },
-  'cslotUse.diffAdded': { zh: '＋行文字与文件标记', en: 'Added code text and file markers' },
-  'cslotUse.diffRemoved': { zh: '－行文字与文件标记', en: 'Removed code text and file markers' },
-  'cslotUse.diffAddedBg': { zh: '＋行整行底', en: 'Added line background' },
-  'cslotUse.diffRemovedBg': { zh: '－行整行底', en: 'Removed line background' },
-  'cslotUse.diffAddedLineNumberBg': { zh: '＋行行号栏底', en: 'Added line-number gutter' },
-  'cslotUse.diffRemovedLineNumberBg': { zh: '－行行号栏底', en: 'Removed line-number gutter' },
-  'cslotUse.markdownHeading': { zh: 'Markdown 标题', en: 'Markdown headings' },
-  'cslotUse.markdownLink': { zh: '链接、锚点与代码链接', en: 'Links, anchors and code links' },
-  'cslotUse.markdownCode': { zh: '行内代码文字（无底色）', en: 'Inline code text (no fill)' },
-  'cslotUse.markdownEmph': { zh: '强调（斜体）文字', en: 'Emphasized (italic) text' },
-  'cslotUse.markdownStrong': { zh: '加粗（重要）文字', en: 'Bold (important) text' },
-  'cslotUse.markdownBlockQuote': { zh: '引用块文字', en: 'Quote text' },
-  'cslotUse.syntaxComment': { zh: '注释与文档注释', en: 'Comments and doc comments' },
-  'cslotUse.syntaxKeyword': { zh: '关键字与控制流', en: 'Keywords and control flow' },
-  'cslotUse.syntaxFunction': { zh: '函数名、类型名与属性名', en: 'Function, type and attribute names' },
-  'cslotUse.syntaxType': { zh: '参数名（类型名随函数色）', en: 'Parameter names (type names use function color)' },
-  'cslotUse.syntaxNumber': { zh: '数字、常量与布尔', en: 'Numbers, constants and booleans' },
-  'cslotUse.syntaxString': { zh: '字符串与模板串', en: 'Strings and template expressions' },
-  'cslotUse.syntaxOperator': { zh: '运算符与标点', en: 'Operators and punctuation' },
-  // ── 微缩预览画布填充文案（原型 mock 口径）──
-  miniSession: { zh: '会话', en: 'Session' },
-  miniCurrent: { zh: 'ministros · 当前', en: 'ministros · current' },
-  miniDraft: { zh: 'aurora 草稿', en: 'aurora draft' },
-  miniReview: { zh: 'gruvbox 回顾', en: 'gruvbox review' },
-  miniBubble: { zh: '这套配色看起来很舒服，再帮我看看深色下对比度够不够。', en: 'This palette looks comfy — check the dark-mode contrast too.' },
-  miniVerdict: { zh: '走查结论', en: 'Review verdict' },
-  miniPass1: { zh: '整体通过，', en: 'Overall pass,' },
-  miniPassStrong: { zh: '对比度', en: 'contrast' },
-  miniPass2: { zh: '与', en: 'and' },
-  miniGap: { zh: '间距', en: 'spacing' },
-  miniPass3: { zh: '达标，详见', en: 'pass — see' },
-  miniSpec: { zh: '设计规范', en: 'the spec' },
-  miniPass4: { zh: '，其余看', en: ', the rest in' },
-  miniNote: { zh: '备注。', en: 'Notes.' },
-  miniEmph: { zh: '这段是斜体，用来试强调色。', en: 'Italic sample for the emphasis color.' },
-  miniQuote: { zh: '好的主题是看不见的，只觉得舒服。', en: 'A good theme is invisible — it just feels right.' },
-  miniFile: { zh: 'example.mjs', en: 'example.mjs' },
-  miniBtnPrimary: { zh: '主按钮', en: 'Primary' },
-  miniBtnSecondary: { zh: '次按钮', en: 'Secondary' },
-  miniBtnInfo: { zh: '查看详情', en: 'Details' },
-  miniBadgeOk: { zh: '已启用', en: 'Enabled' },
-  miniWarn: { zh: '有 3 个槽对比度偏低，先看一眼预览', en: '3 slots are low-contrast — check the preview' },
-  miniErr: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
-  miniInputPh: { zh: '输入', en: 'Type' },
-  miniInputHint: { zh: '消息…', en: 'a message…' },
-  miniCaption: { zh: '输入框外框跟主题走', en: 'The input frame follows the theme' },
-  miniTip: { zh: '已同步到预览', en: 'Synced to preview' },
-}
-
+    panelName: { zh: 'OpenCode调色板', en: 'OpenCode Palette' },
+    // 计数为派生数据：{n} 取 themeNames().length（37 静态＋system，恒≥2，英文恒复数），转抄 38 必漂（34→38 前车）。
+    subtitle: { zh: '{n} 款 OpenCode 官方配色主题，点击即切换', en: '{n} official OpenCode themes — click to switch' },
+    enabled: { zh: '已启用', en: 'Enabled' },
+    disabled: { zh: '已停用', en: 'Disabled' },
+    disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
+    enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
+    // 头行 star／issue 图标的悬浮气泡：此前硬编码中文未进词典，英文界面漏网（2026-10-06 补）
+    starTitle: { zh: '你的 ⭐是我夜空中最亮的星 🌹', en: 'Star this project on GitHub' },
+    issueTitle: { zh: '任何功能需求、故障、建议、意见都可以提ISSUE', en: 'Report bugs or request features in Issues' },
+    typography: { zh: '字体字号', en: 'Typography' },
+    bodyStyle: { zh: '正文样式', en: 'Body style' },
+    mono: { zh: '全部文字', en: 'All text' },
+    sans: { zh: '仅代码', en: 'Code only' },
+    fontSize: { zh: '字号', en: 'Font size' },
+    codeFont: { zh: '代码字体', en: 'Code font' },
+    fontNotInstalled: { zh: '本机未装', en: 'Not installed on this machine' },
+    fontLocal: { zh: '本地', en: 'Local' },
+    fontMono: { zh: '等宽', en: 'Mono' },
+    fontPresets: { zh: '常用预设', en: 'Common presets' },
+    fontLocals: { zh: '本机字体', en: 'Installed on this machine' },
+    fontSearch: { zh: '搜索本机字体…', en: 'Search installed fonts…' },
+    fontNoMatch: { zh: '没有匹配的字体', en: 'No matching fonts' },
+    fontCounting: { zh: '正在读取本机字体…', en: 'Reading installed fonts…' },
+    fontLoadedCount: { zh: '已读取本机 {n} 款字体', en: '{n} fonts found on this machine' },
+    fontScanFail: { zh: '未能读取本机字体清单，先列出常用预设', en: 'Could not read the font list — showing the common presets' },
+    fontScanDenied: { zh: '本机字体访问被拒绝，浏览器地址栏授权后再试；先列出常用预设', en: 'Font access was denied — allow it in the browser address bar, then retry; showing the common presets' },
+    fontScanUnsupported: { zh: '当前环境不支持读取本机字体清单，先列出常用预设', en: 'This environment cannot list installed fonts — showing the common presets' },
+    fontScanEmpty: { zh: '本机字体清单为空，先列出常用预设', en: 'The font list came back empty — showing the common presets' },
+    fontRetry: { zh: '重试', en: 'Retry' },
+    themeSection: { zh: '主题', en: 'Themes' },
+    themeCount: { zh: '{n} 款 · 按色系分组', en: '{n} themes · by color family' },
+    search: { zh: '搜索主题…', en: 'Search themes…' },
+    noMatch: { zh: '未找到匹配的主题', en: 'No matching themes' },
+    systemDefault: { zh: 'system（跟随系统）', en: 'system (follow system)' },
+    translucentNote: { zh: '透光主题：背景沿用你的 DSH 外观', en: 'Translucent theme: background follows your DSH appearance' },
+    'group.warm': { zh: '暖橙', en: 'Warm' },
+    'group.yellow-green': { zh: '黄绿', en: 'Yellow-green' },
+    'group.teal': { zh: '青绿', en: 'Teal' },
+    'group.cyan-blue': { zh: '青蓝', en: 'Cyan-blue' },
+    'group.cool-blue': { zh: '冷蓝', en: 'Cool blue' },
+    'group.violet': { zh: '蓝紫', en: 'Violet' },
+    'group.neutral': { zh: '中性', en: 'Neutral' },
+    'group.transparent': { zh: '透明', en: 'Transparent' },
+    'group.special': { zh: '特殊', en: 'Special' },
+    // 底部「作者其他插件」引流卡片（兄弟插件导流位，对齐 MattSkillsDeck 同款卡片）
+    authorPlugins: { zh: '作者其他插件', en: 'More from the author' },
+    authorPluginOpen: { zh: '在新窗口打开', en: 'Open in new window' },
+    'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
+    'authorPlugin.prompt': { zh: '保存常用 prompt 预设，一键注入开发任务', en: 'Save your prompt presets, inject them into a dev task with one click' },
+    'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
+    // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
+    logSwitch: { zh: '日志', en: 'Log' },
+    logOn: { zh: '开', en: 'On' },
+    logOff: { zh: '关', en: 'Off' },
+    logSwitchHint: { zh: '打开后把关键节点写入 <DSH_HOME>/logs/dsh-opencode-palette/；warn/error 恒记，不受此开关控制', en: 'Write key nodes to <DSH_HOME>/logs/dsh-opencode-palette/ (for troubleshooting; warn/error lines are always kept)' },
+    logSwitchFail: { zh: '日志开关没能写入宿主，请重开面板再试', en: 'The host did not accept the log switch — reopen the panel and retry' },
+    // ── 自定义主题区（#86：原型 custom-editor-83 文案逐字，英文信息对等）──
+    customTitle: { zh: '自定义主题 {n}', en: 'Custom themes {n}' },
+    customCopyPath: { zh: '复制配置路径', en: 'Copy config path' },
+    customCopied: { zh: '已复制', en: 'Copied' },
+    customCopyFail: { zh: '复制失败，请手动复制', en: 'Copy failed — please copy it manually' },
+    customOther: { zh: '其他', en: 'Other' },
+    customIpPresets: { zh: 'IP 预置', en: 'IP presets' },
+    customChipTitle: { zh: '点击直接换上，不打开编辑', en: 'Click to apply, without opening the editor' },
+    customAdd: { zh: '新增', en: 'New' },
+    customAddTitle: { zh: '新建一个主题', en: 'Create a new theme' },
+    customEdit: { zh: '编辑', en: 'Edit' },
+    customEditTitle: { zh: '修改、删除已有主题', en: 'Edit or delete a saved theme' },
+    customEditEmpty: { zh: '暂无自定义主题，先新增。', en: 'No custom themes yet — create one first.' },
+    customSaveOk: { zh: '已保存 {name}', en: 'Saved {name}' },
+    customSaveFail: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
+    customDeleteOk: { zh: '已删除 {name}', en: 'Deleted {name}' },
+    customNameRequired: { zh: '主题名称不能为空（保存已拦截）。', en: 'Theme name cannot be empty (save blocked).' },
+    // ── 37 色编辑弹窗 ──
+    edModeNew: { zh: '新建', en: 'New' },
+    edModeEdit: { zh: '编辑', en: 'Edit' },
+    edEditing: { zh: '正在编辑 · {name}', en: 'Editing · {name}' },
+    edTagTitle: { zh: '当前正在编辑这个主题（存盘值）', en: 'The theme being edited (saved values)' },
+    edCloseTitle: { zh: '关闭', en: 'Close' },
+    edTargetTitle: { zh: '换一个已存的主题继续改（会先载入它存盘的颜色）', en: 'Switch to another saved theme (loads its saved colors)' },
+    edNamePh: { zh: '给主题起个名字', en: 'Name your theme' },
+    edNoName: { zh: '还没起名', en: 'Unnamed yet' },
+    edNameEmpty: { zh: '先起个名字', en: 'Name it first' },
+    edCapTitle: { zh: '以后在列表里的样子', en: 'How it will look in the list' },
+    edUnnamed: { zh: '（未命名）', en: '(Unnamed)' },
+    edPreset: { zh: '选基底', en: 'Pick a base' },
+    edPresetTitle: { zh: '选个底子开始调：载入后 37 色与外观一次填好', en: 'Start from a preset: loads all 37 colors and the appearance at once' },
+    edNoBase: { zh: '未选', en: 'None' },
+    edPresetSearch: { zh: '搜索预置主题', en: 'Search presets' },
+    edAppearance: { zh: '外观', en: 'Appearance' },
+    edDark: { zh: '深色', en: 'Dark' },
+    edDarkTitle: { zh: '深色：换上这个主题后一直是深色', en: 'Dark: always dark once applied' },
+    edLight: { zh: '浅色', en: 'Light' },
+    edLightTitle: { zh: '浅色：换上这个主题后一直是浅色', en: 'Light: always light once applied' },
+    edSystem: { zh: '跟随系统', en: 'System' },
+    edSystemTitle: { zh: '跟随系统：深浅跟系统走', en: 'Follow the system appearance' },
+    edTransparentFlag: { zh: '可设透明', en: 'Can be transparent' },
+    edPickTitle: { zh: '换个颜色', en: 'Pick a color' },
+    edFreq: { zh: '本主题用过的颜色', en: 'Colors used in this theme' },
+    edTransparent: { zh: '透明', en: 'Transparent' },
+    edOk: { zh: '确定', en: 'OK' },
+    edClosePop: { zh: '关闭', en: 'Close' },
+    // ── #95 取色器（PalettePicker）──
+    edHue: { zh: '色相', en: 'Hue' },
+    edSat: { zh: '饱和度', en: 'Saturation' },
+    edVal: { zh: '明度', en: 'Brightness' },
+    edLightness: { zh: '亮度', en: 'Lightness' },
+    edDone: { zh: '完成', en: 'Done' },
+    edEyedropper: { zh: '吸管取色', en: 'Pick from screen' },
+    edEyedropperOff: { zh: '当前环境不支持吸管，可用下方主题色', en: 'Eyedropper unavailable; use theme colors below' },
+    edContrast: { zh: '对比度', en: 'Contrast' },
+    edContrastLow: { zh: '对比不足', en: 'Low contrast' },
+    edInvalidHex: { zh: '请输入 #RGB 或 #RRGGBB', en: 'Enter #RGB or #RRGGBB' },
+    edAlphaDropped: { zh: '已忽略透明度', en: 'Alpha ignored' },
+    edCopy: { zh: '复制色值', en: 'Copy value' },
+    edHueAria: { zh: '色相 {v} 度', en: 'Hue {v} degrees' },
+    edSvHint: { zh: '方向键微调，Shift 加速', en: 'Arrow keys to adjust, Shift for larger steps' },
+    edColorModel: { zh: '色彩模型（点击切换）', en: 'Color model (click to switch)' },
+    edDelete: { zh: '删除', en: 'Delete' },
+    edDelConfirm: { zh: '删除「{name}」？', en: 'Delete "{name}"?' },
+    edDelNote: { zh: '自定义主题删除后不可恢复。', en: 'Deleted custom themes cannot be recovered.' },
+    edDelYes: { zh: '确认删除', en: 'Delete' },
+    edDelNo: { zh: '取消', en: 'Cancel' },
+    edCancel: { zh: '取消', en: 'Cancel' },
+    edCancelTitle: { zh: '不保存，直接关闭', en: 'Close without saving' },
+    edSave: { zh: '保存主题', en: 'Save theme' },
+    edSaveTitle: { zh: '保存后出现在自定义主题里', en: 'Saves into your custom themes' },
+    edSaveNeedName: { zh: '先起个名字', en: 'Name it first' },
+    // ── 7 大分组 ──
+    'cgroup.bg': { zh: '背景与表面', en: 'Surfaces' },
+    'cgroup.text': { zh: '文字', en: 'Text' },
+    'cgroup.brand': { zh: '品牌与状态', en: 'Brand & status' },
+    'cgroup.border': { zh: '边框', en: 'Border' },
+    'cgroup.diff': { zh: '改动对比', en: 'Diff' },
+    'cgroup.md': { zh: 'Markdown', en: 'Markdown' },
+    'cgroup.syn': { zh: '代码高亮', en: 'Syntax' },
+    // ── 37 色位名 ──
+    'cslot.background': { zh: '背景', en: 'Background' },
+    'cslot.backgroundPanel': { zh: '浮起面', en: 'Raised surface' },
+    'cslot.backgroundElement': { zh: '浮层', en: 'Overlays' },
+    'cslot.sidebarBg': { zh: '侧边栏', en: 'Sidebar' },
+    'cslot.bubbleBg': { zh: '气泡', en: 'Bubble' },
+    'cslot.inputBg': { zh: '输入框', en: 'Input' },
+    'cslot.codeBlockBg': { zh: '代码块', en: 'Code block' },
+    'cslot.codeHeaderBg': { zh: '代码块顶栏', en: 'Code header' },
+    'cslot.text': { zh: '主要文字', en: 'Primary text' },
+    'cslot.textMuted': { zh: '次要文字', en: 'Secondary text' },
+    'cslot.primary': { zh: '品牌主色', en: 'Brand primary' },
+    'cslot.secondary': { zh: '空闲', en: 'Idle' },
+    'cslot.info': { zh: '信息', en: 'Info' },
+    'cslot.success': { zh: '成功', en: 'Success' },
+    'cslot.warning': { zh: '警告', en: 'Warning' },
+    'cslot.error': { zh: '错误', en: 'Error' },
+    'cslot.border': { zh: '边框', en: 'Border' },
+    'cslot.borderActive': { zh: '强边框', en: 'Strong border' },
+    'cslot.diffAdded': { zh: '新增文字', en: 'Added text' },
+    'cslot.diffRemoved': { zh: '删除文字', en: 'Removed text' },
+    'cslot.diffAddedBg': { zh: '新增行底', en: 'Added line bg' },
+    'cslot.diffRemovedBg': { zh: '删除行底', en: 'Removed line bg' },
+    'cslot.diffAddedLineNumberBg': { zh: '新增行号底', en: 'Added gutter' },
+    'cslot.diffRemovedLineNumberBg': { zh: '删除行号底', en: 'Removed gutter' },
+    'cslot.markdownHeading': { zh: '标题', en: 'Heading' },
+    'cslot.markdownLink': { zh: '链接', en: 'Link' },
+    'cslot.markdownCode': { zh: '行内代码', en: 'Inline code' },
+    'cslot.markdownEmph': { zh: '斜体文字', en: 'Italic text' },
+    'cslot.markdownStrong': { zh: '粗体文字', en: 'Bold text' },
+    'cslot.markdownBlockQuote': { zh: '引用', en: 'Blockquote' },
+    'cslot.syntaxComment': { zh: '注释', en: 'Comment' },
+    'cslot.syntaxKeyword': { zh: '关键字', en: 'Keyword' },
+    'cslot.syntaxFunction': { zh: '函数', en: 'Function' },
+    'cslot.syntaxType': { zh: '参数', en: 'Parameter' },
+    'cslot.syntaxNumber': { zh: '数字', en: 'Number' },
+    'cslot.syntaxString': { zh: '字符串', en: 'String' },
+    'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
+    // ── 37 色位作用说明 ──
+    'cslotUse.background': { zh: '窗口与各层底色', en: 'Window and layered surfaces' },
+    'cslotUse.backgroundPanel': { zh: '标签、多选与浮起按钮底', en: 'Tags, multi-select and raised buttons' },
+    'cslotUse.backgroundElement': { zh: '选择器、选中卡片、Toast、提示与引用块竖线', en: 'Selectors, active cards, toasts, tips and quote bars' },
+    'cslotUse.sidebarBg': { zh: '侧边栏与标题行底', en: 'Sidebar and title row' },
+    'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble' },
+    'cslotUse.inputBg': { zh: '消息输入框与登录框底', en: 'Message input and login box' },
+    'cslotUse.codeBlockBg': { zh: '代码块底', en: 'Code block' },
+    'cslotUse.codeHeaderBg': { zh: '代码块顶栏底', en: 'Code header' },
+    'cslotUse.text': { zh: '主要文字、按钮字与代码默认色', en: 'Primary text, button labels and code foreground' },
+    'cslotUse.textMuted': { zh: '次要文字、说明与菜单图标', en: 'Captions, hints and menu icons' },
+    'cslotUse.primary': { zh: '主按钮、品牌强调与选中态', en: 'Primary buttons, accents and selection' },
+    'cslotUse.secondary': { zh: '空闲状态圆点', en: 'Idle status dot' },
+    'cslotUse.info': { zh: '徽章字、选中图标与强调按钮', en: 'Badge text, selected icons and accent buttons' },
+    'cslotUse.success': { zh: '成功状态与通过标识', en: 'Success states and pass marks' },
+    'cslotUse.warning': { zh: '警告状态与提示条', en: 'Warning states and banners' },
+    'cslotUse.error': { zh: '错误状态与危险操作', en: 'Errors and destructive actions' },
+    'cslotUse.border': { zh: '分割线、hr 与弱边框', en: 'Dividers, hr and subtle borders' },
+    'cslotUse.borderActive': { zh: '强边框、聚焦与滚动条悬停', en: 'Strong borders, focus and scrollbar hover' },
+    'cslotUse.diffAdded': { zh: '＋行文字与文件标记', en: 'Added code text and file markers' },
+    'cslotUse.diffRemoved': { zh: '－行文字与文件标记', en: 'Removed code text and file markers' },
+    'cslotUse.diffAddedBg': { zh: '＋行整行底', en: 'Added line background' },
+    'cslotUse.diffRemovedBg': { zh: '－行整行底', en: 'Removed line background' },
+    'cslotUse.diffAddedLineNumberBg': { zh: '＋行行号栏底', en: 'Added line-number gutter' },
+    'cslotUse.diffRemovedLineNumberBg': { zh: '－行行号栏底', en: 'Removed line-number gutter' },
+    'cslotUse.markdownHeading': { zh: 'Markdown 标题', en: 'Markdown headings' },
+    'cslotUse.markdownLink': { zh: '链接、锚点与代码链接', en: 'Links, anchors and code links' },
+    'cslotUse.markdownCode': { zh: '行内代码文字（无底色）', en: 'Inline code text (no fill)' },
+    'cslotUse.markdownEmph': { zh: '强调（斜体）文字', en: 'Emphasized (italic) text' },
+    'cslotUse.markdownStrong': { zh: '加粗（重要）文字', en: 'Bold (important) text' },
+    'cslotUse.markdownBlockQuote': { zh: '引用块文字', en: 'Quote text' },
+    'cslotUse.syntaxComment': { zh: '注释与文档注释', en: 'Comments and doc comments' },
+    'cslotUse.syntaxKeyword': { zh: '关键字与控制流', en: 'Keywords and control flow' },
+    'cslotUse.syntaxFunction': { zh: '函数名、类型名与属性名', en: 'Function, type and attribute names' },
+    'cslotUse.syntaxType': { zh: '参数名（类型名随函数色）', en: 'Parameter names (type names use function color)' },
+    'cslotUse.syntaxNumber': { zh: '数字、常量与布尔', en: 'Numbers, constants and booleans' },
+    'cslotUse.syntaxString': { zh: '字符串与模板串', en: 'Strings and template expressions' },
+    'cslotUse.syntaxOperator': { zh: '运算符与标点', en: 'Operators and punctuation' },
+    // ── 微缩预览画布填充文案（原型 mock 口径）──
+    miniSession: { zh: '会话', en: 'Session' },
+    miniCurrent: { zh: 'ministros · 当前', en: 'ministros · current' },
+    miniDraft: { zh: 'aurora 草稿', en: 'aurora draft' },
+    miniReview: { zh: 'gruvbox 回顾', en: 'gruvbox review' },
+    miniBubble: { zh: '这套配色看起来很舒服，再帮我看看深色下对比度够不够。', en: 'This palette looks comfy — check the dark-mode contrast too.' },
+    miniVerdict: { zh: '走查结论', en: 'Review verdict' },
+    miniPass1: { zh: '整体通过，', en: 'Overall pass,' },
+    miniPassStrong: { zh: '对比度', en: 'contrast' },
+    miniPass2: { zh: '与', en: 'and' },
+    miniGap: { zh: '间距', en: 'spacing' },
+    miniPass3: { zh: '达标，详见', en: 'pass — see' },
+    miniSpec: { zh: '设计规范', en: 'the spec' },
+    miniPass4: { zh: '，其余看', en: ', the rest in' },
+    miniNote: { zh: '备注。', en: 'Notes.' },
+    miniEmph: { zh: '这段是斜体，用来试强调色。', en: 'Italic sample for the emphasis color.' },
+    miniQuote: { zh: '好的主题是看不见的，只觉得舒服。', en: 'A good theme is invisible — it just feels right.' },
+    miniFile: { zh: 'example.mjs', en: 'example.mjs' },
+    miniBtnPrimary: { zh: '主按钮', en: 'Primary' },
+    miniBtnSecondary: { zh: '次按钮', en: 'Secondary' },
+    miniBtnInfo: { zh: '查看详情', en: 'Details' },
+    miniBadgeOk: { zh: '已启用', en: 'Enabled' },
+    miniWarn: { zh: '有 3 个槽对比度偏低，先看一眼预览', en: '3 slots are low-contrast — check the preview' },
+    miniErr: { zh: '保存失败，再试一次', en: 'Save failed — try again' },
+    miniInputPh: { zh: '输入', en: 'Type' },
+    miniInputHint: { zh: '消息…', en: 'a message…' },
+    miniCaption: { zh: '输入框外框跟主题走', en: 'The input frame follows the theme' },
+    miniTip: { zh: '已同步到预览', en: 'Synced to preview' },
+};
 // 语言检测（回退）：html[lang] 优先，回退浏览器语言
 function getLang() {
-  try {
-    const l = (document.documentElement && document.documentElement.lang) || (navigator.language || 'en')
-    return /^zh/i.test(l) ? 'zh' : 'en'
-  } catch (e) { return 'en' }
+    try {
+        const l = (document.documentElement && document.documentElement.lang) || (navigator.language || 'en');
+        return /^zh/i.test(l) ? 'zh' : 'en';
+    }
+    catch (e) {
+        return 'en';
+    }
 }
-
 // 字体可用性：随包字体（OFL 内联 @font-face）恒可用；本机字体（SF Mono / Consolas /
 // Maple Mono NF CN 等）缺失即灰显提示（仍可选中，回退栈保证不断字）。
-// 判定实现（宽度对比法）与理由见 engine/font-avail.mjs。
-const isFontAvailable = createFontAvailability(
-  () => (typeof document === 'undefined' ? undefined : document),
-  BUNDLED_FONTS
-)
-
+// 判定实现（宽度对比法）与理由见 engine/font-avail.ts。
+const isFontAvailable = createFontAvailability(() => (typeof document === 'undefined' ? undefined : document), BUNDLED_FONTS);
 // ── 本机字体清单（枚举 → 去重 → 等宽置顶 → 候选分级）──
 // 缓存：一次会话只读一次本机清单（同一次枚举的结论对面板多次开合都成立）；
 // 面板侧只在「读不到」时给「重试」入口，重试才强制重读。
-let localFontsCache = null
+let localFontsCache = null;
 function collectFontCandidates() {
-  const scope = typeof window === 'undefined' ? null : window
-  return collectLocalFonts(scope).then(function (res) {
-    const candidates = buildFontCandidates(res.ok ? res.fonts : [], isFontAvailable, res.mono, Object.keys(FONTS), BUNDLED_FONTS)
-    localFontsCache = {
-      candidates: candidates,
-      count: res.ok ? res.fonts.length : 0,
-      reason: res.reason || null,
-      ok: !!res.ok,
-    }
-    return localFontsCache
-  })
+    const scope = typeof window === 'undefined' ? null : window;
+    // FontScope 未导出（只含 navigator/document/queryLocalFonts 三个可选字段）；运行时传的就是 window
+    return collectLocalFonts(scope).then(function (res) {
+        const candidates = buildFontCandidates(res.ok ? res.fonts : [], isFontAvailable, res.mono, Object.keys(FONTS), BUNDLED_FONTS);
+        localFontsCache = {
+            candidates: candidates,
+            count: res.ok ? res.fonts.length : 0,
+            reason: res.reason || null,
+            ok: !!res.ok,
+        };
+        return localFontsCache;
+    });
 }
-
-// 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.mjs 的 CSS 约定一致）
+// 宿主明暗信号：DSH 深色为 body[data-ds-dark-theme]，缺席即浅色（与 engine/generate.ts 的 CSS 约定一致）
 // 未知环境（SSR/旧宿主/mock 缺 body）回退 true = 保持现有深色视觉，绝不误伤深色主题
 function isHostDark() {
-  try {
-    if (typeof document === 'undefined' || !document.body || typeof document.body.hasAttribute !== 'function') return true
-    return document.body.hasAttribute('data-ds-dark-theme')
-  } catch (e) { return true }
+    try {
+        if (typeof document === 'undefined' || !document.body || typeof document.body.hasAttribute !== 'function')
+            return true;
+        return document.body.hasAttribute('data-ds-dark-theme');
+    }
+    catch (e) {
+        return true;
+    }
 }
-
 // 把 key → {zh,en} 表转成 locale 服务注册形态 {zh: {...}, en: {...}}
 function toLocaleDicts(i18n) {
-  const zh = {}
-  const en = {}
-  for (const key in i18n) {
-    const pair = i18n[key]
-    zh[key] = pair.zh
-    en[key] = pair.en
-  }
-  return { zh, en }
+    const zh = {};
+    const en = {};
+    for (const key in i18n) {
+        const pair = i18n[key];
+        zh[key] = pair.zh;
+        en[key] = pair.en;
+    }
+    return { zh, en };
 }
-
-
 // 生成注入物并注入：token 层 + <style> 层；幂等（先清后注入）
 function createClient(slotTarget) {
-  return function apply(ctx) {
-    const theme = ctx.get('theme')
-    const slots = ctx.get('slots')
-
-    let state = loadState()
-    let tokenDispose = null
-    let styleTag = null
-    // ── 宿主桥 + 日志骨架 + 更新入口件（宿主不可用时更新块不挂载，不影响主题面板）──
-    const hostBridge = createHostBridge(ctx)
-    const clientLog = createClientLog(
-      {
-        host: hostBridge,
-        timer: { timeout: function (fn, ms) { return setTimeout(fn, ms) } },
-        storage: (globalThis.localStorage ? globalThis.localStorage : null),
-      },
-      { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
-    )
-    // ── 检查更新：dsh-plugin-update@0.18.11 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
-    // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
-    // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
-    // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
-    // 以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的 dialog 面板都按同一语言单语渲染，
-    // 切换即时重绘；入口件只挂载一次，不随语言重挂（unmount 时停订，不泄漏）。宿主不可用时不挂载，主题面板照常。
-    // 按钮尺寸走正式参数 sizing（取代旧容器 zoom 临时方案，上游 #69 已落地）：12px/2px 10px/6px/scale 1，
-    // 容器再加 nowrap 防止“检查更新”折成两行；不碰包内类名。
-    // 入口按钮去底（头行是宿主地盘）：只覆盖入口作用域的 buttonBg 为透明——dialog 根 .dsh-upd
-    // 不在 .dsh-upd-entry 内故不受影响；按钮自身指定值胜过祖先 inline tokens 的继承值。上游改名则静默回退到主题色块。
-    const UPDATE_ENTRY_TRANSPARENT_BG = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
-    const mountedUpdateEntries = []
-    function currentUpdateTokens() {
-      try {
-        const iid = ipIdOf(state.theme)
-        if (iid) {
-          const ip = findIpPreset(iid)
-          if (ip && ip.colors) return buildUpdateTokensFromColors(ip.colors, customAppearanceOf(ip))
-        }
-        const cid = customIdOf(state.theme)
-        if (cid) {
-          const found = findCustom(cid)
-          if (found && found.colors) return buildUpdateTokensFromColors(found.colors, customAppearanceOf(found))
-        }
-        return buildUpdateTokens(state.theme)
-      } catch (e) {
-        return undefined
-      }
-    }
-    function refreshUpdateTheme() {
-      const tokens = currentUpdateTokens()
-      for (const entry of mountedUpdateEntries) {
-        try {
-          if (entry && typeof entry.setThemeTokens === 'function') entry.setThemeTokens(tokens)
-        } catch (err) { /* 忽略 */ }
-      }
-    }
-    function updateLocaleSource() {
-      return {
-        getActive: function () { return currentLocale() },
-        subscribe: function (cb) {
-          localeListeners.push(cb)
-          return function () {
-            const i = localeListeners.indexOf(cb)
-            if (i >= 0) localeListeners.splice(i, 1)
-          }
-        },
-      }
-    }
-    function mountUpdateButton(container) {
-      if (!hostBridge || !container || typeof container.innerHTML !== 'string') return null
-      try {
-        const entry = mountUpdateEntry(container, {
-          pluginId: PLUGIN_ID,
-          prefix: PHONE_PREFIX,
-          call: function (phone, args) { return hostBridge.call(phone, args) },
-          variant: 'button',
-          theme: 'default',
-          openOn: 'always',
-          themeTokens: currentUpdateTokens(),
-          sizing: { fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 },
-          autoCheck: 'mount',
-          changelogMarkdown: null,
-          locale: updateLocaleSource(),
-        })
-        mountedUpdateEntries.push(entry)
-        return entry
-      } catch (err) { return null }
-    }
-    function unmountUpdateButtons() {
-      while (mountedUpdateEntries.length > 0) {
-        try { mountedUpdateEntries.pop().unmount() } catch (err) { /* 忽略 */ }
-      }
-    }
-    // ── 自定义主题（#86）：宿主目录单文件 .json 为真值，localStorage 只做离线/测试兜底 ──
-    // apply 顶层绝不无条件同步调 customThemesList（log-switch mock 会抛 unexpected phone）；
-    // 对账只发生在面板挂载 effect 与用户手势里，且恒经 Promise 包裹静默降级。
-    try { injectUiFx(typeof document !== 'undefined' ? document : null) } catch (e) { /* 忽略 */ }
-    let customCache = loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null)
-    function storageHandle() {
-      try { return globalThis.localStorage ? globalThis.localStorage : null } catch (e) { return null }
-    }
-    function findCustom(id) {
-      const list = customCache.themes || []
-      for (const t of list) { if (t && t.id === id) return t }
-      return null
-    }
-    function isCustomKey(key) { return typeof key === 'string' && key.indexOf('custom:') === 0 }
-    function customIdOf(key) { return isCustomKey(key) ? key.slice('custom:'.length) : null }
-    // ── 预置 IP 主题（用户口径 m08573）：与内置 38 同属「预置」，同区展示、点击直接生效；
-    // 唯一区别是渲染来源——IP 走静态 bundle（ip-presets.mjs），恒不写 DSH 自定义目录。
-    // 只有用户新增/存盘的自定义主题才落盘，激活键 custom:<id>；两者前缀并列，互不冒充。
-    function isIpKey(key) { return typeof key === 'string' && key.indexOf('ip:') === 0 }
-    function ipIdOf(key) { return isIpKey(key) ? key.slice('ip:'.length) : null }
-    function findIpPreset(id) {
-      if (typeof id !== 'string' || !id) return null
-      try { return getIpPreset(id) } catch (e) { return null }
-    }
-    function customAppearanceOf(t) {
-      return t && (t.appearance === 'light' || t.appearance === 'system') ? t.appearance : 'dark'
-    }
-    function setCustomCacheData(data) {
-      customCache = {
-        themes: data && Array.isArray(data.themes) ? data.themes : [],
-        dirPath: data && typeof data.dirPath === 'string' ? data.dirPath : '',
-      }
-      try { saveCustomCache(storageHandle(), customCache) } catch (e) { /* 忽略 */ }
-    }
-    function reconcileCustom() {
-      try {
-        return reconcileCustomThemes(hostBridge, storageHandle()).then(function (res) {
-          if (res) setCustomCacheData(res)
-          return res
-        })
-      } catch (e) {
-        return Promise.resolve({ themes: customCache.themes, dirPath: customCache.dirPath, source: 'cache' })
-      }
-    }
-    function saveCustomTheme(payload) {
-      const p = payload || {}
-      let id = typeof p.id === 'string' && p.id ? p.id : null
-      if (!id) {
-        // 新建：客户端 slug 派生并避让已有用 id（宿主整单拒绝非法 id，故调用方必给合法值）
-        id = clientSlug(p.name) || 'theme'
-        const used = {}
-        for (const t of customCache.themes || []) { if (t && t.id) used[t.id] = true }
-        if (used[id]) {
-          let i = 2
-          while (used[id + '-' + i]) i++
-          id = id + '-' + i
-        }
-      }
-      const body = { id: id, name: p.name, appearance: p.appearance, colors: p.colors, basePreset: p.basePreset }
-      if (!hostBridge) return Promise.resolve({ ok: false, error: 'no-host' })
-      return Promise.resolve().then(function () {
-        return hostBridge.call('palette.customThemesSave', { theme: body })
-      }).then(function (res) {
-        if (res && res.ok === true) {
-          if (Array.isArray(res.themes)) setCustomCacheData(res)
-          // 正在生效的主题被改 → 同步刷新已生效样式；否则等用户点胶囊才应用
-          if (state.theme === 'custom:' + id && state.enabled) { applyStyle(); refreshUpdateTheme() }
-          return { ok: true, theme: res.theme || body }
-        }
-        return { ok: false, error: 'save-rejected' }
-      }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) } })
-    }
-    function deleteCustomTheme(id) {
-      if (!hostBridge) return Promise.resolve({ ok: false, error: 'no-host' })
-      return Promise.resolve().then(function () {
-        return hostBridge.call('palette.customThemesDelete', { id: id })
-      }).then(function (res) {
-        if (res && res.ok === true) {
-          if (Array.isArray(res.themes)) setCustomCacheData(res)
-          else {
-            setCustomCacheData({
-              themes: (customCache.themes || []).filter(function (t) { return !t || t.id !== id }),
-              dirPath: customCache.dirPath,
-            })
-          }
-          // 删的是正激活主题 → 回退 opencode（setTheme 内含应用+外观+更新刷新）
-          if (state.theme === 'custom:' + id) setTheme('opencode')
-          return { ok: true }
-        }
-        return { ok: false }
-      }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) } })
-    }
-    // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
-    // 首帧渲染可先用这一次对账的本地快照，但面板每次挂载的校正必须 fresh 查询——
-    // 复用启动快照会在写成功后把新值覆回旧值（issue 42：打开后重进被关闭）。
-    let logSwitchReady = null
-    try { logSwitchReady = clientLog.reconcileLogSwitch() } catch (e) { /* 忽略 */ }
-    try { clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
-
-    // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
-    const localeSvc = ctx.get('locale') || ctx.locale || null
-    const LOCALE_NS = 'opencode-palette'
-    let dictDispose = null
-    let localeUnsub = null
-    let currentLang = localeSvc ? localeSvc.getLocale().active : getLang()
-    const localeListeners = []
-    // 入口重注册钩：语言切换时让宿主重读入口 label（注册函数在面板段定义，此处只留钩位）
-    let reregisterEntries = null
-    function currentLocale() { return localeSvc ? localeSvc.getLocale().active : getLang() }
-    function tr(key) {
-      const entry = I18N[key]
-      return entry ? (entry[currentLang] !== undefined ? entry[currentLang] : key) : key
-    }
-    // 带占位符的文案：trf('updateToVersion', { v: '1.8.0' })
-    function trf(key, vars) {
-      let text = tr(key)
-      for (const name in vars) {
-        if (Object.prototype.hasOwnProperty.call(vars, name)) text = text.split('{' + name + '}').join(String(vars[name]))
-      }
-      return text
-    }
-    function notifyLocale() {
-      const next = currentLocale()
-      if (next === currentLang) return
-      currentLang = next
-      for (const fn of localeListeners.slice()) { try { fn() } catch (e) { /* 忽略 */ } }
-      // 入口 label 跟随：宿主只在注册时读一次 label，语言切换后需重注册才刷新入口；
-      // 面板内容已由上面的订阅重渲染，不受影响。宿主不支持重注册则保持旧入口。
-      try { if (reregisterEntries) reregisterEntries() } catch (e) { /* 忽略 */ }
-    }
-    // 监听语言变化：官方 locale 服务优先；无该服务的环境（如旧版 DSH/测试沙箱）回退监听 html[lang]
-    let localeObserver = null
-    if (localeSvc && typeof localeSvc.subscribe === 'function') {
-      localeUnsub = localeSvc.subscribe(notifyLocale)
-    } else if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
-      localeObserver = new MutationObserver(notifyLocale)
-      localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] })
-    }
-    // 把面板双语表注册进 locale 服务：标题/文案随 DSH 语言实时切换（disposer 交给清理器）
-    if (localeSvc && typeof localeSvc.register === 'function') {
-      try { dictDispose = localeSvc.register(LOCALE_NS, toLocaleDicts(I18N)) } catch (e) { /* 忽略 */ }
-    }
-
-    function safeThemeName(name) {
-      const names = themeNames()
-      return names.indexOf(name) >= 0 ? name : DEFAULT_STATE.theme
-    }
-
-    function applyStyle() {
-      if (!theme) return
-      // 1) 先清理旧注入（幂等）
-      if (tokenDispose) { try { tokenDispose() } catch (e) { /* 忽略 */ } tokenDispose = null }
-      // 2) 完整重生成
-      let render
-      try {
-        const iid = ipIdOf(state.theme)
-        const found = iid ? findIpPreset(iid) : findCustom(customIdOf(state.theme))
-        if (iid || isCustomKey(state.theme)) {
-          // IP 预置与自定义主题共用渲染管线（37 色 + 外观）；拿不到就回退默认主题，绝不留旧注入
-          render = found
-            ? renderCustomTheme(found, { mode: state.mode, size: state.size, fontKey: state.fontKey })
-            : renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
-        } else {
-          render = renderTheme(safeThemeName(state.theme), {
-            mode: state.mode, size: state.size, fontKey: state.fontKey,
-          })
-        }
-      } catch (e) {
-        console.error('[dsh-opencode-palette] 渲染失败，回退默认主题:', e)
-        render = renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
-      }
-      // 3) token 层（issue 45：自持画布两半同值=深色观感；委托画布按外观取作者值）
-      tokenDispose = theme.overrideTokens('opencode-palette', render.tokens)
-      // 4) <style> 层
-      if (styleTag === null && typeof document !== 'undefined') {
-        styleTag = document.createElement('style')
-        styleTag.dataset.plugin = 'dsh-opencode-palette'
-        document.head.appendChild(styleTag)
-      }
-      if (styleTag) styleTag.textContent = render.css + UPDATE_ENTRY_TRANSPARENT_BG
-      return render.meta
-    }
-
-    function clearStyle() {
-      if (tokenDispose) { try { tokenDispose() } catch (e) { /* 忽略 */ } tokenDispose = null }
-      if (styleTag !== null && styleTag.parentNode) {
-        styleTag.parentNode.removeChild(styleTag)
-      }
-      styleTag = null
-    }
-
-    // ── 外观跟随（issue 48）：正门是 ctx.theme.setTheme（与设置页同一条写入口，
-    // 经 ui-theme 设置作用域持久化并广播快照，宿主全量应用，设置页显示一致）。
-    // 无该 API 的旧宿主才降级走文档投影（与宿主 apply 快照同构：root color-scheme +
-    // 根 source 属性 + body 深色标记），会话级记住投影前原始值以便恢复。
-    // 只在选中/启停/开关事件上动作一次，不持续对抗宿主：用户在设置页改外观即最后写入者胜出。
-    const DARK_ATTR = 'data-ds-dark-theme'
-    const SOURCE_ATTR = 'data-ds-theme-source'
-    let appearanceManaged = false
-    let appearanceBefore = null
-    let appearanceProjected = null
-    let appearanceFallbackLogged = false
-    let lastOfficialPref = null
-    let officialBeforePref = null
-    let officialBeforeRecorded = false
-    function readHostPreference() {
-      try {
-        if (!theme || typeof theme.getTheme !== 'function') return undefined
-        const snap = theme.getTheme()
-        if (!snap) return undefined
-        const p = snap.preference !== undefined ? snap.preference : (snap.active && snap.active.preference)
-        return p === undefined ? undefined : p
-      } catch (e) { return undefined }
-    }
-    function verifyHostPreference(pref) {
-      const cur = readHostPreference()
-      if (cur === undefined) return true
-      return cur === pref
-    }
-    function restoreOfficialOnStop() {
-      if (lastOfficialPref === null || lastOfficialPref === undefined) return
-      const target = lastOfficialPref
-      lastOfficialPref = null
-      const cur = readHostPreference()
-      if (cur === undefined || cur !== target) return
-      const back = officialBeforePref
-      if (back === undefined || back === null || back === target) return
-      try { if (theme && typeof theme.setTheme === 'function') theme.setTheme(back) } catch (e) { /* 忽略 */ }
-    }
-    function logAppearanceFallback() {
-      if (appearanceFallbackLogged) return
-      appearanceFallbackLogged = true
-      try { clientLog.log('info', 'host.call', { method: 'appearance-fallback', latencyMs: 0, ok: true, kind: 'fallback', pluginId: PLUGIN_ID }) } catch (e) { /* 忽略 */ }
-    }
-    function snapshotDocument() {
-      try {
-        const de = typeof document !== 'undefined' ? document.documentElement : null
-        const body = typeof document !== 'undefined' ? document.body : null
-        return {
-          bodyDark: body && typeof body.hasAttribute === 'function' ? body.hasAttribute(DARK_ATTR) : null,
-          scheme: de && de.style ? (de.style.colorScheme || '') : null,
-          source: de && typeof de.getAttribute === 'function' ? de.getAttribute(SOURCE_ATTR) : null,
-        }
-      } catch (e) { return null }
-    }
-    function projectAppearance(dark) {
-      try {
-        if (typeof document === 'undefined' || !document.body || !document.documentElement) return
-        if (!appearanceManaged) { appearanceManaged = true; appearanceBefore = snapshotDocument() }
-        const scheme = dark ? 'dark' : 'light'
-        const de = document.documentElement
-        try { if (de.style) de.style.colorScheme = scheme } catch (e) { /* 忽略 */ }
-        try { if (typeof de.setAttribute === 'function') de.setAttribute(SOURCE_ATTR, scheme) } catch (e) { /* 忽略 */ }
-        try {
-          if (dark) document.body.setAttribute(DARK_ATTR, '')
-          else document.body.removeAttribute(DARK_ATTR)
-        } catch (e) { /* 忽略 */ }
-        appearanceProjected = { bodyDark: dark, scheme: scheme, source: scheme }
-      } catch (e) { /* 宿主 DOM 不可写则静默跳过 */ }
-    }
-    function releaseAppearance() {
-      try {
-        if (!appearanceManaged) return
-        appearanceManaged = false
-        const prev = appearanceBefore
-        const projected = appearanceProjected
-        appearanceBefore = null
-        appearanceProjected = null
-        if (!prev || typeof document === 'undefined' || !document.body || !document.documentElement) return
-        const de = document.documentElement
-        // 只释放我们自己写的值：中途被宿主/用户改过的信号一律不动（陈旧快照不覆盖新写入）
-        const cur = snapshotDocument() || {}
-        const ours = function (key) { return projected && cur[key] === projected[key] }
-        try {
-          if (!de.style || !ours('scheme')) { /* 不是我们写的则不动 */ }
-          else if (prev.scheme) de.style.colorScheme = prev.scheme
-          else if (typeof de.style.removeProperty === 'function') de.style.removeProperty('color-scheme')
-          else de.style.colorScheme = ''
-        } catch (e) { /* 忽略 */ }
-        try {
-          if (typeof de.setAttribute !== 'function' || !ours('source')) { /* 跳过 */ }
-          else if (prev.source === null || prev.source === undefined) { if (typeof de.removeAttribute === 'function') de.removeAttribute(SOURCE_ATTR) }
-          else de.setAttribute(SOURCE_ATTR, prev.source)
-        } catch (e) { /* 忽略 */ }
-        try {
-          if (prev.bodyDark === null || prev.bodyDark === undefined || !ours('bodyDark')) { /* 未知或被改过则不动 */ }
-          else if (prev.bodyDark) document.body.setAttribute(DARK_ATTR, '')
-          else document.body.removeAttribute(DARK_ATTR)
-        } catch (e) { /* 忽略 */ }
-      } catch (e) { /* 忽略 */ }
-    }
-    function syncAppearancePref(pref) {
-      // 无跟随开关：只要启用就恒跟随（深色→dark、透光→light、system→system释放）
-      if (!state.enabled) return
-      // system 已是释放态时不写：宿主已为 system 即无主张，重写反而可能在 compat 宿主上落成具体值（#55）
-      if (pref === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
-      let official = false
-      try {
-        if (theme && typeof theme.setTheme === 'function') {
-          if (!officialBeforeRecorded) { officialBeforeRecorded = true; officialBeforePref = readHostPreference() }
-          theme.setTheme(pref)
-          official = verifyHostPreference(pref)
-        }
-      } catch (e) { official = false }
-      if (official) { appearanceManaged = false; appearanceBefore = null; appearanceProjected = null; lastOfficialPref = pref; return }
-      logAppearanceFallback()
-      if (pref === 'system') { releaseAppearance(); return }
-      projectAppearance(pref === 'dark')
-    }
-    function syncAppearanceForTheme(name) {
-      if (!state.enabled) return
-      if (name === 'system' && readHostPreference() === 'system') { releaseAppearance(); return }
-      let pref
-      if (name === 'system') pref = 'system'
-      else {
-        let translucent = false
-        try { translucent = delegatesBackground(name) } catch (e) { translucent = false }
-        pref = translucent ? 'light' : 'dark'
-      }
-      syncAppearancePref(pref)
-    }
-    // ── 面板 API（与 React 组件共享）──
-    function getState() { return { ...state } }
-    function setTheme(name) {
-      state = { ...state, theme: safeThemeName(name) }
-      saveState(state)
-      if (state.enabled) applyStyle()
-      syncAppearanceForTheme(state.theme)
-      refreshUpdateTheme()
-    }
-    // 预置 IP 主题：与内置主题同一入口的「点击即生效」，不落盘（用户口径 m08573）。
-    // 找不到（bundle 里没有这个 id）则原样不动，绝不静默换成别的主题。
-    function setIpTheme(id) {
-      const ip = findIpPreset(id)
-      if (!ip) return false
-      state = { ...state, theme: 'ip:' + id }
-      saveState(state)
-      if (state.enabled) applyStyle()
-      if (customAppearanceOf(ip) !== 'system') syncAppearancePref(customAppearanceOf(ip))
-      refreshUpdateTheme()
-      return true
-    }
-    function setCustomTheme(id) {
-      const found = findCustom(id)
-      if (!found) {
-        // 缓存未命中时试一次宿主对账（用户手势路径，允许异步 RPC），仍无则忽略
-        try {
-          reconcileCustom().then(function () {
-            if (findCustom(id)) setCustomTheme(id)
-          }).catch(function () { /* 忽略 */ })
-        } catch (e) { /* 忽略 */ }
-        return
-      }
-      state = { ...state, theme: 'custom:' + id }
-      saveState(state)
-      if (state.enabled) applyStyle()
-      syncAppearancePref(customAppearanceOf(found))
-      refreshUpdateTheme()
-    }
-    function setTypography(next) {
-      state = { ...state, ...next }
-      saveState(state)
-      if (state.enabled) applyStyle()
-    }
-    function toggle() {
-      state = { ...state, enabled: !state.enabled }
-      saveState(state)
-      if (state.enabled) { applyStyle(); syncAppearanceForTheme(state.theme); refreshUpdateTheme() } else { clearStyle(); restoreOfficialOnStop(); releaseAppearance() }
-    }
-    function refresh(nextMode, nextSize, nextFont) {
-      setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont })
-    }
-
-    // 启动：默认启用（与 v1.1.0 一致）。外观跟随在启动时对齐一次，但存量 system 主题跳过：
-    // 启动是非手势路径，system 即无主张，不写偏好；点击 system 仍走官方写入口（显式手势）。
-    // 自定义主题同理：仅 appearance 非 system 才对齐一次。
-    if (state.enabled) {
-      applyStyle()
-      const bootIid = ipIdOf(state.theme)
-      const bootCid = customIdOf(state.theme)
-      if (bootIid) {
-        const bootIp = findIpPreset(bootIid)
-        if (bootIp && customAppearanceOf(bootIp) !== 'system') syncAppearancePref(customAppearanceOf(bootIp))
-      } else if (bootCid) {
-        const bootFound = findCustom(bootCid)
-        if (bootFound && customAppearanceOf(bootFound) !== 'system') syncAppearancePref(customAppearanceOf(bootFound))
-      } else if (state.theme !== 'system') syncAppearanceForTheme(state.theme)
-    }
-
-    // 调试钩子（控制台可用）
-    if (typeof globalThis !== 'undefined') {
-      globalThis.__opencodePalette = {
-        getState: getState,
-        setTheme: setTheme,
-        toggle: toggle,
-        list: themeNames,
-        previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
-      }
-    }
-
-    // ── 设置面板（组合 1：排印置顶 + 色系分组标签 + mini 芯片）──
-    let disposePanel = null
-    if (slots !== undefined && typeof document !== 'undefined') {
-      const Panel = function (props) {
-        const react = getReact()
-        const h = react.createElement
-        const [query, setQuery] = react.useState('')
-        const [fontOpen, setFontOpen] = react.useState(false)
-        // 字体下拉：本机清单（枚举缓存）+ 搜索词 + 进行中标志
-        const [fontList, setFontList] = react.useState(localFontsCache)
-        const [fontQuery, setFontQuery] = react.useState('')
-        const [fontBusy, setFontBusy] = react.useState(false)
-        // 一次会话只自动读一次本机清单；「重试」显式复位后才允许再读
-        const fontTriedRef = react.useRef(localFontsCache !== null)
-        const [sizeOpen, setSizeOpen] = react.useState(false)
-        const fontRef = react.useRef(null)
-        const sizeRef = react.useRef(null)
-        const fontBtnRef = react.useRef(null)
-        const fontMenuRef = react.useRef(null)
-        // 悬浮锚点：fixed 菜单的视口坐标。fixed 逃的是祖先 overflow 裁剪
-        // （z-index 再高也逃不出去）；null = 菜单关闭
-        const [fontAnchor, setFontAnchor] = react.useState(null)
-        // 量一次锚点并定位：true = 已定位，false = 锚点不可见（调用方关菜单，不乱放）
-        const placeFontMenu = function (menuW, menuH) {
-          try {
-            if (typeof window === 'undefined' || !fontBtnRef.current || typeof fontBtnRef.current.getBoundingClientRect !== 'function') return false
-            const r = fontBtnRef.current.getBoundingClientRect()
-            const g = computeMenuGeometry(
-              { left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width },
-              { width: window.innerWidth, height: window.innerHeight },
-              menuW === undefined ? null : menuW,
-              menuH === undefined ? null : menuH
-            )
-            if (!g) return false
-            setFontAnchor(g)
-            return true
-          } catch (e) { return false }
-        }
-        const openFontMenu = function () {
-          setFontQuery('')
-          if (fontOpen) { setFontOpen(false); setFontAnchor(null); return }
-          if (!placeFontMenu(null, null)) { setFontOpen(false); setFontAnchor(null); return }
-          setFontOpen(true)
-        }
-        // UI 快照：所有引擎动作后 setUi(props.getState()) 重同步，避免受控控件显示值漂移
-        const [ui, setUi] = react.useState(props.getState())
-        const st = ui
-        // 宿主明暗跟随：浅色下硬编码深色值须换 DSH 语义 token；开着面板切换系统主题时重渲染
-        const [hostDark, setHostDark] = react.useState(isHostDark)
-        // ── 自定义主题区（#86）：首帧用 localStorage 兜底同步渲染，挂载后向宿主对账 ──
-        // effect 不跑 SSR；对账恒经 Promise 包裹静默降级（log-switch mock 零感知）
-        const [customData, setCustomData] = react.useState(function () {
-          try {
-            return loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null)
-          } catch (e) { return { themes: [], dirPath: '' } }
-        })
-        const [copied, setCopied] = react.useState(false)
-        const [editor, setEditor] = react.useState(null)
-        const [saveError, setSaveError] = react.useState(null)
-
-        // 字体下拉：点击外部关闭
-        react.useEffect(function () {
-          if (!fontOpen && !sizeOpen) return
-          function onDoc(e) {
-            if (fontRef.current && !fontRef.current.contains(e.target)) setFontOpen(false)
-            if (sizeRef.current && !sizeRef.current.contains(e.target)) setSizeOpen(false)
-          }
-          document.addEventListener('mousedown', onDoc)
-          return function () { document.removeEventListener('mousedown', onDoc) }
-        }, [fontOpen, sizeOpen])
-
-        // 悬浮锚点跟随：挂载后用实测菜单尺寸校正一次；页面滚动/窗口缩放时重定位
-        // （只有关闭是诚实的 fallback：锚点已出视野时关菜单，绝不乱放）
-        react.useEffect(function () {
-          if (!fontOpen) return
-          if (typeof window === 'undefined') return
-          function menuSize() {
+    return function apply(ctx) {
+        const theme = ctx.get('theme');
+        const slots = ctx.get('slots');
+        let state = loadState();
+        let tokenDispose = null;
+        let styleTag = null;
+        // ── 宿主桥 + 日志骨架 + 更新入口件（宿主不可用时更新块不挂载，不影响主题面板）──
+        const hostBridge = createHostBridge(ctx);
+        const clientLog = createClientLog({
+            host: hostBridge,
+            timer: { timeout: function (fn, ms) { return setTimeout(fn, ms); } },
+            storage: (globalThis.localStorage ? globalThis.localStorage : null),
+        }, { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX });
+        // ── 检查更新：dsh-plugin-update@0.18.11 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+        // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
+        // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
+        // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
+        // 以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的 dialog 面板都按同一语言单语渲染，
+        // 切换即时重绘；入口件只挂载一次，不随语言重挂（unmount 时停订，不泄漏）。宿主不可用时不挂载，主题面板照常。
+        // 按钮尺寸走正式参数 sizing（取代旧容器 zoom 临时方案，上游 #69 已落地）：12px/2px 10px/6px/scale 1，
+        // 容器再加 nowrap 防止“检查更新”折成两行；不碰包内类名。
+        // 入口按钮去底（头行是宿主地盘）：只覆盖入口作用域的 buttonBg 为透明——dialog 根 .dsh-upd
+        // 不在 .dsh-upd-entry 内故不受影响；按钮自身指定值胜过祖先 inline tokens 的继承值。上游改名则静默回退到主题色块。
+        const UPDATE_ENTRY_TRANSPARENT_BG = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}';
+        // any: 入口件实例由 dsh-plugin-update 生成（含 setThemeTokens/unmount），本侧只做鸭子调用
+        const mountedUpdateEntries = [];
+        function currentUpdateTokens() {
             try {
-              if (fontMenuRef.current && typeof fontMenuRef.current.getBoundingClientRect === 'function') {
-                const m = fontMenuRef.current.getBoundingClientRect()
-                return { w: m.width, h: m.height }
-              }
-            } catch (e) { /* 量不到就用估计值 */ }
-            return { w: null, h: null }
-          }
-          function reposition() {
-            const s = menuSize()
-            if (!placeFontMenu(s.w, s.h)) { setFontOpen(false); setFontAnchor(null) }
-          }
-          reposition()
-          function onScroll(e) {
-            try {
-              if (fontMenuRef.current && e && e.target && fontMenuRef.current.contains(e.target)) return
-            } catch (err) { /* 含不住就当外部滚动 */ }
-            reposition()
-          }
-          function onResize() { reposition() }
-          window.addEventListener('scroll', onScroll, true)
-          window.addEventListener('resize', onResize)
-          return function () {
-            window.removeEventListener('scroll', onScroll, true)
-            window.removeEventListener('resize', onResize)
-          }
-        }, [fontOpen])
-
-        // 本机字体清单：**只有用户真的点开下拉才读**（queryLocalFonts 要用户手势 + 可能弹授权），
-        // 打开面板时不读。读不到也不影响控件：候选恒含预设兜底。
-        react.useEffect(function () {
-          if (!fontOpen) return
-          if (fontList !== null || fontBusy || fontTriedRef.current) return
-          fontTriedRef.current = true
-          setFontBusy(true)
-          collectFontCandidates().then(function (res) {
-            setFontList(res)
-            setFontBusy(false)
-          }, function () {
-            setFontList({ candidates: buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS), count: 0, reason: 'failed', ok: false })
-            setFontBusy(false)
-          })
-        }, [fontOpen, fontList, fontBusy])
-
-        // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
-        react.useEffect(function () {
-          return props.subscribeLocale(function () { setUi(props.getState()) })
-        }, [])
-
-        // 自定义主题对账：面板挂载时拉宿主真值（成功刷新胶囊 + 写缓存，失败静默留用缓存）
-        react.useEffect(function () {
-          let alive = true
-          try {
-            Promise.resolve().then(function () { return props.reconcileCustomThemes() }).then(function (res) {
-              if (alive && res) setCustomData({ themes: res.themes || [], dirPath: res.dirPath || '' })
-            }).catch(function () { /* 静默降级 */ })
-          } catch (e) { /* 静默降级 */ }
-          return function () { alive = false }
-        }, [])
-
-        // 明暗切换：body[data-ds-dark-theme] 增删时重渲染（浅色适配跟随）
-        react.useEffect(function () {
-          if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body) return
-          let obs = null
-          try {
-            obs = new MutationObserver(function () { setHostDark(isHostDark()) })
-            obs.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] })
-          } catch (e) { obs = null }
-          return function () { try { if (obs) obs.disconnect() } catch (e) { /* 忽略 */ } }
-        }, [])
-
-        // 搜索过滤（命中组保留，空组隐藏；issue 48：芯片是主题的投影不是宿主的镜像，
-        // 分组与预览色恒走深色基线，与宿主明暗无关；面板铬（阴影/描边回退）仍跟随宿主）
-        const q = query.trim().toLowerCase()
-        const shown = q === ''
-          ? props.groups('dark')
-          : props.groups('dark')
-              .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return themeSearchText(t.name).toLowerCase().indexOf(q) >= 0 }) } })
-              .filter(function (g) { return g.themes.length > 0 })
-
-        const muted = 'var(--dsw-alias-label-secondary)'
-        const base = 'var(--dsw-alias-label-primary)'
-        // 主题显示名：中文界面用中文名、英文界面用官方名（system 走 i18n 文案）；
-        // 两表都缺键才退回内部 id（slug 兜底，键集由单源对账 pin 住）
-        const themeLabel = function (name) {
-          if (name === 'system') return name
-          return currentLang === 'zh' ? (THEME_ZH[name] || name) : (THEME_EN[name] || name)
-        }
-        const fieldLabel = { fontSize: 11, color: muted }
-        const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 }
-        const countStyle = { color: 'var(--dsw-alias-label-dimmed)', fontSize: 11, letterSpacing: 0 }
-        // 浅色适配（Q1/Q2 结论）：深色分支保持原值字节一致，浅色分支走 DSH 语义 token；
-        // token 随生效主题解析（停用走宿主浅色默认，启用走主题派生），两态各自正确
-        const segOnBg = hostDark ? 'rgba(255,255,255,0.14)' : 'var(--dsw-alias-interactive-bg-active)'
-        const ddItemOnBg = hostDark ? 'rgba(255,255,255,0.1)' : 'var(--dsw-alias-interactive-bg-hover)'
-        const menuShadow = hostDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.18)'
-        // 开关停用态浅色用定值中性灰：面 token 在浅色下与底色撞车会隐身（复检教训），定值灰在任何浅底上可见
-        const switchOffTrack = hostDark ? '#333338' : '#D4D4D8'
-        const switchOffKnob = hostDark ? '#8b8b95' : '#FFFFFF'
-        const dotFallback = hostDark ? '#555' : 'var(--dsw-alias-label-tertiary)'
-        const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)'
-        // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
-        const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)'
-        // 透光芯片恒浅底（浅色主题一眼可辨，不随宿主深浅走）；system 芯片跟宿主走（浅宿主白底、深宿主深底）
-        const chipDarkSurface = '#0A0A0A'
-        const chipLightSurface = '#FFFFFF'
-        const chipLightText = '#1A1A1A'
-        // issue 48：预览色恒为深色基线，直接取主题文字色；
-        // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
-        const chipText = function (colors) {
-          if (colors && colors.text) return colors.text
-          return base
-        }
-
-        // 分段按钮控件
-        const seg = function (value, options, onChange) {
-          return h('div', { style: { display: 'inline-flex', background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: 2, gap: 2 } },
-            options.map(function (opt) {
-              const on = opt.value === value
-              return h('button', {
-                key: String(opt.value),
-                onClick: function () { onChange(opt.value) },
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: {
-                  border: 0, borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
-                  background: on ? segOnBg : 'transparent',
-                  color: on ? base : muted,
-                  fontFamily: 'var(--dsw-font-family)',
-                },
-              }, opt.label)
-            }))
-        }
-        // 通用下拉（字号）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
-        const dd = function (open, setOpen, ref, labelNode, items) {
-          return h('div', { ref: ref, style: { position: 'relative' } }, [
-            h('button', {
-              onClick: function () { setOpen(!open) },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: {
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
-                color: base, fontFamily: 'var(--dsw-font-family)',
-              },
-            }, [labelNode, h('span', { style: { color: muted } }, '▾')]),
-            open ? h('div', {
-              style: {
-                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
-                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, minWidth: 200, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
-              },
-            }, items) : null,
-          ])
-        }
-        const dot = function (color, size) {
-          return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || dotFallback, display: 'inline-block', flex: 'none' } })
-        }
-
-        // ── 代码字体下拉：常用预设（置顶）+ 本机字体（等宽置顶，可搜索）──
-        // 候选缺省只有预设：本机清单读不到时控件照常可用（绝不出现空下拉）。
-        const fallbackCandidates = buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS)
-        const candidates = fontList && fontList.candidates ? fontList.candidates : fallbackCandidates
-
-        // 读不到清单的原因 → 人话提示（区分「没授权」与「没读到」，别都说成没字体）
-        const fontHint = function () {
-          if (fontBusy) return { text: tr('fontCounting'), retry: false }
-          if (!fontList) return null
-          if (fontList.ok) return { text: trf('fontLoadedCount', { n: fontList.count }), retry: false }
-          const key = fontList.reason === 'denied' ? 'fontScanDenied'
-            : fontList.reason === 'unavailable' ? 'fontScanUnsupported'
-              : fontList.reason === 'empty' ? 'fontScanEmpty' : 'fontScanFail'
-          return { text: tr(key), retry: true }
-        }
-        const retryFonts = function () {
-          fontTriedRef.current = false
-          localFontsCache = null
-          setFontList(null)
-        }
-        // 候选行：族名按自己的字体渲染（预览即所得）；未装灰显标注，确实装在本机的标「已装」/「等宽」
-        const fontItem = function (k) {
-          const on = k.key === st.fontKey
-          const suffix = k.ok && k.installed ? '(' + (k.mono ? tr('fontMono') : tr('fontLocal')) + ')' : (k.ok ? '' : '(' + tr('fontNotInstalled') + ')')
-          return h('div', {
-            key: k.key,
-            onClick: function () {
-              props.refresh(st.mode, st.size, k.key)
-              setUi(props.getState())
-              setFontOpen(false)
-            },
-            title: k.key + suffix,
-            [UI_INTERACTIVE_ATTR]: TIER_ROW,
-            style: {
-              display: 'flex', alignItems: 'center', height: '28px', padding: '0 10px',
-              fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
-              background: on ? ddItemOnBg : 'transparent',
-              color: on ? base : muted,
-              opacity: k.ok ? 1 : 0.45,
-              overflow: 'hidden', whiteSpace: 'nowrap',
-              flex: 'none',
-            },
-          }, h('span', { style: { flex: '1 1 auto', minWidth: '0', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '20px', fontFamily: k.stack || codeFontStack(k.key) } }, k.key + suffix))
-        }
-        const hint = fontHint()
-        const hintNode = hint
-          ? h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 7px', fontSize: 11, color: muted, borderBottom: '1px solid var(--dsw-alias-border-l1)' } }, [
-            h('span', { style: { flex: '1 1 auto' } }, hint.text),
-            hint.retry ? h('span', {
-              onClick: function () { retryFonts() },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: { cursor: 'pointer', color: 'var(--dsw-alias-brand-primary)', flex: 'none' },
-            }, tr('fontRetry')) : null,
-          ])
-          : null
-        // 分组标题：非点击的分区线（替代旧“本机字体 · 90”文本分隔）。
-        // 文本用主题色 var(--dsw-alias-brand-primary)（随当前 opencode 主题走 primary），
-        // 数量做成描边徽章 + 中间细分割线，不再用“·”拼接字符串。
-        const secHeader = function (key, label, count) {
-          const badge = (count === null || count === undefined) ? null : h('span', {
-            key: 'n',
-            style: {
-              fontSize: 11, lineHeight: '16px', padding: '0 7px', borderRadius: 999,
-              border: '1px solid var(--dsw-alias-brand-primary)',
-              color: 'var(--dsw-alias-brand-primary)', background: 'transparent', flex: 'none',
-            },
-          }, String(count))
-          return h('div', {
-            key: key,
-            style: {
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '10px 10px 4px', cursor: 'default', userSelect: 'none',
-              flex: 'none',
-            },
-          }, [
-            h('span', {
-              key: 't',
-              style: {
-                fontSize: 11, fontWeight: 600, letterSpacing: '.08em', whiteSpace: 'nowrap',
-                color: 'var(--dsw-alias-brand-primary)',
-              },
-            }, label),
-            h('span', { key: 'l', style: { flex: '1 1 auto', height: 1, background: 'var(--dsw-alias-border-l1)', borderRadius: 1 } }),
-            badge,
-          ])
-        }
-        const menuItem = function (key, label, onClick) {
-          return h('div', {
-            key: key,
-            onClick: onClick,
-            [UI_INTERACTIVE_ATTR]: TIER_ROW,
-            style: { padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer', color: base },
-          }, label)
-        }
-        const fontMenu = function () {
-          const q = fontQuery.trim().toLowerCase()
-          const match = function (k) { return q === '' || k.key.toLowerCase().indexOf(q) >= 0 }
-          const presets = candidates.filter(function (k) { return k.isPreset && match(k) })
-          // 枚举到的本机字体已按「等宽置顶 + 字母序」排好，这里只做过滤与截断（大清单别一次铺满 DOM）
-          const all = candidates.filter(function (k) { return !k.isPreset && match(k) })
-          const locals = all.slice(0, 400)
-          const rows = []
-          if (presets.length > 0) {
-            rows.push(secHeader('sec-presets', tr('fontPresets'), presets.length))
-            for (const k of presets) rows.push(fontItem(k))
-          }
-          if (locals.length > 0) {
-            rows.push(secHeader('sec-locals', tr('fontLocals'), all.length))
-            for (const k of locals) rows.push(fontItem(k))
-          }
-          if (rows.length === 0) rows.push(menuItem('no-match', tr('fontNoMatch'), function () {}))
-          return h('div', null, [
-            h('input', {
-              value: fontQuery,
-              onChange: function (e) { setFontQuery(e.target.value) },
-              onClick: function (e) { if (e && typeof e.stopPropagation === 'function') e.stopPropagation() },
-              [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-              placeholder: tr('fontSearch'),
-              style: {
-                width: '100%', boxSizing: 'border-box', background: 'var(--dsw-alias-bg-layer-2)',
-                border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: '6px 10px',
-                fontSize: 12, outline: 'none', color: base, fontFamily: 'var(--dsw-font-family)', marginBottom: 4,
-              },
-            }),
-            hintNode,
-            h('div', { style: { maxHeight: 280, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
-          ])
-        }
-        const fontPicker = function () {
-          return h('div', { ref: fontRef, style: { position: 'relative' } }, [
-            h('button', {
-              ref: fontBtnRef,
-              // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
-              // 顺带同步量按钮矩形定悬浮锚点（同一次 click，布局已稳定）
-              onClick: function () { openFontMenu() },
-              [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-              style: {
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
-                color: base, fontFamily: 'var(--dsw-font-family)',
-              },
-            }, [
-              h('span', { style: { fontFamily: codeFontStack(st.fontKey) } }, st.fontKey),
-              h('span', { style: { color: muted } }, '▾'),
-            ]),
-            fontOpen ? h('div', {
-              key: 'font-menu',
-              ref: fontMenuRef,
-              style: {
-                position: 'fixed', left: fontAnchor ? fontAnchor.left : 0, top: fontAnchor ? fontAnchor.top : 0, zIndex: 1000,
-                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
-                borderRadius: 8, width: 'max-content', minWidth: fontAnchor ? fontAnchor.minW : 240, maxWidth: 'calc(100vw - 48px)',
-                boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
-              },
-            }, [fontMenu()]) : null,
-          ])
-        }
-
-        // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
-        // 透光恒浅底深字（浅色一眼可辨）；system 跟宿主（浅白/深黑），选中 system 的外观效果等同停用（只留排印，颜色与外观接管全释放）
-        const chip = function (t) {
-          const isCur = t.name === st.theme
-          const c = t.colors
-          const translucent = t.name !== 'system' && delegatesBackground(t.name)
-          const isSystem = t.name === 'system'
-          const chipBg = translucent ? chipLightSurface : (isSystem ? (hostDark ? chipDarkSurface : chipLightSurface) : (c && c.background ? c.background : chipDarkSurface))
-          const chipFg = translucent ? chipLightText : chipText(c)
-          return h('button', {
-            key: t.name,
-            onClick: function () { props.setTheme(t.name); setUi(props.getState()) },
-            title: translucent ? tr('translucentNote') : undefined,
-            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
-            style: {
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: chipBg,
-              color: chipFg,
-              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
-              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
-              fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
-              outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
-            },
-          }, [
-            dot(c && c.primary, 9),
-            t.name === 'system' ? tr('systemDefault') : themeLabel(t.name),
-            isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
-          ])
-        }
-
-        // ── 预置 IP 组（用户口径 m08573）：IP 预置是「预置」，得跟内置 38 同一条列表流、固定位置
-        // （内置组之后、自定义区之前），点击直接生效且绝不写 DSH 自定义目录；只有用户新增的
-        // 自定义主题才落盘进自定义区。搜索一并过滤（中文名与 ascii id 都命中）。
-        const ipMatchList = function () {
-          const qq = query.trim().toLowerCase()
-          return safeIpPresets().filter(function (p) {
-            if (!p || !p.name) return false
-            if (qq === '') return true
-            return p.name.toLowerCase().indexOf(qq) >= 0 || String(p.title || '').toLowerCase().indexOf(qq) >= 0
-          })
-        }
-        const ipChip = function (p) {
-          const key = 'ip:' + p.name
-          const isCur = key === st.theme
-          const c = p.colors || {}
-          const bgT = c.background === 'transparent'
-          const chipBg = bgT ? chipLightSurface : (c.background || chipDarkSurface)
-          const chipFg = bgT ? chipLightText : chipText(c)
-          return h('button', {
-            key: key,
-            onClick: function () { props.setIpTheme(p.name); setUi(props.getState()) },
-            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
-            style: {
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: chipBg,
-              color: chipFg,
-              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (c.primary || chipBorderFallback),
-              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
-              fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
-              outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
-            },
-          }, [
-            dot(c.primary, 9),
-            currentLang === 'zh' ? (p.title || p.name) : p.name,
-            isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
-          ])
-        }
-        const renderIpGroup = function () {
-          const list = ipMatchList()
-          if (!list.length) return null
-          return h('div', { key: 'ip-presets', style: { marginBottom: 10 } }, [
-            h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
-              dot('#8B8B95', 8),
-              tr('customIpPresets'),
-              h('span', { style: countStyle }, String(list.length)),
-            ]),
-            h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, list.map(ipChip)),
-          ])
-        }
-
-        // ── 自定义主题区（#86）：特殊分组下方的独立区块，不碰 GROUP_ORDER / themeNames ──
-        const copyIcon = function (checking) {
-          return h('svg', {
-            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
-            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-            style: { display: 'block' },
-          }, checking
-            ? [h('path', { key: 'ok', d: 'M20 6L9 17l-5-5' })]
-            : [h('path', { key: 'box', d: 'M9 9h11v11H9z' }), h('path', { key: 'page', d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })])
-        }
-        const fallbackCopy = function (text, done) {
-          try {
-            const d = typeof document !== 'undefined' ? document : null
-            if (!d || typeof d.createElement !== 'function') return false
-            const ta = d.createElement('textarea')
-            ta.value = text
-            if (!d.body || typeof d.body.appendChild !== 'function') return false
-            d.body.appendChild(ta)
-            if (ta && typeof ta.select === 'function') { try { ta.select() } catch (e) { /* 忽略 */ } }
-            let ok = false
-            if (typeof d.execCommand === 'function') { try { ok = d.execCommand('copy') } catch (e) { ok = false } }
-            if (typeof d.body.removeChild === 'function') { try { d.body.removeChild(ta) } catch (e) { /* 忽略 */ } }
-            if (ok && done) done()
-            return ok
-          } catch (e) { return false }
-        }
-        const copyDirPath = function () {
-          const text = (customData && customData.dirPath) || ''
-          if (!text) return
-          const done = function () {
-            setCopied(true)
-            try { setTimeout(function () { setCopied(false) }, 1400) } catch (e) { /* 忽略 */ }
-          }
-          try {
-            const nav = typeof navigator !== 'undefined' ? navigator : null
-            if (nav && nav.clipboard && typeof nav.clipboard.writeText === 'function') {
-              nav.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done) })
-              return
+                const iid = ipIdOf(state.theme);
+                if (iid) {
+                    const ip = findIpPreset(iid);
+                    if (ip && ip.colors)
+                        return buildUpdateTokensFromColors(ip.colors, customAppearanceOf(ip));
+                }
+                const cid = customIdOf(state.theme);
+                if (cid) {
+                    const found = findCustom(cid);
+                    if (found && found.colors)
+                        return buildUpdateTokensFromColors(found.colors, customAppearanceOf(found));
+                }
+                return buildUpdateTokens(state.theme);
             }
-          } catch (e) { /* 落到降级 */ }
-          fallbackCopy(text, done)
-        }
-        // 自定义主题胶囊（B1 方案：圆点 primary、底 background、字 text、边框 primary；
-        // light+transparent 走恒浅底；选中 2px 品牌边框 + ✓）
-        const customChip = function (t) {
-          const pv = props.customPreview(t) || {}
-          const key = 'custom:' + t.id
-          const isCur = key === st.theme
-          const chipBg = pv.translucent ? chipLightSurface : (pv.background || chipDarkSurface)
-          const chipFg = pv.translucent ? chipLightText : (pv.text || base)
-          return h('button', {
-            key: key,
-            title: tr('customChipTitle'),
-            onClick: function () { applyCustomChip(t) },
-            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
-            style: {
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: chipBg,
-              color: chipFg,
-              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (pv.primary || chipBorderFallback),
-              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
-              fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
-              outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
-            },
-          }, [
-            dot(pv.primary, 9),
-            t.name,
-            isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
-          ])
-        }
-        const funcCapsule = function (id, label, title, onClick, disabled) {
-          return h('button', {
-            key: id,
-            title: title,
-            onClick: onClick,
-            disabled: disabled ? true : undefined,
-            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-            style: {
-              display: 'inline-flex', alignItems: 'center', gap: 5,
-              background: '#FAB283', color: '#141419',
-              border: '1px solid #FAB283', borderRadius: 20,
-              padding: '3px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
-              opacity: disabled ? 0.45 : 1,
-              fontFamily: 'var(--dsw-font-family)',
-            },
-          }, label)
-        }
-        const openNewEditor = function () {
-          setSaveError(null)
-          let base = {}
-          try {
-            const p = props.presetPalette('opencode', hostDark ? 'dark' : 'light')
-            if (p && p.colors) base = p.colors
-          } catch (e) { base = {} }
-          setEditor({ mode: 'new', seed: { id: null, name: '', appearance: 'dark', colors: base, basePreset: 'opencode' } })
-        }
-        const openEditEditor = function () {
-          const list = (customData && customData.themes) || []
-          // 没有任何用户自定义主题 → 编辑入口什么都不做（用户口径 m08573：不许回落到「新增」；
-          // 胶囊本身此时已置灰，这里是硬保证，键盘/程序触发也不越界）。预置 IP 不是可编辑对象。
-          if (!list.length) return
-          setSaveError(null)
-          const activeId = customIdOf(props.getState().theme)
-          const first = list.filter(function (x) { return x && x.id === activeId })[0] || list[0]
-          let base = {}
-          try {
-            const p = props.presetPalette(first.basePreset || 'opencode', hostDark ? 'dark' : 'light')
-            if (p && p.colors) base = p.colors
-          } catch (e) { base = {} }
-          setEditor({
-            mode: 'edit',
-            seed: {
-              id: first.id, name: first.name, appearance: first.appearance,
-              colors: Object.assign({}, base, first.colors), basePreset: first.basePreset || 'opencode',
-            },
-          })
-        }
-        const handleEditorSave = function (payload) {
-          if (!payload || !String(payload.name || '').trim()) return
-          setSaveError(null)
-          try {
-            Promise.resolve().then(function () { return props.saveCustomTheme(payload) }).then(function (res) {
-              if (res && res.ok) {
-                try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
-                setUi(props.getState())
-                setEditor(null)
-              } else {
-                setSaveError(tr('customSaveFail'))
-              }
-            }).catch(function () { setSaveError(tr('customSaveFail')) })
-          } catch (e) { setSaveError(tr('customSaveFail')) }
-        }
-        const handleEditorDelete = function (id) {
-          try {
-            Promise.resolve().then(function () { return props.deleteCustomTheme(id) }).then(function () {
-              try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
-              setUi(props.getState())
-              setEditor(null)
-            }).catch(function () { /* 保持弹窗，静默 */ })
-          } catch (e) { /* 保持弹窗，静默 */ }
-        }
-        const pick2 = function (key) {
-          const entry = I18N[key] || {}
-          return { zh: entry.zh !== undefined ? entry.zh : key, en: entry.en !== undefined ? entry.en : key }
-        }
-        const editorSlotMeta = function () {
-          const out = {}
-          for (const s of COLOR_SLOTS) {
-            out[s.key] = {
-              zh: (I18N['cslot.' + s.key] || {}).zh || s.key,
-              en: (I18N['cslot.' + s.key] || {}).en || s.key,
-              useZh: (I18N['cslotUse.' + s.key] || {}).zh || '',
-              useEn: (I18N['cslotUse.' + s.key] || {}).en || '',
-              allow: !!s.allowTransparent,
+            catch (e) {
+                return undefined;
             }
-          }
-          return out
         }
-        const editorGroupMeta = function () {
-          return {
-            bg: pick2('cgroup.bg'), text: pick2('cgroup.text'), brand: pick2('cgroup.brand'),
-            border: pick2('cgroup.border'), diff: pick2('cgroup.diff'),
-            md: pick2('cgroup.md'), syn: pick2('cgroup.syn'),
-          }
+        function refreshUpdateTheme() {
+            const tokens = currentUpdateTokens();
+            for (const entry of mountedUpdateEntries) {
+                try {
+                    if (entry && typeof entry.setThemeTokens === 'function')
+                        entry.setThemeTokens(tokens);
+                }
+                catch (err) { /* 忽略 */ }
+            }
         }
-        const safeIpPresets = function () {
-          try { return listIpPresets() } catch (e) { return [] }
-        }
-        const editorPresets = function () {
-          try {
-            const hm = hostDark ? 'dark' : 'light'
-            const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
-            // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.mjs）。
-            return builtins.concat(safeIpPresets())
-          } catch (e) { return [] }
-        }
-        const editorPresetGroups = function (presets) {
-          try {
-            const names = presets.map(function (p) { return p.name })
-            const seen = {}
-            const buckets = []
-            const mineIp = safeIpPresets().map(function (p) { return p.name }).filter(function (n) { return names.indexOf(n) >= 0 })
-            mineIp.forEach(function (n) { seen[n] = true })
-            if (mineIp.length) buckets.push({ title: tr('customIpPresets'), names: mineIp, color: '#8B8B95' })
-            props.groups('dark').forEach(function (g) {
-              const mine = g.themes.map(function (t) { return t.name }).filter(function (n) { return names.indexOf(n) >= 0 })
-              mine.forEach(function (n) { seen[n] = true })
-              if (mine.length) buckets.push({ title: tr('group.' + g.name), names: mine, color: g.color || '#8B8B95' })
-            })
-            const rest = names.filter(function (n) { return !seen[n] })
-            if (rest.length) buckets.push({ title: tr('customOther'), names: rest, color: '#8B8B95' })
-            return buckets.filter(function (b) { return b.names.length > 0 })
-          } catch (e) { return [] }
-        }
-        // 点自定义胶囊：换上该存盘主题。命中不了（缓存旧/文件被外部删）→ setCustomTheme 内部先对账一次，
-        // 仍无则原样不动；这里绝不代用户写盘，也绝不把主题悄悄换回第一个（用户口径 m08573）。
-        const applyCustomChip = function (t) {
-          if (!t || typeof t.id !== 'string' || !t.id) return
-          props.setCustomTheme(t.id)
-          setUi(props.getState())
-        }
-        // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 21 套在上方 IP 预置组，恒不写盘。
-        const renderCustomSection = function () {
-          const list = (customData && customData.themes) || []
-          const shownCustom = filterCustomThemes(list, query)
-          return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
-            h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
-              dot('#FAB283', 8),
-              trf('customTitle', { n: list.length }),
-              h('span', { style: { flex: 1 } }),
-              h('button', {
-                title: (customData && customData.dirPath) || undefined,
-                onClick: copyDirPath,
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: {
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
-                  borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
-                  color: base, fontFamily: 'var(--dsw-font-family)',
+        function updateLocaleSource() {
+            return {
+                getActive: function () { return currentLocale(); },
+                subscribe: function (cb) {
+                    localeListeners.push(cb);
+                    return function () {
+                        const i = localeListeners.indexOf(cb);
+                        if (i >= 0)
+                            localeListeners.splice(i, 1);
+                    };
                 },
-              }, [copyIcon(copied), copied ? tr('customCopied') : tr('customCopyPath')]),
-            ]),
-            h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, shownCustom.map(customChip).concat([
-              funcCapsule('+new', '+ ' + tr('customAdd'), tr('customAddTitle'), openNewEditor, false),
-              funcCapsule('~edit', '✎ ' + tr('customEdit'), list.length ? tr('customEditTitle') : tr('customEditEmpty'), openEditEditor, !list.length),
-            ])),
-          ])
+            };
         }
-        const renderEditor = function () {
-          if (!editor) return null
-          const presets = editorPresets()
-          return h(CustomEditor, {
-            h: {
-              createElement: h,
-              useState: react.useState, useEffect: react.useEffect,
-              useMemo: react.useMemo, useRef: react.useRef,
-            },
-            tr: tr, trf: trf, lang: currentLang,
-            groups: props.slotGroups(), groupMeta: editorGroupMeta(), slotMeta: editorSlotMeta(),
-            editor: editor, customs: ((customData && customData.themes) || []).slice(),
-            presets: presets, presetGroups: editorPresetGroups(presets),
-            presetLabel: function (n, p) {
-              if (n === 'system') return n
-              if (currentLang === 'zh') return THEME_ZH[n] || (p && p.title) || n
-              return THEME_EN[n] || n
-            },
-            onSave: handleEditorSave, onDelete: handleEditorDelete,
-            onClose: function () { setEditor(null) },
-          })
-        }
-
-
-
-        // ── 作者其他插件（底部引流位）──
-        // 只列兄弟插件、不自我推荐（本面板自己的星标链接就在标题行）；
-        // 静态外链列表，不做「已安装」检测（面板侧无稳定安装信号）。
-        const authorPlugins = [
-          { repo: 'dsh-mattpocock-skills-deck', descKey: 'authorPlugin.skillsDeck' },
-          { repo: 'dsh-prompt', descKey: 'authorPlugin.prompt' },
-          { repo: 'dsh-im-companion', descKey: 'authorPlugin.imCompanion' },
-        ]
-        // 外链小图标（方框 + 右上斜箭头，与 MattSkills 同款语义）
-        const extLinkIcon = function () {
-          return h('svg', {
-            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
-            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-            style: { display: 'block' },
-          }, [
-            h('path', { d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }),
-            h('polyline', { points: '15 3 21 3 21 9' }),
-            h('line', { x1: 10, y1: 14, x2: 21, y2: 3 }),
-          ])
-        }
-        // 四宫格小图标（卡片标题前）
-        const gridIcon = function () {
-          return h('svg', {
-            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
-            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-            style: { display: 'block' },
-          }, [
-            h('rect', { key: 'tl', x: 3, y: 3, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'tr', x: 14, y: 3, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'bl', x: 3, y: 14, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'br', x: 14, y: 14, width: 7, height: 7, rx: 1 }),
-          ])
-        }
-        // 底部引流卡片：3 行兄弟插件，整行可点（锚点），新窗口打开
-        const authorCard = h('div', {
-          style: {
-            marginTop: 4,
-            border: '1px solid var(--dsw-alias-border-l1)',
-            borderRadius: 10, padding: '12px 14px',
-            display: 'flex', flexDirection: 'column', gap: 4,
-          },
-        }, [
-          h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, color: base, fontSize: 13, fontWeight: 600, marginBottom: 6 } }, [
-            h('span', { key: 'ico', style: { color: muted, display: 'inline-flex' } }, gridIcon()),
-            tr('authorPlugins'),
-          ]),
-          ...authorPlugins.map(function (p) {
-            return h('a', {
-              key: p.repo,
-              href: 'https://github.com/FeatherHunter/' + p.repo,
-              target: '_blank', rel: 'noopener noreferrer',
-              title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
-              [UI_INTERACTIVE_ATTR]: TIER_ROW,
-              style: {
-                display: 'flex', alignItems: 'baseline', gap: 10,
-                padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
-                textDecoration: 'none', cursor: 'pointer',
-                background: 'transparent',
-              },
-            }, [
-              h('span', { key: 'name', style: { fontFamily: 'var(--ds-font-family-code)', fontSize: 12, fontWeight: 700, color: base, whiteSpace: 'nowrap' } }, p.repo),
-              h('span', { key: 'desc', style: { fontSize: 12, color: muted, flex: 1 } }, tr(p.descKey)),
-              h('span', { key: 'ext', style: { color: 'var(--dsw-alias-label-tertiary)', display: 'inline-flex', flex: 'none' } }, extLinkIcon()),
-            ])
-          }),
-        ])
-
-        // ── 检查更新：新包入口件挂载位（头行右侧原位；宿主不可用时不渲染）──
-        // 单按钮：openOn 'always'，点即查完开弹窗（无新版在弹窗内看“已是最新”，头行永不挂第二块）。
-        const updMountRef = react.useRef ? react.useRef(null) : { current: null }
-        const [logNotice, setLogNotice] = react.useState(false)
-        react.useEffect(function () {
-          const el = updMountRef.current
-          if (!el) return undefined
-          const entry = mountUpdateButton(el)
-          return function () {
+        function mountUpdateButton(container) {
+            if (!hostBridge || !container || typeof container.innerHTML !== 'string')
+                return null;
             try {
-              const i = mountedUpdateEntries.indexOf(entry)
-              if (i >= 0) mountedUpdateEntries.splice(i, 1)
-            } catch (e) { /* 忽略 */ }
-            try { entry && entry.unmount() } catch (e) { /* 忽略 */ }
-          }
-        }, [])
-        // 新包入口件挂载容器：头行右侧原位；宿主不可用时 mountUpdateButton 回 null，不渲染。
-        // data-update-entry 是产物级断言锚点（tests/update-panel.test.mjs），不是样式钩子。
-        const updateButton = hostBridge
-          ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' } })
-          : null
-
-
-        // 升级弹窗与待重启横幅由入口件内部按需以 dialog 挂起（包内 mountUpdatePanel），面板不再自建。
-
-        // ── 日志开关（排障用的小开关）──
-        // 状态以宿主为准；首帧先按本地缓存渲染，对账回来再校正。开关本体归 dsh-log 管，
-        // 这里只调它的 setLogSwitch，不自己写开关文件（否则会成第二份真源）。
-        const [logOn, setLogOn] = react.useState(!!(clientLog && clientLog.logSwitch && clientLog.logSwitch.enabled))
-        react.useEffect(function () {
-          let alive = true
-          Promise.resolve(props.reconcileLog()).then(function (res) {
-            if (!alive || !res) return
-            if (typeof res.enabled === 'boolean') setLogOn(res.enabled)
-          }, function () { /* 读不到就维持本地缓存值 */ })
-          return function () { alive = false }
-        }, [])
-        const flipLog = function () {
-          const next = !logOn
-          setLogOn(next)
-          Promise.resolve(props.log.setLogSwitch(next)).then(function (res) {
-            const ok = !!(res && res.ok)
-            if (res && typeof res.enabled === 'boolean') setLogOn(res.enabled)
-            else if (!ok) setLogOn(!next)
-            try {
-              props.log.log('info', 'log.switch.set', {
-                enabled: ok ? !!next : logOn,
-                ok: ok,
-                reason: ok ? 'ok' : String((res && res.error) || 'unknown').slice(0, 40),
-                pluginId: PLUGIN_ID,
-              })
-            } catch (e) { /* 忽略 */ }
-            if (!ok) setLogNotice(true)
-          }, function () { setLogOn(!next) })
+                const entry = mountUpdateEntry(container, {
+                    pluginId: PLUGIN_ID,
+                    prefix: PHONE_PREFIX,
+                    call: function (phone, args) { return hostBridge.call(phone, args); },
+                    variant: 'button',
+                    theme: 'default',
+                    openOn: 'always',
+                    themeTokens: currentUpdateTokens(),
+                    sizing: { fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 },
+                    autoCheck: 'mount',
+                    changelogMarkdown: null,
+                    locale: updateLocaleSource(),
+                });
+                mountedUpdateEntries.push(entry);
+                return entry;
+            }
+            catch (err) {
+                return null;
+            }
         }
-
-        return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
-          // 头行：标题 + 状态开关（一个状态一个控制）
-          h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
-            h('strong', null, '🎨 ' + tr('panelName')),
-            h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
-              h('span', {
-                key: 'log',
-                onClick: flipLog,
-                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
-                title: tr('logSwitchHint'),
-                style: {
-                  fontSize: 11, cursor: 'pointer', userSelect: 'none',
-                  color: logOn ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-label-tertiary)',
-                },
-              }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
-              h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
-              updateButton,
-              h('a', {
-                href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
-                target: '_blank', rel: 'noopener noreferrer',
-                title: tr('starTitle'),
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
-              }, h('svg', {
-                width: 15, height: 15, viewBox: '0 0 24 24',
-                style: { display: 'block' },
-              }, h('path', {
-                d: 'M12 2.5l2.92 6.14 6.58.6-4.93 4.4 1.42 6.46L12 16.77l-5.99 3.33 1.42-6.46-4.93-4.4 6.58-.6L12 2.5z',
-                fill: '#FFC53D', stroke: '#B45309', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
-              }))),
-              // ISSUE 入口：彩色消息气泡（信息图标认不出「提需求」，气泡才读得出是反馈；浅底深底都可见的定值配色）
-              h('a', {
-                href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
-                target: '_blank', rel: 'noopener noreferrer',
-                title: tr('issueTitle'),
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: { display: 'inline-flex', cursor: 'pointer' },
-              }, h('svg', {
-                width: 14, height: 14, viewBox: '0 0 24 24',
-                style: { display: 'block' },
-              }, h('path', {
-                d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
-                fill: '#7DD3FC', stroke: '#0369A1', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-              }))),
-              h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
-                st.enabled ? tr('enabled') : tr('disabled')),
-              h('span', {
-                onClick: function () { props.toggle(); setUi(props.getState()) },
-                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
-                title: st.enabled ? tr('disableTitle') : tr('enableTitle'),
-                style: {
-                  position: 'relative', display: 'inline-block', width: 36, height: 20,
-                  borderRadius: 11, cursor: 'pointer',
-                  background: st.enabled ? 'rgba(250,178,131,0.4)' : switchOffTrack,
-                  transition: 'background .12s',
-                },
-              }, h('span', {
-                style: {
-                  position: 'absolute', top: 3, left: st.enabled ? 19 : 3,
-                  width: 14, height: 14, borderRadius: '50%',
-                  background: st.enabled ? '#FAB283' : switchOffKnob,
-                  transition: 'left .12s',
-                },
-              })),
-            ]),
-          ]),
-          h('div', { style: { fontSize: 12, color: muted } },
-            trf('subtitle', { n: themeNames().length })),
-          // 日志开关写失败时的本地提示（更新控制器已删，不再经由它中转）。
-          logNotice
-            ? h('div', {
-                style: { fontSize: 12, color: 'var(--dsw-alias-state-error-primary)' },
-              }, tr('logSwitchFail'))
-            : null,
-          // ── 排印调节（置顶）──
-          h('div', { style: secTitle }, [
-            h('span', null, tr('typography')),
-          ]),
-          h('div', { style: { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' } }, [
-            seg(st.mode, [
-              { value: 'mono', label: tr('mono') },
-              { value: 'tui', label: tr('sans') },
-            ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()) }),
-            dd(sizeOpen, setSizeOpen, sizeRef,
-              h('span', null, tr('fontSize') + ' ' + st.size + 'px'),
-              [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(function (s) {
-                const on = s === st.size
-                return h('div', {
-                  key: String(s),
-                  onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false) },
-                  [UI_INTERACTIVE_ATTR]: TIER_ROW,
-                  style: {
-                    padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                    background: on ? ddItemOnBg : 'transparent',
-                    color: on ? base : muted,
-                  },
-                }, String(s) + 'px')
-              })),
-            fontPicker(),
-          ]),
-          // ── 主题选择（色系分组标签 + mini 芯片）──
-          h('div', { style: secTitle }, [
-            h('span', null, tr('themeSection')),
-            h('span', { style: countStyle }, trf('themeCount', { n: themeNames().length })),
-          ]),
-          h('input', {
-            placeholder: tr('search'),
-            value: query,
-            onChange: function (e) { setQuery(e.target.value) },
-            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-            style: {
-              width: '100%', maxWidth: 380,
-              background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
-              borderRadius: 6, padding: '7px 12px', fontSize: 13, outline: 'none',
-              color: base, fontFamily: 'var(--dsw-font-family)',
-            },
-          }),
-          shown.length === 0 && ipMatchList().length === 0
-            ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, tr('noMatch'))
-            : shown.map(function (g) {
-                return h('div', { key: g.name, style: { marginBottom: 10 } }, [
-                  h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
-                    dot(g.color, 8),
-                    tr('group.' + g.name),
-                    h('span', { style: countStyle }, String(g.themes.length)),
-                  ]),
-                  h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
-                ])
-              }),
-          // ── 预置 IP 组（用户口径 m08573）：位置固定在内置组之后、自定义区之前 ──
-          renderIpGroup(),
-          // ── 自定义主题区（#86）：特殊分组下方的独立区块（+ 新增恒可见）──
-          renderCustomSection(),
-          // ── 底部：作者其他插件（引流位）──
-          authorCard,
-          // ── 37 色编辑弹窗（#86：仅编辑态渲染，SSR 首帧恒为 null）──
-          renderEditor(),
-          saveError ? h('div', {
-            style: {
-              position: 'fixed', zIndex: 3000, left: '50%', bottom: 24, transform: 'translateX(-50%)',
-              background: '#E5484D', color: '#fff', fontSize: 12, borderRadius: 8, padding: '8px 14px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-            },
-          }, saveError) : null,
-        ])
-      }
-      // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
-      const paletteApi = function () {
-        return {
-          getState: getState,
-          toggle: toggle,
-          refresh: refresh,
-          setTheme: setTheme,
-          // 预置 IP 主题入口（用户口径 m08573）：点击即生效、不落盘；返回 false = 该 id 不在 bundle 里
-          setIpTheme: setIpTheme,
-          themeNames: themeNames,
-          // 日志器交给面板；更新入口件由面板头行按需挂载（宿主不可用时不渲染更新块）。
-          log: clientLog,
-          // 日志开关的初始状态：每次挂载都向宿主 fresh 对账，以宿主为准；
-          // 启动快照只作首帧兜底（宿主不可用时 dsh-log 回本地缓存，不抛错）。
-          // 不得复用启动时的旧 promise——写成功后它仍是旧值，重进会覆回（issue 42）。
-          reconcileLog: function () {
-            try { return clientLog.reconcileLogSwitch() } catch (e) { return Promise.resolve(null) }
-          },
-          // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
-          collectFonts: collectFontCandidates,
-          // 面板文案（测试/调试用，走同一份双语表）
-          text: function (key, vars) { return vars ? trf(key, vars) : tr(key) },
-          groups: function (mode) { return themeGroups(mode || 'dark') },
-          subscribeLocale: function (fn) {
-            localeListeners.push(fn)
+        function unmountUpdateButtons() {
+            while (mountedUpdateEntries.length > 0) {
+                try {
+                    mountedUpdateEntries.pop().unmount();
+                }
+                catch (err) { /* 忽略 */ }
+            }
+        }
+        // ── 自定义主题（#86）：宿主目录单文件 .json 为真值，localStorage 只做离线/测试兜底 ──
+        // apply 顶层绝不无条件同步调 customThemesList（log-switch mock 会抛 unexpected phone）；
+        // 对账只发生在面板挂载 effect 与用户手势里，且恒经 Promise 包裹静默降级。
+        try {
+            injectUiFx(typeof document !== 'undefined' ? document : null);
+        }
+        catch (e) { /* 忽略 */ }
+        // 缓存形状由 custom-store 的 loadCustomCache 给出；themes 里是用户保存的自定义主题记录
+        // as：custom-store 那侧未导出类型，且条目只保证 id/name 可读（unknown）、其余透传；
+        // 本侧沿用既有读法（id/name 必填），内容校验与兜底在下方使用点
+        let customCache = loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null);
+        function storageHandle() {
+            try {
+                return globalThis.localStorage ? globalThis.localStorage : null;
+            }
+            catch (e) {
+                return null;
+            }
+        }
+        function findCustom(id) {
+            const list = customCache.themes || [];
+            for (const t of list) {
+                if (t && t.id === id)
+                    return t;
+            }
+            return null;
+        }
+        function isCustomKey(key) { return typeof key === 'string' && key.indexOf('custom:') === 0; }
+        function customIdOf(key) { return isCustomKey(key) ? key.slice('custom:'.length) : null; }
+        // ── 预置 IP 主题（用户口径 m08573）：与内置 38 同属「预置」，同区展示、点击直接生效；
+        // 唯一区别是渲染来源——IP 走静态 bundle（ip-presets.ts），恒不写 DSH 自定义目录。
+        // 只有用户新增/存盘的自定义主题才落盘，激活键 custom:<id>；两者前缀并列，互不冒充。
+        function isIpKey(key) { return typeof key === 'string' && key.indexOf('ip:') === 0; }
+        function ipIdOf(key) { return isIpKey(key) ? key.slice('ip:'.length) : null; }
+        function findIpPreset(id) {
+            if (typeof id !== 'string' || !id)
+                return null;
+            try {
+                return getIpPreset(id);
+            }
+            catch (e) {
+                return null;
+            }
+        }
+        // 记录外观归一：只认 light/system，其余（含缺失）按 dark（与引擎/更新件同一口径）
+        function customAppearanceOf(t) {
+            return t && (t.appearance === 'light' || t.appearance === 'system') ? t.appearance : 'dark';
+        }
+        function setCustomCacheData(data) {
+            customCache = {
+                themes: data && Array.isArray(data.themes) ? data.themes : [],
+                dirPath: data && typeof data.dirPath === 'string' ? data.dirPath : '',
+            };
+            try {
+                saveCustomCache(storageHandle(), customCache);
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        function reconcileCustom() {
+            try {
+                return reconcileCustomThemes(hostBridge, storageHandle()).then(function (res) {
+                    if (res)
+                        setCustomCacheData(res);
+                    return res;
+                });
+            }
+            catch (e) {
+                return Promise.resolve({ themes: customCache.themes, dirPath: customCache.dirPath, source: 'cache' });
+            }
+        }
+        function saveCustomTheme(payload) {
+            const p = payload || {};
+            let id = typeof p.id === 'string' && p.id ? p.id : null;
+            if (!id) {
+                // 新建：客户端 slug 派生并避让已有用 id（宿主整单拒绝非法 id，故调用方必给合法值）
+                id = clientSlug(p.name) || 'theme';
+                const used = {};
+                for (const t of customCache.themes || []) {
+                    if (t && t.id)
+                        used[t.id] = true;
+                }
+                if (used[id]) {
+                    let i = 2;
+                    while (used[id + '-' + i])
+                        i++;
+                    id = id + '-' + i;
+                }
+            }
+            const body = { id: id, name: p.name, appearance: p.appearance, colors: p.colors, basePreset: p.basePreset };
+            if (!hostBridge)
+                return Promise.resolve({ ok: false, error: 'no-host' });
+            return Promise.resolve().then(function () {
+                return hostBridge.call('palette.customThemesSave', { theme: body });
+            }).then(function (res) {
+                if (res && res.ok === true) {
+                    if (Array.isArray(res.themes))
+                        setCustomCacheData(res);
+                    // 正在生效的主题被改 → 同步刷新已生效样式；否则等用户点胶囊才应用
+                    if (state.theme === 'custom:' + id && state.enabled) {
+                        applyStyle();
+                        refreshUpdateTheme();
+                    }
+                    return { ok: true, theme: res.theme || body };
+                }
+                return { ok: false, error: 'save-rejected' };
+            }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) }; });
+        }
+        function deleteCustomTheme(id) {
+            if (!hostBridge)
+                return Promise.resolve({ ok: false, error: 'no-host' });
+            return Promise.resolve().then(function () {
+                return hostBridge.call('palette.customThemesDelete', { id: id });
+            }).then(function (res) {
+                if (res && res.ok === true) {
+                    if (Array.isArray(res.themes))
+                        setCustomCacheData(res);
+                    else {
+                        setCustomCacheData({
+                            themes: (customCache.themes || []).filter(function (t) { return !t || t.id !== id; }),
+                            dirPath: customCache.dirPath,
+                        });
+                    }
+                    // 删的是正激活主题 → 回退 opencode（setTheme 内含应用+外观+更新刷新）
+                    if (state.theme === 'custom:' + id)
+                        setTheme('opencode');
+                    return { ok: true };
+                }
+                return { ok: false };
+            }).catch(function (err) { return { ok: false, error: String((err && err.message) || err) }; });
+        }
+        // 启动时向宿主对账调试开关（以宿主为准）；宿主不可用时静默，不抛错。
+        // 首帧渲染可先用这一次对账的本地快照，但面板每次挂载的校正必须 fresh 查询——
+        // 复用启动快照会在写成功后把新值覆回旧值（issue 42：打开后重进被关闭）。
+        let logSwitchReady = null;
+        try {
+            logSwitchReady = clientLog.reconcileLogSwitch();
+        }
+        catch (e) { /* 忽略 */ }
+        try {
+            clientLog.log('info', 'host.call', { method: 'boot', latencyMs: 0, ok: true, kind: 'boot', pluginId: PLUGIN_ID });
+        }
+        catch (e) { /* 忽略 */ }
+        // ── i18n 运行时：语言跟随 DSH（官方 locale 服务为信号源，html[lang] 仅作回退）──
+        const localeSvc = ctx.get('locale') || ctx.locale || null;
+        const LOCALE_NS = 'opencode-palette';
+        let dictDispose = null;
+        let localeUnsub = null;
+        let currentLang = localeSvc ? localeSvc.getLocale().active : getLang();
+        const localeListeners = [];
+        // 入口重注册钩：语言切换时让宿主重读入口 label（注册函数在面板段定义，此处只留钩位）
+        let reregisterEntries = null;
+        function currentLocale() { return localeSvc ? localeSvc.getLocale().active : getLang(); }
+        function tr(key) {
+            const entry = I18N[key];
+            return entry ? (entry[currentLang] !== undefined ? entry[currentLang] : key) : key;
+        }
+        // 带占位符的文案：trf('updateToVersion', { v: '1.8.0' })
+        function trf(key, vars) {
+            let text = tr(key);
+            for (const name in vars) {
+                if (Object.prototype.hasOwnProperty.call(vars, name))
+                    text = text.split('{' + name + '}').join(String(vars[name]));
+            }
+            return text;
+        }
+        function notifyLocale() {
+            const next = currentLocale();
+            if (next === currentLang)
+                return;
+            currentLang = next;
+            for (const fn of localeListeners.slice()) {
+                try {
+                    fn();
+                }
+                catch (e) { /* 忽略 */ }
+            }
+            // 入口 label 跟随：宿主只在注册时读一次 label，语言切换后需重注册才刷新入口；
+            // 面板内容已由上面的订阅重渲染，不受影响。宿主不支持重注册则保持旧入口。
+            try {
+                if (reregisterEntries)
+                    reregisterEntries();
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        // 监听语言变化：官方 locale 服务优先；无该服务的环境（如旧版 DSH/测试沙箱）回退监听 html[lang]
+        let localeObserver = null;
+        if (localeSvc && typeof localeSvc.subscribe === 'function') {
+            localeUnsub = localeSvc.subscribe(notifyLocale);
+        }
+        else if (typeof MutationObserver !== 'undefined' && typeof document !== 'undefined' && document.documentElement) {
+            localeObserver = new MutationObserver(notifyLocale);
+            localeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+        }
+        // 把面板双语表注册进 locale 服务：标题/文案随 DSH 语言实时切换（disposer 交给清理器）
+        if (localeSvc && typeof localeSvc.register === 'function') {
+            try {
+                dictDispose = localeSvc.register(LOCALE_NS, toLocaleDicts(I18N));
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        function safeThemeName(name) {
+            const names = themeNames();
+            return names.indexOf(name) >= 0 ? name : DEFAULT_STATE.theme;
+        }
+        function applyStyle() {
+            if (!theme)
+                return;
+            // 1) 先清理旧注入（幂等）
+            if (tokenDispose) {
+                try {
+                    tokenDispose();
+                }
+                catch (e) { /* 忽略 */ }
+                tokenDispose = null;
+            }
+            // 2) 完整重生成
+            let render;
+            try {
+                const iid = ipIdOf(state.theme);
+                const found = iid ? findIpPreset(iid) : findCustom(customIdOf(state.theme));
+                if (iid || isCustomKey(state.theme)) {
+                    // IP 预置与自定义主题共用渲染管线（37 色 + 外观）；拿不到就回退默认主题，绝不留旧注入
+                    render = found
+                        ? renderCustomTheme(found, { mode: state.mode, size: state.size, fontKey: state.fontKey })
+                        : renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' });
+                }
+                else {
+                    render = renderTheme(safeThemeName(state.theme), {
+                        mode: state.mode, size: state.size, fontKey: state.fontKey,
+                    });
+                }
+            }
+            catch (e) {
+                console.error('[dsh-opencode-palette] 渲染失败，回退默认主题:', e);
+                render = renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' });
+            }
+            // 3) token 层（issue 45：自持画布两半同值=深色观感；委托画布按外观取作者值）
+            tokenDispose = theme.overrideTokens('opencode-palette', render.tokens);
+            // 4) <style> 层
+            if (styleTag === null && typeof document !== 'undefined') {
+                styleTag = document.createElement('style');
+                styleTag.dataset.plugin = 'dsh-opencode-palette';
+                document.head.appendChild(styleTag);
+            }
+            if (styleTag)
+                styleTag.textContent = render.css + UPDATE_ENTRY_TRANSPARENT_BG;
+            return render.meta;
+        }
+        function clearStyle() {
+            if (tokenDispose) {
+                try {
+                    tokenDispose();
+                }
+                catch (e) { /* 忽略 */ }
+                tokenDispose = null;
+            }
+            if (styleTag !== null && styleTag.parentNode) {
+                styleTag.parentNode.removeChild(styleTag);
+            }
+            styleTag = null;
+        }
+        // ── 外观跟随（issue 48）：正门是 ctx.theme.setTheme（与设置页同一条写入口，
+        // 经 ui-theme 设置作用域持久化并广播快照，宿主全量应用，设置页显示一致）。
+        // 无该 API 的旧宿主才降级走文档投影（与宿主 apply 快照同构：root color-scheme +
+        // 根 source 属性 + body 深色标记），会话级记住投影前原始值以便恢复。
+        // 只在选中/启停/开关事件上动作一次，不持续对抗宿主：用户在设置页改外观即最后写入者胜出。
+        const DARK_ATTR = 'data-ds-dark-theme';
+        const SOURCE_ATTR = 'data-ds-theme-source';
+        let appearanceManaged = false;
+        let appearanceBefore = null;
+        let appearanceProjected = null;
+        let appearanceFallbackLogged = false;
+        let lastOfficialPref = null;
+        let officialBeforePref = null;
+        let officialBeforeRecorded = false;
+        function readHostPreference() {
+            try {
+                if (!theme || typeof theme.getTheme !== 'function')
+                    return undefined;
+                const snap = theme.getTheme();
+                if (!snap)
+                    return undefined;
+                const p = snap.preference !== undefined ? snap.preference : (snap.active && snap.active.preference);
+                return p === undefined ? undefined : p;
+            }
+            catch (e) {
+                return undefined;
+            }
+        }
+        function verifyHostPreference(pref) {
+            const cur = readHostPreference();
+            if (cur === undefined)
+                return true;
+            return cur === pref;
+        }
+        function restoreOfficialOnStop() {
+            if (lastOfficialPref === null || lastOfficialPref === undefined)
+                return;
+            const target = lastOfficialPref;
+            lastOfficialPref = null;
+            const cur = readHostPreference();
+            if (cur === undefined || cur !== target)
+                return;
+            const back = officialBeforePref;
+            if (back === undefined || back === null || back === target)
+                return;
+            try {
+                if (theme && typeof theme.setTheme === 'function')
+                    theme.setTheme(back);
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        function logAppearanceFallback() {
+            if (appearanceFallbackLogged)
+                return;
+            appearanceFallbackLogged = true;
+            try {
+                clientLog.log('info', 'host.call', { method: 'appearance-fallback', latencyMs: 0, ok: true, kind: 'fallback', pluginId: PLUGIN_ID });
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        function snapshotDocument() {
+            try {
+                const de = typeof document !== 'undefined' ? document.documentElement : null;
+                const body = typeof document !== 'undefined' ? document.body : null;
+                return {
+                    bodyDark: body && typeof body.hasAttribute === 'function' ? body.hasAttribute(DARK_ATTR) : null,
+                    scheme: de && de.style ? (de.style.colorScheme || '') : null,
+                    source: de && typeof de.getAttribute === 'function' ? de.getAttribute(SOURCE_ATTR) : null,
+                };
+            }
+            catch (e) {
+                return null;
+            }
+        }
+        function projectAppearance(dark) {
+            try {
+                if (typeof document === 'undefined' || !document.body || !document.documentElement)
+                    return;
+                if (!appearanceManaged) {
+                    appearanceManaged = true;
+                    appearanceBefore = snapshotDocument();
+                }
+                const scheme = dark ? 'dark' : 'light';
+                const de = document.documentElement;
+                try {
+                    if (de.style)
+                        de.style.colorScheme = scheme;
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (typeof de.setAttribute === 'function')
+                        de.setAttribute(SOURCE_ATTR, scheme);
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (dark)
+                        document.body.setAttribute(DARK_ATTR, '');
+                    else
+                        document.body.removeAttribute(DARK_ATTR);
+                }
+                catch (e) { /* 忽略 */ }
+                appearanceProjected = { bodyDark: dark, scheme: scheme, source: scheme };
+            }
+            catch (e) { /* 宿主 DOM 不可写则静默跳过 */ }
+        }
+        function releaseAppearance() {
+            try {
+                if (!appearanceManaged)
+                    return;
+                appearanceManaged = false;
+                const prev = appearanceBefore;
+                const projected = appearanceProjected;
+                appearanceBefore = null;
+                appearanceProjected = null;
+                if (!prev || typeof document === 'undefined' || !document.body || !document.documentElement)
+                    return;
+                const de = document.documentElement;
+                // 只释放我们自己写的值：中途被宿主/用户改过的信号一律不动（陈旧快照不覆盖新写入）
+                const cur = snapshotDocument() || {};
+                const ours = function (key) { return projected && cur[key] === projected[key]; };
+                try {
+                    if (!de.style || !ours('scheme')) { /* 不是我们写的则不动 */ }
+                    else if (prev.scheme)
+                        de.style.colorScheme = prev.scheme;
+                    else if (typeof de.style.removeProperty === 'function')
+                        de.style.removeProperty('color-scheme');
+                    else
+                        de.style.colorScheme = '';
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (typeof de.setAttribute !== 'function' || !ours('source')) { /* 跳过 */ }
+                    else if (prev.source === null || prev.source === undefined) {
+                        if (typeof de.removeAttribute === 'function')
+                            de.removeAttribute(SOURCE_ATTR);
+                    }
+                    else
+                        de.setAttribute(SOURCE_ATTR, prev.source);
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (prev.bodyDark === null || prev.bodyDark === undefined || !ours('bodyDark')) { /* 未知或被改过则不动 */ }
+                    else if (prev.bodyDark)
+                        document.body.setAttribute(DARK_ATTR, '');
+                    else
+                        document.body.removeAttribute(DARK_ATTR);
+                }
+                catch (e) { /* 忽略 */ }
+            }
+            catch (e) { /* 忽略 */ }
+        }
+        function syncAppearancePref(pref) {
+            // 无跟随开关：只要启用就恒跟随（深色→dark、透光→light、system→system释放）
+            if (!state.enabled)
+                return;
+            // system 已是释放态时不写：宿主已为 system 即无主张，重写反而可能在 compat 宿主上落成具体值（#55）
+            if (pref === 'system' && readHostPreference() === 'system') {
+                releaseAppearance();
+                return;
+            }
+            let official = false;
+            try {
+                if (theme && typeof theme.setTheme === 'function') {
+                    if (!officialBeforeRecorded) {
+                        officialBeforeRecorded = true;
+                        officialBeforePref = readHostPreference();
+                    }
+                    theme.setTheme(pref);
+                    official = verifyHostPreference(pref);
+                }
+            }
+            catch (e) {
+                official = false;
+            }
+            if (official) {
+                appearanceManaged = false;
+                appearanceBefore = null;
+                appearanceProjected = null;
+                lastOfficialPref = pref;
+                return;
+            }
+            logAppearanceFallback();
+            if (pref === 'system') {
+                releaseAppearance();
+                return;
+            }
+            projectAppearance(pref === 'dark');
+        }
+        function syncAppearanceForTheme(name) {
+            if (!state.enabled)
+                return;
+            if (name === 'system' && readHostPreference() === 'system') {
+                releaseAppearance();
+                return;
+            }
+            let pref;
+            if (name === 'system')
+                pref = 'system';
+            else {
+                let translucent = false;
+                try {
+                    translucent = delegatesBackground(name);
+                }
+                catch (e) {
+                    translucent = false;
+                }
+                pref = translucent ? 'light' : 'dark';
+            }
+            syncAppearancePref(pref);
+        }
+        // ── 面板 API（与 React 组件共享）──
+        function getState() { return { ...state }; }
+        function setTheme(name) {
+            state = { ...state, theme: safeThemeName(name) };
+            saveState(state);
+            if (state.enabled)
+                applyStyle();
+            syncAppearanceForTheme(state.theme);
+            refreshUpdateTheme();
+        }
+        // 预置 IP 主题：与内置主题同一入口的「点击即生效」，不落盘（用户口径 m08573）。
+        // 找不到（bundle 里没有这个 id）则原样不动，绝不静默换成别的主题。
+        function setIpTheme(id) {
+            const ip = findIpPreset(id);
+            if (!ip)
+                return false;
+            state = { ...state, theme: 'ip:' + id };
+            saveState(state);
+            if (state.enabled)
+                applyStyle();
+            if (customAppearanceOf(ip) !== 'system')
+                syncAppearancePref(customAppearanceOf(ip));
+            refreshUpdateTheme();
+            return true;
+        }
+        function setCustomTheme(id) {
+            const found = findCustom(id);
+            if (!found) {
+                // 缓存未命中时试一次宿主对账（用户手势路径，允许异步 RPC），仍无则忽略
+                try {
+                    reconcileCustom().then(function () {
+                        if (findCustom(id))
+                            setCustomTheme(id);
+                    }).catch(function () { });
+                }
+                catch (e) { /* 忽略 */ }
+                return;
+            }
+            state = { ...state, theme: 'custom:' + id };
+            saveState(state);
+            if (state.enabled)
+                applyStyle();
+            syncAppearancePref(customAppearanceOf(found));
+            refreshUpdateTheme();
+        }
+        function setTypography(next) {
+            state = { ...state, ...next };
+            saveState(state);
+            if (state.enabled)
+                applyStyle();
+        }
+        function toggle() {
+            state = { ...state, enabled: !state.enabled };
+            saveState(state);
+            if (state.enabled) {
+                applyStyle();
+                syncAppearanceForTheme(state.theme);
+                refreshUpdateTheme();
+            }
+            else {
+                clearStyle();
+                restoreOfficialOnStop();
+                releaseAppearance();
+            }
+        }
+        function refresh(nextMode, nextSize, nextFont) {
+            setTypography({ mode: nextMode, size: nextSize, fontKey: nextFont });
+        }
+        // 启动：默认启用（与 v1.1.0 一致）。外观跟随在启动时对齐一次，但存量 system 主题跳过：
+        // 启动是非手势路径，system 即无主张，不写偏好；点击 system 仍走官方写入口（显式手势）。
+        // 自定义主题同理：仅 appearance 非 system 才对齐一次。
+        if (state.enabled) {
+            applyStyle();
+            const bootIid = ipIdOf(state.theme);
+            const bootCid = customIdOf(state.theme);
+            if (bootIid) {
+                const bootIp = findIpPreset(bootIid);
+                if (bootIp && customAppearanceOf(bootIp) !== 'system')
+                    syncAppearancePref(customAppearanceOf(bootIp));
+            }
+            else if (bootCid) {
+                const bootFound = findCustom(bootCid);
+                if (bootFound && customAppearanceOf(bootFound) !== 'system')
+                    syncAppearancePref(customAppearanceOf(bootFound));
+            }
+            else if (state.theme !== 'system')
+                syncAppearanceForTheme(state.theme);
+        }
+        // 调试钩子（控制台可用）
+        if (typeof globalThis !== 'undefined') {
+            globalThis.__opencodePalette = {
+                getState: getState,
+                setTheme: setTheme,
+                toggle: toggle,
+                list: themeNames,
+                previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) }; }); },
+            };
+        }
+        // ── 设置面板（组合 1：排印置顶 + 色系分组标签 + mini 芯片）──
+        let disposePanel = null;
+        if (slots !== undefined && typeof document !== 'undefined') {
+            // any: 注入对象由下方 paletteApi() 生成、被 Panel 消费，两处字段随版本演进；这里按鸭子调用，
+            // 各字段的语义在 paletteApi() 上逐个注释（面板内部只做渲染，不做类型自证）。
+            const Panel = function (props) {
+                // 面板只会在宿主挂载 React 之后渲染；null 分支是动态版无 require 时的兜底，不会走到这里
+                const react = getReact();
+                const h = react.createElement;
+                const [query, setQuery] = react.useState('');
+                const [fontOpen, setFontOpen] = react.useState(false);
+                // 字体下拉：本机清单（枚举缓存）+ 搜索词 + 进行中标志
+                const [fontList, setFontList] = react.useState(localFontsCache);
+                const [fontQuery, setFontQuery] = react.useState('');
+                const [fontBusy, setFontBusy] = react.useState(false);
+                // 一次会话只自动读一次本机清单；「重试」显式复位后才允许再读
+                const fontTriedRef = react.useRef(localFontsCache !== null);
+                const [sizeOpen, setSizeOpen] = react.useState(false);
+                const fontRef = react.useRef(null);
+                const sizeRef = react.useRef(null);
+                const fontBtnRef = react.useRef(null);
+                const fontMenuRef = react.useRef(null);
+                // 悬浮锚点：fixed 菜单的视口坐标。fixed 逃的是祖先 overflow 裁剪
+                // （z-index 再高也逃不出去）；null = 菜单关闭
+                const [fontAnchor, setFontAnchor] = react.useState(null);
+                // 量一次锚点并定位：true = 已定位，false = 锚点不可见（调用方关菜单，不乱放）
+                const placeFontMenu = function (menuW, menuH) {
+                    try {
+                        if (typeof window === 'undefined' || !fontBtnRef.current || typeof fontBtnRef.current.getBoundingClientRect !== 'function')
+                            return false;
+                        const r = fontBtnRef.current.getBoundingClientRect();
+                        const g = computeMenuGeometry({ left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width }, { width: window.innerWidth, height: window.innerHeight }, menuW === undefined ? null : menuW, menuH === undefined ? null : menuH);
+                        if (!g)
+                            return false;
+                        setFontAnchor(g);
+                        return true;
+                    }
+                    catch (e) {
+                        return false;
+                    }
+                };
+                const openFontMenu = function () {
+                    setFontQuery('');
+                    if (fontOpen) {
+                        setFontOpen(false);
+                        setFontAnchor(null);
+                        return;
+                    }
+                    if (!placeFontMenu(null, null)) {
+                        setFontOpen(false);
+                        setFontAnchor(null);
+                        return;
+                    }
+                    setFontOpen(true);
+                };
+                // UI 快照：所有引擎动作后 setUi(props.getState()) 重同步，避免受控控件显示值漂移
+                const [ui, setUi] = react.useState(props.getState());
+                const st = ui;
+                // 宿主明暗跟随：浅色下硬编码深色值须换 DSH 语义 token；开着面板切换系统主题时重渲染
+                const [hostDark, setHostDark] = react.useState(isHostDark);
+                // ── 自定义主题区（#86）：首帧用 localStorage 兜底同步渲染，挂载后向宿主对账 ──
+                // effect 不跑 SSR；对账恒经 Promise 包裹静默降级（log-switch mock 零感知）
+                const [customData, setCustomData] = react.useState(function () {
+                    try {
+                        return loadCustomCache(globalThis.localStorage ? globalThis.localStorage : null);
+                    }
+                    catch (e) {
+                        return { themes: [], dirPath: '' };
+                    }
+                });
+                const [copied, setCopied] = react.useState(false);
+                const [editor, setEditor] = react.useState(null);
+                const [saveError, setSaveError] = react.useState(null);
+                // 字体下拉：点击外部关闭
+                react.useEffect(function () {
+                    if (!fontOpen && !sizeOpen)
+                        return;
+                    function onDoc(e) {
+                        if (fontRef.current && !fontRef.current.contains(e.target))
+                            setFontOpen(false);
+                        if (sizeRef.current && !sizeRef.current.contains(e.target))
+                            setSizeOpen(false);
+                    }
+                    document.addEventListener('mousedown', onDoc);
+                    return function () { document.removeEventListener('mousedown', onDoc); };
+                }, [fontOpen, sizeOpen]);
+                // 悬浮锚点跟随：挂载后用实测菜单尺寸校正一次；页面滚动/窗口缩放时重定位
+                // （只有关闭是诚实的 fallback：锚点已出视野时关菜单，绝不乱放）
+                react.useEffect(function () {
+                    if (!fontOpen)
+                        return;
+                    if (typeof window === 'undefined')
+                        return;
+                    function menuSize() {
+                        try {
+                            if (fontMenuRef.current && typeof fontMenuRef.current.getBoundingClientRect === 'function') {
+                                const m = fontMenuRef.current.getBoundingClientRect();
+                                return { w: m.width, h: m.height };
+                            }
+                        }
+                        catch (e) { /* 量不到就用估计值 */ }
+                        return { w: null, h: null };
+                    }
+                    function reposition() {
+                        const s = menuSize();
+                        if (!placeFontMenu(s.w, s.h)) {
+                            setFontOpen(false);
+                            setFontAnchor(null);
+                        }
+                    }
+                    reposition();
+                    function onScroll(e) {
+                        try {
+                            if (fontMenuRef.current && e && e.target && fontMenuRef.current.contains(e.target))
+                                return;
+                        }
+                        catch (err) { /* 含不住就当外部滚动 */ }
+                        reposition();
+                    }
+                    function onResize() { reposition(); }
+                    window.addEventListener('scroll', onScroll, true);
+                    window.addEventListener('resize', onResize);
+                    return function () {
+                        window.removeEventListener('scroll', onScroll, true);
+                        window.removeEventListener('resize', onResize);
+                    };
+                }, [fontOpen]);
+                // 本机字体清单：**只有用户真的点开下拉才读**（queryLocalFonts 要用户手势 + 可能弹授权），
+                // 打开面板时不读。读不到也不影响控件：候选恒含预设兜底。
+                react.useEffect(function () {
+                    if (!fontOpen)
+                        return;
+                    if (fontList !== null || fontBusy || fontTriedRef.current)
+                        return;
+                    fontTriedRef.current = true;
+                    setFontBusy(true);
+                    collectFontCandidates().then(function (res) {
+                        setFontList(res);
+                        setFontBusy(false);
+                    }, function () {
+                        setFontList({ candidates: buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS), count: 0, reason: 'failed', ok: false });
+                        setFontBusy(false);
+                    });
+                }, [fontOpen, fontList, fontBusy]);
+                // 语言切换：DSH 界面语言变化时重渲染（文案跟随）
+                react.useEffect(function () {
+                    return props.subscribeLocale(function () { setUi(props.getState()); });
+                }, []);
+                // 自定义主题对账：面板挂载时拉宿主真值（成功刷新胶囊 + 写缓存，失败静默留用缓存）
+                react.useEffect(function () {
+                    let alive = true;
+                    try {
+                        Promise.resolve().then(function () { return props.reconcileCustomThemes(); }).then(function (res) {
+                            if (alive && res)
+                                setCustomData({ themes: res.themes || [], dirPath: res.dirPath || '' });
+                        }).catch(function () { });
+                    }
+                    catch (e) { /* 静默降级 */ }
+                    return function () { alive = false; };
+                }, []);
+                // 明暗切换：body[data-ds-dark-theme] 增删时重渲染（浅色适配跟随）
+                react.useEffect(function () {
+                    if (typeof MutationObserver === 'undefined' || typeof document === 'undefined' || !document.body)
+                        return;
+                    let obs = null;
+                    try {
+                        obs = new MutationObserver(function () { setHostDark(isHostDark()); });
+                        obs.observe(document.body, { attributes: true, attributeFilter: ['data-ds-dark-theme'] });
+                    }
+                    catch (e) {
+                        obs = null;
+                    }
+                    return function () { try {
+                        if (obs)
+                            obs.disconnect();
+                    }
+                    catch (e) { /* 忽略 */ } };
+                }, []);
+                // 搜索过滤（命中组保留，空组隐藏；issue 48：芯片是主题的投影不是宿主的镜像，
+                // 分组与预览色恒走深色基线，与宿主明暗无关；面板铬（阴影/描边回退）仍跟随宿主）
+                const q = query.trim().toLowerCase();
+                const shown = q === ''
+                    ? props.groups('dark')
+                    : props.groups('dark')
+                        .map(function (g) { return { name: g.name, color: g.color, themes: g.themes.filter(function (t) { return themeSearchText(t.name).toLowerCase().indexOf(q) >= 0; }) }; })
+                        .filter(function (g) { return g.themes.length > 0; });
+                const muted = 'var(--dsw-alias-label-secondary)';
+                const base = 'var(--dsw-alias-label-primary)';
+                // 主题显示名：中文界面用中文名、英文界面用官方名（system 走 i18n 文案）；
+                // 两表都缺键才退回内部 id（slug 兜底，键集由单源对账 pin 住）
+                const themeLabel = function (name) {
+                    if (name === 'system')
+                        return name;
+                    // THEME_ZH/EN 是字面量表（键=主题 id，动态取用），取用点按 string 索引
+                    return currentLang === 'zh' ? (THEME_ZH[name] || name) : (THEME_EN[name] || name);
+                };
+                const fieldLabel = { fontSize: 11, color: muted };
+                const secTitle = { fontSize: 11, color: muted, letterSpacing: '.08em', marginBottom: 8, display: 'flex', alignItems: 'baseline', gap: 8 };
+                const countStyle = { color: 'var(--dsw-alias-label-dimmed)', fontSize: 11, letterSpacing: 0 };
+                // 浅色适配（Q1/Q2 结论）：深色分支保持原值字节一致，浅色分支走 DSH 语义 token；
+                // token 随生效主题解析（停用走宿主浅色默认，启用走主题派生），两态各自正确
+                const segOnBg = hostDark ? 'rgba(255,255,255,0.14)' : 'var(--dsw-alias-interactive-bg-active)';
+                const ddItemOnBg = hostDark ? 'rgba(255,255,255,0.1)' : 'var(--dsw-alias-interactive-bg-hover)';
+                const menuShadow = hostDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.18)';
+                // 开关停用态浅色用定值中性灰：面 token 在浅色下与底色撞车会隐身（复检教训），定值灰在任何浅底上可见
+                const switchOffTrack = hostDark ? '#333338' : '#D4D4D8';
+                const switchOffKnob = hostDark ? '#8b8b95' : '#FFFFFF';
+                const dotFallback = hostDark ? '#555' : 'var(--dsw-alias-label-tertiary)';
+                const chipBorderFallback = hostDark ? '#555' : 'var(--dsw-alias-border-l1)';
+                // Q1：预览芯片保留原主题底色，浅色下加分离阴影保证与浅色底区分
+                const chipShadow = hostDark ? undefined : '0 1px 3px rgba(0,0,0,0.25)';
+                // 透光芯片恒浅底（浅色主题一眼可辨，不随宿主深浅走）；system 芯片跟宿主走（浅宿主白底、深宿主深底）
+                const chipDarkSurface = '#0A0A0A';
+                const chipLightSurface = '#FFFFFF';
+                const chipLightText = '#1A1A1A';
+                // issue 48：预览色恒为深色基线，直接取主题文字色；
+                // 缺失（system）才回退主文字色。旧逻辑回退到的主文字色恰是引擎覆盖的值，等于没修。
+                const chipText = function (colors) {
+                    if (colors && colors.text)
+                        return colors.text;
+                    return base;
+                };
+                // 分段按钮控件
+                const seg = function (value, options, onChange) {
+                    return h('div', { style: { display: 'inline-flex', background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: 2, gap: 2 } }, options.map(function (opt) {
+                        const on = opt.value === value;
+                        return h('button', {
+                            key: String(opt.value),
+                            onClick: function () { onChange(opt.value); },
+                            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                            style: {
+                                border: 0, borderRadius: 4, padding: '4px 10px', fontSize: 12, cursor: 'pointer',
+                                background: on ? segOnBg : 'transparent',
+                                color: on ? base : muted,
+                                fontFamily: 'var(--dsw-font-family)',
+                            },
+                        }, opt.label);
+                    }));
+                };
+                // 通用下拉（字号）：紧凑按钮 + 弹出菜单，对齐 setup-panel 样例
+                const dd = function (open, setOpen, ref, labelNode, items) {
+                    return h('div', { ref: ref, style: { position: 'relative' } }, [
+                        h('button', {
+                            onClick: function () { setOpen(!open); },
+                            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                            style: {
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+                                color: base, fontFamily: 'var(--dsw-font-family)',
+                            },
+                        }, [labelNode, h('span', { style: { color: muted } }, '▾')]),
+                        open ? h('div', {
+                            style: {
+                                position: 'absolute', top: 'calc(100% + 4px)', left: 0, zIndex: 1000,
+                                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
+                                borderRadius: 8, minWidth: 200, width: 'max-content', maxWidth: 'calc(100vw - 48px)', padding: 4, boxShadow: menuShadow,
+                            },
+                        }, items) : null,
+                    ]);
+                };
+                const dot = function (color, size) {
+                    return h('span', { style: { width: size, height: size, borderRadius: '50%', background: color || dotFallback, display: 'inline-block', flex: 'none' } });
+                };
+                // ── 代码字体下拉：常用预设（置顶）+ 本机字体（等宽置顶，可搜索）──
+                // 候选缺省只有预设：本机清单读不到时控件照常可用（绝不出现空下拉）。
+                const fallbackCandidates = buildFontCandidates([], isFontAvailable, null, Object.keys(FONTS), BUNDLED_FONTS);
+                const candidates = fontList && fontList.candidates ? fontList.candidates : fallbackCandidates;
+                // 读不到清单的原因 → 人话提示（区分「没授权」与「没读到」，别都说成没字体）
+                const fontHint = function () {
+                    if (fontBusy)
+                        return { text: tr('fontCounting'), retry: false };
+                    if (!fontList)
+                        return null;
+                    if (fontList.ok)
+                        return { text: trf('fontLoadedCount', { n: fontList.count }), retry: false };
+                    const key = fontList.reason === 'denied' ? 'fontScanDenied'
+                        : fontList.reason === 'unavailable' ? 'fontScanUnsupported'
+                            : fontList.reason === 'empty' ? 'fontScanEmpty' : 'fontScanFail';
+                    return { text: tr(key), retry: true };
+                };
+                const retryFonts = function () {
+                    fontTriedRef.current = false;
+                    localFontsCache = null;
+                    setFontList(null);
+                };
+                // 候选行：族名按自己的字体渲染（预览即所得）；未装灰显标注，确实装在本机的标「已装」/「等宽」
+                const fontItem = function (k) {
+                    const on = k.key === st.fontKey;
+                    const suffix = k.ok && k.installed ? '(' + (k.mono ? tr('fontMono') : tr('fontLocal')) + ')' : (k.ok ? '' : '(' + tr('fontNotInstalled') + ')');
+                    return h('div', {
+                        key: k.key,
+                        onClick: function () {
+                            props.refresh(st.mode, st.size, k.key);
+                            setUi(props.getState());
+                            setFontOpen(false);
+                        },
+                        title: k.key + suffix,
+                        [UI_INTERACTIVE_ATTR]: TIER_ROW,
+                        style: {
+                            display: 'flex', alignItems: 'center', height: '28px', padding: '0 10px',
+                            fontSize: 12, lineHeight: '20px', borderRadius: 5, cursor: 'pointer',
+                            background: on ? ddItemOnBg : 'transparent',
+                            color: on ? base : muted,
+                            opacity: k.ok ? 1 : 0.45,
+                            overflow: 'hidden', whiteSpace: 'nowrap',
+                            flex: 'none',
+                        },
+                    }, h('span', { style: { flex: '1 1 auto', minWidth: '0', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', lineHeight: '20px', fontFamily: k.stack || codeFontStack(k.key) } }, k.key + suffix));
+                };
+                const hint = fontHint();
+                const hintNode = hint
+                    ? h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 7px', fontSize: 11, color: muted, borderBottom: '1px solid var(--dsw-alias-border-l1)' } }, [
+                        h('span', { style: { flex: '1 1 auto' } }, hint.text),
+                        hint.retry ? h('span', {
+                            onClick: function () { retryFonts(); },
+                            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                            style: { cursor: 'pointer', color: 'var(--dsw-alias-brand-primary)', flex: 'none' },
+                        }, tr('fontRetry')) : null,
+                    ])
+                    : null;
+                // 分组标题：非点击的分区线（替代旧“本机字体 · 90”文本分隔）。
+                // 文本用主题色 var(--dsw-alias-brand-primary)（随当前 opencode 主题走 primary），
+                // 数量做成描边徽章 + 中间细分割线，不再用“·”拼接字符串。
+                const secHeader = function (key, label, count) {
+                    const badge = (count === null || count === undefined) ? null : h('span', {
+                        key: 'n',
+                        style: {
+                            fontSize: 11, lineHeight: '16px', padding: '0 7px', borderRadius: 999,
+                            border: '1px solid var(--dsw-alias-brand-primary)',
+                            color: 'var(--dsw-alias-brand-primary)', background: 'transparent', flex: 'none',
+                        },
+                    }, String(count));
+                    return h('div', {
+                        key: key,
+                        style: {
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '10px 10px 4px', cursor: 'default', userSelect: 'none',
+                            flex: 'none',
+                        },
+                    }, [
+                        h('span', {
+                            key: 't',
+                            style: {
+                                fontSize: 11, fontWeight: 600, letterSpacing: '.08em', whiteSpace: 'nowrap',
+                                color: 'var(--dsw-alias-brand-primary)',
+                            },
+                        }, label),
+                        h('span', { key: 'l', style: { flex: '1 1 auto', height: 1, background: 'var(--dsw-alias-border-l1)', borderRadius: 1 } }),
+                        badge,
+                    ]);
+                };
+                const menuItem = function (key, label, onClick) {
+                    return h('div', {
+                        key: key,
+                        onClick: onClick,
+                        [UI_INTERACTIVE_ATTR]: TIER_ROW,
+                        style: { padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer', color: base },
+                    }, label);
+                };
+                const fontMenu = function () {
+                    const q = fontQuery.trim().toLowerCase();
+                    const match = function (k) { return q === '' || k.key.toLowerCase().indexOf(q) >= 0; };
+                    const presets = candidates.filter(function (k) { return k.isPreset && match(k); });
+                    // 枚举到的本机字体已按「等宽置顶 + 字母序」排好，这里只做过滤与截断（大清单别一次铺满 DOM）
+                    const all = candidates.filter(function (k) { return !k.isPreset && match(k); });
+                    const locals = all.slice(0, 400);
+                    const rows = [];
+                    if (presets.length > 0) {
+                        rows.push(secHeader('sec-presets', tr('fontPresets'), presets.length));
+                        for (const k of presets)
+                            rows.push(fontItem(k));
+                    }
+                    if (locals.length > 0) {
+                        rows.push(secHeader('sec-locals', tr('fontLocals'), all.length));
+                        for (const k of locals)
+                            rows.push(fontItem(k));
+                    }
+                    if (rows.length === 0)
+                        rows.push(menuItem('no-match', tr('fontNoMatch'), function () { }));
+                    return h('div', null, [
+                        h('input', {
+                            value: fontQuery,
+                            onChange: function (e) { setFontQuery(e.target.value); },
+                            onClick: function (e) { if (e && typeof e.stopPropagation === 'function')
+                                e.stopPropagation(); },
+                            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+                            placeholder: tr('fontSearch'),
+                            style: {
+                                width: '100%', boxSizing: 'border-box', background: 'var(--dsw-alias-bg-layer-2)',
+                                border: '1px solid var(--dsw-alias-border-l1)', borderRadius: 6, padding: '6px 10px',
+                                fontSize: 12, outline: 'none', color: base, fontFamily: 'var(--dsw-font-family)', marginBottom: 4,
+                            },
+                        }),
+                        hintNode,
+                        h('div', { style: { maxHeight: 280, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: 1 } }, rows),
+                    ]);
+                };
+                const fontPicker = function () {
+                    return h('div', { ref: fontRef, style: { position: 'relative' } }, [
+                        h('button', {
+                            ref: fontBtnRef,
+                            // 手势必须在同步段里：queryLocalFonts 只能由真实用户激活触发，异步等待之后就丢了
+                            // 顺带同步量按钮矩形定悬浮锚点（同一次 click，布局已稳定）
+                            onClick: function () { openFontMenu(); },
+                            [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                            style: {
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                                borderRadius: 6, padding: '5px 10px', fontSize: 12, cursor: 'pointer',
+                                color: base, fontFamily: 'var(--dsw-font-family)',
+                            },
+                        }, [
+                            h('span', { style: { fontFamily: codeFontStack(st.fontKey) } }, st.fontKey),
+                            h('span', { style: { color: muted } }, '▾'),
+                        ]),
+                        fontOpen ? h('div', {
+                            key: 'font-menu',
+                            ref: fontMenuRef,
+                            style: {
+                                position: 'fixed', left: fontAnchor ? fontAnchor.left : 0, top: fontAnchor ? fontAnchor.top : 0, zIndex: 1000,
+                                background: 'var(--dsw-alias-bg-overlay)', border: '1px solid var(--dsw-alias-border-l1)',
+                                borderRadius: 8, width: 'max-content', minWidth: fontAnchor ? fontAnchor.minW : 240, maxWidth: 'calc(100vw - 48px)',
+                                boxSizing: 'border-box', overflow: 'hidden', padding: 4, boxShadow: menuShadow,
+                            },
+                        }, [fontMenu()]) : null,
+                    ]);
+                };
+                // 主题 mini 芯片（组合 1）；委托画布主题带透光提示（按判定派生，不硬编码主题名）
+                // 透光恒浅底深字（浅色一眼可辨）；system 跟宿主（浅白/深黑），选中 system 的外观效果等同停用（只留排印，颜色与外观接管全释放）
+                const chip = function (t) {
+                    const isCur = t.name === st.theme;
+                    const c = t.colors;
+                    const translucent = t.name !== 'system' && delegatesBackground(t.name);
+                    const isSystem = t.name === 'system';
+                    const chipBg = translucent ? chipLightSurface : (isSystem ? (hostDark ? chipDarkSurface : chipLightSurface) : (c && c.background ? c.background : chipDarkSurface));
+                    const chipFg = translucent ? chipLightText : chipText(c);
+                    return h('button', {
+                        key: t.name,
+                        onClick: function () { props.setTheme(t.name); setUi(props.getState()); },
+                        title: translucent ? tr('translucentNote') : undefined,
+                        [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+                        style: {
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: chipBg,
+                            color: chipFg,
+                            border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + ((c && c.primary) || chipBorderFallback),
+                            borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
+                            fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
+                            outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
+                        },
+                    }, [
+                        dot(c && c.primary, 9),
+                        t.name === 'system' ? tr('systemDefault') : themeLabel(t.name),
+                        isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
+                    ]);
+                };
+                // ── 预置 IP 组（用户口径 m08573）：IP 预置是「预置」，得跟内置 38 同一条列表流、固定位置
+                // （内置组之后、自定义区之前），点击直接生效且绝不写 DSH 自定义目录；只有用户新增的
+                // 自定义主题才落盘进自定义区。搜索一并过滤（中文名与 ascii id 都命中）。
+                const ipMatchList = function () {
+                    const qq = query.trim().toLowerCase();
+                    return safeIpPresets().filter(function (p) {
+                        if (!p || !p.name)
+                            return false;
+                        if (qq === '')
+                            return true;
+                        return p.name.toLowerCase().indexOf(qq) >= 0 || String(p.title || '').toLowerCase().indexOf(qq) >= 0;
+                    });
+                };
+                const ipChip = function (p) {
+                    const key = 'ip:' + p.name;
+                    const isCur = key === st.theme;
+                    const c = p.colors || {};
+                    const bgT = c.background === 'transparent';
+                    const chipBg = bgT ? chipLightSurface : (c.background || chipDarkSurface);
+                    const chipFg = bgT ? chipLightText : chipText(c);
+                    return h('button', {
+                        key: key,
+                        onClick: function () { props.setIpTheme(p.name); setUi(props.getState()); },
+                        [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+                        style: {
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: chipBg,
+                            color: chipFg,
+                            border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (c.primary || chipBorderFallback),
+                            borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
+                            fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
+                            outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
+                        },
+                    }, [
+                        dot(c.primary, 9),
+                        currentLang === 'zh' ? (p.title || p.name) : p.name,
+                        isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
+                    ]);
+                };
+                const renderIpGroup = function () {
+                    const list = ipMatchList();
+                    if (!list.length)
+                        return null;
+                    return h('div', { key: 'ip-presets', style: { marginBottom: 10 } }, [
+                        h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
+                            dot('#8B8B95', 8),
+                            tr('customIpPresets'),
+                            h('span', { style: countStyle }, String(list.length)),
+                        ]),
+                        h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, list.map(ipChip)),
+                    ]);
+                };
+                // ── 自定义主题区（#86）：特殊分组下方的独立区块，不碰 GROUP_ORDER / themeNames ──
+                const copyIcon = function (checking) {
+                    return h('svg', {
+                        width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+                        stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                        style: { display: 'block' },
+                    }, checking
+                        ? [h('path', { key: 'ok', d: 'M20 6L9 17l-5-5' })]
+                        : [h('path', { key: 'box', d: 'M9 9h11v11H9z' }), h('path', { key: 'page', d: 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1' })]);
+                };
+                const fallbackCopy = function (text, done) {
+                    try {
+                        const d = typeof document !== 'undefined' ? document : null;
+                        if (!d || typeof d.createElement !== 'function')
+                            return false;
+                        const ta = d.createElement('textarea');
+                        ta.value = text;
+                        if (!d.body || typeof d.body.appendChild !== 'function')
+                            return false;
+                        d.body.appendChild(ta);
+                        if (ta && typeof ta.select === 'function') {
+                            try {
+                                ta.select();
+                            }
+                            catch (e) { /* 忽略 */ }
+                        }
+                        let ok = false;
+                        if (typeof d.execCommand === 'function') {
+                            try {
+                                ok = d.execCommand('copy');
+                            }
+                            catch (e) {
+                                ok = false;
+                            }
+                        }
+                        if (typeof d.body.removeChild === 'function') {
+                            try {
+                                d.body.removeChild(ta);
+                            }
+                            catch (e) { /* 忽略 */ }
+                        }
+                        if (ok && done)
+                            done();
+                        return ok;
+                    }
+                    catch (e) {
+                        return false;
+                    }
+                };
+                const copyDirPath = function () {
+                    const text = (customData && customData.dirPath) || '';
+                    if (!text)
+                        return;
+                    const done = function () {
+                        setCopied(true);
+                        try {
+                            setTimeout(function () { setCopied(false); }, 1400);
+                        }
+                        catch (e) { /* 忽略 */ }
+                    };
+                    try {
+                        const nav = typeof navigator !== 'undefined' ? navigator : null;
+                        if (nav && nav.clipboard && typeof nav.clipboard.writeText === 'function') {
+                            nav.clipboard.writeText(text).then(done, function () { fallbackCopy(text, done); });
+                            return;
+                        }
+                    }
+                    catch (e) { /* 落到降级 */ }
+                    fallbackCopy(text, done);
+                };
+                // 自定义主题胶囊（B1 方案：圆点 primary、底 background、字 text、边框 primary；
+                // light+transparent 走恒浅底；选中 2px 品牌边框 + ✓）
+                const customChip = function (t) {
+                    const pv = props.customPreview(t) || {};
+                    const key = 'custom:' + t.id;
+                    const isCur = key === st.theme;
+                    const chipBg = pv.translucent ? chipLightSurface : (pv.background || chipDarkSurface);
+                    const chipFg = pv.translucent ? chipLightText : (pv.text || base);
+                    return h('button', {
+                        key: key,
+                        title: tr('customChipTitle'),
+                        onClick: function () { applyCustomChip(t); },
+                        [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+                        style: {
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: chipBg,
+                            color: chipFg,
+                            border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (pv.primary || chipBorderFallback),
+                            borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
+                            fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
+                            outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
+                        },
+                    }, [
+                        dot(pv.primary, 9),
+                        t.name,
+                        isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
+                    ]);
+                };
+                const funcCapsule = function (id, label, title, onClick, disabled) {
+                    return h('button', {
+                        key: id,
+                        title: title,
+                        onClick: onClick,
+                        disabled: disabled ? true : undefined,
+                        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                        style: {
+                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                            background: '#FAB283', color: '#141419',
+                            border: '1px solid #FAB283', borderRadius: 20,
+                            padding: '3px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                            opacity: disabled ? 0.45 : 1,
+                            fontFamily: 'var(--dsw-font-family)',
+                        },
+                    }, label);
+                };
+                const openNewEditor = function () {
+                    setSaveError(null);
+                    let base = {};
+                    try {
+                        const p = props.presetPalette('opencode', hostDark ? 'dark' : 'light');
+                        if (p && p.colors)
+                            base = p.colors;
+                    }
+                    catch (e) {
+                        base = {};
+                    }
+                    setEditor({ mode: 'new', seed: { id: null, name: '', appearance: 'dark', colors: base, basePreset: 'opencode' } });
+                };
+                const openEditEditor = function () {
+                    const list = (customData && customData.themes) || [];
+                    // 没有任何用户自定义主题 → 编辑入口什么都不做（用户口径 m08573：不许回落到「新增」；
+                    // 胶囊本身此时已置灰，这里是硬保证，键盘/程序触发也不越界）。预置 IP 不是可编辑对象。
+                    if (!list.length)
+                        return;
+                    setSaveError(null);
+                    const activeId = customIdOf(props.getState().theme);
+                    const first = list.filter(function (x) { return x && x.id === activeId; })[0] || list[0];
+                    let base = {};
+                    try {
+                        const p = props.presetPalette(first.basePreset || 'opencode', hostDark ? 'dark' : 'light');
+                        if (p && p.colors)
+                            base = p.colors;
+                    }
+                    catch (e) {
+                        base = {};
+                    }
+                    setEditor({
+                        mode: 'edit',
+                        seed: {
+                            id: first.id, name: first.name, appearance: first.appearance,
+                            colors: Object.assign({}, base, first.colors), basePreset: first.basePreset || 'opencode',
+                        },
+                    });
+                };
+                const handleEditorSave = function (payload) {
+                    if (!payload || !String(payload.name || '').trim())
+                        return;
+                    setSaveError(null);
+                    try {
+                        Promise.resolve().then(function () { return props.saveCustomTheme(payload); }).then(function (res) {
+                            if (res && res.ok) {
+                                try {
+                                    setCustomData(props.customThemes());
+                                }
+                                catch (e) { /* 忽略 */ }
+                                setUi(props.getState());
+                                setEditor(null);
+                            }
+                            else {
+                                setSaveError(tr('customSaveFail'));
+                            }
+                        }).catch(function () { setSaveError(tr('customSaveFail')); });
+                    }
+                    catch (e) {
+                        setSaveError(tr('customSaveFail'));
+                    }
+                };
+                const handleEditorDelete = function (id) {
+                    try {
+                        Promise.resolve().then(function () { return props.deleteCustomTheme(id); }).then(function () {
+                            try {
+                                setCustomData(props.customThemes());
+                            }
+                            catch (e) { /* 忽略 */ }
+                            setUi(props.getState());
+                            setEditor(null);
+                        }).catch(function () { });
+                    }
+                    catch (e) { /* 保持弹窗，静默 */ }
+                };
+                const pick2 = function (key) {
+                    // I18N 缺失键在运行时是 undefined，这里按空对象兜底（空对象没有 zh/en，落到 key）
+                    const entry = I18N[key] || {};
+                    return { zh: entry.zh !== undefined ? entry.zh : key, en: entry.en !== undefined ? entry.en : key };
+                };
+                const editorSlotMeta = function () {
+                    const out = {};
+                    for (const s of COLOR_SLOTS) {
+                        out[s.key] = {
+                            zh: (I18N['cslot.' + s.key] || {}).zh || s.key,
+                            en: (I18N['cslot.' + s.key] || {}).en || s.key,
+                            useZh: (I18N['cslotUse.' + s.key] || {}).zh || '',
+                            useEn: (I18N['cslotUse.' + s.key] || {}).en || '',
+                            allow: !!s.allowTransparent,
+                        };
+                    }
+                    return out;
+                };
+                const editorGroupMeta = function () {
+                    return {
+                        bg: pick2('cgroup.bg'), text: pick2('cgroup.text'), brand: pick2('cgroup.brand'),
+                        border: pick2('cgroup.border'), diff: pick2('cgroup.diff'),
+                        md: pick2('cgroup.md'), syn: pick2('cgroup.syn'),
+                    };
+                };
+                const safeIpPresets = function () {
+                    try {
+                        return listIpPresets();
+                    }
+                    catch (e) {
+                        return [];
+                    }
+                };
+                const editorPresets = function () {
+                    try {
+                        const hm = hostDark ? 'dark' : 'light';
+                        const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm); }).filter(Boolean);
+                        // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.ts）。
+                        return builtins.concat(safeIpPresets());
+                    }
+                    catch (e) {
+                        return [];
+                    }
+                };
+                const editorPresetGroups = function (presets) {
+                    try {
+                        const names = presets.map(function (p) { return p.name; });
+                        const seen = {};
+                        const buckets = [];
+                        const mineIp = safeIpPresets().map(function (p) { return p.name; }).filter(function (n) { return names.indexOf(n) >= 0; });
+                        mineIp.forEach(function (n) { seen[n] = true; });
+                        if (mineIp.length)
+                            buckets.push({ title: tr('customIpPresets'), names: mineIp, color: '#8B8B95' });
+                        props.groups('dark').forEach(function (g) {
+                            const mine = g.themes.map(function (t) { return t.name; }).filter(function (n) { return names.indexOf(n) >= 0; });
+                            mine.forEach(function (n) { seen[n] = true; });
+                            if (mine.length)
+                                buckets.push({ title: tr('group.' + g.name), names: mine, color: g.color || '#8B8B95' });
+                        });
+                        const rest = names.filter(function (n) { return !seen[n]; });
+                        if (rest.length)
+                            buckets.push({ title: tr('customOther'), names: rest, color: '#8B8B95' });
+                        return buckets.filter(function (b) { return b.names.length > 0; });
+                    }
+                    catch (e) {
+                        return [];
+                    }
+                };
+                // 点自定义胶囊：换上该存盘主题。命中不了（缓存旧/文件被外部删）→ setCustomTheme 内部先对账一次，
+                // 仍无则原样不动；这里绝不代用户写盘，也绝不把主题悄悄换回第一个（用户口径 m08573）。
+                const applyCustomChip = function (t) {
+                    if (!t || typeof t.id !== 'string' || !t.id)
+                        return;
+                    props.setCustomTheme(t.id);
+                    setUi(props.getState());
+                };
+                // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 21 套在上方 IP 预置组，恒不写盘。
+                const renderCustomSection = function () {
+                    const list = (customData && customData.themes) || [];
+                    // filterCustomThemes 只保证按 id/name 过滤（那侧类型是 { id?: unknown; name?: unknown }），
+                    // 本侧渲染按 CustomThemeRecord 读，缺失字段由 customChip/引擎逐点兜底
+                    const shownCustom = filterCustomThemes(list, query);
+                    return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
+                        h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
+                            dot('#FAB283', 8),
+                            trf('customTitle', { n: list.length }),
+                            h('span', { style: { flex: 1 } }),
+                            h('button', {
+                                title: (customData && customData.dirPath) || undefined,
+                                onClick: copyDirPath,
+                                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                                style: {
+                                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                                    background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                                    borderRadius: 6, padding: '3px 9px', fontSize: 11, cursor: 'pointer',
+                                    color: base, fontFamily: 'var(--dsw-font-family)',
+                                },
+                            }, [copyIcon(copied), copied ? tr('customCopied') : tr('customCopyPath')]),
+                        ]),
+                        h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, shownCustom.map(customChip).concat([
+                            funcCapsule('+new', '+ ' + tr('customAdd'), tr('customAddTitle'), openNewEditor, false),
+                            funcCapsule('~edit', '✎ ' + tr('customEdit'), list.length ? tr('customEditTitle') : tr('customEditEmpty'), openEditEditor, !list.length),
+                        ])),
+                    ]);
+                };
+                const renderEditor = function () {
+                    if (!editor)
+                        return null;
+                    const presets = editorPresets();
+                    return h(CustomEditor, {
+                        h: {
+                            createElement: h,
+                            useState: react.useState, useEffect: react.useEffect,
+                            useMemo: react.useMemo, useRef: react.useRef,
+                        },
+                        tr: tr, trf: trf, lang: currentLang,
+                        groups: props.slotGroups(), groupMeta: editorGroupMeta(), slotMeta: editorSlotMeta(),
+                        editor: editor, customs: ((customData && customData.themes) || []).slice(),
+                        presets: presets, presetGroups: editorPresetGroups(presets),
+                        presetLabel: function (n, p) {
+                            if (n === 'system')
+                                return n;
+                            // THEME_ZH/EN 是字面量表（键=主题 id，动态取用），取用点按 string 索引
+                            if (currentLang === 'zh')
+                                return THEME_ZH[n] || (p && p.title) || n;
+                            return THEME_EN[n] || n;
+                        },
+                        onSave: handleEditorSave, onDelete: handleEditorDelete,
+                        onClose: function () { setEditor(null); },
+                    });
+                };
+                // ── 作者其他插件（底部引流位）──
+                // 只列兄弟插件、不自我推荐（本面板自己的星标链接就在标题行）；
+                // 静态外链列表，不做「已安装」检测（面板侧无稳定安装信号）。
+                const authorPlugins = [
+                    { repo: 'dsh-mattpocock-skills-deck', descKey: 'authorPlugin.skillsDeck' },
+                    { repo: 'dsh-prompt', descKey: 'authorPlugin.prompt' },
+                    { repo: 'dsh-im-companion', descKey: 'authorPlugin.imCompanion' },
+                ];
+                // 外链小图标（方框 + 右上斜箭头，与 MattSkills 同款语义）
+                const extLinkIcon = function () {
+                    return h('svg', {
+                        width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+                        stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                        style: { display: 'block' },
+                    }, [
+                        h('path', { d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }),
+                        h('polyline', { points: '15 3 21 3 21 9' }),
+                        h('line', { x1: 10, y1: 14, x2: 21, y2: 3 }),
+                    ]);
+                };
+                // 四宫格小图标（卡片标题前）
+                const gridIcon = function () {
+                    return h('svg', {
+                        width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
+                        stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                        style: { display: 'block' },
+                    }, [
+                        h('rect', { key: 'tl', x: 3, y: 3, width: 7, height: 7, rx: 1 }),
+                        h('rect', { key: 'tr', x: 14, y: 3, width: 7, height: 7, rx: 1 }),
+                        h('rect', { key: 'bl', x: 3, y: 14, width: 7, height: 7, rx: 1 }),
+                        h('rect', { key: 'br', x: 14, y: 14, width: 7, height: 7, rx: 1 }),
+                    ]);
+                };
+                // 底部引流卡片：3 行兄弟插件，整行可点（锚点），新窗口打开
+                const authorCard = h('div', {
+                    style: {
+                        marginTop: 4,
+                        border: '1px solid var(--dsw-alias-border-l1)',
+                        borderRadius: 10, padding: '12px 14px',
+                        display: 'flex', flexDirection: 'column', gap: 4,
+                    },
+                }, [
+                    h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, color: base, fontSize: 13, fontWeight: 600, marginBottom: 6 } }, [
+                        h('span', { key: 'ico', style: { color: muted, display: 'inline-flex' } }, gridIcon()),
+                        tr('authorPlugins'),
+                    ]),
+                    ...authorPlugins.map(function (p) {
+                        return h('a', {
+                            key: p.repo,
+                            href: 'https://github.com/FeatherHunter/' + p.repo,
+                            target: '_blank', rel: 'noopener noreferrer',
+                            title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
+                            [UI_INTERACTIVE_ATTR]: TIER_ROW,
+                            style: {
+                                display: 'flex', alignItems: 'baseline', gap: 10,
+                                padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
+                                textDecoration: 'none', cursor: 'pointer',
+                                background: 'transparent',
+                            },
+                        }, [
+                            h('span', { key: 'name', style: { fontFamily: 'var(--ds-font-family-code)', fontSize: 12, fontWeight: 700, color: base, whiteSpace: 'nowrap' } }, p.repo),
+                            h('span', { key: 'desc', style: { fontSize: 12, color: muted, flex: 1 } }, tr(p.descKey)),
+                            h('span', { key: 'ext', style: { color: 'var(--dsw-alias-label-tertiary)', display: 'inline-flex', flex: 'none' } }, extLinkIcon()),
+                        ]);
+                    }),
+                ]);
+                // ── 检查更新：新包入口件挂载位（头行右侧原位；宿主不可用时不渲染）──
+                // 单按钮：openOn 'always'，点即查完开弹窗（无新版在弹窗内看“已是最新”，头行永不挂第二块）。
+                const updMountRef = react.useRef ? react.useRef(null) : { current: null };
+                const [logNotice, setLogNotice] = react.useState(false);
+                react.useEffect(function () {
+                    const el = updMountRef.current;
+                    if (!el)
+                        return undefined;
+                    const entry = mountUpdateButton(el);
+                    return function () {
+                        try {
+                            const i = mountedUpdateEntries.indexOf(entry);
+                            if (i >= 0)
+                                mountedUpdateEntries.splice(i, 1);
+                        }
+                        catch (e) { /* 忽略 */ }
+                        try {
+                            entry && entry.unmount();
+                        }
+                        catch (e) { /* 忽略 */ }
+                    };
+                }, []);
+                // 新包入口件挂载容器：头行右侧原位；宿主不可用时 mountUpdateButton 回 null，不渲染。
+                // data-update-entry 是产物级断言锚点（tests/update-panel.test.ts），不是样式钩子。
+                const updateButton = hostBridge
+                    ? h('span', { key: 'upd', ref: updMountRef, 'data-update-entry': 'button', style: { display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap' } })
+                    : null;
+                // 升级弹窗与待重启横幅由入口件内部按需以 dialog 挂起（包内 mountUpdatePanel），面板不再自建。
+                // ── 日志开关（排障用的小开关）──
+                // 状态以宿主为准；首帧先按本地缓存渲染，对账回来再校正。开关本体归 dsh-log 管，
+                // 这里只调它的 setLogSwitch，不自己写开关文件（否则会成第二份真源）。
+                const [logOn, setLogOn] = react.useState(!!(clientLog && clientLog.logSwitch && clientLog.logSwitch.enabled));
+                react.useEffect(function () {
+                    let alive = true;
+                    Promise.resolve(props.reconcileLog()).then(function (res) {
+                        if (!alive || !res)
+                            return;
+                        if (typeof res.enabled === 'boolean')
+                            setLogOn(res.enabled);
+                    }, function () { });
+                    return function () { alive = false; };
+                }, []);
+                const flipLog = function () {
+                    const next = !logOn;
+                    setLogOn(next);
+                    Promise.resolve(props.log.setLogSwitch(next)).then(function (res) {
+                        const ok = !!(res && res.ok);
+                        if (res && typeof res.enabled === 'boolean')
+                            setLogOn(res.enabled);
+                        else if (!ok)
+                            setLogOn(!next);
+                        try {
+                            props.log.log('info', 'log.switch.set', {
+                                enabled: ok ? !!next : logOn,
+                                ok: ok,
+                                reason: ok ? 'ok' : String((res && res.error) || 'unknown').slice(0, 40),
+                                pluginId: PLUGIN_ID,
+                            });
+                        }
+                        catch (e) { /* 忽略 */ }
+                        if (!ok)
+                            setLogNotice(true);
+                    }, function () { setLogOn(!next); });
+                };
+                return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 14, maxWidth: 920 } }, [
+                    // 头行：标题 + 状态开关（一个状态一个控制）
+                    h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } }, [
+                        h('strong', null, '🎨 ' + tr('panelName')),
+                        h('div', { style: { display: 'inline-flex', alignItems: 'center', gap: 8 } }, [
+                            h('span', {
+                                key: 'log',
+                                onClick: flipLog,
+                                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
+                                title: tr('logSwitchHint'),
+                                style: {
+                                    fontSize: 11, cursor: 'pointer', userSelect: 'none',
+                                    color: logOn ? 'var(--dsw-alias-state-success-primary)' : 'var(--dsw-alias-label-tertiary)',
+                                },
+                            }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
+                            h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
+                            updateButton,
+                            h('a', {
+                                href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
+                                target: '_blank', rel: 'noopener noreferrer',
+                                title: tr('starTitle'),
+                                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                                style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
+                            }, h('svg', {
+                                width: 15, height: 15, viewBox: '0 0 24 24',
+                                style: { display: 'block' },
+                            }, h('path', {
+                                d: 'M12 2.5l2.92 6.14 6.58.6-4.93 4.4 1.42 6.46L12 16.77l-5.99 3.33 1.42-6.46-4.93-4.4 6.58-.6L12 2.5z',
+                                fill: '#FFC53D', stroke: '#B45309', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
+                            }))),
+                            // ISSUE 入口：彩色消息气泡（信息图标认不出「提需求」，气泡才读得出是反馈；浅底深底都可见的定值配色）
+                            h('a', {
+                                href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
+                                target: '_blank', rel: 'noopener noreferrer',
+                                title: tr('issueTitle'),
+                                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+                                style: { display: 'inline-flex', cursor: 'pointer' },
+                            }, h('svg', {
+                                width: 14, height: 14, viewBox: '0 0 24 24',
+                                style: { display: 'block' },
+                            }, h('path', {
+                                d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
+                                fill: '#7DD3FC', stroke: '#0369A1', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
+                            }))),
+                            h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } }, st.enabled ? tr('enabled') : tr('disabled')),
+                            h('span', {
+                                onClick: function () { props.toggle(); setUi(props.getState()); },
+                                [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
+                                title: st.enabled ? tr('disableTitle') : tr('enableTitle'),
+                                style: {
+                                    position: 'relative', display: 'inline-block', width: 36, height: 20,
+                                    borderRadius: 11, cursor: 'pointer',
+                                    background: st.enabled ? 'rgba(250,178,131,0.4)' : switchOffTrack,
+                                    transition: 'background .12s',
+                                },
+                            }, h('span', {
+                                style: {
+                                    position: 'absolute', top: 3, left: st.enabled ? 19 : 3,
+                                    width: 14, height: 14, borderRadius: '50%',
+                                    background: st.enabled ? '#FAB283' : switchOffKnob,
+                                    transition: 'left .12s',
+                                },
+                            })),
+                        ]),
+                    ]),
+                    h('div', { style: { fontSize: 12, color: muted } }, trf('subtitle', { n: themeNames().length })),
+                    // 日志开关写失败时的本地提示（更新控制器已删，不再经由它中转）。
+                    logNotice
+                        ? h('div', {
+                            style: { fontSize: 12, color: 'var(--dsw-alias-state-error-primary)' },
+                        }, tr('logSwitchFail'))
+                        : null,
+                    // ── 排印调节（置顶）──
+                    h('div', { style: secTitle }, [
+                        h('span', null, tr('typography')),
+                    ]),
+                    h('div', { style: { display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' } }, [
+                        seg(st.mode, [
+                            { value: 'mono', label: tr('mono') },
+                            { value: 'tui', label: tr('sans') },
+                        ], function (v) { props.refresh(v, st.size, st.fontKey); setUi(props.getState()); }),
+                        dd(sizeOpen, setSizeOpen, sizeRef, h('span', null, tr('fontSize') + ' ' + st.size + 'px'), [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24].map(function (s) {
+                            const on = s === st.size;
+                            return h('div', {
+                                key: String(s),
+                                onClick: function () { props.refresh(st.mode, s, st.fontKey); setUi(props.getState()); setSizeOpen(false); },
+                                [UI_INTERACTIVE_ATTR]: TIER_ROW,
+                                style: {
+                                    padding: '6px 10px', fontSize: 12, borderRadius: 5, cursor: 'pointer',
+                                    background: on ? ddItemOnBg : 'transparent',
+                                    color: on ? base : muted,
+                                },
+                            }, String(s) + 'px');
+                        })),
+                        fontPicker(),
+                    ]),
+                    // ── 主题选择（色系分组标签 + mini 芯片）──
+                    h('div', { style: secTitle }, [
+                        h('span', null, tr('themeSection')),
+                        h('span', { style: countStyle }, trf('themeCount', { n: themeNames().length })),
+                    ]),
+                    h('input', {
+                        placeholder: tr('search'),
+                        value: query,
+                        onChange: function (e) { setQuery(e.target.value); },
+                        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+                        style: {
+                            width: '100%', maxWidth: 380,
+                            background: 'var(--dsw-alias-bg-layer-2)', border: '1px solid var(--dsw-alias-border-l1)',
+                            borderRadius: 6, padding: '7px 12px', fontSize: 13, outline: 'none',
+                            color: base, fontFamily: 'var(--dsw-font-family)',
+                        },
+                    }),
+                    shown.length === 0 && ipMatchList().length === 0
+                        ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, tr('noMatch'))
+                        : shown.map(function (g) {
+                            return h('div', { key: g.name, style: { marginBottom: 10 } }, [
+                                h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
+                                    dot(g.color, 8),
+                                    tr('group.' + g.name),
+                                    h('span', { style: countStyle }, String(g.themes.length)),
+                                ]),
+                                h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
+                            ]);
+                        }),
+                    // ── 预置 IP 组（用户口径 m08573）：位置固定在内置组之后、自定义区之前 ──
+                    renderIpGroup(),
+                    // ── 自定义主题区（#86）：特殊分组下方的独立区块（+ 新增恒可见）──
+                    renderCustomSection(),
+                    // ── 底部：作者其他插件（引流位）──
+                    authorCard,
+                    // ── 37 色编辑弹窗（#86：仅编辑态渲染，SSR 首帧恒为 null）──
+                    renderEditor(),
+                    saveError ? h('div', {
+                        style: {
+                            position: 'fixed', zIndex: 3000, left: '50%', bottom: 24, transform: 'translateX(-50%)',
+                            background: '#E5484D', color: '#fff', fontSize: 12, borderRadius: 8, padding: '8px 14px',
+                            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+                        },
+                    }, saveError) : null,
+                ]);
+            };
+            // 面板 API（settings.plugins.tab 与 settings.section 两个入口共享同一份 state）
+            const paletteApi = function () {
+                return {
+                    getState: getState,
+                    toggle: toggle,
+                    refresh: refresh,
+                    setTheme: setTheme,
+                    // 预置 IP 主题入口（用户口径 m08573）：点击即生效、不落盘；返回 false = 该 id 不在 bundle 里
+                    setIpTheme: setIpTheme,
+                    themeNames: themeNames,
+                    // 日志器交给面板；更新入口件由面板头行按需挂载（宿主不可用时不渲染更新块）。
+                    log: clientLog,
+                    // 日志开关的初始状态：每次挂载都向宿主 fresh 对账，以宿主为准；
+                    // 启动快照只作首帧兜底（宿主不可用时 dsh-log 回本地缓存，不抛错）。
+                    // 不得复用启动时的旧 promise——写成功后它仍是旧值，重进会覆回（issue 42）。
+                    reconcileLog: function () {
+                        try {
+                            return clientLog.reconcileLogSwitch();
+                        }
+                        catch (e) {
+                            return Promise.resolve(null);
+                        }
+                    },
+                    // 本机字体清单：面板打开下拉时调（要用户手势），未打开下拉不读；失败恒回退预设
+                    collectFonts: collectFontCandidates,
+                    // 面板文案（测试/调试用，走同一份双语表）
+                    text: function (key, vars) { return vars ? trf(key, vars) : tr(key); },
+                    groups: function (mode) { return themeGroups(mode || 'dark'); },
+                    subscribeLocale: function (fn) {
+                        localeListeners.push(fn);
+                        return function () {
+                            const i = localeListeners.indexOf(fn);
+                            if (i >= 0)
+                                localeListeners.splice(i, 1);
+                        };
+                    },
+                    previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) }; }); },
+                    // 自定义主题（#86）：面板侧状态机入口，RPC 恒经 hostBridge 静默降级
+                    customThemes: function () { return { themes: (customCache.themes || []).slice(), dirPath: customCache.dirPath }; },
+                    reconcileCustomThemes: reconcileCustom,
+                    saveCustomTheme: saveCustomTheme,
+                    deleteCustomTheme: deleteCustomTheme,
+                    setCustomTheme: setCustomTheme,
+                    customPreview: function (t) { try {
+                        return customPreviewColors(t);
+                    }
+                    catch (e) {
+                        return null;
+                    } },
+                    slotGroups: function () { return COLOR_SLOT_GROUPS; },
+                    presetPalette: function (name, hostMode) { try {
+                        return extractPresetPalette(name, hostMode);
+                    }
+                    catch (e) {
+                        return null;
+                    } },
+                };
+            };
+            // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
+            // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
+            let disposeSection = null;
+            // 入口 label 跟随语言：宿主只在注册时读一次 label（中文启动后切英文，入口仍中文），
+            // 故语言变化时 dispose 旧注册再重注一次，让宿主重读新语言 label。幂等，失败静默。
+            function registerEntries() {
+                try {
+                    if (disposePanel)
+                        disposePanel();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (disposeSection)
+                        disposeSection();
+                }
+                catch (e) { /* 忽略 */ }
+                // ! 只补类型：slots 已由外层 if 守卫非 undefined，但闭包（registerEntries）内窄化失效
+                disposePanel = slots.inject(slotTarget, function () {
+                    return slots.register({
+                        name: slotTarget,
+                        id: 'opencode-palette',
+                        order: 30,
+                        label: function () { return tr('panelName'); },
+                        inject: paletteApi,
+                    }, Panel);
+                });
+                disposeSection = null;
+                if (slotTarget === 'settings.plugins.tab') {
+                    disposeSection = slots.inject('settings.section', function () {
+                        return slots.register({
+                            name: 'settings.section',
+                            id: 'opencode-palette',
+                            order: 16,
+                            label: function () { return tr('panelName'); },
+                            inject: paletteApi,
+                        }, Panel);
+                    });
+                }
+                disposeSection = disposeSection || null;
+            }
+            registerEntries();
+            reregisterEntries = function () { registerEntries(); };
+        }
+        // 卸载清理（cordis 语义：effect fn 立即执行，返回值才是清理器）
+        ctx.effect(function () {
             return function () {
-              const i = localeListeners.indexOf(fn)
-              if (i >= 0) localeListeners.splice(i, 1)
-            }
-          },
-          previews: function () { return themeNames().map(function (n) { return { name: n, colors: previewColors(n) } }) },
-          // 自定义主题（#86）：面板侧状态机入口，RPC 恒经 hostBridge 静默降级
-          customThemes: function () { return { themes: (customCache.themes || []).slice(), dirPath: customCache.dirPath } },
-          reconcileCustomThemes: reconcileCustom,
-          saveCustomTheme: saveCustomTheme,
-          deleteCustomTheme: deleteCustomTheme,
-          setCustomTheme: setCustomTheme,
-          customPreview: function (t) { try { return customPreviewColors(t) } catch (e) { return null } },
-          slotGroups: function () { return COLOR_SLOT_GROUPS },
-          presetPalette: function (name, hostMode) { try { return extractPresetPalette(name, hostMode) } catch (e) { return null } },
-        }
-      }
-      // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
-      // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
-      let disposeSection = null
-      // 入口 label 跟随语言：宿主只在注册时读一次 label（中文启动后切英文，入口仍中文），
-      // 故语言变化时 dispose 旧注册再重注一次，让宿主重读新语言 label。幂等，失败静默。
-      function registerEntries() {
-        try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
-        try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
-        disposePanel = slots.inject(slotTarget, function () {
-          return slots.register({
-            name: slotTarget,
-            id: 'opencode-palette',
-            order: 30,
-            label: function () { return tr('panelName') },
-            inject: paletteApi,
-          }, Panel)
-        })
-        disposeSection = null
-        if (slotTarget === 'settings.plugins.tab') {
-          disposeSection = slots.inject('settings.section', function () {
-            return slots.register({
-              name: 'settings.section',
-              id: 'opencode-palette',
-              order: 16,
-              label: function () { return tr('panelName') },
-              inject: paletteApi,
-            }, Panel)
-          })
-        }
-        disposeSection = disposeSection || null
-      }
-      registerEntries()
-      reregisterEntries = function () { registerEntries() }
-    }
-
-    // 卸载清理（cordis 语义：effect fn 立即执行，返回值才是清理器）
-    ctx.effect(function () {
-      return function () {
-        try { clearStyle() } catch (e) { /* 忽略 */ }
-        try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
-        try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
-        try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
-        try { if (dictDispose) dictDispose() } catch (e) { /* 忽略 */ }
-        try { if (localeUnsub) localeUnsub() } catch (e) { /* 忽略 */ }
-        try { if (localeObserver) localeObserver.disconnect() } catch (e) { /* 忽略 */ }
-        try { unmountUpdateButtons() } catch (e) { /* 忽略 */ }
-        try { clientLog.flush() } catch (e) { /* 忽略 */ }
-      }
-    }, 'dsh-opencode-palette: styles')
-  }
+                try {
+                    clearStyle();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (disposePanel)
+                        disposePanel();
+                }
+                catch (e) { /* 忽略 */ }
+                // 既有事实：disposeSection 声明在上方 if 块内（块外不可见），此处引用在运行时抛 ReferenceError，
+                // 被下面的 try/catch 吞掉。补类型不改行为，故只压错误（修作用域属于行为变更，另开票处理）。
+                // @ts-expect-error
+                try {
+                    if (disposeSection)
+                        disposeSection();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (globalThis.__opencodePalette)
+                        delete globalThis.__opencodePalette;
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (dictDispose)
+                        dictDispose();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (localeUnsub)
+                        localeUnsub();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    if (localeObserver)
+                        localeObserver.disconnect();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    unmountUpdateButtons();
+                }
+                catch (e) { /* 忽略 */ }
+                try {
+                    clientLog.flush();
+                }
+                catch (e) { /* 忽略 */ }
+            };
+        }, 'dsh-opencode-palette: styles');
+    };
 }
 
 __mods["client"] = { createClient }

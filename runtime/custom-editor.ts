@@ -1,13 +1,158 @@
-// custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
+// custom-editor.ts — 37 色自定义主题编辑弹窗（#86）
 // 交互与文案口径 #86 起对齐 prototypes/custom-editor-83.prototype.html；#95 起调色盘以 docs/research/palette-picker-survey.md + 票内 resolution 为准。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
-import { normalizeHexInput, hexToHsv, hsvToHex, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } from './custom-color.mjs'
-import { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } from './ui-fx.mjs'
+import { normalizeHexInput, hexToHsv, hsvToHex, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } from './custom-color.ts'
+import { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } from './ui-fx.ts'
+
+// ── 类型接缝（P3 #112）──────────────────────────────────────────────────────
+// 本文件不 import react：createElement 与 hooks 由宿主经 props 注入（client.ts:1589-1593）。
+// 下面按「运行时实际形状」建模，只存在于类型层，导出与行为不变。
+// 元素/子节点：由宿主 React 运行时决定，本文件只透传、不取成员。
+type RenderNode = unknown
+
+// 视口矩形（getBoundingClientRect 结果与测试里手写的 { left, top, right, bottom } 同形）。
+interface BoxRect { left: number; top: number; right: number; bottom: number }
+interface BoxSize { width: number; height: number }
+// needsReveal 只读 top / height（见函数内注释）。
+interface RevealRect { top: number; height: number }
+interface Point { left: number; top: number }
+// 描边呼吸样式（slotRingStyle 的返回值，键名即原型 .hl 口径）。
+interface RingStyle { boxShadow: string; animation: string }
+// 内联样式（对象字面量与 Object.assign 合并，宿主 React 原样吃下）。
+// 值域含 ColorValue：txOf / mdBg 在缺值或解析失败时把色位原值直接透传（与改造前行为一致）。
+interface StyleObject { [key: string]: string | number | ColorErrorLike | undefined }
+
+// 交互目标元素（React 合成事件的 currentTarget）：指针捕获与弹板锚定只用到这些成员。
+// 成员全部可选，保留既有 typeof / 真值探测守卫（SSR、假宿主、老浏览器都不抛）。
+interface AnchorEl {
+  isConnected?: boolean
+  getBoundingClientRect?: () => BoxRect
+  setPointerCapture?: (pointerId: number) => void
+  releasePointerCapture?: (pointerId: number) => void
+}
+
+// React 合成事件在本文件用到的成员（不引 @types/react，按调用形状建模）。
+// currentTarget 在事件派发期间恒非空（React 与 DOM 同口径）。
+interface ClickEvent { currentTarget: AnchorEl; stopPropagation(): void }
+interface ChangeEvent { target: { value: string; checked?: boolean } }
+interface KeyEvent { key: string; shiftKey?: boolean; preventDefault(): void }
+interface PointerEventLike {
+  clientX: number
+  clientY: number
+  pointerId: number
+  preventDefault(): void
+  currentTarget: AnchorEl
+}
+
+// createElement 的 props：事件槽声明为最小事件形状（内联 handler 由此拿到参数类型），
+// 其余键（style / title / ref / key / data-* 等）原样透传。
+interface ElProps {
+  onClick?: (ev: ClickEvent) => void
+  onChange?: (ev: ChangeEvent) => void
+  onKeyDown?: (ev: KeyEvent) => void
+  onPointerDown?: (ev: PointerEventLike) => void
+  onPointerMove?: (ev: PointerEventLike) => void
+  onPointerUp?: (ev: PointerEventLike) => void
+  onMouseEnter?: (ev: unknown) => void
+  onMouseLeave?: (ev: unknown) => void
+  onBlur?: (ev: unknown) => void
+  [key: string]: unknown
+}
+
+// 宿主注入的 React 运行时。useMemo 本文件不用，但调用方（client.ts:1589-1593）会一并传入，故声明为可选。
+interface EditorHooks {
+  createElement: (type: unknown, props?: ElProps | null, ...children: RenderNode[]) => RenderNode
+  useState: <S>(initial: S | (() => S)) => [S, (next: S | ((prev: S) => S)) => void]
+  useEffect: (effect: () => void | (() => void), deps?: unknown[]) => void
+  useRef: <T>(initial: T) => { current: T }
+  useMemo?: <T>(factory: () => T, deps?: unknown[]) => T
+}
+
+// EyeDropper 是 Chromium 专有 API，TS 的 lib.dom 未收录（全局声明归 types/dsh.d.ts）。
+// 本文件只在能力探测与构造两处用局部形状收窄，不往全局加声明。
+interface EyeDropperInstance { open(): Promise<{ sRGBHex?: string }> }
+type WindowWithEyeDropper = Window & { EyeDropper?: new () => EyeDropperInstance }
+
+// 颜色模型：与 custom-color.ts 纯函数的入参/出参同形。
+interface Hsv { h: number; s: number; v: number }
+interface Rgb { r: number; g: number; b: number }
+interface Hsl { h: number; s: number; l: number }
+// parseHexInputLoose 的结果
+interface LooseHex { hex: string; alphaDropped: boolean }
+// 引擎解析失败的占位形状（src/engine/resolve.ts 的 ColorError：带 __error 的对象）。
+interface ColorErrorLike { __error: unknown }
+// 37 色位 → 色值（#RRGGBB 或 'transparent'）。宿主/引擎的表可能缺键、也可能带解析失败占位
+// （引擎口径 = Record<string, string | ColorError | undefined>），读取侧一律按「可能不是字符串」处理。
+type ColorValue = string | ColorErrorLike | undefined
+type ColorMap = Record<string, ColorValue>
+// 宿主注入的翻译函数
+type TrFn = (key: string) => string
+type TrfFn = (key: string, params: Record<string, string | number>) => string
+
+// 取色器 props（口径见下方 PalettePicker 前注释）。
+interface SlotValue { hex: string; transparent: boolean }
+type PickerState = Hsv & { transparent: boolean }
+interface PalettePickerProps {
+  h: EditorHooks
+  tr: TrFn
+  trf: TrfFn
+  label?: string
+  allowTransparent?: boolean
+  value?: SlotValue
+  recent?: string[]
+  contrastRefHex?: string
+  initialHsv?: Hsv | null
+  onApply?: (hex: string, transparent: boolean, hsv: Hsv) => void
+  onCancel?: () => void
+  onDone?: () => void
+}
+
+// 编辑器 props（口径见下方 CustomEditor 前注释）。
+interface EditorSeed { id?: string; name?: string; appearance?: string; colors?: ColorMap; basePreset?: string }
+interface EditorState { mode?: string; seed?: EditorSeed }
+interface CustomTheme { id: string; name: string; appearance: string; colors: ColorMap; basePreset?: string }
+interface SlotMeta { zh: string; en: string; useZh?: string; useEn?: string; allow?: boolean }
+interface SlotGroup { id: string; keys: string[] }
+interface GroupLabel { zh: string; en: string }
+interface Preset { name: string; title?: string; appearance: string; colors: ColorMap }
+interface PresetGroup { title: string; color?: string; names?: string[] }
+interface SavePayload { id: string | null; name: string; appearance: string; colors: ColorMap; basePreset: string }
+interface CustomEditorProps {
+  h: EditorHooks
+  tr: TrFn
+  trf: TrfFn
+  lang?: string
+  groups?: SlotGroup[]
+  groupMeta?: Record<string, GroupLabel>
+  slotMeta?: Record<string, SlotMeta>
+  editor?: EditorState
+  customs?: CustomTheme[]
+  presets?: Preset[]
+  presetGroups?: PresetGroup[]
+  presetLabel?: (name: string, preset: Preset | null) => string | null | undefined
+  isActive?: boolean
+  onSave: (payload: SavePayload) => unknown
+  onDelete: (id: string | null) => unknown
+  onClose: () => void
+}
+
+// 数值输入行的字段描述（RGB / HSV / HSL 三模型共用，见 fields）。
+interface NumField { k: string; label: string; aria: string; val: number; max: number; get: () => number; set: (n: number) => void }
+
+// 取色器弹板状态（openPop 写入 → renderPop 读取）。
+interface PopState {
+  key: string
+  hex: string
+  transparent: boolean
+  orig: SlotValue
+  anchor: AnchorEl
+  preferSide: string
+}
 
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
 // 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
 // 别名改写为真实 data-slot：border 系所有被 border 描边的节点 + borderActive 内圈节点。
-const EXTRA_HL = {
+const EXTRA_HL: Record<string, string[]> = {
   border: ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg'],
   borderActive: ['inputBg'],
 }
@@ -31,7 +176,7 @@ const DLG_CSS = [
 ].join('')
 
 // ── 弹窗 chrome 语义 token（用户 m09582 需求 2：编辑/新增弹窗整体跟随当前系统主题，预览区除外）──
-// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源：src/engine/map-dsh.mjs），
+// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源：src/engine/map-dsh.ts），
 // 所以弹窗 chrome 直接吃 var() 就同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参。
 // 末尾兜底值 = 改造前的深色字面量：宿主没定义该 token 时观感与今天完全一致。
 // 不在此列（表达的是「被编辑主题」或「外观选项」本身，不随宿主走）：预览画布、右列画布底色、
@@ -65,7 +210,7 @@ const TK = {
 // 纯函数接缝：凡被 hl 命中的色位一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
 // 用户 m08636 第 4 条要求「37 个色位命中时预览里每个受影响元素都被圈住」，
 // 所以 node 容器与纯 span（t 文本、代码 token、textMuted 行）必须共用这一处判定。
-export function slotRingStyle(hl, slot) {
+export function slotRingStyle(hl: string | null, slot: string): RingStyle | null {
   if (!hl) return null
   const targets = [hl].concat(EXTRA_HL[hl] || [])
   if (targets.indexOf(slot) < 0) return null
@@ -97,7 +242,7 @@ const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN
 // 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
 // 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
 // 纯函数接缝：view/row 形如 getBoundingClientRect() 的结果（只用到 top / height）。
-export function needsReveal(view, row, pad) {
+export function needsReveal(view: RevealRect | null, row: RevealRect | null, pad?: number): boolean {
   if (!view || !row) return false
   const p = typeof pad === 'number' ? pad : 0
   const bottom = view.top + (view.height || 0) - p
@@ -127,7 +272,7 @@ const PLACE_RIGHT = 'right'
 //   两个方向都放不下时贴剩余空间更大的一侧并夹紧在 bounds 内（可能与锚点相交）；
 //   四边各留 POP_MARGIN。缺输入（anchor/bounds/size 或尺寸非正）返回 null，
 //   调用方给兜底位；SSR / 假宿主不抛。
-export function popoverPosition(anchor, bounds, size, preferSide) {
+export function popoverPosition(anchor: BoxRect | null, bounds: BoxRect | null, size: BoxSize | null, preferSide?: string): Point | null {
   if (!anchor || !bounds || !size) return null
   const w = size.width
   const h = size.height
@@ -138,8 +283,8 @@ export function popoverPosition(anchor, bounds, size, preferSide) {
   const maxLeft = Math.floor(bounds.right - POP_MARGIN - w)
   const minTop = Math.ceil(bounds.top + POP_MARGIN)
   const maxTop = Math.floor(bounds.bottom - POP_MARGIN - h)
-  let left
-  let top
+  let left: number
+  let top: number | undefined
   if (preferSide === PLACE_RIGHT) {
     // #93：左列入口 —— 贴入口右侧垂直居中；右侧放不下翻左侧；左右都放不下退到入口上方/下方
     // （水平对齐入口），尽量不遮住入口；实在放不下才按剩余空间大的一侧夹紧（可能与锚点相交）。
@@ -179,7 +324,11 @@ export function popoverPosition(anchor, bounds, size, preferSide) {
 }
 
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
-export function presetToSeed(p) {
+// 重载只为把「传真实预置时字段必在」这一事实告诉类型系统（loadPreset 是唯一调用路径）：
+// p 为空时原样返回 undefined，既有 p && / p ? 守卫保留，运行时行为与签名收窄前一致。
+export function presetToSeed(p: Preset): { colors: ColorMap; appearance: string; basePreset: string }
+export function presetToSeed(p: Preset | null | undefined): { colors: ColorMap; appearance: string | undefined; basePreset: string | undefined }
+export function presetToSeed(p: Preset | null | undefined) {
   const src = (p && p.colors) || {}
   return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined }
 }
@@ -202,7 +351,7 @@ const PICK_RECENT_MAX = 10
 //   value: { hex, transparent }；recent: [hex]；contrastRefHex: 对比度基准色
 //   initialHsv: 可选 { h, s, v }（重开同一槽位时父组件回填上次色相，避免从 hex 反推）
 //   onApply(hex, transparent, hsv): 每次改动 live commit；onCancel(): 回滚关闭；onDone(): 保留关闭
-export function PalettePicker(props) {
+export function PalettePicker(props: PalettePickerProps) {
   const h = props.h
   const e = h.createElement
   const tr = props.tr
@@ -210,24 +359,24 @@ export function PalettePicker(props) {
   const allow = !!props.allowTransparent
   const value = props.value || { hex: '#000000', transparent: false }
   const startHex = normalizeHexInput(value.hex) || '#000000'
-  function clamp01(n) { return Math.min(1, Math.max(0, n)) }
-  function wrapH(n) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0 }
-  function clampPct(n) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0 }
+  function clamp01(n: number) { return Math.min(1, Math.max(0, n)) }
+  function wrapH(n: number) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0 }
+  function clampPct(n: number) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0 }
   // 关掉再点开同一槽位：父组件回填上次 {h,s,v}，避免从 hex 反推（灰/黑会丢色相，R1 残留）。
   const memoHsv = props.initialHsv
   const startHsv = (memoHsv && isFinite(memoHsv.h) && isFinite(memoHsv.s) && isFinite(memoHsv.v))
     ? { h: wrapH(memoHsv.h), s: clampPct(memoHsv.s), v: clampPct(memoHsv.v) }
     : hexToHsv(startHex)
-  const [pick, setPick] = h.useState(function () {
+  const [pick, setPick] = h.useState<PickerState>(function () {
     return { h: startHsv.h, s: startHsv.s, v: startHsv.v, transparent: !!value.transparent }
   })
   const [hexText, setHexText] = h.useState(value.transparent ? '' : startHex)
   const [hexError, setHexError] = h.useState(false)
   const [notice, setNotice] = h.useState('')
   const [model, setModel] = h.useState('hsv')
-  const drag = h.useRef(null)
-  const svRef = h.useRef(null)
-  const hueRef = h.useRef(null)
+  const drag = h.useRef<'sv' | 'hue' | null>(null)
+  const svRef = h.useRef<HTMLDivElement | null>(null)
+  const hueRef = h.useRef<HTMLDivElement | null>(null)
   const curHex = pick.transparent ? '' : rgbToHex(hsvToRgb(pick))
   const rgb = hsvToRgb(pick)
   const hsl = hsvToHsl(pick)
@@ -240,11 +389,11 @@ export function PalettePicker(props) {
   // EyeDropper 能力探测进 effect（渲染期不碰 window；SSR 首帧 disabled，挂载后按宿主能力启用）。
   const [eyeOk, setEyeOk] = h.useState(false)
   h.useEffect(function () {
-    try { setEyeOk(typeof window !== 'undefined' && typeof window.EyeDropper === 'function') } catch (err) { /* 保持禁用 */ }
+    try { setEyeOk(typeof window !== 'undefined' && typeof (window as WindowWithEyeDropper).EyeDropper === 'function') } catch (err) { /* 保持禁用 */ }
   }, [])
 
   // 单一提交路径：state（h/s/v + transparent）→ hex 投影 → 通知父组件 live commit。
-  function commit(next, transparent, hex, noticeKey) {
+  function commit(next: Hsv, transparent: boolean, hex: string, noticeKey: string) {
     setPick({ h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v), transparent: !!transparent })
     setHexText(transparent ? '' : hex)
     setHexError(false)
@@ -252,37 +401,37 @@ export function PalettePicker(props) {
     if (typeof props.onApply === 'function') props.onApply(hex, !!transparent, { h: wrapH(next.h), s: clampPct(next.s), v: clampPct(next.v) })
   }
   // 拖拽/数值/色相轨：直接推进 HSV（h 由状态保留；mergeHsv 只服务 hex 回填）。
-  function push(hsvNext) {
+  function push(hsvNext: Hsv) {
     const next = { h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v) }
     commit(next, false, rgbToHex(hsvToRgb(next)), '')
   }
   // hex / 吸管 / 主题色回填：走 mergeHsv 保留黑/灰时无意义的 h、s（R1）。
-  function pushHex(parsed, transparent) {
+  function pushHex(parsed: LooseHex, transparent: boolean) {
     commit(mergeHsv(pick, hexToHsv(parsed.hex)), transparent, parsed.hex, parsed.alphaDropped ? 'edAlphaDropped' : '')
   }
   // RGB/HSL 数值输入：同样走 mergeHsv（输入灰/黑时保留色相，R1 残留修复）。
-  function commitRgb(rgbNext) {
+  function commitRgb(rgbNext: Rgb) {
     const next = mergeHsv(pick, rgbToHsv(rgbNext))
     commit(next, false, rgbToHex(rgbNext), '')
   }
-  function commitHsl(hslNext) {
+  function commitHsl(hslNext: Hsl) {
     const next = mergeHsv(pick, hslToHsv(hslNext))
     commit(next, false, rgbToHex(hsvToRgb(next)), '')
   }
-  function svFrom(ev) {
+  function svFrom(ev: PointerEventLike) {
     const el = svRef.current
     if (!el || typeof el.getBoundingClientRect !== 'function') return
     const r = el.getBoundingClientRect()
     push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 })
   }
-  function svDown(ev) {
+  function svDown(ev: PointerEventLike) {
     if (pick.transparent) return
     try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'sv' } catch (err) { drag.current = 'sv' }
     svFrom(ev)
   }
-  function svMove(ev) { if (drag.current !== 'sv') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } svFrom(ev) }
-  function svUp(ev) { if (drag.current !== 'sv') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
-  function svKey(ev) {
+  function svMove(ev: PointerEventLike) { if (drag.current !== 'sv') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } svFrom(ev) }
+  function svUp(ev: PointerEventLike) { if (drag.current !== 'sv') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
+  function svKey(ev: KeyEvent) {
     if (pick.transparent) return
     const step = ev.shiftKey ? 10 : 1
     const k = ev.key
@@ -296,20 +445,20 @@ export function PalettePicker(props) {
     try { ev.preventDefault() } catch (err) { /* 忽略 */ }
     push({ h: pick.h, s: pick.s + ds, v: pick.v + dv })
   }
-  function hueFrom(ev) {
+  function hueFrom(ev: PointerEventLike) {
     const el = hueRef.current
     if (!el || typeof el.getBoundingClientRect !== 'function') return
     const r = el.getBoundingClientRect()
     push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v })
   }
-  function hueDown(ev) {
+  function hueDown(ev: PointerEventLike) {
     if (pick.transparent) return
     try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'hue' } catch (err) { drag.current = 'hue' }
     hueFrom(ev)
   }
-  function hueMove(ev) { if (drag.current !== 'hue') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } hueFrom(ev) }
-  function hueUp(ev) { if (drag.current !== 'hue') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
-  function hueKey(ev) {
+  function hueMove(ev: PointerEventLike) { if (drag.current !== 'hue') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } hueFrom(ev) }
+  function hueUp(ev: PointerEventLike) { if (drag.current !== 'hue') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
+  function hueKey(ev: KeyEvent) {
     if (pick.transparent) return
     const k = ev.key
     const step = ev.shiftKey ? 10 : 1
@@ -324,10 +473,10 @@ export function PalettePicker(props) {
     try { ev.preventDefault() } catch (err) { /* 忽略 */ }
     push({ h: pick.h + dh, s: pick.s, v: pick.v })
   }
-  function toggleTransparent(on) {
+  function toggleTransparent(on: boolean) {
     commit(pick, !!on, rgbToHex(hsvToRgb(pick)), '')
   }
-  function onHexChange(ev) {
+  function onHexChange(ev: ChangeEvent) {
     const raw = ev.target.value
     setHexText(raw)
     const parsed = parseHexInputLoose(raw)
@@ -349,7 +498,7 @@ export function PalettePicker(props) {
   }
   function pickScreen() {
     try {
-      const w = typeof window !== 'undefined' ? window : null
+      const w: WindowWithEyeDropper | null = typeof window !== 'undefined' ? window : null
       if (!w || typeof w.EyeDropper !== 'function') return
       const ed = new w.EyeDropper()
       Promise.resolve(ed.open()).then(function (res) {
@@ -370,7 +519,7 @@ export function PalettePicker(props) {
     border: '1px solid ' + TK.border, borderRadius: '6px', padding: '0 6px 0 16px', fontSize: '11px',
     textAlign: 'right',
   }
-  const fields = model === 'rgb'
+  const fields: NumField[] = model === 'rgb'
     ? [
         { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, get: function () { return rgb.r }, set: function (n) { commitRgb({ r: n, g: rgb.g, b: rgb.b }) } },
         { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, get: function () { return rgb.g }, set: function (n) { commitRgb({ r: rgb.r, g: n, b: rgb.b }) } },
@@ -387,7 +536,7 @@ export function PalettePicker(props) {
             { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, get: function () { return pick.s }, set: function (n) { push({ h: pick.h, s: n, v: pick.v }) } },
             { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, get: function () { return pick.v }, set: function (n) { push({ h: pick.h, s: pick.s, v: n }) } },
           ])
-  const ticks = []
+  const ticks: RenderNode[] = []
   for (let i = 0; i < 13; i++) {
     ticks.push(e('span', {
       key: 't' + i, 'aria-hidden': 'true',
@@ -559,44 +708,44 @@ export function PalettePicker(props) {
 //   isActive: bool,
 //   onSave(payload): Promise, onDelete(id): Promise, onClose()
 // }
-export function CustomEditor(props) {
+export function CustomEditor(props: CustomEditorProps) {
   const h = props.h
   const e = h.createElement
   const tr = props.tr
   const trf = props.trf
   const lang = props.lang === 'en' ? 'en' : 'zh'
   //  verdict 长句按语言连接：中文无缝拼接，英文词间补空格（I18N 串本身不带首尾空格，词表可逐行对账）。
-  function segJoin(parts) {
+  function segJoin(parts: RenderNode[]): RenderNode[] {
     if (lang !== 'en') return parts
-    const out = []
+    const out: RenderNode[] = []
     for (let i = 0; i < parts.length; i++) {
       if (i > 0) out.push(' ')
       out.push(parts[i])
     }
     return out
   }
-  const seed = (props.editor && props.editor.seed) || {}
+  const seed: EditorSeed = (props.editor && props.editor.seed) || {}
   const mode = (props.editor && props.editor.mode) === 'edit' ? 'edit' : 'new'
 
   const [name, setName] = h.useState(typeof seed.name === 'string' ? seed.name : '')
   const [appearance, setAppearance] = h.useState(
     seed.appearance === 'light' || seed.appearance === 'system' ? seed.appearance : 'dark'
   )
-  const [colors, setColors] = h.useState(Object.assign({}, seed.colors || {}))
+  const [colors, setColors] = h.useState<ColorMap>(Object.assign({}, seed.colors || {}))
   const [basePreset, setBasePreset] = h.useState(typeof seed.basePreset === 'string' ? seed.basePreset : 'opencode')
   const [origId] = h.useState(typeof seed.id === 'string' ? seed.id : null)
   const [targetSel, setTargetSel] = h.useState(typeof seed.id === 'string' ? seed.id : null)
   const [showPresets, setShowPresets] = h.useState(false)
   const [presetQuery, setPresetQuery] = h.useState('')
-  const [pop, setPop] = h.useState(null) // { key, hex, transparent, orig: { hex, transparent } }
-  const [popPos, setPopPos] = h.useState(null)
-  const [presetPos, setPresetPos] = h.useState(null)
-  const [hl, setHl] = h.useState(null)
-  const [hovered, setHovered] = h.useState(null)
+  const [pop, setPop] = h.useState<PopState | null>(null) // { key, hex, transparent, orig: { hex, transparent } }
+  const [popPos, setPopPos] = h.useState<Point | null>(null)
+  const [presetPos, setPresetPos] = h.useState<Point | null>(null)
+  const [hl, setHl] = h.useState<string | null>(null)
+  const [hovered, setHovered] = h.useState<string | null>(null)
   // 预览小标签的视口坐标（用户 m08636 第 1 条：标签层级要高于预览区、不被所在容器裁掉）。
   // 原型把 badge 挂到 document.body 并 position:fixed（prototype.html:906-919），
   // 这里等价地做成 fixed 覆盖层元素（fixed 不被祖先 overflow 裁剪），坐标由 effect 量第一个命中节点得出。
-  const [badgeAt, setBadgeAt] = h.useState(null)
+  const [badgeAt, setBadgeAt] = h.useState<Point | null>(null)
   // 左列小标签的长名夹紧量（原型 paintHl:929-930 的 row.clientWidth 夹紧；默认 0 = 紧贴标题右侧）
   const [rowShift, setRowShift] = h.useState(0)
   const [delConfirm, setDelConfirm] = h.useState(false)
@@ -609,13 +758,13 @@ export function CustomEditor(props) {
       return mm ? !!mm.matches : true
     } catch (err) { return true }
   })
-  const presetBtnRef = h.useRef(null)
-  const dlgRef = h.useRef(null)
-  const miniRef = h.useRef(null)
-  const rowRef = h.useRef(null)
-  const nameRef = h.useRef(null)
-  const targetRef = h.useRef(null)
-  const rrightRef = h.useRef(null)
+  const presetBtnRef = h.useRef<HTMLButtonElement | null>(null)
+  const dlgRef = h.useRef<HTMLDivElement | null>(null)
+  const miniRef = h.useRef<HTMLDivElement | null>(null)
+  const rowRef = h.useRef<HTMLDivElement | null>(null)
+  const nameRef = h.useRef<HTMLInputElement | null>(null)
+  const targetRef = h.useRef<HTMLSelectElement | null>(null)
+  const rrightRef = h.useRef<HTMLSpanElement | null>(null)
   // 编辑态下拉「按选中项文字定宽」+ 左列 .nm 齐宽（原型 fitWidth 口径：prototype.html:750-799 的这两段仍在）。
   // 名字区与弹窗总宽已交回 CSS（定宽名字区 + width:max-content），见下方注释（用户 m09582 需求 1）。
   h.useEffect(function () {
@@ -625,7 +774,7 @@ export function CustomEditor(props) {
       const doc = (typeof document !== 'undefined') ? document : null
       const win = (typeof window !== 'undefined') ? window : null
       if (!doc || !win || !doc.createElement || !doc.body || !win.getComputedStyle) return
-      const textW = function (txt, cs) {
+      const textW = function (txt: string, cs: CSSStyleDeclaration) {
         const m = doc.createElement('span')
         m.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + cs.fontSize + ';font-family:' + cs.fontFamily + ';font-weight:' + cs.fontWeight
         m.textContent = txt
@@ -653,17 +802,17 @@ export function CustomEditor(props) {
       const nms = dlg.querySelectorAll('.nm')
       if (nms && nms.length) {
         let mw = 0
-        Array.prototype.forEach.call(nms, function (x) { mw = Math.max(mw, x.offsetWidth || 0) })
-        if (mw > 0) Array.prototype.forEach.call(nms, function (x) { x.style.width = mw + 'px' })
+        Array.prototype.forEach.call(nms, function (x: HTMLElement) { mw = Math.max(mw, x.offsetWidth || 0) })
+        if (mw > 0) Array.prototype.forEach.call(nms, function (x: HTMLElement) { x.style.width = mw + 'px' })
       }
     } catch (err) { /* 量字失败保持 CSS 回落 */ }
   }, [name, targetSel, mode, basePreset, appearance, lang,
     (props.customs || []).length, (props.presets || []).length])
-  const rowRefs = h.useRef({})
-  const leftColRef = h.useRef(null)
-  const svDrag = h.useRef(null)
+  const rowRefs = h.useRef<Record<string, HTMLDivElement | null>>({})
+  const leftColRef = h.useRef<HTMLDivElement | null>(null)
+  const svDrag = h.useRef<unknown>(null)
   // #95：按色位记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
-  const pickMem = h.useRef({})
+  const pickMem = h.useRef<Record<string, { hex: string; hsv: Hsv }>>({})
 
   // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
   // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
@@ -719,7 +868,7 @@ export function CustomEditor(props) {
       const w = typeof window !== 'undefined' ? window : null
       if (!w || typeof w.matchMedia !== 'function') return undefined
       const mq = w.matchMedia('(prefers-color-scheme: dark)')
-      const fn = function (ev) { setSysDark(!!(ev && ev.matches)) }
+      const fn = function (ev: MediaQueryListEvent) { setSysDark(!!(ev && ev.matches)) }
       if (typeof mq.addEventListener === 'function') mq.addEventListener('change', fn)
       else if (typeof mq.addListener === 'function') mq.addListener(fn)
       return function () {
@@ -733,9 +882,10 @@ export function CustomEditor(props) {
   // 回滚只走 Esc/取消。预置弹窗仍是直接收起）
   h.useEffect(function () {
     if (!pop && !showPresets) return undefined
-    const onDown = function (ev) {
+    const onDown = function (ev: MouseEvent) {
       try {
-        const t = ev.target
+        // DOM 事件 target 恒为节点；文本节点没有 closest，既有 closest 存在性守卫保留原样。
+        const t = ev.target as Element | null
         const inPop = t && t.closest && (t.closest('#pop') || t.closest('#presetPop') || t.closest('#f-presetbtn'))
         if (inPop) return
         const root = dlgRef.current
@@ -764,7 +914,7 @@ export function CustomEditor(props) {
   // Esc = 取消并回滚（#95 R2 语义；点弹板外 = 保留关闭，两者分工见上）。
   h.useEffect(function () {
     if (!pop) return undefined
-    const onKey = function (ev) {
+    const onKey = function (ev: KeyboardEvent) {
       try {
         if (ev && (ev.key === 'Escape' || ev.key === 'Esc')) closePop(true)
       } catch (err) { /* 忽略 */ }
@@ -784,6 +934,8 @@ export function CustomEditor(props) {
   //    弹窗内滚动 / 窗口 resize 时重算。
   h.useEffect(function () {
     if (!pop) { setPopPos(null); return undefined }
+    // 闭包（place）里 TS 的控制流不跨函数边界，先取出窄化后的同一引用；运行时无变化。
+    const cur = pop
     const w = typeof window !== 'undefined' ? window : null
     const d = typeof document !== 'undefined' ? document : null
     function place() {
@@ -792,9 +944,9 @@ export function CustomEditor(props) {
         const vh = (w && w.innerHeight) || 900
         // 两个入口（预览控件 / 左列色块）都携带锚点，见 openPop 调用点。
         // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
-        if (pop.anchor.isConnected === false) { setPop(null); return }
-        if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
-        const ar = pop.anchor.getBoundingClientRect()
+        if (cur.anchor.isConnected === false) { setPop(null); return }
+        if (!w || typeof cur.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }
+        const ar = cur.anchor.getBoundingClientRect()
         let bounds = { left: 0, top: 0, right: vw, bottom: vh }
         const dlg = dlgRef.current
         if (dlg && typeof dlg.getBoundingClientRect === 'function') {
@@ -804,7 +956,7 @@ export function CustomEditor(props) {
             right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
           }
         }
-        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide) || POP_FALLBACK
+        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, cur.preferSide) || POP_FALLBACK
         setPopPos({ left: pos.left, top: pos.top })
       } catch (err) { setPopPos(POP_FALLBACK) }
     }
@@ -837,9 +989,9 @@ export function CustomEditor(props) {
 
   // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
   const miniLight = editorMiniLight(appearance, sysDark)
-  const eff = function (key) { return effectiveSlotColor(key, colors, miniLight) }
+  const eff = function (key: string) { return effectiveSlotColor(key, colors, miniLight) }
 
-  function setColor(key, hex, transparent) {
+  function setColor(key: string, hex: string, transparent: boolean) {
     setColors(function (prev) {
       const next = Object.assign({}, prev)
       if (transparent) {
@@ -853,7 +1005,7 @@ export function CustomEditor(props) {
     })
   }
 
-  function openPop(key, anchorEl, preferSide) {
+  function openPop(key: string, anchorEl: AnchorEl, preferSide?: string) {
     const raw = colors[key]
     const norm = normalizeHexInput(raw)
     const anchor = anchorEl || null
@@ -875,7 +1027,7 @@ export function CustomEditor(props) {
     setHl(key)
   }
 
-  function closePop(revert) {
+  function closePop(revert: boolean) {
     if (revert && pop) {
       const o = pop.orig
       setColor(pop.key, o.hex, o.transparent)
@@ -884,7 +1036,7 @@ export function CustomEditor(props) {
   }
 
   // 左列定位（原型 scrollToRow 口径：prototype.html:936-938 = block center + behavior smooth）。
-  function scrollToRow(key) {
+  function scrollToRow(key: string) {
     try {
       const row = rowRefs.current[key]
       if (row && typeof row.scrollIntoView === 'function') row.scrollIntoView({ block: 'center', behavior: 'smooth' })
@@ -892,7 +1044,7 @@ export function CustomEditor(props) {
   }
 
   // 预览 → 左列联动（用户 m09226）：行已在视野里就不动，否则按原型口径滑到可见。
-  function revealRow(key) {
+  function revealRow(key: string) {
     try {
       const row = rowRefs.current[key]
       if (!row) return
@@ -904,7 +1056,7 @@ export function CustomEditor(props) {
     } catch (err) { /* 忽略 */ }
   }
 
-  function clickSlot(key, anchorEl) {
+  function clickSlot(key: string, anchorEl: AnchorEl) {
     // #94：点预览控件 → 以被点元素为锚原地开弹板（不再把弹板夹到预览区左侧）；
     // 左列联动只在该行不可见时滚动露出（取消强制居中，见 revealRow）。
     if (props.slotMeta && props.slotMeta[key]) {
@@ -913,7 +1065,7 @@ export function CustomEditor(props) {
     }
   }
 
-  function loadPreset(p) {
+  function loadPreset(p: Preset) {
     const seed = presetToSeed(p)
     setColors(seed.colors)
     setAppearance(seed.appearance)
@@ -922,7 +1074,7 @@ export function CustomEditor(props) {
     setPresetQuery('')
   }
 
-  function switchTarget(id) {
+  function switchTarget(id: string) {
     const found = (props.customs || []).filter(function (t) { return t.id === id })[0]
     if (!found) return
     setTargetSel(id)
@@ -947,7 +1099,7 @@ export function CustomEditor(props) {
   }
 
   // ── 左列：37 色位行（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
-  const leftRows = []
+  const leftRows: RenderNode[] = []
   for (const g of props.groups || []) {
     const gm = (props.groupMeta && props.groupMeta[g.id]) || { zh: g.id, en: g.id }
     const hasTrans = g.keys.some(function (k) { return props.slotMeta && props.slotMeta[k] && props.slotMeta[k].allow })
@@ -971,7 +1123,7 @@ export function CustomEditor(props) {
       const isHovered = hovered === key && !isTarget
       leftRows.push(e('div', {
         key: 'row-' + key, 'data-row': key,
-        ref: function (el) { rowRefs.current[key] = el },
+        ref: function (el: HTMLDivElement | null) { rowRefs.current[key] = el },
         onMouseEnter: function () { setHl(key); setHovered(key) },
         onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null); setHovered(null) },
         style: {
@@ -1020,7 +1172,7 @@ export function CustomEditor(props) {
     if (!pop || !popPos) return null
     const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
     // 主题色按分组优先级排序（R7：品牌/语法色不再被 8 个背景色挤掉），跳过当前槽自身（pickRecentColors 内处理）。
-    const priority = []
+    const priority: string[] = []
     const groups = props.groups || []
     for (let i = 0; i < groups.length; i++) {
       if (groups[i].id === 'bg') continue
@@ -1055,7 +1207,7 @@ export function CustomEditor(props) {
         recent: recent,
         contrastRefHex: refHex,
         // 任何改动即 live commit（R2）：颜色已写进编辑中的主题，关闭时不再回滚。
-        onApply: function (hex, transparent, hsv) {
+        onApply: function (hex: string, transparent: boolean, hsv: Hsv) {
           if (hsv && isFinite(hsv.h) && isFinite(hsv.s) && isFinite(hsv.v)) {
             pickMem.current[pop.key] = {
               hex: transparent ? '' : hex,
@@ -1076,7 +1228,7 @@ export function CustomEditor(props) {
     // 同上：定位（异步 effect）没算出来之前不渲染，避免「左上角闪一帧再跳到选基底按钮下方」。
     if (!showPresets || !presetPos) return null
     const q = presetQuery.trim().toLowerCase()
-    const match = function (n) {
+    const match = function (n: string) {
       if (!q) return true
       const hay = (n + ' ' + presetLabelOf(n)).toLowerCase()
       return hay.indexOf(q) >= 0
@@ -1111,7 +1263,7 @@ export function CustomEditor(props) {
               e('span', { style: { fontSize: '11px', color: TK.text2 } }, String((g.names || []).length))),
             e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, names.map(function (n) {
               const p = findPreset(n)
-              const cc = (p && p.colors) || {}
+              const cc: ColorMap = (p && p.colors) || {}
               const transBg = cc.background === 'transparent'
               const bg = transBg ? '#FFFFFF' : (n === 'system' ? '#0A0A0A' : hexOr(cc.background, '#0A0A0A'))
               const fg = transBg ? '#1A1A1A' : hexOr(cc.text, '#E7E7EA')
@@ -1140,12 +1292,12 @@ export function CustomEditor(props) {
   }
 
   // 透明文本回退（原型 tx 口径：transparent 正文→灰，底盘透明另走 hexOrTrans）
-  const txOf = function (v) {
+  const txOf = function (v: ColorValue) {
     if (v === 'transparent') return miniLight ? '#6E6E78' : '#8B8B95'
     return normalizeHexInput(v) || v
   }
   // 高亮字（原型 pickText 口径：prototype.html:877-883，按亮度取深/浅字）
-  const pickTextOn = function (hex) {
+  const pickTextOn = function (hex: ColorValue) {
     const n = normalizeHexInput(hex)
     if (!n) return '#141414'
     const r = parseInt(n.slice(1, 3), 16), g = parseInt(n.slice(3, 5), 16), b = parseInt(n.slice(5, 7), 16)
@@ -1158,17 +1310,17 @@ export function CustomEditor(props) {
   function renderMini() {
     // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个色位命中的每一个预览元素都要被圈住；
     // 此前只有 node 会圈，纯 span 命中被漏掉）
-    const ringOf = function (slot) { return slotRingStyle(hl, slot) }
-    const ringStyle = function (slot) { return ringOf(slot) || undefined }
-    const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
+    const ringOf = function (slot: string) { return slotRingStyle(hl, slot) }
+    const ringStyle = function (slot: string) { return ringOf(slot) || undefined }
+    const ringCls = function (slot: string) { return ringOf(slot) ? HL_CLS : undefined }
     // 可点文本 span 的合并样式（#94：t() 与三处裸 span 共用；ring 覆盖 cursor 之外的描边键）。
-    const clickableSpanStyle = function (slot, base) {
+    const clickableSpanStyle = function (slot: string, base?: StyleObject) {
       return Object.assign({ cursor: 'pointer' }, base || {}, ringStyle(slot) || {})
     }
     // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
     // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
     // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
-    const bindSlot = function (slot) {
+    const bindSlot = function (slot: string): ElProps {
       return {
         onMouseEnter: function () { setHl(slot); revealRow(slot) },
         onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
@@ -1176,7 +1328,7 @@ export function CustomEditor(props) {
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
       }
     }
-    const node = function (slot, style, children, extra) {
+    const node = function (slot: string, style: StyleObject, children?: RenderNode, extra?: Record<string, unknown>) {
       const ring = ringOf(slot)
       const props2 = Object.assign({
         'data-slot': slot,
@@ -1190,10 +1342,10 @@ export function CustomEditor(props) {
     // 原型文本 span 口径：data-slot 透出定位；#94 起文本也全部可点（点击原地开弹板），
     // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
     // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
-    const t = function (slot, s, key) {
+    const t = function (slot: string, s: RenderNode, key?: string) {
       return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot)), s)
     }
-    const codeLines = [
+    const codeLines: Array<{ t: string; s: string | null }> = [
       { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
       { t: 'run', s: 'syntaxFunction' }, { t: ' = ', s: 'syntaxOperator' },
       { t: 'Theme', s: 'syntaxType' }, { t: ' 37', s: 'syntaxNumber' },
@@ -1332,10 +1484,10 @@ export function CustomEditor(props) {
     ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0] || {}).name || capName)
     : capName
 
-  const presetByName = function (n) {
+  const presetByName = function (n: string) {
     return (props.presets || []).filter(function (x) { return x.name === n })[0] || null
   }
-  const hexOr = function (v, fb) { return normalizeHexInput(v) || fb }
+  const hexOr = function (v: ColorValue, fb: string) { return normalizeHexInput(v) || fb }
   // 顶栏图标（原型 ICONS + SYSICON 口径：prototype.html:503/507-510/647，手绘 SVG，零 emoji）
   const ICON_CHECK = e('svg', { width: 11, height: 11, viewBox: '0 0 12 12', 'aria-hidden': 'true', style: { verticalAlign: '-2px' } },
     e('path', { d: 'M2 6.5 4.8 9 10 3.5', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }))
@@ -1356,19 +1508,19 @@ export function CustomEditor(props) {
   const capFg = capLightT ? '#1A1A1A' : (capBgT ? '#1A1A1A' : hexOr(colors.text, '#000000'))
   const capPrimary = hexOr(colors.primary, '#FAB283')
   const editTgt = mode === 'edit' ? (((props.customs || []).filter(function (t) { return t.id === targetSel })[0]) || null) : null
-  const editTgtColors = (editTgt && editTgt.colors) || {}
+  const editTgtColors: ColorMap = (editTgt && editTgt.colors) || {}
   const editTgtBgT = editTgtColors.background === 'transparent'
   const edtagFace = editTgtBgT ? '#FFFFFF' : (normalizeHexInput(editTgtColors.background) || '#1C1C21')
   const edtagFg = editTgtBgT ? '#1A1A1A' : (normalizeHexInput(editTgtColors.text) || '#C9C9D2')
   const edtagPrimary = normalizeHexInput(editTgtColors.primary) || '#FAB283'
   const baseFound = presetByName(basePreset)
-  const baseFoundColors = (baseFound && baseFound.colors) || {}
+  const baseFoundColors: ColorMap = (baseFound && baseFound.colors) || {}
   const baseFoundT = baseFoundColors.background === 'transparent'
   const bpFace = baseFoundT ? '#FFFFFF' : hexOr(baseFoundColors.background, '#0A0A0A')
   const bpFg = baseFoundT ? '#1A1A1A' : hexOr(baseFoundColors.text, '#E7E7EA')
   const bpPrimary = hexOr(baseFoundColors.primary, '#555')
   const bpDot = basePreset === 'system' ? '#8B8B95' : bpPrimary
-  const presetLabelOf = function (n) {
+  const presetLabelOf = function (n: string) {
     const p = presetByName(n)
     if (props.presetLabel) { try { return props.presetLabel(n, p) || n } catch (err) { /* 回落 */ } }
     return (p && p.title) || n

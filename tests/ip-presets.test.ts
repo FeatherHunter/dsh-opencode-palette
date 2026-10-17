@@ -1,4 +1,4 @@
-// ip-presets.test.mjs — IP 预置主题第二来源（src/custom-presets/20 套）接线测试
+// ip-presets.test.ts — IP 预置主题第二来源（src/custom-presets/20 套）接线测试
 // 双来源：内置 38（37+system，冻结不动）+ IP 21（只进自定义编辑器「选基底」，不进 themeNames）。
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -17,6 +17,13 @@ const EXPECTED_IDS = [
   'one-piece', 'pokemon', 'sailor-moon', 'star-wars', 'transformers',
   'ultraman', 'zelda',
 ]
+
+/** 取一套 IP 预置；miss 直接断言失败（比裸 .appearance 更早报出原因）。 */
+function preset(id: string) {
+  const p = getIpPreset(id)
+  assert.ok(p, id + ' 应有 IP 预置')
+  return p
+}
 
 test('IP 预置 21 套，id 清单稳定（字母序）', function () {
   assert.equal(countIpPresets(), 21)
@@ -47,10 +54,10 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
 })
 
 test('getIpPreset 按 id 取，miss 回 null', function () {
-  assert.equal(getIpPreset('sailor-moon').appearance, 'light')
-  assert.equal(getIpPreset('sailor-moon').title, '美少女战士')
-  assert.equal(getIpPreset('pokemon').appearance, 'dark')
-  assert.equal(getIpPreset('pokemon').title, '宝可梦')
+  assert.equal(preset('sailor-moon').appearance, 'light')
+  assert.equal(preset('sailor-moon').title, '美少女战士')
+  assert.equal(preset('pokemon').appearance, 'dark')
+  assert.equal(preset('pokemon').title, '宝可梦')
   assert.equal(getIpPreset('nope'), null)
   assert.equal(getIpPreset('system'), null)
 })

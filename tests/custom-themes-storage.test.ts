@@ -1,10 +1,10 @@
-// custom-themes-storage.test.mjs — #85：宿主半 custom-themes 单文件持久化（TDD 接缝 + 宿主冒烟）
+// custom-themes-storage.test.ts — #85：宿主半 custom-themes 单文件持久化（TDD 接缝 + 宿主冒烟）
 //
-// 覆盖 runtime/host.mjs 的纯存储接缝与三条 RPC：
+// 覆盖 runtime/host.ts 的纯存储接缝与三条 RPC：
 //   - customThemesDir / sanitizeCustomThemeId / normalizeCustomTheme（纯函数，先写测试再实现）
 //   - customThemesList / customThemesSave / customThemesDelete（假 connection + 真临时 DSH_HOME 冒烟）
 //   - 内嵌 opencode 回退色板与引擎 extractPresetPalette('opencode') 一致（改 engine 忘同步 host 即红）
-//   - 构建产物同步：package/lib/channel.mjs 与 package/lib/index.js 必须含新电话（改 runtime 忘重建即红）
+//   - 构建产物同步：package/lib/channel.js 与 package/lib/index.js 必须含新电话（改 runtime 忘重建即红）
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
@@ -13,10 +13,22 @@ import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 const ROOT = join(import.meta.dirname, '..')
-const hostUrl = pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href
+const hostUrl = pathToFileURL(join(ROOT, 'runtime', 'host.ts')).href
 
-function fullTheme(id, overrides) {
-  const colors = {}
+// 宿主落盘/回包里的主题形状（测试读到的字段）。
+interface ThemeRow {
+  id: string
+  name: string
+  appearance: string
+  basePreset: string
+  colors: Record<string, string>
+}
+
+// any: 宿主 RPC 回包是运行时动态 JSON（list/save/delete/未知电话三种形状），测试逐字段断言。
+type RpcReply = any
+
+function fullTheme(id: string, overrides: Partial<ThemeRow> = {}): ThemeRow {
+  const colors: Record<string, string> = {}
   for (const k of ['background', 'backgroundPanel', 'backgroundElement', 'text', 'textMuted', 'primary']) colors[k] = '#010101'
   return Object.assign({ id, name: '名 ' + id, appearance: 'dark', basePreset: 'opencode', colors }, overrides)
 }
@@ -74,11 +86,16 @@ test('#85 内嵌回退色板与引擎 opencode(dark) 37 色一致', async () => 
 
 // ── 二、宿主半冒烟（假 connection + 真临时 DSH_HOME，走精确路由全分发） ──
 
+// 假 connection 注册进来的通道路由：宿主拿到请求后返回 Response。
+interface FakeRoute {
+  fetch(request: Request): Promise<Response>
+}
+
 async function setupHost() {
   const home = mkdtempSync(join(tmpdir(), 'palette-custom-'))
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
-  // 与 update-panel.test.mjs 同款假使用范围：开发态 checkout 下更新包按包名找不到本包，
+  // 与 update-panel.test.ts 同款假使用范围：开发态 checkout 下更新包按包名找不到本包，
   // 摆一份装好的包并把 targetPackageDir 指过去（只为让 apply() 走通，本节不断言更新电话）。
   const profileDir = join(home, 'fakeprofile')
   const fakePkgDir = join(profileDir, 'node_modules', 'dsh-opencode-palette')
@@ -90,22 +107,24 @@ async function setupHost() {
     name: 'fake-profile', version: '0.0.0', dependencies: { 'dsh-opencode-palette': '^0.2.0' },
   }))
   const host = await import(hostUrl)
-  const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.mjs')).href)
-  let route = null
+  const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.ts')).href)
+  let route: FakeRoute | undefined
   const ctx = {
-    get: (name) => (name === 'connection'
-      ? { fetch: { register: (r) => { route = r; return () => {} } } }
+    get: (name: string) => (name === 'connection'
+      ? { fetch: { register: (r: FakeRoute) => { route = r; return () => {} } } }
       : undefined),
   }
   host.apply(ctx, { readerOverrides: { targetPackageDir: fakePkgDir } })
   assert.ok(route, '必须注册通道路由')
-  const call = async (phone, payload) => {
+  // assert.ok 已收窄；单独拷出来给下面的闭包用（闭包内不再受收窄影响）。
+  const registered: FakeRoute = route
+  const call = async (phone: string, payload?: unknown): Promise<RpcReply> => {
     const request = new Request('http://127.0.0.1/api/opencode-palette', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ type: 'client-request', rpcId: 'rpc-1', payload: { method: phone, payload: payload === undefined ? null : payload } }),
     })
-    return (await route.fetch(request)).json()
+    return (await registered.fetch(request)).json()
   }
   return {
     home, host, PHONES: channel.PHONE_METHODS, call,
@@ -148,7 +167,7 @@ test('#85 save：落盘 2 空格 JSON，更新幂等同文件', async () => {
     assert.equal(saved2.result.value.themes.length, 1)
     assert.equal(JSON.parse(readFileSync(file, 'utf8')).name, '改名')
     // 稳定排序断言（updatedAt 新在前、id 兜底）
-    const ts = saved2.result.value.themes.map((x) => x.id)
+    const ts = saved2.result.value.themes.map((x: ThemeRow) => x.id)
     assert.deepEqual(ts, [...ts].sort(), '单主题排序平凡成立（多主题见下一节隐式覆盖）')
   } finally { t.cleanup() }
 })
@@ -182,9 +201,9 @@ test('#85 外部导入自愈：手放部分 JSON 被补齐，损坏 JSON 被跳�
     writeFileSync(join(dir, 'has space.json'), JSON.stringify(fullTheme('spaced')))
     const reply = await t.call(t.PHONES.customThemesList, {})
     assert.equal(reply.result.value.ok, true)
-    const ids = reply.result.value.themes.map((x) => x.id).sort()
+    const ids = reply.result.value.themes.map((x: ThemeRow) => x.id).sort()
     assert.deepEqual(ids, ['hand', 'real-id'], '损坏文件与非法文件名都跳过、内容 id 优先、文件名兜底')
-    const hand = reply.result.value.themes.find((x) => x.id === 'hand')
+    const hand = reply.result.value.themes.find((x: ThemeRow) => x.id === 'hand')
     assert.equal(hand.name, 'hand')
     assert.equal(hand.appearance, 'dark')
     assert.equal(Object.keys(hand.colors).length, 37)
@@ -221,18 +240,18 @@ test('#85 未知电话仍明确报错（通用管线未被存储电话破坏）'
 })
 
 test('#85 构建产物同步：包内 channel 与宿主副本必须含新电话', async () => {
-  const bundledChannel = readFileSync(join(ROOT, 'package', 'lib', 'channel.mjs'), 'utf8')
+  const bundledChannel = readFileSync(join(ROOT, 'package', 'lib', 'channel.js'), 'utf8')
   for (const m of ['customThemesList', 'customThemesSave', 'customThemesDelete']) {
-    assert.ok(bundledChannel.includes(m), 'package/lib/channel.mjs 须含 ' + m + '（改 runtime/channel.mjs 后要重建）')
+    assert.ok(bundledChannel.includes(m), 'package/lib/channel.js 须含 ' + m + '（改 runtime/channel.ts 后要重建）')
   }
   const bundledHost = readFileSync(join(ROOT, 'package', 'lib', 'index.js'), 'utf8')
   assert.ok(bundledHost.includes('customThemesSave'), 'package/lib/index.js 须为新版宿主（含存储层）')
 })
 
 test('#89 接缝门禁：电话名带前缀，且与浏览器半实际发的字面量逐个一致', async () => {
-  const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.mjs')).href)
-  const clientSrc = readFileSync(join(ROOT, 'runtime', 'client.mjs'), 'utf8')
-  const storeSrc = readFileSync(join(ROOT, 'runtime', 'custom-store.mjs'), 'utf8')
+  const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.ts')).href)
+  const clientSrc = readFileSync(join(ROOT, 'runtime', 'client.ts'), 'utf8')
+  const storeSrc = readFileSync(join(ROOT, 'runtime', 'custom-store.ts'), 'utf8')
   // 一、表里的名字必须带前缀：宿主 dispatch 按请求体里的 method 原样查表，
   // 而桥不替调用方加前缀，裸名必然 unknown phone（#89 病灶）。
   for (const key of ['customThemesList', 'customThemesSave', 'customThemesDelete']) {
@@ -242,9 +261,10 @@ test('#89 接缝门禁：电话名带前缀，且与浏览器半实际发的字�
     )
   }
   // 二、客户端源里发的字面量必须与表逐字一致（改表忘改客户端 = 静默死链，这里红）
-  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesSave + "'"), 'runtime/client.mjs 存盘须发 ' + channel.PHONE_METHODS.customThemesSave)
-  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesDelete + "'"), 'runtime/client.mjs 删除须发 ' + channel.PHONE_METHODS.customThemesDelete)
-  assert.ok(storeSrc.includes("'" + channel.PHONE_METHODS.customThemesList + "'"), 'runtime/custom-store.mjs 列表须发 ' + channel.PHONE_METHODS.customThemesList)
+  // 断言的是 runtime/*.ts 的手写源码（不是 tsc emit），所以仍是单引号字面量。
+  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesSave + "'"), 'runtime/client.ts 存盘须发 ' + channel.PHONE_METHODS.customThemesSave)
+  assert.ok(clientSrc.includes("'" + channel.PHONE_METHODS.customThemesDelete + "'"), 'runtime/client.ts 删除须发 ' + channel.PHONE_METHODS.customThemesDelete)
+  assert.ok(storeSrc.includes("'" + channel.PHONE_METHODS.customThemesList + "'"), 'runtime/custom-store.ts 列表须发 ' + channel.PHONE_METHODS.customThemesList)
   // 三、反向：客户端不许出现不带前缀的裸名调用（历史写法，等于必然失败）
   for (const src of [clientSrc, storeSrc]) {
     assert.ok(
@@ -257,7 +277,7 @@ test('#89 接缝门禁：电话名带前缀，且与浏览器半实际发的字�
 test('#89 三个真实电话名端到端：列表 / 存盘 / 删除都认得（就是浏览器半发的那些名字）', async () => {
   const t = await setupHost()
   try {
-    const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.mjs')).href)
+    const channel = await import(pathToFileURL(join(ROOT, 'runtime', 'channel.ts')).href)
     const list = await t.call(channel.PHONE_METHODS.customThemesList, {})
     assert.equal(list.result.ok, true, JSON.stringify(list.result.error || {}))
     assert.equal(list.result.value.ok, true)

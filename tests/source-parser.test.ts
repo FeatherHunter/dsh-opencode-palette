@@ -1,10 +1,12 @@
 // tests/source-parser.test.ts — P0 构建链硬化：逐行解析器（scripts/lib/source-parser.ts）
 //
-// 守两件事：
-//   1) runtime 的 .mjs 源码逐行结果与改造前内联在 build-client 里的正则**逐字段一致**（build 行为零变化）；
-//      引擎 .ts 源码对两侧都是「不识别」（legacy 正则只认 .mjs），其真实输入是 tsc emit 的 .js，
-//      由本文件最后一条 UNHANDLED 投影测试 + build/verify:artifacts + panel-render 产物用例共同兜底。
-//   2) 同时认识 tsc 默认 emit 风格（双引号、行尾分号、`.js` 后缀）和 `import type`（C-lite 前置）。
+// 守三件事：
+//   1) 迁移前 .mjs 样本行经 parseLine 与改造前内联正则**逐字段一致**（旧风格冻结 fixture，见 LEGACY）；
+//      真实源码已全 .ts，其 emit 形态由下一条「投影后 UNHANDLED=0 + 五类语句都出现」+ build/verify:artifacts
+//      + panel-render 产物用例共同兜底。
+//   2) 同时认识 tsc 默认 emit 风格（双引号、行尾分号、`.js` 后缀）、`import type`（C-lite 前置），
+//      以及 `../` 真实相对说明符（P3 起 runtime 以 `../src/engine/x.ts` 引引擎，emit 后成 `.js`）。
+//   3) engine 与 runtime 的 .ts 源码按 emit 规则投影后，没有未识别的顶格 import/export。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -14,10 +16,10 @@ import { parseLine } from '../scripts/lib/source-parser.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 
-// bundler 处理的全部源码：src/engine/*.ts（MODULE_ORDER 里的 14 个）+ runtime 的 6 个模块。
-// runtime/host.mjs 不参与逐行解析（原样复制进 package/lib/index.js），故意不列。
+// bundler 处理的全部源码：src/engine/*.ts（MODULE_ORDER 里的 14 个）+ runtime 的 6 个模块（P3 起也是 .ts）。
+// runtime/host.ts 不参与逐行解析（走 S2 转译输出到 package/lib/index.js），故意不列。
 const ENGINE_MODULES = ['resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry']
-const RUNTIME_MODULES = ['client.mjs', 'channel.mjs', 'custom-color.mjs', 'custom-store.mjs', 'custom-editor.mjs', 'ui-fx.mjs']
+const RUNTIME_MODULES = ['client.ts', 'channel.ts', 'custom-color.ts', 'custom-store.ts', 'custom-editor.ts', 'ui-fx.ts']
 const SOURCE_FILES = ENGINE_MODULES.map((name) => join(ROOT, 'src', 'engine', name + '.ts')).concat(RUNTIME_MODULES.map((name) => join(ROOT, 'runtime', name)))
 
 function readNormalized(file: string): string {
@@ -88,6 +90,18 @@ test('tsc 默认 emit 风格：双引号 + 行尾分号 + .js（C-lite 前置）
   assert.deepEqual(parseLine("import { x } from './dep.mjs';"), { type: 'js-import', names: 'x', specifier: 'dep' })
 })
 
+test('真实相对说明符 `../`：emit 形态可识别，specifier 保留前缀、由 bundler 取最后一段', () => {
+  // runtime/client.ts 的引擎导入：源码写 '../src/engine/index.ts'，emit 后成 '../src/engine/index.js'
+  assert.deepEqual(parseLine('import { renderTheme } from "../src/engine/index.js";'), { type: 'js-import', names: 'renderTheme', specifier: '../src/engine/index' })
+  // 单引号/无分号风格同样要认（手写与 emit 两种风格都可能出现）
+  assert.deepEqual(parseLine("import { a, b } from '../src/engine/resolve.js'"), { type: 'js-import', names: 'a, b', specifier: '../src/engine/resolve' })
+  // 多级回溯
+  assert.deepEqual(parseLine('import { c } from "../../lib/x.js";'), { type: 'js-import', names: 'c', specifier: '../../lib/x' })
+  // 仍不误认裸包名（'dsh-log/client' 走 pkg-import）与 .ts 源码行（源码 .ts 不进 bundle，emit 后才吃 .js）
+  assert.deepEqual(parseLine('import { createClient } from "dsh-log/client";'), { type: 'pkg-import', names: 'createClient', specifier: 'dsh-log/client' })
+  assert.equal(parseLine("import { a } from '../src/engine/index.ts'"), null)
+})
+
 test('import type 单独识别（不能进运行时 bundle）', () => {
   assert.deepEqual(parseLine("import type { X } from './y.js';"), { type: 'type-import' })
   assert.deepEqual(parseLine('import type Foo from "./y.js";'), { type: 'type-import' })
@@ -99,55 +113,63 @@ test('非语句行不误伤', () => {
   }
 })
 
-test('runtime .mjs 源码逐行解析结果与改造前内联正则逐字段一致（引擎 .ts 行两侧皆 null，其 emit 形态由 UNHANDLED 投影 + 产物门禁守）', () => {
-  const counts: Record<string, number> = {}
-  for (const file of SOURCE_FILES) {
-    const lines = readNormalized(file).split('\n')
-    for (let i = 0; i < lines.length; i += 1) {
-      const line = lines[i]
-      const legacy = legacyParse(line)
-      const parsed = parseLine(line)
-      const at = file + ':' + (i + 1)
-      if (legacy === null) {
-        assert.equal(parsed, null, '改造前不识别的行现在被识别了：' + at + '：' + line.slice(0, 100))
-        continue
-      }
-      assert.ok(parsed !== null, '改造前识别的行现在丢了：' + at + '：' + line.slice(0, 100))
-      assert.equal(parsed.type, legacy.type, at)
-      counts[parsed.type] = (counts[parsed.type] || 0) + 1
-      const m = legacy.match
-      if (parsed.type === 'json-import') {
-        assert.equal(parsed.localName, m[1], at)
-        assert.equal(parsed.specifier, m[2], at)
-      } else if (parsed.type === 'js-import') {
-        assert.equal(parsed.names, m[1], at)
-        assert.equal(parsed.specifier, m[2], at)
-      } else if (parsed.type === 'pkg-import') {
-        assert.equal(parsed.names, m[1], at)
-        assert.equal(parsed.specifier, m[2], at)
-      } else if (parsed.type === 'export') {
-        assert.equal(parsed.name, m[2], at)
-        assert.equal(parsed.strippedLine, line.replace(/^export /, ''), at)
-      } else if (parsed.type === 're-export') {
-        assert.deepEqual(parsed.names, m[1].split(',').map((s) => s.trim()).filter(Boolean), at)
-      }
+test('迁移前 .mjs 旧风格样本行：parseLine 与改造前内联正则逐字段一致', () => {
+  // 样本取自迁移前 runtime/client.mjs 与 src/engine/*.mjs 的真实行形态（旧风格冻结 fixture）。
+  const samples = [
+    "import { createClient } from 'dsh-log/client'",
+    "import { FONTS } from './engine/map-dsh.mjs'",
+    "import { renderTheme, previewColors } from './engine/index.mjs'",
+    "import themes from './opencode.json' with { type: 'json' }",
+    'export function foo(a) {',
+    'export const BAR = 1',
+    'export { a, b }',
+  ]
+  for (const line of samples) {
+    const legacy = legacyParse(line)
+    assert.ok(legacy !== null, '旧风格样本行必须被旧正则识别：' + line)
+    const parsed = parseLine(line)
+    assert.ok(parsed !== null, '改造前识别的行现在丢了：' + line)
+    assert.equal(parsed.type, legacy.type, line)
+    const m = legacy.match
+    if (parsed.type === 'json-import') {
+      assert.equal(parsed.localName, m[1], line)
+      assert.equal(parsed.specifier, m[2], line)
+    } else if (parsed.type === 'js-import') {
+      assert.equal(parsed.names, m[1], line)
+      assert.equal(parsed.specifier, m[2], line)
+    } else if (parsed.type === 'pkg-import') {
+      assert.equal(parsed.names, m[1], line)
+      assert.equal(parsed.specifier, m[2], line)
+    } else if (parsed.type === 'export') {
+      assert.equal(parsed.name, m[2], line)
+      assert.equal(parsed.strippedLine, line.replace(/^export /, ''), line)
+    } else if (parsed.type === 're-export') {
+      assert.deepEqual(parsed.names, m[1].split(',').map((s) => s.trim()).filter(Boolean), line)
     }
-  }
-  // 五类语句在真实源码里都必须出现过（防止测试只在 fixture 上空转）
-  for (const type of ['json-import', 'js-import', 'pkg-import', 'export', 're-export']) {
-    assert.ok((counts[type] || 0) > 0, '真实源码里没有出现 ' + type)
   }
 })
 
-test('全部源码里没有未识别的顶格 import/export 行（UNHANDLED = 0）', () => {
+test('真实源码（engine+runtime .ts）按 emit 投影后没有未识别顶格语句，且五类语句都出现', () => {
+  const counts: Record<string, number> = {}
   const unhandled: string[] = []
   for (const file of SOURCE_FILES) {
     const lines = readNormalized(file).split('\n')
     for (let i = 0; i < lines.length; i += 1) {
       const line = emitLine(lines[i])
       if (ERASED_DECL_RE.test(line)) continue
-      if (/^(import|export)\b/.test(line) && parseLine(line) === null) unhandled.push(file + ':' + (i + 1) + '：' + line.slice(0, 100))
+      if (!/^(import|export)\b/.test(line)) continue
+      const parsed = parseLine(line)
+      const at = file + ':' + (i + 1) + '：' + line.slice(0, 100)
+      if (parsed === null) {
+        unhandled.push(at)
+        continue
+      }
+      counts[parsed.type] = (counts[parsed.type] || 0) + 1
     }
   }
   assert.deepEqual(unhandled, [])
+  // 五类语句在真实源码里都必须出现过（防止测试只在 fixture 上空转）
+  for (const type of ['json-import', 'js-import', 'pkg-import', 'export', 're-export']) {
+    assert.ok((counts[type] || 0) > 0, '真实源码里没有出现 ' + type)
+  }
 })

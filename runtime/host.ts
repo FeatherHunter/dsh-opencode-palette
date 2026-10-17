@@ -1,5 +1,5 @@
 /**
- * runtime/host.mjs — dsh-opencode-palette 宿主半（构建产物为 package/lib/index.js）
+ * runtime/host.ts — dsh-opencode-palette 宿主半（构建产物为 package/lib/index.js）
  *
  * 三件事：
  *   1. 日志落盘：dsh-log 的宿主引擎，落 <DSH_HOME>/logs/dsh-opencode-palette/YYYY-MM-DD.log；
@@ -23,9 +23,10 @@ import { mkdir, readdir, readFile, rename, stat, unlink, writeFile } from 'node:
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { createHostLog, registerHostLogPhones } from 'dsh-log/host'
-import { createHostUpdate } from 'dsh-plugin-update'
-import { PLUGIN_ID, PHONE_PREFIX, PHONE_METHODS, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.mjs'
+import { createHostLog, registerHostLogPhones, type LogStore, type PhoneRegistry } from 'dsh-log/host'
+import { createHostUpdate, type ReaderOverrides } from 'dsh-plugin-update'
+import type { LogFileService, LogStoreDeps } from 'dsh-log/node'
+import { PLUGIN_ID, PHONE_PREFIX, PHONE_METHODS, ROUTE_PATH, TARGET_PACKAGE_NAME } from './channel.ts'
 
 
 export const name = PLUGIN_ID
@@ -39,6 +40,34 @@ const LOG_DIR_NAME = PLUGIN_ID
 const SWITCH_FILE_NAME = 'log-switch-' + PLUGIN_ID + '.json'
 const RPC_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/
 const ENDPOINT_PATTERN = /^[A-Za-z0-9_$.-]+$/
+
+/** 电话处理器：日志包的 handler 参数是 never、更新包是 Record<string, unknown>、自定义主题是外部 JSON，
+ *  三家没有公共的非 any 可调用类型；any 只用于打通注册表，处理器内部仍逐个窄化。 */
+// any: 见上：三家上游 handler 的参数类型互不相同，Map 的 value 需要一个能同时容纳它们的调用面。
+type PhoneHandler = (args: any) => unknown
+
+/** apply 的可选第二参（测试专用）：readerOverrides 与默认 { runningVersion } 合并后交给更新包。 */
+interface HostApplyOptions {
+  readerOverrides?: ReaderOverrides
+}
+
+/** HTTP 路由请求体（客户端 JSON 的期望形状；rpcId 缺失/非串时由下方 typeof 判为 invalid-request）。 */
+interface RpcRequestBody {
+  readonly rpcId: string
+  readonly type?: string
+  readonly payload?: RpcCall | null
+}
+
+/** 请求体里的电话调用。 */
+interface RpcCall {
+  readonly method?: unknown
+  readonly payload?: unknown
+}
+
+/** dsh-log 平台探针的形状：包未公开导出 LogPlatform，这里经 LogStoreDeps 反推，只用于构造处断言。
+ *  运行时 fs 传 null（= 没有平台文件服务，引擎按 `platform.fs && typeof ...` 逐方法判空，与不传等价），
+ *  但声明只接受可选文件服务，故构造时做一次类型断言而不改运行时值。 */
+type HostLogPlatform = NonNullable<Awaited<ReturnType<NonNullable<LogStoreDeps['getPlatform']>>>>
 
 /**
  * 装配时先把日志目录建好、把开关文件用缺省值物化（2026-09-19 修，真机噪声两则）。
@@ -57,7 +86,7 @@ const ENDPOINT_PATTERN = /^[A-Za-z0-9_$.-]+$/
  * 修法：装配时 `mkdir` 日志目录（recursive），再让 store 用**自己的 API**把缺省开关写下去。
  * 不自己拼路径写 JSON：开关文件的落点与形状归 store 管，自己写会变成第二份真源。
  */
-async function prepareLogHome(store, cacheDir) {
+async function prepareLogHome(store: LogStore, cacheDir: string): Promise<void> {
   if (!cacheDir) return
   await mkdir(join(cacheDir), { recursive: true })
   const file = join(cacheDir, store.config.switchFileName)
@@ -73,9 +102,9 @@ const PACKAGE_DIR = dirname(dirname(fileURLToPath(import.meta.url)))
  *  不能用「每次调用现读磁盘」的写法：装完新版后磁盘版本会变，进程里跑的却还是旧的，
  *  现读会让 pending-restart 永远判不出来（更新包据此决定是否提示「待重启」）。 */
 export const runningVersion = readRunningVersion()
-function readRunningVersion() {
+function readRunningVersion(): string {
   try {
-    const manifest = JSON.parse(readFileSync(join(PACKAGE_DIR, 'package.json'), 'utf8'))
+    const manifest: { version?: unknown } = JSON.parse(readFileSync(join(PACKAGE_DIR, 'package.json'), 'utf8'))
     return typeof manifest.version === 'string' ? manifest.version : '0.0.0'
   } catch {
     return '0.0.0'
@@ -83,7 +112,7 @@ function readRunningVersion() {
 }
 
 /** 事件清单：随包落 lib/event-list.json（构建从 runtime/event-list.json 复制）。读不到就用 null（日志照记，只是没有白名单元数据）。 */
-export function readEventList() {
+export function readEventList(): string | Record<string, unknown> | null {
   try {
     return JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'event-list.json'), 'utf8'))
   } catch {
@@ -92,8 +121,8 @@ export function readEventList() {
 }
 
 /** DSH 家目录：$DSH_HOME（去空白后非空）否则 ~/.dsh，与 @deepseek-ai/dsh-home-paths 同一规则
- *  （更新包的 defaultHomeDir 也是同一条；tests/update-integration.test.mjs 里有两边一致的断言）。 */
-export function dshHomeDir(env, osHome) {
+ *  （更新包的 defaultHomeDir 也是同一条；tests/update-integration.test.ts 里有两边一致的断言）。 */
+export function dshHomeDir(env: NodeJS.ProcessEnv | null | undefined, osHome: string): string {
   const raw = env && typeof env.DSH_HOME === 'string' && env.DSH_HOME.trim() ? env.DSH_HOME : join(osHome, '.dsh')
   return raw === '~' ? osHome : raw.replace(/^~[\\/]/, osHome + '/')
 }
@@ -103,9 +132,36 @@ export function dshHomeDir(env, osHome) {
 // 用户可手放/手改/互传。宿主半只做存储与消毒，不解析颜色语义（渲染时引擎再验）。
 //
 // 打包约束：package/lib/index.js 是本文件的原样复制，宿主在包内只能 import
-// './channel.mjs' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
+// './channel.ts' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
 // 内嵌值 = 引擎 extractPresetPalette('opencode').colors（dark，COLOR_SLOTS 顺序），
-// 由 tests/custom-themes-storage.test.mjs 锁死一致：opencode.json 改了必须同步这里。
+// 由 tests/custom-themes-storage.test.ts 锁死一致：opencode.json 改了必须同步这里。
+
+/** 磁盘/电话传入的自定义主题原始形状：字段全 unknown，读取侧逐个校验后才归一化。 */
+interface RawCustomTheme {
+  readonly id?: unknown
+  readonly name?: unknown
+  readonly appearance?: unknown
+  readonly basePreset?: unknown
+  readonly updatedAt?: unknown
+  readonly colors?: unknown
+}
+
+/** 归一化后的落盘形状（colors 已补满 37 槽、值均为非空字符串）。 */
+interface CustomTheme {
+  schema: string
+  id: string
+  name: string
+  appearance: string
+  basePreset: string
+  updatedAt: string
+  colors: Record<string, string>
+}
+
+/** 目录扫描结果：dirPath 恒为绝对路径，themes 已按 updatedAt/id 稳定排序。 */
+interface CustomThemeList {
+  dirPath: string
+  themes: CustomTheme[]
+}
 
 /** 自定义主题落盘 schema（磁盘文件顶层 `schema` 字段值）。 */
 export const CUSTOM_THEME_SCHEMA = 'dsh-opencode-palette.custom-theme.v1'
@@ -113,7 +169,7 @@ export const CUSTOM_THEME_SCHEMA = 'dsh-opencode-palette.custom-theme.v1'
 /** 缺色回退：opencode dark 37 色（键顺序即规范槽位顺序，落盘可读性依赖它）。
  *  有意单一源：缺色永远用它补，不随主题的 basePreset/appearance 切换——宿主包内无引擎、
  *  其它预置色板不可达；basePreset 名字照常保留（供面板重编时溯源），仅回退源固定。 */
-const OPENCODE_FALLBACK_COLORS = {
+const OPENCODE_FALLBACK_COLORS: Record<string, string> = {
   background: '#0A0A0A',
   backgroundPanel: '#141414',
   backgroundElement: '#1E1E1E',
@@ -161,7 +217,7 @@ const CUSTOM_APPEARANCES = ['dark', 'light', 'system']
 const CUSTOM_NAME_MAX = 120
 
 /** 存储目录：<homeDir>/opencode-palette/custom-themes（resolve 转平台原生绝对路径）。 */
-export function customThemesDir(homeDir) {
+export function customThemesDir(homeDir: string): string {
   return resolve(join(homeDir, 'opencode-palette', 'custom-themes'))
 }
 
@@ -169,7 +225,7 @@ export function customThemesDir(homeDir) {
  * id 消毒（读路径文件名兜底用）：含 `/` `\` 直接拒绝（null）；其余非法字符折成 `-`。
  * save/delete 不走这里——它们要求调用方 id 全匹配 CUSTOM_ID_PATTERN，否则整单拒绝。
  */
-export function sanitizeCustomThemeId(raw) {
+export function sanitizeCustomThemeId(raw: unknown): string | null {
   if (typeof raw !== 'string') return null
   let s = raw.trim()
   if (!s) return null
@@ -186,14 +242,15 @@ export function sanitizeCustomThemeId(raw) {
  * 缺 name 用 id 兜底，非法 appearance 回 'dark'，非法 basePreset 回 'opencode'，
  * colors 逐槽位取非空字符串、缺失用 opencode 回退补满 37，多余键丢弃。
  */
-export function normalizeCustomTheme(data, fallbackId, fallbackUpdatedAt) {
-  const src = data !== null && typeof data === 'object' && !Array.isArray(data) ? data : {}
+export function normalizeCustomTheme(data: unknown, fallbackId: unknown, fallbackUpdatedAt: string | null): CustomTheme | null {
+  // 类型：上面已验过是「非 null、非数组对象」，读字段前先按可读面收窄（字段仍是 unknown，逐个校验）。
+  const src: RawCustomTheme = data !== null && typeof data === 'object' && !Array.isArray(data) ? (data as RawCustomTheme) : {}
   const rawId = typeof src.id === 'string' && CUSTOM_ID_PATTERN.test(src.id) ? src.id : null
   const id = rawId || sanitizeCustomThemeId(fallbackId)
   if (!id) return null
   const rawName = typeof src.name === 'string' ? src.name.trim() : ''
-  const colors = {}
-  const srcColors = src.colors !== null && typeof src.colors === 'object' && !Array.isArray(src.colors) ? src.colors : {}
+  const colors: Record<string, string> = {}
+  const srcColors: Record<string, unknown> = src.colors !== null && typeof src.colors === 'object' && !Array.isArray(src.colors) ? (src.colors as Record<string, unknown>) : {}
   for (const slot of CUSTOM_COLOR_SLOTS) {
     const v = srcColors[slot]
     colors[slot] = typeof v === 'string' && v.trim() ? v.trim() : OPENCODE_FALLBACK_COLORS[slot]
@@ -202,7 +259,8 @@ export function normalizeCustomTheme(data, fallbackId, fallbackUpdatedAt) {
     schema: CUSTOM_THEME_SCHEMA,
     id: id,
     name: rawName ? rawName.slice(0, CUSTOM_NAME_MAX) : id,
-    appearance: CUSTOM_APPEARANCES.indexOf(src.appearance) >= 0 ? src.appearance : 'dark',
+    // 类型：非字符串在 indexOf 里恒为 -1（与回落 'dark' 等价），断言只为让 unknown 过 string 参数。
+    appearance: CUSTOM_APPEARANCES.indexOf(src.appearance as string) >= 0 ? (src.appearance as string) : 'dark',
     basePreset: typeof src.basePreset === 'string' && CUSTOM_ID_PATTERN.test(src.basePreset) ? src.basePreset : 'opencode',
     updatedAt: typeof src.updatedAt === 'string' && src.updatedAt ? src.updatedAt : (fallbackUpdatedAt || new Date().toISOString()),
     colors: colors,
@@ -210,37 +268,37 @@ export function normalizeCustomTheme(data, fallbackId, fallbackUpdatedAt) {
 }
 
 /** 目录确保存在（list/save/delete 每次都先调：运行中目录被删也能自愈）。 */
-async function ensureCustomThemesDir(homeDir) {
+async function ensureCustomThemesDir(homeDir: string): Promise<string> {
   const dir = customThemesDir(homeDir)
   await mkdir(dir, { recursive: true })
   return dir
 }
 
 /** 扫描目录：单文件坏了只跳过该文件（catch 内静默，绝不阻断其余主题、不记新事件）。 */
-async function readCustomThemes(homeDir) {
+async function readCustomThemes(homeDir: string): Promise<CustomThemeList> {
   const dirPath = await ensureCustomThemesDir(homeDir)
-  let files = []
+  let files: string[] = []
   try {
     files = (await readdir(dirPath)).filter((n) => n.endsWith('.json')).sort()
   } catch (e) {
     return { dirPath: dirPath, themes: [] }
   }
-  const themes = []
-  const seen = new Set()
+  const themes: CustomTheme[] = []
+  const seen = new Set<string>()
   for (const file of files) {
     // 文件名与 save/delete 同一严格口径：非法文件名（含空格等）直接跳过——
     // 否则它会以折叠 id 列出、却永远无法被 save/delete 按名寻址（delete 会假成功而文件仍在 = 孤儿）。
     if (!CUSTOM_ID_PATTERN.test(file.slice(0, -'.json'.length))) continue
     const full = join(dirPath, file)
-    let text = null
+    let text: string | null = null
     try {
       text = await readFile(full, 'utf8')
     } catch (e) { continue }
-    let data = null
+    let data: unknown = null
     try {
       data = JSON.parse(text)
     } catch (e) { continue }
-    let mtime = null
+    let mtime: string | null = null
     try {
       mtime = (await stat(full)).mtime.toISOString()
     } catch (e) { /* 用 new 日期兜底 */ }
@@ -258,15 +316,18 @@ async function readCustomThemes(homeDir) {
 }
 
 /** 原子写：tmp 落盘 + rename（半成品只可能是 .tmp- 前缀，扫描器只认 .json）。 */
-async function saveCustomTheme(homeDir, theme) {
+async function saveCustomTheme(homeDir: string, theme: unknown) {
   if (theme === null || typeof theme !== 'object' || Array.isArray(theme)) {
     return { ok: false, error: { code: 'invalid-argument', message: 'theme must be an object' } }
   }
-  if (typeof theme.id !== 'string' || !CUSTOM_ID_PATTERN.test(theme.id)) {
-    return { ok: false, error: { code: 'invalid-id', message: 'invalid theme id: ' + String(theme.id).slice(0, 80) } }
+  // 类型：上面已验过是非数组对象，读字段前按可读面收窄（id 仍逐个校验）。
+  const src = theme as RawCustomTheme
+  if (typeof src.id !== 'string' || !CUSTOM_ID_PATTERN.test(src.id)) {
+    return { ok: false, error: { code: 'invalid-id', message: 'invalid theme id: ' + String(src.id).slice(0, 80) } }
   }
   const dirPath = await ensureCustomThemesDir(homeDir)
-  const normalized = normalizeCustomTheme(theme, null, new Date().toISOString())
+  // 类型：id 已按 CUSTOM_ID_PATTERN 全匹配验过，normalizeCustomTheme 只在 id 非法时回 null，这里不可能为 null。
+  const normalized = normalizeCustomTheme(src, null, new Date().toISOString()) as CustomTheme
   normalized.updatedAt = new Date().toISOString()
   const target = join(dirPath, normalized.id + '.json')
   const tmp = join(dirPath, normalized.id + '.tmp-' + process.pid + '-' + Date.now())
@@ -282,7 +343,7 @@ async function saveCustomTheme(homeDir, theme) {
 }
 
 /** 删除：不存在幂等成功；非法 id 直接拒绝（不碰磁盘）。 */
-async function deleteCustomTheme(homeDir, id) {
+async function deleteCustomTheme(homeDir: string, id: unknown) {
   if (typeof id !== 'string' || !CUSTOM_ID_PATTERN.test(id)) {
     return { ok: false, error: { code: 'invalid-id', message: 'invalid theme id: ' + String(id).slice(0, 80) } }
   }
@@ -290,7 +351,8 @@ async function deleteCustomTheme(homeDir, id) {
   try {
     await unlink(join(dirPath, id + '.json'))
   } catch (e) {
-    if (!e || e.code !== 'ENOENT') throw e
+    // 类型：catch 变量是 unknown；运行时只读 errno 的 code 判 ENOENT（判定逻辑不变）。
+    if (!e || (e as { code?: unknown }).code !== 'ENOENT') throw e
   }
   const listed = await readCustomThemes(homeDir)
   return { ok: true, dirPath: listed.dirPath, deletedId: id, themes: listed.themes }
@@ -299,14 +361,22 @@ async function deleteCustomTheme(homeDir, id) {
 /** 给日志包的文件服务（INTEGRATION.md 步骤 2 的形状表）：六个方法全走 node:fs/promises。
  *  为什么不直接传 ctx.get('fs')：DSH 的 fs 服务没有 mkdir / unlink，且部署的是沙箱实现
  *  （workspace-write 只允许写 workspace 内），写用户家目录会被 FS_SANDBOX_DENIED 拒掉。 */
-export function createLogFileService(readTextImpl, writeTextImpl, mkdirImpl, unlinkImpl, listDirImpl) {
+export function createLogFileService(
+  readTextImpl: (target: string, encoding: 'utf8') => Promise<string>,
+  writeTextImpl: (target: string, text: string, encoding: 'utf8') => Promise<unknown>,
+  mkdirImpl: (dir: string, options: { recursive: true }) => Promise<unknown>,
+  unlinkImpl: (target: string) => Promise<unknown>,
+  listDirImpl: (dir: string) => Promise<unknown>,
+): LogFileService {
   return {
-    resolve: function (pathStr) { return String(pathStr) },
-    readText: function (target) { return readTextImpl(String(target), 'utf8') },
-    writeText: function (target, text) { return writeTextImpl(String(target), String(text), 'utf8') },
-    mkdir: function (dir) { return mkdirImpl(String(dir), { recursive: true }) },
-    unlink: function (target) { return unlinkImpl(String(target)) },
-    listDir: function (dirTarget) { return listDirImpl(String(dirTarget)) },
+    // 类型：dsh-log 把 resolve 声明成 Promise<unknown>，实现是同步 String()（其引擎 `await fs.resolve(...)`，
+    // 0.3.4 实测同步返回可用）；改成 Promise 会变导出函数的运行时形状，故只在类型层放宽。
+    resolve: (function (pathStr: string) { return String(pathStr) }) as unknown as LogFileService['resolve'],
+    readText: function (target: unknown) { return readTextImpl(String(target), 'utf8') },
+    writeText: function (target: unknown, text: string) { return writeTextImpl(String(target), String(text), 'utf8') },
+    mkdir: function (dir: string) { return mkdirImpl(String(dir), { recursive: true }) },
+    unlink: function (target: unknown) { return unlinkImpl(String(target)) },
+    listDir: function (dirTarget: unknown) { return listDirImpl(String(dirTarget)) },
   }
 }
 
@@ -318,7 +388,7 @@ export function createLogFileService(readTextImpl, writeTextImpl, mkdirImpl, unl
  * `targetPackageDir`——更新包 README §6.13 的逃生口，冒烟测试用它搭假使用范围。
  * 绝不传 `environmentKind` / `profileDir` / `profileName`：那两处会挡住自动探测，
  * 传了升级就要改代码（更新包 README「升级本包」一节）。 */
-export function apply(ctx, opts) {
+export function apply(ctx: DshContext, opts?: HostApplyOptions) {
   const extraOverrides = (opts && opts.readerOverrides && typeof opts.readerOverrides === 'object')
     ? opts.readerOverrides
     : {}
@@ -330,14 +400,19 @@ export function apply(ctx, opts) {
       fs: createLogFileService(readFile, writeFile, mkdir, unlink, readdir),
       timer: ctx.get('timer'),
       getCacheDir: function () { return join(homeDir, 'logs') },
-      getPlatform: function () { return { os: process.platform, path: { join: join }, fs: null } },
+      // 类型：fs 运行时给 null（= 没有平台文件服务，dsh-log 引擎按 falsy 逐方法跳过），声明不接受 null，故构造处断言。
+      getPlatform: function () { return { os: process.platform, path: { join: join }, fs: null } as unknown as HostLogPlatform },
       DEFAULT_CWD: process.cwd(),
     },
-    { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, logDirName: LOG_DIR_NAME, switchFileName: SWITCH_FILE_NAME, eventList: eventList }
+    // 类型：读不到事件清单时传 null（dsh-log 解析后的 ResolvedHostLogConfig.eventList 本就含 null），
+    // 输入声明只写了可选、未含 null，故只在类型层收窄。
+    { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, logDirName: LOG_DIR_NAME, switchFileName: SWITCH_FILE_NAME, eventList: eventList as string | Record<string, unknown> }
   )
 
-  const registry = new Map()
-  registerHostLogPhones(registry, hostLog)
+  const registry = new Map<string, PhoneHandler>()
+  // 类型：dsh-log 的 PhoneRegistry 用属性式函数类型（strictFunctionTypes 下按逆变检查），Map 的 set 是
+  // 方法式（双变），参数面无法直接对齐；运行时 Map 的 has/set 完全满足该端口，故只在这一处断言。
+  registerHostLogPhones(registry as unknown as PhoneRegistry, hostLog)
 
   const logCacheDir = join(homeDir, 'logs')
   // 写开关前确保目录存在：dsh-log 的 persistSwitch 不建目录且吞错，
@@ -345,7 +420,7 @@ export function apply(ctx, opts) {
   const logSetPhone = hostLog.phoneNames.logSetSwitch
   const rawLogSet = registry.get(logSetPhone)
   if (typeof rawLogSet === 'function') {
-    registry.set(logSetPhone, async function (args) {
+    registry.set(logSetPhone, async function (args: unknown) {
       try { await mkdir(logCacheDir, { recursive: true }) } catch (e) { /* store 自己会记 fail */ }
       return rawLogSet(args)
     })
@@ -359,7 +434,7 @@ export function apply(ctx, opts) {
   }
 
   const update = createHostUpdate(
-    { ctx: ctx, logCtx: { fire: function (level, event, fields) { return hostLog.store.log(level, event, fields) } }, readerOverrides: Object.assign({ runningVersion: runningVersion }, extraOverrides) },
+    { ctx: ctx, logCtx: { fire: function (level: string, event: string, fields: Record<string, unknown>) { return hostLog.store.log(level, event, fields) } }, readerOverrides: Object.assign({ runningVersion: runningVersion }, extraOverrides) },
     { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX, targetPackageName: TARGET_PACKAGE_NAME }
   )
   for (const phoneName of Object.keys(update.handlers)) registry.set(phoneName, update.handlers[phoneName])
@@ -372,22 +447,22 @@ export function apply(ctx, opts) {
     const listed = await readCustomThemes(homeDir)
     return { ok: true, dirPath: listed.dirPath, themes: listed.themes }
   })
-  registry.set(PHONE_METHODS.customThemesSave, async function (args) {
+  registry.set(PHONE_METHODS.customThemesSave, async function (args: Record<string, unknown> | null) {
     const theme = args !== null && typeof args === 'object' ? args.theme : undefined
     return saveCustomTheme(homeDir, theme)
   })
-  registry.set(PHONE_METHODS.customThemesDelete, async function (args) {
+  registry.set(PHONE_METHODS.customThemesDelete, async function (args: Record<string, unknown> | null) {
     const id = args !== null && typeof args === 'object' ? args.id : undefined
     return deleteCustomTheme(homeDir, id)
   })
 
   // 更新电话直注册，不包探针/重试（最小集成）：有几个注册几个（0.5.x 起含 updateChangelog），
   // 失败证据由包内 diag 承载；电话名从 update.phoneNames 读，不自己拼字符串。
-  const fail = function (stage, reason) {
+  const fail = function (stage: string, reason: unknown) {
     try { hostLog.store.log('error', 'host.channel.fail', { stage: stage, path: ROUTE_PATH, reason: String(reason).slice(0, 120) }) } catch (e) { /* 忽略 */ }
   }
 
-  const dispatch = async function (phoneName, args) {
+  const dispatch = async function (phoneName: string, args: unknown) {
     const handler = registry.get(phoneName)
     if (typeof handler !== 'function') {
       // 未知电话：#89 起记一条既有 host.channel.fail（stage 'dispatch-unknown'，不新增事件）。
@@ -398,18 +473,20 @@ export function apply(ctx, opts) {
     try {
       return { ok: true, value: await handler(args === null || args === undefined ? {} : args) }
     } catch (e) {
-      fail('dispatch', String((e && e.message) || e))
-      return { ok: false, error: { code: 'internal', message: String((e && e.message) || e), details: {} } }
+      // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
+      fail('dispatch', String((e && (e as { message?: unknown }).message) || e))
+      return { ok: false, error: { code: 'internal', message: String((e && (e as { message?: unknown }).message) || e), details: {} } }
     }
   }
 
-  const routeFetch = async function (request) {
+  const routeFetch = async function (request: Request): Promise<Response> {
     if (!request || request.method !== 'POST') return new Response('method not allowed', { status: 405 })
-    let body = null
-    try { body = await request.json() } catch (e) { return new Response('body is not JSON', { status: 400 }) }
-    const rpcId = typeof (body && body.rpcId) === 'string' && RPC_ID_PATTERN.test(body.rpcId) ? body.rpcId : 'invalid-request'
-    const reply = function (result) { return Response.json({ type: 'server-response', rpcId: rpcId, result: result }) }
-    const reject = function (why) { return reply({ ok: false, error: { code: 'gateway/bad-request', message: why, details: {} } }) }
+    let body: RpcRequestBody | null = null
+    try { body = (await request.json()) as RpcRequestBody | null } catch (e) { return new Response('body is not JSON', { status: 400 }) }
+    // 类型：body 已在这一句的 && 右侧窄化为非空；后两次读取在外层条件里窄不回来，故用 !（擦除后运行时不变）。
+    const rpcId = typeof (body && body.rpcId) === 'string' && RPC_ID_PATTERN.test(body!.rpcId) ? body!.rpcId : 'invalid-request'
+    const reply = function (result: unknown) { return Response.json({ type: 'server-response', rpcId: rpcId, result: result }) }
+    const reject = function (why: string) { return reply({ ok: false, error: { code: 'gateway/bad-request', message: why, details: {} } }) }
     if (!body || body.type !== 'client-request') return reject('invalid client-request message')
     const call = body.payload
     if (call === null || typeof call !== 'object') return reject('missing call payload')
@@ -429,7 +506,8 @@ export function apply(ctx, opts) {
     }
     fetchRegistry.register({ path: ROUTE_PATH, methods: ['POST'], requestBody: 'buffered', fetch: routeFetch })
   } catch (e) {
-    const message = String((e && e.message) || e)
+    // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
+    const message = String((e && (e as { message?: unknown }).message) || e)
     // 重复注册（live patch reload / 回滚重放）算让位：那个实例继续服务即可，不当故障。
     if (message.indexOf('already registered') >= 0 || message.indexOf('duplicate') >= 0) return
     fail('register', message)

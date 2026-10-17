@@ -1,12 +1,12 @@
 /**
- * tests/update-panel.test.mjs — 检查更新（新包入口件）+ 日志骨架的接线门禁
+ * tests/update-panel.test.ts — 检查更新（新包入口件）+ 日志骨架的接线门禁
  *
  * 最小集成后只测外部行为（产物与电话行为），不测实现细节：
  *   一、入口件行为（桩宿主＋替身容器）：文案唯一出处 entryLabelFor 五态、状态优先级、
  *      15 码中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
  *   二、接线一致性：通道常量单一真源、产物里不写死电话名、入口件闭包内联、无 vendor、
  *      产物声明双写一致、宿主有几个电话注册几个；
- *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.mjs → 路由注册对 → 电话分派能落到
+ *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.ts → 路由注册对 → 电话分派能落到
  *      更新包与日志包，且日志真的落到 <DSH_HOME>/logs 下；更新包走真依赖；事件清单过检查器。
  *   四、面板渲染（真 React，SSR）：宿主可用时头行原位出现入口件挂载位、无自研残留；
  *      宿主不可用时更新块消失、主题面板照常。
@@ -23,7 +23,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { runInThisContext } from 'node:vm'
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url))
-const read = (rel) => readFileSync(join(ROOT, rel), 'utf8')
+const read = (rel: string): string => readFileSync(join(ROOT, rel), 'utf8')
 
 // 新包入口件与面板：文案与状态档的唯一出处（测试与接入方都读它，不各写一份）。
 const { mountUpdateEntry, entryLabelFor, entryStateKind } = await import(
@@ -42,28 +42,41 @@ const { buildClientPhoneNames } = await import(
 
 const PHONES = buildClientPhoneNames('palette')
 
+interface StubSnapshot {
+  runningVersion: string
+  installedVersion: string
+  latestVersion: string
+  canInstall: boolean
+  blockedReason: string | null
+  job: { state: string } | null
+}
+interface StubCall { phone: string; args: unknown }
+
 /** 造一个宿主回包（形状照更新包 README 第 5 / 8 / 10 节）。 */
-function reply(snapshot, extra) {
+function reply(snapshot: unknown, extra?: { receipt?: unknown }) {
   return Object.assign({ ok: true, snapshot: snapshot, manual: null, receipt: extra && extra.receipt ? extra.receipt : null }, extra || {})
 }
-const snapshotOf = (over) => Object.assign({
-  runningVersion: '1.7.2',
-  installedVersion: '1.7.2',
-  latestVersion: '1.7.1',
-  canInstall: false,
-  blockedReason: null,
-  job: null,
-}, over || {})
+const snapshotOf = (over: Partial<StubSnapshot> = {}): StubSnapshot => {
+  const base: StubSnapshot = {
+    runningVersion: '1.7.2',
+    installedVersion: '1.7.2',
+    latestVersion: '1.7.1',
+    canInstall: false,
+    blockedReason: null,
+    job: null,
+  }
+  return Object.assign(base, over)
+}
 
 /** 桩宿主：按电话名回预设结果，并记录调用顺序。 */
-function stubHost(answers) {
-  const calls = []
+function stubHost(answers: Record<string, unknown>) {
+  const calls: StubCall[] = []
   return {
     calls,
-    call: async (phone, args) => {
+    call: async (phone: string, args: unknown): Promise<unknown> => {
       calls.push({ phone, args })
       const answer = answers[phone]
-      if (typeof answer === 'function') return answer(args)
+      if (typeof answer === 'function') return (answer as (a: unknown) => unknown)(args)
       if (answer === undefined) throw new Error('unexpected phone: ' + phone)
       return answer
     },
@@ -71,10 +84,10 @@ function stubHost(answers) {
 }
 
 /** 替身容器：只有 innerHTML（包内全走可选链，无 addEventListener 也可挂载与静默查）。 */
-function stubContainer() {
+function stubContainer(): { innerHTML: string } {
   return { innerHTML: '' }
 }
-const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
+const tick = (): Promise<void> => new Promise((resolve) => { setTimeout(resolve, 0) })
 
 // ───────────────────────── 一、入口件行为 ─────────────────────────
 
@@ -138,11 +151,12 @@ test('入口件：挂载默认进面静默查一次（只读 status），按钮�
 
 test('入口件：有新版本时按钮文案带版本号，待重启与失败各有其态', async () => {
   const phones = buildPhoneNames('palette')
-  for (const [snapshot, label] of [
+  const cases: [StubSnapshot, string][] = [
     [snapshotOf({ latestVersion: '1.8.0', canInstall: true }), '有新版本 1.8.0'],
     [snapshotOf({ blockedReason: 'pending-restart' }), '待重启'],
     [snapshotOf({ job: { state: 'installing' } }), '正在安装…'],
-  ]) {
+  ]
+  for (const [snapshot, label] of cases) {
     const host = stubHost({ [phones.updateStatus]: reply(snapshot) })
     const container = stubContainer()
     const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
@@ -164,18 +178,20 @@ test('入口件：语言跟随 locale 适配器（0.5.8 单语渲染），切换
   const phones = buildPhoneNames('palette')
   const host = stubHost({ [phones.updateStatus]: reply(snapshotOf({ latestVersion: '1.7.2' })) })
   const container = stubContainer()
-  // 与 runtime/client.mjs 的 updateLocaleSource 同形：{ getActive, subscribe }，语言翻转即通知。
+  // 与 runtime/client.ts 的 updateLocaleSource 同形：{ getActive, subscribe }，语言翻转即通知。
   let lang = 'zh'
-  let notify = null
+  let notify: (() => void) | null = null
   const entry = mountUpdateEntry(container, {
     pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call,
-    locale: { getActive: () => lang, subscribe: (cb) => { notify = cb; return () => { notify = null } } },
+    locale: { getActive: () => lang, subscribe: (cb: () => void) => { notify = cb; return () => { notify = null } } },
   })
+  // 闭包里读 notify：避开「初始化即 null」的窄化，真实运行时由 subscribe 赋过值。
+  const fireNotify = (): void => notify?.()
   await entry.refresh()
   assert.ok(container.innerHTML.includes('检查更新'), '中文下按钮为中文单语')
   assert.ok(!container.innerHTML.includes('Check for updates'), '中文下不应混入英文（单语渲染）')
   lang = 'en'
-  notify()
+  fireNotify()
   await tick()
   assert.ok(container.innerHTML.includes('Check for updates'), '切英文后按钮即时重绘为英文，无需重挂')
   assert.ok(!container.innerHTML.includes('检查更新'), '英文下不应混入中文（单语渲染）')
@@ -186,13 +202,14 @@ test('入口件：语言跟随 locale 适配器（0.5.8 单语渲染），切换
 // ───────────────────────── 二、接线一致性 ─────────────────────────
 
 test('接线：通道常量来自单一真源，两侧都引它', () => {
-  const channel = read('runtime/channel.mjs')
+  const channel = read('runtime/channel.ts')
   assert.match(channel, /export const CHANNEL = '\/api'/)
   assert.match(channel, /export const ENDPOINT = 'opencode-palette'/)
-  assert.match(read('runtime/host.mjs'), /from '\.\/channel\.mjs'/, '宿主半必须引同一份常量')
-  assert.match(read('runtime/client.mjs'), /from '\.\/channel\.mjs'/, '浏览器半必须引同一份常量')
-  assert.match(read('package/lib/index.js'), /from '\.\/channel\.mjs'/, '发出去的宿主半也要引到它')
-  assert.ok(existsSync(join(ROOT, 'package', 'lib', 'channel.mjs')), '随包发出 channel.mjs')
+  assert.match(read('runtime/host.ts'), /from '\.\/channel\.ts'/, '宿主半必须引同一份常量')
+  assert.match(read('runtime/client.ts'), /from '\.\/channel\.ts'/, '浏览器半必须引同一份常量')
+  // 产物是 tsc emit 形态：路径保留 .js 后缀（tsc 会保留源码原引号风格，故只 pin 路径与后缀）。
+  assert.match(read('package/lib/index.js'), /from ['"]\.\/channel\.js['"]/, '发出去的宿主半也要引到它')
+  assert.ok(existsSync(join(ROOT, 'package', 'lib', 'channel.js')), '随包发出 channel.js')
 })
 
 test('接线：电话名从更新包派生，产物里不写死', () => {
@@ -223,11 +240,15 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
   }
 })
 
-test('接线：包版产物声明两个运行时依赖与 node >=22', () => {
-  const pkg = JSON.parse(read('package/package.json'))
+test('接线：包版产物声明两个运行时依赖与 node >=22.18.0', () => {
+  const pkg = JSON.parse(read('package/package.json')) as {
+    dependencies?: Record<string, string>
+    engines?: { node?: string }
+    files?: string[]
+  }
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
   assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.11' })
-  assert.equal(pkg.engines.node, '>=22', '更新包 0.18.x 要求 node >=22')
+  assert.equal(pkg.engines?.node, '>=22.18.0', '更新包 0.18.x 要求 node >=22.18.0')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
   assert.match(bundle, /exports\.inject = \["theme","slots","locale","connection"\]/, '包版要注入 connection')
@@ -246,20 +267,21 @@ test('接线：宿主半不再 vendor 更新包 —— 走真依赖，产物里�
   // 0.1.x 时代被迫把更新包 dist 复制进本包（自锚定缺陷）；0.2.0 起按包名解析，依赖形态直接可用。
   assert.ok(!existsSync(join(ROOT, 'runtime', 'vendor')), 'runtime/vendor 应已删除')
   assert.ok(!existsSync(join(ROOT, 'package', 'lib', 'vendor')), 'package/lib/vendor 应已删除')
-  const host = read('runtime/host.mjs')
+  const host = read('runtime/host.ts')
   assert.match(host, /from 'dsh-plugin-update'/, '宿主半应 import 真依赖')
   assert.ok(host.indexOf('./vendor/') < 0, '宿主半不该再有 vendor 相对路径')
   const built = read('package/lib/index.js')
-  assert.match(built, /from 'dsh-plugin-update'/, '发出去的宿主半也要 import 真依赖（用户侧从 node_modules 解析）')
+  // tsc emit 保留源码引号风格，故只 pin 模块路径（不 pin 引号/分号形态）。
+  assert.match(built, /from ['"]dsh-plugin-update['"]/, '发出去的宿主半也要 import 真依赖（用户侧从 node_modules 解析）')
 })
 
 test('接线：宿主有几个电话注册几个，不手数（新电话自动纳入）', () => {
   // 薄胶水：for (handlers) 全注册；电话名只从包返回值读，不手写字面量。
-  assert.match(read('runtime/host.mjs'), /for \(const phoneName of Object\.keys\(update\.handlers\)\) registry\.set\(phoneName/,
+  assert.match(read('runtime/host.ts'), /for \(const phoneName of Object\.keys\(update\.handlers\)\) registry\.set\(phoneName/,
     '宿主必须全量注册包返回的电话处理器')
-  assert.ok(read('runtime/host.mjs').indexOf('wrapUpdateCheck') < 0, '不得再包探针/重试包装')
-  assert.ok(read('runtime/host.mjs').indexOf('probeRelease') < 0, '自研探针应已删除')
-  assert.ok(!existsSync(join(ROOT, 'runtime', 'update-panel.mjs')), '自研状态机文件应已删除')
+  assert.ok(read('runtime/host.ts').indexOf('wrapUpdateCheck') < 0, '不得再包探针/重试包装')
+  assert.ok(read('runtime/host.ts').indexOf('probeRelease') < 0, '自研探针应已删除')
+  assert.ok(!existsSync(join(ROOT, 'runtime', 'update-panel.ts')), '自研状态机文件应已删除')
 })
 
 // ───────────────────────── 三、宿主半冒烟 ─────────────────────────
@@ -269,16 +291,21 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
   try {
-    const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.mjs')).href)
+    const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.ts')).href)
     assert.equal(hostModule.name, 'dsh-opencode-palette')
     assert.deepEqual(hostModule.inject, ['connection'])
     assert.equal(hostModule.runningVersion, JSON.parse(read('package.json')).version,
       '运行版本取自启动时加载的那份 package.json')
 
-    let route = null
+    interface RegisteredRoute {
+      path: string
+      methods: string[]
+      fetch: (request: Request) => Promise<{ json(): Promise<unknown> }>
+    }
+    let route: RegisteredRoute | null = null
     const ctx = {
-      get: (name) => (name === 'connection'
-        ? { fetch: { register: (r) => { route = r; return () => {} } } }
+      get: (name: string) => (name === 'connection'
+        ? { fetch: { register: (r: RegisteredRoute) => { route = r; return () => {} } } }
         : undefined),
     }
     // 假使用范围：开发态 checkout 下更新包按包名找不到本包（README §6.13 的情形），
@@ -298,16 +325,18 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
     }))
     hostModule.apply(ctx, { readerOverrides: { targetPackageDir: fakePkgDir } })
     assert.ok(route, '必须注册通道路由')
-    assert.equal(route.path, '/api/opencode-palette')
-    assert.deepEqual(route.methods, ['POST'])
+    const registered: RegisteredRoute = route
+    assert.equal(registered.path, '/api/opencode-palette')
+    assert.deepEqual(registered.methods, ['POST'])
 
-    const call = async (phone, payload) => {
+    // any: 回包形状由更新包定义（README 第 5/8/10 节），本文件只按 JSON 点读做接线断言。
+    const call = async (phone: string, payload?: unknown): Promise<any> => {
       const request = new Request('http://127.0.0.1/api/opencode-palette', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ type: 'client-request', rpcId: 'rpc-1', payload: { method: phone, payload: payload === undefined ? null : payload } }),
       })
-      const response = await route.fetch(request)
+      const response = await registered.fetch(request)
       return response.json()
     }
 
@@ -368,7 +397,7 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
     assert.equal(setReply.result.ok, true, '设置开关必须回成功')
     const state = setReply.result.value.switch || setReply.result.value
     assert.equal(state.enabled, true, '设置后读回的开关应为 true')
-    assert.equal(JSON.parse(readFileSync(switchFile, 'utf8')).enabled, true, '开关必须落到磁盘文件里')
+    assert.equal((JSON.parse(readFileSync(switchFile, 'utf8')) as { enabled: boolean }).enabled, true, '开关必须落到磁盘文件里')
 
     // 2.0.7：开关打开后，info 级的关键节点才落盘 —— 面板那个小开关就是为它存在的
     // （warn/error 不受开关控制，这也是 2.0.7 之前真机上只剩失败散列的原因）
@@ -393,7 +422,7 @@ test('宿主半：装配出电话、注册精确路由、跑通日志落盘与�
 })
 
 // ───────────────────────── 四、面板渲染（真 React，SSR） ─────────────────────────
-// 与 tests/panel-render.test.mjs 同款做法：在当前上下文执行包版产物 → 用真 React renderToString 抓 DOM。
+// 与 tests/panel-render.test.ts 同款做法：在当前上下文执行包版产物 → 用真 React renderToString 抓 DOM。
 // 入口件挂载位只断言「有没有容器」（effect 在 SSR 下不跑，包按钮由浏览器里挂载后的 effect 接管）。
 
 const { React, ReactDOMServer } = await (async () => {
@@ -405,43 +434,51 @@ const { React, ReactDOMServer } = await (async () => {
   }
 })()
 
+interface RenderOptions {
+  lang?: string
+  connection?: unknown
+}
+
 /** 渲染面板：connection 传 null 表示宿主不可用。 */
-function renderPanel(opts = {}) {
+function renderPanel(opts: RenderOptions = {}) {
   const code = read('package/lib/client.js')
-  const loaded = []
-  global.window = {
+  // any: 包版 bundle 的模块加载器 / 假 DOM 只在本用例内存在，形状由 bundle 决定；逐成员收窄成本高于收益。
+  const loaded: { id: string; exports: any }[] = []
+  const globals = globalThis as unknown as Record<string, any>
+  globals.window = {
     __ModuleLoader__: {
-      load(entry) {
+      load(entry: { id: string; factory: (req: (id: string) => any) => any }) {
         loaded.push({ id: entry.id, exports: entry.factory((id) => { if (id === 'react') return React; throw new Error('unexpected require: ' + id) }) })
       },
     },
   }
-  global.document = {
+  const documentStub: any = {
     head: { appendChild: () => {} },
-    body: { hasAttribute: () => true, appendChild: (el) => { el.parentNode = global.document.body }, removeChild: () => {} },
+    body: { hasAttribute: () => true, appendChild: (el: { parentNode: unknown }) => { el.parentNode = documentStub.body }, removeChild: () => {} },
     createElement: () => ({ dataset: {}, parentNode: null, textContent: '', style: { cssText: '', fontFamily: '' }, getBoundingClientRect: () => ({ width: 8 }) }),
     documentElement: { lang: opts.lang || 'zh' },
     addEventListener: () => {},
     removeEventListener: () => {},
   }
-  global.localStorage = undefined
+  globals.document = documentStub
+  globals.localStorage = undefined
   // 扫描门禁：eval 语法即高危（DANGEROUS_DYNAMIC_EXECUTION）；在当前上下文执行同一产物字节，语义与直接求值一致（仅测试）。
   runInThisContext(code, { filename: 'package/lib/client.js' })
-  const exportsFace = loaded[0].exports
-  let panelCmp = null
-  let panelProps = null
+  const exportsFace: any = loaded[0].exports
+  let panelCmp: any = null
+  let panelProps: any = null
   const slots = {
-    inject: (slot, cb) => { cb(); return () => {} },
-    register: (desc, cmp) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
+    inject: (slot: unknown, cb: () => void) => { cb(); return () => {} },
+    register: (desc: { inject: () => any }, cmp: any) => { panelCmp = cmp; panelProps = desc.inject(); return () => {} },
   }
   const ctx = {
-    get: (k) => {
+    get: (k: string) => {
       if (k === 'theme') return { overrideTokens: () => () => {} }
       if (k === 'slots') return slots
       if (k === 'connection') return opts.connection || undefined
       return undefined
     },
-    effect: (fn) => { fn() },
+    effect: (fn: () => void) => { fn() },
   }
   exportsFace.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
@@ -450,10 +487,10 @@ function renderPanel(opts = {}) {
 }
 
 /** 假 connection：rpc.call 按电话名回预设结果。 */
-function fakeConnection(answers) {
+function fakeConnection(answers: Record<string, unknown>) {
   return {
     rpc: {
-      call: async (channel, endpoint, message) => {
+      call: async (channel: string, endpoint: string, message: { method: string }) => {
         assert.equal(channel, '/api')
         assert.equal(endpoint, 'opencode-palette')
         const answer = answers[message.method]
@@ -586,7 +623,7 @@ test('单按钮：openOn always 下头行永远只有一个控件，弹窗按需
 })
 
 test('换肤：入口去底只作用入口作用域，dialog 不受影响', () => {
-  const client = read('runtime/client.mjs')
+  const client = read('runtime/client.ts')
   const rule = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
   assert.ok(client.includes(rule), '入口去底规则应存在（作用域限定 .dsh-upd-entry）')
   assert.ok(!client.includes('.dsh-upd button{--dsh-update-button-bg'), '不得裸改 dialog 按钮底色')
@@ -596,7 +633,7 @@ test('换肤：入口去底只作用入口作用域，dialog 不受影响', () =
 })
 
 test('换肤：入口件接线传 themeTokens + sizing，换主题经 setThemeTokens 同步', () => {
-  const client = read('runtime/client.mjs')
+  const client = read('runtime/client.ts')
   assert.match(client, /buildUpdateTokens/, '客户端应从主题派生 token')
   assert.match(client, /themeTokens: currentUpdateTokens\(\)/, '挂载时应传入当前主题的 token')
   assert.match(client, /sizing: \{ fontSize: '12px', padding: '2px 10px', borderRadius: '6px', scale: 1 \}/, '按钮尺寸走 0.7.0 正式 sizing 参数')
@@ -618,7 +655,7 @@ test('事件清单：形状与计数过检查器，且覆盖运行期真会发�
   for (const [name, entry] of Object.entries(manifest.events)) {
     const check = checkEventFields(manifest, name, entry.fields)
     assert.equal(check.ok, true, name + ' 的字段白名单检查不过：' + JSON.stringify(check))
-    assert.notEqual(lintEventFields(manifest, name, entry.fields).code, 'red', name + ' 有未知事件')
+    assert.notEqual(lintEventFields(manifest, name, entry.fields).severity, 'error', name + ' 有未知事件')
   }
   // 运行期会发的事件名：本仓自有 8（update.* 死条目已删，见 #75）+ 面板经 logAppend 发的上游事件抽样
   const emitted = [

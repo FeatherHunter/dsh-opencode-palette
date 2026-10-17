@@ -1,4 +1,4 @@
-// readme-body.test.mjs — 钉住中英首页「主体」的定稿（票 #30 → 落地 #31）与 theme-stories 图的定案
+// readme-body.test.ts — 钉住中英首页「主体」的定稿（票 #30 → 落地 #31）与 theme-stories 图的定案
 //
 // 断言对象是读者最终看到的东西：三份文档当纯文本读、两张 SVG 当文本读，
 // 只断字符串与数值，不渲染、不联网（同 readme-head-tail 的 file-text 路子）。
@@ -24,9 +24,10 @@ const STORIES_EN = readFileSync(join(ROOT, 'assets', 'theme-stories-en.svg'), 'u
 // 860 是 GitHub 桌面内容宽，1:1 显示不缩字；高度由内容累加得出（组头 30+10 / 行 54 / 表头 112 / 尾 16）
 for (const [name, svg] of [['zh', STORIES_ZH], ['en', STORIES_EN]]) {
   test(`theme-stories（${name}）：860×1812 画布，列图例 7 格、组头 7 条、26 款一行一款`, () => {
-    const head = svg.match(/<svg[^>]*>/)[0]
-    assert.ok(head.includes('width="860"'), '画布宽度应为 860（GitHub 内容宽，1:1）')
-    assert.ok(head.includes('height="1812"'), '画布高度应为 1812（内容累加值）')
+    const head = /<svg[^>]*>/.exec(svg)
+    assert.ok(head, 'theme-stories 应含根 <svg> 标签')
+    assert.ok(head[0].includes('width="860"'), '画布宽度应为 860（GitHub 内容宽，1:1）')
+    assert.ok(head[0].includes('height="1812"'), '画布高度应为 1812（内容累加值）')
     assert.equal(count(svg, 'text-anchor="middle"'), 7, '列图例应为 7 个（背景/文字/主色/强调/错误/警告/成功）')
     assert.equal(count(svg, 'font-size="13" fill="#e8e8ee"'), 7, '组头应为 7 条（中性色组不在策展名单内）')
     assert.equal(count(svg, 'height="30" rx="4"'), 182, '色带格 = 26 款 × 7 格')
@@ -64,7 +65,7 @@ test('theme-stories：过期的「34 themes」不再出现，图片自带 38 款
 
 // ── 3 · 图与 README 的引用一一对应 ──
 test('assets/ 与 README 引用一一对应：没有引用到已删的图，也没有白生成的图', () => {
-  const refs = new Set()
+  const refs = new Set<string>()
   for (const doc of [ZH, EN]) {
     for (const m of doc.matchAll(/(?:src="|!\[[^\]]*\]\()(\.\.\/)?assets\/([^")\s]+)/g)) refs.add(m[2])
   }
@@ -100,14 +101,14 @@ test('主体小标题与定稿一致：GUIDE 退役，INSTALL 即三步', () => 
 // showcase/ 从来没被校验，所以这条坏引用一路放行。这里改成「按文档逐条解析并 stat」。
 test('图片引用存在性：三份文档里的每个 <img src> / ![..]() 都必须落地到真实文件', () => {
   const DOCS = [['README.md', ZH], ['docs/README.en.md', EN], ['package/README.md', PKG]]
-  const refs = []
+  const refs: { docPath: string; raw: string; dir: string }[] = []
   for (const [docPath, text] of DOCS) {
     const dir = dirname(join(ROOT, docPath))
     for (const m of text.matchAll(/<img\s+src="([^"]+)"/g)) refs.push({ docPath, raw: m[1], dir })
     for (const m of text.matchAll(/!\[[^\]]*\]\(([^)\s]+)\)/g)) refs.push({ docPath, raw: m[1], dir })
   }
   assert.ok(refs.length >= 6, `应解析出至少 6 条图片引用，实为 ${refs.length}（正则失效会静默放过坏引用）`)
-  const missing = []
+  const missing: string[] = []
   for (const { docPath, raw, dir } of refs) {
     if (/^https?:\/\//.test(raw)) continue
     const abs = resolve(dir, raw)
@@ -130,10 +131,10 @@ test('口径：THEMES 正文只留一句，不再复述 37 上游 / 原生外观
 })
 
 test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
-  const ext = (t) => t.indexOf('<sub>EXTENSIONS</sub>')
+  const ext = (t: string): number => t.indexOf('<sub>EXTENSIONS</sub>')
   // 英文页原文是句首的 "Typography"（大写），所以这里统一小写后比，避免被大小写绊倒
   for (const [name, doc, word] of [['中文页', ZH, '排印'], ['英文页', EN, 'typography']]) {
-    const lower = (t) => t.toLowerCase()
+    const lower = (t: string): string => t.toLowerCase()
     assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
     assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
   }
@@ -145,7 +146,7 @@ test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
 })
 
 test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+「面板好找」+「自定义主题」三条', () => {
-  const extBlock = (t) => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
+  const extBlock = (t: string): string => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
     assert.equal(doc.includes('我们加的'), false, `${name} 不应再出现「我们加的」`)
@@ -178,7 +179,7 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+
 })
 
 // ── 6 · 中英镜像：主体逐块同形，任一侧多一句就红 ──
-function bodyShape(t) {
+function bodyShape(t: string): string[] {
   const start = t.indexOf('<!-- showcase:start -->')
   const end = t.indexOf('<sub>MORE</sub>')
   return t.slice(start, end).split(/\r?\n/).map((l) => l.trim()).filter(Boolean).map((l) => {
@@ -243,6 +244,6 @@ test('showcase：中英各三张且都真实存在，第 3 张不再自称浅色
 })
 
 // ── 工具 ──
-function count(t, needle) {
+function count(t: string, needle: string): number {
   return t.split(needle).length - 1
 }
