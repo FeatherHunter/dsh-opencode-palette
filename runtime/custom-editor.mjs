@@ -1,7 +1,7 @@
 // custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
 // 交互与文案口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源）。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
-import { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } from './custom-color.mjs'
+import { normalizeHexInput, hexToHsv, hsvToHex, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } from './custom-color.mjs'
 import { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } from './ui-fx.mjs'
 
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
@@ -233,12 +233,12 @@ export function PalettePicker(props) {
   })()
 
   // 直接推进 HSV（拖拽/数值/色相轨）：h 由状态保留，S/V 用本次输入（不做 mergeHsv —— 那是 hex 回填专用）。
-  function push(hsvNext, transparent, hexOverride) {
+  function push(hsvNext, transparent) {
     const next = {
       h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v),
       transparent: !!transparent,
     }
-    const hex = hexOverride || rgbToHex(hsvToRgb(next))
+    const hex = rgbToHex(hsvToRgb(next))
     setPick(next)
     setHexText(next.transparent ? '' : hex)
     setHexError(false)
