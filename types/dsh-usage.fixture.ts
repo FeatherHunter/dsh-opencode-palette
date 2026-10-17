@@ -3,25 +3,25 @@
 // 不参与运行时，不会被 bundler/测试引用；放在 types/ 是为了让它成为 typecheck 的一部分。
 // 维护约定：dsh.d.ts 增删成员时同步改这里（红/绿 即自检）。
 
-// 1) ctx 的字面量重载：5 个服务键 + 兜底 unknown
+// 1) ctx 的字面量重载：5 个服务键（无 string 兜底，拼错必须报错）
 const ctx = {} as DshContext
 const theme: DshThemeService | undefined = ctx.get('theme')
 const slots: DshSlotsService | undefined = ctx.get('slots')
 const locale: DshLocaleService | null | undefined = ctx.get('locale')
 const timer: DshTimerService | undefined = ctx.get('timer')
 const connection: DshConnectionService | null | undefined = ctx.get('connection')
-const fallback: unknown = ctx.get('not-a-service')
 const globalLocale: DshLocaleService | null | undefined = ctx.locale
 const effectMarker: unknown = ctx.effect(() => () => {}, 'fixture')
 
 // 2) theme 服务：快照只读字段 + 覆盖 token 的撤销器
 const snapshot: DshThemeSnapshot | undefined = theme?.getTheme()
+const topPreference: string | undefined = snapshot?.preference
 const preference: string | undefined = snapshot?.active?.preference
 const scheme: 'light' | 'dark' | undefined = snapshot?.active?.colorScheme
 const revision: number | undefined = snapshot?.revision
 theme?.setTheme('tokyonight')
-// token 覆盖是「token 名 → 明暗两半」：delegated 画布下可以只给一半
-const undo: (() => void) | undefined = theme?.overrideTokens('opencode-palette', { '--bg': { dark: '#000' } })
+// token 覆盖是「token 名 → 明暗两半」：delegated 画布下可以只给一半，这里把两半都写上验证 light/dark 都可用
+const undo: (() => void) | undefined = theme?.overrideTokens('opencode-palette', { '--bg': { light: '#fff', dark: '#000' } })
 undo?.()
 
 // 3) slots：inject 工厂（返回清理器 / 清理器可迭代）+ register 选项对象
@@ -56,9 +56,11 @@ const hostCall: Promise<unknown> | undefined = bridge?.call('theme', { id: 'toky
 __opencodePalette = { version: 1 }
 const paletteGlobal: Record<string, unknown> | undefined = __opencodePalette
 
-// 9) 负向断言：get('theme') 返回的是约束过的服务类型，不是 any
+// 9) 负向断言：get('theme') 返回的是约束过的服务类型，不是 any；拼错的服务名必须被拒绝
 // @ts-expect-error DshThemeService 上不存在这个方法
 theme?.noSuchMethod()
+// @ts-expect-error get 没有 string 兜底，服务名拼错应报错
+ctx.get('not-a-service')
 
-// 占位引用，避免未使用变量在开启 noUnusedLocals 时误报（本文件是夹具，全部成员都要被“用到”）
-void [fallback, globalLocale, effectMarker, preference, scheme, revision, activeLocale, unsubscribeLocale, unsubscribeSignal, clearTimer, unregisterRoute, rpcResult, hostCall, paletteGlobal]
+// 让本文件成为模块：夹具里顶层 const 不污染全局；dsh.d.ts 是全局脚本，声明仍对本文件可见。
+export {}

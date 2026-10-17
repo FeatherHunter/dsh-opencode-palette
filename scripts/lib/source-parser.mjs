@@ -1,3 +1,4 @@
+// @ts-check
 // source-parser.mjs — 构建器逐行源码解析（P0 从 scripts/build-client.mjs 抽出，便于单测）。
 //
 // 只负责识别「这一行属于哪种 bundler 语句」，不生成代码：
@@ -44,7 +45,7 @@ export function parseLine(line) {
   m = line.match(PKG_IMPORT_RE)
   if (m) return { type: 'pkg-import', names: m[1], specifier: m[3] }
   m = line.match(EXPORT_RE)
-  if (m) return { type: 'export', kind: m[1], name: m[2], strippedLine: line.replace(/^export\s+/, '') }
+  if (m) return { type: 'export', kind: /** @type {'function'|'const'} */ (m[1]), name: m[2], strippedLine: line.replace(/^export\s+/, '') }
   m = line.match(RE_EXPORT_RE)
   if (m) {
     const names = m[1].split(',').map((s) => s.trim()).filter(Boolean)

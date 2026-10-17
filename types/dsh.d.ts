@@ -6,16 +6,16 @@
 // 故意偏离官方签名的两处（升级复核时重点看）：
 //   1. DshTokenModes 的 light/dark 放宽为可选 —— src/engine/generate.mjs:39-41 在 delegated 画布下只写一半。
 //   2. DshLocaleService.register 的 namespace 放宽为 string —— 官方是 LocaleNamespaceMap 泛型键。
+// 说明：docs/research/ts-migration-typing-surface-105.md §6.2 是设计草案，落地后以本文件为准。
 // 动态版自由变量 host 无官方 d.ts（runner README 约定固定名）；若 runner 改成 invoke 语义需同步本文件。
 
-/** cordis Context 中本插件实际使用的面；`get` 用字面量重载，服务名拼错会退回 unknown 而不是 any */
+/** cordis Context 中本插件实际使用的面；五个服务键用字面量重载，拼错会被编译器拒绝（刻意不留 string 兜底） */
 interface DshContext {
   get(name: 'theme'): DshThemeService | undefined
   get(name: 'slots'): DshSlotsService | undefined
   get(name: 'locale'): DshLocaleService | null | undefined
   get(name: 'timer'): DshTimerService | undefined
   get(name: 'connection'): DshConnectionService | null | undefined
-  get(name: string): unknown
   /** cordis fiber.effect：执行体立即运行，返回值是清理器 */
   effect(execute: () => () => void, label?: string): unknown
   /** 动态版没有 ctx 时，某些路径只读 ctx.locale */
