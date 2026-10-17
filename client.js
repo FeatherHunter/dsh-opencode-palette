@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.1.1 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.1.2 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -468,7 +468,16 @@ const PACKAGE_NAME = "dsh-mattpocock-skills-deck";
 const NPM_REGISTRY = "https://registry.npmjs.org/";
 const CHECK_TIMEOUT_MS = 1e4;
 const MAX_METADATA_BYTES = 256 * 1024;
+const MAX_PACKUMENT_BYTES = 4 * 1024 * 1024;
 const INTEGRITY_PATTERN = "^sha512-[A-Za-z0-9+/]{86}==$";
+function normalizeRegistry(raw, fallback) {
+  const value = typeof raw === "string" && raw.trim() ? raw.trim() : fallback;
+  return value.endsWith("/") ? value : `${value}/`;
+}
+function tarballPathnameOf(targetName, version) {
+  const base = targetName.slice(targetName.lastIndexOf("/") + 1);
+  return `/${targetName}/-/${base}-${version}.tgz`;
+}
 function byteLength(text) {
   try {
     return new TextEncoder().encode(text).length;
@@ -521,7 +530,7 @@ function makeFetchNoter(emitLog, registryHost) {
 }
 async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
   const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
-  const registry = opts?.registryUrl ?? NPM_REGISTRY;
+  const registry = normalizeRegistry(opts?.registryUrl, NPM_REGISTRY);
   const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
   const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
   let response = null;
@@ -546,7 +555,8 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
     const value = JSON.parse(text);
     if (value.name !== targetName) throw updateError("invalid-release");
     if (!isVersionAllowedInChannel(value.version, channel)) {
-      throw withStage(updateError("invalid-release"), "channel");
+      if (opts?.tolerateOutOfChannel !== true) throw withStage(updateError("invalid-release"), "channel");
+      if (!validReleaseVersion(value.version)) throw updateError("invalid-release");
     }
     const version = value.version;
     const nodeRange = value.engines?.node;
@@ -560,7 +570,7 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
       throw updateError("invalid-release");
     }
     const registryOrigin = new URL(registry).origin;
-    const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname === `/${targetName}/-/${targetName}-${version}.tgz` && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
+    const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname.endsWith(tarballPathnameOf(targetName, version)) && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
     if (!shapeOk) throw updateError("invalid-release");
     return { version, nodeRange: typeof nodeRange === "string" ? nodeRange : "*", integrity, tarball: tarball.href };
   } catch (error) {
@@ -572,7 +582,7 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
 }
 async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
   const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
-  const registry = opts?.registryUrl ?? NPM_REGISTRY;
+  const registry = normalizeRegistry(opts?.registryUrl, NPM_REGISTRY);
   const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
   const version = opts?.version;
   const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
@@ -614,7 +624,7 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
       throw updateError("invalid-release");
     }
     const registryOrigin = new URL(registry).origin;
-    const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname === `/${targetName}/-/${targetName}-${version}.tgz` && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
+    const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname.endsWith(tarballPathnameOf(targetName, version)) && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
     if (!shapeOk) throw updateError("invalid-release");
     return { version, nodeRange: typeof nodeRange === "string" ? nodeRange : "*", integrity, tarball: tarball.href };
   } catch (error) {
@@ -626,7 +636,7 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
 }
 async function fetchPackumentTimes(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
   const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
-  const registry = opts?.registryUrl ?? NPM_REGISTRY;
+  const registry = normalizeRegistry(opts?.registryUrl, NPM_REGISTRY);
   const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
   let response = null;
   const startedAt = Date.now();
@@ -644,9 +654,9 @@ async function fetchPackumentTimes(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts
   try {
     if (!response.ok) throw checkFailedWithStatus(response);
     const declared = Number(response.headers.get("content-length"));
-    if (Number.isFinite(declared) && declared > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    if (Number.isFinite(declared) && declared > MAX_PACKUMENT_BYTES) throw updateError("invalid-release");
     const text = await response.text();
-    if (byteLength(text) > MAX_METADATA_BYTES) throw updateError("invalid-release");
+    if (byteLength(text) > MAX_PACKUMENT_BYTES) throw updateError("invalid-release");
     const value = JSON.parse(text);
     if (value.name !== targetName) throw updateError("invalid-release");
     const latest = value["dist-tags"]?.latest;
@@ -711,11 +721,12 @@ function createUpdateCore(ports) {
     } catch {
     }
   }
-  function fetchRelease() {
+  function fetchRelease(tolerateOutOfChannel = false) {
     return fetchNpmRelease(ports.fetchImpl, checkTimeoutMs, {
       targetPackageName,
       registryUrl,
       releaseChannel,
+      tolerateOutOfChannel,
       emitLog: logPort ?? void 0,
       registryHost
     });
@@ -936,7 +947,8 @@ function createUpdateCore(ports) {
     checking = (async () => {
       try {
         const env = await ports.readInstalled();
-        const release2 = await fetchRelease();
+        const installedOutOfChannel = env.installed === false || !isVersionAllowedInChannel(env.installedVersion ?? "", releaseChannel);
+        const release2 = await fetchRelease(installedOutOfChannel);
         checked = {
           release: release2,
           checkId: ports.randomId(),
@@ -1068,6 +1080,9 @@ function createUpdateCore(ports) {
       if (activeJobId === job.id) activeJobId = null;
     }
   }
+  function rememberPreviousVersion(job, env) {
+    job.previousVersion = env.installedVersion ?? null;
+  }
   async function installCandidate(version, ctx) {
     const slot = readFallbackSlot(ctx.env.installationKey);
     if (!slot || slot.version !== version || !slot.checkId || slot.checkId !== ctx.checkId || ports.now() >= slot.expiresAt) {
@@ -1109,6 +1124,7 @@ function createUpdateCore(ports) {
       const env = await ports.readInstalled();
       if (env.installationKey !== slot.installationKey) throw updateError("installation-changed");
       if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
+      rememberPreviousVersion(job, env);
       if (ports.backupJob) await ports.backupJob(job);
       await saveJob(job);
       activeJobId = job.id;
@@ -1161,6 +1177,7 @@ function createUpdateCore(ports) {
       env = await ports.readInstalled();
       if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
       if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
+      rememberPreviousVersion(job, env);
       if (ports.backupJob) await ports.backupJob(job);
       await saveJob(job);
       activeJobId = job.id;
@@ -1664,6 +1681,8 @@ const BILINGUAL_STRINGS = {
   "batch.toast.cancel-fail": { en: "Could not cancel the queue (it may have started installing); see the latest state below.", zh: "\u53D6\u6D88\u6392\u961F\u5931\u8D25\uFF08\u53EF\u80FD\u5DF2\u5F00\u59CB\u5B89\u88C5\uFF09\uFF1A\u8BF7\u67E5\u770B\u4E0B\u65B9\u6700\u65B0\u72B6\u6001\u3002", draft: true },
   "batch.toast.copy-manual-ok": { en: "Manual command copied; paste the full line into the terminal to run it.", zh: "\u624B\u5DE5\u547D\u4EE4\u5DF2\u590D\u5236\uFF0C\u8BF7\u7C98\u8D34\u81F3\u7EC8\u7AEF\u6574\u884C\u6267\u884C\u3002", draft: true },
   "batch.toast.copy-diag-ok": { en: "Diagnostics copied; paste it to the plugin author (already redacted).", zh: "\u8BCA\u65AD\u4FE1\u606F\u5DF2\u590D\u5236\uFF0C\u8BF7\u63D0\u4EA4\u81F3\u63D2\u4EF6\u4F5C\u8005\uFF08\u5DF2\u8131\u654F\uFF09\u3002", draft: true },
+  "batch.toast.copy-all-diag-ok": { en: "Diagnostics for {n} plugin(s) copied; paste them to the plugin author (already redacted).", zh: "\u5DF2\u590D\u5236 {n} \u5BB6\u63D2\u4EF6\u7684\u8BCA\u65AD\uFF0C\u8BF7\u63D0\u4EA4\u81F3\u63D2\u4EF6\u4F5C\u8005\uFF08\u5DF2\u8131\u654F\uFF09\u3002", draft: true },
+  "batch.toast.copy-all-manual-ok": { en: "{n} manual command(s) copied (plugins without a command are marked as # comments); paste them into the terminal line by line.", zh: "\u5DF2\u590D\u5236 {n} \u6761\u624B\u5DE5\u547D\u4EE4\uFF08\u65E0\u547D\u4EE4\u7684\u63D2\u4EF6\u5DF2\u7528 # \u6CE8\u91CA\u6807\u6CE8\uFF09\uFF0C\u8BF7\u7C98\u8D34\u81F3\u7EC8\u7AEF\u9010\u884C\u6267\u884C\u3002", draft: true },
   "batch.toast.restart-delegated": { en: "Handled by the caller\u2019s restart flow; the new version takes effect after restart.", zh: "\u5DF2\u6309\u8C03\u7528\u65B9\u91CD\u542F\u6D41\u7A0B\u5904\u7406\uFF1B\u91CD\u542F\u540E\u65B0\u7248\u672C\u751F\u6548\u3002", draft: true },
   "batch.toast.restart-manual": { en: "This host provides no restart entry; please restart the host manually. The new version takes effect after restart.", zh: "\u672C\u5BBF\u4E3B\u672A\u63D0\u4F9B\u91CD\u542F\u5165\u53E3\uFF0C\u8BF7\u624B\u52A8\u91CD\u542F\u5BBF\u4E3B\uFF1B\u91CD\u542F\u540E\u65B0\u7248\u672C\u751F\u6548\u3002", draft: true },
   "batch.toast.restart-failed": { en: "Restart entry failed; please restart the host manually. The new version takes effect after restart.", zh: "\u91CD\u542F\u5165\u53E3\u8C03\u7528\u5931\u8D25\uFF0C\u8BF7\u624B\u52A8\u91CD\u542F\u5BBF\u4E3B\uFF1B\u91CD\u542F\u540E\u65B0\u7248\u672C\u751F\u6548\u3002", draft: true },
@@ -17843,8 +17862,8 @@ function countStatic() {
 __mods["registry"] = { SYSTEM_THEME, listThemes, getThemeJson, isSystem, countStatic }
 })();
 (function () {
-// ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 20 套（v3 终审版）。
-// 双来源口径：内置 38（registry，不动）+ IP 20（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
+// ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 21 套（含库洛米）。
+// 双来源口径：内置 38（registry，不动）+ IP 21（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
 // 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
 // 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
 // name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
@@ -17857,6 +17876,7 @@ const evangelion = {"appearance": "dark", "basePreset": "evangelion", "colors": 
 const genshin = {"appearance": "dark", "basePreset": "genshin", "colors": {"background": "#0c152e", "backgroundElement": "#1b2d52", "backgroundPanel": "#13203e", "border": "#2a3a63", "borderActive": "#5eead4", "bubbleBg": "#1f335d", "codeBlockBg": "#060c1d", "codeHeaderBg": "#243c6b", "diffAdded": "#a9e5c0", "diffAddedBg": "#103327", "diffAddedLineNumberBg": "#1a4a38", "diffRemoved": "#f49a9a", "diffRemovedBg": "#3a1a28", "diffRemovedLineNumberBg": "#522334", "error": "#f26d6d", "info": "#7aa2f7", "inputBg": "#172747", "markdownBlockQuote": "#bcc1e6", "markdownCode": "#659e96", "markdownEmph": "#c4b5fd", "markdownHeading": "#ffd97a", "markdownLink": "#7aa2f7", "markdownStrong": "#ffe9a8", "primary": "#5eead4", "secondary": "#d18bf2", "sidebarBg": "#101b36", "success": "#7ed492", "syntaxComment": "#8087ab", "syntaxFunction": "#7dd3fc", "syntaxKeyword": "#e8a0c8", "syntaxNumber": "#ee9a5c", "syntaxOperator": "#a39c88", "syntaxString": "#7fd65e", "syntaxType": "#d2f26b", "text": "#edeaff", "textMuted": "#9aa0c7", "warning": "#e8b64c"}, "id": "genshin", "name": "原神", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const harry_potter = {"appearance": "dark", "basePreset": "harry-potter", "colors": {"background": "#1a120b", "backgroundElement": "#2c2315", "backgroundPanel": "#251c11", "border": "#4a3a26", "borderActive": "#f0c75e", "bubbleBg": "#312818", "codeBlockBg": "#100a06", "codeHeaderBg": "#3e3220", "diffAdded": "#7ce38b", "diffAddedBg": "#14291a", "diffAddedLineNumberBg": "#1e4a2b", "diffRemoved": "#f08a8a", "diffRemovedBg": "#3a1a14", "diffRemovedLineNumberBg": "#5a2420", "error": "#f05533", "info": "#57a8d8", "inputBg": "#372c1b", "markdownBlockQuote": "#9a8a73", "markdownCode": "#f0a8c0", "markdownEmph": "#d3bdf0", "markdownHeading": "#e8b64c", "markdownLink": "#b8dcff", "markdownStrong": "#fff2d9", "primary": "#e8b64c", "secondary": "#8e2434", "sidebarBg": "#20160d", "success": "#5fbf6b", "syntaxComment": "#8a7d68", "syntaxFunction": "#5fd6c0", "syntaxKeyword": "#b668e8", "syntaxNumber": "#d9732f", "syntaxOperator": "#93a0b4", "syntaxString": "#b5d67a", "syntaxType": "#6cb8f0", "text": "#f5ead0", "textMuted": "#b0a08a", "warning": "#ffae00"}, "id": "harry-potter", "name": "哈利波特", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const hello_kitty = {"appearance": "light", "basePreset": "hello-kitty", "colors": {"background": "#fff5f7", "backgroundElement": "#fbdce4", "backgroundPanel": "#ffeef3", "border": "#f2c9d4", "borderActive": "#e60012", "bubbleBg": "#ffffff", "codeBlockBg": "#37232c", "codeHeaderBg": "#4d2f3b", "diffAdded": "#156e3b", "diffAddedBg": "#d9f2e4", "diffAddedLineNumberBg": "#c5e9d4", "diffRemoved": "#c2274d", "diffRemovedBg": "#fde2e5", "diffRemovedLineNumberBg": "#f9cdd3", "error": "#b50022", "info": "#0e7a8d", "inputBg": "#ffe0e8", "markdownBlockQuote": "#96607a", "markdownCode": "#8e2a68", "markdownEmph": "#a84e6b", "markdownHeading": "#7d1f3d", "markdownLink": "#125f9e", "markdownStrong": "#2a1c22", "primary": "#e60012", "secondary": "#ff8fb2", "sidebarBg": "#ffe4eb", "success": "#1e7a44", "syntaxComment": "#b294a1", "syntaxFunction": "#ffd166", "syntaxKeyword": "#fb4d8d", "syntaxNumber": "#ff7e47", "syntaxOperator": "#c995b0", "syntaxString": "#9df0c0", "syntaxType": "#7dd3fc", "text": "#3d2b33", "textMuted": "#755664", "warning": "#8a5f00"}, "id": "hello-kitty", "name": "Hello Kitty", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
+const kuromi = {"appearance": "light", "basePreset": "kuromi", "colors": {"background": "#F4ECFA", "backgroundElement": "#E2D2EE", "backgroundPanel": "#ECE0F5", "border": "#DCCAE9", "borderActive": "#8D6AAE", "bubbleBg": "#FBDFED", "codeBlockBg": "#FBF7FD", "codeHeaderBg": "#EEE2F5", "diffAdded": "#1B7150", "diffAddedBg": "#E1F3E9", "diffAddedLineNumberBg": "#CCEBD9", "diffRemoved": "#A81B38", "diffRemovedBg": "#FBE4EC", "diffRemovedLineNumberBg": "#F5D1DE", "error": "#A81B38", "info": "#4A52B4", "inputBg": "#FCF9FE", "markdownBlockQuote": "#775B84", "markdownCode": "#8E2A62", "markdownEmph": "#A63D70", "markdownHeading": "#552A6B", "markdownLink": "#7441A8", "markdownStrong": "#1B1123", "primary": "#BD3064", "secondary": "#7A56A4", "sidebarBg": "#EBDEF4", "success": "#256B57", "syntaxComment": "#736379", "syntaxFunction": "#6E49A8", "syntaxKeyword": "#B23A6E", "syntaxNumber": "#96521A", "syntaxOperator": "#7C5F90", "syntaxString": "#2F7A66", "syntaxType": "#4A5AA8", "text": "#241A2C", "textMuted": "#6A5677", "warning": "#7E5610"}, "id": "kuromi", "name": "库洛米", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T23:35:00+08:00"}
 const lego = {"appearance": "light", "basePreset": "lego", "colors": {"background": "#edeef0", "backgroundElement": "#d7d8dc", "backgroundPanel": "#f6f6f7", "border": "#c9cacf", "borderActive": "#d01012", "bubbleBg": "#ffffff", "codeBlockBg": "#23262e", "codeHeaderBg": "#34383f", "diffAdded": "#1e7e34", "diffAddedBg": "#d9f2e3", "diffAddedLineNumberBg": "#c4e9d3", "diffRemoved": "#a01a4e", "diffRemovedBg": "#f9dfe7", "diffRemovedLineNumberBg": "#f0c3d3", "error": "#a01a4e", "info": "#087080", "inputBg": "#fbfbfc", "markdownBlockQuote": "#6b6e74", "markdownCode": "#6d28d9", "markdownEmph": "#5a5e64", "markdownHeading": "#2e3238", "markdownLink": "#0055bf", "markdownStrong": "#1a1a1b", "primary": "#d01012", "secondary": "#d9a000", "sidebarBg": "#e2e3e7", "success": "#1e7e34", "syntaxComment": "#9aa0a8", "syntaxFunction": "#ffd23f", "syntaxKeyword": "#e879f9", "syntaxNumber": "#b5e048", "syntaxOperator": "#b3aa9c", "syntaxString": "#7ee787", "syntaxType": "#4da3ff", "text": "#1a1a1b", "textMuted": "#66696e", "warning": "#b34700"}, "id": "lego", "name": "乐高", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const mario = {"appearance": "light", "basePreset": "mario", "colors": {"background": "#e2f1fd", "backgroundElement": "#c9e4fb", "backgroundPanel": "#f6fcff", "border": "#bfd9f2", "borderActive": "#e52521", "bubbleBg": "#f0f8ff", "codeBlockBg": "#17203d", "codeHeaderBg": "#26315c", "diffAdded": "#166534", "diffAddedBg": "#d3f4dc", "diffAddedLineNumberBg": "#a7e8b5", "diffRemoved": "#991b1b", "diffRemovedBg": "#fee2e2", "diffRemovedLineNumberBg": "#fecaca", "error": "#c1121f", "info": "#0284c7", "inputBg": "#fbfeff", "markdownBlockQuote": "#0e7490", "markdownCode": "#a21caf", "markdownEmph": "#6b4a1f", "markdownHeading": "#c2410c", "markdownLink": "#0b6bc1", "markdownStrong": "#431407", "primary": "#e52521", "secondary": "#2f9e44", "sidebarBg": "#aecff0", "success": "#15803d", "syntaxComment": "#7d8fb0", "syntaxFunction": "#ffd23f", "syntaxKeyword": "#f43f5e", "syntaxNumber": "#ea580c", "syntaxOperator": "#94a3b8", "syntaxString": "#7bf1a8", "syntaxType": "#60a5fa", "text": "#16283f", "textMuted": "#33536e", "warning": "#b45309"}, "id": "mario", "name": "超级马里奥", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
 const marvel = {"appearance": "dark", "basePreset": "marvel", "colors": {"background": "#140c0e", "backgroundElement": "#2d1c21", "backgroundPanel": "#1c1013", "border": "#38242c", "borderActive": "#ed1d24", "bubbleBg": "#231418", "codeBlockBg": "#0c0708", "codeHeaderBg": "#201317", "diffAdded": "#7cf29c", "diffAddedBg": "#122e1f", "diffAddedLineNumberBg": "#1c4a2a", "diffRemoved": "#ff8a8a", "diffRemovedBg": "#3a1416", "diffRemovedLineNumberBg": "#5e2124", "error": "#ff5733", "info": "#22d3ee", "inputBg": "#27171c", "markdownBlockQuote": "#978e8a", "markdownCode": "#f97316", "markdownEmph": "#d9cfc9", "markdownHeading": "#ffd166", "markdownLink": "#818cf8", "markdownStrong": "#ffffff", "primary": "#ed1d24", "secondary": "#2e8fff", "sidebarBg": "#170d10", "success": "#3ddc74", "syntaxComment": "#86868b", "syntaxFunction": "#5eb1ff", "syntaxKeyword": "#f472b6", "syntaxNumber": "#a78bfa", "syntaxOperator": "#5b6675", "syntaxString": "#a3e635", "syntaxType": "#ffc93d", "text": "#f4efea", "textMuted": "#a89c95", "warning": "#fbbf24"}, "id": "marvel", "name": "漫威", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
@@ -17872,7 +17892,7 @@ const zelda = {"appearance": "dark", "basePreset": "zelda", "colors": {"backgrou
 const IP_PRESETS_RAW = {
   'cyberpunk-2077': cyberpunk_2077, 'dc-comics': dc_comics, 'disney': disney,
   'doraemon': doraemon, 'dragon-ball': dragon_ball, 'evangelion': evangelion, 'genshin': genshin,
-  'harry-potter': harry_potter, 'hello-kitty': hello_kitty, 'lego': lego,
+  'harry-potter': harry_potter, 'hello-kitty': hello_kitty, 'kuromi': kuromi, 'lego': lego,
   'mario': mario, 'marvel': marvel, 'naruto': naruto, 'one-piece': one_piece,
   'pokemon': pokemon, 'sailor-moon': sailor_moon, 'star-wars': star_wars,
   'transformers': transformers, 'ultraman': ultraman, 'zelda': zelda,
@@ -20412,7 +20432,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2'
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.mjs 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.1.1'
+const PALETTE_VERSION = '2.1.2'
 
 function getReact() {
   if (typeof require === 'function') { try { return require('react') } catch (e) { /* 动态版无 require */ } }
@@ -20795,7 +20815,7 @@ function createClient(slotTarget) {
       },
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
-    // ── 检查更新：dsh-plugin-update@0.18.7 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+    // ── 检查更新：dsh-plugin-update@0.18.11 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
     // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
@@ -21915,7 +21935,7 @@ function createClient(slotTarget) {
           try {
             const hm = hostDark ? 'dark' : 'light'
             const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
-            // 双来源：内置 38 + IP 预置 20（IP 只进「选基底」，不进 themeNames，见 ip-presets.mjs）。
+            // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.mjs）。
             return builtins.concat(safeIpPresets())
           } catch (e) { return [] }
         }
@@ -21944,7 +21964,7 @@ function createClient(slotTarget) {
           props.setCustomTheme(t.id)
           setUi(props.getState())
         }
-        // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 20 套在上方 IP 预置组，恒不写盘。
+        // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 21 套在上方 IP 预置组，恒不写盘。
         const renderCustomSection = function () {
           const list = (customData && customData.themes) || []
           const shownCustom = filterCustomThemes(list, query)
