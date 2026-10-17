@@ -52,8 +52,12 @@ Status: accepted
   再走正常 bump + 发布（用户侧靠新版本拿到新范围）。
 - 超出范围（0.3.0+）= 改两处声明（根 `package.json` + `scripts/build-client.mjs`
   产物字面量）+ `npm install && npm run build && npm test` + 发布。
-- 两处本地契约仍需人眼对照（门禁查不出）：上游新增日志事件 → 补
-  `runtime/event-list.json` 白名单；新增 `blockedReason` → 补
-  `runtime/update-panel.mjs` 的 `blockedReasonKey()` 与 `runtime/client.mjs` 双语词条。
+- 一处本地契约仍需人眼对照（门禁查不出）：上游新增日志事件 → 补
+  `runtime/event-list.json` 白名单（取两版 `event-list.update.json` 逐行比对即知）。
+  blocked 原因码与文案**不需要本仓跟**：自研面板删除后，码判定与中文全 import 包自身
+  （`failureCopy` / `isKnownFailureCode` / `entryLabelFor`），本仓既不持码表也不持词条。
+- 超出范围升级时门禁会先卡住自举：`check-deps` 拿**产物快照** `package/package.json`
+  比对新声明，而它正是这次构建要重写的文件 —— 先手动把产物快照里那一行改成新版本号
+  （与 `scripts/build-client.mjs` 产物字面量同值），再 `npm install && npm run build && npm test`。
 - 上游若改客户端入口的模块文件/依赖关系，构建会抛「引用了未声明的依赖」——
   设计好的报错，不是静默降级，按报错补 `INLINE_PACKAGES` 声明。
