@@ -154,7 +154,7 @@ if (behind === 0) {
 
 console.log('  结论：有 ' + behind + ' 项需要动作 —— 否则打出的包或用户拿到的不是最新。')
 console.log('    范围内落后：npm run deps:sync && npm run build && npm test')
-console.log('    超出范围：改根 package.json 与 scripts/build-client.mjs 里产物 dependencies 的声明，')
+console.log('    超出范围：改根 package.json 与 scripts/build-client.ts 里产物 dependencies 的声明，')
 console.log('      再 npm install && npm run build && npm test')
 console.log('    最后 bump 本插件版本并发布（用户侧靠新版本拿到新范围）')
 process.exit(WARN_ONLY ? 0 : 1)

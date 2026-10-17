@@ -1,4 +1,4 @@
-// zh-names.mjs — 主题名表（单一来源：中文名 THEME_ZH ＋ 英文官方名 THEME_EN）
+// zh-names.ts — 主题名表（单一来源：中文名 THEME_ZH ＋ 英文官方名 THEME_EN）
 // 供运行时面板（中/英界面各取一表）与 assets 生成器（矩阵/故事卡）共用。
 // 口径（#60 冻结、#67 落码）：官方名（上游拼写）优先，两表都缺键才退回内部 id（slug 兜底）。
 // 无中文译名者保留原名（13）：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）。

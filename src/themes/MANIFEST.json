@@ -139,24 +139,24 @@
   },
   "adapted20": {
     "source": "sst/opencode 2.0 branch packages/ui/src/theme/themes/ (desktop-theme.json)",
-    "method": "scripts/convert-desktop-themes.mjs (direct roles + documented mix derivations)",
+    "method": "scripts/convert-desktop-themes.ts (direct roles + documented mix derivations)",
     "sources": "src/themes/desktop-2.0/*.json (originals, do not edit outputs by hand)",
     "themes": {
       "amoled": {
-        "bytes": 2226,
-        "sha256": "086d8e663ea91fa96fa459d4bf95d8877adf2d8e21068a23c3c46b1aa6c5b091"
+        "bytes": 2716,
+        "sha256": "174913d5d9f55a0d3a444f4189251329144951dfaf0c0d99d977a3012b028f0a"
       },
       "oc-2": {
-        "bytes": 2226,
-        "sha256": "f350754ec7b08c521c20f02a47d65ee8bc0fcf3b9448b6c8051df4fd4a8017ab"
+        "bytes": 2716,
+        "sha256": "633c86766fb35b2748656b3d3808f6d984453724858cd7dc0d2323baa821c87f"
       },
       "onedarkpro": {
-        "bytes": 2226,
-        "sha256": "15d2b5f17148ebe7909aace15dbcbb8a71daa64037a1a4c8e243f57ddf68a2f2"
+        "bytes": 2716,
+        "sha256": "9b7f02ba980c4dd206d2490564d7318c692b7169aceb8352e620bf1588532f94"
       },
       "shadesofpurple": {
-        "bytes": 2226,
-        "sha256": "df6f0789fb493e0826eff0525b94edbdd6556aaf9375ac3a4ffabcba0cb81563"
+        "bytes": 2716,
+        "sha256": "5b3f1d921ccfbf9e5ec2cd6dd36dc7f5b792a850cd39197b6169c88d7ab43866"
       }
     }
   }

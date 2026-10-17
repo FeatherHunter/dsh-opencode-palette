@@ -1,10 +1,15 @@
 {
   // P2：tsc 只转译（C-lite）—— src/engine 的 .ts 输出到 dist/src/engine/*.js，
   // 由零依赖 mini-bundler（scripts/build-client.ts）逐行读取；不产 sourcemap、不内联 helpers、不 minify。
-  // scripts/ 不 emit：Node 24 原生类型剥离直跑 .ts（P3 bump engines 后再收口 Node 版本门槛）。
-  // dist/ 不入库，每次 build 重新生成。
+  // scripts/ 不 emit：Node 22.18+ 原生类型剥离直跑 .ts（engines 门槛在 P3 bump 后收口）。
+  // dist/ 不入库；`npm run emit` 先清空 dist 再转译，避免删/改名的模块在 dist 里静默复活（确定性产物）。
+  // 注意：resolveJsonModule 会把被 import 的 37+21 个主题/预设 JSON 复制进 dist/src/{themes,custom-presets}；
+  // bundler 的 JSON 内联直接读 src/，不读这些副本——它们只是 tsc 的附带产物，随 dist 一起被忽略。
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "module": "NodeNext",
+    "target": "ES2022",
+    "importHelpers": false,
     "noEmit": false,
     "outDir": "dist",
     "rootDir": ".",

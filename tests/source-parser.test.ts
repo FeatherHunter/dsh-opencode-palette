@@ -1,7 +1,9 @@
 // tests/source-parser.test.ts — P0 构建链硬化：逐行解析器（scripts/lib/source-parser.ts）
 //
 // 守两件事：
-//   1) 现行源码的解析结果与改造前内联在 build-client.mjs 里的正则**逐字段一致**（build 行为零变化）；
+//   1) runtime 的 .mjs 源码逐行结果与改造前内联在 build-client 里的正则**逐字段一致**（build 行为零变化）；
+//      引擎 .ts 源码对两侧都是「不识别」（legacy 正则只认 .mjs），其真实输入是 tsc emit 的 .js，
+//      由本文件最后一条 UNHANDLED 投影测试 + build/verify:artifacts + panel-render 产物用例共同兜底。
 //   2) 同时认识 tsc 默认 emit 风格（双引号、行尾分号、`.js` 后缀）和 `import type`（C-lite 前置）。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -24,6 +26,8 @@ function readNormalized(file: string): string {
 
 // 引擎源码已迁成 .ts：tsc（rewriteRelativeImportExtensions）会把相对说明符的 '.ts' 改写成 '.js'，
 // bundler 实际吃到的是 emit 形态。UNHANDLED 检查按同一条规则投影，才对得上真实输入。
+// 注意：这只是手写投影、不读 dist；真实 dist 输入的最终防线是 build 后的 verify:artifacts 与
+// panel-render 的产物加载用例（#106 §3.4：单测不假装是产物门禁）。
 // runtime 仍是 .mjs，没有 .ts 说明符，改写对它是空操作。
 function emitLine(line: string): string {
   return line.replace(/(['"])((?:\.{1,2}\/)[^'"]+)\.ts\1/g, '$1$2.js$1')
@@ -33,9 +37,9 @@ function emitLine(line: string): string {
 // 不参与「未识别顶格语句」判定。
 const ERASED_DECL_RE = /^export\s+(?:type|interface|declare)\b/
 
-// 改造前 build-client.mjs 用的 6 条正则（前 5 条原样保留，作为等价性基准；改构建逻辑时不要动这组基准）。
-// 第 6 条 type-import：P0 抽取解析器时就已经存在（bundler 里对应分支只丢弃、不输出），
-// 只是源码里直到 P2 给引擎补类型注解才开始出现 `import type`，所以之前的基准里没有它。
+// 改造前 build-client.mjs 用的正则（前 5 条原样保留，作为 .mjs 等价性基准；改这 5 条会让等价测试失真，别动）。
+// 第 6 条 type-import：P0 抽取解析器时就存在（bundler 里对应分支只丢弃、不输出），
+// 只是源码里直到 P2 给引擎补类型注解才开始出现 `import type`，所以 P2 才补进基准。
 interface LegacyEntry {
   type: string
   re: RegExp
@@ -95,7 +99,7 @@ test('非语句行不误伤', () => {
   }
 })
 
-test('现行源码逐行解析结果与改造前内联正则逐字段一致', () => {
+test('runtime .mjs 源码逐行解析结果与改造前内联正则逐字段一致（引擎 .ts 行两侧皆 null，其 emit 形态由 UNHANDLED 投影 + 产物门禁守）', () => {
   const counts: Record<string, number> = {}
   for (const file of SOURCE_FILES) {
     const lines = readNormalized(file).split('\n')

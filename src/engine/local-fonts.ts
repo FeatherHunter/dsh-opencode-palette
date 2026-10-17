@@ -1,6 +1,6 @@
-// local-fonts.mjs — 本机字体清单：取（queryLocalFonts）→ 去重 → 等宽判定 → 候选分级
+// local-fonts.ts — 本机字体清单：取（queryLocalFonts）→ 去重 → 等宽判定 → 候选分级
 //
-// document / window 与等宽测量句柄都以参数注入，保持引擎层可在 node 里直接跑（与 font-avail.mjs 同策）。
+// document / window 与等宽测量句柄都以参数注入，保持引擎层可在 node 里直接跑（与 font-avail.ts 同策）。
 //
 // 浏览器侧的三道门（实测于真实宿主，见 issue #11 证据表）：
 //   1) 必须真实用户手势：click → await 别的东西 → queryLocalFonts 会丢手势（SecurityError）；

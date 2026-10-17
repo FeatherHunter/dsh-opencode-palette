@@ -1,4 +1,4 @@
-// font-avail.mjs — 本机字体可用性判定（宽度对比法；document 以参数注入，可在 node 直接测）
+// font-avail.ts — 本机字体可用性判定（宽度对比法；document 以参数注入，可在 node 直接测）
 //
 // 为什么不用 document.fonts.check()：它对「没有声明 @font-face 的家族名」一律返回 true
 // （实测连 __dsh_palette_absent_font__ 这种确定不存在的名字也是 true），只有「已声明但尚未

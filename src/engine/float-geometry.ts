@@ -1,4 +1,4 @@
-// float-geometry.mjs — 锚定浮层的几何计算：纯数字进、纯数字出，与 DOM 无关
+// float-geometry.ts — 锚定浮层的几何计算：纯数字进、纯数字出，与 DOM 无关
 //
 // 为什么单独成模块：悬浮菜单（字体下拉）必须逃出宿主容器的 overflow 裁剪，
 // 只能走 fixed + 视口坐标。坐标数学一旦散落在 runtime 的行内 style 里，

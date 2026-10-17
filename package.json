@@ -11,7 +11,7 @@
     "deps:sync": "npm update dsh-plugin-update dsh-log --registry=https://registry.npmjs.org && node scripts/check-deps.ts",
     "vendor:check": "node scripts/check-deps.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "emit": "tsc -p tsconfig.build.json",
+    "emit": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
     "build": "npm run typecheck && node scripts/check-deps.ts && node scripts/inline-fonts.ts && npm run emit && node scripts/build-client.ts",
     "verify:artifacts": "npm run emit && node scripts/build-client.ts && git diff --exit-code package/ client.js",
     "test": "node --test tests/engine.test.mjs tests/float-geometry.test.mjs tests/panel-render.test.mjs tests/update-panel.test.mjs tests/log-switch.test.mjs tests/release-scripts.test.mjs tests/sync-verify.test.ts tests/readme-head-tail.test.mjs tests/readme-body.test.mjs tests/group-boundary.test.mjs tests/custom-themes-storage.test.mjs tests/custom-editor.test.mjs tests/custom-theme.test.mjs tests/ip-presets.test.mjs tests/source-parser.test.ts"

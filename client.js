@@ -9556,7 +9556,7 @@ const FONT_FACE_CSS = "@font-face{font-family:\"JetBrains Mono\";font-style:norm
 __mods["font-face"] = { BUNDLED_FONTS, FONT_FACE_CSS }
 })();
 (function () {
-// font-avail.mjs — 本机字体可用性判定（宽度对比法；document 以参数注入，可在 node 直接测）
+// font-avail.ts — 本机字体可用性判定（宽度对比法；document 以参数注入，可在 node 直接测）
 //
 // 为什么不用 document.fonts.check()：它对「没有声明 @font-face 的家族名」一律返回 true
 // （实测连 __dsh_palette_absent_font__ 这种确定不存在的名字也是 true），只有「已声明但尚未
@@ -9625,9 +9625,9 @@ function createFontAvailability(resolveDoc, bundledFonts) {
 __mods["font-avail"] = { FONT_PROBE_TEXT, FONT_PROBE_ABSENT, FONT_PROBE_SIZE, createFontAvailability }
 })();
 (function () {
-// font-names.mjs — 任意字体族名的净化与 CSS 安全包裹
+// font-names.ts — 任意字体族名的净化与 CSS 安全包裹
 //
-// 为什么单独成模块：族名会经字符串拼接落进注入宿主页面的 <style>（generate.mjs 的
+// 为什么单独成模块：族名会经字符串拼接落进注入宿主页面的 <style>（generate.ts 的
 // buildTypographyCss）。族名一旦含 `{` `}` `;` `<` 就能提前闭合规则或标签，把用户可控的
 // 值变成 CSS/HTML 注入。所以「净化」是引擎层的硬约束，不是面板层的输入提示。
 // 族名长度上限：真实字体家族名最长也就数十字符（含 Nerd Font 后缀与 CJK 名），
@@ -9664,9 +9664,9 @@ function quoteFontFamily(name) {
 __mods["font-names"] = { FONT_NAME_MAX, sanitizeFontName, quoteFontFamily }
 })();
 (function () {
-// local-fonts.mjs — 本机字体清单：取（queryLocalFonts）→ 去重 → 等宽判定 → 候选分级
+// local-fonts.ts — 本机字体清单：取（queryLocalFonts）→ 去重 → 等宽判定 → 候选分级
 //
-// document / window 与等宽测量句柄都以参数注入，保持引擎层可在 node 里直接跑（与 font-avail.mjs 同策）。
+// document / window 与等宽测量句柄都以参数注入，保持引擎层可在 node 里直接跑（与 font-avail.ts 同策）。
 //
 // 浏览器侧的三道门（实测于真实宿主，见 issue #11 证据表）：
 //   1) 必须真实用户手势：click → await 别的东西 → queryLocalFonts 会丢手势（SecurityError）；
@@ -9913,7 +9913,7 @@ function buildFontCandidates(localFamilies, isFontAvailable, monoMap, presetOrde
 __mods["local-fonts"] = { MONO_PROBE_TEXT, MONO_PROBE_SIZE, MONO_MEASURE_LIMIT, FONT_ENUM_UNAVAILABLE, FONT_ENUM_DENIED, FONT_ENUM_BLOCKED, FONT_ENUM_EMPTY, FONT_ENUM_FAILED, collectLocalFonts, dedupeFamilies, measureMonospaceFonts, buildFontCandidates }
 })();
 (function () {
-// generate.mjs — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
+// generate.ts — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
 const { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors } = __mods["map-dsh"]
 const { FONT_FACE_CSS } = __mods["font-face"]
@@ -10145,7 +10145,7 @@ function customPreviewColors(customTheme) {
 __mods["generate"] = { buildTokens, codeFontStack, buildTypographyCss, buildColorCss, generateTheme, renderCustomTheme, customPreviewColors }
 })();
 (function () {
-// zh-names.mjs — 主题名表（单一来源：中文名 THEME_ZH ＋ 英文官方名 THEME_EN）
+// zh-names.ts — 主题名表（单一来源：中文名 THEME_ZH ＋ 英文官方名 THEME_EN）
 // 供运行时面板（中/英界面各取一表）与 assets 生成器（矩阵/故事卡）共用。
 // 口径（#60 冻结、#67 落码）：官方名（上游拼写）优先，两表都缺键才退回内部 id（slug 兜底）。
 // 无中文译名者保留原名（13）：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）。
@@ -18218,7 +18218,7 @@ __mods["registry"] = { SYSTEM_THEME, listThemes, getThemeJson, isSystem, countSt
 (function () {
 // ip-presets.ts — IP 预置主题第二来源：src/custom-presets/ 21 套（含库洛米）。
 // 双来源口径：内置 38（registry，不动）+ IP 21（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
-// 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
+// 构建器把 JSON 内联进 bundle（build-client.ts CUSTOM_PRESETS_DIR），本文件只做字段收敛：
 // 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
 // name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
 const cyberpunk_2077 = {"appearance": "dark", "basePreset": "cyberpunk-2077", "colors": {"background": "#141017", "backgroundElement": "#2b2140", "backgroundPanel": "#1d1529", "border": "#3a2d52", "borderActive": "#fcee0a", "bubbleBg": "#261d38", "codeBlockBg": "#0a070d", "codeHeaderBg": "#2e2344", "diffAdded": "#a6ff00", "diffAddedBg": "#162903", "diffAddedLineNumberBg": "#223d06", "diffRemoved": "#ff3232", "diffRemovedBg": "#330a1c", "diffRemovedLineNumberBg": "#4d0f29", "error": "#ff3232", "info": "#00f0ff", "inputBg": "#211832", "markdownBlockQuote": "#9a8ba8", "markdownCode": "#d98cff", "markdownEmph": "#c2c8ff", "markdownHeading": "#fcee0a", "markdownLink": "#5b8cff", "markdownStrong": "#ffffff", "primary": "#fcee0a", "secondary": "#f624a8", "sidebarBg": "#171221", "success": "#a6ff00", "syntaxComment": "#8e829e", "syntaxFunction": "#5ed4ff", "syntaxKeyword": "#ff6b9e", "syntaxNumber": "#ffb84d", "syntaxOperator": "#9a9ab0", "syntaxString": "#c8ff4d", "syntaxType": "#fff3a0", "text": "#ede7f2", "textMuted": "#9a8ba8", "warning": "#ff9e00"}, "id": "cyberpunk-2077", "name": "赛博朋克 2077", "schema": "dsh-opencode-palette.custom-theme.v1", "updatedAt": "2026-10-17T03:05:00+08:00"}
@@ -18618,7 +18618,7 @@ function tokensFromColors(colors, darkMode) {
 __mods["update-tokens"] = { buildUpdateTokens, buildUpdateTokensFromColors }
 })();
 (function () {
-// float-geometry.mjs — 锚定浮层的几何计算：纯数字进、纯数字出，与 DOM 无关
+// float-geometry.ts — 锚定浮层的几何计算：纯数字进、纯数字出，与 DOM 无关
 //
 // 为什么单独成模块：悬浮菜单（字体下拉）必须逃出宿主容器的 overflow 裁剪，
 // 只能走 fixed + 视口坐标。坐标数学一旦散落在 runtime 的行内 style 里，

@@ -4,7 +4,7 @@
 // 升级 DSH 时按该文档 §7.2 的 10 步核对清单逐服务 diff；本文件没有 CI 对照官方 d.ts，签名会随宿主升级悄悄过期。
 //
 // 故意偏离官方签名的两处（升级复核时重点看）：
-//   1. DshTokenModes 的 light/dark 放宽为可选 —— src/engine/generate.mjs:39-41 在 delegated 画布下只写一半。
+//   1. DshTokenModes 的 light/dark 放宽为可选 —— src/engine/generate.ts 的 delegated 画布分支 在 delegated 画布下只写一半。
 //   2. DshLocaleService.register 的 namespace 放宽为 string —— 官方是 LocaleNamespaceMap 泛型键。
 // 说明：docs/research/ts-migration-typing-surface-105.md §6.2 是设计草案，落地后以本文件为准。
 // 动态版自由变量 host 无官方 d.ts（runner README 约定固定名）；若 runner 改成 invoke 语义需同步本文件。
@@ -40,7 +40,7 @@ interface DshThemeSnapshot {
 
 /**
  * 官方 ThemeTokenModes 两半必填；本仓 delegated 画布会只给一半
- * （src/engine/generate.mjs:39-41），故这里放宽为可选——这是有意的分歧点。
+ * （src/engine/generate.ts 的 delegated 画布分支），故这里放宽为可选——这是有意的分歧点。
  */
 interface DshTokenModes {
   readonly light?: string

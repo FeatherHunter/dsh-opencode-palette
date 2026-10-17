@@ -1,6 +1,6 @@
 // ip-presets.ts — IP 预置主题第二来源：src/custom-presets/ 21 套（含库洛米）。
 // 双来源口径：内置 38（registry，不动）+ IP 21（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
-// 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
+// 构建器把 JSON 内联进 bundle（build-client.ts CUSTOM_PRESETS_DIR），本文件只做字段收敛：
 // 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
 // name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
 import cyberpunk_2077 from '../custom-presets/cyberpunk-2077.json' with { type: 'json' }
