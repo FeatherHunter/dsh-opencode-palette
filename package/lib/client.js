@@ -18765,14 +18765,20 @@ const POP_GAP = 8
 const POP_MARGIN = 10
 const POP_FALLBACK = { left: 40, top: 120 }
 
+// 弹板首选方向（#93）：预览区控件贴锚点下方；左列色块入口贴入口右侧。
+// 只在这两个常量里出现一次字面量，调用方一律引用常量（避免拼写错误静默降级成贴下方）。
+const PLACE_BELOW = 'below'
+const PLACE_RIGHT = 'right'
+
 // 弹板锚定定位纯函数（#94）：anchor / bounds 形如 getBoundingClientRect() 的
-// { left, top, right, bottom }；size = { width, height } 为外框尺寸；side 为首选方向：
-//   'below'（默认）= 预览区控件：优先贴锚点下方（间距 POP_GAP），下方放不下翻上方；
-//   'right' = 左列色块入口（#93）：优先贴入口右侧垂直居中，右侧放不下翻左侧；
+// { left, top, right, bottom }；size = { width, height } 为外框尺寸；preferSide 为首选方向
+// （放不下会翻转/夹紧，所以是「偏好」不是结果）：
+//   PLACE_BELOW（预览区控件）：优先贴锚点下方（间距 POP_GAP），下方放不下翻上方；
+//   PLACE_RIGHT（左列色块入口，#93）：优先贴入口右侧垂直居中，右侧放不下翻左侧；
 //   两个方向都放不下时贴剩余空间更大的一侧并夹紧在 bounds 内（可能与锚点相交）；
 //   四边各留 POP_MARGIN。缺输入（anchor/bounds/size 或尺寸非正）返回 null，
 //   调用方给兜底位；SSR / 假宿主不抛。
-function popoverPosition(anchor, bounds, size, side) {
+function popoverPosition(anchor, bounds, size, preferSide) {
   if (!anchor || !bounds || !size) return null
   const w = size.width
   const h = size.height
@@ -18783,32 +18789,28 @@ function popoverPosition(anchor, bounds, size, side) {
   const maxTop = bounds.bottom - POP_MARGIN - h
   let left
   let top
-  if (side === 'right') {
+  if (preferSide === PLACE_RIGHT) {
     // #93：左列入口 —— 贴入口右侧垂直居中，右侧放不下翻左侧，两侧都不够按空间大的一侧夹紧。
     const right = anchor.right + POP_GAP
     const flipped = anchor.left - POP_GAP - w
     if (right <= maxLeft) left = right
     else if (flipped >= minLeft) left = flipped
-    else {
-      const roomRight = bounds.right - anchor.right
-      const roomLeft = anchor.left - bounds.left
-      left = roomRight >= roomLeft ? Math.min(right, maxLeft) : Math.max(flipped, minLeft)
-    }
-    left = Math.max(minLeft, Math.min(left, maxLeft))
-    const ah = typeof anchor.height === 'number' ? anchor.height : anchor.bottom - anchor.top
-    top = anchor.top + (ah - h) / 2
+    else left = bounds.right - anchor.right >= anchor.left - bounds.left ? right : flipped
+    top = anchor.top + (anchor.bottom - anchor.top - h) / 2
   } else {
-    left = Math.max(minLeft, Math.min(anchor.left, maxLeft))
+    // #94：预览区控件 —— 水平对齐锚点左缘；贴锚点下方，下方放不下翻上方。
+    left = anchor.left
     const below = anchor.bottom + POP_GAP
     const above = anchor.top - POP_GAP - h
     if (below >= minTop && below <= maxTop) top = below
     else if (above >= minTop && above <= maxTop) top = above
     else {
-      const roomBelow = bounds.bottom - anchor.bottom
-      const roomAbove = anchor.top - bounds.top
-      top = roomBelow >= roomAbove ? Math.max(below, minTop) : Math.min(above, maxTop)
+      top = bounds.bottom - anchor.bottom >= anchor.top - bounds.top
+        ? Math.max(below, minTop)
+        : Math.min(above, maxTop)
     }
   }
+  left = Math.max(minLeft, Math.min(left, maxLeft))
   if (top < minTop) top = minTop
   if (top > maxTop) top = maxTop
   return { left: Math.round(left), top: Math.round(top) }
@@ -19029,8 +19031,8 @@ function CustomEditor(props) {
   }, [pop ? pop.key : null, showPresets])
 
   // Popover 定位（#94 / #93）：两个入口都锚定被点元素——
-  //  · 预览区控件：pop.side='below'，贴被点元素下方（规则见 popoverPosition）；
-  //  · 左列色块入口：pop.side='right'，贴该行色块右侧垂直居中；
+  //  · 预览区控件：pop.preferSide=PLACE_BELOW，贴被点元素下方（规则见 popoverPosition）；
+  //  · 左列色块入口：pop.preferSide=PLACE_RIGHT，贴该行色块右侧垂直居中；
   //    边界 = 视口 ∩ 弹窗；锚点已从 DOM 移除 → 安全收起，不回滚已调颜色；
   //    弹窗内滚动 / 窗口 resize 时重算。
   h.useEffect(function () {
@@ -19056,7 +19058,7 @@ function CustomEditor(props) {
             right: Math.min(vw, dr.right), bottom: Math.min(vh, dr.bottom),
           }
         }
-        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.side) || POP_FALLBACK
+        const pos = popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide) || POP_FALLBACK
         setPopPos({ left: pos.left, top: pos.top })
       } catch (err) { setPopPos(POP_FALLBACK) }
     }
@@ -19068,7 +19070,7 @@ function CustomEditor(props) {
       w.removeEventListener('resize', place)
       if (d && typeof d.removeEventListener === 'function') d.removeEventListener('scroll', place, true)
     }
-  }, [pop ? pop.key : null, pop ? pop.anchor : null, pop ? pop.side : null])
+  }, [pop ? pop.key : null, pop ? pop.anchor : null])
 
   // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
   h.useEffect(function () {
@@ -19105,15 +19107,15 @@ function CustomEditor(props) {
     })
   }
 
-  function openPop(key, anchorEl, side) {
+  function openPop(key, anchorEl, preferSide) {
     const raw = colors[key]
     const norm = normalizeHexInput(raw)
     const anchor = anchorEl || null
-    // 侧向偏好：#93 左列色块入口贴右侧；预览控件默认贴下方。
-    const prefer = side === 'right' ? 'right' : 'below'
+    // 首选方向（#93）：左列色块入口贴右侧；预览控件默认贴下方。
+    const place = preferSide === PLACE_RIGHT ? PLACE_RIGHT : PLACE_BELOW
     // #94：同一入口再点一次 = 弹板保持原位、保留编辑中的颜色（不重放定位/不闪）；
     // 换锚点才清旧坐标 —— renderPop「没定位就不渲染」，避免旧位置闪一帧。
-    if (pop && pop.key === key && pop.anchor === anchor && pop.side === prefer && popPos) return
+    if (pop && pop.key === key && pop.anchor === anchor && popPos) return
     setPopPos(null)
     setPop({
       key: key,
@@ -19121,7 +19123,7 @@ function CustomEditor(props) {
       transparent: raw === 'transparent',
       orig: { hex: norm || effectiveSlotColor(key, colors, false), transparent: raw === 'transparent' },
       anchor: anchor,
-      side: prefer,
+      preferSide: place,
     })
     setShowPresets(false) // 原型 OPEN_POP 口径：开调色板时收起预置弹窗
     setHl(key)
@@ -19253,7 +19255,7 @@ function CustomEditor(props) {
         e('button', {
           'data-slot-row': key,
           title: tr('edPickTitle'),
-          onClick: function (ev) { openPop(key, ev.currentTarget, 'right') },
+          onClick: function (ev) { openPop(key, ev.currentTarget, PLACE_RIGHT) },
           [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
           style: Object.assign({
             width: '30px', height: '22px', borderRadius: '6px', cursor: 'pointer', flex: 'none', padding: 0,
