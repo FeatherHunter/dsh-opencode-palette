@@ -9271,8 +9271,8 @@ const FONTS = {
   'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
 }
 
-// ── 6. 自定义主题 37 色位元数据（#84，口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
-// 7 大分组 = 界面与背景 8 + 文字 2 + 品牌与状态 6 + 边框 2 + Diff 6 + Markdown 6 + 代码高亮 7 = 37
+// ── 6. 自定义主题 37 色位元数据（#84 建，#92 定稿组名；key 口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
+// 7 大分组 = 背景与表面 8 + 文字 2 + 品牌与状态 6 + 边框 2 + 改动对比 6 + Markdown 6 + 代码高亮 7 = 37
 // allowTransparent 仅 8 个背景槽为 true（其余 29 槽设 transparent 会被编辑器 reducer 拦截）；fallback 为 5 个扩展槽的默认继承源；previewSlot 为微缩画布 data-slot（恒等于 key）。
 const COLOR_SLOT_GROUPS = [
   { id: 'bg', keys: ['background', 'backgroundPanel', 'backgroundElement', 'sidebarBg', 'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg'] },
@@ -20104,15 +20104,15 @@ const I18N = {
   'cslot.syntaxString': { zh: '字符串', en: 'String' },
   'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
   // ── 37 色位作用说明 ──
-  'cslotUse.background': { zh: '窗口与各层浮面底', en: 'Window, layered surfaces and overlays' },
+  'cslotUse.background': { zh: '窗口与各层底色', en: 'Window and layered surfaces' },
   'cslotUse.backgroundPanel': { zh: '标签、多选与浮起按钮底', en: 'Tags, multi-select and raised buttons' },
-  'cslotUse.backgroundElement': { zh: 'Toast、提示与引用块底', en: 'Toasts, tips and quote surfaces' },
+  'cslotUse.backgroundElement': { zh: 'Toast、提示与引用块竖线', en: 'Toasts, tips and quote bars' },
   'cslotUse.sidebarBg': { zh: '侧边栏与标题行底', en: 'Sidebar and title row' },
-  'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble backdrop' },
+  'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble' },
   'cslotUse.inputBg': { zh: '消息输入框与登录框底', en: 'Message input and login box' },
-  'cslotUse.codeBlockBg': { zh: '代码块底', en: 'Code block backdrop' },
-  'cslotUse.codeHeaderBg': { zh: '代码卡片顶栏底', en: 'Code card header' },
-  'cslotUse.text': { zh: '正文、按钮字与代码默认色', en: 'Body, button labels and code foreground' },
+  'cslotUse.codeBlockBg': { zh: '代码块底', en: 'Code block' },
+  'cslotUse.codeHeaderBg': { zh: '代码块顶栏底', en: 'Code header' },
+  'cslotUse.text': { zh: '主要文字、按钮字与代码默认色', en: 'Primary text, button labels and code foreground' },
   'cslotUse.textMuted': { zh: '次要文字、说明与菜单图标', en: 'Captions, hints and menu icons' },
   'cslotUse.primary': { zh: '主按钮、品牌强调与选中态', en: 'Primary buttons, accents and selection' },
   'cslotUse.secondary': { zh: '空闲状态圆点', en: 'Idle status dot' },
@@ -20130,7 +20130,7 @@ const I18N = {
   'cslotUse.diffRemovedLineNumberBg': { zh: '－行行号栏底', en: 'Removed line-number gutter' },
   'cslotUse.markdownHeading': { zh: 'Markdown 标题', en: 'Markdown headings' },
   'cslotUse.markdownLink': { zh: '链接、锚点与代码链接', en: 'Links, anchors and code links' },
-  'cslotUse.markdownCode': { zh: '行内代码文字（无芯片底）', en: 'Inline code text (no chip fill)' },
+  'cslotUse.markdownCode': { zh: '行内代码文字（无底色）', en: 'Inline code text (no fill)' },
   'cslotUse.markdownEmph': { zh: '强调（斜体）文字', en: 'Emphasized (italic) text' },
   'cslotUse.markdownStrong': { zh: '加粗（重要）文字', en: 'Bold (important) text' },
   'cslotUse.markdownBlockQuote': { zh: '引用块文字', en: 'Quote text' },

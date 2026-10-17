@@ -79,9 +79,9 @@
 
 ## 自定义主题编辑器 161 键（`runtime/client.mjs`，#86 新增，与代码 I18N 逐行对账）
 
-中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
+中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬，为 #86 首版口径；#92 定稿行以本表与 `src/engine/map-dsh.mjs` 实测映射为准）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
 
-2026-10-17 #92 命名审查：7 组名、37 个色位名与 37 条作用说明按 DSH token 语义定稿（映射与实测证据见 #92）；下表变更行状态列标「#86 新增，#92 定稿」，其余行维持 #86 原文。
+2026-10-17 #92 命名审查：7 组名、37 个色位名与 37 条作用说明按 DSH token 语义定稿（映射与实测证据见 #92）；下表变更行状态列标「#86 新增，#92 定稿」，其余行维持 #86 原文；code-review 后修订的作用说明同样标 #92 定稿，最终口径以本表为准。
 
 | key | 定稿 zh | 定稿 en | 状态 |
 |---|---|---|---|
@@ -183,15 +183,15 @@
 | `cslot.syntaxNumber` | 数字 | Number | #86 新增 |
 | `cslot.syntaxString` | 字符串 | String | #86 新增 |
 | `cslot.syntaxOperator` | 运算符 | Operator | #86 新增 |
-| `cslotUse.background` | 窗口与各层浮面底 | Window, layered surfaces and overlays | #86 新增，#92 定稿 |
+| `cslotUse.background` | 窗口与各层底色 | Window and layered surfaces | #86 新增，#92 定稿 |
 | `cslotUse.backgroundPanel` | 标签、多选与浮起按钮底 | Tags, multi-select and raised buttons | #86 新增，#92 定稿 |
-| `cslotUse.backgroundElement` | Toast、提示与引用块底 | Toasts, tips and quote surfaces | #86 新增，#92 定稿 |
+| `cslotUse.backgroundElement` | Toast、提示与引用块竖线 | Toasts, tips and quote bars | #86 新增，#92 定稿 |
 | `cslotUse.sidebarBg` | 侧边栏与标题行底 | Sidebar and title row | #86 新增，#92 定稿 |
-| `cslotUse.bubbleBg` | 用户消息气泡底 | User message bubble backdrop | #86 新增 |
+| `cslotUse.bubbleBg` | 用户消息气泡底 | User message bubble | #86 新增，#92 定稿 |
 | `cslotUse.inputBg` | 消息输入框与登录框底 | Message input and login box | #86 新增，#92 定稿 |
-| `cslotUse.codeBlockBg` | 代码块底 | Code block backdrop | #86 新增 |
-| `cslotUse.codeHeaderBg` | 代码卡片顶栏底 | Code card header | #86 新增，#92 定稿 |
-| `cslotUse.text` | 正文、按钮字与代码默认色 | Body, button labels and code foreground | #86 新增，#92 定稿 |
+| `cslotUse.codeBlockBg` | 代码块底 | Code block | #86 新增，#92 定稿 |
+| `cslotUse.codeHeaderBg` | 代码块顶栏底 | Code header | #86 新增，#92 定稿 |
+| `cslotUse.text` | 主要文字、按钮字与代码默认色 | Primary text, button labels and code foreground | #86 新增，#92 定稿 |
 | `cslotUse.textMuted` | 次要文字、说明与菜单图标 | Captions, hints and menu icons | #86 新增，#92 定稿 |
 | `cslotUse.primary` | 主按钮、品牌强调与选中态 | Primary buttons, accents and selection | #86 新增，#92 定稿 |
 | `cslotUse.secondary` | 空闲状态圆点 | Idle status dot | #86 新增，#92 定稿 |
@@ -209,7 +209,7 @@
 | `cslotUse.diffRemovedLineNumberBg` | －行行号栏底 | Removed line-number gutter | #86 新增，#92 定稿 |
 | `cslotUse.markdownHeading` | Markdown 标题 | Markdown headings | #86 新增 |
 | `cslotUse.markdownLink` | 链接、锚点与代码链接 | Links, anchors and code links | #86 新增，#92 定稿 |
-| `cslotUse.markdownCode` | 行内代码文字（无芯片底） | Inline code text (no chip fill) | #86 新增，#92 定稿 |
+| `cslotUse.markdownCode` | 行内代码文字（无底色） | Inline code text (no fill) | #86 新增，#92 定稿 |
 | `cslotUse.markdownEmph` | 强调（斜体）文字 | Emphasized (italic) text | #86 新增，#92 定稿 |
 | `cslotUse.markdownStrong` | 加粗（重要）文字 | Bold (important) text | #86 新增，#92 定稿 |
 | `cslotUse.markdownBlockQuote` | 引用块文字 | Quote text | #86 新增，#92 定稿 |

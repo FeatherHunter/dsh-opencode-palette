@@ -72,9 +72,10 @@ opencode 主题约 50+ 语义色位；DSH 暴露 `--dsw-alias-*`（token 层）+
 
 | opencode 色位 | → DSH 输出 |
 |---|---|
-| background | 全部背景面：bg-base/layer-1/2/3/overlay/module-platform/multi-select、menu/selector/tip/bubble/bubble-highlight、markdown-tag/placeholder/citation/code-segment-unselected、sidebar-fill |
-| backgroundPanel | 输入框（input-major/login-input）、代码块底（markdown-code-block）、toast/tooltip 底 |
-| backgroundElement | 代码块横幅（markdown-code-block-banner）、按钮浮起面、滚动条轨 |
+| background | 页面底与各层底：bg-base/layer-1/2/3/overlay、markdown-code-segment-unselected |
+| backgroundPanel | 浮起面：markdown-tag/placeholder、bg-multi-select、button-elevated-fill/button-floating-fill |
+| backgroundElement | 浮层：markdown-citation（思考引用块竖线）、bg-module-platform、selector/tip/bubble-highlight、toast-bg/tooltip-bg |
+| sidebarBg / bubbleBg / inputBg / codeBlockBg / codeHeaderBg | DSH 专属槽（#84 起 37 色位见 `src/engine/map-dsh.mjs` COLOR_SLOTS）：sidebar-fill / bubble / input-major+login-input / markdown-code-block / code-block-banner+dsl-code-block-background |
 | text | label-primary（+inverted/dimmed/foreground）、shiki-foreground、markdown 正文 |
 | textMuted | label-secondary/tertiary/caption/dimmed、shiki-comment |
 | primary | brand-primary、button-primary-fill、markdownHeading（标题色） |
@@ -92,6 +93,8 @@ opencode 主题约 50+ 语义色位；DSH 暴露 `--dsw-alias-*`（token 层）+
 | markdownCode | 内联代码色 code:not(pre code) |
 | markdownEmph/Strong | 元素规则 em/strong |
 
+> 上表为架构概览；逐条映射以 `src/engine/map-dsh.mjs` 的 TOKEN_MAP / DERIVED_TOKENS / SHIKI_MAP / CSS_RULES 为准（本表部分行早于 #53/#84 的增补，若与代码表冲突以代码表为单源）。
+>
 > DSH 只认 10 个 shiki token 变量，opencode 有 9 个语法色位 + 若干 markdown 色位，
 > 故语法色做「角色相近合并」，合并规则集中在上表并文档化（可逐条调整）。
 
