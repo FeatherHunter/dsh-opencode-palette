@@ -46,7 +46,8 @@ interface MonoProbeDocument {
   createElement: (tagName: string) => MonoProbeCanvas
 }
 
-interface FontScope {
+// 浏览器最小面：调用方注入（真实 window）；导出给 runtime 侧直接标注，免去 Parameters<> 体操
+export interface FontScope {
   queryLocalFonts?: () => LocalFontData[] | PromiseLike<LocalFontData[]>
   navigator?: FontScopeNavigator | null
   document?: MonoProbeDocument | null

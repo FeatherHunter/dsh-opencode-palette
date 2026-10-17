@@ -36,6 +36,8 @@ const LOG_DIR_NAME = PLUGIN_ID;
 const SWITCH_FILE_NAME = 'log-switch-' + PLUGIN_ID + '.json';
 const RPC_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/;
 const ENDPOINT_PATTERN = /^[A-Za-z0-9_$.-]+$/;
+/** catch 变量的消息提取（运行时只读 errno 的 message；EAGAIN 等无 message 时退回 String(e)）。 */
+const errMessage = (e) => String((e && e.message) || e);
 /**
  * 装配时先把日志目录建好、把开关文件用缺省值物化（2026-09-19 修，真机噪声两则）。
  *
@@ -405,8 +407,8 @@ export function apply(ctx, opts) {
         }
         catch (e) {
             // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
-            fail('dispatch', String((e && e.message) || e));
-            return { ok: false, error: { code: 'internal', message: String((e && e.message) || e), details: {} } };
+            fail('dispatch', errMessage(e));
+            return { ok: false, error: { code: 'internal', message: errMessage(e), details: {} } };
         }
     };
     const routeFetch = async function (request) {
@@ -447,7 +449,7 @@ export function apply(ctx, opts) {
     }
     catch (e) {
         // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
-        const message = String((e && e.message) || e);
+        const message = errMessage(e);
         // 重复注册（live patch reload / 回滚重放）算让位：那个实例继续服务即可，不当故障。
         if (message.indexOf('already registered') >= 0 || message.indexOf('duplicate') >= 0)
             return;

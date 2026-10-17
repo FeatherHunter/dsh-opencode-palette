@@ -41,9 +41,12 @@ const SWITCH_FILE_NAME = 'log-switch-' + PLUGIN_ID + '.json'
 const RPC_ID_PATTERN = /^[A-Za-z0-9_-]{1,128}$/
 const ENDPOINT_PATTERN = /^[A-Za-z0-9_$.-]+$/
 
+/** catch 变量的消息提取（运行时只读 errno 的 message；EAGAIN 等无 message 时退回 String(e)）。 */
+const errMessage = (e: unknown): string => String((e && (e as { message?: unknown }).message) || e)
+
 /** 电话处理器：日志包的 handler 参数是 never、更新包是 Record<string, unknown>、自定义主题是外部 JSON，
- *  三家没有公共的非 any 可调用类型；any 只用于打通注册表，处理器内部仍逐个窄化。 */
-// any: 见上：三家上游 handler 的参数类型互不相同，Map 的 value 需要一个能同时容纳它们的调用面。
+ *  三家没有公共的非 any 可调用类型；Map 的 value 需要一个能同时容纳它们的调用面（any 仅用于打通注册表，
+ *  处理器内部仍逐个窄化）。 */
 type PhoneHandler = (args: any) => unknown
 
 /** apply 的可选第二参（测试专用）：readerOverrides 与默认 { runningVersion } 合并后交给更新包。 */
@@ -131,8 +134,8 @@ export function dshHomeDir(env: NodeJS.ProcessEnv | null | undefined, osHome: st
 // 落点：<DSH_HOME>/opencode-palette/custom-themes/<id>.json，单主题单文件，2 空格缩进，
 // 用户可手放/手改/互传。宿主半只做存储与消毒，不解析颜色语义（渲染时引擎再验）。
 //
-// 打包约束：package/lib/index.js 是本文件的原样复制，宿主在包内只能 import
-// './channel.ts' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
+// 打包约束：package/lib/index.js 是本文件的 tsc 转译输出（S2；构建读 dist/runtime/host.js），
+// 宿主在包内只能 import './channel.js' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
 // 内嵌值 = 引擎 extractPresetPalette('opencode').colors（dark，COLOR_SLOTS 顺序），
 // 由 tests/custom-themes-storage.test.ts 锁死一致：opencode.json 改了必须同步这里。
 
@@ -474,8 +477,8 @@ export function apply(ctx: DshContext, opts?: HostApplyOptions) {
       return { ok: true, value: await handler(args === null || args === undefined ? {} : args) }
     } catch (e) {
       // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
-      fail('dispatch', String((e && (e as { message?: unknown }).message) || e))
-      return { ok: false, error: { code: 'internal', message: String((e && (e as { message?: unknown }).message) || e), details: {} } }
+      fail('dispatch', errMessage(e))
+      return { ok: false, error: { code: 'internal', message: errMessage(e), details: {} } }
     }
   }
 
@@ -507,7 +510,7 @@ export function apply(ctx: DshContext, opts?: HostApplyOptions) {
     fetchRegistry.register({ path: ROUTE_PATH, methods: ['POST'], requestBody: 'buffered', fetch: routeFetch })
   } catch (e) {
     // 类型：catch 变量是 unknown；运行时只读 errno 的 message（判定逻辑不变）。
-    const message = String((e && (e as { message?: unknown }).message) || e)
+    const message = errMessage(e)
     // 重复注册（live patch reload / 回滚重放）算让位：那个实例继续服务即可，不当故障。
     if (message.indexOf('already registered') >= 0 || message.indexOf('duplicate') >= 0) return
     fail('register', message)

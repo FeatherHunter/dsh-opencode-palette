@@ -405,7 +405,8 @@ async function main(): Promise<void> {
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。
-    // node >=22：更新包 0.7.x 的 engines 要求（它按包名解析目标包，用到较新的 node:module 行为）
+    // node >=22.18.0：本包 .ts 脚本与测试由 Node 原生类型剥离直接运行（#106 §5.3）；
+    // 同时满足更新包 0.7.x 的 engines 要求（它按包名解析目标包，用到较新的 node:module 行为）
     engines: { node: '>=22.18.0', dsh: '>=0.2.0-rc.1' },
     dsh: {
       bundle: { patch: './cordis.patch.yml' },
@@ -428,7 +429,8 @@ async function main(): Promise<void> {
   await copyFile(join(RUNTIME_DIR, 'event-list.json'), join(PKG_DIR, 'lib', 'event-list.json'))
   // 宿主半与浏览器半共用的接线常量：宿主半按相对路径 import 它，随包一起发（转译输出，扩展名 .js）
   await copyFile(join(DIST_RUNTIME_DIR, 'channel.js'), join(PKG_DIR, 'lib', 'channel.js'))
-  // P3：channel 从「原样复制的 .mjs」改为 tsc 转译输出的 .js；清掉旧扩展名残留，保证产物树确定
+  // channel 自 P3 起为 tsc 转译输出的 .js（源 runtime/channel.ts）；清理历史工作树里的旧扩展名，
+  // 避免已废弃的 lib/channel.mjs 被 files 白名单一起 pack 出去。
   await rm(join(PKG_DIR, 'lib', 'channel.mjs'), { force: true })
   await writeFile(join(PKG_DIR, 'package.json'), JSON.stringify(pkgJson, null, 2) + '\n')
   // npm 包 README 用英文版（GitHub 首页 README.md 为中文版）；showcase 真实截图块不进包

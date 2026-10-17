@@ -6,7 +6,7 @@ import { FONTS } from '../src/engine/map-dsh.ts'
 import { BUNDLED_FONTS } from '../src/engine/font-face.ts'
 import { createFontAvailability } from '../src/engine/font-avail.ts'
 import { codeFontStack } from '../src/engine/generate.ts'
-import { buildFontCandidates, collectLocalFonts } from '../src/engine/local-fonts.ts'
+import { buildFontCandidates, collectLocalFonts, type FontScope } from '../src/engine/local-fonts.ts'
 import { computeMenuGeometry } from '../src/engine/float-geometry.ts'
 import { THEME_ZH, THEME_EN, themeSearchText } from '../src/engine/zh-names.ts'
 import { buildUpdateTokens, buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
@@ -426,9 +426,9 @@ const isFontAvailable = createFontAvailability(
 // 面板侧只在「读不到」时给「重试」入口，重试才强制重读。
 let localFontsCache: FontListCache | null = null
 function collectFontCandidates(): Promise<FontListCache> {
-  const scope = typeof window === 'undefined' ? null : window
-  // FontScope 未导出（只含 navigator/document/queryLocalFonts 三个可选字段）；运行时传的就是 window
-  return collectLocalFonts(scope as Parameters<typeof collectLocalFonts>[0]).then(function (res) {
+  // 运行时传的就是 window；DOM 的 Permissions.query 参数比引擎最小面更窄，结构上不直接兼容，故收窄 cast。
+  const scope: FontScope | null = typeof window === 'undefined' ? null : (window as unknown as FontScope)
+  return collectLocalFonts(scope).then(function (res) {
     const candidates = buildFontCandidates(res.ok ? res.fonts : [], isFontAvailable, res.mono, Object.keys(FONTS), BUNDLED_FONTS)
     localFontsCache = {
       candidates: candidates,
@@ -962,7 +962,9 @@ export function createClient(slotTarget: string) {
     }
 
     // ── 设置面板（组合 1：排印置顶 + 色系分组标签 + mini 芯片）──
+    // 两个注销器都在外层声明：registerEntries() 里赋值，卸载清理器在下方 if 块之外读取。
     let disposePanel: (() => void) | null = null
+    let disposeSection: (() => void) | null = null
     if (slots !== undefined && typeof document !== 'undefined') {
       // any: 注入对象由下方 paletteApi() 生成、被 Panel 消费，两处字段随版本演进；这里按鸭子调用，
       // 各字段的语义在 paletteApi() 上逐个注释（面板内部只做渲染，不做类型自证）。
@@ -2009,7 +2011,6 @@ export function createClient(slotTarget: string) {
       }
       // 设置页左侧导航直达入口（保留「设置 → 插件」内的原入口）
       // settings.section = 设置页左侧 section 列表（general=0 / models=10 / plugins=15 / agent-presets=20）
-      let disposeSection: (() => void) | null = null
       // 入口 label 跟随语言：宿主只在注册时读一次 label（中文启动后切英文，入口仍中文），
       // 故语言变化时 dispose 旧注册再重注一次，让宿主重读新语言 label。幂等，失败静默。
       function registerEntries() {
@@ -2048,9 +2049,6 @@ export function createClient(slotTarget: string) {
       return function () {
         try { clearStyle() } catch (e) { /* 忽略 */ }
         try { if (disposePanel) disposePanel() } catch (e) { /* 忽略 */ }
-        // 既有事实：disposeSection 声明在上方 if 块内（块外不可见），此处引用在运行时抛 ReferenceError，
-        // 被下面的 try/catch 吞掉。补类型不改行为，故只压错误（修作用域属于行为变更，另开票处理）。
-        // @ts-expect-error
         try { if (disposeSection) disposeSection() } catch (e) { /* 忽略 */ }
         try { if (globalThis.__opencodePalette) delete globalThis.__opencodePalette } catch (e) { /* 忽略 */ }
         try { if (dictDispose) dictDispose() } catch (e) { /* 忽略 */ }
