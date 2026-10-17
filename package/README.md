@@ -49,6 +49,8 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (Chinese / English).
 
+**Your own themes.** A 37-color visual editor tunes slot by slot, with a miniature DSH preview — click an element in the preview and the matching slot row jumps into view on the left, both ways; 20 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
+
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
 ```bash
@@ -79,15 +81,19 @@ If you like this plugin, you might also like:
 
 [@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred) 🌹; #55 caught follow-system persisting as dark 🌹
 
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
+[@gitwch1](https://github.com/gitwch1) — #73 found no repro on a fresh install, suggesting a missed DSH restart or a second theme plugin double-overriding 🌹
 
-[@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
+[@anci3ntr0ck](https://github.com/anci3ntr0ck) — #73 reported diff rows unreadable across most themes: tints sitting on the text, Nord a solid block 🌹
 
-[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK 🌹
+[@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
 
 [@anupamme](https://github.com/anupamme) — #32 flagged a missing check on theme downloads 🌹
 
-[@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
+[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK 🌹
+
+[@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
+
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
 
 </div>
 

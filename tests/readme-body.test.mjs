@@ -144,7 +144,7 @@ test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
   }
 })
 
-test('EXTENSIONS：不自贬也不摆卖方口吻，且只剩「丰富的字体」+「面板好找」两条', () => {
+test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+「面板好找」+「自定义主题」三条', () => {
   const extBlock = (t) => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
@@ -163,9 +163,18 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且只剩「丰富的字体�
   assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   assert.ok(ZH.includes('**丰富的字体。** 排印是独立维度：'), '中文首条应为「丰富的字体」')
   assert.ok(EN.includes('**Plenty of fonts.** Typography is its own dimension:'), '英文首条应为 "Plenty of fonts"')
-  // 只剩两条：字体 + 面板好找
+  // 三条：字体 + 面板好找 + 自定义主题（2026-10-17 补 v2.1.0 新功能一条）
   assert.equal(count(extBlock(ZH), '**面板好找。**'), 1, '中文应保留「面板好找」一条')
   assert.equal(count(extBlock(EN), '**A panel you can find.**'), 1, '英文应保留该条')
+  assert.equal(count(extBlock(ZH), '**自定义主题。**'), 1, '中文应新增「自定义主题」一条')
+  assert.equal(count(extBlock(EN), '**Your own themes.**'), 1, '英文应新增同形一条（逐块同形门禁盯着）')
+  // v2.1.0 事实：37 色编辑器 + 微缩预览双向定位 + 20 IP 预置基底 + 单文件落盘路径
+  assert.ok(extBlock(ZH).includes('37 色可视化编辑器'), '中文该条应讲到 37 色编辑器')
+  assert.ok(extBlock(EN).includes('37-color visual editor'), '英文该条应讲到 37 色编辑器')
+  for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
+    assert.ok(block.includes('20'), `${name} 该条应讲到 20 个 IP 预置基底`)
+    assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)
+  }
 })
 
 // ── 6 · 中英镜像：主体逐块同形，任一侧多一句就红 ──

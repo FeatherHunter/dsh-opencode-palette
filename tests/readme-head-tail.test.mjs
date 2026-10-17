@@ -61,7 +61,7 @@ const REMOVED_CAPSULES = [
   'ROADMAP',
 ]
 
-const CONTRIBUTORS = ['the-beating-light-of-the-nail', 'xiSage', 'Number444', 'anupamme', 'SRKBob', 'oopsdoes']
+const CONTRIBUTORS = ['oopsdoes', 'gitwch1', 'anci3ntr0ck', 'SRKBob', 'anupamme', 'Number444', 'xiSage', 'the-beating-light-of-the-nail']
 
 // ── 1 · 五枚胶囊在场，且顺序与链接目标与定稿一致 ──
 for (const [lang, table] of Object.entries(CAPSULES)) {
@@ -127,12 +127,16 @@ test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () 
   }
 })
 
-// ── 5 · THANKS：六人七 🌹，按花数排行（oopsdoes 两单两花置顶） ──
+// ── 5 · THANKS：八人九 🌹，按花数排行（GitHub 一手数据 2026-10-17 复核） ──
 // 用户 2026-09-17 复稿把唯一的外部 PR 作者记进来，旧口径「0 个 PR / PR 虚位以待」作废；
 // 2026-10-05 用户要求删掉首句「提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。」
 // （英文页同句一并删除），THANKS 段只剩贡献者逐条。
-// 2026-10-06 用户要求一单一花 + 按花数排行：@oopsdoes（#46、#55）两花置顶，其余一花按时间序。
-test('THANKS：六人七花，按花数排行（oopsdoes 两花置顶）', () => {
+// 2026-10-06 用户要求一单一花 + 按花数排行：@oopsdoes（#46、#55）两花置顶。
+// 2026-10-17 一手数据全量复核（89 issue + 1 PR，无分页丢失）：外部贡献者 8 人 9 花 ——
+//   新增 @gitwch1（#73 想法，1 花）与 @anci3ntr0ck（#73 报障，1 花），其余六人每人 1 花；
+//   同花数按最新贡献时间降序重排，故 @SRKBob(#43) 起依次为 #32 → #12 → #11 → #3，
+//   @the-beating-light-of-the-nail(#3) 落到最后一行。
+test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(thanks > -1, `${name} 应有 THANKS 段`)
@@ -142,18 +146,24 @@ test('THANKS：六人七花，按花数排行（oopsdoes 两花置顶）', () =>
       assert.ok(doc.slice(thanks).includes(`[@${handle}](https://github.com/${handle})`),
         `${name} 应点名 @${handle}`)
     }
-    // 按花数排行：oopsdoes（#46、#55，两花）置顶，其余一花按时间序 #3 → #11 → #12 → #32 → #43
+    // 按花数排行 + 同花数按最新贡献降序：@oopsdoes（#46、#55，两花）置顶，
+    // 其余一花依次 gitwch1 → anci3ntr0ck → SRKBob → anupamme → Number444 → xiSage → the-beating-light-of-the-nail。
+    // 用 handle 出现位置断言（gitwch1 与 anci3ntr0ck 同为 #73，比编号更稳）。
     const top = doc.slice(thanks)
-    const oops = top.indexOf('[@oopsdoes]')
-    const nail = top.indexOf('[@the-beating-light-of-the-nail]')
-    assert.ok(oops > -1 && nail > -1 && oops < nail, `${name} 应按花数排行，@oopsdoes（两花）置顶`)
+    const order = CONTRIBUTORS.map((h) => top.indexOf(`[@${h}]`))
+    assert.deepEqual(order, [...order].sort((a, b) => a - b),
+      `${name} 应按花数排行、同花数按最新贡献降序：${CONTRIBUTORS.join(' → ')}`)
+    for (const h of CONTRIBUTORS) assert.ok(top.indexOf(`[@${h}]`) > -1, `${name} 应点名 @${h}`)
+    // @oopsdoes 行应同时含 #46 与 #55，且 #46 在 #55 之前
     assert.ok(top.includes('#46') && top.includes('#55'), `${name} 的 @oopsdoes 行应同时含 #46 与 #55`)
     assert.ok(top.indexOf('#46') < top.indexOf('#55'), `${name} 的 #46 应在 #55 之前`)
-    const seq = ['#3 ', '#11 ', '#12 ', '#32 ', '#43 '].map((n) => top.indexOf(` ${n}`))
-    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 其余应保持 #3 → #11 → #12 → #32 → #43 时间序`)
+    // 新增两人都记的 #73 在段内；早于两人的旧单号保持 #32 → #12 → #11 → #3 的降序
+    assert.ok(top.includes('#73'), `${name} 应有 #73 的两条贡献`)
+    const seq = ['#32 ', '#12 ', '#11 ', '#3 '].map((n) => top.indexOf(` ${n}`))
+    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 其余应保持 #32 → #12 → #11 → #3 时间降序`)
     assert.ok(Math.max(...seq) > top.indexOf('#55'), `${name} 其余条目应排在 @oopsdoes 之后`)
-    // 一单一花：7 个单号（#3、#11、#12、#32、#43、#46、#55）对 7 朵 🌹
-    assert.equal(count(top, '🌹'), 7, `${name} 的 THANKS 应一单一花共 7 朵（首句已删，不再多算）`)
+    // 一单一花：9 个单号（#3、#11、#12、#32、#43、#46、#55、#73×2）对 9 朵 🌹
+    assert.equal(count(top, '🌹'), 9, `${name} 的 THANKS 应一单一花共 9 朵（首句已删，不再多算）`)
     // 旧口径不许回来：PR 邀请句已整句删除
     assert.equal(doc.includes('PR 虚位以待'), false, `${name} 不应再有「PR 虚位以待」`)
     assert.equal(doc.includes('PRs wanted'), false, `${name} 不应再有 "PRs wanted"`)

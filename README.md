@@ -73,6 +73,8 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
 
+**自定义主题。** 37 色可视化编辑器逐色位调，配微缩 DSH 预览——点预览里的元素就跳到左侧对应色位行，两边互相定位；20 个 IP 预置可当基底，存下来的主题落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
+
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
 ```bash
@@ -103,15 +105,19 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 [@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半）🌹、#55 揪出跟随系统写成深色 🌹
 
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
+[@gitwch1](https://github.com/gitwch1) — #73 用全新安装复现不出，提出漏重启 DSH 或被别的主题插件双重覆盖 🌹
 
-[@xiSage](https://github.com/xiSage) — #11 要任意系统字体，点开即列本机字体 🌹
+[@anci3ntr0ck](https://github.com/anci3ntr0ck) — #73 报大部分主题 diff 行看不清：增删底色压着文字，北极整条同色 🌹
 
-[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽 🌹
+[@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
 
 [@anupamme](https://github.com/anupamme) — #32 指出主题下载缺一道校验 🌹
 
-[@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
+[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽 🌹
+
+[@xiSage](https://github.com/xiSage) — #11 要任意系统字体，点开即列本机字体 🌹
+
+[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
 
 </div>
 
