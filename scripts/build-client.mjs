@@ -16,10 +16,12 @@
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
 // npm 包走各自的转换器（polyglot 形态：多行 import / export 列表带 as 别名）。
+// 逐行源码解析在 scripts/lib/source-parser.mjs（有单测；兼容现行手写风格与 tsc 默认 emit 的分号/双引号/.js）。
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseLine } from './lib/source-parser.mjs'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const ENGINE_DIR = join(ROOT, 'src', 'engine')
@@ -125,14 +127,11 @@ const MODULE_ORDER = [
   'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
 ]
 
-const JSON_IMPORT_RE = /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/
-const JS_IMPORT_RE = /^import \{ ([^}]+) \} from '\.\/([A-Za-z0-9_\/-]+)\.mjs'$/
-const PKG_IMPORT_RE = /^import \{ ([^}]+) \} from '([a-z0-9-]+\/[a-z0-9-]+)'$/
-const EXPORT_RE = /^export (function|const) (\w+)/
+// 引擎/运行时源码的 import/export 解析：见 scripts/lib/source-parser.mjs（本文件只消费 parseLine）。
 // npm 包 dist 的 ESM 形态：多行 import/export 列表，且带 as 别名
 const PKG_ESM_IMPORT_RE = /^[ \t]*import\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 const PKG_ESM_EXPORT_RE = /^[ \t]*export\s*\{([\s\S]*?)\};?/gm
-// 转出形态：`export { A, B as C } from './x.js'`（dsh-log 0.3.x config.js 通篇此形态）——必须先于 EXPORT_RE 处理
+// 转出形态：`export { A, B as C } from './x.js'`（dsh-log 0.3.x config.js 通篇此形态）——必须先于 PKG_ESM_EXPORT_RE 处理
 const PKG_ESM_EXPORT_FROM_RE = /^[ \t]*export\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 
 const q = (s) => JSON.stringify(s)
@@ -234,11 +233,15 @@ async function loadModule(key) {
   const body = []
   const exported = []
   for (const line of lines) {
-    let m = line.match(JSON_IMPORT_RE)
-    if (m) {
+    const parsed = parseLine(line)
+    if (parsed === null) {
+      body.push(line)
+      continue
+    }
+    if (parsed.type === 'json-import') {
       // JSON 数据内联（主题数据进 bundle，不落额外文件）：
       // 先 src/themes（TUI vendored），再 src/custom-presets（IP 预置第二来源）。
-      const base = m[2].split('/').pop()
+      const base = parsed.specifier.split('/').pop()
       let jsonText = null
       try {
         jsonText = await readFile(join(THEMES_DIR, base), 'utf8')
@@ -247,34 +250,31 @@ async function loadModule(key) {
         if (!e || e.code !== 'ENOENT') throw e
         jsonText = await readFile(join(CUSTOM_PRESETS_DIR, base), 'utf8')
       }
-      body.push('const ' + m[1] + ' = ' + jsonText.trim())
+      body.push('const ' + parsed.localName + ' = ' + jsonText.trim())
       continue
     }
-    m = line.match(JS_IMPORT_RE)
-    if (m) {
-      body.push('const { ' + m[1].replace(/\s+/g, ' ') + ' } = __mods[' + q(m[2].split('/').pop()) + ']')
+    if (parsed.type === 'js-import') {
+      body.push('const { ' + parsed.names.replace(/\s+/g, ' ') + ' } = __mods[' + q(parsed.specifier.split('/').pop()) + ']')
       continue
     }
-    m = line.match(PKG_IMPORT_RE)
-    if (m) {
-      const inline = INLINE_PACKAGES.filter((v) => v.spec === m[2])[0]
-      if (!inline) throw new Error('[build] 未登记的包引用：' + m[2] + '（模块 ' + key + '）')
-      body.push('const { ' + m[1].replace(/\s+/g, ' ') + ' } = __mods[' + q(inline.key) + ']')
+    if (parsed.type === 'pkg-import') {
+      const inline = INLINE_PACKAGES.filter((v) => v.spec === parsed.specifier)[0]
+      if (!inline) throw new Error('[build] 未登记的包引用：' + parsed.specifier + '（模块 ' + key + '）')
+      body.push('const { ' + parsed.names.replace(/\s+/g, ' ') + ' } = __mods[' + q(inline.key) + ']')
       continue
     }
-    m = line.match(EXPORT_RE)
-    if (m) {
-      exported.push(m[2])
-      body.push(line.replace(/^export /, ''))
+    if (parsed.type === 'export') {
+      exported.push(parsed.name)
+      body.push(parsed.strippedLine)
       continue
     }
-    // export { a, b } 重导出：名称并入本模块导出，行本身不输出
-    m = line.match(/^export \{ ([^}]+) \}$/)
-    if (m) {
-      for (const nm of m[1].split(',').map((s) => s.trim()).filter(Boolean)) exported.push(nm)
+    if (parsed.type === 're-export') {
+      // export { a, b } 重导出：名称并入本模块导出，行本身不输出
+      for (const nm of parsed.names) exported.push(nm)
       continue
     }
-    body.push(line)
+    // type-import：纯类型语句没有运行时语义，进 bundle 会语法错误，直接丢弃。
+    // （tsc 默认 emit 会删掉类型导入，这里兜住 verbatimModuleSyntax 等保留 import type 的配置。）
   }
   if (exported.length > 0) {
     body.push('__mods[' + q(key) + '] = { ' + exported.join(', ') + ' }')
