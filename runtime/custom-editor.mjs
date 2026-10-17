@@ -132,25 +132,38 @@ export function popoverPosition(anchor, bounds, size, preferSide) {
   const w = size.width
   const h = size.height
   if (!(w > 0) || !(h > 0)) return null
-  const minLeft = bounds.left + POP_MARGIN
-  const maxLeft = bounds.right - POP_MARGIN - w
-  const minTop = bounds.top + POP_MARGIN
-  const maxTop = bounds.bottom - POP_MARGIN - h
+  // 坐标全部取整：非整数锚点/边界（flex 居中在奇数视口宽度下会出 .5）若直接四舍五入，
+  // 「间距 8px」可能变成 8.5px；这里朝锚点方向 floor/ceil，保证贴边间距 ≤8px 且完整落在边界内。
+  const minLeft = Math.ceil(bounds.left + POP_MARGIN)
+  const maxLeft = Math.floor(bounds.right - POP_MARGIN - w)
+  const minTop = Math.ceil(bounds.top + POP_MARGIN)
+  const maxTop = Math.floor(bounds.bottom - POP_MARGIN - h)
   let left
   let top
   if (preferSide === PLACE_RIGHT) {
-    // #93：左列入口 —— 贴入口右侧垂直居中，右侧放不下翻左侧，两侧都不够按空间大的一侧夹紧。
-    const right = anchor.right + POP_GAP
-    const flipped = anchor.left - POP_GAP - w
+    // #93：左列入口 —— 贴入口右侧垂直居中；右侧放不下翻左侧；左右都放不下退到入口上方/下方
+    // （水平对齐入口），尽量不遮住入口；实在放不下才按剩余空间大的一侧夹紧（可能与锚点相交）。
+    const right = Math.floor(anchor.right) + POP_GAP
+    const flipped = Math.ceil(anchor.left) - POP_GAP - w
     if (right <= maxLeft) left = right
     else if (flipped >= minLeft) left = flipped
-    else left = bounds.right - anchor.right >= anchor.left - bounds.left ? right : flipped
-    top = anchor.top + (anchor.bottom - anchor.top - h) / 2
+    else {
+      const above = Math.ceil(anchor.top) - POP_GAP - h
+      const below = Math.floor(anchor.bottom) + POP_GAP
+      left = Math.round(anchor.left)
+      if (above >= minTop) top = above
+      else if (below <= maxTop) top = below
+      else {
+        left = bounds.right - anchor.right >= anchor.left - bounds.left ? right : flipped
+        top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2)
+      }
+    }
+    if (typeof top !== 'number') top = Math.round(anchor.top + (anchor.bottom - anchor.top - h) / 2)
   } else {
     // #94：预览区控件 —— 水平对齐锚点左缘；贴锚点下方，下方放不下翻上方。
-    left = anchor.left
-    const below = anchor.bottom + POP_GAP
-    const above = anchor.top - POP_GAP - h
+    left = Math.round(anchor.left)
+    const below = Math.floor(anchor.bottom) + POP_GAP
+    const above = Math.ceil(anchor.top) - POP_GAP - h
     if (below >= minTop && below <= maxTop) top = below
     else if (above >= minTop && above <= maxTop) top = above
     else {
@@ -162,7 +175,7 @@ export function popoverPosition(anchor, bounds, size, preferSide) {
   left = Math.max(minLeft, Math.min(left, maxLeft))
   if (top < minTop) top = minTop
   if (top > maxTop) top = maxTop
-  return { left: Math.round(left), top: Math.round(top) }
+  return { left: left, top: top }
 }
 
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
@@ -364,9 +377,10 @@ export function CustomEditor(props) {
           else setShowPresets(false)
           return
         }
-        // 对话框内、弹窗外：调色板保持原型行为（仅弹窗外且非 sw 行才 revert 由行点击接管）；
-        // #94：点预览区 [data-slot] 控件不当作「点外面」——同控件再点保持弹板，换控件由 clickSlot 换锚重定位。
-        const keepOpen = t && t.closest && (t.closest('[data-sw="' + pop.key + '"]') || t.closest('[data-slot]'))
+        // 对话框内、弹窗外：#94 起预览区 [data-slot] 控件与 #93 起左列色块入口
+        // [data-slot-row] 都是「调色盘入口」——点它们不算「点外面」：同入口再点保持弹板，
+        // 换入口由 openPop 换锚重定位。其余区域维持 #82 口径（mousedown 即 revert 收起）。
+        const keepOpen = t && t.closest && (t.closest('[data-slot]') || t.closest('[data-slot-row]'))
         if (pop && !keepOpen) closePop(true)
         else if (!pop && showPresets) setShowPresets(false)
       } catch (err) { /* 忽略 */ }
@@ -392,8 +406,7 @@ export function CustomEditor(props) {
       try {
         const vw = (w && w.innerWidth) || 1280
         const vh = (w && w.innerHeight) || 900
-        // 两个入口都必须带锚点（预览控件 / 左列色块自身）；缺了就安全收起。
-        if (!pop.anchor) { setPop(null); return }
+        // 两个入口（预览控件 / 左列色块）都携带锚点，见 openPop 调用点。
         // 锚点已从 DOM 移除：安全收起（票面「锚点失效」口径）
         if (pop.anchor.isConnected === false) { setPop(null); return }
         if (!w || typeof pop.anchor.getBoundingClientRect !== 'function') { setPopPos(POP_FALLBACK); return }

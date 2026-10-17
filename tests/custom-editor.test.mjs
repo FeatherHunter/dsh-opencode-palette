@@ -921,13 +921,29 @@ test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整
   assertInside(pos, narrow, 10, '窄弹窗')
   assert.ok(pos.left + POP_SIZE.width <= a.left, '右侧放不下 → 翻到入口左侧（不压住色块）')
   assert.ok(popRectGap(a, pos) <= 8, '与入口间距 ≤8px（翻左）')
-  // 色块左右两侧都放不下 276px：仍给出结果并夹在边界内（可能相交，但不出界、间距 ≤8px）。
+  // 色块左右两侧都放不下 276px：退到入口上方/下方（这里上下空间只够下方），不遮住入口。
   const tight = { left: 40, top: 60, right: 620, bottom: 760 }
   const b = anchorRect(300, 300, SWATCH.width, SWATCH.height)
   const p2 = popoverPosition(b, tight, POP_SIZE, 'right')
   assert.ok(p2, '两侧都不足时仍有结果')
   assertInside(p2, tight, 10, '两侧不足仍不越界')
-  assert.ok(popRectGap(b, p2) <= 8, '两侧不足时间距仍 ≤8px')
+  assert.equal(p2.top, 330, '左右都放不下 → 退到入口下方（底边 + 8）')
+  assert.ok(p2.top >= b.bottom + 8, '下方兜底不遮住入口')
+  assert.equal(popRectGap(b, p2), 8, '退到下方后与入口间距 ≤8px')
+  // 上下都有空间时优先退到上方（更常见的「向上翻」）；锚点在下半区。
+  const b2 = anchorRect(300, 600, SWATCH.width, SWATCH.height)
+  const p3 = popoverPosition(b2, tight, POP_SIZE, 'right')
+  assert.equal(p3.top, 274, '左右都放不下 → 退到入口上方（顶边 − 8 − 318）')
+  assert.equal(p3.top + POP_SIZE.height, 592, '上方兜底不遮住入口（弹板底 592 < 入口顶 600）')
+})
+
+test('#93：popoverPosition —— 非整数锚点/边界下坐标取整且间距仍 ≤8px', () => {
+  const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
+  const frac = popoverPosition(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
+  assert.equal(frac.left, 238, '贴右侧：floor(锚点右) + 8，间距 7.5px ≤ 8')
+  assert.equal(frac.top, 153, '垂直居中取整')
+  assert.ok(Number.isInteger(frac.left) && Number.isInteger(frac.top), '坐标恒为整数（不会出现 8.5px 间距）')
+  assert.ok(popRectGap(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), frac) <= 8, '间距 ≤8px')
 })
 
 test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不可见才滚动（源码结构）', () => {
@@ -954,8 +970,10 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   assert.ok(oseg.includes('anchor: anchor'), 'pop 状态记住被点元素')
   assert.ok(oseg.includes('if (pop && pop.key === key && pop.anchor === anchor && popPos) return'), '同一入口再点保持弹板（不重置坐标、保留编辑中颜色）')
   assert.ok(oseg.includes('setPopPos(null)'), '换锚点开新弹板先清旧坐标')
-  // 3b) 点预览 [data-slot] 控件不算「点弹窗外」：否则同控件重开会先被 mousedown revert 一次。
-  assert.ok(src.includes('const keepOpen') && src.includes("t.closest('[data-slot]')") && src.includes('if (pop && !keepOpen) closePop(true)'), '预览控件点击不当作弹窗外关闭')
+  // 3b) 点预览控件 / 左列色块（同为调色盘入口）都不算「点弹窗外」：否则同入口重开会先被 mousedown revert 一次。
+  assert.ok(src.includes("t.closest('[data-slot]') || t.closest('[data-slot-row]')"), '两类调色盘入口点击都不当作弹窗外关闭')
+  assert.equal(src.includes("data-sw="), false, '去掉失效的 data-sw 选择器（无元素渲染该属性）')
+  assert.ok(src.includes('if (pop && !keepOpen) closePop(true)'), '其余区域仍按 #82 口径 revert 收起')
   // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算；锚点脱离 DOM 安全收起。
   assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide)'), '锚点 rect 走纯函数定位（按入口类型选纵向/侧向规则）')
   assert.ok(src.includes('Math.max(0, dr.left)') && src.includes('Math.min(vw, dr.right)'), '边界 = 视口 ∩ 弹窗')
