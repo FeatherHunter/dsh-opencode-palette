@@ -792,3 +792,23 @@ test('m09582-3：窄视口顶栏按需换行 —— 控件不被弹窗裁掉（�
   assert.ok(src.includes("className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap'"), '顶栏按需换行（原型 .row1 是 nowrap）')
   assert.ok(src.includes("maxWidth: '96vw'"), '弹窗仍留 96vw 视口上限：回退手段是换行，不是放宽上限')
 })
+
+// ── 用户 m10028：Popover 先在屏幕左上角闪一帧再跳到目标位 ──
+// 机制：坐标由异步 effect 算出，而渲染侧写的是 `popPos || 兜底位` —— 首帧画的就是兜底位（屏幕左上角），
+// effect 跑完才跳到位。真 DOM 取证（.scratch-ed-dom.mjs 的 popflash 场景；MutationObserver 回调是微任务，
+// DOM 已提交而绘制未发生，取到的 rect 就是用户看到的第一帧）：
+//   改前 预置弹窗 insert=(16,86) → raf1=(16,86)（绘制时刻仍在左上角）→ t30=(540,112)；
+//        调色板     insert=(40,120) → t50=(189,203)；
+//   改后 预置弹窗 raf1=null（首帧还没渲染）→ insert=t30=(540,112)；调色板 insert=t50=final=(189,203)。
+test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再左上角闪一下）', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes('if (!pop || !popPos) return null'), '调色板：没定位就不渲染')
+  assert.ok(src.includes('if (!showPresets || !presetPos) return null'), '预置弹窗：没定位就不渲染')
+  assert.equal((src.match(/popPos \|\|/g) || []).length, 0, '不许再用 popPos || 兜底位画首帧')
+  assert.equal((src.match(/presetPos \|\|/g) || []).length, 0, '不许再用 presetPos || 兜底位画首帧')
+  assert.ok(src.includes('}, popPos)'), '调色板坐标只来自定位状态')
+  assert.ok(src.includes('}, presetPos)'), '预置弹窗坐标只来自定位状态')
+  // 兜底位仍要留给「量不到锚点」的失败路径：否则弹窗永远不出现，比闪一下更糟。
+  assert.ok(src.includes('setPopPos({ left: 40, top: 120 })'), '调色板量不到锚点时给兜底位')
+  assert.ok(src.includes('setPresetPos({ left: 10, top: 140 })'), '预置弹窗量不到锚点时给兜底位')
+})

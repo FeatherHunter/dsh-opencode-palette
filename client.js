@@ -18958,12 +18958,13 @@ function CustomEditor(props) {
   }, [pop ? pop.key : null, showPresets])
 
   // Popover 按行定位（原型 openPop/openPresetPop 视口坐标口径：fixed 弹窗，left/top 全是视口坐标）
+  // 定位失败时给一个兜底位（不能留 null：渲染侧要求「没定位就不渲染」，见 renderPop）。
   h.useEffect(function () {
     if (!pop) { setPopPos(null); return }
     try {
       const row = rowRefs.current[pop.key]
       const w = typeof window !== 'undefined' ? window : null
-      if (!row || !w || typeof row.getBoundingClientRect !== 'function') return
+      if (!row || !w || typeof row.getBoundingClientRect !== 'function') { setPopPos({ left: 40, top: 120 }); return }
       const r = row.getBoundingClientRect()
       const vw = w.innerWidth || 1280
       const vh = w.innerHeight || 900
@@ -18977,7 +18978,7 @@ function CustomEditor(props) {
       const top0 = r.bottom + 6
       const top = (top0 + 350 > vh) ? Math.max(10, r.top - 350 - 6) : Math.min(Math.max(10, vh - 350), Math.max(10, top0))
       setPopPos({ left: Math.round(left), top: Math.round(top) })
-    } catch (err) { /* 定位失败则用默认位 */ }
+    } catch (err) { setPopPos({ left: 40, top: 120 }) }
   }, [pop ? pop.key : null])
 
   // 预置弹窗定位（原型 openPresetPop 口径：fixed，宽 560，锚定选基底按钮）
@@ -18985,7 +18986,7 @@ function CustomEditor(props) {
     if (!showPresets) { setPresetPos(null); return }
     try {
       const w = typeof window !== 'undefined' ? window : null
-      if (!w) return
+      if (!w) { setPresetPos({ left: 10, top: 140 }); return }
       const W = 560
       const vw = w.innerWidth || 1280
       const vh = w.innerHeight || 900
@@ -18994,7 +18995,7 @@ function CustomEditor(props) {
       const left = Math.min(Math.max(10, vw - W - 20), Math.max(10, r ? r.left : vw / 2 - W / 2))
       const top = Math.min(Math.max(10, vh - 430), Math.max(10, r ? r.bottom + 6 : 140))
       setPresetPos({ left: Math.round(left), top: Math.round(top) })
-    } catch (err) { /* 定位失败则用默认位 */ }
+    } catch (err) { setPresetPos({ left: 10, top: 140 }) }
   }, [showPresets])
 
   // 预览底盘跟编辑器外观走（原型 effAppearance/renderMini 口径），不是只跟 OS。
@@ -19167,7 +19168,8 @@ function CustomEditor(props) {
 
   // ── 调色板 Popover ──
   function renderPop() {
-    if (!pop) return null
+    // 没定位就不渲染：定位是异步 effect，先按兜底位渲染会在屏幕左上角闪一帧再跳（用户 m10028）。
+    if (!pop || !popPos) return null
     const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
     const hsv = hexToHsv(pop.hex)
     const freq = distinctThemeColors(colors).slice(0, 8)
@@ -19223,7 +19225,7 @@ function CustomEditor(props) {
         position: 'fixed', zIndex: 60, width: '250px', background: TK.pop,
         border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-      }, popPos || { left: 40, top: 120 }),
+      }, popPos),
     },
       e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } },
         lang === 'en' ? meta.en : meta.zh),
@@ -19318,7 +19320,8 @@ function CustomEditor(props) {
 
   // ── 预置主题 Popover ──
   function renderPresetPop() {
-    if (!showPresets) return null
+    // 同上：定位（异步 effect）没算出来之前不渲染，避免「左上角闪一帧再跳到选基底按钮下方」。
+    if (!showPresets || !presetPos) return null
     const q = presetQuery.trim().toLowerCase()
     const match = function (n) {
       if (!q) return true
@@ -19335,7 +19338,7 @@ function CustomEditor(props) {
         position: 'fixed', zIndex: 60, width: '560px', maxWidth: '94vw',
         background: TK.pop, border: '1px solid ' + TK.borderStrong, borderRadius: '10px',
         padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
-      }, presetPos || { left: 16, top: 86 }),
+      }, presetPos),
     },
       e('input', {
         value: presetQuery, placeholder: tr('edPresetSearch'),
