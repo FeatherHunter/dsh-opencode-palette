@@ -18994,7 +18994,6 @@ function PalettePicker(props) {
   const e = h.createElement
   const tr = props.tr
   const trf = props.trf
-  const lang = props.lang === 'en' ? 'en' : 'zh'
   const allow = !!props.allowTransparent
   const value = props.value || { hex: '#000000', transparent: false }
   const startHex = normalizeHexInput(value.hex) || '#000000'
