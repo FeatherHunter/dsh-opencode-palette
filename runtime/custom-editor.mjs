@@ -20,15 +20,46 @@ const HL_CLS = 'dspe-hl'
 // 走弹窗内 <style> 挂载（与 syslabel 同法，随弹窗卸载），不写进全局 ui-fx 样式表（那是面板级动效）。
 const DLG_CSS = [
   '.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}',
-  '.dspe-dlg-left:hover{scrollbar-color:#3A3A44 transparent}',
+  '.dspe-dlg-left:hover{scrollbar-color:var(--dsw-alias-scrollbar-hover-l1, #3A3A44) transparent}',
   '.dspe-dlg-left::-webkit-scrollbar{width:10px;height:10px}',
   '.dspe-dlg-left::-webkit-scrollbar-track{background:transparent}',
   '.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent;border:2px solid transparent;border-radius:8px}',
-  '.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:#3A3A44;background-clip:padding-box;border:2px solid transparent;border-radius:8px}',
-  '.dspe-dlg-left::-webkit-scrollbar-thumb:hover{background:#4A4A55;background-clip:padding-box;border:2px solid transparent}',
+  '.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:var(--dsw-alias-scrollbar-hover-l1, #3A3A44);background-clip:padding-box;border:2px solid transparent;border-radius:8px}',
+  '.dspe-dlg-left::-webkit-scrollbar-thumb:hover{background:var(--dsw-alias-scrollbar-hover-l1, #4A4A55);background-clip:padding-box;border:2px solid transparent}',
   '.dspe-dlg-right{scrollbar-width:none}',
   '.dspe-dlg-right::-webkit-scrollbar{display:none;width:0 !important;height:0 !important}',
 ].join('')
+
+// ── 弹窗 chrome 语义 token（用户 m09582 需求 2：编辑/新增弹窗整体跟随当前系统主题，预览区除外）──
+// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源：src/engine/map-dsh.mjs），
+// 所以弹窗 chrome 直接吃 var() 就同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参。
+// 末尾兜底值 = 改造前的深色字面量：宿主没定义该 token 时观感与今天完全一致。
+// 不在此列（表达的是「被编辑主题」或「外观选项」本身，不随宿主走）：预览画布、右列画布底色、
+// 顶栏预览胶囊（capFace/capFg/capPrimary）、外观 seg 的深浅双色、色位 swatch 自身描边与透明棋盘格。
+const TK = {
+  win: 'var(--dsw-alias-bg-layer-1, #141419)',
+  panel: 'var(--dsw-alias-bg-layer-2, #1C1C21)',
+  pop: 'var(--dsw-alias-bg-overlay, #1B1B21)',
+  pop2: 'var(--dsw-alias-bg-overlay, #232329)',
+  border: 'var(--dsw-alias-border-l1, #33333A)',
+  borderStrong: 'var(--dsw-alias-border-l2, #3D3D47)',
+  borderStrong2: 'var(--dsw-alias-border-l2, #4A4A55)',
+  faint: 'var(--dsw-alias-border-l3, #55555F)',
+  divider: 'var(--dsw-alias-border-l1, #26262C)',
+  text: 'var(--dsw-alias-label-primary, #E7E7EA)',
+  textStrong: 'var(--dsw-alias-label-primary, #EDEDF2)',
+  text2: 'var(--dsw-alias-label-secondary, #A9A9B3)',
+  text3: 'var(--dsw-alias-label-tertiary, #8B8B95)',
+  accent: 'var(--dsw-alias-brand-primary, #FAB283)',
+  accentFg: 'var(--dsw-alias-label-primary-foreground, #141414)',
+  btnFill: 'var(--dsw-alias-button-primary-fill, #FAB283)',
+  hover: 'var(--dsw-alias-interactive-bg-hover, #1A1A20)',
+  danger: 'var(--dsw-alias-state-error-primary, #FF5252)',
+  dangerText: 'var(--dsw-alias-state-error-primary, #FF6B6B)',
+  dangerBorder: 'var(--dsw-alias-state-error-secondary, #C53B53)',
+  dangerSoft: 'var(--dsw-alias-state-error-secondary, #F08A97)',
+  dangerBg: 'var(--dsw-alias-interactive-bg-hover-danger, #2A1418)',
+}
 
 // 焦点圈样式（原型 .hl/.hl-edge 口径：prototype.html:175-178 + paintHl:893）。
 // 纯函数接缝：凡被 hl 命中的色位一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
@@ -40,7 +71,7 @@ export function slotRingStyle(hl, slot) {
   if (targets.indexOf(slot) < 0) return null
   const isEdge = (hl === 'border' || hl === 'borderActive') && slot === hl
   return {
-    boxShadow: isEdge ? '0 0 0 2px #FAB283' : 'inset 0 0 0 2px #FAB283',
+    boxShadow: isEdge ? '0 0 0 2px ' + TK.accent : 'inset 0 0 0 2px ' + TK.accent,
     animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
   }
 }
@@ -48,12 +79,20 @@ export function slotRingStyle(hl, slot) {
 // 视野内边距（px）：行边缘到列表上下沿留一点余量，贴边也当没进视野（用户 m09226 的「出现在视野中」）。
 const REVEAL_PAD = 8
 
-// 主题名输入框固定宽度（用户 m09433：一开始固定好宽度，输入名字不再让它变宽）。
+// 名字区固定总宽（用户 m09433「输入框别因输入变宽」→ 用户 m09582 需求 1「胶囊仍可随名字变长、输入框可变短，总量不变」）。
 // 原型 fitWidth 是「按输入文本量宽」（prototype.html:782 `textW(inp.value||placeholder)+24`、:788 `inp.style.width`），
-// 本票按用户口径偏离，钉死 200px：≈改前新建态实测 184 的观感、略宽好打字；1000 宽视口下顶行仍不溢出
-// （实测 240 会在 1000 视口加出 18px 溢出；200 归零）。注意弹窗是 width:max-content，光给 flex-basis
-// 不够 —— 输入框在 max-content 环境里会按内容自量宽，必须 width/min/max 全钉死且 flex:0 0 auto 才稳。
+// 本票按用户口径偏离：钉死「输入框 + 预览胶囊」这一区的总宽，区内自由分配。
+// 区宽 = 输入框基准 200 + 间隙 8 + 胶囊基准 114（新建态「（未命名）」实测宽）→ 新建态输入框恰好仍是 200px
+// （与 m09433 观感一致）；名字变长时胶囊先吃空间、输入框等比让位（下限 NAME_INPUT_MIN），
+// 胶囊超过区宽上限后自身收窄打省略号 —— 顶行总量恒定，弹窗不再随名字变宽/变窄。
+// 注意弹窗是 width:max-content：名字区必须 width/min/max 三向钉死才不参与 max-content 自量宽。
+// 区内两件也不能把「内容宽」泄漏给外层 max-content（实测：只钉区宽时 dlg 宽仍随名字在 718~878 间跳）——
+// 输入框 width:0 + flex-basis:0（百分比宽在自量宽里按 auto 算、会跟着 value 长度跑）、胶囊 max-width 封顶。
 const NAME_INPUT_W = 200
+const NAME_ZONE_W = 322
+const NAME_INPUT_MIN = 90
+// 胶囊自身上限 = 区宽 − 间隙 − 输入框下限（322 − 8 − 90 = 224）；超过就打省略号。
+const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN
 
 // 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
 // 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
@@ -139,7 +178,8 @@ export function CustomEditor(props) {
   const nameRef = h.useRef(null)
   const targetRef = h.useRef(null)
   const rrightRef = h.useRef(null)
-  // 顶栏拟宽（原型 fitWidth 口径：prototype.html:750-799，量字设输入/下拉宽，再定 dlg 宽 + 左列名齐宽）
+  // 编辑态下拉「按选中项文字定宽」+ 左列 .nm 齐宽（原型 fitWidth 口径：prototype.html:750-799 的这两段仍在）。
+  // 名字区与弹窗总宽已交回 CSS（定宽名字区 + width:max-content），见下方注释（用户 m09582 需求 1）。
   h.useEffect(function () {
     try {
       const dlg = dlgRef.current
@@ -168,33 +208,10 @@ export function CustomEditor(props) {
         let guard = 0
         while (guard++ < 5 && sel.scrollWidth > sel.clientWidth + 1 && sw < 240) { sw += 8; sel.style.width = sw + 'px' }
       }
-      const inp = nameRef.current
-      if (inp) {
-        const t = inp.value || inp.placeholder || ''
-        const cs = win.getComputedStyle(inp)
-        let nw = textW(t, cs) + 24
-        const req = inp.parentNode ? inp.parentNode.querySelector('span:last-child') : null
-        if (req && req !== inp && req.offsetWidth) nw += req.offsetWidth + 18
-        const cssMin = parseFloat(cs.minWidth)
-        if (!isNaN(cssMin)) nw = Math.max(nw, cssMin)
-        const final = Math.max(90, nw)
-        inp.style.width = final + 'px'
-      }
-      const row = rowRef.current
-      if (row && row.children) {
-        let need = 0, n = 0
-        const rr = rrightRef.current
-        Array.prototype.forEach.call(row.children, function (zone) {
-          if (rr && zone === rr) { need += zone.offsetWidth; n++; return }
-          Array.prototype.forEach.call(zone.children || [], function (it) {
-            if (it.querySelector && it.querySelector('input')) { need += (inp ? inp.offsetWidth : 150); n++; return }
-            need += it.offsetWidth; n++
-          })
-          if (!zone.children || !zone.children.length) { need += zone.offsetWidth; n++ }
-        })
-        need += 10 * Math.max(0, n - 1) + 32
-        dlg.style.width = Math.round(need) + 'px'
-      }
+      // 名字区自 m09582 起是定宽区（CSS flex 分配，见 NAME_ZONE_W），输入框宽度与弹窗总宽都不再量字设定：
+      // 原型 fitWidth 的这两段（prototype.html:782-788 量字定输入框宽、:790-799 累加定 dlg 宽）已失效且有害 ——
+      // 累加里含输入框的即时宽度，会把「名字越长弹窗越窄」带回来（实测 dlg 722~882 随名字跳、顶行溢出 106~230px）。
+      // 现在弹窗宽交给 CSS width:max-content（名字区已定值，max-content 实测恒定），顶行不再溢出。
       const nms = dlg.querySelectorAll('.nm')
       if (nms && nms.length) {
         let mw = 0
@@ -449,7 +466,7 @@ export function CustomEditor(props) {
       key: 'g-' + g.id,
       style: { fontSize: '12px', color: '#9D7CD8', margin: leftRows.length === 0 ? '0 0 6px' : '10px 0 6px' },
     }, lang === 'en' ? gm.en : gm.zh, hasTrans ? e('span', {
-      style: { fontSize: '10px', color: '#7FD88F', border: '1px solid #3D9A57', borderRadius: '4px', padding: '0 6px', marginLeft: '6px', whiteSpace: 'nowrap' },
+      style: { fontSize: '10px', color: 'var(--dsw-alias-state-success-primary, #7FD88F)', border: '1px solid var(--dsw-alias-state-success-secondary, #3D9A57)', borderRadius: '4px', padding: '0 6px', marginLeft: '6px', whiteSpace: 'nowrap' },
     }, tr('edTransparentFlag')) : null))
     for (const key of g.keys) {
       const meta = (props.slotMeta && props.slotMeta[key]) || { zh: key, en: key, useZh: '', useEn: '', allow: false }
@@ -470,8 +487,8 @@ export function CustomEditor(props) {
         onMouseLeave: function () { if (!pop || pop.key !== key) setHl(null); setHovered(null) },
         style: {
           display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '6px', padding: '5px 4px',
-          border: '1px solid ' + (isTarget ? '#FAB283' : (isHovered ? '#2A2A31' : 'transparent')), borderRadius: '8px',
-          background: isTarget ? '#1E1A14' : (isHovered ? '#1A1A20' : 'transparent'),
+          border: '1px solid ' + (isTarget ? TK.accent : (isHovered ? 'var(--dsw-alias-border-l2-darkmode-thin, #2A2A31)' : 'transparent')), borderRadius: '8px',
+          background: isTarget ? 'var(--dsw-alias-interactive-bg-hover-accent, #1E1A14)' : (isHovered ? TK.hover : 'transparent'),
           cursor: 'default', position: 'relative',
         },
       },
@@ -486,12 +503,12 @@ export function CustomEditor(props) {
               style: {
                 position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
                 transform: 'translate(' + (-rowShift) + 'px, -50%)',
-                background: '#FAB283', color: '#141419', fontSize: '10px', fontFamily: 'Consolas,monospace',
+                background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
                 borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 4,
               },
             }, key) : null
           ),
-          e('small', { style: { display: 'block', fontSize: '11px', color: '#A0A0A8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
+          e('small', { style: { display: 'block', fontSize: '11px', color: 'var(--dsw-alias-label-tertiary, #A0A0A8)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
         e('button', {
           'data-slot-row': key,
           title: tr('edPickTitle'),
@@ -502,7 +519,7 @@ export function CustomEditor(props) {
             border: '1px solid #00000066',
           }, swStyle),
         }),
-        e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: '#C8C8D0', minWidth: 0, flex: 'none' } }, shown),
+        e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: 'var(--dsw-alias-label-secondary, #C8C8D0)', minWidth: 0, flex: 'none' } }, shown),
       ))
     }
   }
@@ -562,8 +579,8 @@ export function CustomEditor(props) {
     return e('div', {
       key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
-        position: 'fixed', zIndex: 60, width: '250px', background: '#1B1B21',
-        border: '1px solid #3D3D47', borderRadius: '10px', padding: '12px',
+        position: 'fixed', zIndex: 60, width: '250px', background: TK.pop,
+        border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos || { left: 40, top: 120 }),
     },
@@ -598,7 +615,7 @@ export function CustomEditor(props) {
         style: { width: '100%', margin: '4px 0 8px' },
       }),
       freq.length ? e('div', null,
-        e('div', { style: { fontSize: '11px', color: '#8B8B95' } }, tr('edFreq')),
+        e('div', { style: { fontSize: '11px', color: TK.text3 } }, tr('edFreq')),
         e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '6px 0' } }, freq.map(function (c) {
           return e('button', {
             key: 'fq-' + c,
@@ -622,11 +639,11 @@ export function CustomEditor(props) {
               setColor(pop.key, norm, false)
             }
           },
-          style: { minWidth: 0, flex: 1, background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px' },
+          style: { minWidth: 0, flex: 1, background: TK.panel, color: TK.text, border: '1px solid ' + TK.border, borderRadius: '6px', padding: '6px 10px', fontSize: '12px' },
           [UI_INTERACTIVE_ATTR]: TIER_INPUT,
         }),
         meta.allow ? e('label', {
-          style: { fontSize: '11px', color: '#A9A9B3' },
+          style: { fontSize: '11px', color: TK.text2 },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         },
           e('input', {
@@ -646,13 +663,13 @@ export function CustomEditor(props) {
             setColor(pop.key, norm || pop.hex, pop.transparent && !norm ? false : pop.transparent)
             setPop(null)
           },
-          style: { background: '#FAB283', border: '1px solid #FAB283', color: '#141414', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
+          style: { background: TK.btnFill, border: '1px solid ' + TK.btnFill , color: TK.accentFg, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
         }, tr('edOk')),
         e('button', {
           onClick: function () { closePop(true) },
           [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: { background: 'transparent', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+          style: { background: 'transparent', color: TK.text, border: '1px solid ' + TK.border, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
         }, tr('edClosePop'))
       )
     )
@@ -675,7 +692,7 @@ export function CustomEditor(props) {
       key: 'presetpop', id: 'presetPop',
       style: Object.assign({
         position: 'fixed', zIndex: 60, width: '560px', maxWidth: '94vw',
-        background: '#1B1B21', border: '1px solid #3D3D47', borderRadius: '10px',
+        background: TK.pop, border: '1px solid ' + TK.borderStrong, borderRadius: '10px',
         padding: '12px', boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, presetPos || { left: 16, top: 86 }),
     },
@@ -683,18 +700,18 @@ export function CustomEditor(props) {
         value: presetQuery, placeholder: tr('edPresetSearch'),
         onChange: function (ev) { setPresetQuery(ev.target.value) },
         [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        style: { width: '100%', boxSizing: 'border-box', background: '#1C1C21', color: '#E7E7EA', border: '1px solid #33333A', borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
+        style: { width: '100%', boxSizing: 'border-box', background: TK.panel, color: TK.text, border: '1px solid ' + TK.border, borderRadius: '6px', padding: '6px 10px', fontSize: '12px', marginBottom: '8px' },
       }),
-      e('div', { style: { maxHeight: '280px', overflow: 'auto', background: '#1C1C21', border: '1px solid #33333A', borderRadius: '8px', padding: '8px 10px' } },
+      e('div', { style: { maxHeight: '280px', overflow: 'auto', background: TK.panel, border: '1px solid ' + TK.border, borderRadius: '8px', padding: '8px 10px' } },
         visGroups.map(function (x, gi) {
           const g = x.g
           const names = x.names
-          const gcolor = g.color || '#8B8B95'
+          const gcolor = g.color || TK.text3
           return e('div', { key: 'pg-' + g.title, style: { marginBottom: gi < visGroups.length - 1 ? '10px' : '0' } },
-            e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: '#A9A9B3', marginBottom: '6px' } },
+            e('div', { style: { display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', color: TK.text2, marginBottom: '6px' } },
               e('span', { style: { width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block', background: gcolor } }),
               g.title,
-              e('span', { style: { fontSize: '11px', color: '#A9A9B3' } }, String((g.names || []).length))),
+              e('span', { style: { fontSize: '11px', color: TK.text2 } }, String((g.names || []).length))),
             e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } }, names.map(function (n) {
               const p = findPreset(n)
               const cc = (p && p.colors) || {}
@@ -711,15 +728,15 @@ export function CustomEditor(props) {
                 [UI_INTERACTIVE_ATTR]: TIER_CHIP,
                 style: {
                   display: 'inline-flex', alignItems: 'center', gap: '5px', background: bg, color: fg,
-                  border: (psel ? '2px solid #FAB283' : '1px solid ' + dot), borderRadius: '6px',
+                  border: (psel ? '2px solid ' + TK.accent : '1px solid ' + dot), borderRadius: '6px',
                   padding: '3px 8px 3px 5px', margin: psel ? '-1px' : '0',
                   fontSize: '11px', fontFamily: 'Consolas,Menlo,monospace', cursor: 'pointer', whiteSpace: 'nowrap',
-                  outline: psel ? '1px solid #FAB283' : undefined,
+                  outline: psel ? '1px solid ' + TK.accent : undefined,
                 },
               },
                 e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: dot } }),
                 label,
-                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: '#FAB283', visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
+                e('i', { style: { fontStyle: 'normal', fontWeight: 700, color: TK.accent, visibility: psel ? 'visible' : 'hidden' } }, ICON_CHECK))
             })))
         }))
     )
@@ -971,16 +988,19 @@ export function CustomEditor(props) {
       style: {
         // 高度由预览区唯一决定（用户 m08383：正好展示完全预览区）；-36px = backdrop 上下 padding，保证真居中
         width: 'max-content', maxWidth: '96vw', maxHeight: 'calc(100vh - 36px)', overflow: 'hidden',
-        margin: 'auto', flex: 'none', background: '#141419', border: '1px solid #33333A',
-        borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: '#EDEDF2',
+        margin: 'auto', flex: 'none', background: TK.win, border: '1px solid ' + TK.border,
+        borderRadius: '12px', display: 'flex', flexDirection: 'column', position: 'relative', color: TK.textStrong,
       },
     },
       // 顶栏（原型 .dlg-top > .row1：rleft + rright 单行；无 X 钮，关闭走取消/backdrop）
-      e('div', { style: { padding: '10px 16px', borderBottom: '1px solid #26262C', display: 'flex', flexDirection: 'column', gap: '8px' } },
-        e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'nowrap', overflow: 'visible' } },
+      e('div', { style: { padding: '10px 16px', borderBottom: '1px solid ' + TK.divider, display: 'flex', flexDirection: 'column', gap: '8px' } },
+        // 原型 .row1 是 nowrap；这里改 wrap：窄视口下弹窗被 maxWidth:96vw 卡住、顶行内容更宽时会换行，
+        // 而不是把外观三连顶到弹窗外面（编辑态顶行要约 1257px，1256 视口的 96vw 只有 1205 → 实测外溢 66px，
+        // 改前名字越长越糟、最长名可外溢 573px）。用户口径优先于原型：宁可行落成两行，也不许控件被裁。
+        e('div', { ref: rowRef, className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap', overflow: 'visible' } },
           e('span', { className: 'rleft', style: { display: 'flex', alignItems: 'center', gap: '8px', flex: 'none', minWidth: 0, flexWrap: 'nowrap', overflow: 'visible' } },
             e('span', {
-              style: { fontSize: '16px', fontWeight: 700, color: '#E7E7EA', background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
+              style: { fontSize: '16px', fontWeight: 700, color: TK.text, background: 'none', padding: 0, marginRight: '2px', whiteSpace: 'nowrap', flex: 'none' },
             }, mode === 'edit' ? tr('edModeEdit') : tr('edModeNew')),
             mode === 'edit' && editTgt ? e('span', {
               title: tr('edTagTitle'),
@@ -1002,54 +1022,61 @@ export function CustomEditor(props) {
               onChange: function (ev) { switchTarget(ev.target.value) },
               [UI_INTERACTIVE_ATTR]: TIER_INPUT,
               style: {
-                background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
+                background: TK.panel, border: '1px solid ' + TK.border , color: TK.text, borderRadius: '6px',
                 padding: '6px 10px', fontSize: '12px', height: '32px', flex: '0 1 150px', minWidth: 0, maxWidth: '230px',
               },
             }, (props.customs || []).map(function (t) {
               return e('option', { key: 'tg-' + t.id, value: t.id }, t.name)
             })) : null,
-            e('span', { style: { position: 'relative', flex: '0 0 auto', minWidth: 0, display: 'flex' } },
-              e('input', {
-                ref: nameRef, id: 'f-name',
-                value: name, placeholder: tr('edNamePh'),
-                title: name.trim() ? '' : tr('edNameEmpty'),
-                'aria-invalid': !name.trim() ? 'true' : undefined,
-                onChange: function (ev) { setName(ev.target.value) },
-                [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-                style: Object.assign({
-                  background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '6px',
-                  boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px',
-                  // 固定宽度（用户 m09433）：width/min/max 全钉死 + 不参与伸缩（flex:0 0 auto）→ 输入内容再长也不变宽。
-                  flex: '0 0 auto', width: NAME_INPUT_W + 'px', minWidth: NAME_INPUT_W + 'px', maxWidth: NAME_INPUT_W + 'px',
-                }, !name.trim() ? { borderColor: '#FF5252', boxShadow: '0 0 0 1px #FF5252' } : null),
-              }),
-              !name.trim() ? e('span', {
+            // 名字区（用户 m09582 需求 1）：定宽 NAME_ZONE_W，区内「输入框 + 预览胶囊」自由分配 ——
+            // 胶囊随名字变长 → 输入框等比变短（下限 NAME_INPUT_MIN）；胶囊到顶后自己收窄打省略号。整行总量不变。
+            e('span', { style: { display: 'flex', alignItems: 'center', gap: '8px', flex: '0 0 auto', width: NAME_ZONE_W + 'px', minWidth: NAME_ZONE_W + 'px', maxWidth: NAME_ZONE_W + 'px' } },
+              e('span', { style: { position: 'relative', flex: '1 1 0px', minWidth: NAME_INPUT_MIN + 'px', display: 'flex' } },
+                e('input', {
+                  ref: nameRef, id: 'f-name',
+                  value: name, placeholder: tr('edNamePh'),
+                  title: name.trim() ? '' : tr('edNameEmpty'),
+                  'aria-invalid': !name.trim() ? 'true' : undefined,
+                  onChange: function (ev) { setName(ev.target.value) },
+                  [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+                  style: Object.assign({
+                    background: TK.panel, border: '1px solid ' + TK.border, color: TK.text, borderRadius: '6px',
+                    boxSizing: 'border-box', padding: '6px 10px', fontSize: '12px', height: '32px',
+                    // 区内自由伸缩：宽度给 0（百分比宽会被 max-content 当成 auto、按输入内容自量宽，进而把弹窗带宽），
+                    // 实际宽度全部由 flex 在定宽区内分配 —— 胶囊越长输入框越短。
+                    flex: '1 1 0px', width: '0px', minWidth: 0,
+                  }, !name.trim() ? { borderColor: TK.danger, boxShadow: '0 0 0 1px ' + TK.danger } : null),
+                }),
+                !name.trim() ? e('span', {
+                  style: {
+                    position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
+                    fontSize: '11px', color: TK.dangerText, border: '1px solid ' + TK.danger, borderRadius: '4px',
+                    padding: '0 6px', pointerEvents: 'none', background: TK.panel, whiteSpace: 'nowrap',
+                  },
+                }, tr('edNoName')) : null),
+              e('span', {
+                title: tr('edCapTitle'),
                 style: {
-                  position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)',
-                  fontSize: '11px', color: '#FF6B6B', border: '1px solid #FF5252', borderRadius: '4px',
-                  padding: '0 6px', pointerEvents: 'none', background: '#1C1C21', whiteSpace: 'nowrap',
+                  display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
+                  padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
+                  background: capFace, color: capFg, border: '2px solid ' + capPrimary, margin: '-1px',
+                  cursor: 'default', flex: '0 1 auto', minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap',
+                  // 封顶：胶囊的「内容宽」同样会漏进弹窗 max-content 自量宽，加上限后整窗宽度才真正恒定。
+                  maxWidth: NAME_CAP_MAX + 'px',
                 },
-              }, tr('edNoName')) : null),
-            e('span', {
-              title: tr('edCapTitle'),
-              style: {
-                display: 'inline-flex', alignItems: 'center', gap: '7px', borderRadius: '7px',
-                padding: '4px 10px 4px 6px', fontSize: '12px', fontFamily: '"JetBrains Mono",Consolas,monospace',
-                background: capFace, color: capFg, border: '2px solid ' + capPrimary, margin: '-1px',
-                cursor: 'default', flex: 'none', whiteSpace: 'nowrap',
               },
-            },
-              e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: capPrimary } }),
-              capName,
-              e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700 } }, ICON_CHECK)),
-            capLightT ? e('span', { style: { fontSize: '11px', color: '#8B8B95', flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null,
+                e('span', { style: { width: '9px', height: '9px', borderRadius: '50%', display: 'inline-block', flex: 'none', background: capPrimary } }),
+                // 名字超长时胶囊内省略号收尾（区宽到顶后胶囊才被压缩，见上一行 flex）。
+                e('span', { style: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 } }, capName),
+                e('i', { style: { color: capPrimary, fontStyle: 'normal', fontWeight: 700, flex: 'none' } }, ICON_CHECK))),
+            capLightT ? e('span', { style: { fontSize: '11px', color: TK.text3, flex: 'none' } }, lang === 'en' ? '(transparent shows as white in light mode)' : '（浅色下透明处显示为白色）') : null,
             e('button', {
               ref: presetBtnRef, id: 'f-presetbtn',
               title: tr('edPresetTitle'),
               onClick: function () { setPop(null); setShowPresets(!showPresets) },
               [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
-                background: '#1C1C21', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px',
+                background: TK.panel, border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px',
                 padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
                 cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
               },
@@ -1067,7 +1094,7 @@ export function CustomEditor(props) {
                 style: {
                   display: 'inline-flex', alignItems: 'center', borderRadius: '5px', padding: '1px 8px',
                   fontSize: '11px', marginLeft: '6px', whiteSpace: 'nowrap',
-                  border: '1px dashed #55555F', color: '#8B8B95', background: 'transparent',
+                  border: '1px dashed ' + TK.faint, color: TK.text3, background: 'transparent',
                 },
               }, tr('edNoBase')))
           ),
@@ -1090,7 +1117,7 @@ export function CustomEditor(props) {
                     border: '1px solid', fontSize: '12px', display: 'inline-flex', alignItems: 'center',
                     gap: '6px', cursor: 'pointer', height: '32px', padding: '0 14px', borderRadius: '7px',
                     fontWeight: on ? 700 : 400, whiteSpace: 'nowrap',
-                  }, segBase, on ? { boxShadow: 'inset 0 0 0 2px #FAB283' } : null),
+                  }, segBase, on ? { boxShadow: 'inset 0 0 0 2px ' + TK.accent } : null),
                 }, a === 'dark' ? ICON_MOON : (a === 'light' ? ICON_SUN : ICON_SYS), ' ', a === 'system' ? e('span', {
                   className: 'syslabel',
                   style: { color: '#F0F0F0' },
@@ -1101,29 +1128,29 @@ export function CustomEditor(props) {
                 role: 'alertdialog', 'aria-label': tr('edDelete'),
                 style: {
                   position: 'absolute', top: 'calc(100% + 8px)', right: 0, zIndex: 70,
-                  width: 'max-content', maxWidth: 'min(300px,86vw)', background: '#232329',
-                  border: '1px solid #4A4A55', borderRadius: '10px', padding: '10px 12px',
+                  width: 'max-content', maxWidth: 'min(300px,86vw)', background: TK.pop2,
+                  border: '1px solid ' + TK.borderStrong2, borderRadius: '10px', padding: '10px 12px',
                   boxShadow: '0 12px 32px rgba(0,0,0,.6)', display: 'flex', flexDirection: 'column', gap: '4px',
                 },
               },
-                e('b', { style: { fontSize: '12px', color: '#F0F0F0' } }, trf('edDelConfirm', { name: shownName })),
-                e('small', { style: { fontSize: '11px', color: '#A9A9B3' } }, tr('edDelNote')),
+                e('b', { style: { fontSize: '12px', color: TK.text } }, trf('edDelConfirm', { name: shownName })),
+                e('small', { style: { fontSize: '11px', color: TK.text2 } }, tr('edDelNote')),
                 e('span', { style: { display: 'flex', gap: '8px', marginTop: '6px' } },
                   e('button', {
                     onClick: function () { props.onDelete(targetSel || origId) },
                     [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                    style: { background: '#2A1418', border: '1px solid #C53B53', color: '#F08A97', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+                    style: { background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder , color: TK.dangerSoft, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
                   }, tr('edDelYes')),
                   e('button', {
                     onClick: function () { setDelConfirm(false) },
                     [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                    style: { background: 'transparent', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+                    style: { background: 'transparent', border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
                   }, tr('edDelNo'))))
                 : e('button', {
                   onClick: function () { setDelConfirm(true) },
                   [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
                   style: {
-                    background: '#2A1418', border: '1px solid #C53B53', color: '#F08A97', borderRadius: '7px',
+                    background: TK.dangerBg, border: '1px solid ' + TK.dangerBorder , color: TK.dangerSoft, borderRadius: '7px',
                     padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex',
                     alignItems: 'center', gap: '6px', cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
                   },
@@ -1132,7 +1159,7 @@ export function CustomEditor(props) {
               title: tr('edCancelTitle'), onClick: function () { props.onClose() },
               [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
-                background: 'transparent', border: '1px solid #33333A', color: '#E7E7EA', borderRadius: '7px',
+                background: 'transparent', border: '1px solid ' + TK.border , color: TK.text, borderRadius: '7px',
                 padding: '6px 12px', fontSize: '12px', height: '32px', display: 'inline-flex', alignItems: 'center',
                 cursor: 'pointer', flex: 'none', whiteSpace: 'nowrap',
               },
@@ -1142,7 +1169,7 @@ export function CustomEditor(props) {
               onClick: handleSave, disabled: !canSave,
               [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
               style: {
-                background: '#FAB283', border: '1px solid #FAB283', color: '#141414', borderRadius: '7px',
+                background: TK.btnFill, border: '1px solid ' + TK.btnFill , color: TK.accentFg, borderRadius: '7px',
                 padding: '6px 12px', fontSize: '12px', fontWeight: 700, height: '32px', display: 'inline-flex',
                 alignItems: 'center', cursor: canSave ? 'pointer' : 'not-allowed', flex: 'none',
                 whiteSpace: 'nowrap', opacity: canSave ? 1 : 0.45,
@@ -1155,7 +1182,7 @@ export function CustomEditor(props) {
       // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
       // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
       e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } },
-        e('div', { ref: leftColRef, className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
+        e('div', { ref: leftColRef, className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid ' + TK.divider, minWidth: 0 } }, leftRows),
         e('div', {
           className: 'dspe-dlg-right',
           style: {
@@ -1172,7 +1199,7 @@ export function CustomEditor(props) {
         key: 'slotbadge-pop',
         style: {
           position: 'fixed', zIndex: 9999, top: badgeAt.top + 'px', left: badgeAt.left + 'px',
-          background: '#FAB283', color: '#141419', fontSize: '10px', fontFamily: 'Consolas,monospace',
+          background: TK.accent, color: TK.accentFg, fontSize: '10px', fontFamily: 'Consolas,monospace',
           borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap',
         },
       }, hl) : null

@@ -569,8 +569,8 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('class="rleft"'), '顶栏左组带 rleft 类（原型 :622）')
   // 原型 .txt :88 是 min-width:170 的自动宽（fitWidth 还会按输入文本量宽）；
-  // 用户 m09433 要求「一开始固定好宽度、输入名字不再变宽」→ 此处改为断言固定宽 200（口径偏离见 m09433 用例）。
-  assert.ok(html.includes('min-width:200px') && html.includes('max-width:200px'), '名称输入固定宽 200（用户 m09433，取代原型 :88 自动宽）')
+  // 用户 m09433「固定宽」→ 用户 m09582「胶囊可长、输入框可短、总量不变」：改为名字区整体定宽（详见 m09582-1 用例）。
+  assert.ok(html.includes('min-width:322px') && html.includes('max-width:322px'), '名字区定宽 322（用户 m09582，取代原型 :88 自动宽）')
   assert.ok(html.includes('border:2px solid '), '顶部胶囊 2px 选中边（原型 chipStyle sel :518）')
   assert.ok(html.includes('margin:-1px'), '顶部胶囊 2px 边距补偿（原型 .chip.sel :55）')
   assert.ok(html.includes('@supports') && html.includes('.syslabel'), '跟随系统双色字走原生 @supports（原型 :101）')
@@ -579,9 +579,10 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   assert.ok(src.includes("maxWidth: '230px'"), '基底下拉 max-width 230（原型 :94，编辑态才渲染故走源码断言）')
   assert.equal((src.match(/position: 'fixed', zIndex: 60/g) || []).length, 2, '调色板+预置弹窗均为 fixed（原型 .pop :185）')
   assert.ok(src.includes('vw - 270') && src.includes('vw - W - 20') && src.includes('vh - 430'), '弹窗视口坐标公式（原型 :978-984/:1061-1062）')
-  assert.ok(src.includes("outline: psel ? '1px solid #FAB283' : undefined"), '选中基底描边（原型 realChipStyle :537）')
-  assert.ok(src.includes("color: '#FAB283', visibility: psel ? 'visible' : 'hidden'"), '基底对勾恒橙色（原型 realChipInner :542）')
-  assert.ok(src.includes("'#1A1A20'") && src.includes("'#2A2A31'"), '行悬停底/边（原型 .crow:hover :129）')
+  // m09582 需求 2 之后这些字面量改走宿主 token，兜底值仍是原型色（见末条 m09582-2 用例）。
+  assert.ok(src.includes("outline: psel ? '1px solid ' + TK.accent : undefined"), '选中基底描边走强调色 token（原型 realChipStyle :537）')
+  assert.ok(src.includes('color: TK.accent, visibility: psel ?'), '基底对勾恒强调色（原型 realChipInner :542）')
+  assert.ok(src.includes("hover: 'var(--dsw-alias-interactive-bg-hover, #1A1A20)'") && src.includes("'var(--dsw-alias-border-l2-darkmode-thin, #2A2A31)'"), '行悬停底/边走宿主 token，兜底 = 原型 .crow:hover :129 的 #1A1A20/#2A2A31')
   assert.ok(src.includes('presetLabelOf(n)).toLowerCase()'), '预置搜索含中文名（原型 hay :1100）')
   assert.ok(src.includes('setShowPresets(false) // 原型 OPEN_POP'), '开调色板收起预置弹窗（原型 :427）')
   assert.ok(src.includes("fontSize: '12px', margin: '0 0 8px'"), '调色板标题无加粗（原型 .pop h4 :186）')
@@ -668,9 +669,9 @@ test('m08636-2：左列滚动条不滑动时不可见，右画布列隐藏滚动
   const html = renderEditorPure('dark', pal.colors)
   assert.ok(html.includes('class="dspe-dlg-left"') && html.includes('class="dspe-dlg-right"'), '左右列挂滚动条钩子类')
   assert.ok(html.includes('.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}'), '左列默认透明（看不见）')
-  assert.ok(html.includes('.dspe-dlg-left:hover{scrollbar-color:#3A3A44 transparent}'), '悬停才现形')
+  assert.ok(html.includes('.dspe-dlg-left:hover{scrollbar-color:var(--dsw-alias-scrollbar-hover-l1, #3A3A44) transparent}'), '悬停才现形（走宿主滚动条 token，兜底 #3A3A44）')
   assert.ok(html.includes('.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent'), 'webkit 默认透明')
-  assert.ok(html.includes('.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:#3A3A44'), 'webkit 悬停现形')
+  assert.ok(html.includes('.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:var(--dsw-alias-scrollbar-hover-l1, #3A3A44)'), 'webkit 悬停现形')
   assert.ok(html.includes('.dspe-dlg-right{scrollbar-width:none}'), '右列隐藏滚动条（原型 :147）')
   assert.ok(html.includes('.dspe-dlg-right::-webkit-scrollbar{display:none'), '右列 webkit 隐藏（原型 :148）')
 })
@@ -719,17 +720,75 @@ test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 c
   assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点仍是 5 处')
 })
 
-// ── 用户 m09433：主题名输入框一开始固定好宽度，输入名字不再让它变宽 ──
+// ── 用户 m09433（输入框固定宽）→ 用户 m09582 需求 1（胶囊可随名字变长、输入框可变短，总量不变）──
 // 真 DOM 实测（.scratch-ed-dom.mjs namewidth 场景，Chrome 无头 + React 真 hooks）：
 //   改前：输入框随内容跳（初始 170 / 20 字 243 / 2 字 170 / 清空 184，行 882→1125，弹窗跟着变宽）；
-//   钉死 200 后：5 个状态（初始 / 20 字 / 2 字 / 清空 / 40+ 字）恒 200，1280 视口顶行溢出 0；
-//   1000 视口空闲态溢出 0（试过 240：会加出 18px 溢出，故取 200）；40+ 字极端名溢出 236，比改前的 612 收敛。
-test('m09433：主题名输入框固定 200px 宽，不随输入内容变宽', () => {
+//   m09433：钉死 200（5 个状态恒 200，1280 视口不溢出；试过 240，1000 视口会加出 18px 溢出）；
+//   m09582：名字区总量钉死 322 = 输入框基准 200 + 间隙 8 + 胶囊基准 114（新建态「（未命名）」实测宽），
+//   胶囊随名字变长 → 输入框等比让位（下限 90），胶囊封顶 224 后自己收窄打省略号：顶行总量与弹窗宽度不再随名字变化。
+//   关键坑（真 DOM 抓到）：弹窗 width:max-content 会把「内容宽」算进整窗宽度 —— 只钉区宽不够，
+//   输入框 width:100%（百分比在自量宽里按 auto）与胶囊的无上限内容宽都会把 dlg 宽带着跑（实测 718~878 跳动）。
+test('m09582-1：名字区定宽 322 —— 胶囊随名字变长、输入框变短，总量不变', () => {
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
-  assert.ok(src.includes('const NAME_INPUT_W = 200'), '固定宽度常量 = 200')
-  // 弹窗是 width:max-content：只给 flex-basis 挡不住按内容自量宽，必须 width/min/max 三处全钉死 + 不伸缩。
-  assert.ok(src.includes("flex: '0 0 auto', width: NAME_INPUT_W + 'px', minWidth: NAME_INPUT_W + 'px', maxWidth: NAME_INPUT_W + 'px'"), 'width/min/max 全钉死且不参与伸缩')
+  assert.ok(src.includes('const NAME_INPUT_W = 200'), '输入框基准宽 200（保留 m09433 的观感）')
+  assert.ok(src.includes('const NAME_ZONE_W = 322'), '名字区总宽 = 200 + 8 + 114（输入框基准 + 间隙 + 新建态胶囊实测宽）')
+  assert.ok(src.includes('const NAME_INPUT_MIN = 90'), '输入框可缩下限 90')
+  assert.ok(src.includes('const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN'), '胶囊上限 224 = 区宽 − 间隙 − 输入框下限')
+  // 区宽三向钉死：弹窗是 width:max-content，只给 flex-basis 挡不住按内容自量宽。
+  assert.ok(src.includes("width: NAME_ZONE_W + 'px', minWidth: NAME_ZONE_W + 'px', maxWidth: NAME_ZONE_W + 'px'"), '名字区 width/min/max 全钉死')
+  assert.ok(src.includes("flex: '1 1 0px', minWidth: NAME_INPUT_MIN + 'px', display: 'flex'"), '输入框包裹盒可长可缩且留下限')
+  assert.ok(src.includes("flex: '1 1 0px', width: '0px', minWidth: 0"), '输入框在区内按剩余空间取值（width:0 断掉内容宽泄漏）')
+  assert.ok(src.includes('maxWidth: NAME_CAP_MAX'), '胶囊 max-width 封顶（断掉胶囊内容宽泄漏）')
+  assert.ok(src.includes("cursor: 'default', flex: '0 1 auto', minWidth: 0, overflow: 'hidden'"), '胶囊可被压缩（到顶才省略）')
+  assert.ok(src.includes("overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 } }, capName"), '胶囊名字超长打省略号')
+  assert.equal(src.includes("flex: '0 0 auto', width: NAME_INPUT_W + 'px'"), false, 'm09433 的「输入框自己钉死 200」写法已被名字区取代')
   assert.equal(src.includes("flex: 1, minWidth: '170px', width: '100%'"), false, '旧的自动宽度写法已移除')
-  assert.equal(src.includes("flex: '1 1 auto', minWidth: 0, display: 'flex'"), false, '名字包裹盒不再吃剩余宽度')
-  assert.ok(src.includes("flex: '0 0 auto', minWidth: 0, display: 'flex'"), '包裹盒贴住固定宽输入框（角标定位才对得上）')
+  // 宽度只能由 CSS 决定：原型 fitWidth 的「量字设输入框宽」与「累加定 dlg 宽」两段会把名字带进弹窗总宽
+  // （真 DOM 实测：留着它们时 dlg 随名字在 722~884 间跳、顶行溢出 106~230px）。
+  assert.equal(src.includes('inp.style.width ='), false, '输入框宽度不再由 JS 量字设定（交给定宽区 flex 分配）')
+  assert.equal(src.includes('dlg.style.width ='), false, '弹窗宽度不再由 JS 量字累加设定（交给 CSS max-content）')
+  assert.ok(src.includes("sel.style.width = sw + 'px'"), '编辑态目标下拉仍按选中项文字定宽（fitWidth 保留段）')
+  assert.ok(src.includes('mw = Math.max(mw, x.offsetWidth || 0)'), '左列 .nm 齐宽仍在（fitWidth 保留段）')
+})
+
+// ── 用户 m09582 需求 2：编辑/新增弹窗 chrome 跟随当前系统主题（预览区除外）──
+// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源 src/engine/map-dsh.mjs），
+// 所以 chrome 吃 var() 即同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参；
+// 兜底值 = 改造前的深色字面量（SSR/无宿主时观感与之前完全一致）。
+test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑主题色）', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(html.includes('background:var(--dsw-alias-bg-layer-1, #141419)'), '弹窗底走 bg-layer-1')
+  assert.ok(html.includes('background:var(--dsw-alias-bg-layer-2, #1C1C21)'), '输入框/按钮底走 bg-layer-2')
+  assert.ok(html.includes('color:var(--dsw-alias-label-primary, #E7E7EA)'), '正文色走 label-primary')
+  assert.ok(html.includes('border:1px solid var(--dsw-alias-border-l1, #33333A)'), '描边走 border-l1')
+  assert.ok(html.includes('box-shadow:inset 0 0 0 2px var(--dsw-alias-brand-primary, #FAB283)'), '选中环走 brand-primary')
+  assert.ok(html.includes('background:var(--dsw-alias-button-primary-fill, #FAB283)'), '主按钮走 button-primary-fill')
+  assert.ok(src.includes("borderColor: TK.danger, boxShadow: '0 0 0 1px ' + TK.danger"), '空名校验走 state-error-primary（仅空名态渲染，走源码断言）')
+  // 用到的 token 必须都在引擎映射表里：拼错拿不到宿主值会静默回落深色，等于悄悄退回旧观感。
+  const used = Array.from(new Set((html + src).match(/--dsw-alias-[a-z0-9-]+/g) || []))
+  assert.ok(used.length >= 14, '弹窗 token 覆盖面（实测 ' + used.length + ' 个）')
+  const map = readFileSync(join(import.meta.dirname, '..', 'src', 'engine', 'map-dsh.mjs'), 'utf8')
+  const known = new Set(map.match(/--dsw-alias-[a-z0-9-]+/g) || [])
+  const unknown = used.filter((t) => !known.has(t))
+  assert.equal(unknown.join(','), '', '所有 token 都在 map-dsh.mjs 映射表内')
+  // 预览区除外：画布底色/顶栏预览胶囊/外观 seg 仍由「被编辑主题」与「外观选项」决定。
+  assert.ok(src.includes("background: miniLight ? '#E2E2E6' : '#0D0D10'"), '右画布底色仍随被编辑主题外观')
+  assert.ok(src.includes("background: capFace, color: capFg, border: '2px solid ' + capPrimary"), '顶栏预览胶囊仍显被编辑主题色')
+  assert.ok(src.includes("background: '#0B0B0E', borderColor: '#3A3A44', color: '#EDEDEF'"), '外观 seg 深浅双色不随宿主变')
+  // 结构门禁（本轮实测踩过）：token 拼串时若把「, color: 」并进了 border 值，整条声明失效、颜色回落 UA 黑。
+  const glued = html.match(/, (color|background|border|padding|font-size|border-radius|height|width)\s*:/g) || []
+  assert.equal(glued.join(','), '', 'token 拼串不许把属性名并进值里（实测踩过：border 值里混进 , color: → 声明整条失效）')
+})
+
+// ── 用户 m09582 追加：窄视口顶栏换行回退（用户口径：不许控件被弹窗裁掉）──
+// 真 DOM 实测（1256 视口，编辑态顶行要约 1257px，而弹窗被 maxWidth:96vw 卡在 1205.76）：
+//   改前（原型 nowrap 口径）：外观三连/保存钮被 dialog 的 overflow:hidden 裁掉 52px
+//     （rrightRight 1284 > dlgRight 1232；名字越长约糟，最长名可溢出 573px）；
+//   改后（按需换行）：顶栏落成两行，rowOverflow 0、rrightRight 1215 < dlgRight 1232，无裁剪。
+test('m09582-3：窄视口顶栏按需换行 —— 控件不被弹窗裁掉（用户口径优先于原型 nowrap）', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes("className: 'row1', style: { display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap'"), '顶栏按需换行（原型 .row1 是 nowrap）')
+  assert.ok(src.includes("maxWidth: '96vw'"), '弹窗仍留 96vw 视口上限：回退手段是换行，不是放宽上限')
 })
