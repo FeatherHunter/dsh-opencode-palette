@@ -1,7 +1,7 @@
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
 // 布局：标题行 → 排印调节（顶部）→ 主题选择（色系分组标签 + mini 芯片）→ 状态开关
 // 依赖注入：theme（dsh-client-ui-theme）、slots（settings.plugins.tab / tool.view.cordis）
-import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets } from './engine/index.mjs'
+import { renderTheme, previewColors, themeNames, themeGroups, delegatesBackground, renderCustomTheme, customPreviewColors, extractPresetPalette, COLOR_SLOT_GROUPS, COLOR_SLOTS, listIpPresets, getIpPreset } from './engine/index.mjs'
 import { FONTS } from './engine/map-dsh.mjs'
 import { BUNDLED_FONTS } from './engine/font-face.mjs'
 import { createFontAvailability } from './engine/font-avail.mjs'
@@ -404,6 +404,11 @@ export function createClient(slotTarget) {
     const mountedUpdateEntries = []
     function currentUpdateTokens() {
       try {
+        const iid = ipIdOf(state.theme)
+        if (iid) {
+          const ip = findIpPreset(iid)
+          if (ip && ip.colors) return buildUpdateTokensFromColors(ip.colors, customAppearanceOf(ip))
+        }
         const cid = customIdOf(state.theme)
         if (cid) {
           const found = findCustom(cid)
@@ -474,6 +479,15 @@ export function createClient(slotTarget) {
     }
     function isCustomKey(key) { return typeof key === 'string' && key.indexOf('custom:') === 0 }
     function customIdOf(key) { return isCustomKey(key) ? key.slice('custom:'.length) : null }
+    // ── 预置 IP 主题（用户口径 m08573）：与内置 38 同属「预置」，同区展示、点击直接生效；
+    // 唯一区别是渲染来源——IP 走静态 bundle（ip-presets.mjs），恒不写 DSH 自定义目录。
+    // 只有用户新增/存盘的自定义主题才落盘，激活键 custom:<id>；两者前缀并列，互不冒充。
+    function isIpKey(key) { return typeof key === 'string' && key.indexOf('ip:') === 0 }
+    function ipIdOf(key) { return isIpKey(key) ? key.slice('ip:'.length) : null }
+    function findIpPreset(id) {
+      if (typeof id !== 'string' || !id) return null
+      try { return getIpPreset(id) } catch (e) { return null }
+    }
     function customAppearanceOf(t) {
       return t && (t.appearance === 'light' || t.appearance === 'system') ? t.appearance : 'dark'
     }
@@ -605,9 +619,10 @@ export function createClient(slotTarget) {
       // 2) 完整重生成
       let render
       try {
-        const cid = customIdOf(state.theme)
-        if (cid) {
-          const found = findCustom(cid)
+        const iid = ipIdOf(state.theme)
+        const found = iid ? findIpPreset(iid) : findCustom(customIdOf(state.theme))
+        if (iid || isCustomKey(state.theme)) {
+          // IP 预置与自定义主题共用渲染管线（37 色 + 外观）；拿不到就回退默认主题，绝不留旧注入
           render = found
             ? renderCustomTheme(found, { mode: state.mode, size: state.size, fontKey: state.fontKey })
             : renderTheme(DEFAULT_STATE.theme, { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' })
@@ -779,6 +794,18 @@ export function createClient(slotTarget) {
       syncAppearanceForTheme(state.theme)
       refreshUpdateTheme()
     }
+    // 预置 IP 主题：与内置主题同一入口的「点击即生效」，不落盘（用户口径 m08573）。
+    // 找不到（bundle 里没有这个 id）则原样不动，绝不静默换成别的主题。
+    function setIpTheme(id) {
+      const ip = findIpPreset(id)
+      if (!ip) return false
+      state = { ...state, theme: 'ip:' + id }
+      saveState(state)
+      if (state.enabled) applyStyle()
+      if (customAppearanceOf(ip) !== 'system') syncAppearancePref(customAppearanceOf(ip))
+      refreshUpdateTheme()
+      return true
+    }
     function setCustomTheme(id) {
       const found = findCustom(id)
       if (!found) {
@@ -815,8 +842,12 @@ export function createClient(slotTarget) {
     // 自定义主题同理：仅 appearance 非 system 才对齐一次。
     if (state.enabled) {
       applyStyle()
+      const bootIid = ipIdOf(state.theme)
       const bootCid = customIdOf(state.theme)
-      if (bootCid) {
+      if (bootIid) {
+        const bootIp = findIpPreset(bootIid)
+        if (bootIp && customAppearanceOf(bootIp) !== 'system') syncAppearancePref(customAppearanceOf(bootIp))
+      } else if (bootCid) {
         const bootFound = findCustom(bootCid)
         if (bootFound && customAppearanceOf(bootFound) !== 'system') syncAppearancePref(customAppearanceOf(bootFound))
       } else if (state.theme !== 'system') syncAppearanceForTheme(state.theme)
@@ -1257,6 +1288,56 @@ export function createClient(slotTarget) {
           ])
         }
 
+        // ── 预置 IP 组（用户口径 m08573）：IP 预置是「预置」，得跟内置 38 同一条列表流、固定位置
+        // （内置组之后、自定义区之前），点击直接生效且绝不写 DSH 自定义目录；只有用户新增的
+        // 自定义主题才落盘进自定义区。搜索一并过滤（中文名与 ascii id 都命中）。
+        const ipMatchList = function () {
+          const qq = query.trim().toLowerCase()
+          return safeIpPresets().filter(function (p) {
+            if (!p || !p.name) return false
+            if (qq === '') return true
+            return p.name.toLowerCase().indexOf(qq) >= 0 || String(p.title || '').toLowerCase().indexOf(qq) >= 0
+          })
+        }
+        const ipChip = function (p) {
+          const key = 'ip:' + p.name
+          const isCur = key === st.theme
+          const c = p.colors || {}
+          const bgT = c.background === 'transparent'
+          const chipBg = bgT ? chipLightSurface : (c.background || chipDarkSurface)
+          const chipFg = bgT ? chipLightText : chipText(c)
+          return h('button', {
+            key: key,
+            onClick: function () { props.setIpTheme(p.name); setUi(props.getState()) },
+            [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+            style: {
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              background: chipBg,
+              color: chipFg,
+              border: isCur ? '2px solid var(--dsw-alias-brand-primary)' : '1px solid ' + (c.primary || chipBorderFallback),
+              borderRadius: 6, padding: '3px 8px 3px 5px', boxShadow: chipShadow,
+              fontFamily: 'var(--ds-font-family-code)', fontSize: 11, cursor: 'pointer',
+              outline: isCur ? '1px solid var(--dsw-alias-brand-primary)' : 'none',
+            },
+          }, [
+            dot(c.primary, 9),
+            currentLang === 'zh' ? (p.title || p.name) : p.name,
+            isCur ? h('span', { style: { color: 'var(--dsw-alias-brand-primary)', fontWeight: 700 } }, '✓') : null,
+          ])
+        }
+        const renderIpGroup = function () {
+          const list = ipMatchList()
+          if (!list.length) return null
+          return h('div', { key: 'ip-presets', style: { marginBottom: 10 } }, [
+            h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
+              dot('#8B8B95', 8),
+              tr('customIpPresets'),
+              h('span', { style: countStyle }, String(list.length)),
+            ]),
+            h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, list.map(ipChip)),
+          ])
+        }
+
         // ── 自定义主题区（#86）：特殊分组下方的独立区块，不碰 GROUP_ORDER / themeNames ──
         const copyIcon = function (checking) {
           return h('svg', {
@@ -1355,8 +1436,9 @@ export function createClient(slotTarget) {
         }
         const openEditEditor = function () {
           const list = (customData && customData.themes) || []
-          // 尚无自定义主题 → 引导进入新增（票面二选一的前者）
-          if (!list.length) { openNewEditor(); return }
+          // 没有任何用户自定义主题 → 编辑入口什么都不做（用户口径 m08573：不许回落到「新增」；
+          // 胶囊本身此时已置灰，这里是硬保证，键盘/程序触发也不越界）。预置 IP 不是可编辑对象。
+          if (!list.length) return
           setSaveError(null)
           const activeId = customIdOf(props.getState().theme)
           const first = list.filter(function (x) { return x && x.id === activeId })[0] || list[0]
@@ -1450,48 +1532,21 @@ export function createClient(slotTarget) {
             return buckets.filter(function (b) { return b.names.length > 0 })
           } catch (e) { return [] }
         }
-        // 外层 IP 种子胶囊：未存盘的 IP 预置直接列在自定义区，点按即存盘换上（applyCustomChip），
-        // 存过即变普通 customs（按 id 去重）。中文界面显示中文名，英文界面显示 ascii id（英文无中文残留门禁）。
-        const diskIdSet = function (list) {
-          const out = {}
-          for (const t of list || []) { if (t && t.id) out[t.id] = true }
-          return out
-        }
-        const ipSeedChips = function (list) {
-          const onDisk = diskIdSet(list)
-          const en = currentLang === 'en'
-          return safeIpPresets().filter(function (p) { return p && p.name && !onDisk[p.name] }).map(function (p) {
-            return {
-              id: p.name, name: en ? p.name : (p.title || p.name), title: p.title || p.name,
-              appearance: p.appearance, colors: p.colors, basePreset: p.name, ipSeed: true,
-            }
-          })
-        }
-        // 点胶囊：存盘主题直接换上；IP 种子先存盘再换上（存盘名用中文 canonical 名，与点击语言无关；
-        // basePreset 记种子自身 id；失败走 panel 级保存失败 toast，与编辑器同口径，不静默死点击）
+        // 点自定义胶囊：换上该存盘主题。命中不了（缓存旧/文件被外部删）→ setCustomTheme 内部先对账一次，
+        // 仍无则原样不动；这里绝不代用户写盘，也绝不把主题悄悄换回第一个（用户口径 m08573）。
         const applyCustomChip = function (t) {
-          if (diskIdSet((customData && customData.themes) || [])[t.id] || !t.ipSeed) { props.setCustomTheme(t.id); setUi(props.getState()); return }
-          setSaveError(null)
-          Promise.resolve().then(function () {
-            return props.saveCustomTheme({ id: t.id, name: t.title || t.name, appearance: t.appearance, colors: t.colors, basePreset: t.basePreset || 'opencode' })
-          }).then(function (res) {
-            if (res && res.ok) {
-              try { setCustomData(props.customThemes()) } catch (e) { /* 忽略 */ }
-              props.setCustomTheme(t.id)
-            } else {
-              setSaveError(tr('customSaveFail'))
-            }
-            setUi(props.getState())
-          }).catch(function () { setSaveError(tr('customSaveFail')); setUi(props.getState()) })
+          if (!t || typeof t.id !== 'string' || !t.id) return
+          props.setCustomTheme(t.id)
+          setUi(props.getState())
         }
+        // 自定义区只列「已落盘在 DSH 自定义目录」的主题：预置 IP 20 套在上方 IP 预置组，恒不写盘。
         const renderCustomSection = function () {
           const list = (customData && customData.themes) || []
-          const allCustom = list.concat(ipSeedChips(list))
-          const shownCustom = filterCustomThemes(allCustom, query)
+          const shownCustom = filterCustomThemes(list, query)
           return h('div', { key: 'custom', style: { marginBottom: 10 } }, [
             h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, color: 'var(--dsw-alias-label-tertiary)', marginBottom: 6 } }, [
               dot('#FAB283', 8),
-              trf('customTitle', { n: allCustom.length }),
+              trf('customTitle', { n: list.length }),
               h('span', { style: { flex: 1 } }),
               h('button', {
                 title: (customData && customData.dirPath) || undefined,
@@ -1776,7 +1831,7 @@ export function createClient(slotTarget) {
               color: base, fontFamily: 'var(--dsw-font-family)',
             },
           }),
-          shown.length === 0
+          shown.length === 0 && ipMatchList().length === 0
             ? h('div', { style: { ...fieldLabel, padding: '8px 0' } }, tr('noMatch'))
             : shown.map(function (g) {
                 return h('div', { key: g.name, style: { marginBottom: 10 } }, [
@@ -1788,6 +1843,8 @@ export function createClient(slotTarget) {
                   h('div', { style: { display: 'flex', flexWrap: 'wrap', gap: 6 } }, g.themes.map(chip)),
                 ])
               }),
+          // ── 预置 IP 组（用户口径 m08573）：位置固定在内置组之后、自定义区之前 ──
+          renderIpGroup(),
           // ── 自定义主题区（#86）：特殊分组下方的独立区块（+ 新增恒可见）──
           renderCustomSection(),
           // ── 底部：作者其他插件（引流位）──
@@ -1810,6 +1867,8 @@ export function createClient(slotTarget) {
           toggle: toggle,
           refresh: refresh,
           setTheme: setTheme,
+          // 预置 IP 主题入口（用户口径 m08573）：点击即生效、不落盘；返回 false = 该 id 不在 bundle 里
+          setIpTheme: setIpTheme,
           themeNames: themeNames,
           // 日志器交给面板；更新入口件由面板头行按需挂载（宿主不可用时不渲染更新块）。
           log: clientLog,

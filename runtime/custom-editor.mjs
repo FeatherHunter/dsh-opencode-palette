@@ -12,6 +12,39 @@ const EXTRA_HL = {
   borderActive: ['inputBg'],
 }
 
+// 焦点圈类名（用户 m08636 第 4 条）：凡被 hl 命中的元素（node 节点与纯 span）都带此类，
+// 供 badge 定位时按 DOM 顺序取第一个命中（原型 paintHl:903 的 `matches[0] || extras[0]` 口径）。
+const HL_CLS = 'dspe-hl'
+
+// 弹窗滚动条口径（原型 prototype.html:143-148）：左列表不滑动时看不见（悬停才现），右画布列直接隐藏。
+// 走弹窗内 <style> 挂载（与 syslabel 同法，随弹窗卸载），不写进全局 ui-fx 样式表（那是面板级动效）。
+const DLG_CSS = [
+  '.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}',
+  '.dspe-dlg-left:hover{scrollbar-color:#3A3A44 transparent}',
+  '.dspe-dlg-left::-webkit-scrollbar{width:10px;height:10px}',
+  '.dspe-dlg-left::-webkit-scrollbar-track{background:transparent}',
+  '.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent;border:2px solid transparent;border-radius:8px}',
+  '.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:#3A3A44;background-clip:padding-box;border:2px solid transparent;border-radius:8px}',
+  '.dspe-dlg-left::-webkit-scrollbar-thumb:hover{background:#4A4A55;background-clip:padding-box;border:2px solid transparent}',
+  '.dspe-dlg-right{scrollbar-width:none}',
+  '.dspe-dlg-right::-webkit-scrollbar{display:none;width:0 !important;height:0 !important}',
+].join('')
+
+// 焦点圈样式（原型 .hl/.hl-edge 口径：prototype.html:175-178 + paintHl:893）。
+// 纯函数接缝：凡被 hl 命中的色位一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
+// 用户 m08636 第 4 条要求「37 个色位命中时预览里每个受影响元素都被圈住」，
+// 所以 node 容器与纯 span（t 文本、代码 token、textMuted 行）必须共用这一处判定。
+export function slotRingStyle(hl, slot) {
+  if (!hl) return null
+  const targets = [hl].concat(EXTRA_HL[hl] || [])
+  if (targets.indexOf(slot) < 0) return null
+  const isEdge = (hl === 'border' || hl === 'borderActive') && slot === hl
+  return {
+    boxShadow: isEdge ? '0 0 0 2px #FAB283' : 'inset 0 0 0 2px #FAB283',
+    animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
+  }
+}
+
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
 export function presetToSeed(p) {
   const src = (p && p.colors) || {}
@@ -63,6 +96,12 @@ export function CustomEditor(props) {
   const [presetPos, setPresetPos] = h.useState(null)
   const [hl, setHl] = h.useState(null)
   const [hovered, setHovered] = h.useState(null)
+  // 预览小标签的视口坐标（用户 m08636 第 1 条：标签层级要高于预览区、不被所在容器裁掉）。
+  // 原型把 badge 挂到 document.body 并 position:fixed（prototype.html:906-919），
+  // 这里等价地做成 fixed 覆盖层元素（fixed 不被祖先 overflow 裁剪），坐标由 effect 量第一个命中节点得出。
+  const [badgeAt, setBadgeAt] = h.useState(null)
+  // 左列小标签的长名夹紧量（原型 paintHl:929-930 的 row.clientWidth 夹紧；默认 0 = 紧贴标题右侧）
+  const [rowShift, setRowShift] = h.useState(0)
   const [delConfirm, setDelConfirm] = h.useState(false)
   const [sysDark, setSysDark] = h.useState(function () {
     try {
@@ -147,6 +186,54 @@ export function CustomEditor(props) {
     (props.customs || []).length, (props.presets || []).length])
   const rowRefs = h.useRef({})
   const svDrag = h.useRef(null)
+
+  // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
+  // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
+  // 挂 fixed 覆盖层，永不进预览容器，因此不会被 .mini{overflow:hidden} 或滚动列裁掉。
+  // 宽度用等宽 10px 估算（原型量字后回落 90，同为估算；估算只影响左右贴合度，不影响可见性）。
+  // 左列标签：原型按 row.clientWidth 夹紧（:929-930），这里同样把越界量算成左移像素，避免长色位名顶出列表被 overflow 裁掉。
+  h.useEffect(function () {
+    try {
+      const win = typeof window !== 'undefined' ? window : null
+      const mini = miniRef.current
+      const dlg = dlgRef.current
+      if (!hl) { setBadgeAt(null); setRowShift(0); return }
+      if (win && mini && typeof mini.querySelector === 'function') {
+        const direct = mini.querySelector('[data-slot="' + hl + '"]')
+        const el = direct || mini.querySelector('.' + HL_CLS)
+        if (el && typeof el.getBoundingClientRect === 'function') {
+          const r = el.getBoundingClientRect()
+          const bw = String(hl).length * 6.4 + 12
+          const small = r.width < bw + 12
+          let top = r.top - 9
+          let left = small ? r.right + 6 : r.right - bw + 6
+          if (top < 28) top = r.top + 4
+          if (dlg && typeof dlg.getBoundingClientRect === 'function') {
+            const dr = dlg.getBoundingClientRect()
+            if (top < dr.top + 4) top = r.top + 4
+          }
+          if (left < 4) left = 4
+          const vw = win.innerWidth || 0
+          if (vw && left + bw > vw - 4) left = vw - bw - 4
+          setBadgeAt({ top: Math.round(top), left: Math.round(left) })
+        } else setBadgeAt(null)
+      } else setBadgeAt(null)
+      // 行标签夹紧：量到的是「已左移」后的位置，先加回 rowShift 还原，再按行边界重算（自洽，不累积漂移）
+      let shift = 0
+      const rowEl = dlg && typeof dlg.querySelector === 'function' ? dlg.querySelector('[data-row="' + hl + '"]') : null
+      const keyEl = rowEl && rowEl.querySelector ? rowEl.querySelector('.dspe-keypop') : null
+      if (rowEl && keyEl && typeof rowEl.getBoundingClientRect === 'function') {
+        const rr = rowEl.getBoundingClientRect()
+        const kr = keyEl.getBoundingClientRect()
+        const unRight = kr.right + rowShift
+        const unLeft = kr.left + rowShift
+        if (unRight > rr.right - 4) shift = unRight - (rr.right - 4)
+        if (unLeft - shift < rr.left + 4) shift = unLeft - (rr.left + 4)
+        shift = Math.max(0, Math.round(shift))
+      }
+      setRowShift(shift)
+    } catch (err) { setBadgeAt(null); setRowShift(0) }
+  }, [hl, colors, appearance, sysDark]) // 不直接依赖 miniLight：它在组件体后段才声明，此处求值会踩 TDZ；appearance/sysDark 是它的全部输入，等价
 
   // 跟随系统：监听 OS 明暗翻转重绘预览（原型 matchMedia 口径）
   h.useEffect(function () {
@@ -350,7 +437,21 @@ export function CustomEditor(props) {
         },
       },
         e('div', { className: 'nm', style: { flex: '0 1 auto', minWidth: 0 } },
-          e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label),
+          // 标题控件与小标签同一相对定位盒（用户 m08636 第 3 条：标签贴标题控件右侧）。
+          // 原型是量字后 absolute 定位（paintHl:928 `b.offsetLeft + b.offsetWidth + 6`，按 row.clientWidth 夹紧）；
+          // 这里用 inline-block 包裹 + left:100% 免量字等价实现，垂直居中于标题行。
+          e('span', { style: { position: 'relative', display: 'inline-block', maxWidth: '100%' } },
+            e('b', { style: { display: 'inline-block', maxWidth: '100%', fontSize: '12px', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', verticalAlign: 'top', cursor: 'default' } }, label),
+            isTarget ? e('span', {
+              className: 'dspe-keypop',
+              style: {
+                position: 'absolute', left: 'calc(100% + 6px)', top: '50%',
+                transform: 'translate(' + (-rowShift) + 'px, -50%)',
+                background: '#FAB283', color: '#141419', fontSize: '10px', fontFamily: 'Consolas,monospace',
+                borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 4,
+              },
+            }, key) : null
+          ),
           e('small', { style: { display: 'block', fontSize: '11px', color: '#A0A0A8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', cursor: 'default' } }, use)),
         e('button', {
           'data-slot-row': key,
@@ -363,13 +464,6 @@ export function CustomEditor(props) {
           }, swStyle),
         }),
         e('span', { style: { fontFamily: 'Consolas,monospace', fontSize: '11px', color: '#C8C8D0', minWidth: 0, flex: 'none' } }, shown),
-        isTarget ? e('span', {
-          style: {
-            position: 'absolute', top: '-9px', right: '-6px', background: '#FAB283', color: '#141419',
-            fontSize: '10px', fontFamily: 'Consolas,monospace', borderRadius: '4px', padding: '0 6px',
-            pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 3,
-          },
-        }, key) : null
       ))
     }
   }
@@ -609,17 +703,16 @@ export function CustomEditor(props) {
 
   // ── 右侧：微缩 DSH 仿真画布（原型 renderMini 口径：side + main + bubble + md + code + diff + brow + cinput）──
   function renderMini() {
-    const hlTargets = hl ? [hl].concat(EXTRA_HL[hl] || []) : []
+    // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个色位命中的每一个预览元素都要被圈住；
+    // 此前只有 node 会圈，纯 span 命中被漏掉）
+    const ringOf = function (slot) { return slotRingStyle(hl, slot) }
+    const ringStyle = function (slot) { return ringOf(slot) || undefined }
+    const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
     const node = function (slot, style, children, extra, bare) {
-      const ringed = hlTargets.indexOf(slot) >= 0
-      const hlEdge = hl === 'border' || hl === 'borderActive'
-      const isEdge = ringed && hlEdge && slot === hl
-      const ring = ringed ? {
-        boxShadow: isEdge ? '0 0 0 2px #FAB283' : 'inset 0 0 0 2px #FAB283',
-        animation: 'dsh-pal-breathe 1.1s ease-in-out infinite',
-      } : null
+      const ring = ringOf(slot)
       const props2 = Object.assign({
         'data-slot': slot,
+        className: ring ? HL_CLS : undefined,
         onMouseEnter: function () { setHl(slot) },
         onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
         style: Object.assign({ cursor: bare ? 'default' : 'pointer', position: 'relative' }, style, ring),
@@ -628,18 +721,15 @@ export function CustomEditor(props) {
         props2[UI_INTERACTIVE_ATTR] = TIER_INPUT
         props2.onClick = function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) }
       }
-      return e('div', props2, children,
-        (hl && slot === hl) ? e('span', {
-          style: {
-            position: 'absolute', top: '-9px', right: '-6px', background: '#FAB283', color: '#141414',
-            fontSize: '10px', fontFamily: 'Consolas,monospace', borderRadius: '4px', padding: '0 6px',
-            pointerEvents: 'none', whiteSpace: 'nowrap', zIndex: 3,
-          },
-        }, slot) : null)
+      // 小标签不再挂在节点内（用户 m08636 第 1 条：会被 .mini{overflow:hidden} 与滚动列裁掉）；
+      // 改由弹窗根的 fixed 覆盖层统一渲染，锚点定位见 badgeAt effect。
+      return e('div', props2, children)
     }
-    // 原型文本 span 口径：data-slot 透出定位，无交互（点击只绑 md/tip/hr/cap）
+    // 原型文本 span 口径：data-slot 透出定位，无交互（点击只绑 md/tip/hr/cap）。
+    // 但同时要吃焦点圈（用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，
+    // 预览里每个组成部分都要被圈住；原型 paintHl 命中的就是这些 data-slot span）。
     const t = function (slot, s, key) {
-      return e('span', { key: key, 'data-slot': slot }, s)
+      return e('span', { key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }, s)
     }
     const codeLines = [
       { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
@@ -712,12 +802,12 @@ export function CustomEditor(props) {
             node('codeHeaderBg', {
               display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
               padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', { key: 'l', 'data-slot': 'textMuted' }, 'js')], { key: 'codeHead' }, true),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', { key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: ringStyle('textMuted') }, 'js')], { key: 'codeHead' }, true),
             node('codeBlockBg', {
               background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
               fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
             }, codeLines.map(function (p, i) {
-              return p.s ? e('span', { key: 'tk-' + i, 'data-slot': p.s, style: { color: eff(p.s) } }, p.t) : p.t
+              return p.s ? e('span', { key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s) }, ringStyle(p.s) || {}) }, p.t) : p.t
             }), { key: 'codePre' }, true)
           ), { key: 'codeBlock' }, true),
         // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
@@ -765,7 +855,7 @@ export function CustomEditor(props) {
           border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive') + '55',
           borderRadius: '8px', padding: '8px 12px',
           fontSize: '12px', color: txOf(colors.text),
-        }, [t('text', tr('miniInputPh'), 'ph'), e('span', { key: 'hint', 'data-slot': 'textMuted', style: { color: txOf(colors.textMuted) } }, tr('miniInputHint'))], { key: 'inputBox' }, true),
+        }, [t('text', tr('miniInputPh'), 'ph'), e('span', { key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted) }, ringStyle('textMuted') || {}) }, tr('miniInputHint'))], { key: 'inputBox' }, true),
         e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
       ], { key: 'mainCol' }, true)
     )
@@ -828,6 +918,8 @@ export function CustomEditor(props) {
   },
     // 原型 .seg-system 双色字口径（prototype.html:100-101，原样搬运；不支持的浏览器回落 #F0F0F0 纯色）
     e('style', { key: 'syslabel-css' }, '@supports ((-webkit-background-clip:text) or (background-clip:text)){.seg button.seg-system .syslabel{background:linear-gradient(to bottom right,#F4F4F5 0,#F4F4F5 50%,#0B0B0E 50%,#0B0B0E 100%);-webkit-background-clip:text;background-clip:text;color:transparent}}'),
+    // 滚动条口径（原型 :143-148）：左列表悬停才现，右画布列隐藏（用户 m08636 第 2 条）
+    e('style', { key: 'dlg-scrollcss' }, DLG_CSS),
     e('div', {
       ref: dlgRef,
       onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } },
@@ -1016,15 +1108,27 @@ export function CustomEditor(props) {
       // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
       // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
       e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } },
-        e('div', { style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
+        e('div', { className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
         e('div', {
+          className: 'dspe-dlg-right',
           style: {
             overflow: 'auto', padding: '12px 14px', background: miniLight ? '#E2E2E6' : '#0D0D10', minWidth: 0,
           },
         },
           renderMini())
       ),
-      renderPop()
+      renderPop(),
+      // 预览小标签（用户 m08636 第 1 条：层级高于预览区、不被容器遮挡）。
+      // 原型挂 document.body + position:fixed + zIndex 9999（prototype.html:906-919）；这里等价做成
+      // 弹窗内的 fixed 覆盖层（fixed 不被祖先 overflow 裁剪），坐标来自 badgeAt effect 的实测。
+      badgeAt && hl ? e('span', {
+        key: 'slotbadge-pop',
+        style: {
+          position: 'fixed', zIndex: 9999, top: badgeAt.top + 'px', left: badgeAt.left + 'px',
+          background: '#FAB283', color: '#141419', fontSize: '10px', fontFamily: 'Consolas,monospace',
+          borderRadius: '4px', padding: '0 6px', pointerEvents: 'none', whiteSpace: 'nowrap',
+        },
+      }, hl) : null
     )
   )
 }

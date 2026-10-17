@@ -286,10 +286,11 @@ const SEED_THEME = {
   colors: { primary: '#FAB283', background: '#0A0A0A', text: '#ECEDE9', border: '#55555E' },
 }
 
-test('自定义区渲染（中文）：标题计数 + 复制路径 + 新增/编辑常驻，弹窗默认关闭', () => {
+test('预置 IP 组 + 空自定义区（中文）：IP 与内置同区，自定义区只数用户存盘主题', () => {
   const { html } = loadCustomPanel()
-  assert.ok(html.includes('自定义主题 20'), '标题计入 20 套 IP 种子')
-  assert.ok(html.includes('宝可梦'), 'IP 种子胶囊中文名')
+  assert.ok(html.includes('自定义主题 0'), '空态自定义区计数 0（预置 IP 不混进自定义区）')
+  assert.ok(html.includes('IP 预置'), 'IP 预置组渲染')
+  assert.ok(html.includes('宝可梦'), 'IP 预置胶囊中文名')
   assert.ok(html.includes('复制配置路径'), '复制路径按钮')
   assert.ok(html.includes('+ 新增'), '+ 新增胶囊')
   assert.ok(html.includes('✎ 编辑'), '✎ 编辑胶囊')
@@ -298,23 +299,48 @@ test('自定义区渲染（中文）：标题计数 + 复制路径 + 新增/编�
   assert.equal(html.includes('<circle'), false, '全局禁 <circle>')
 })
 
-test('自定义区渲染（英文）：Custom themes + Copy config path，无中文残留', () => {
+test('预置 IP 组位置（用户口径 m08573）：内置组之后、自定义区之前，且不进自定义区计数', () => {
+  const { html } = loadCustomPanel()
+  const lastBuiltin = html.lastIndexOf('38 款 · 按色系分组')
+  const ip = html.indexOf('IP 预置')
+  const custom = html.indexOf('自定义主题 0')
+  assert.ok(lastBuiltin >= 0 && ip >= 0 && custom >= 0, '三段都应渲染')
+  assert.ok(lastBuiltin < ip, 'IP 预置组在内置主题区之后')
+  assert.ok(ip < custom, 'IP 预置组在自定义区之前')
+  // IP 胶囊激活键走 ip: 前缀，与用户存盘的 custom: 前缀并列不冒充
+  assert.equal(html.includes('custom:pokemon'), false, '预置 IP 不得以 custom: 键出现在展示层')
+})
+
+test('预置 IP 组渲染（英文）：IP presets + ascii id，无中文残留', () => {
   const { html } = loadCustomPanel({ lang: 'en' })
-  assert.ok(html.includes('Custom themes 20'), '英文标题计入 IP 种子')
-  assert.ok(html.includes('sailor-moon'), '英文界面 IP 种子显示 ascii id')
+  assert.ok(html.includes('Custom themes 0'), '英文自定义区计数 0')
+  assert.ok(html.includes('IP presets'), '英文 IP 预置组标题')
+  assert.ok(html.includes('sailor-moon'), '英文界面 IP 预置显示 ascii id')
   assert.ok(html.includes('Copy config path'), '英文复制按钮')
   assert.ok(html.includes('New'), '英文新增')
   assert.ok(html.includes('Edit'), '英文编辑')
   assert.equal(html.includes('自定义'), false, '英文界面无中文残留')
   assert.equal(html.includes('复制配置路径'), false, '英文界面无中文残留')
-  assert.equal(html.includes('宝可梦'), false, '英文界面 IP 种子不用中文名')
+  assert.equal(html.includes('宝可梦'), false, '英文界面 IP 预置不用中文名')
 })
 
-test('IP 种子去重：存盘过的 id 不再重复列种子', () => {
+test('点击预置 IP 胶囊：setIpTheme 直接生效且不写盘（无宿主也不抛）', () => {
+  const { panelProps } = loadCustomPanel()
+  assert.equal(panelProps.setIpTheme('pokemon'), true, 'bundle 内 id 生效')
+  assert.equal(panelProps.getState().theme, 'ip:pokemon', '预置激活键 ip:<id>，不落盘')
+  assert.equal(panelProps.setIpTheme('nope-not-there'), false, '未收录 id 返回 false、不换主题')
+  assert.equal(panelProps.getState().theme, 'ip:pokemon', '无效 id 不改动当前主题')
+})
+
+test('预置 IP 组恒 20 项：与用户存盘主题互不影响（无去重、无存盘）', () => {
   const { html } = loadCustomPanel({
-    storage: seedStorage({ themes: [{ id: 'pokemon', name: '宝可梦', appearance: 'dark', colors: SEED_THEME.colors }], dirPath: '' }),
+    storage: seedStorage({ themes: [{ id: 'pokemon', name: '宝可梦自存版', appearance: 'dark', colors: SEED_THEME.colors }], dirPath: '' }),
   })
-  assert.ok(html.includes('自定义主题 20'), '存盘 1 + 剩下 19 种子，去重后仍是 20')
+  assert.ok(html.includes('IP 预置'), 'IP 预置组与存盘主题并存')
+  assert.ok(html.includes('宝可梦自存版'), '存盘主题按自己的名字列在自定义区')
+  // IP 组按 id 独立渲染：同名存盘不会把预置项顶掉（宝可梦 出现 >= 2 次：预置胶囊 + 存盘名）
+  assert.ok(html.split('宝可梦').length - 1 >= 2, 'IP 预置项不因同名存盘而消失')
+  assert.ok(html.includes('自定义主题 1'), '自定义区只数用户存盘的 1 套')
 })
 
 test('浅色停用宿主：自定义区无深色硬编码（门禁 5 模式）', () => {
@@ -328,25 +354,28 @@ test('浅色停用宿主：自定义区无深色硬编码（门禁 5 模式）',
   }
 })
 
-test('种子 customs：胶囊渲染 + 命名空间隔离 + 38 主题计数不动', () => {
+test('存盘 customs：胶囊渲染 + 命名空间隔离 + 38 主题计数不动', () => {
   const { html } = loadCustomPanel({
     storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
   })
-  assert.ok(html.includes('自定义主题 21'), '计数 = 存盘 1 + IP 种子 20')
+  assert.ok(html.includes('自定义主题 1'), '计数只数用户存盘（IP 预置不计数）')
   assert.ok(html.includes('极光测试'), '自定义胶囊渲染主题名')
   assert.equal(html.includes('custom:aurora-test'), false, '内部激活键不泄漏到展示层')
   assert.ok(html.includes('38 款 · 按色系分组'), '内置 9 组/38 主题门禁不动')
+  assert.ok(html.includes('IP 预置'), 'IP 预置组与存盘主题并存渲染')
   assert.equal(editBtnDisabled(html), false, '有主题时 ✎ 编辑可用')
 })
 
-test('自定义区渲染顺序：位于特殊分组下方（分组本身由 group-boundary 钉死）', () => {
+test('自定义区渲染顺序：特殊分组下方，且位于 IP 预置组之后（用户口径 m08573）', () => {
   const { html } = loadCustomPanel({
     storage: seedStorage({ themes: [SEED_THEME], dirPath: 'D:\\dsh\\custom-themes' }),
   })
   const special = html.indexOf('特殊')
-  const custom = html.indexOf('自定义主题 21')
-  assert.ok(special >= 0 && custom >= 0, '特殊与自定义标题都应渲染')
-  assert.ok(special < custom, '自定义区位于特殊分组下方')
+  const ip = html.indexOf('IP 预置')
+  const custom = html.indexOf('自定义主题 1')
+  assert.ok(special >= 0 && ip >= 0 && custom >= 0, '特殊/IP 预置/自定义标题都应渲染')
+  assert.ok(special < ip, 'IP 预置组位于特殊分组下方')
+  assert.ok(ip < custom, '自定义区位于 IP 预置组下方')
 })
 
 test('词表对账（#86）：glossary 新增 161 行 == 代码 I18N，中英逐行命中源码', () => {
@@ -400,7 +429,7 @@ test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', (
 // ── 弹窗直渲染（源码级 CustomEditor + 桩 hooks + 真 reactSSR）──
 // 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
 // 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
-import { CustomEditor, presetToSeed } from '../runtime/custom-editor.mjs'
+import { CustomEditor, presetToSeed, slotRingStyle } from '../runtime/custom-editor.mjs'
 import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.mjs'
 
 function mockHooks() {
@@ -586,4 +615,76 @@ test('弹窗尺寸：高度=预览区 564、纯 center 居中、一行控件同�
   })
   const edtag = (editHtml.match(/<span[^>]*title="T:edTagTitle"[^>]*>/) || [''])[0]
   assert.ok(edtag.includes('box-sizing:border-box') && edtag.includes('height:32px'), '编辑态 edtag 也是 32（border-box）')
+})
+
+// ── 用户 m08636 四条（编辑新增页面实测反馈）──
+// 真 DOM 实测数据（Chrome 无头 + React 真 hooks，见 .scratch-ed-dom.mjs）：
+//   左列 scrollH=2010 clientH=564 scrollbarColor=rgba(0,0,0,0)（不滑动不可见）；
+//   行标签 gap=6（标题右边缘 +6）、vcenterDelta=2、不压色块；预览标签 fixed z=9999 且在视口内。
+test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦点圈（纯函数缝）', () => {
+  for (const s of ENGINE_SLOTS) {
+    const ring = slotRingStyle(s.key, s.key)
+    assert.ok(ring && !ring.boxShadow.includes('undefined'), '色位自身必须被圈：' + s.key)
+  }
+  assert.equal(ENGINE_SLOTS.length, 37, '37 色位')
+  assert.ok(slotRingStyle('text', 'text').boxShadow.startsWith('inset'), '普通色位内圈（原型 .hl）')
+  assert.ok(slotRingStyle('border', 'border').boxShadow.startsWith('0 0 0 2px'), 'border 外圈（原型 .hl-edge）')
+  assert.ok(slotRingStyle('borderActive', 'borderActive').boxShadow.startsWith('0 0 0 2px'), 'borderActive 外圈')
+  // EXTRA_HL 别名：border 系命中时同圈（原型 paintHl:896-900 的 .side/.md/.cinput 口径）
+  for (const alias of ['sidebarBg', 'backgroundPanel', 'bubbleBg', 'inputBg']) {
+    assert.ok(slotRingStyle('border', alias), 'border 别名同圈：' + alias)
+  }
+  assert.ok(slotRingStyle('borderActive', 'inputBg'), 'borderActive 别名同圈：inputBg')
+  assert.equal(slotRingStyle(null, 'text'), null, '无悬浮不圈')
+  assert.equal(slotRingStyle('text', 'markdownLink'), null, '无关色位不圈')
+})
+
+test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes("e('span', { key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }"), 't() 文本 span 吃圈（一句话的每个组成部分）')
+  assert.ok(src.includes("'data-slot': p.s, className: ringCls(p.s)"), '代码块 token span 吃圈')
+  assert.equal((src.match(/'data-slot': 'textMuted', className: ringCls\('textMuted'\)/g) || []).length, 2, 'textMuted 两处（代码头 js + 输入说明）都吃圈')
+  // 结构门禁：data-slot 落点共 5 处，每处都必须接圈（新增裸 data-slot 会打破计数，逼作者接线）
+  assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点数变化必须同步接圈')
+})
+
+test('m08636-1：预览小标签改挂 fixed 覆盖层，层级高于预览区且不被容器裁', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes("position: 'fixed', zIndex: 9999"), 'fixed 覆盖层 + zIndex 9999（原型 badge 挂 body :908 口径）')
+  assert.equal(src.includes("top: '-9px', right: '-6px'"), false, '节点内小标签已移除（原会被 .mini{overflow:hidden} 裁掉）')
+  assert.ok(src.includes("mini.querySelector('[data-slot=\"' + hl + '\"]')"), '锚点 = 预览里第一个命中元素（原型 matches[0] :903）')
+  assert.ok(src.includes("mini.querySelector('.' + HL_CLS)"), '无直命中取第一个焦点圈元素（原型 extras[0] :903）')
+  // 原型坐标公式（prototype.html:911-917）
+  assert.ok(src.includes('const small = r.width < bw + 12'), '小元素改挂右侧（原型 :911）')
+  assert.ok(src.includes('if (top < 28) top = r.top + 4'), '贴顶改挂下方（原型 :913）')
+  assert.ok(src.includes('if (top < dr.top + 4) top = r.top + 4'), '不钻到弹窗顶栏里（原型 :915）')
+  assert.ok(src.includes('left + bw > vw - 4) left = vw - bw - 4'), '视口右边界夹紧（原型 :917）')
+})
+
+test('m08636-2：左列滚动条不滑动时不可见，右画布列隐藏滚动条（原型 :143-148）', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
+  assert.ok(html.includes('class="dspe-dlg-left"') && html.includes('class="dspe-dlg-right"'), '左右列挂滚动条钩子类')
+  assert.ok(html.includes('.dspe-dlg-left{scrollbar-width:thin;scrollbar-color:transparent transparent}'), '左列默认透明（看不见）')
+  assert.ok(html.includes('.dspe-dlg-left:hover{scrollbar-color:#3A3A44 transparent}'), '悬停才现形')
+  assert.ok(html.includes('.dspe-dlg-left::-webkit-scrollbar-thumb{background:transparent'), 'webkit 默认透明')
+  assert.ok(html.includes('.dspe-dlg-left:hover::-webkit-scrollbar-thumb{background:#3A3A44'), 'webkit 悬停现形')
+  assert.ok(html.includes('.dspe-dlg-right{scrollbar-width:none}'), '右列隐藏滚动条（原型 :147）')
+  assert.ok(html.includes('.dspe-dlg-right::-webkit-scrollbar{display:none'), '右列 webkit 隐藏（原型 :148）')
+})
+
+test('m08636-3：左列悬浮小标签贴标题控件右侧（不再压行角）', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes("left: 'calc(100% + 6px)'"), '标签挂标题右边缘 +6（原型 paintHl:928）')
+  assert.ok(src.includes("transform: 'translate(' + (-rowShift) + 'px, -50%)'"), '垂直居中 + 长名夹紧位移（原型 :929-931）')
+  assert.ok(src.includes("shift = unRight - (rr.right - 4)"), '夹紧：右边缘不越行右边界 4px（原型 :929）')
+  assert.ok(src.includes("if (unLeft - shift < rr.left + 4)"), '夹紧：最少贴行左 4px（原型 :930）')
+  const rowAt = src.indexOf("'data-row': key,")
+  assert.ok(rowAt > 0, '找得到左列行渲染')
+  const seg = src.slice(rowAt, rowAt + 2600)
+  const wrapAt = seg.indexOf("position: 'relative', display: 'inline-block', maxWidth: '100%'")
+  const bAt = seg.indexOf("e('b', {")
+  const badgeAt = seg.indexOf("calc(100% + 6px)")
+  const swatchAt = seg.indexOf("'data-slot-row': key")
+  assert.ok(wrapAt > 0 && bAt > wrapAt && badgeAt > bAt && swatchAt > badgeAt, 'DOM 归属：标题包裹盒 > <b> 标题 > 小标签 > 色块')
 })
