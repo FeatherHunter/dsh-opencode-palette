@@ -11,6 +11,7 @@
 - `node scripts/check-deps.mjs`（构建前置硬门禁）四列全跟平：dsh-plugin-update 0.18.7 / 0.18.7 / 0.18.7 / 0.18.7；dsh-log 0.3.4 / 0.3.4 / 0.3.4 / 0.3.4。
 - `npm run build` 绿；`npm test` **246/246 全绿**（14 个测试文件，0 fail / 0 cancelled / 0 skipped）。
 - `npm pack`（在 package/ 内）7 files：README.md、cordis.patch.yml、lib/channel.mjs、lib/client.js、lib/event-list.json、lib/index.js、package.json；包内 version=2.1.1、dependencies 双写 0.18.7、`PALETTE_VERSION = '2.1.1'`。
+- 线上：`npm view dsh-opencode-palette version` = **2.1.1**、`dist-tags.latest` = **2.1.1**，`dist.shasum` = `00c00c36d279f61079c0b625d7aa72e69429f5f5`（与本地 tgz sha1 逐字符相同；受理后 100 秒可见）。
 
 ## 哈希
 - tgz sha1：00c00c36d279f61079c0b625d7aa72e69429f5f5
