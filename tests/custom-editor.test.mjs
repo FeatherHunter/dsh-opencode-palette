@@ -339,7 +339,7 @@ test('点击预置 IP 胶囊：setIpTheme 直接生效且不写盘（无宿主�
   assert.equal(panelProps.getState().theme, 'ip:pokemon', '无效 id 不改动当前主题')
 })
 
-test('预置 IP 组恒 20 项：与用户存盘主题互不影响（无去重、无存盘）', () => {
+test('预置 IP 组恒 21 项：与用户存盘主题互不影响（无去重、无存盘）', () => {
   const { html } = loadCustomPanel({
     storage: seedStorage({ themes: [{ id: 'pokemon', name: '宝可梦自存版', appearance: 'dark', colors: SEED_THEME.colors }], dirPath: '' }),
   })

@@ -73,7 +73,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (Chinese / English).
 
-**Your own themes.** A 37-color visual editor tunes slot by slot, with a miniature DSH preview — click an element in the preview and the matching slot row jumps into view on the left, both ways; 20 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
+**Your own themes.** A 37-color visual editor tunes slot by slot, with a miniature DSH preview — click an element in the preview and the matching slot row jumps into view on the left, both ways; 21 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 

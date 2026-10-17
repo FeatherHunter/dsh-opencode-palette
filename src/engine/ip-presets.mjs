@@ -1,5 +1,5 @@
-// ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 20 套（v3 终审版）。
-// 双来源口径：内置 38（registry，不动）+ IP 20（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
+// ip-presets.mjs — IP 预置主题第二来源：src/custom-presets/ 21 套（含库洛米）。
+// 双来源口径：内置 38（registry，不动）+ IP 21（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
 // 构建器把 JSON 内联进 bundle（build-client.mjs CUSTOM_PRESETS_DIR），本文件只做字段收敛：
 // 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
 // name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
@@ -12,6 +12,7 @@ import evangelion from '../custom-presets/evangelion.json' with { type: 'json' }
 import genshin from '../custom-presets/genshin.json' with { type: 'json' }
 import harry_potter from '../custom-presets/harry-potter.json' with { type: 'json' }
 import hello_kitty from '../custom-presets/hello-kitty.json' with { type: 'json' }
+import kuromi from '../custom-presets/kuromi.json' with { type: 'json' }
 import lego from '../custom-presets/lego.json' with { type: 'json' }
 import mario from '../custom-presets/mario.json' with { type: 'json' }
 import marvel from '../custom-presets/marvel.json' with { type: 'json' }
@@ -27,7 +28,7 @@ import zelda from '../custom-presets/zelda.json' with { type: 'json' }
 const IP_PRESETS_RAW = {
   'cyberpunk-2077': cyberpunk_2077, 'dc-comics': dc_comics, 'disney': disney,
   'doraemon': doraemon, 'dragon-ball': dragon_ball, 'evangelion': evangelion, 'genshin': genshin,
-  'harry-potter': harry_potter, 'hello-kitty': hello_kitty, 'lego': lego,
+  'harry-potter': harry_potter, 'hello-kitty': hello_kitty, 'kuromi': kuromi, 'lego': lego,
   'mario': mario, 'marvel': marvel, 'naruto': naruto, 'one-piece': one_piece,
   'pokemon': pokemon, 'sailor-moon': sailor_moon, 'star-wars': star_wars,
   'transformers': transformers, 'ultraman': ultraman, 'zelda': zelda,

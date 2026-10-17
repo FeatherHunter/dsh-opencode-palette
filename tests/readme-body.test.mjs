@@ -168,11 +168,11 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+
   assert.equal(count(extBlock(EN), '**A panel you can find.**'), 1, '英文应保留该条')
   assert.equal(count(extBlock(ZH), '**自定义主题。**'), 1, '中文应新增「自定义主题」一条')
   assert.equal(count(extBlock(EN), '**Your own themes.**'), 1, '英文应新增同形一条（逐块同形门禁盯着）')
-  // v2.1.0 事实：37 色编辑器 + 微缩预览双向定位 + 20 IP 预置基底 + 单文件落盘路径
+  // v2.1.0 事实：37 色编辑器 + 微缩预览双向定位 + 21 IP 预置基底（含库洛米）+ 单文件落盘路径
   assert.ok(extBlock(ZH).includes('37 色可视化编辑器'), '中文该条应讲到 37 色编辑器')
   assert.ok(extBlock(EN).includes('37-color visual editor'), '英文该条应讲到 37 色编辑器')
   for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
-    assert.ok(block.includes('20'), `${name} 该条应讲到 20 个 IP 预置基底`)
+    assert.ok(block.includes('21'), `${name} 该条应讲到 21 个 IP 预置基底`)
     assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)
   }
 })

@@ -73,7 +73,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
 
-**自定义主题。** 37 色可视化编辑器逐色位调，配微缩 DSH 预览——点预览里的元素就跳到左侧对应色位行，两边互相定位；20 个 IP 预置可当基底，存下来的主题落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
+**自定义主题。** 37 色可视化编辑器逐色位调，配微缩 DSH 预览——点预览里的元素就跳到左侧对应色位行，两边互相定位；21 个 IP 预置可当基底，存下来的主题落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
