@@ -81,6 +81,8 @@
 
 中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
 
+2026-10-17 #92 命名审查：7 组名、37 个色位名与 37 条作用说明按 DSH token 语义定稿（映射与实测证据见 #92）；下表变更行状态列标「#86 新增，#92 定稿」，其余行维持 #86 原文。
+
 | key | 定稿 zh | 定稿 en | 状态 |
 |---|---|---|---|
 | `customTitle` | 自定义主题 {n} | Custom themes {n} | #86 新增 |
@@ -137,7 +139,7 @@
 | `edSave` | 保存主题 | Save theme | #86 新增 |
 | `edSaveTitle` | 保存后出现在自定义主题里 | Saves into your custom themes | #86 新增 |
 | `edSaveNeedName` | 先起个名字 | Name it first | #86 新增 |
-| `cgroup.bg` | 界面与背景 | Surfaces | #86 新增 |
+| `cgroup.bg` | 背景与表面 | Surfaces | #86 新增，#92 定稿 |
 | `cgroup.text` | 文字 | Text | #86 新增 |
 | `cgroup.brand` | 品牌与状态 | Brand & status | #86 新增 |
 | `cgroup.border` | 边框 | Border | #86 新增 |
@@ -145,34 +147,34 @@
 | `cgroup.md` | Markdown | Markdown | #86 新增 |
 | `cgroup.syn` | 代码高亮 | Syntax | #86 新增 |
 | `cslot.background` | 背景 | Background | #86 新增 |
-| `cslot.backgroundPanel` | 面板 | Panel | #86 新增 |
-| `cslot.backgroundElement` | 元件 | Element | #86 新增 |
+| `cslot.backgroundPanel` | 浮起面 | Raised surface | #86 新增，#92 定稿 |
+| `cslot.backgroundElement` | 浮层 | Overlays | #86 新增，#92 定稿 |
 | `cslot.sidebarBg` | 侧边栏 | Sidebar | #86 新增 |
 | `cslot.bubbleBg` | 气泡 | Bubble | #86 新增 |
 | `cslot.inputBg` | 输入框 | Input | #86 新增 |
 | `cslot.codeBlockBg` | 代码块 | Code block | #86 新增 |
 | `cslot.codeHeaderBg` | 代码块顶栏 | Code header | #86 新增 |
-| `cslot.text` | 正文 | Text | #86 新增 |
-| `cslot.textMuted` | 次要文字 | Muted text | #86 新增 |
-| `cslot.primary` | 品牌主色 | Primary | #86 新增 |
-| `cslot.secondary` | 品牌次色 | Secondary | #86 新增 |
+| `cslot.text` | 主要文字 | Primary text | #86 新增，#92 定稿 |
+| `cslot.textMuted` | 次要文字 | Secondary text | #86 新增，#92 定稿 |
+| `cslot.primary` | 品牌主色 | Brand primary | #86 新增，#92 定稿 |
+| `cslot.secondary` | 空闲 | Idle | #86 新增，#92 定稿 |
 | `cslot.info` | 信息 | Info | #86 新增 |
 | `cslot.success` | 成功 | Success | #86 新增 |
 | `cslot.warning` | 警告 | Warning | #86 新增 |
 | `cslot.error` | 错误 | Error | #86 新增 |
 | `cslot.border` | 边框 | Border | #86 新增 |
-| `cslot.borderActive` | 选中边框 | Active border | #86 新增 |
-| `cslot.diffAdded` | 新增行 | Added line | #86 新增 |
-| `cslot.diffRemoved` | 删除行 | Removed line | #86 新增 |
-| `cslot.diffAddedBg` | 新增行底 | Added bg | #86 新增 |
-| `cslot.diffRemovedBg` | 删除行底 | Removed bg | #86 新增 |
-| `cslot.diffAddedLineNumberBg` | 新增行号底 | Added line-no. bg | #86 新增 |
-| `cslot.diffRemovedLineNumberBg` | 删除行号底 | Removed line-no. bg | #86 新增 |
+| `cslot.borderActive` | 强边框 | Strong border | #86 新增，#92 定稿 |
+| `cslot.diffAdded` | 新增文字 | Added text | #86 新增，#92 定稿 |
+| `cslot.diffRemoved` | 删除文字 | Removed text | #86 新增，#92 定稿 |
+| `cslot.diffAddedBg` | 新增行底 | Added line bg | #86 新增，#92 定稿 |
+| `cslot.diffRemovedBg` | 删除行底 | Removed line bg | #86 新增，#92 定稿 |
+| `cslot.diffAddedLineNumberBg` | 新增行号底 | Added gutter | #86 新增，#92 定稿 |
+| `cslot.diffRemovedLineNumberBg` | 删除行号底 | Removed gutter | #86 新增，#92 定稿 |
 | `cslot.markdownHeading` | 标题 | Heading | #86 新增 |
 | `cslot.markdownLink` | 链接 | Link | #86 新增 |
 | `cslot.markdownCode` | 行内代码 | Inline code | #86 新增 |
-| `cslot.markdownEmph` | 斜体 | Emphasis | #86 新增 |
-| `cslot.markdownStrong` | 粗体 | Strong | #86 新增 |
+| `cslot.markdownEmph` | 斜体文字 | Italic text | #86 新增，#92 定稿 |
+| `cslot.markdownStrong` | 粗体文字 | Bold text | #86 新增，#92 定稿 |
 | `cslot.markdownBlockQuote` | 引用 | Blockquote | #86 新增 |
 | `cslot.syntaxComment` | 注释 | Comment | #86 新增 |
 | `cslot.syntaxKeyword` | 关键字 | Keyword | #86 新增 |
@@ -181,42 +183,42 @@
 | `cslot.syntaxNumber` | 数字 | Number | #86 新增 |
 | `cslot.syntaxString` | 字符串 | String | #86 新增 |
 | `cslot.syntaxOperator` | 运算符 | Operator | #86 新增 |
-| `cslotUse.background` | 主窗口底 | Main window backdrop | #86 新增 |
-| `cslotUse.backgroundPanel` | 卡片与弹窗底 | Cards and popover backdrop | #86 新增 |
-| `cslotUse.backgroundElement` | 输入框与小块底 | Inputs and small block backdrop | #86 新增 |
-| `cslotUse.sidebarBg` | 左侧导航底 | Left navigation backdrop | #86 新增 |
+| `cslotUse.background` | 窗口与各层浮面底 | Window, layered surfaces and overlays | #86 新增，#92 定稿 |
+| `cslotUse.backgroundPanel` | 标签、多选与浮起按钮底 | Tags, multi-select and raised buttons | #86 新增，#92 定稿 |
+| `cslotUse.backgroundElement` | Toast、提示与引用块底 | Toasts, tips and quote surfaces | #86 新增，#92 定稿 |
+| `cslotUse.sidebarBg` | 侧边栏与标题行底 | Sidebar and title row | #86 新增，#92 定稿 |
 | `cslotUse.bubbleBg` | 用户消息气泡底 | User message bubble backdrop | #86 新增 |
-| `cslotUse.inputBg` | 底部输入框底 | Bottom input backdrop | #86 新增 |
+| `cslotUse.inputBg` | 消息输入框与登录框底 | Message input and login box | #86 新增，#92 定稿 |
 | `cslotUse.codeBlockBg` | 代码块底 | Code block backdrop | #86 新增 |
-| `cslotUse.codeHeaderBg` | 代码块顶栏底 | Code block header backdrop | #86 新增 |
-| `cslotUse.text` | 正文 | Body copy | #86 新增 |
-| `cslotUse.textMuted` | 时间与次要说明 | Timestamps and secondary notes | #86 新增 |
-| `cslotUse.primary` | 主按钮与选中态 | Primary buttons and selection | #86 新增 |
-| `cslotUse.secondary` | 徽章与次按钮 | Badges and secondary buttons | #86 新增 |
-| `cslotUse.info` | 链接与提示 | Links and tips | #86 新增 |
-| `cslotUse.success` | 通过与成功态 | Pass and success states | #86 新增 |
-| `cslotUse.warning` | 警告态 | Warning states | #86 新增 |
-| `cslotUse.error` | 错误与删除态 | Errors and destructive states | #86 新增 |
-| `cslotUse.border` | 分割线与描边 | Dividers and outlines | #86 新增 |
-| `cslotUse.borderActive` | 聚焦与高亮 | Focus and highlight | #86 新增 |
-| `cslotUse.diffAdded` | ＋行文字 | Added-line text | #86 新增 |
-| `cslotUse.diffRemoved` | －行文字 | Removed-line text | #86 新增 |
-| `cslotUse.diffAddedBg` | ＋行底 | Added-line backdrop | #86 新增 |
-| `cslotUse.diffRemovedBg` | －行底 | Removed-line backdrop | #86 新增 |
-| `cslotUse.diffAddedLineNumberBg` | ＋行行号底 | Added line-number backdrop | #86 新增 |
-| `cslotUse.diffRemovedLineNumberBg` | －行行号底 | Removed line-number backdrop | #86 新增 |
+| `cslotUse.codeHeaderBg` | 代码卡片顶栏底 | Code card header | #86 新增，#92 定稿 |
+| `cslotUse.text` | 正文、按钮字与代码默认色 | Body, button labels and code foreground | #86 新增，#92 定稿 |
+| `cslotUse.textMuted` | 次要文字、说明与菜单图标 | Captions, hints and menu icons | #86 新增，#92 定稿 |
+| `cslotUse.primary` | 主按钮、品牌强调与选中态 | Primary buttons, accents and selection | #86 新增，#92 定稿 |
+| `cslotUse.secondary` | 空闲状态圆点 | Idle status dot | #86 新增，#92 定稿 |
+| `cslotUse.info` | 徽章字、选中图标与强调按钮 | Badge text, selected icons and accent buttons | #86 新增，#92 定稿 |
+| `cslotUse.success` | 成功状态与通过标识 | Success states and pass marks | #86 新增，#92 定稿 |
+| `cslotUse.warning` | 警告状态与提示条 | Warning states and banners | #86 新增，#92 定稿 |
+| `cslotUse.error` | 错误状态与危险操作 | Errors and destructive actions | #86 新增，#92 定稿 |
+| `cslotUse.border` | 分割线、hr 与弱边框 | Dividers, hr and subtle borders | #86 新增，#92 定稿 |
+| `cslotUse.borderActive` | 强边框、聚焦与滚动条悬停 | Strong borders, focus and scrollbar hover | #86 新增，#92 定稿 |
+| `cslotUse.diffAdded` | ＋行文字与文件标记 | Added code text and file markers | #86 新增，#92 定稿 |
+| `cslotUse.diffRemoved` | －行文字与文件标记 | Removed code text and file markers | #86 新增，#92 定稿 |
+| `cslotUse.diffAddedBg` | ＋行整行底 | Added line background | #86 新增，#92 定稿 |
+| `cslotUse.diffRemovedBg` | －行整行底 | Removed line background | #86 新增，#92 定稿 |
+| `cslotUse.diffAddedLineNumberBg` | ＋行行号栏底 | Added line-number gutter | #86 新增，#92 定稿 |
+| `cslotUse.diffRemovedLineNumberBg` | －行行号栏底 | Removed line-number gutter | #86 新增，#92 定稿 |
 | `cslotUse.markdownHeading` | Markdown 标题 | Markdown headings | #86 新增 |
-| `cslotUse.markdownLink` | Markdown 链接与页内锚点 | Markdown links and in-page anchors | #86 新增 |
-| `cslotUse.markdownCode` | 行内代码与快捷键 | Inline code and kbd | #86 新增 |
-| `cslotUse.markdownEmph` | 斜体 | Emphasis (italic) | #86 新增 |
-| `cslotUse.markdownStrong` | 粗体 | Strong (bold) | #86 新增 |
-| `cslotUse.markdownBlockQuote` | 引用块竖线与文字 | Quote bar and text | #86 新增 |
-| `cslotUse.syntaxComment` | 注释 | Comments | #86 新增 |
+| `cslotUse.markdownLink` | 链接、锚点与代码链接 | Links, anchors and code links | #86 新增，#92 定稿 |
+| `cslotUse.markdownCode` | 行内代码文字（无芯片底） | Inline code text (no chip fill) | #86 新增，#92 定稿 |
+| `cslotUse.markdownEmph` | 强调（斜体）文字 | Emphasized (italic) text | #86 新增，#92 定稿 |
+| `cslotUse.markdownStrong` | 加粗（重要）文字 | Bold (important) text | #86 新增，#92 定稿 |
+| `cslotUse.markdownBlockQuote` | 引用块文字 | Quote text | #86 新增，#92 定稿 |
+| `cslotUse.syntaxComment` | 注释与文档注释 | Comments and doc comments | #86 新增，#92 定稿 |
 | `cslotUse.syntaxKeyword` | 关键字与控制流 | Keywords and control flow | #86 新增 |
-| `cslotUse.syntaxFunction` | 函数名 | Function names | #86 新增 |
-| `cslotUse.syntaxType` | 类型名 | Type names | #86 新增 |
-| `cslotUse.syntaxNumber` | 数字与布尔 | Numbers and booleans | #86 新增 |
-| `cslotUse.syntaxString` | 字符串 | Strings | #86 新增 |
+| `cslotUse.syntaxFunction` | 函数名与方法名 | Function and method names | #86 新增，#92 定稿 |
+| `cslotUse.syntaxType` | 类型名与参数名 | Type and parameter names | #86 新增，#92 定稿 |
+| `cslotUse.syntaxNumber` | 数字、常量与布尔 | Numbers, constants and booleans | #86 新增，#92 定稿 |
+| `cslotUse.syntaxString` | 字符串与模板串 | Strings and template expressions | #86 新增，#92 定稿 |
 | `cslotUse.syntaxOperator` | 运算符与标点 | Operators and punctuation | #86 新增 |
 | `miniSession` | 会话 | Session | #86 新增 |
 | `miniCurrent` | ministros · 当前 | ministros · current | #86 新增 |
