@@ -429,7 +429,7 @@ test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', (
 // ── 弹窗直渲染（源码级 CustomEditor + 桩 hooks + 真 reactSSR）──
 // 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
 // 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
-import { CustomEditor, presetToSeed, slotRingStyle } from '../runtime/custom-editor.mjs'
+import { CustomEditor, presetToSeed, slotRingStyle, needsReveal } from '../runtime/custom-editor.mjs'
 import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.mjs'
 
 function mockHooks() {
@@ -641,7 +641,7 @@ test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦
 
 test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
-  assert.ok(src.includes("e('span', { key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }"), 't() 文本 span 吃圈（一句话的每个组成部分）')
+  assert.ok(src.includes("Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }, bindSlot(slot))"), 't() 文本 span 吃圈 + 吃悬浮（一句话的每个组成部分）')
   assert.ok(src.includes("'data-slot': p.s, className: ringCls(p.s)"), '代码块 token span 吃圈')
   assert.equal((src.match(/'data-slot': 'textMuted', className: ringCls\('textMuted'\)/g) || []).length, 2, 'textMuted 两处（代码头 js + 输入说明）都吃圈')
   // 结构门禁：data-slot 落点共 5 处，每处都必须接圈（新增裸 data-slot 会打破计数，逼作者接线）
@@ -687,4 +687,32 @@ test('m08636-3：左列悬浮小标签贴标题控件右侧（不再压行角）
   const badgeAt = seg.indexOf("calc(100% + 6px)")
   const swatchAt = seg.indexOf("'data-slot-row': key")
   assert.ok(wrapAt > 0 && bAt > wrapAt && badgeAt > bAt && swatchAt > badgeAt, 'DOM 归属：标题包裹盒 > <b> 标题 > 小标签 > 色块')
+})
+
+// ── 用户 m09226：预览区鼠标悬浮某个内容 → 左列滑到对应色位行「出现视野中」──
+// 真 DOM 实测（Chrome 无头 + React 真 hooks，.scratch-ed-dom.mjs 的 reveal 场景）：
+//   悬浮视野外色位 → 调 scrollIntoView({block:'center',behavior:'smooth'})，行进入左列可视区且左列 scrollTop 变化；
+//   悬浮已在视野内的色位 → needsReveal=false，不再调用（鼠标扫过预览时列表不空抖）。
+test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 center/smooth 口径）', () => {
+  const view = { top: 100, height: 564 }    // 左列可视区
+  const inside = { top: 200, height: 64 }   // 完全在视野内
+  const above = { top: 60, height: 64 }     // 被上沿裁掉
+  const below = { top: 640, height: 64 }    // 被下沿裁掉
+  const flushTop = { top: 108, height: 64 } // 正好贴内边距下沿
+  assert.equal(needsReveal(view, inside, 8), false, '已在视野内不动')
+  assert.equal(needsReveal(view, above, 8), true, '上沿外要滑')
+  assert.equal(needsReveal(view, below, 8), true, '下沿外要滑')
+  assert.equal(needsReveal(view, flushTop, 8), false, '贴边（留 REVEAL_PAD 余量）也算进视野')
+  assert.equal(needsReveal(view, { top: 660, height: 64 }, 8), true, '下沿只压一点也要滑')
+  assert.equal(needsReveal(null, inside, 8), false, '无测量不动（假宿主/SSR 不抛）')
+  assert.equal(needsReveal(view, {}, 8), false, '行未挂载不动')
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes('function revealRow(key)') && src.includes('revealRow(slot)'), '预览悬浮入口接 revealRow')
+  assert.ok(src.includes("row.scrollIntoView({ block: 'center', behavior: 'smooth' })"), '滑动口径 = 原型 scrollToRow :938（居中 + 平滑）')
+  assert.equal(src.includes("block: 'nearest'"), false, '旧 nearest 口径已收敛到原型')
+  assert.ok(src.includes("ref: leftColRef, className: 'dspe-dlg-left'"), '左列挂 ref（量视野用）')
+  // 结构门禁：预览里 5 处 data-slot 全走 bindSlot（原型 :743 `#mini [data-slot]` 全绑）。
+  // 悬浮因此跟着「最内层命中元素」走 —— 联动的才是用户真正悬停的那个色位。
+  assert.equal((src.match(/bindSlot\(/g) || []).length, 5, 'data-slot 落点数变化必须同步接悬浮')
+  assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点仍是 5 处')
 })

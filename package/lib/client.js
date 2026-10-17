@@ -18590,6 +18590,19 @@ function slotRingStyle(hl, slot) {
   }
 }
 
+// 视野内边距（px）：行边缘到列表上下沿留一点余量，贴边也当没进视野（用户 m09226 的「出现在视野中」）。
+const REVEAL_PAD = 8
+
+// 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
+// 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
+// 纯函数接缝：view/row 形如 getBoundingClientRect() 的结果（只用到 top / height）。
+function needsReveal(view, row, pad) {
+  if (!view || !row) return false
+  const p = typeof pad === 'number' ? pad : 0
+  const bottom = view.top + (view.height || 0) - p
+  return row.top < view.top + p || row.top + (row.height || 0) > bottom
+}
+
 // 预置载入转换（#87 可测接缝）：选基底 = 37 色 + 外观 + 基底名一次填好（loadPreset 经此转换再 setState）。
 function presetToSeed(p) {
   const src = (p && p.colors) || {}
@@ -18730,6 +18743,7 @@ function CustomEditor(props) {
   }, [name, targetSel, mode, basePreset, appearance, lang,
     (props.customs || []).length, (props.presets || []).length])
   const rowRefs = h.useRef({})
+  const leftColRef = h.useRef(null)
   const svDrag = h.useRef(null)
 
   // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
@@ -18902,13 +18916,31 @@ function CustomEditor(props) {
     setPop(null)
   }
 
+  // 左列定位（原型 scrollToRow 口径：prototype.html:936-938 = block center + behavior smooth）。
+  function scrollToRow(key) {
+    try {
+      const row = rowRefs.current[key]
+      if (row && typeof row.scrollIntoView === 'function') row.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    } catch (err) { /* 忽略 */ }
+  }
+
+  // 预览 → 左列联动（用户 m09226）：行已在视野里就不动，否则按原型口径滑到可见。
+  function revealRow(key) {
+    try {
+      const row = rowRefs.current[key]
+      if (!row) return
+      const col = leftColRef.current
+      if (col && typeof col.getBoundingClientRect === 'function' && typeof row.getBoundingClientRect === 'function') {
+        if (!needsReveal(col.getBoundingClientRect(), row.getBoundingClientRect(), REVEAL_PAD)) return
+      }
+      scrollToRow(key)
+    } catch (err) { /* 忽略 */ }
+  }
+
   function clickSlot(key) {
     // 右点击 → 左定位 + 自动弹板（data-slot 即色位 key）
     if (props.slotMeta && props.slotMeta[key]) {
-      try {
-        const row = rowRefs.current[key]
-        if (row && typeof row.scrollIntoView === 'function') row.scrollIntoView({ block: 'nearest' })
-      } catch (err) { /* 忽略 */ }
+      scrollToRow(key)
       openPop(key)
     }
   }
@@ -19253,15 +19285,21 @@ function CustomEditor(props) {
     const ringOf = function (slot) { return slotRingStyle(hl, slot) }
     const ringStyle = function (slot) { return ringOf(slot) || undefined }
     const ringCls = function (slot) { return ringOf(slot) ? HL_CLS : undefined }
+    // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
+    // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
+    const bindSlot = function (slot) {
+      return {
+        onMouseEnter: function () { setHl(slot); revealRow(slot) },
+        onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
+      }
+    }
     const node = function (slot, style, children, extra, bare) {
       const ring = ringOf(slot)
       const props2 = Object.assign({
         'data-slot': slot,
         className: ring ? HL_CLS : undefined,
-        onMouseEnter: function () { setHl(slot) },
-        onMouseLeave: function () { if (!pop || pop.key !== slot) setHl(null) },
         style: Object.assign({ cursor: bare ? 'default' : 'pointer', position: 'relative' }, style, ring),
-      }, extra || {})
+      }, bindSlot(slot), extra || {})
       if (!bare) {
         props2[UI_INTERACTIVE_ATTR] = TIER_INPUT
         props2.onClick = function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot) }
@@ -19270,11 +19308,11 @@ function CustomEditor(props) {
       // 改由弹窗根的 fixed 覆盖层统一渲染，锚点定位见 badgeAt effect。
       return e('div', props2, children)
     }
-    // 原型文本 span 口径：data-slot 透出定位，无交互（点击只绑 md/tip/hr/cap）。
-    // 但同时要吃焦点圈（用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，
-    // 预览里每个组成部分都要被圈住；原型 paintHl 命中的就是这些 data-slot span）。
+    // 原型文本 span 口径：data-slot 透出定位，点击只绑 md/tip/hr/cap（原型 :736），
+    // 但悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
+    // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
     const t = function (slot, s, key) {
-      return e('span', { key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }, s)
+      return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: ringStyle(slot) }, bindSlot(slot)), s)
     }
     const codeLines = [
       { t: '// comment ', s: 'syntaxComment' }, { t: 'const ', s: 'syntaxKeyword' },
@@ -19347,12 +19385,12 @@ function CustomEditor(props) {
             node('codeHeaderBg', {
               display: 'flex', justifyContent: 'space-between', background: eff('codeHeaderBg'),
               padding: '5px 10px', fontSize: '11px', color: txOf(colors.textMuted),
-            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', { key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: ringStyle('textMuted') }, 'js')], { key: 'codeHead' }, true),
+            }, [e('span', { key: 'f' }, tr('miniFile')), e('span', Object.assign({ key: 'l', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: ringStyle('textMuted') }, bindSlot('textMuted')), 'js')], { key: 'codeHead' }, true),
             node('codeBlockBg', {
               background: eff('codeBlockBg'), padding: '8px 10px', fontFamily: 'Consolas,monospace',
               fontSize: '11px', overflow: 'auto', whiteSpace: 'pre', color: txOf(colors.text),
             }, codeLines.map(function (p, i) {
-              return p.s ? e('span', { key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s) }, ringStyle(p.s) || {}) }, p.t) : p.t
+              return p.s ? e('span', Object.assign({ key: 'tk-' + i, 'data-slot': p.s, className: ringCls(p.s), style: Object.assign({ color: eff(p.s) }, ringStyle(p.s) || {}) }, bindSlot(p.s)), p.t) : p.t
             }), { key: 'codePre' }, true)
           ), { key: 'codeBlock' }, true),
         // Diff 块（原型 .diffcard/.drow 口径：行号 12/13，无点击）
@@ -19400,7 +19438,7 @@ function CustomEditor(props) {
           border: '1px solid ' + eff('border'), boxShadow: 'inset 0 0 0 2px ' + eff('borderActive') + '55',
           borderRadius: '8px', padding: '8px 12px',
           fontSize: '12px', color: txOf(colors.text),
-        }, [t('text', tr('miniInputPh'), 'ph'), e('span', { key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted) }, ringStyle('textMuted') || {}) }, tr('miniInputHint'))], { key: 'inputBox' }, true),
+        }, [t('text', tr('miniInputPh'), 'ph'), e('span', Object.assign({ key: 'hint', 'data-slot': 'textMuted', className: ringCls('textMuted'), style: Object.assign({ color: txOf(colors.textMuted) }, ringStyle('textMuted') || {}) }, bindSlot('textMuted')), tr('miniInputHint'))], { key: 'inputBox' }, true),
         e('div', { key: 'capLine', style: { fontSize: '11px', color: txOf(colors.textMuted) } }, tr('miniCaption'))
       ], { key: 'mainCol' }, true)
     )
@@ -19653,7 +19691,7 @@ function CustomEditor(props) {
       // 主体（原型 .dlg-body 口径：grid 左列表 + 右画布）。
       // 高度固定 = 预览区 540（border-box）+ 右列上下 padding 12×2 = 564：正好完整展示预览区，不再被 flex:1 拉满 95vh 留白（用户 m08383）。
       e('div', { style: { display: 'grid', gridTemplateColumns: 'minmax(0,auto) minmax(0,1fr)', gap: 0, minHeight: 0, height: '564px', flex: '0 1 auto', overflow: 'hidden' } },
-        e('div', { className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
+        e('div', { ref: leftColRef, className: 'dspe-dlg-left', style: { overflowY: 'auto', overflowX: 'hidden', padding: '10px 4px', borderRight: '1px solid #26262C', minWidth: 0 } }, leftRows),
         e('div', {
           className: 'dspe-dlg-right',
           style: {
@@ -19678,7 +19716,7 @@ function CustomEditor(props) {
   )
 }
 
-__mods["custom-editor"] = { slotRingStyle, presetToSeed, CustomEditor }
+__mods["custom-editor"] = { slotRingStyle, needsReveal, presetToSeed, CustomEditor }
 })();
 (function () {
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
