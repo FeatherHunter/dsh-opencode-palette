@@ -125,14 +125,15 @@ build-client.mjs 把 src/engine + src/themes + runtime 内联为一个
 
 - **宿主半**：`runtime/host.mjs` 原样复制成 `package/lib/index.js`（另带 `channel.mjs`、`event-list.json`
   两个随包文件）。宿主半是真插件：接日志落盘与更新三电话，并把电话经精确路由 `/api/opencode-palette`
-  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明（`dsh-log` + `dsh-plugin-update@^0.12.0`）。
+  分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明，两个都是**精确钉版**
+  （`dsh-log@0.3.4` + `dsh-plugin-update@0.18.7`）——上游一发新版就得改声明重发，用户才拿得到。
 - **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/entry`（入口件闭包）在构建期从 npm 包读入、
   转成 bundle 模块内联（转换器支持多行 `import`/`export` 与 `as` 别名）。所以面板里的电话名与轮询间隔
   是**运行时从包的函数算出来的**，不是抄进源码的常量。
 - **更新包不再 vendor**：0.1.x 时 `runtime/vendor/` 与 `package/lib/vendor/` 由构建从 npm 包复制
   （自锚定缺陷的绕法）；0.2.0 起更新包按包名解析目标包，依赖形态直接可用，vendor 已全部删除。
   前因后果见 `docs/adr/0001-vendor-dsh-plugin-update.md`（已 superseded）与 `0002-*.md`。
-  构建前 `node scripts/check-deps.mjs` 硬门禁保证本机装的是上游最新（范围内落后就拦，离线放行），
+  构建前 `node scripts/check-deps.mjs` 硬门禁保证本机装的是上游最新（钉版落后就拦，离线放行），
   打出的 bundle 与用户装到的宿主依赖是同一版。
 - **换行归一**：仓库 `* text=auto`，Windows 新克隆检出为 CRLF；构建器在读取处统一成 LF，
   否则依赖「行首 import」的正则会全部失配（新克隆上构建静默产出 broken bundle）。
