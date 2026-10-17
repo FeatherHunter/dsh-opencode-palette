@@ -18375,26 +18375,7 @@ function hexToHsv(hex) {
 
 // { h, s, v } → #RRGGBB（仅最终字节取整）
 function hsvToHex(hsv) {
-  const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
-  const s = Math.min(100, Math.max(0, Number(hsv && hsv.s) || 0)) / 100
-  const v = Math.min(100, Math.max(0, Number(hsv && hsv.v) || 0)) / 100
-  const i = Math.floor(h / 60)
-  const f = h / 60 - i
-  const p = v * (1 - s)
-  const q = v * (1 - f * s)
-  const t = v * (1 - (1 - f) * s)
-  let r = 0
-  let g = 0
-  let b = 0
-  const m = ((i % 6) + 6) % 6
-  if (m === 0) { r = v; g = t; b = p }
-  else if (m === 1) { r = q; g = v; b = p }
-  else if (m === 2) { r = p; g = v; b = t }
-  else if (m === 3) { r = p; g = q; b = v }
-  else if (m === 4) { r = t; g = p; b = v }
-  else { r = v; g = p; b = q }
-  const to = (x) => Math.round(x * 255).toString(16).padStart(2, '0').toUpperCase()
-  return '#' + to(r) + to(g) + to(b)
+  return rgbToHex(hsvToRgb(hsv))
 }
 
 // 本主题用过的颜色：保序去重，跳过 transparent 与非法值（原型 freq 口径）
@@ -18474,7 +18455,178 @@ function filterCustomThemes(list, query) {
   })
 }
 
-__mods["custom-color"] = { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, clientSlug, SLOT_FB, SLOT_DARK2LIGHT, effectiveSlotColor, editorMiniLight, filterCustomThemes }
+// ── #95 取色器重构：颜色模型纯函数（零依赖，TDD 接缝）──
+
+function clampNum(x, lo, hi) {
+  const n = Number(x)
+  if (!isFinite(n)) return lo
+  return Math.min(hi, Math.max(lo, n))
+}
+
+function clampByte(x) { return Math.round(clampNum(x, 0, 255)) }
+
+// 从外部 hex 回填 HSV 时保留「无意义的维度」（R1）：V=0（黑）时 h 与 s 都无意义、S=0（灰）时 h 无意义。
+// 这是「拖到黑/灰后色相回弹成红」的根治：色相由状态保留，不靠 hex 反推。
+function mergeHsv(prev, next) {
+  const p = prev || {}
+  const n = next || {}
+  const v = clampNum(n.v, 0, 100)
+  const s = v === 0 ? clampNum(p.s, 0, 100) : clampNum(n.s, 0, 100)
+  const h = (v === 0 || s === 0) ? clampNum(p.h, 0, 360) : clampNum(n.h, 0, 360)
+  return { h: h, s: s, v: v }
+}
+
+// 宽松 HEX 解析（#95 粘贴/吸管/输入共用）：容忍首尾空白、全角 ＃、缺 #、#RGB、#RGBA、#RRGGBBAA。
+// 返回 { hex: '#RRGGBB', alphaDropped }；无法解析返回 null。
+function parseHexInputLoose(s) {
+  if (typeof s !== 'string') return null
+  const t0 = s.trim().replace(/＃/g, '#').replace(/#/g, '').replace(/\s+/g, '')
+  if (!/^[0-9a-fA-F]+$/.test(t0)) return null
+  let t = t0
+  let alphaDropped = false
+  if (t.length === 8) { t = t.slice(0, 6); alphaDropped = true }
+  else if (t.length === 4) { t = t.slice(0, 3); alphaDropped = true }
+  if (t.length === 3) t = t[0] + t[0] + t[1] + t[1] + t[2] + t[2]
+  if (t.length !== 6) return null
+  return { hex: '#' + t.toUpperCase(), alphaDropped: alphaDropped }
+}
+
+// { h, s, v } → { r, g, b }（0-255 整数）
+function hsvToRgb(hsv) {
+  const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
+  const s = clampNum(hsv && hsv.s, 0, 100) / 100
+  const v = clampNum(hsv && hsv.v, 0, 100) / 100
+  const i = Math.floor(h / 60)
+  const f = h / 60 - i
+  const p = v * (1 - s)
+  const q = v * (1 - f * s)
+  const t = v * (1 - (1 - f) * s)
+  let r = 0
+  let g = 0
+  let b = 0
+  const m = ((i % 6) + 6) % 6
+  if (m === 0) { r = v; g = t; b = p }
+  else if (m === 1) { r = q; g = v; b = p }
+  else if (m === 2) { r = p; g = v; b = t }
+  else if (m === 3) { r = p; g = q; b = v }
+  else if (m === 4) { r = t; g = p; b = v }
+  else { r = v; g = p; b = q }
+  return { r: clampByte(r * 255), g: clampByte(g * 255), b: clampByte(b * 255) }
+}
+
+// { r, g, b }（0-255）→ { h: 0-360 浮点, s: 0-100, v: 0-100 }
+function rgbToHsv(rgb) {
+  const r = clampByte(rgb && rgb.r) / 255
+  const g = clampByte(rgb && rgb.g) / 255
+  const b = clampByte(rgb && rgb.b) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const d = max - min
+  let h = 0
+  if (d !== 0) {
+    if (max === r) h = 60 * (((g - b) / d) % 6)
+    else if (max === g) h = 60 * ((b - r) / d + 2)
+    else h = 60 * ((r - g) / d + 4)
+  }
+  if (h < 0) h += 360
+  const s = max === 0 ? 0 : (d / max) * 100
+  return { h: h, s: s, v: max * 100 }
+}
+
+// { r, g, b }（0-255）→ #RRGGBB
+function rgbToHex(rgb) {
+  const to = (x) => clampByte(x).toString(16).padStart(2, '0').toUpperCase()
+  return '#' + to(rgb && rgb.r) + to(rgb && rgb.g) + to(rgb && rgb.b)
+}
+
+// getComputedStyle 的 'rgb()/rgba()' → hex；透明（alpha=0）返回 null（吸管降级路径用）。
+function rgbStringToHex(s) {
+  if (typeof s !== 'string') return null
+  const m = s.match(/^rgba?\(\s*([0-9.]+)\s*,\s*([0-9.]+)\s*,\s*([0-9.]+)\s*(?:,\s*([0-9.]+)\s*)?\)$/i)
+  if (!m) return null
+  if (m[4] !== undefined && Number(m[4]) === 0) return null
+  return rgbToHex({ r: Number(m[1]), g: Number(m[2]), b: Number(m[3]) })
+}
+
+// { h, s, v } → { h, s, l }（s/l 为 0-100）
+function hsvToHsl(hsv) {
+  const h = ((Number(hsv && hsv.h) % 360) + 360) % 360
+  const s = clampNum(hsv && hsv.s, 0, 100) / 100
+  const v = clampNum(hsv && hsv.v, 0, 100) / 100
+  const l = v * (1 - s / 2)
+  const sl = (l === 0 || l === 1) ? 0 : (v - l) / Math.min(l, 1 - l)
+  return { h: h, s: sl * 100, l: l * 100 }
+}
+
+// { h, s, l }（s/l 为 0-100）→ { h, s, v }
+function hslToHsv(hsl) {
+  const h = ((Number(hsl && hsl.h) % 360) + 360) % 360
+  const s = clampNum(hsl && hsl.s, 0, 100) / 100
+  const l = clampNum(hsl && hsl.l, 0, 100) / 100
+  const v = l + s * Math.min(l, 1 - l)
+  const sv = v === 0 ? 0 : 2 * (1 - l / v)
+  return { h: h, s: sv * 100, v: v * 100 }
+}
+
+// 色相轨的 13 个 30° 停（0/30/…/360），用「当前 S/V」生成真实渐变（不是纯色相条，R4 缓解）。
+function hueStops(s, v) {
+  const out = []
+  for (let i = 0; i < 13; i++) out.push(hsvToHex({ h: i * 30, s: s, v: v }))
+  return out
+}
+
+// WCAG 相对亮度与对比度（只提示、不自动改色）。
+function relativeLuminance(hex) {
+  const n = normalizeHexInput(hex) || '#000000'
+  const chan = function (c) {
+    const x = c / 255
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)
+  }
+  const r = chan(parseInt(n.slice(1, 3), 16))
+  const g = chan(parseInt(n.slice(3, 5), 16))
+  const b = chan(parseInt(n.slice(5, 7), 16))
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+function contrastRatio(hexA, hexB) {
+  const a = relativeLuminance(hexA)
+  const b = relativeLuminance(hexB)
+  return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
+}
+
+// 对比度基准槽：文字对背景、背景槽反过来对文字、其余（品牌/语法/边框/改动/Markdown）对面板。
+const BG_SLOTS = [
+  'background', 'backgroundPanel', 'backgroundElement', 'sidebarBg',
+  'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg',
+]
+function contrastRefSlot(slotKey) {
+  if (slotKey === 'text' || slotKey === 'textMuted') return 'background'
+  if (BG_SLOTS.indexOf(slotKey) >= 0) return 'text'
+  return 'backgroundPanel'
+}
+
+// 「本主题用过的颜色」：按分组优先级取前 max 个（R7：品牌/语法色不再被 8 个背景色挤掉），
+// 跳过当前槽自身的现值；入参 priorityKeys 为按优先级排好的色位 key 列表。
+function pickRecentColors(colors, currentKey, priorityKeys, max) {
+  const c = colors || {}
+  const lim = max > 0 ? max : 10
+  const out = []
+  const seen = new Set()
+  const consider = function (k) {
+    if (k === currentKey) return
+    const norm = normalizeHexInput(c[k])
+    if (!norm || seen.has(norm)) return
+    seen.add(norm)
+    out.push(norm)
+  }
+  const order = Array.isArray(priorityKeys) ? priorityKeys : []
+  for (let i = 0; i < order.length; i++) consider(order[i])
+  const keys = Object.keys(c)
+  for (let i = 0; i < keys.length; i++) consider(keys[i])
+  return out.slice(0, lim)
+}
+
+__mods["custom-color"] = { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, clientSlug, SLOT_FB, SLOT_DARK2LIGHT, effectiveSlotColor, editorMiniLight, filterCustomThemes, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, rgbStringToHex, hsvToHsl, hslToHsv, hueStops, relativeLuminance, contrastRatio, contrastRefSlot, pickRecentColors }
 })();
 (function () {
 // custom-store.mjs — 自定义主题本地缓存与宿主对账（#86）
@@ -18652,8 +18804,8 @@ __mods["ui-fx"] = { UI_INTERACTIVE_ATTR, UI_STYLE_ATTR, TIER_CHIP, TIER_BUTTON, 
 // custom-editor.mjs — 37 色自定义主题编辑弹窗（#86）
 // 交互与文案口径对齐 prototypes/custom-editor-83.prototype.html（唯一真相源）。
 // React 组件（无 DOM 裸奔）：渲染期零 document/window 访问，副作用全进 effects/handlers。
-const { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight } = __mods["custom-color"]
-const { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH } = __mods["ui-fx"]
+const { normalizeHexInput, hexToHsv, hsvToHex, distinctThemeColors, effectiveSlotColor, editorMiniLight, mergeHsv, parseHexInputLoose, hsvToRgb, rgbToHsv, rgbToHex, hsvToHsl, hslToHsv, hueStops, contrastRatio, contrastRefSlot, pickRecentColors } = __mods["custom-color"]
+const { UI_INTERACTIVE_ATTR, TIER_BUTTON, TIER_CHIP, TIER_INPUT, TIER_SWATCH, TIER_SWITCH } = __mods["ui-fx"]
 
 // 双向定位的额外高亮映射（原型 paintHl EXTRA_HL 口径：prototype.html:894-899）。
 // 原型只给 border 系别名（.side/.md/.cinput 类选择器）；本实现用 rect 描边机制，
@@ -18755,11 +18907,11 @@ function needsReveal(view, row, pad) {
   return row.top < view.top + p || row.top + (row.height || 0) > bottom
 }
 
-// 调色板 Popover 盒子尺寸（#94 实测外框：内容宽 250 + 内边距/描边 26 = 276；高 318，37 槽位同高）。
-// 旧定位公式把 250（内容宽）当外框、350 当高度：实测右侧溢出 26px、翻转后与锚点间距 32-48px。
-// 渲染侧用 border-box + 本宽、定位侧用本尺寸，两处同源。
-const POP_W = 276
-const POP_H = 318
+// 取色器 Popover 盒子尺寸（#95 重构：内容宽 294 = 320 − 内边距 24 − 描边 2，故外框宽 320；
+// 高度 388 = 内边距 24 + 标题 30 + SV 136 + 色相轨 22 + 数值行 34 + 主题色 44 + HEX 行 34 + 透明行 26 + footer 30 + 间隙）。
+// 渲染侧 border-box + 本宽高、定位侧用本尺寸，两处同源（#94 口径不变：常量必须等于 getBoundingClientRect）。
+const POP_W = 320
+const POP_H = 388
 // 锚定间距 / 边界留白 / 测量不可用时的兜底位（#94：纯函数、定位 effect 与测试共用同一来源）。
 const POP_GAP = 8
 const POP_MARGIN = 10
@@ -18833,6 +18985,347 @@ function popoverPosition(anchor, bounds, size, preferSide) {
 function presetToSeed(p) {
   const src = (p && p.colors) || {}
   return { colors: Object.assign({}, src), appearance: p ? p.appearance : undefined, basePreset: p ? p.name : undefined }
+}
+
+// ── #95 取色器（PalettePicker）：调研驱动的重构版调色盘 ──
+// 设计定稿（票内 resolution）：320×388 精确控制版 —— 标题（色位名 + hex 可点复制）/
+// SV 面板 / 自绘横向色相轨（13 个 30° 常驻淡刻度 + focus-visible）/ H·S·V↔RGB↔HSL 数值行
+// （模型按钮循环切换）/ 主题色 10 个（按分组优先级，R7）/ HEX + 吸管 + WCAG 对比度一行 /
+// 透明行（仅 8 个背景槽）/ 取消·完成。
+// 状态模型（R1 根治）：{h,s,v} 才是状态，hex 只是投影 —— 拖到黑/灰不再把色相反推成红；
+// hex / 吸管 / 主题色回填一律走 mergeHsv（保留无意义维度）。
+// 交互语义（R2）：任何改动即 live commit（onApply）；点弹板外 = 保留并关闭、Esc/取消 = 回滚
+// （回滚由父组件 closePop(true) 负责，本组件只发取消信号）。
+const PICK_SV_H = 136
+const PICK_HUE_H = 14
+const PICK_RECENT_MAX = 10
+function PalettePicker(props) {
+  const h = props.h
+  const e = h.createElement
+  const tr = props.tr
+  const trf = props.trf
+  const lang = props.lang === 'en' ? 'en' : 'zh'
+  const allow = !!props.allowTransparent
+  const value = props.value || { hex: '#000000', transparent: false }
+  const startHex = normalizeHexInput(value.hex) || '#000000'
+  function clamp01(n) { return Math.min(1, Math.max(0, n)) }
+  function wrapH(n) { const x = Number(n); return isFinite(x) ? ((x % 360) + 360) % 360 : 0 }
+  function clampPct(n) { const x = Number(n); return isFinite(x) ? Math.min(100, Math.max(0, x)) : 0 }
+  const startHsv = hexToHsv(startHex)
+  const [pick, setPick] = h.useState(function () {
+    return { h: startHsv.h, s: startHsv.s, v: startHsv.v, transparent: !!value.transparent }
+  })
+  const [hexText, setHexText] = h.useState(value.transparent ? '' : startHex)
+  const [hexError, setHexError] = h.useState(false)
+  const [notice, setNotice] = h.useState('')
+  const [model, setModel] = h.useState('hsv')
+  const drag = h.useRef(null)
+  const svRef = h.useRef(null)
+  const hueRef = h.useRef(null)
+  const curHex = pick.transparent ? '' : rgbToHex(hsvToRgb(pick))
+  const rgb = hsvToRgb(pick)
+  const hsl = hsvToHsl(pick)
+  const refHex = normalizeHexInput(props.contrastRefHex)
+  const ratio = refHex && !pick.transparent ? contrastRatio(curHex, refHex) : null
+  const pure = hsvToHex({ h: pick.h, s: 100, v: 100 })
+  const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
+  const stops = hueStops(100, 100)
+  const hueCss = 'linear-gradient(to right,' + stops.map(function (c, i) { return c + ' ' + (i * 100 / 12).toFixed(2) + '%' }).join(',') + ')'
+  const eyeOk = (function () {
+    try { return typeof window !== 'undefined' && typeof window.EyeDropper === 'function' } catch (err) { return false }
+  })()
+
+  // 直接推进 HSV（拖拽/数值/色相轨）：h 由状态保留，S/V 用本次输入（不做 mergeHsv —— 那是 hex 回填专用）。
+  function push(hsvNext, transparent, hexOverride) {
+    const next = {
+      h: wrapH(hsvNext.h), s: clampPct(hsvNext.s), v: clampPct(hsvNext.v),
+      transparent: !!transparent,
+    }
+    const hex = hexOverride || rgbToHex(hsvToRgb(next))
+    setPick(next)
+    setHexText(next.transparent ? '' : hex)
+    setHexError(false)
+    setNotice('')
+    if (typeof props.onApply === 'function') props.onApply(hex, next.transparent)
+  }
+  // hex / 吸管 / 主题色回填：走 mergeHsv 保留黑/灰时无意义的 h、s（R1）。
+  function pushHex(parsed, transparent) {
+    const hsv = mergeHsv(pick, hexToHsv(parsed.hex))
+    setPick({ h: hsv.h, s: hsv.s, v: hsv.v, transparent: !!transparent })
+    setHexText(transparent ? '' : parsed.hex)
+    setHexError(false)
+    setNotice(parsed.alphaDropped ? 'edAlphaDropped' : '')
+    if (typeof props.onApply === 'function') props.onApply(parsed.hex, !!transparent)
+  }
+  function svFrom(ev) {
+    const el = svRef.current
+    if (!el || typeof el.getBoundingClientRect !== 'function') return
+    const r = el.getBoundingClientRect()
+    push({ h: pick.h, s: clamp01((ev.clientX - r.left) / (r.width || 1)) * 100, v: (1 - clamp01((ev.clientY - r.top) / (r.height || 1))) * 100 }, false)
+  }
+  function svDown(ev) {
+    try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'sv' } catch (err) { drag.current = 'sv' }
+    svFrom(ev)
+  }
+  function svMove(ev) { if (drag.current !== 'sv') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } svFrom(ev) }
+  function svUp(ev) { if (drag.current !== 'sv') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
+  function svKey(ev) {
+    const step = ev.shiftKey ? 10 : 1
+    const k = ev.key
+    let ds = 0
+    let dv = 0
+    if (k === 'ArrowLeft') ds = -step
+    else if (k === 'ArrowRight') ds = step
+    else if (k === 'ArrowUp') dv = step
+    else if (k === 'ArrowDown') dv = -step
+    else return
+    try { ev.preventDefault() } catch (err) { /* 忽略 */ }
+    push({ h: pick.h, s: pick.s + ds, v: pick.v + dv }, false)
+  }
+  function hueFrom(ev) {
+    const el = hueRef.current
+    if (!el || typeof el.getBoundingClientRect !== 'function') return
+    const r = el.getBoundingClientRect()
+    push({ h: clamp01((ev.clientX - r.left) / (r.width || 1)) * 360, s: pick.s, v: pick.v }, false)
+  }
+  function hueDown(ev) {
+    try { ev.preventDefault(); if (ev.currentTarget && ev.currentTarget.setPointerCapture) ev.currentTarget.setPointerCapture(ev.pointerId); drag.current = 'hue' } catch (err) { drag.current = 'hue' }
+    hueFrom(ev)
+  }
+  function hueMove(ev) { if (drag.current !== 'hue') return; try { ev.preventDefault() } catch (err) { /* 忽略 */ } hueFrom(ev) }
+  function hueUp(ev) { if (drag.current !== 'hue') return; drag.current = null; try { if (ev.currentTarget && ev.currentTarget.releasePointerCapture) ev.currentTarget.releasePointerCapture(ev.pointerId) } catch (err) { /* 忽略 */ } }
+  function hueKey(ev) {
+    const k = ev.key
+    const step = ev.shiftKey ? 10 : 1
+    let dh = 0
+    if (k === 'ArrowLeft' || k === 'ArrowDown') dh = -step
+    else if (k === 'ArrowRight' || k === 'ArrowUp') dh = step
+    else if (k === 'PageDown') dh = -15
+    else if (k === 'PageUp') dh = 15
+    else if (k === 'Home') dh = -pick.h
+    else if (k === 'End') dh = 360 - pick.h
+    else return
+    try { ev.preventDefault() } catch (err) { /* 忽略 */ }
+    push({ h: pick.h + dh, s: pick.s, v: pick.v }, false)
+  }
+  function toggleTransparent(on) {
+    const hex = rgbToHex(hsvToRgb(pick))
+    setPick({ h: pick.h, s: pick.s, v: pick.v, transparent: !!on })
+    setHexText(on ? '' : hex)
+    setHexError(false)
+    setNotice('')
+    if (typeof props.onApply === 'function') props.onApply(hex, !!on)
+  }
+  function onHexChange(ev) {
+    const raw = ev.target.value
+    setHexText(raw)
+    const parsed = parseHexInputLoose(raw)
+    if (!parsed) { setHexError(raw.trim().length > 0); setNotice(''); return }
+    pushHex(parsed, false)
+  }
+  function onHexBlur() {
+    if (!parseHexInputLoose(hexText)) { setHexText(pick.transparent ? '' : curHex); setHexError(false) }
+  }
+  function copyHex() {
+    try {
+      const txt = pick.transparent ? 'transparent' : curHex
+      const nb = typeof navigator !== 'undefined' ? navigator : null
+      if (nb && nb.clipboard && typeof nb.clipboard.writeText === 'function') {
+        const p = nb.clipboard.writeText(txt)
+        if (p && typeof p.catch === 'function') p.catch(function () { /* 忽略 */ })
+      }
+    } catch (err) { /* 忽略：剪贴板不可用静默 */ }
+  }
+  function pickScreen() {
+    try {
+      const w = typeof window !== 'undefined' ? window : null
+      if (!w || typeof w.EyeDropper !== 'function') return
+      const ed = new w.EyeDropper()
+      Promise.resolve(ed.open()).then(function (res) {
+        const parsed = parseHexInputLoose(res && res.sRGBHex)
+        if (!parsed) return
+        pushHex(parsed, false)
+      }).catch(function () { /* 用户取消/权限拒绝：静默 */ })
+    } catch (err) { /* 非安全上下文等：静默降级到下方主题色 */ }
+  }
+  function cycleModel() {
+    setModel(model === 'hsv' ? 'rgb' : (model === 'rgb' ? 'hsl' : 'hsv'))
+  }
+  function cancel() { if (typeof props.onCancel === 'function') props.onCancel() }
+  function done() { if (typeof props.onDone === 'function') props.onDone() }
+  const modelLabel = model === 'rgb' ? 'RGB' : (model === 'hsl' ? 'HSL' : 'HSV')
+  const numStyle = {
+    width: '100%', height: '26px', boxSizing: 'border-box', background: TK.panel, color: TK.text,
+    border: '1px solid ' + TK.border, borderRadius: '6px', padding: '0 6px 0 16px', fontSize: '11px',
+    textAlign: 'right',
+  }
+  const fields = model === 'rgb'
+    ? [
+        { k: 'r', label: 'R', aria: 'R', val: rgb.r, max: 255, set: function (n) { const next = rgbToHsv({ r: n, g: rgb.g, b: rgb.b }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+        { k: 'g', label: 'G', aria: 'G', val: rgb.g, max: 255, set: function (n) { const next = rgbToHsv({ r: rgb.r, g: n, b: rgb.b }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+        { k: 'b', label: 'B', aria: 'B', val: rgb.b, max: 255, set: function (n) { const next = rgbToHsv({ r: rgb.r, g: rgb.g, b: n }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+      ]
+    : (model === 'hsl'
+        ? [
+            { k: 'h', label: 'H', aria: tr('edHue'), val: hsl.h, max: 360, set: function (n) { const next = hslToHsv({ h: n, s: hsl.s, l: hsl.l }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+            { k: 's', label: 'S', aria: tr('edSat'), val: hsl.s, max: 100, set: function (n) { const next = hslToHsv({ h: hsl.h, s: n, l: hsl.l }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+            { k: 'l', label: 'L', aria: tr('edLightness'), val: hsl.l, max: 100, set: function (n) { const next = hslToHsv({ h: hsl.h, s: hsl.s, l: n }); push({ h: next.h, s: next.s, v: next.v }, false) } },
+          ]
+        : [
+            { k: 'h', label: 'H', aria: tr('edHue'), val: pick.h, max: 360, set: function (n) { push({ h: n, s: pick.s, v: pick.v }, false) } },
+            { k: 's', label: 'S', aria: tr('edSat'), val: pick.s, max: 100, set: function (n) { push({ h: pick.h, s: n, v: pick.v }, false) } },
+            { k: 'v', label: 'V', aria: tr('edVal'), val: pick.v, max: 100, set: function (n) { push({ h: pick.h, s: pick.s, v: n }, false) } },
+          ])
+  const ticks = []
+  for (let i = 0; i < 13; i++) {
+    ticks.push(e('span', {
+      key: 't' + i, 'aria-hidden': 'true',
+      style: { position: 'absolute', left: (i * 100 / 12).toFixed(4) + '%', top: '1px', width: '1px', height: '4px', background: 'rgba(255,255,255,0.55)', pointerEvents: 'none' },
+    }))
+  }
+  return e('div', {
+    'data-picker-part': 'root',
+    style: { display: 'flex', flexDirection: 'column', gap: '6px', height: '100%', boxSizing: 'border-box', color: TK.text },
+  },
+    e('style', null, '.dpe-picker-focus:focus-visible{outline:2px solid ' + TK.accent + ';outline-offset:2px}'),
+    e('div', { 'data-picker-part': 'title', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' } },
+      e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } }, props.label || ''),
+      e('button', {
+        'data-picker-part': 'copy', type: 'button', title: tr('edCopy'), 'aria-label': tr('edCopy'),
+        onClick: copyHex,
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { border: 'none', background: 'transparent', color: TK.text2, fontSize: '11px', fontFamily: 'Consolas,monospace', padding: '0 2px', cursor: 'pointer' },
+      }, pick.transparent ? tr('edTransparent') : curHex)
+    ),
+    e('div', {
+      'data-picker-part': 'sv', ref: svRef, role: 'group', tabIndex: 0,
+      'aria-label': tr('edSat') + ' / ' + tr('edVal'), title: tr('edSvHint'),
+      'aria-disabled': pick.transparent ? 'true' : undefined,
+      onPointerDown: svDown, onPointerMove: svMove, onPointerUp: svUp, onKeyDown: svKey,
+      className: 'dpe-picker-focus',
+      [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+      style: {
+        position: 'relative', width: '100%', height: PICK_SV_H + 'px', boxSizing: 'border-box',
+        borderRadius: '8px', background: svCss, border: '1px solid #00000088',
+        cursor: pick.transparent ? 'default' : 'crosshair', touchAction: 'none',
+        opacity: pick.transparent ? 0.45 : 1,
+      },
+    },
+      e('div', {
+        'data-picker-part': 'sv-handle',
+        style: {
+          position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
+          border: '2px solid #fff', boxShadow: '0 0 0 1px #000', pointerEvents: 'none',
+          left: pick.s.toFixed(1) + '%', top: (100 - pick.v).toFixed(1) + '%',
+          transform: 'translate(-6px,-6px)',
+        },
+      })
+    ),
+    e('div', {
+      'data-picker-part': 'hue', ref: hueRef, role: 'slider', tabIndex: 0,
+      'aria-label': tr('edHue'), 'aria-valuemin': 0, 'aria-valuemax': 360,
+      'aria-valuenow': Math.round(pick.h),
+      'aria-valuetext': trf('edHueAria', { v: Math.round(pick.h) }),
+      onPointerDown: hueDown, onPointerMove: hueMove, onPointerUp: hueUp, onKeyDown: hueKey,
+      className: 'dpe-picker-focus',
+      [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+      style: {
+        position: 'relative', width: '100%', height: PICK_HUE_H + 'px', boxSizing: 'border-box',
+        borderRadius: '7px', background: hueCss, border: '1px solid #00000066',
+        cursor: pick.transparent ? 'default' : 'pointer', touchAction: 'none',
+        opacity: pick.transparent ? 0.45 : 1,
+      },
+    },
+      ticks,
+      e('div', {
+        style: {
+          position: 'absolute', top: '50%', left: (pick.h / 360 * 100).toFixed(4) + '%',
+          width: '16px', height: '16px', borderRadius: '50%', border: '2px solid #fff',
+          boxShadow: '0 0 0 1px #000', transform: 'translate(-8px,-50%)', pointerEvents: 'none',
+        },
+      })
+    ),
+    e('div', { 'data-picker-part': 'hsv', style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+      e('button', {
+        'data-picker-part': 'model', type: 'button', title: tr('edColorModel'), 'aria-label': tr('edColorModel'),
+        onClick: cycleModel,
+        [UI_INTERACTIVE_ATTR]: TIER_CHIP,
+        style: { height: '26px', width: '38px', boxSizing: 'border-box', border: '1px solid ' + TK.border, background: TK.panel, color: TK.text2, borderRadius: '6px', fontSize: '11px', cursor: 'pointer', padding: 0 },
+      }, modelLabel),
+      fields.map(function (f) {
+        return e('span', { key: 'nf-' + f.k, style: { position: 'relative', flex: 1, minWidth: 0, height: '26px', display: 'block' } },
+          e('span', {
+            'aria-hidden': 'true',
+            style: { position: 'absolute', left: '6px', top: 0, lineHeight: '26px', fontSize: '9px', color: TK.text3, pointerEvents: 'none' },
+          }, f.label),
+          e('input', {
+            key: 'n-' + f.k, type: 'number', min: 0, max: f.max, step: 1, value: String(Math.round(f.val)),
+            'aria-label': f.aria,
+            onChange: function (ev) { const n = Number(ev.target.value); if (isFinite(n)) f.set(n) },
+            [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+            style: Object.assign({}, numStyle),
+          })
+        )
+      })
+    ),
+    e('div', { 'data-picker-part': 'recent', style: { display: 'flex', flexDirection: 'column', gap: '4px' } },
+      e('div', { style: { fontSize: '11px', color: TK.text3 } }, tr('edFreq')),
+      e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } }, (Array.isArray(props.recent) ? props.recent : []).slice(0, PICK_RECENT_MAX).map(function (c, i) {
+        return e('button', {
+          key: 'rc-' + i, type: 'button', title: c, 'data-picker-recent-swatch': c,
+          onClick: function () { const parsed = parseHexInputLoose(c); if (parsed) pushHex(parsed, false) },
+          [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
+          style: { width: '20px', height: '20px', boxSizing: 'border-box', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0, cursor: 'pointer' },
+        })
+      }))
+    ),
+    e('div', { 'data-picker-part': 'hex', style: { display: 'flex', alignItems: 'center', gap: '6px' } },
+      e('input', {
+        'data-picker-part': 'hex-input', value: hexText, spellCheck: false, placeholder: '#RRGGBB',
+        'aria-label': 'HEX', 'aria-invalid': hexError ? 'true' : 'false',
+        onChange: onHexChange, onBlur: onHexBlur,
+        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
+        style: { minWidth: 0, flex: 1, height: '26px', boxSizing: 'border-box', background: TK.panel, color: TK.text, border: '1px solid ' + (hexError ? TK.danger : TK.border), borderRadius: '6px', padding: '0 8px', fontSize: '12px' },
+      }),
+      e('button', {
+        'data-picker-part': 'eyedropper', type: 'button', title: eyeOk ? tr('edEyedropper') : tr('edEyedropperOff'),
+        'aria-label': tr('edEyedropper'), disabled: !eyeOk, onClick: pickScreen,
+        [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { width: '28px', height: '26px', boxSizing: 'border-box', borderRadius: '6px', border: '1px solid ' + TK.border, background: TK.panel, color: eyeOk ? TK.text : TK.text3, cursor: eyeOk ? 'pointer' : 'default', fontSize: '13px', padding: 0 },
+      }, e('span', {
+        'aria-hidden': 'true',
+        style: { display: 'inline-block', width: '13px', height: '13px', position: 'relative', transform: 'rotate(45deg)' },
+      },
+        e('span', { key: 'eye-bulb', style: { position: 'absolute', left: '3px', top: 0, width: '7px', height: '6px', borderRadius: '2px 2px 0 0', background: 'currentColor' } }),
+        e('span', { key: 'eye-stem', style: { position: 'absolute', left: '5px', top: '6px', width: '3px', height: '5px', background: 'currentColor' } }),
+        e('span', { key: 'eye-tip', style: { position: 'absolute', left: '4px', top: '11px', width: 0, height: 0, borderLeft: '2px solid transparent', borderRight: '2px solid transparent', borderTop: '3px solid currentColor' } })
+      )),
+      e('span', {
+        'data-picker-part': 'contrast', title: tr('edContrast'),
+        style: { minWidth: '58px', flex: '0 0 auto', textAlign: 'right', whiteSpace: 'nowrap', fontSize: '11px', color: ratio !== null && ratio < 4.5 ? TK.dangerSoft : TK.text2, fontFamily: 'Consolas,monospace' },
+      }, ratio === null ? '—' : (ratio.toFixed(1) + ':1' + (ratio < 4.5 ? ' ' + tr('edContrastLow') : '')))
+    ),
+    e('div', { 'data-picker-part': 'transparent', style: { height: '20px', display: 'flex', alignItems: 'center', gap: '6px' } },
+      allow ? e('label', {
+        style: { display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: TK.text2, cursor: 'pointer' },
+        [UI_INTERACTIVE_ATTR]: TIER_SWITCH,
+      },
+        e('input', { type: 'checkbox', checked: pick.transparent, onChange: function (ev) { toggleTransparent(!!ev.target.checked) } }),
+        tr('edTransparent')) : null,
+      notice ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr(notice)) : null,
+      hexError ? e('span', { style: { fontSize: '11px', color: TK.dangerSoft } }, tr('edInvalidHex')) : null
+    ),
+    e('div', { 'data-picker-part': 'footer', style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: 'auto' } },
+      e('button', {
+        type: 'button', onClick: cancel, [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { flex: 1, height: '30px', boxSizing: 'border-box', background: 'transparent', color: TK.text, border: '1px solid ' + TK.border, borderRadius: '7px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
+      }, tr('edCancel')),
+      e('button', {
+        type: 'button', onClick: done, [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
+        style: { flex: 1, height: '30px', boxSizing: 'border-box', background: TK.btnFill, border: '1px solid ' + TK.btnFill, color: TK.accentFg, borderRadius: '7px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
+      }, tr('edDone'))
+    )
+  )
 }
 
 // props: {
@@ -19014,7 +19507,8 @@ function CustomEditor(props) {
     } catch (err) { return undefined }
   }, [])
 
-  // 点弹窗外关闭 Popover（原型 document mousedown 口径：调色板 revert，预置弹窗直接收起）
+  // 点弹窗外关闭 Popover（#95 语义：调色板内部 live commit，点外面 = 保留颜色直接关闭；
+  // 回滚只走 Esc/取消。预置弹窗仍是直接收起）
   h.useEffect(function () {
     if (!pop && !showPresets) return undefined
     const onDown = function (ev) {
@@ -19024,15 +19518,16 @@ function CustomEditor(props) {
         if (inPop) return
         const root = dlgRef.current
         if (root && root.contains && !root.contains(t)) {
-          if (pop) closePop(true)
+          if (pop) closePop(false)
           else setShowPresets(false)
           return
         }
         // 对话框内、弹窗外：#94 起预览区 [data-slot] 控件与 #93 起左列色块入口
         // [data-slot-row] 都是「调色盘入口」——点它们不算「点外面」：同入口再点保持弹板，
-        // 换入口由 openPop 换锚重定位。其余区域维持 #82 口径（mousedown 即 revert 收起）。
+        // 换入口由 openPop 换锚重定位。#95 起调色板内部 live commit，点其余区域 = 保留颜色直接关闭
+        //（R2：改完色去点下一个位置，不能把刚调的色静默回滚；回滚只走 Esc/取消）。
         const keepOpen = t && t.closest && (t.closest('[data-slot]') || t.closest('[data-slot-row]'))
-        if (pop && !keepOpen) closePop(true)
+        if (pop && !keepOpen) closePop(false)
         else if (!pop && showPresets) setShowPresets(false)
       } catch (err) { /* 忽略 */ }
     }
@@ -19043,6 +19538,22 @@ function CustomEditor(props) {
       return function () { d.removeEventListener('mousedown', onDown) }
     } catch (err) { return undefined }
   }, [pop ? pop.key : null, showPresets])
+
+  // Esc = 取消并回滚（#95 R2 语义；点弹板外 = 保留关闭，两者分工见上）。
+  h.useEffect(function () {
+    if (!pop) return undefined
+    const onKey = function (ev) {
+      try {
+        if (ev && (ev.key === 'Escape' || ev.key === 'Esc')) closePop(true)
+      } catch (err) { /* 忽略 */ }
+    }
+    try {
+      const d = typeof document !== 'undefined' ? document : null
+      if (!d || typeof d.addEventListener !== 'function') return undefined
+      d.addEventListener('keydown', onKey)
+      return function () { d.removeEventListener('keydown', onKey) }
+    } catch (err) { return undefined }
+  }, [pop ? pop.key : null])
 
   // Popover 定位（#94 / #93）：两个入口都锚定被点元素——
   //  · 预览区控件：pop.preferSide=PLACE_BELOW，贴被点元素下方（规则见 popoverPosition）；
@@ -19280,156 +19791,52 @@ function CustomEditor(props) {
     }
   }
 
-  // ── 调色板 Popover ──
+  // ── 取色器 Popover（#95）──
+  // 内部交给 PalettePicker（可独立 SSR 的展示组件），外层只负责 fixed 定位、实时提交与关闭语义。
   function renderPop() {
     // 没定位就不渲染：定位是异步 effect，先按兜底位渲染会在屏幕左上角闪一帧再跳（用户 m10028）。
     if (!pop || !popPos) return null
     const meta = (props.slotMeta && props.slotMeta[pop.key]) || { zh: pop.key, en: pop.key, allow: false }
-    const hsv = hexToHsv(pop.hex)
-    const freq = distinctThemeColors(colors).slice(0, 8)
-    // 原型 openPop 口径：按下只改预览（st），拖动中才 liveCommit，松开仅收旗
-    const previewSv = function (ev) {
-      try {
-        const box = ev.currentTarget
-        const r = box.getBoundingClientRect()
-        const x = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width))
-        const y = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height))
-        const hex = hsvToHex({ h: hsv.h, s: x * 100, v: (1 - y) * 100 })
-        setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
-      } catch (err) { /* 忽略 */ }
+    // 主题色按分组优先级排序（R7：品牌/语法色不再被 8 个背景色挤掉），跳过当前槽自身（pickRecentColors 内处理）。
+    const priority = []
+    const groups = props.groups || []
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i].id === 'bg') continue
+      for (let j = 0; j < groups[i].keys.length; j++) priority.push(groups[i].keys[j])
     }
-    const startSv = function (ev) {
-      svDrag.current = true
-      previewSv(ev)
-      let box = null
-      try { box = ev.currentTarget ? ev.currentTarget.getBoundingClientRect() : null } catch (err) { box = null }
-      const move = function (me) {
-        if (!svDrag.current || !box) return
-        try {
-          const x = Math.min(1, Math.max(0, (me.clientX - box.left) / box.width))
-          const y = Math.min(1, Math.max(0, (me.clientY - box.top) / box.height))
-          const hex = hsvToHex({ h: hsv.h, s: x * 100, v: (1 - y) * 100 })
-          setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
-          setColor(pop.key, hex, false)
-        } catch (err) { /* 忽略 */ }
-      }
-      const up = function () {
-        svDrag.current = false
-        try {
-          const d = typeof document !== 'undefined' ? document : null
-          if (d) {
-            d.removeEventListener('mousemove', move)
-            d.removeEventListener('mouseup', up)
-          }
-        } catch (err) { /* 忽略 */ }
-      }
-      try {
-        const d = typeof document !== 'undefined' ? document : null
-        if (d) {
-          d.addEventListener('mousemove', move)
-          d.addEventListener('mouseup', up)
-        }
-      } catch (err) { /* 忽略 */ }
+    for (let i = 0; i < groups.length; i++) {
+      if (groups[i].id !== 'bg') continue
+      for (let j = 0; j < groups[i].keys.length; j++) priority.push(groups[i].keys[j])
     }
-    const pure = hsvToHex({ h: hsv.h, s: 100, v: 100 })
-    const svCss = 'linear-gradient(to top,#000,rgba(0,0,0,0)),linear-gradient(to right,#fff,' + pure + '),linear-gradient(to top,#000,' + pure + ')'
+    const recent = pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)
+    // WCAG 对比度基准槽：文字对背景、背景槽对文字、其余对面板（与 map-dsh 语义一致）。
+    const refHex = effectiveSlotColor(contrastRefSlot(pop.key), colors, false)
     return e('div', {
       key: 'pop', id: 'pop', 'data-key': pop.key,
       style: Object.assign({
-        // #94：border-box + 显式宽高 = 定位常量同源（实测外框 276×318）；内容按当前版式恰好铺满。
+        // #95：取色器盒外框（border-box + 显式宽高 = 定位常量同源，两者恒等）。
         position: 'fixed', zIndex: 60, boxSizing: 'border-box', width: POP_W + 'px', height: POP_H + 'px', background: TK.pop,
         border: '1px solid ' + TK.borderStrong, borderRadius: '10px', padding: '12px',
         boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
       }, popPos),
     },
-      e('h4', { style: { fontSize: '12px', margin: '0 0 8px' } },
-        lang === 'en' ? meta.en : meta.zh),
-      e('div', {
-        onMouseDown: startSv,
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        style: {
-          width: '100%', height: '120px', borderRadius: '8px', cursor: 'crosshair', position: 'relative',
-          background: svCss, border: '1px solid #00000088', marginBottom: '8px',
+      e(PalettePicker, {
+        h: h, tr: tr, trf: trf, lang: lang,
+        label: lang === 'en' ? meta.en : meta.zh,
+        slotKey: pop.key,
+        allowTransparent: !!meta.allow,
+        value: { hex: pop.hex, transparent: pop.transparent },
+        colors: colors,
+        recent: recent,
+        contrastRefHex: refHex,
+        // 任何改动即 live commit（R2）：颜色已写进编辑中的主题，关闭时不再回滚。
+        onApply: function (hex, transparent) {
+          setColor(pop.key, hex, transparent)
+          setPop(function (prev) { return prev ? Object.assign({}, prev, { hex: hex, transparent: transparent }) : prev })
         },
-      },
-        e('div', {
-          style: {
-            position: 'absolute', width: '12px', height: '12px', borderRadius: '50%',
-            border: '2px solid #fff', boxShadow: '0 0 0 1px #000',
-            left: hsv.s.toFixed(1) + '%', top: (100 - hsv.v).toFixed(1) + '%',
-            transform: 'translate(-6px,-6px)', pointerEvents: 'none',
-          },
-        })
-      ),
-      e('input', {
-        type: 'range', min: 0, max: 360, step: 1, value: Math.round(hsv.h),
-        'aria-label': 'Hue',
-        [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        onChange: function (ev) {
-          const hex = hsvToHex({ h: Number(ev.target.value), s: hsv.s, v: hsv.v })
-          setPop(Object.assign({}, pop, { hex: hex, transparent: false }))
-          setColor(pop.key, hex, false)
-        },
-        style: { width: '100%', margin: '4px 0 8px' },
-      }),
-      freq.length ? e('div', null,
-        e('div', { style: { fontSize: '11px', color: TK.text3 } }, tr('edFreq')),
-        e('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap', margin: '6px 0' } }, freq.map(function (c) {
-          return e('button', {
-            key: 'fq-' + c,
-            onClick: function () {
-              setPop(Object.assign({}, pop, { hex: c, transparent: false }))
-              setColor(pop.key, c, false)
-            },
-            style: { width: '24px', height: '18px', borderRadius: '4px', background: c, border: '1px solid #00000077', padding: 0 },
-            [UI_INTERACTIVE_ATTR]: TIER_SWATCH,
-          })
-        }))) : null,
-      e('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: '6px' } },
-        e('input', {
-          value: pop.hex, spellCheck: false,
-          onChange: function (ev) {
-            const v = ev.target.value
-            setPop(Object.assign({}, pop, { hex: v }))
-            const norm = normalizeHexInput(v)
-            if (norm) {
-              setPop(Object.assign({}, pop, { hex: norm }))
-              setColor(pop.key, norm, false)
-            }
-          },
-          style: { minWidth: 0, flex: 1, background: TK.panel, color: TK.text, border: '1px solid ' + TK.border, borderRadius: '6px', padding: '6px 10px', fontSize: '12px' },
-          [UI_INTERACTIVE_ATTR]: TIER_INPUT,
-        }),
-        meta.allow ? e('label', {
-          style: { fontSize: '11px', color: TK.text2 },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-        },
-          e('input', {
-            type: 'checkbox', checked: pop.transparent,
-            onChange: function (ev) {
-              const on = !!ev.target.checked
-              setPop(Object.assign({}, pop, { transparent: on }))
-              setColor(pop.key, pop.hex, on)
-            },
-          }),
-          tr('edTransparent')) : null
-      ),
-      e('div', { style: { display: 'flex', gap: '6px', alignItems: 'center', marginTop: '6px' } },
-        e('button', {
-          onClick: function () {
-            const norm = normalizeHexInput(pop.hex)
-            setColor(pop.key, norm || pop.hex, pop.transparent && !norm ? false : pop.transparent)
-            setPop(null)
-          },
-          style: { background: TK.btnFill, border: '1px solid ' + TK.btnFill , color: TK.accentFg, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-        }, tr('edOk')),
-        e('button', {
-          onClick: function () { closePop(true) },
-          [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-          style: { background: 'transparent', color: TK.text, border: '1px solid ' + TK.border, borderRadius: '7px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', whiteSpace: 'nowrap' },
-        }, tr('edClosePop'))
-      )
+        onCancel: function () { closePop(true) },
+        onDone: function () { closePop(false) },
+      })
     )
   }
 
@@ -19973,7 +20380,7 @@ function CustomEditor(props) {
   )
 }
 
-__mods["custom-editor"] = { slotRingStyle, needsReveal, popoverPosition, presetToSeed, CustomEditor }
+__mods["custom-editor"] = { slotRingStyle, needsReveal, popoverPosition, presetToSeed, PalettePicker, CustomEditor }
 })();
 (function () {
 // runtime/client.mjs — 浏览器运行时：注入/热切换/持久化/设置面板（组合 1 布局）
@@ -20169,6 +20576,22 @@ const I18N = {
   edTransparent: { zh: '透明', en: 'Transparent' },
   edOk: { zh: '确定', en: 'OK' },
   edClosePop: { zh: '关闭', en: 'Close' },
+  // ── #95 取色器（PalettePicker）──
+  edHue: { zh: '色相', en: 'Hue' },
+  edSat: { zh: '饱和度', en: 'Saturation' },
+  edVal: { zh: '明度', en: 'Brightness' },
+  edLightness: { zh: '亮度', en: 'Lightness' },
+  edDone: { zh: '完成', en: 'Done' },
+  edEyedropper: { zh: '吸管取色', en: 'Pick from screen' },
+  edEyedropperOff: { zh: '当前环境不支持吸管，可用下方主题色', en: 'Eyedropper unavailable; use theme colors below' },
+  edContrast: { zh: '对比度', en: 'Contrast' },
+  edContrastLow: { zh: '对比不足', en: 'Low contrast' },
+  edInvalidHex: { zh: '请输入 #RGB 或 #RRGGBB', en: 'Enter #RGB or #RRGGBB' },
+  edAlphaDropped: { zh: '已忽略透明度', en: 'Alpha ignored' },
+  edCopy: { zh: '复制色值', en: 'Copy value' },
+  edHueAria: { zh: '色相 {v} 度', en: 'Hue {v} degrees' },
+  edSvHint: { zh: '方向键微调，Shift 加速', en: 'Arrow keys to adjust, Shift for larger steps' },
+  edColorModel: { zh: '色彩模型（点击切换）', en: 'Color model (click to switch)' },
   edDelete: { zh: '删除', en: 'Delete' },
   edDelConfirm: { zh: '删除「{name}」？', en: 'Delete "{name}"?' },
   edDelNote: { zh: '自定义主题删除后不可恢复。', en: 'Deleted custom themes cannot be recovered.' },

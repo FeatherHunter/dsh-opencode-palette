@@ -77,11 +77,13 @@
 
 - 2026-10-06 漏网补齐：`starTitle`／`issueTitle` 进词典走 `tr()`；入口 label 语言切换时重注册（宿主只在注册时读 label）；引流外链 `title` 冒号跟随语言（zh 全角 `：`／en 半角 `:`）。
 
-## 自定义主题编辑器 161 键（`runtime/client.mjs`，#86 新增，与代码 I18N 逐行对账）
+## 自定义主题编辑器 176 键（`runtime/client.mjs`，#86 新增 / #95 取色器续增，与代码 I18N 逐行对账）
 
 中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬，为 #86 首版口径；#92 定稿行以本表与 `src/engine/map-dsh.mjs` 实测映射为准）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
 
 2026-10-17 #92 命名审查：7 组名、37 个色位名与 37 条作用说明按 DSH token 语义定稿（映射与实测证据见 #92）；下表变更行状态列标「#86 新增，#92 定稿」，其余行维持 #86 原文；code-review 后修订的作用说明同样标 #92 定稿，最终口径以本表为准。
+
+2026-10-17 #95 取色器重构：新增 15 条取色器文案（色相/饱和度/明度/亮度/完成/吸管/对比度/非法 hex/透明度忽略/复制/aria 模板/键盘提示/色彩模型），状态列标「#95 新增」；调色板内不再使用 `edOk`/`edClosePop`（键保留给其它入口，行不删）。
 
 | key | 定稿 zh | 定稿 en | 状态 |
 |---|---|---|---|
@@ -129,6 +131,21 @@
 | `edTransparent` | 透明 | Transparent | #86 新增 |
 | `edOk` | 确定 | OK | #86 新增 |
 | `edClosePop` | 关闭 | Close | #86 新增 |
+| `edHue` | 色相 | Hue | #95 新增 |
+| `edSat` | 饱和度 | Saturation | #95 新增 |
+| `edVal` | 明度 | Brightness | #95 新增 |
+| `edLightness` | 亮度 | Lightness | #95 新增 |
+| `edDone` | 完成 | Done | #95 新增 |
+| `edEyedropper` | 吸管取色 | Pick from screen | #95 新增 |
+| `edEyedropperOff` | 当前环境不支持吸管，可用下方主题色 | Eyedropper unavailable; use theme colors below | #95 新增 |
+| `edContrast` | 对比度 | Contrast | #95 新增 |
+| `edContrastLow` | 对比不足 | Low contrast | #95 新增 |
+| `edInvalidHex` | 请输入 #RGB 或 #RRGGBB | Enter #RGB or #RRGGBB | #95 新增 |
+| `edAlphaDropped` | 已忽略透明度 | Alpha ignored | #95 新增 |
+| `edCopy` | 复制色值 | Copy value | #95 新增 |
+| `edHueAria` | 色相 {v} 度 | Hue {v} degrees | #95 新增 |
+| `edSvHint` | 方向键微调，Shift 加速 | Arrow keys to adjust, Shift for larger steps | #95 新增 |
+| `edColorModel` | 色彩模型（点击切换） | Color model (click to switch) | #95 新增 |
 | `edDelete` | 删除 | Delete | #86 新增 |
 | `edDelConfirm` | 删除「{name}」？ | Delete "{name}"? | #86 新增 |
 | `edDelNote` | 自定义主题删除后不可恢复。 | Deleted custom themes cannot be recovered. | #86 新增 |

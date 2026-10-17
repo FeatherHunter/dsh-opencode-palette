@@ -12,6 +12,19 @@ import {
   effectiveSlotColor,
   editorMiniLight,
   filterCustomThemes,
+  mergeHsv,
+  parseHexInputLoose,
+  hsvToRgb,
+  rgbToHsv,
+  rgbToHex,
+  rgbStringToHex,
+  hsvToHsl,
+  hslToHsv,
+  hueStops,
+  relativeLuminance,
+  contrastRatio,
+  contrastRefSlot,
+  pickRecentColors,
   SLOT_FB,
   SLOT_DARK2LIGHT,
 } from '../runtime/custom-color.mjs'
@@ -378,14 +391,14 @@ test('自定义区渲染顺序：特殊分组下方，且位于 IP 预置组之�
   assert.ok(ip < custom, '自定义区位于 IP 预置组下方')
 })
 
-test('词表对账（#86）：glossary 新增 161 行 == 代码 I18N，中英逐行命中源码', () => {
+test('词表对账（#86/#95）：glossary 自定义编辑器行 == 代码 I18N，中英逐行命中源码', () => {
   const md = readFileSync(new URL('../docs/i18n-glossary.md', import.meta.url), 'utf8').replace(/\r/g, '')
   const rows = []
   for (const line of md.split('\n')) {
-    const m = line.match(/^\|\s*`([^`]+)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*#86[^|]*\|$/)
+    const m = line.match(/^\|\s*`([^`]+)`\s*\|\s*([^|]*?)\s*\|\s*([^|]*?)\s*\|\s*#(?:86|95)[^|]*\|$/)
     if (m) rows.push({ key: m[1], zh: m[2].trim(), en: m[3].trim() })
   }
-  assert.equal(rows.length, 161, '词表 #86 行应为 161 行（改 I18N 必须同步词表）')
+  assert.equal(rows.length, 176, '词表 #86/#95 行应为 176 行（改 I18N 必须同步词表）')
   const src = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8').replace(/\r/g, '')
   const seen = new Set()
   for (const row of rows) {
@@ -395,6 +408,32 @@ test('词表对账（#86）：glossary 新增 161 行 == 代码 I18N，中英逐
     assert.ok(src.includes("zh: '" + row.zh + "'"), '中文终稿未进代码 I18N：' + row.key)
     assert.ok(src.includes("en: '" + row.en + "'"), '英文未进代码 I18N：' + row.key)
   }
+})
+
+test('#95：取色器 15 条新文案 —— 双语同在 I18N 与词表（新增行同样 #95 定稿）', () => {
+  const md = readFileSync(new URL('../docs/i18n-glossary.md', import.meta.url), 'utf8').replace(/\r/g, '')
+  const src = readFileSync(new URL('../runtime/client.mjs', import.meta.url), 'utf8').replace(/\r/g, '')
+  const keys = [
+    ['edHue', '色相', 'Hue'],
+    ['edSat', '饱和度', 'Saturation'],
+    ['edVal', '明度', 'Brightness'],
+    ['edLightness', '亮度', 'Lightness'],
+    ['edDone', '完成', 'Done'],
+    ['edEyedropper', '吸管取色', 'Pick from screen'],
+    ['edContrast', '对比度', 'Contrast'],
+    ['edContrastLow', '对比不足', 'Low contrast'],
+    ['edInvalidHex', '请输入 #RGB 或 #RRGGBB', 'Enter #RGB or #RRGGBB'],
+    ['edAlphaDropped', '已忽略透明度', 'Alpha ignored'],
+    ['edCopy', '复制色值', 'Copy value'],
+    ['edColorModel', '色彩模型（点击切换）', 'Color model (click to switch)'],
+  ]
+  for (const [key, zh, en] of keys) {
+    assert.ok(src.includes(key + ": { zh: '" + zh + "', en: '" + en + "' }"), 'I18N 缺键/中英不匹配：' + key)
+    assert.ok(md.includes('`' + key + '`'), '词表缺行：' + key)
+  }
+  assert.ok(src.includes('edEyedropperOff'), '吸管不可用说明键在场')
+  assert.ok(src.includes('edHueAria'), '色相 aria 模板键在场')
+  assert.ok(src.includes('edSvHint'), 'SV 键盘提示键在场')
 })
 
 test('panelProps 自定义 API：无宿主静默降级 + 槽位/预置读取', async () => {
@@ -429,7 +468,7 @@ test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', (
 // ── 弹窗直渲染（源码级 CustomEditor + 桩 hooks + 真 reactSSR）──
 // 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
 // 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
-import { CustomEditor, presetToSeed, slotRingStyle, needsReveal, popoverPosition } from '../runtime/custom-editor.mjs'
+import { CustomEditor, PalettePicker, presetToSeed, slotRingStyle, needsReveal, popoverPosition } from '../runtime/custom-editor.mjs'
 import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.mjs'
 
 function mockHooks() {
@@ -590,9 +629,11 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   assert.ok(src.includes('setShowPresets(false) // 原型 OPEN_POP'), '开调色板收起预置弹窗（原型 :427）')
   assert.ok(src.includes("fontSize: '12px', margin: '0 0 8px'"), '调色板标题无加粗（原型 .pop h4 :186）')
   const hexInAt = src.indexOf('spellCheck: false')
-  assert.ok(hexInAt > 0 && !src.slice(hexInAt, hexInAt + 600).includes('Consolas'), 'hex 输入框非等宽字体（原型 .txt 口径 :991）')
-  const fqAt = src.indexOf("key: 'fq-' + c,")
-  assert.ok(fqAt > 0 && !src.slice(fqAt, fqAt + 500).includes('title:') && !src.slice(fqAt, fqAt + 500).includes('cursor'), '常用色块无 title/指针手势（原型 :990）')
+  assert.ok(hexInAt > 0 && !src.slice(hexInAt, hexInAt + 400).includes('Consolas'), 'hex 输入框非等宽字体（原型 .txt 口径 :991）')
+  // #95：常用色块改为「主题色按分组优先级 10 个」，带 hex title（悬停可见具体值）与指针手势。
+  const rcAt = src.indexOf("key: 'rc-' + i")
+  assert.ok(rcAt > 0 && src.slice(rcAt, rcAt + 420).includes('data-picker-recent-swatch'), '常用色块走主题色 + data-picker-recent-swatch 标记')
+  assert.ok(src.slice(rcAt, rcAt + 420).includes('cursor'), '常用色块保留指针手势（可点）')
 })
 
 // ── 弹窗尺寸口径（用户 m08383 亲定，覆盖原型：高度正好等于预览区、整屏居中、一行控件同高）──
@@ -823,9 +864,9 @@ test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再
 // 弹板定位纯函数：默认贴锚点下方（间距 POP_GAP）→ 下方空间不足翻上方 → 水平对齐锚点左缘并夹进
 // 「视口 ∩ 弹窗」边界（四边各留 POP_MARGIN）→ 两侧都放不下时贴空间更大的一侧夹紧。
 // 验收口径（票面）：弹板完整落在视口内；与被点元素 rect 相交或间距 ≤8px（四角场景同样成立）。
-// 尺寸 = 真 DOM 实测外框 276×318（旧 250/350 是内容宽/设计高的估算，正是 #94 review 的「间距 >8px」根因）；
+// 尺寸 = #95 取色器盒实测外框 320×388（内容 294 = 320 − padding 24 − border 2；高度构成见 runtime 注释）；
 // 渲染侧 border-box + 显式宽高，所以常量与 getBoundingClientRect 恒等。
-const POP_SIZE = { width: 276, height: 318 }
+const POP_SIZE = { width: 320, height: 388 }
 // 左列入口色块外框（runtime 的单源是 swatch 样式 30×22；这里只作锚点 rect 的测试夹具）。
 const SWATCH = { width: 30, height: 22 }
 
@@ -853,11 +894,11 @@ test('#94：popoverPosition —— 下方优先、底部翻转、水平夹紧（
   assert.equal(mid.top, 228, '下方间距 = POP_GAP 8')
   assert.equal('placement' in mid, false, '不把测试用 placement 字段带进坐标（#94 code-review）')
   const bottom = popoverPosition(anchorRect(400, 800, 60, 20), viewport, POP_SIZE)
-  assert.equal(bottom.top, 474, '底部空间不足翻上方 = 锚点顶 − 8 − 弹板高 318')
+  assert.equal(bottom.top, 404, '底部空间不足翻上方 = 锚点顶 − 8 − 弹板高 388')
   const leftEdge = popoverPosition(anchorRect(0, 300, 80, 20), viewport, POP_SIZE)
   assert.equal(leftEdge.left, 10, '左缘夹到视口内边距 10')
   const rightEdge = popoverPosition(anchorRect(1200, 300, 80, 20), viewport, POP_SIZE)
-  assert.equal(rightEdge.left, 994, '右缘夹紧（1280 − 10 − 276）')
+  assert.equal(rightEdge.left, 950, '右缘夹紧（1280 − 10 − 320）')
   assert.equal(popoverPosition(null, viewport, POP_SIZE), null, '无锚点返回 null（调用方给兜底位）')
   assert.equal(popoverPosition(anchorRect(10, 10, 40, 20), null, POP_SIZE), null, '无边界返回 null')
   assert.equal(popoverPosition(anchorRect(10, 10, 0, 0), viewport, { width: 0, height: 0 }), null, '无尺寸返回 null')
@@ -881,7 +922,7 @@ test('#94：popoverPosition —— 锚点在视口四角时弹板完整落在视
   const shortVp = { left: 0, top: 0, right: 1280, bottom: 500 }
   const clamped = popoverPosition(anchorRect(600, 240, 40, 20), shortVp, POP_SIZE)
   assert.ok(clamped, '矮视口仍给结果')
-  assert.equal(clamped.top, 172, '两侧都放不下 → 夹在视口下边界内（500 − 10 − 318）')
+  assert.equal(clamped.top, 102, '两侧都放不下 → 夹在视口下边界内（500 − 10 − 388）')
   assertInside(clamped, shortVp, 10, '矮视口')
 })
 
@@ -890,7 +931,7 @@ test('#94：popoverPosition —— 以「视口 ∩ 弹窗」为边界，弹板�
   const pos = popoverPosition(anchorRect(830, 300, 50, 20), dialog, POP_SIZE)
   assert.ok(pos, '弹窗内锚点有结果')
   assertInside(pos, dialog, 10, '弹窗边界')
-  assert.equal(pos.left, 614, '右缘按弹窗右边界夹紧（900 − 10 − 276）')
+  assert.equal(pos.left, 570, '右缘按弹窗右边界夹紧（900 − 10 − 320）')
   const leftSide = popoverPosition(anchorRect(310, 300, 40, 20), dialog, POP_SIZE)
   assert.equal(leftSide.left, 310, '左缘在弹窗内时仍对齐锚点（不被视口公式推走）')
 })
@@ -902,15 +943,15 @@ test('#93：popoverPosition —— 左列入口贴色块右侧垂直居中，放
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
   const mid = popoverPosition(anchorRect(200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(mid.left, 238, '贴色块右侧 = 锚点右 + 8')
-  assert.equal(mid.top, 152, '垂直居中 = 锚点中心 − 弹板高/2（300 + (22 − 318)/2）')
+  assert.equal(mid.top, 117, '垂直居中 = 锚点中心 − 弹板高/2（300 + (22 − 388)/2）')
   assert.equal(popRectGap(anchorRect(200, 300, SWATCH.width, SWATCH.height), mid), 8, '与入口色块间距 ≤8px')
   const flip = popoverPosition(anchorRect(1200, 300, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
-  assert.equal(flip.left, 916, '右侧放不下翻左侧 = 锚点左 − 8 − 276')
+  assert.equal(flip.left, 872, '右侧放不下翻左侧 = 锚点左 − 8 − 320')
   assert.ok(flip.left + POP_SIZE.width <= 1200, '翻左后不压住入口色块')
   const firstRow = popoverPosition(anchorRect(200, 0, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(firstRow.top, 10, '首行垂直居中夹到上边距 10')
   const lastRow = popoverPosition(anchorRect(200, 878, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
-  assert.equal(lastRow.top, 572, '末行夹到下边界（900 − 10 − 318）')
+  assert.equal(lastRow.top, 502, '末行夹到下边界（900 − 10 − 388）')
 })
 
 test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整落在边界内', () => {
@@ -921,7 +962,7 @@ test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整
   assertInside(pos, narrow, 10, '窄弹窗')
   assert.ok(pos.left + POP_SIZE.width <= a.left, '右侧放不下 → 翻到入口左侧（不压住色块）')
   assert.ok(popRectGap(a, pos) <= 8, '与入口间距 ≤8px（翻左）')
-  // 色块左右两侧都放不下 276px：退到入口上方/下方（这里上下空间只够下方），不遮住入口。
+  // 色块左右两侧都放不下 320px：退到入口上方/下方（这里上下空间只够下方），不遮住入口。
   const tight = { left: 40, top: 60, right: 620, bottom: 760 }
   const b = anchorRect(300, 300, SWATCH.width, SWATCH.height)
   const p2 = popoverPosition(b, tight, POP_SIZE, 'right')
@@ -933,7 +974,7 @@ test('#93：popoverPosition —— 窄弹窗（960px）内翻左/夹紧且完整
   // 上下都有空间时优先退到上方（更常见的「向上翻」）；锚点在下半区。
   const b2 = anchorRect(300, 600, SWATCH.width, SWATCH.height)
   const p3 = popoverPosition(b2, tight, POP_SIZE, 'right')
-  assert.equal(p3.top, 274, '左右都放不下 → 退到入口上方（顶边 − 8 − 318）')
+  assert.equal(p3.top, 204, '左右都放不下 → 退到入口上方（顶边 − 8 − 388）')
   assert.equal(p3.top + POP_SIZE.height, 592, '上方兜底不遮住入口（弹板底 592 < 入口顶 600）')
 })
 
@@ -941,7 +982,7 @@ test('#93：popoverPosition —— 非整数锚点/边界下坐标取整且间�
   const viewport = { left: 0, top: 0, right: 1280, bottom: 900 }
   const frac = popoverPosition(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), viewport, POP_SIZE, 'right')
   assert.equal(frac.left, 238, '贴右侧：floor(锚点右) + 8，间距 7.5px ≤ 8')
-  assert.equal(frac.top, 153, '垂直居中取整')
+  assert.equal(frac.top, 118, '垂直居中取整')
   assert.ok(Number.isInteger(frac.left) && Number.isInteger(frac.top), '坐标恒为整数（不会出现 8.5px 间距）')
   assert.ok(popRectGap(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), frac) <= 8, '间距 ≤8px')
 })
@@ -973,7 +1014,7 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   // 3b) 点预览控件 / 左列色块（同为调色盘入口）都不算「点弹窗外」：否则同入口重开会先被 mousedown revert 一次。
   assert.ok(src.includes("t.closest('[data-slot]') || t.closest('[data-slot-row]')"), '两类调色盘入口点击都不当作弹窗外关闭')
   assert.equal(src.includes("data-sw="), false, '去掉失效的 data-sw 选择器（无元素渲染该属性）')
-  assert.ok(src.includes('if (pop && !keepOpen) closePop(true)'), '其余区域仍按 #82 口径 revert 收起')
+  assert.ok(src.includes('if (pop && !keepOpen) closePop(false)'), '#95 起点弹板外 = 保留颜色直接关闭（回滚只走 Esc/取消）')
   // 4) 定位 effect：锚点 rect → popoverPosition，边界 = 视口 ∩ 弹窗；resize/滚动重算；锚点脱离 DOM 安全收起。
   assert.ok(src.includes('popoverPosition(ar, bounds, { width: POP_W, height: POP_H }, pop.preferSide)'), '锚点 rect 走纯函数定位（按入口类型选纵向/侧向规则）')
   assert.ok(src.includes('Math.max(0, dr.left)') && src.includes('Math.min(vw, dr.right)'), '边界 = 视口 ∩ 弹窗')
@@ -987,8 +1028,187 @@ test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不
   assert.equal(src.includes('- 350 - 10'), false, '旧纵向夹紧（−350−10）已移除')
   assert.ok(src.includes('const PLACE_BELOW = \'below\'') && src.includes('const PLACE_RIGHT = \'right\''), '首选方向字面量单源（避免拼写错误静默降级）')
   assert.ok(src.includes('onClick: function (ev) { openPop(key, ev.currentTarget, PLACE_RIGHT) }'), '左列色块入口把自身元素作为锚点（侧向定位）')
-  // 6) 尺寸/间距常量单源，渲染侧 border-box + 显式宽高 = 实测外框（276×318）。
-  assert.ok(src.includes('const POP_W = 276') && src.includes('const POP_H = 318'), '弹板尺寸常量 = 实测外框')
+  // 6) 尺寸/间距常量单源，渲染侧 border-box + 显式宽高 = 实测外框（#95 取色器盒 320×388）。
+  assert.ok(src.includes('const POP_W = 320') && src.includes('const POP_H = 388'), '弹板尺寸常量 = 取色器盒外框')
   assert.ok(src.includes('const POP_GAP = 8') && src.includes('const POP_MARGIN = 10') && src.includes('const POP_FALLBACK = { left: 40, top: 120 }'), '间距/留白/兜底常量单源')
   assert.ok(src.includes("boxSizing: 'border-box'") && src.includes("width: POP_W + 'px'") && src.includes("height: POP_H + 'px'"), '渲染宽高走常量（border-box 外框与定位常量恒等）')
+})
+
+// ── #95 取色器重构：颜色模型纯函数（TDD 缝，期望值来自 WCAG/HSx 定义与手算）──
+test('#95：mergeHsv —— 灰/黑时保留无意义的色相与饱和度（R1 回归）', () => {
+  const prev = { h: 210, s: 72, v: 98 }
+  assert.deepEqual(mergeHsv(prev, { h: 0, s: 0, v: 0 }), { h: 210, s: 72, v: 0 }, 'V=0 保留 h 与 s')
+  assert.deepEqual(mergeHsv(prev, { h: 0, s: 0, v: 60 }), { h: 210, s: 0, v: 60 }, 'S=0 保留 h')
+  assert.deepEqual(mergeHsv(prev, { h: 30, s: 50, v: 80 }), { h: 30, s: 50, v: 80 }, '有意义的维度全部采用新值')
+})
+
+test('#95：parseHexInputLoose —— 缺 #/全角 #/3 位/8 位（忽略 alpha）', () => {
+  assert.deepEqual(parseHexInputLoose('#abc'), { hex: '#AABBCC', alphaDropped: false })
+  assert.deepEqual(parseHexInputLoose('fab283'), { hex: '#FAB283', alphaDropped: false })
+  assert.deepEqual(parseHexInputLoose('＃FAB283'), { hex: '#FAB283', alphaDropped: false })
+  assert.deepEqual(parseHexInputLoose(' #FAB283FF '), { hex: '#FAB283', alphaDropped: true }, '8 位取前 6 位并标记忽略透明度')
+  assert.deepEqual(parseHexInputLoose('#abcd'), { hex: '#AABBCC', alphaDropped: true })
+  assert.equal(parseHexInputLoose('xyz'), null)
+  assert.equal(parseHexInputLoose('#12345'), null)
+  assert.equal(parseHexInputLoose(''), null)
+})
+
+test('#95：RGB/HSV/HSL 互转与 hex 投影', () => {
+  assert.deepEqual(hsvToRgb({ h: 0, s: 100, v: 100 }), { r: 255, g: 0, b: 0 })
+  assert.deepEqual(hsvToRgb({ h: 120, s: 100, v: 100 }), { r: 0, g: 255, b: 0 })
+  assert.deepEqual(hsvToRgb({ h: 210, s: 72, v: 98 }), { r: 70, g: 160, b: 250 })
+  assert.deepEqual(rgbToHsv({ r: 255, g: 0, b: 0 }), { h: 0, s: 100, v: 100 })
+  assert.deepEqual(rgbToHsv({ r: 0, g: 255, b: 0 }), { h: 120, s: 100, v: 100 })
+  assert.deepEqual(rgbToHsv({ r: 0, g: 0, b: 255 }), { h: 240, s: 100, v: 100 })
+  assert.equal(rgbToHsv({ r: 255, g: 255, b: 255 }).v, 100)
+  assert.equal(rgbToHsv({ r: 255, g: 255, b: 255 }).s, 0)
+  assert.ok(Math.abs(rgbToHsv({ r: 128, g: 128, b: 128 }).v - 50.196) < 0.01, '灰 128 → V 50.2')
+  assert.deepEqual(hsvToHsl({ h: 0, s: 100, v: 100 }), { h: 0, s: 100, l: 50 })
+  assert.deepEqual(hsvToHsl({ h: 0, s: 0, v: 50 }), { h: 0, s: 0, l: 50 })
+  const back = hslToHsv(hsvToHsl({ h: 210, s: 72, v: 98 }))
+  assert.ok(Math.abs(back.h - 210) < 1e-9 && Math.abs(back.s - 72) < 1e-9 && Math.abs(back.v - 98) < 1e-9, 'HSL 往返不漂移')
+  assert.equal(rgbToHex({ r: 250, g: 178, b: 131 }), '#FAB283')
+  assert.equal(rgbToHex({ r: 0, g: 0, b: 0 }), '#000000')
+  assert.equal(rgbStringToHex('rgb(250, 178, 131)'), '#FAB283', '吸管降级：计算色 rgb() → hex')
+  assert.equal(rgbStringToHex('rgba(35, 35, 41, 0.8)'), '#232329')
+  assert.equal(rgbStringToHex('rgba(0, 0, 0, 0)'), null, '透明像素跳过')
+  assert.equal(rgbStringToHex('nope'), null)
+})
+
+test('#95：hueStops —— 13 个 30° 停、用当前 S/V 生成（非纯色相）', () => {
+  const stops = hueStops(100, 100)
+  assert.equal(stops.length, 13)
+  assert.equal(stops[0], '#FF0000')
+  assert.equal(stops[2], '#FFFF00', '60° 黄')
+  assert.equal(stops[4], '#00FF00', '120° 绿')
+  assert.equal(stops[6], '#00FFFF', '180° 青')
+  assert.equal(stops[12], '#FF0000', '360° 回到红')
+  assert.equal(hueStops(0, 50)[0], hsvToHex({ h: 0, s: 0, v: 50 }), 'S=0 时整条轨为灰阶（真实 S/V）')
+})
+
+test('#95：WCAG 对比度 —— 亮度/比值与基准槽映射', () => {
+  assert.equal(relativeLuminance('#000000'), 0)
+  assert.ok(Math.abs(relativeLuminance('#FFFFFF') - 1) < 1e-9)
+  assert.ok(Math.abs(relativeLuminance('#767676') - 0.1812) < 0.002, '灰 118 亮度 ≈0.181')
+  assert.ok(Math.abs(contrastRatio('#000000', '#FFFFFF') - 21) < 0.01, '黑白 21:1')
+  assert.ok(Math.abs(contrastRatio('#767676', '#FFFFFF') - 4.54) < 0.02, '#767676 对白 ≈4.54:1（AA 边界）')
+  assert.equal(contrastRatio('#FAB283', '#FAB283'), 1)
+  assert.equal(contrastRefSlot('text'), 'background', '文字对背景')
+  assert.equal(contrastRefSlot('textMuted'), 'background')
+  assert.equal(contrastRefSlot('background'), 'text', '背景槽反过来对文字')
+  assert.equal(contrastRefSlot('codeHeaderBg'), 'text')
+  assert.equal(contrastRefSlot('primary'), 'backgroundPanel', '品牌/语法/边框对面板')
+  assert.equal(contrastRefSlot('markdownHeading'), 'backgroundPanel')
+  assert.equal(contrastRefSlot('notAKey'), 'backgroundPanel')
+})
+
+test('#95：pickRecentColors —— 按分组优先级取 10 个、跳过当前槽（R7 回归）', () => {
+  const colors = {
+    background: '#101014',
+    backgroundPanel: '#232329',
+    primary: '#FAB283',
+    syntaxString: '#CE9178',
+    text: '#E7E7EA',
+    border: '#33333A',
+  }
+  const priority = ['text', 'border', 'primary', 'syntaxString', 'background', 'backgroundPanel']
+  assert.deepEqual(pickRecentColors(colors, 'primary', priority, 4), ['#E7E7EA', '#33333A', '#CE9178', '#101014'], '跳过当前槽现值，按优先级排序')
+  assert.deepEqual(pickRecentColors(colors, null, priority, 10).slice(0, 3), ['#E7E7EA', '#33333A', '#FAB283'], '品牌/语法色不会再被 8 个背景色挤掉')
+  assert.equal(pickRecentColors(colors, null, [], 2).length, 2, '无优先级时按对象键顺序兜底')
+  assert.deepEqual(pickRecentColors({ a: '#111111', b: '#111111' }, null, ['a', 'b'], 10), ['#111111'], '去重')
+  assert.deepEqual(pickRecentColors({ a: 'transparent', b: '#222222' }, null, ['a', 'b'], 10), ['#222222'], '跳过 transparent')
+})
+
+// ── #95 取色器展示组件（可独立 renderToString 的结构缝）──
+function pickerProps(over) {
+  const base = {
+    h: mockHooks(),
+    tr: (k) => 'T:' + k,
+    trf: (k, o) => 'T:' + k + JSON.stringify(o || {}),
+    lang: 'zh',
+    label: '主色',
+    slotKey: 'primary',
+    allowTransparent: false,
+    value: { hex: '#FAB283', transparent: false },
+    colors: { primary: '#FAB283', background: '#0A0A0A', text: '#ECEDE9', border: '#55555E' },
+    recent: ['#0A0A0A', '#ECEDE9', '#55555E'],
+    contrastRefHex: '#000000',
+    onApply: () => {},
+    onCancel: () => {},
+    onDone: () => {},
+  }
+  return Object.assign(base, over || {})
+}
+
+function renderPicker(over) {
+  const saved = {}
+  for (const k of ['document', 'window', 'localStorage', 'matchMedia']) {
+    if (k in globalThis) { saved[k] = globalThis[k]; delete globalThis[k] }
+  }
+  try {
+    return _ReactDOMServer.renderToString(_React.createElement(PalettePicker, pickerProps(over)))
+  } finally {
+    for (const k of Object.keys(saved)) globalThis[k] = saved[k]
+  }
+}
+
+test('#95：PalettePicker —— 结构部件齐全且可独立 SSR（无需交互）', () => {
+  const html = renderPicker()
+  for (const part of ['title', 'sv', 'hue', 'hsv', 'recent', 'hex', 'eyedropper', 'contrast', 'transparent', 'footer']) {
+    assert.ok(html.includes('data-picker-part="' + part + '"'), '缺部件：' + part)
+  }
+  assert.ok(html.includes('主色'), '标题渲染色位名')
+  assert.ok(html.includes('#FAB283'), '标题显示当前 hex')
+  assert.ok(html.includes('role="slider"'), '色相轨 role=slider')
+  assert.ok(html.includes('aria-valuemin="0"') && html.includes('aria-valuemax="360"'), '色相轨 aria 范围')
+  assert.ok(html.includes('aria-valuenow="24"'), '色相轨 aria-valuenow = 当前色相取整')
+  assert.ok(html.includes('T:edHueAria'), '色相 aria-valuetext 带度数（trf）')
+  assert.ok(html.includes('aria-label="T:edHue"') && html.includes('aria-label="T:edSat"') && html.includes('aria-label="T:edVal"'), 'H/S/V 三个数字输入')
+  assert.equal((html.match(/data-picker-part="model"/g) || []).length, 1, '色彩模型切换按钮')
+  assert.ok(html.includes('T:edCancel') && html.includes('T:edDone'), '取消/完成按钮')
+  assert.ok(html.includes('T:edEyedropper'), '吸管按钮在场')
+  assert.ok(html.includes('disabled'), 'SSR（无 window）时吸管禁用')
+  assert.equal(html.includes('<circle'), false, '禁 <circle>')
+  const hits = modalInteractiveTags(html)
+  assert.ok(hits.length >= 8, '可点控件样本充足：' + hits.length)
+  assert.equal(hits.filter((t) => !t.includes('data-palette-interactive')).length, 0, '可点控件全挂动效钩子')
+})
+
+test('#95：PalettePicker —— 透明槽/对比度/最近色/初始值', () => {
+  const plain = renderPicker({ slotKey: 'primary' })
+  assert.equal(plain.includes('type="checkbox"'), false, '非背景槽不显示透明行')
+  assert.ok(plain.includes('data-picker-part="transparent"'), '透明行占位保留（弹板高度恒定）')
+  const bg = renderPicker({ slotKey: 'background', allowTransparent: true, value: { hex: 'transparent', transparent: true } })
+  assert.ok(bg.includes('type="checkbox"'), '8 个背景槽才有透明勾选')
+  const dark = renderPicker({ value: { hex: '#000000', transparent: false }, contrastRefHex: '#FFFFFF' })
+  assert.ok(dark.includes('21.0:1'), '对比徽章：黑白 21:1')
+  assert.ok(dark.includes('T:edContrast'), '对比徽章 aria/title 走 i18n')
+  const few = renderPicker({ value: { hex: '#000000', transparent: false }, contrastRefHex: '#111111' })
+  assert.ok(few.includes('T:edContrastLow') || few.includes('低'), '低对比提示')
+  assert.ok(renderPicker().includes('#ECEDE9'), '最近色渲染')
+  assert.equal((renderPicker().match(/data-picker-recent-swatch/g) || []).length, 3, '最近色 3 个（按传入优先级）')
+})
+
+test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无原生 range/禁 circle）', () => {
+  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.mjs'), 'utf8')
+  assert.ok(src.includes('export function PalettePicker'), 'PalettePicker 必须是可 import 的导出（SSR 测试缝）')
+  assert.equal(src.includes("type: 'range'"), false, '原生 input range 退役（自绘色相轨）')
+  assert.ok(src.includes('setPointerCapture'), '拖拽用 Pointer Events + setPointerCapture')
+  assert.ok(src.includes("touchAction: 'none'"), '拖拽面禁触摸滚动')
+  for (const k of ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End']) {
+    assert.ok(src.includes("'" + k + "'"), '键盘映射缺：' + k)
+  }
+  assert.ok(src.includes("role: 'slider'"), '色相轨 role=slider')
+  assert.ok(src.includes('aria-valuetext'), 'aria-valuetext 带度数')
+  assert.equal((src.match(/'data-picker-part':/g) || []).length >= 10, true, '部件标记计数纪律')
+  assert.equal(src.includes('EyeDropper'), true, '吸管走特性检测')
+  assert.ok(src.includes('setPointerCapture') && src.includes('releasePointerCapture'), '指针捕获成对出现')
+  // renderPop 接线：内部组件化 + live commit + 保留关闭/回滚分工（R2）。
+  assert.ok(src.includes('e(PalettePicker, {'), 'renderPop 内部交给 PalettePicker 展示组件')
+  assert.ok(src.includes('pickRecentColors(colors, pop.key, priority, PICK_RECENT_MAX)'), '主题色按分组优先级取（R7）')
+  assert.ok(src.includes('effectiveSlotColor(contrastRefSlot(pop.key), colors, false)'), '对比度基准槽映射到真实主题色')
+  assert.ok(src.includes('onApply: function (hex, transparent)') && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
+  assert.ok(src.includes("d.addEventListener('keydown', onKey)") && src.includes("ev.key === 'Escape'"), 'Esc = 取消并回滚')
+  assert.ok(src.includes("if (pop && !keepOpen) closePop(false)"), '点弹板外 = 保留并关闭（R2）')
+  assert.ok(src.includes("tr('edSvHint')"), 'SV 键盘提示使用新文案键')
 })
