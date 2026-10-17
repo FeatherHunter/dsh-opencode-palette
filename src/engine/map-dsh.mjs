@@ -11,8 +11,8 @@ import { shade, withAlpha, contrastText } from './resolve.mjs'
 // 高度梯子（第一性原理：opencode background/backgroundPanel/backgroundElement 本就是
 // 深色 step1<step2<step3 台阶，与 DSH base<panel<element 浮起方向一致）：
 //   step1 页面底 ← DSH 950 级（base/sidebar/unselected）；
-//   step2 中层 ← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
-//   step3 浮起 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
+//   step2 浮起面（中层）← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
+//   step3 浮层 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
 export const TOKEN_MAP = [
   // 页面底：step1（DSH 深色 900~950 级：base/sidebar/unselected）
   ['--dsw-alias-bg-base', 'background'],
@@ -25,12 +25,12 @@ export const TOKEN_MAP = [
   // 老版影响为菜单回默认、可读，不算功能回归；菜单材料/滤镜变量永不输出。
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
   ['--dsw-alias-markdown-code-segment-selected', 'backgroundElement'],
-  // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
+  // 浮起面（中层芯片）：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
   ['--dsw-alias-markdown-tag', 'backgroundPanel'],
   ['--dsw-alias-markdown-placeholder', 'backgroundPanel'],
   ['--dsw-specific-bubble', 'bubbleBg'],
   ['--dsw-alias-bg-multi-select', 'backgroundPanel'],
-  // 浮起面：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
+  // 浮层：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
   ['--dsw-alias-markdown-citation', 'backgroundElement'],
   ['--dsw-alias-bg-module-platform', 'backgroundElement'],
   ['--dsw-specific-selector', 'backgroundElement'],

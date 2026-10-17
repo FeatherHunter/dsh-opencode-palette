@@ -84,11 +84,11 @@ opencode 主题约 50+ 语义色位；DSH 暴露 `--dsw-alias-*`（token 层）+
 | border / borderActive / borderSubtle | border-l1/l2(+darkmode-thin) / scrollbar / border-inverted |
 | syntaxComment | shiki-token-comment |
 | syntaxKeyword | shiki-token-keyword |
-| syntaxFunction | shiki-token-function |
+| syntaxFunction | shiki-token-function（函数名、类型名、属性名） |
 | syntaxString | shiki-token-string + string-expression |
 | syntaxNumber | shiki-token-constant |
 | syntaxVariable | shiki-foreground（opencode 中 variable 常=正文色，见各主题 JSON） |
-| syntaxType | shiki-token-parameter（类型≈参数槽，DSH 无独立 type 槽） |
+| syntaxType | shiki-token-parameter（参数名；DSH 无独立 type 槽，类型名走 token-function） |
 | syntaxOperator / syntaxPunctuation | shiki-token-punctuation |
 | markdownCode | 内联代码色 code:not(pre code) |
 | markdownEmph/Strong | 元素规则 em/strong |

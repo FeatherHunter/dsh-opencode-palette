@@ -179,13 +179,13 @@
 | `cslot.syntaxComment` | 注释 | Comment | #86 新增 |
 | `cslot.syntaxKeyword` | 关键字 | Keyword | #86 新增 |
 | `cslot.syntaxFunction` | 函数 | Function | #86 新增 |
-| `cslot.syntaxType` | 类型 | Type | #86 新增 |
+| `cslot.syntaxType` | 参数 | Parameter | #86 新增，#92 定稿 |
 | `cslot.syntaxNumber` | 数字 | Number | #86 新增 |
 | `cslot.syntaxString` | 字符串 | String | #86 新增 |
 | `cslot.syntaxOperator` | 运算符 | Operator | #86 新增 |
 | `cslotUse.background` | 窗口与各层底色 | Window and layered surfaces | #86 新增，#92 定稿 |
 | `cslotUse.backgroundPanel` | 标签、多选与浮起按钮底 | Tags, multi-select and raised buttons | #86 新增，#92 定稿 |
-| `cslotUse.backgroundElement` | Toast、提示与引用块竖线 | Toasts, tips and quote bars | #86 新增，#92 定稿 |
+| `cslotUse.backgroundElement` | 选择器、选中卡片、Toast、提示与引用块竖线 | Selectors, active cards, toasts, tips and quote bars | #86 新增，#92 定稿 |
 | `cslotUse.sidebarBg` | 侧边栏与标题行底 | Sidebar and title row | #86 新增，#92 定稿 |
 | `cslotUse.bubbleBg` | 用户消息气泡底 | User message bubble | #86 新增，#92 定稿 |
 | `cslotUse.inputBg` | 消息输入框与登录框底 | Message input and login box | #86 新增，#92 定稿 |
@@ -215,8 +215,8 @@
 | `cslotUse.markdownBlockQuote` | 引用块文字 | Quote text | #86 新增，#92 定稿 |
 | `cslotUse.syntaxComment` | 注释与文档注释 | Comments and doc comments | #86 新增，#92 定稿 |
 | `cslotUse.syntaxKeyword` | 关键字与控制流 | Keywords and control flow | #86 新增 |
-| `cslotUse.syntaxFunction` | 函数名与方法名 | Function and method names | #86 新增，#92 定稿 |
-| `cslotUse.syntaxType` | 类型名与参数名 | Type and parameter names | #86 新增，#92 定稿 |
+| `cslotUse.syntaxFunction` | 函数名、类型名与属性名 | Function, type and attribute names | #86 新增，#92 定稿 |
+| `cslotUse.syntaxType` | 参数名（类型名随函数色） | Parameter names (type names use function color) | #86 新增，#92 定稿 |
 | `cslotUse.syntaxNumber` | 数字、常量与布尔 | Numbers, constants and booleans | #86 新增，#92 定稿 |
 | `cslotUse.syntaxString` | 字符串与模板串 | Strings and template expressions | #86 新增，#92 定稿 |
 | `cslotUse.syntaxOperator` | 运算符与标点 | Operators and punctuation | #86 新增 |

@@ -9092,8 +9092,8 @@ const { shade, withAlpha, contrastText } = __mods["resolve"]
 // 高度梯子（第一性原理：opencode background/backgroundPanel/backgroundElement 本就是
 // 深色 step1<step2<step3 台阶，与 DSH base<panel<element 浮起方向一致）：
 //   step1 页面底 ← DSH 950 级（base/sidebar/unselected）；
-//   step2 中层 ← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
-//   step3 浮起 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
+//   step2 浮起面（中层）← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
+//   step3 浮层 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
 const TOKEN_MAP = [
   // 页面底：step1（DSH 深色 900~950 级：base/sidebar/unselected）
   ['--dsw-alias-bg-base', 'background'],
@@ -9106,12 +9106,12 @@ const TOKEN_MAP = [
   // 老版影响为菜单回默认、可读，不算功能回归；菜单材料/滤镜变量永不输出。
   ['--dsw-alias-markdown-code-segment-unselected', 'background'],
   ['--dsw-alias-markdown-code-segment-selected', 'backgroundElement'],
-  // 中层芯片：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
+  // 浮起面（中层芯片）：step2（DSH 深色 850 级：tag/placeholder/bubble/multi-select）
   ['--dsw-alias-markdown-tag', 'backgroundPanel'],
   ['--dsw-alias-markdown-placeholder', 'backgroundPanel'],
   ['--dsw-specific-bubble', 'bubbleBg'],
   ['--dsw-alias-bg-multi-select', 'backgroundPanel'],
-  // 浮起面：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
+  // 浮层：step3（DSH 深色 750~800 级：citation/banner/toast/tooltip/tip/selector）
   ['--dsw-alias-markdown-citation', 'backgroundElement'],
   ['--dsw-alias-bg-module-platform', 'backgroundElement'],
   ['--dsw-specific-selector', 'backgroundElement'],
@@ -20099,14 +20099,14 @@ const I18N = {
   'cslot.syntaxComment': { zh: '注释', en: 'Comment' },
   'cslot.syntaxKeyword': { zh: '关键字', en: 'Keyword' },
   'cslot.syntaxFunction': { zh: '函数', en: 'Function' },
-  'cslot.syntaxType': { zh: '类型', en: 'Type' },
+  'cslot.syntaxType': { zh: '参数', en: 'Parameter' },
   'cslot.syntaxNumber': { zh: '数字', en: 'Number' },
   'cslot.syntaxString': { zh: '字符串', en: 'String' },
   'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
   // ── 37 色位作用说明 ──
   'cslotUse.background': { zh: '窗口与各层底色', en: 'Window and layered surfaces' },
   'cslotUse.backgroundPanel': { zh: '标签、多选与浮起按钮底', en: 'Tags, multi-select and raised buttons' },
-  'cslotUse.backgroundElement': { zh: 'Toast、提示与引用块竖线', en: 'Toasts, tips and quote bars' },
+  'cslotUse.backgroundElement': { zh: '选择器、选中卡片、Toast、提示与引用块竖线', en: 'Selectors, active cards, toasts, tips and quote bars' },
   'cslotUse.sidebarBg': { zh: '侧边栏与标题行底', en: 'Sidebar and title row' },
   'cslotUse.bubbleBg': { zh: '用户消息气泡底', en: 'User message bubble' },
   'cslotUse.inputBg': { zh: '消息输入框与登录框底', en: 'Message input and login box' },
@@ -20136,8 +20136,8 @@ const I18N = {
   'cslotUse.markdownBlockQuote': { zh: '引用块文字', en: 'Quote text' },
   'cslotUse.syntaxComment': { zh: '注释与文档注释', en: 'Comments and doc comments' },
   'cslotUse.syntaxKeyword': { zh: '关键字与控制流', en: 'Keywords and control flow' },
-  'cslotUse.syntaxFunction': { zh: '函数名与方法名', en: 'Function and method names' },
-  'cslotUse.syntaxType': { zh: '类型名与参数名', en: 'Type and parameter names' },
+  'cslotUse.syntaxFunction': { zh: '函数名、类型名与属性名', en: 'Function, type and attribute names' },
+  'cslotUse.syntaxType': { zh: '参数名（类型名随函数色）', en: 'Parameter names (type names use function color)' },
   'cslotUse.syntaxNumber': { zh: '数字、常量与布尔', en: 'Numbers, constants and booleans' },
   'cslotUse.syntaxString': { zh: '字符串与模板串', en: 'Strings and template expressions' },
   'cslotUse.syntaxOperator': { zh: '运算符与标点', en: 'Operators and punctuation' },
