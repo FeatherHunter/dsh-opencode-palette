@@ -1,4 +1,4 @@
-// rebuild-event-list.mjs — runtime/event-list.json 的重建器（dsh-log 0.3.x 口径）
+// rebuild-event-list.ts — runtime/event-list.json 的重建器（dsh-log 0.3.x 口径）
 //
 // 为什么需要它：0.3.0 起清单不再自报 counts（自算为准），且更新包 0.16.0 起随包发
 // event-list.update.json（26 事件，update.* 的权威源）。本仓清单 = 上游 26 全收
@@ -6,7 +6,7 @@
 // （host.call、host.call.fail、update.install.exec，取哪边都一样，以上游为准）。
 // 上游再发新版（新事件/删事件/改字段）时重跑本脚本 + 按输出核对测试里的 emitted 子集。
 //
-// 用法：node scripts/rebuild-event-list.mjs   （写 runtime/event-list.json，stdout 报清点与冲突）
+// 用法：node scripts/rebuild-event-list.ts   （写 runtime/event-list.json，stdout 报清点与冲突）
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -23,11 +23,32 @@ const REMOVED_EVENTS = ['update.check.ok', 'update.install.start', 'update.insta
 // 若上游将来删掉它，这里会大声报（而不是静默消失），到时再定口径。
 const SUPERSEDED_EVENTS = ['update.check.start', 'update.check.fail']
 
-const upstream = JSON.parse(readFileSync(join(ROOT, 'node_modules', 'dsh-plugin-update', 'event-list.update.json'), 'utf8'))
-const current = JSON.parse(readFileSync(join(ROOT, 'runtime', 'event-list.json'), 'utf8'))
+interface EventEntry {
+  level: unknown
+  kind: string
+  fields: unknown
+}
+
+interface EventListDoc {
+  version: number
+  pluginId: string
+  events: Record<string, EventEntry>
+}
+
+// 上游清单条目多带 guard 等说明字段；本仓只取 {level,kind,fields} 口径。
+interface UpstreamEventEntry extends EventEntry {
+  [key: string]: unknown
+}
+
+interface UpstreamEventListDoc {
+  events: Record<string, UpstreamEventEntry>
+}
+
+const upstream = JSON.parse(readFileSync(join(ROOT, 'node_modules', 'dsh-plugin-update', 'event-list.update.json'), 'utf8')) as UpstreamEventListDoc
+const current = JSON.parse(readFileSync(join(ROOT, 'runtime', 'event-list.json'), 'utf8')) as EventListDoc
 
 // 上游条目只取 {level,kind,fields}（与本仓文件口径一致；上游自带的 guard 说明不进清单）。
-const events = {}
+const events: Record<string, EventEntry> = {}
 for (const [name, entry] of Object.entries(upstream.events)) {
   events[name] = { level: entry.level, kind: entry.kind, fields: entry.fields }
 }
@@ -50,7 +71,7 @@ for (const name of REMOVED_EVENTS) {
   if (upstream.events[name]) throw new Error('[events] 上游加回已删事件，先定口径再重建：' + name)
 }
 // 被替换条目：上游必须有（上游删掉即先定口径）；旧定义与上游不同是待替换、相同是已迁过，两态都接受。
-const supersededNow = []
+const supersededNow: string[] = []
 for (const name of SUPERSEDED_EVENTS) {
   if (!upstream.events[name]) throw new Error('[events] 上游删掉被替换事件，先定口径再重建：' + name)
   if (!current.events[name]) continue
@@ -65,10 +86,10 @@ for (const name of Object.keys(current.events)) {
   }
 }
 
-const out = { version: 1, pluginId: PLUGIN_ID, events: events }
+const out: EventListDoc = { version: 1, pluginId: PLUGIN_ID, events: events }
 writeFileSync(join(ROOT, 'runtime', 'event-list.json'), JSON.stringify(out, null, 2) + '\n')
 
-const counts = { resident: 0, ondemand: 0, selfmon: 0 }
+const counts: Record<string, number> = { resident: 0, ondemand: 0, selfmon: 0 }
 for (const entry of Object.values(events)) { counts[entry.kind] = (counts[entry.kind] || 0) + 1 }
 console.log('[events] 写 runtime/event-list.json：' + Object.keys(events).length + ' 事件 ' + JSON.stringify(counts))
 const dropped = REMOVED_EVENTS.filter((name) => current.events[name])

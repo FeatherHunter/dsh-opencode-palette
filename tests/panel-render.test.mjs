@@ -6,7 +6,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { runInThisContext } from 'node:vm'
-import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.mjs'
+import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.ts'
 
 // React 解析：优先本仓 devDependencies（自包含、不受宿主安装位变动影响），
 // 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，

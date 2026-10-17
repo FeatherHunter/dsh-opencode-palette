@@ -1,13 +1,14 @@
-// grouping.mjs — 色系分组：按主题主色色相将 34 个主题分到色系组
+// grouping.ts — 色系分组：按主题主色色相将 34 个主题分到色系组
 // 组合 1 布局依赖：组标题（色点+名称+数量）+ 组内 mini 芯片
 // 纯逻辑、无 DOM，node 可直接测试
-import { getThemeJson, isSystem, listThemes } from './registry.mjs'
-import { resolveThemeColors, hexToRgb } from './resolve.mjs'
+import { getThemeJson, isSystem, listThemes } from './registry.ts'
+import { resolveThemeColors, hexToRgb } from './resolve.ts'
 
 // 色系顺序与代表色（组标题色点/色带）
 // 组 key 为语言中立 slug（显示名由运行时 i18n 翻译表提供）
-export const GROUP_ORDER = ['warm', 'yellow-green', 'teal', 'cyan-blue', 'cool-blue', 'violet', 'neutral', 'transparent', 'special']
-export const GROUP_COLORS = {
+export type GroupKey = 'warm' | 'yellow-green' | 'teal' | 'cyan-blue' | 'cool-blue' | 'violet' | 'neutral' | 'transparent' | 'special'
+export const GROUP_ORDER: readonly GroupKey[] = ['warm', 'yellow-green', 'teal', 'cyan-blue', 'cool-blue', 'violet', 'neutral', 'transparent', 'special']
+export const GROUP_COLORS: Record<GroupKey, string> = {
   warm: '#FAB283',
   'yellow-green': '#A7C080',
   teal: '#2DD5B7',
@@ -19,8 +20,19 @@ export const GROUP_COLORS = {
   special: '#8B8B95',
 }
 
+// 预览关键色：transparent/解析失败 → null；主题缺该色位 → undefined（历史语义原样保留）
+export interface PreviewColors {
+  background: string | null | undefined
+  text: string | null | undefined
+  primary: string | null | undefined
+  accent: string | null | undefined
+  error: string | null | undefined
+  warning: string | null | undefined
+  success: string | null | undefined
+}
+
 // 色相：hex → 0-360；中性（低饱和/无色）→ -2；无值 → -1
-export function hueOf(hex) {
+export function hueOf(hex?: string | null): number {
   if (!hex) return -1
   const { r, g, b } = hexToRgb(hex)
   const max = Math.max(r, g, b) / 255
@@ -28,7 +40,7 @@ export function hueOf(hex) {
   const d = max - min
   if (d === 0) return -2
   const rr = r / 255, gg = g / 255, bb = b / 255
-  let h
+  let h: number
   if (max === rr) h = ((gg - bb) / d) % 6
   else if (max === gg) h = (bb - rr) / d + 2
   else h = (rr - gg) / d + 4
@@ -54,7 +66,7 @@ export function hueOf(hex) {
 // （冷蓝）区分纯蓝段。整组名体系 = 两端温度锚（暖橙／冷蓝）＋中段邻接复合（黄绿／青绿／青蓝／蓝紫），
 // 本就不是平行前缀；英文侧按英语习惯（Teal／Violet 为单词色名）而非与中文同构，同样冻结。
 // 分组键恒取 dark 基线（issue 47）：浅色宿主的芯片预览色可落在别组（7 个主题），既有裁决、不是漂移。
-export function groupOf(name, colors) {
+export function groupOf(name: string, colors: PreviewColors): GroupKey {
   if (isSystem(name)) return 'special'
   if (colors.background === null) return 'transparent'
   const h = hueOf(colors.primary)
@@ -69,17 +81,18 @@ export function groupOf(name, colors) {
 
 // 解析单个主题的预览关键色（transparent → null）
 // mode 缺省 dark（调用方兼容）；面板按宿主外观传入 light/dark（issue 45）
-export function resolvePreview(name, mode) {
+export function resolvePreview(name: string, mode?: string): PreviewColors | null {
   if (isSystem(name)) {
     return { background: null, text: null, primary: null, accent: null, error: null, warning: null, success: null }
   }
   const json = getThemeJson(name)
   if (!json) return null
   const c = resolveThemeColors(json, mode || 'dark')
-  const pick = (k) => {
+  const pick = (k: string): string | null | undefined => {
     const v = c[k]
-    if (v && typeof v === 'object' && v.__error) return null
-    return v === 'transparent' ? null : v
+    if (v === undefined) return undefined
+    if (typeof v === 'string') return v === 'transparent' ? null : v
+    return null // ColorError：解析失败的色位没有可预览色
   }
   return {
     background: pick('background'),
@@ -94,16 +107,20 @@ export function resolvePreview(name, mode) {
 
 // 完整分组结果：按 GROUP_ORDER 输出非空组，组内含每主题预览色
 // mode 缺省 dark（调用方兼容）；mode 只决定芯片预览色，分组键恒用 dark 基线（issue 47：菜单不得随宿主明暗漂移）
-export function themeGroups(mode) {
+interface ThemeEntry { name: string; colors: PreviewColors }
+interface ThemeGroup { name: GroupKey; color: string; themes: ThemeEntry[] }
+
+export function themeGroups(mode?: string): ThemeGroup[] {
   const m = mode || 'dark'
-  const buckets = {}
+  const buckets: Partial<Record<GroupKey, ThemeEntry[]>> = {}
   for (const name of listThemes()) {
-    const colors = resolvePreview(name, m)
-    const groupKey = m === 'dark' ? colors : resolvePreview(name, 'dark')
+    // listThemes 只给注册表内名字：system 有固定色对象，其余必有 JSON，解析必非空
+    const colors = resolvePreview(name, m)!
+    const groupKey = m === 'dark' ? colors : resolvePreview(name, 'dark')!
     const g = groupOf(name, groupKey)
     ;(buckets[g] = buckets[g] || []).push({ name: name, colors: colors })
   }
   return GROUP_ORDER
-    .filter((g) => buckets[g])
-    .map((g) => ({ name: g, color: GROUP_COLORS[g], themes: buckets[g] }))
+    .filter((g) => buckets[g] !== undefined)
+    .map((g) => ({ name: g, color: GROUP_COLORS[g], themes: buckets[g] as ThemeEntry[] }))
 }

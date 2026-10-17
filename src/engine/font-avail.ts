@@ -13,13 +13,41 @@ export const FONT_PROBE_TEXT = 'mmmmwwwwMMMM'
 export const FONT_PROBE_ABSENT = '__dsh_palette_absent_font__'
 export const FONT_PROBE_SIZE = 64
 
+// 探针用到的 DOM 最小面（document 由调用方注入，node 单测传等价 stub；真实 Document 结构也满足）
+interface ProbeStyle {
+  cssText: string
+  fontFamily: string
+}
+
+interface ProbeElement {
+  style: ProbeStyle
+  textContent: string | null
+  getBoundingClientRect?: () => { width: number }
+}
+
+interface ProbeHost {
+  appendChild(child: unknown): unknown
+  removeChild?(child: unknown): unknown
+}
+
+interface ProbeDocument {
+  createElement?: (tagName: string) => ProbeElement
+  body?: ProbeHost | null
+  documentElement?: ProbeHost | null
+}
+
+type ResolveDocument = () => ProbeDocument | null | undefined
+
 // createFontAvailability(resolveDoc, bundledFonts) → isFontAvailable(family)
 //   resolveDoc: () => document|undefined —— 惰性取宿主 document（SSR / 模块早于 DOM 就绪都安全）
 //   bundledFonts: 随包内联 @font-face 的家族名列表（恒可用，不量宽）
-export function createFontAvailability(resolveDoc, bundledFonts) {
-  const cache = Object.create(null)
+export function createFontAvailability(
+  resolveDoc: ResolveDocument | null | undefined,
+  bundledFonts: readonly string[] | null | undefined,
+): (family: string) => boolean {
+  const cache: Record<string, boolean> = Object.create(null)
 
-  function measure(family) {
+  function measure(family: string): number | null {
     const doc = resolveDoc && resolveDoc()
     if (!doc || typeof doc.createElement !== 'function') return null
     const host = doc.body || doc.documentElement
@@ -32,7 +60,7 @@ export function createFontAvailability(resolveDoc, bundledFonts) {
     if (span.style.fontFamily === '') return null // 声明没生效（家族名含引号等）→ 交给调用方保守处理
     span.textContent = FONT_PROBE_TEXT
     host.appendChild(span)
-    let w = null
+    let w: number | null = null
     try {
       w = span.getBoundingClientRect ? span.getBoundingClientRect().width : null
     } finally {
@@ -41,7 +69,7 @@ export function createFontAvailability(resolveDoc, bundledFonts) {
     return typeof w === 'number' && w > 0 ? w : null
   }
 
-  return function isFontAvailable(family) {
+  return function isFontAvailable(family: string): boolean {
     try {
       if (bundledFonts && bundledFonts.indexOf(family) >= 0) return true
       if (family in cache) return cache[family]

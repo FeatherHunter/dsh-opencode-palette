@@ -16,7 +16,7 @@ const UNSAFE_FONT_NAME_RE = /[{}<>;\\"'\r\n\t\f\v`\u0000-\u001f\u007f]/
 // sanitizeFontName(name) → 合法族名 | null
 //   非法（非字符串 / 空 / 超长 / 含保留字符）一律返回 null，由调用方落到默认回退栈。
 //   刻意不做「剥离字符后继续用」的修复：修复会把一个用户没要的名字当成他的选择，比拒绝更糟。
-export function sanitizeFontName(name) {
+export function sanitizeFontName(name: unknown): string | null {
   if (typeof name !== 'string') return null
   const trimmed = name.trim()
   if (trimmed === '' || trimmed.length > FONT_NAME_MAX) return null
@@ -28,7 +28,7 @@ export function sanitizeFontName(name) {
 //   用配对单引号整体包住族名；名字里若带单引号，改用双引号。
 //   两侧都带引号才是浏览器认得的「家族名」写法，裸写会被拆成多个家族名。
 //   拒绝（净化不通过）时返回 null —— 绝不返回未加引号的原始输入。
-export function quoteFontFamily(name) {
+export function quoteFontFamily(name: unknown): string | null {
   const safe = sanitizeFontName(name)
   if (safe === null) return null
   return safe.indexOf("'") >= 0 ? '"' + safe + '"' : "'" + safe + "'"

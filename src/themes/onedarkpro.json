@@ -112,6 +112,30 @@
     "markdownHorizontalRule": {
       "dark": "#949BA7",
       "light": "#4B5059"
+    },
+    "diffAdded": {
+      "dark": "#98C379",
+      "light": "#4FA66D"
+    },
+    "diffRemoved": {
+      "dark": "#E06C75",
+      "light": "#E06C75"
+    },
+    "diffAddedBg": {
+      "dark": "#283735",
+      "light": "#EEF4F2"
+    },
+    "diffRemovedBg": {
+      "dark": "#3F2D36",
+      "light": "#F5EFF1"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "#283735",
+      "light": "#EEF4F2"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "#3F2D36",
+      "light": "#F5EFF1"
     }
   }
 }

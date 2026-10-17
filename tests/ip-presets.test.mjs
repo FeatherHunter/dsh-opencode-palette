@@ -5,9 +5,9 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { listIpPresets, getIpPreset, countIpPresets, IP_PRESET_IDS } from '../src/engine/ip-presets.mjs'
-import { themeNames, themeStats } from '../src/engine/index.mjs'
-import { COLOR_SLOTS } from '../src/engine/map-dsh.mjs'
+import { listIpPresets, getIpPreset, countIpPresets, IP_PRESET_IDS } from '../src/engine/ip-presets.ts'
+import { themeNames, themeStats } from '../src/engine/index.ts'
+import { COLOR_SLOTS } from '../src/engine/map-dsh.ts'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const HEX_RE = /^#[0-9a-fA-F]{6}$/

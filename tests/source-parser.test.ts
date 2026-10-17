@@ -1,4 +1,4 @@
-// tests/source-parser.test.mjs — P0 构建链硬化：逐行解析器（scripts/lib/source-parser.mjs）
+// tests/source-parser.test.ts — P0 构建链硬化：逐行解析器（scripts/lib/source-parser.ts）
 //
 // 守两件事：
 //   1) 现行源码的解析结果与改造前内联在 build-client.mjs 里的正则**逐字段一致**（build 行为零变化）；
@@ -8,30 +8,54 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseLine } from '../scripts/lib/source-parser.mjs'
+import { parseLine } from '../scripts/lib/source-parser.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 
-// bundler 处理的全部源码：src/engine/*.mjs（MODULE_ORDER 里的 14 个）+ runtime 的 6 个模块。
+// bundler 处理的全部源码：src/engine/*.ts（MODULE_ORDER 里的 14 个）+ runtime 的 6 个模块。
 // runtime/host.mjs 不参与逐行解析（原样复制进 package/lib/index.js），故意不列。
 const ENGINE_MODULES = ['resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry']
 const RUNTIME_MODULES = ['client.mjs', 'channel.mjs', 'custom-color.mjs', 'custom-store.mjs', 'custom-editor.mjs', 'ui-fx.mjs']
-const SOURCE_FILES = ENGINE_MODULES.map((name) => join(ROOT, 'src', 'engine', name + '.mjs')).concat(RUNTIME_MODULES.map((name) => join(ROOT, 'runtime', name)))
+const SOURCE_FILES = ENGINE_MODULES.map((name) => join(ROOT, 'src', 'engine', name + '.ts')).concat(RUNTIME_MODULES.map((name) => join(ROOT, 'runtime', name)))
 
-function readNormalized(file) {
+function readNormalized(file: string): string {
   return readFileSync(file, 'utf8').replace(/\r\n/g, '\n')
 }
 
-// 改造前 build-client.mjs 里的 5 条正则（原样保留，作为等价性基准；改构建逻辑时不要动这组基准）
-const LEGACY = [
+// 引擎源码已迁成 .ts：tsc（rewriteRelativeImportExtensions）会把相对说明符的 '.ts' 改写成 '.js'，
+// bundler 实际吃到的是 emit 形态。UNHANDLED 检查按同一条规则投影，才对得上真实输入。
+// runtime 仍是 .mjs，没有 .ts 说明符，改写对它是空操作。
+function emitLine(line: string): string {
+  return line.replace(/(['"])((?:\.{1,2}\/)[^'"]+)\.ts\1/g, '$1$2.js$1')
+}
+
+// 纯类型声明（export interface / export type / export declare）在 emit 里整行消失（tsc 只擦除、不输出），
+// 不参与「未识别顶格语句」判定。
+const ERASED_DECL_RE = /^export\s+(?:type|interface|declare)\b/
+
+// 改造前 build-client.mjs 用的 6 条正则（前 5 条原样保留，作为等价性基准；改构建逻辑时不要动这组基准）。
+// 第 6 条 type-import：P0 抽取解析器时就已经存在（bundler 里对应分支只丢弃、不输出），
+// 只是源码里直到 P2 给引擎补类型注解才开始出现 `import type`，所以之前的基准里没有它。
+interface LegacyEntry {
+  type: string
+  re: RegExp
+}
+
+const LEGACY: LegacyEntry[] = [
   { type: 'json-import', re: /^import (\w+) from '([^']+\.json)' with \{ type: 'json' \}$/ },
   { type: 'js-import', re: /^import \{ ([^}]+) \} from '\.\/([A-Za-z0-9_\/-]+)\.mjs'$/ },
   { type: 'pkg-import', re: /^import \{ ([^}]+) \} from '([a-z0-9-]+\/[a-z0-9-]+)'$/ },
   { type: 'export', re: /^export (function|const) (\w+)/ },
   { type: 're-export', re: /^export \{ ([^}]+) \}$/ },
+  { type: 'type-import', re: /^import\s+type\s/ },
 ]
 
-function legacyParse(line) {
+interface LegacyMatch {
+  type: string
+  match: RegExpMatchArray
+}
+
+function legacyParse(line: string): LegacyMatch | null {
   for (const entry of LEGACY) {
     const m = line.match(entry.re)
     if (m) return { type: entry.type, match: m }
@@ -72,7 +96,7 @@ test('非语句行不误伤', () => {
 })
 
 test('现行源码逐行解析结果与改造前内联正则逐字段一致', () => {
-  const counts = {}
+  const counts: Record<string, number> = {}
   for (const file of SOURCE_FILES) {
     const lines = readNormalized(file).split('\n')
     for (let i = 0; i < lines.length; i += 1) {
@@ -112,11 +136,12 @@ test('现行源码逐行解析结果与改造前内联正则逐字段一致', ()
 })
 
 test('全部源码里没有未识别的顶格 import/export 行（UNHANDLED = 0）', () => {
-  const unhandled = []
+  const unhandled: string[] = []
   for (const file of SOURCE_FILES) {
     const lines = readNormalized(file).split('\n')
     for (let i = 0; i < lines.length; i += 1) {
-      const line = lines[i]
+      const line = emitLine(lines[i])
+      if (ERASED_DECL_RE.test(line)) continue
       if (/^(import|export)\b/.test(line) && parseLine(line) === null) unhandled.push(file + ':' + (i + 1) + '：' + line.slice(0, 100))
     }
   }

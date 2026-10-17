@@ -465,7 +465,7 @@ test('点击应用命中缓存：setCustomTheme 切换 state.theme 且不抛', (
 // 覆盖票面“弹窗内改色只动预览”可测侧：渲染期零 document/window 访问（删全局仍不抛），
 // 37 槽全绑 data-slot，外观翻底盘走 editorMiniLight（c1 集成）。
 import { CustomEditor, PalettePicker, presetToSeed, slotRingStyle, needsReveal, popoverPosition } from '../runtime/custom-editor.mjs'
-import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.mjs'
+import { COLOR_SLOTS as ENGINE_SLOTS, extractPresetPalette as enginePreset } from '../src/engine/index.ts'
 
 function mockHooks() {
   return {
@@ -794,7 +794,7 @@ test('m09582-1：名字区定宽 322 —— 胶囊随名字变长、输入框变
 })
 
 // ── 用户 m09582 需求 2：编辑/新增弹窗 chrome 跟随当前系统主题（预览区除外）──
-// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源 src/engine/map-dsh.mjs），
+// 宿主 DSH 与调色板主题都把 --dsw-alias-* 定义在 body 上（映射表唯一真相源 src/engine/map-dsh.ts），
 // 所以 chrome 吃 var() 即同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参；
 // 兜底值 = 改造前的深色字面量（SSR/无宿主时观感与之前完全一致）。
 test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑主题色）', () => {
@@ -811,7 +811,7 @@ test('m09582-2：弹窗 chrome 走宿主语义 token（预览区仍显被编辑�
   // 用到的 token 必须都在引擎映射表里：拼错拿不到宿主值会静默回落深色，等于悄悄退回旧观感。
   const used = Array.from(new Set((html + src).match(/--dsw-alias-[a-z0-9-]+/g) || []))
   assert.ok(used.length >= 14, '弹窗 token 覆盖面（实测 ' + used.length + ' 个）')
-  const map = readFileSync(join(import.meta.dirname, '..', 'src', 'engine', 'map-dsh.mjs'), 'utf8')
+  const map = readFileSync(join(import.meta.dirname, '..', 'src', 'engine', 'map-dsh.ts'), 'utf8')
   const known = new Set(map.match(/--dsw-alias-[a-z0-9-]+/g) || [])
   const unknown = used.filter((t) => !known.has(t))
   assert.equal(unknown.join(','), '', '所有 token 都在 map-dsh.mjs 映射表内')

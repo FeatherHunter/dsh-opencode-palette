@@ -65,7 +65,7 @@ test('#85 normalize：非法 appearance/basePreset 回退，无 id 时返回 nul
 
 test('#85 内嵌回退色板与引擎 opencode(dark) 37 色一致', async () => {
   const host = await import(hostUrl)
-  const engine = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'index.mjs')).href)
+  const engine = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'index.ts')).href)
   const expected = engine.extractPresetPalette('opencode').colors
   const probe = host.normalizeCustomTheme({ id: 'probe', colors: {} }, null, '2026-01-01T00:00:00.000Z')
   assert.deepEqual(probe.colors, expected, 'host 内嵌回退必须等于引擎 opencode 回退（opencode.json 改了要同步）')

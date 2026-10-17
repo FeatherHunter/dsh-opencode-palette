@@ -1,6 +1,6 @@
-// registry.mjs — 主题注册表：37 个静态主题（33 TUI vendored + 4 桌面 2.0 转换）+ system 特殊主题
-// TUI 数据由 scripts/sync-themes.mjs 从 opencode v1.18.12 同步；2.0 四款由
-// scripts/convert-desktop-themes.mjs 从桌面 schema 转换（见 MANIFEST.json 指纹）
+// registry.ts — 主题注册表：37 个静态主题（33 TUI vendored + 4 桌面 2.0 转换）+ system 特殊主题
+// TUI 数据由 scripts/sync-themes.ts 从 opencode v1.18.12 同步；2.0 四款由
+// scripts/convert-desktop-themes.ts 从桌面 schema 转换（见 MANIFEST.json 指纹）
 import amoled from '../themes/amoled.json' with { type: 'json' }
 import aura from '../themes/aura.json' with { type: 'json' }
 import ayu from '../themes/ayu.json' with { type: 'json' }
@@ -38,10 +38,12 @@ import tokyonight from '../themes/tokyonight.json' with { type: 'json' }
 import vercel from '../themes/vercel.json' with { type: 'json' }
 import vesper from '../themes/vesper.json' with { type: 'json' }
 import zenburn from '../themes/zenburn.json' with { type: 'json' }
+import type { ThemeSource } from './resolve.ts'
 
 export const SYSTEM_THEME = 'system'
 
-const THEMES = {
+// 37 套 JSON 同形（defs/theme 两张颜色引用表），形状取 resolve 侧的最小主题类型
+const THEMES: Record<string, ThemeSource> = {
   "amoled": amoled,
   "aura": aura,
   "ayu": ayu,
@@ -82,18 +84,18 @@ const THEMES = {
 }
 
 // 字母序完整清单（含 system，与 opencode 选择器一致）
-export function listThemes() {
-  return Object.keys(THEMES).concat(SYSTEM_THEME).sort(function (a, b) { return a.localeCompare(b) })
+export function listThemes(): string[] {
+  return Object.keys(THEMES).concat(SYSTEM_THEME).sort(function (a: string, b: string): number { return a.localeCompare(b) })
 }
 
-export function getThemeJson(name) {
+export function getThemeJson(name: string): ThemeSource | null {
   return THEMES[name] || null
 }
 
-export function isSystem(name) {
+export function isSystem(name: string): boolean {
   return name === SYSTEM_THEME
 }
 
-export function countStatic() {
+export function countStatic(): number {
   return Object.keys(THEMES).length
 }

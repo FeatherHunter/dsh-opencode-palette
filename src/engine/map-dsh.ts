@@ -1,10 +1,14 @@
-// map-dsh.mjs — ★ 单一真相源：opencode 主题语义色位 → DSH 界面 CSS 变量/元素规则
+// map-dsh.ts — ★ 单一真相源：opencode 主题语义色位 → DSH 界面 CSS 变量/元素规则
 // DSH 升级改 CSS 变量名时，只需要改这一个文件。
-// 值 = opencode 色位名；generate.mjs 负责取值与派生（提亮/透明/对比色）。
+// 值 = opencode 色位名；generate.ts 负责取值与派生（提亮/透明/对比色）。
 
-import { shade, withAlpha, contrastText } from './resolve.mjs'
+import { shade, withAlpha, contrastText, type ResolvedColorMap } from './resolve.ts'
 
-// 派生 token 的 helpers 来自 resolve.mjs（shade/withAlpha/contrastText）
+// 派生 token 的 helpers 来自 resolve.ts（shade/withAlpha/contrastText）
+
+// 派生 token 的取槽助手：解析失败的色位在历史行为里会流入 helper 被宽容处理（不抛错、由
+// buildTokens 的 try/catch 兜底或原样输出），这里保持同一运行时语义，仅把类型收窄成 string。
+const slot = (c: ResolvedColorMap, key: string): string => c[key] as string
 
 // ── 1. token 层：theme.overrideTokens 注册的 --dsw-alias-* 变量 ──
 // 格式: [DSH 变量, 来源色位]（来源缺失/透明/解析失败 → 该 token 自动跳过，不污染）
@@ -13,7 +17,7 @@ import { shade, withAlpha, contrastText } from './resolve.mjs'
 //   step1 页面底 ← DSH 950 级（base/sidebar/unselected）；
 //   step2 浮起面（中层）← DSH 850 级（tag/placeholder/bubble/multi-select 芯片）；
 //   step3 浮层 ← DSH 750~800 级（citation/banner/toast/tooltip/tip/selector）。
-export const TOKEN_MAP = [
+export const TOKEN_MAP: ReadonlyArray<readonly [string, string]> = [
   // 页面底：step1（DSH 深色 900~950 级：base/sidebar/unselected）
   ['--dsw-alias-bg-base', 'background'],
   ['--dsw-alias-bg-layer-1', 'background'],
@@ -94,7 +98,7 @@ export const TOKEN_MAP = [
 
 // ── 2. 派生 token：值不是直接取自色位，而是按规则计算 ──
 // 格式: [DSH 变量, 计算函数(colors) → 值]（colors = resolveThemeColors 输出）
-export const DERIVED_TOKENS = [
+export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMap) => string]> = [
   ['--dsw-alias-button-primary-hover', (c) => shade(c.primary, 0.12)],
   ['--dsw-alias-button-info-hover', (c) => shade(c.info, 0.12)],
   ['--dsw-alias-label-primary-inverted', (c) => contrastText(c.text)],
@@ -118,20 +122,20 @@ export const DERIVED_TOKENS = [
   ['--dsw-alias-button-tool-bar-fill', (c) => withAlpha(c.text, 0.1)],
   ['--dsw-alias-button-tool-bar-hover', (c) => withAlpha(c.text, 0.16)],
   ['--dsw-alias-button-tool-bar-fill-invisible', (c) => withAlpha(c.text, 0.04)],
-  ['--dsw-alias-button-floating-hover', (c) => c.backgroundElement],
-  ['--dsw-alias-button-ghost-active-hover', (c) => c.backgroundElement],
+  ['--dsw-alias-button-floating-hover', (c) => slot(c, 'backgroundElement')],
+  ['--dsw-alias-button-ghost-active-hover', (c) => slot(c, 'backgroundElement')],
   ['--dsw-alias-interactive-bg-active', (c) => withAlpha(c.text, 0.14)],
   ['--dsw-alias-interactive-bg-hover', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-interactive-bg-hover-accent', (c) => withAlpha(c.primary, 0.2)],
   ['--dsw-alias-interactive-bg-hover-danger', (c) => withAlpha(c.error, 0.15)],
-  ['--dsw-alias-interactive-bg-hover-solid', (c) => c.backgroundElement],
+  ['--dsw-alias-interactive-bg-hover-solid', (c) => slot(c, 'backgroundElement')],
   // issue 70：宿主用 inverted 做真实边框（dsh-prompt 实证无 fallback 直引）；text-alpha 无色相，与彩色 border 并置即橙灰混杂，故跟边框走（inverted=border，inverted2=borderActive，与 l1/l2 对齐）
-  ['--dsw-alias-border-inverted', (c) => c.border],
-  ['--dsw-alias-border-inverted2', (c) => c.borderActive],
+  ['--dsw-alias-border-inverted', (c) => slot(c, 'border')],
+  ['--dsw-alias-border-inverted2', (c) => slot(c, 'borderActive')],
   ['--dsw-alias-scrollbar-bg-l1', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-alias-scrollbar-bg-l2', (c) => withAlpha(c.text, 0.08)],
-  ['--dsw-alias-scrollbar-hover-l1', (c) => c.borderActive],
-  ['--dsw-alias-scrollbar-hover-l2', (c) => c.borderActive],
+  ['--dsw-alias-scrollbar-hover-l1', (c) => slot(c, 'borderActive')],
+  ['--dsw-alias-scrollbar-hover-l2', (c) => slot(c, 'borderActive')],
   // 侧边栏/设置面板导航项悬停与选中：DSH 默认随明暗模式取浅/深两套值，
   // 调色板未覆盖时在浅色系统（无 data-ds-dark-theme）下会白字撞浅底
   ['--dsw-specific-sidebar-nav-item-hover', (c) => withAlpha(c.text, 0.08)],
@@ -140,7 +144,7 @@ export const DERIVED_TOKENS = [
 ]
 
 // ── 3. shiki 语法高亮变量（DSH 只认 10 个，opencode 9 色位做角色合并）──
-export const SHIKI_MAP = [
+export const SHIKI_MAP: ReadonlyArray<readonly [string, string]> = [
   ['--shiki-foreground', 'text'],
   ['--shiki-token-comment', 'syntaxComment'],
   ['--shiki-token-keyword', 'syntaxKeyword'],
@@ -155,7 +159,7 @@ export const SHIKI_MAP = [
 
 // ── 4. 元素级规则：DSH 没有对应变量的部分，用选择器兜底 ──
 // 格式: { selector, prop, from }（from 缺失/透明 → 规则跳过）
-export const CSS_RULES = [
+export const CSS_RULES: ReadonlyArray<{ selector: string; prop: string; from: string }> = [
   { selector: 'body h1,body h2,body h3,body h4,body h5,body h6', prop: 'color', from: 'markdownHeading' },
   { selector: 'a', prop: 'color', from: 'markdownLink' },
   // F1 链接：与上游 MarkdownText.module.css 选择器镜像（.markdown a 0,1,1 碾压裸 a 0,0,1；老 a 规则保留，老版继续命中）
@@ -175,12 +179,12 @@ export const CSS_RULES = [
 // Maple Mono NF CN 为 OFL-1.1，中英文同一字体（中英宽度 2:1，混排对齐），但全量 CJK
 // 体积是 latin 子集的数十倍（单文件 ~18MB，切片 webfont 每字重 ~5MB），内联随包会把发布包
 // 从 0.4MB 级推到 15MB 级 —— 故与 SF Mono/Consolas 同策：只做本机检测，不随包内联。
-export const SANS_STACK = [
+export const SANS_STACK: string = [
   "'Inter'", '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", "'PingFang SC'",
   "'Hiragino Sans GB'", "'Microsoft YaHei'", "'Helvetica Neue'", 'Helvetica', 'Arial', 'sans-serif',
 ].join(', ')
 
-export const FONTS = {
+export const FONTS: Record<string, string> = {
   'JetBrains Mono': "'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,Menlo,'Liberation Mono','Courier New','PingFang SC','Microsoft YaHei'",
   'Cascadia Code': "'Cascadia Code','JetBrains Mono','Fira Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
   'Fira Code': "'Fira Code','JetBrains Mono','Cascadia Code','IBM Plex Mono','SF Mono',Consolas,'Courier New','PingFang SC','Microsoft YaHei'",
@@ -193,7 +197,7 @@ export const FONTS = {
 // ── 6. 自定义主题 37 色位元数据（#84 建，#92 定稿组名；key 口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
 // 7 大分组 = 背景与表面 8 + 文字 2 + 品牌与状态 6 + 边框 2 + 改动对比 6 + Markdown 6 + 代码高亮 7 = 37
 // allowTransparent 仅 8 个背景槽为 true（其余 29 槽设 transparent 会被编辑器 reducer 拦截）；fallback 为 5 个扩展槽的默认继承源；previewSlot 为微缩画布 data-slot（恒等于 key）。
-export const COLOR_SLOT_GROUPS = [
+export const COLOR_SLOT_GROUPS: ReadonlyArray<{ id: string; keys: readonly string[] }> = [
   { id: 'bg', keys: ['background', 'backgroundPanel', 'backgroundElement', 'sidebarBg', 'bubbleBg', 'inputBg', 'codeBlockBg', 'codeHeaderBg'] },
   { id: 'text', keys: ['text', 'textMuted'] },
   { id: 'brand', keys: ['primary', 'secondary', 'info', 'success', 'warning', 'error'] },
@@ -202,7 +206,13 @@ export const COLOR_SLOT_GROUPS = [
   { id: 'md', keys: ['markdownHeading', 'markdownLink', 'markdownCode', 'markdownEmph', 'markdownStrong', 'markdownBlockQuote'] },
   { id: 'syn', keys: ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'] },
 ]
-export const COLOR_SLOTS = [
+export const COLOR_SLOTS: ReadonlyArray<{
+  key: string
+  group: string
+  allowTransparent: boolean
+  fallback: string | null
+  previewSlot: string
+}> = [
   { key: 'background', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'background' },
   { key: 'backgroundPanel', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundPanel' },
   { key: 'backgroundElement', group: 'bg', allowTransparent: true, fallback: null, previewSlot: 'backgroundElement' },
@@ -243,8 +253,8 @@ export const COLOR_SLOTS = [
 ]
 // 32 色内置色板 → 37 色完整色板：仅补齐未显式指定的 5 个扩展槽（已显式的保持不动，纯函数不改入参）。
 // 回退链：sidebarBg←background；bubbleBg/inputBg/codeBlockBg←backgroundPanel；codeHeaderBg←backgroundElement。
-export function normalizeThemeColors(colors) {
-  const c = Object.assign({}, colors || {})
+export function normalizeThemeColors(colors: ResolvedColorMap | null | undefined): ResolvedColorMap {
+  const c: ResolvedColorMap = Object.assign({}, colors || {})
   if (c.sidebarBg === undefined || c.sidebarBg === null) c.sidebarBg = c.background
   if (c.bubbleBg === undefined || c.bubbleBg === null) c.bubbleBg = c.backgroundPanel
   if (c.inputBg === undefined || c.inputBg === null) c.inputBg = c.backgroundPanel

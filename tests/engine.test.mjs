@@ -4,20 +4,20 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
   themeNames, themeStats, previewColors, renderTheme, auditAll, delegatesBackground,
-} from '../src/engine/index.mjs'
-import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText } from '../src/engine/resolve.mjs'
-import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.mjs'
-import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
-import { THEME_ZH, THEME_EN, THEME_ZH_LEGACY, themeSearchText } from '../src/engine/zh-names.mjs'
-import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.mjs'
-import { BUNDLED_FONTS } from '../src/engine/font-face.mjs'
-import { FONTS, SANS_STACK } from '../src/engine/map-dsh.mjs'
-import { createFontAvailability, FONT_PROBE_ABSENT } from '../src/engine/font-avail.mjs'
-import { sanitizeFontName, quoteFontFamily, FONT_NAME_MAX } from '../src/engine/font-names.mjs'
+} from '../src/engine/index.ts'
+import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText, contrastRatio as engineContrastRatio, blendOntoBase } from '../src/engine/resolve.ts'
+import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.ts'
+import { themeGroups, GROUP_ORDER, GROUP_COLORS, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.ts'
+import { THEME_ZH, THEME_EN, THEME_ZH_LEGACY, themeSearchText } from '../src/engine/zh-names.ts'
+import { generateTheme, buildTokens, buildTypographyCss, codeFontStack } from '../src/engine/generate.ts'
+import { BUNDLED_FONTS } from '../src/engine/font-face.ts'
+import { FONTS, SANS_STACK } from '../src/engine/map-dsh.ts'
+import { createFontAvailability, FONT_PROBE_ABSENT } from '../src/engine/font-avail.ts'
+import { sanitizeFontName, quoteFontFamily, FONT_NAME_MAX } from '../src/engine/font-names.ts'
 import {
   collectLocalFonts, dedupeFamilies, measureMonospaceFonts, buildFontCandidates, MONO_PROBE_TEXT,
   FONT_ENUM_UNAVAILABLE, FONT_ENUM_DENIED, FONT_ENUM_BLOCKED, FONT_ENUM_EMPTY, FONT_ENUM_FAILED,
-} from '../src/engine/local-fonts.mjs'
+} from '../src/engine/local-fonts.ts'
 
 const TYPO = { mode: 'mono', size: 13, fontKey: 'JetBrains Mono' }
 
@@ -691,21 +691,23 @@ test('DSH 0.1.7 F4 新卡片字号：随字号档缩放，默认还原上游密�
 test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛异常', () => {
   const r = renderTheme('opencode', TYPO)
   const t = (k) => r.tokens[k] && r.tokens[k].dark
-  assert.equal(t('--dsw-alias-code-diff-added'), '#4FD6BE', 'code-diff-added 应直配 diffAdded')
-  assert.equal(t('--dsw-alias-code-diff-deleted'), '#C53B53', 'code-diff-deleted 应直配 diffRemoved')
-  assert.equal(t('--dsw-alias-file-diff-added-bg'), '#20303B', 'file-diff-added-bg 应直配 diffAddedBg')
-  assert.equal(t('--dsw-alias-file-diff-added-gutter'), '#1B2B34', 'file-diff-added-gutter 应直配行号槽')
+  assert.equal(t('--dsw-alias-code-diff-added'), '#4FD6BE', 'code-diff-added 达标原样透出 diffAdded')
+  // issue 80：删除对原值 #C53B53 on #37222C 仅 2.89，兜底提亮前景并压暗背景到达标（加深红 tint 向黑）
+  assert.equal(t('--dsw-alias-code-diff-deleted'), '#CB4F64', 'code-diff-deleted 兜底提亮后达标')
+  assert.equal(t('--dsw-alias-file-diff-added-bg'), '#20303B', 'file-diff-added-bg 达标原样透出 diffAddedBg')
+  assert.equal(t('--dsw-alias-file-diff-added-gutter'), '#1B2B34', 'file-diff-added-gutter 达标原样透出行号槽')
   assert.equal(t('--dsw-alias-file-diff-added-marker'), '#4FD6BE', 'file-diff-added-marker 复用前景')
-  assert.equal(t('--dsw-alias-file-diff-deleted-bg'), '#37222C', 'file-diff-deleted-bg 应直配 diffRemovedBg')
-  assert.equal(t('--dsw-alias-file-diff-deleted-gutter'), '#2D1F26', 'file-diff-deleted-gutter 应直配行号槽')
-  assert.equal(t('--dsw-alias-file-diff-deleted-marker'), '#C53B53', 'file-diff-deleted-marker 复用前景')
+  assert.equal(t('--dsw-alias-file-diff-deleted-bg'), '#0A0506', 'file-diff-deleted-bg 兜底压暗后达标')
+  assert.equal(t('--dsw-alias-file-diff-deleted-gutter'), '#0A0506', 'file-diff-deleted-gutter 兜底压暗后达标')
+  assert.equal(t('--dsw-alias-file-diff-deleted-marker'), '#CB4F64', 'file-diff-deleted-marker 复用兜底后前景')
   assert.equal(t('--dsw-alias-state-idle-primary'), '#5C9CF5', 'state-idle 应直配 secondary')
   assert.equal(t('--dsw-alias-menu-icon'), '#808080', 'menu-icon 应直配 textMuted')
   assert.equal(t('--dsw-alias-toast-label'), '#EEEEEE', 'toast-label 应直配 text')
   assert.equal(t('--dsw-alias-tooltip-key-bg'), '#1E1E1E', 'tooltip-key-bg 应直配 backgroundElement')
-  // 缺槽主题（amoled 等 4 个无 diff/secondary）：跳过但不抛异常，中性项仍在
+  // issue 80：桌面 4 主题经转换器补齐 diff 种子后走同一保证，不再静默回落；secondary 仍缺槽跳过
   const am = renderTheme('amoled', TYPO)
-  assert.equal(am.tokens['--dsw-alias-code-diff-added'], undefined, '缺槽应跳过 diff，不产脏值')
+  assert.ok(am.tokens['--dsw-alias-code-diff-added'], '桌面主题补齐后应有 diff 前景')
+  assert.ok(am.tokens['--dsw-alias-file-diff-deleted-bg'], '桌面主题补齐后应有 diff 背景')
   assert.equal(am.tokens['--dsw-alias-state-idle-primary'], undefined, '缺 secondary 应跳过')
   assert.ok(am.tokens['--dsw-alias-menu-icon'], '中性 menu-icon 缺槽主题仍应有')
   assert.ok(am.tokens['--dsw-alias-toast-label'], '中性 toast-label 缺槽主题仍应有')
@@ -714,6 +716,38 @@ test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛�
   assert.equal(lucent.tokens['--dsw-alias-file-diff-added-bg'], undefined, '透明源应跳过')
   assert.equal(lucent.tokens['--dsw-alias-tooltip-key-bg'], undefined, '透明浮起面应跳过')
   assert.ok(lucent.tokens['--dsw-alias-menu-icon'], '透明主题中性图标仍保留')
+})
+
+// issue 80：全主题 diff 对比度兜底（深色外观 4 对 fg/bg >= 4.5，增删背景不原样同值；透明主题跳过）
+test('diff 可读性兜底：全主题删除/新增文本-背景 >= 4.5 且增删背景可分', () => {
+  for (const name of themeNames()) {
+    if (name === 'system') continue
+    const r = renderTheme(name, TYPO)
+    const t = (k) => r.tokens[k] && r.tokens[k].dark
+    const delFg = t('--dsw-alias-code-diff-deleted')
+    const delBgRaw = t('--dsw-alias-file-diff-deleted-bg')
+    // lucent 系透明委托画布：背景透明跳过，不污染宿主默认（前景 marker 保留）
+    if (delBgRaw === undefined && t('--dsw-alias-file-diff-added-bg') === undefined) continue
+    assert.ok(delFg && delBgRaw, name + ' 删除对不应缺槽（桌面主题已补齐）')
+    const json = getThemeJson(name)
+    const base = resolveThemeColors(json, 'dark').background
+    const eff = (v) => (/^#[0-9a-fA-F]{8}$/.test(v) ? blendOntoBase(v, base) : v)
+    const cDel = engineContrastRatio(delFg, eff(delBgRaw))
+    assert.ok(cDel >= 4.5, name + ' 删除对对比度应 >= 4.5，实测 ' + cDel.toFixed(2))
+    const addFg = t('--dsw-alias-code-diff-added')
+    const addBgRaw = t('--dsw-alias-file-diff-added-bg')
+    assert.ok(addFg && addBgRaw, name + ' 新增对不应缺槽')
+    const cAdd = engineContrastRatio(addFg, eff(addBgRaw))
+    assert.ok(cAdd >= 4.5, name + ' 新增对对比度应 >= 4.5，实测 ' + cAdd.toFixed(2))
+    assert.notEqual(addBgRaw.toUpperCase(), delBgRaw.toUpperCase(), name + ' 增删背景不得原样同值')
+    const addG = t('--dsw-alias-file-diff-added-gutter')
+    const delG = t('--dsw-alias-file-diff-deleted-gutter')
+    if (addG && delG) {
+      assert.ok(engineContrastRatio(addFg, eff(addG)) >= 4.5, name + ' 新增 gutter 对比度应 >= 4.5')
+      assert.ok(engineContrastRatio(delFg, eff(delG)) >= 4.5, name + ' 删除 gutter 对比度应 >= 4.5')
+      assert.notEqual(addG.toUpperCase(), delG.toUpperCase(), name + ' 增删 gutter 不得原样同值')
+    }
+  }
 })
 
 // issue 45：画布归属按槽位判定（双外观三主槽全透明 → 委托给宿主）

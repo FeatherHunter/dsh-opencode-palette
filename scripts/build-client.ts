@@ -1,4 +1,4 @@
-// build-client.mjs — 零依赖 mini-bundler：npm 包客户端入口内联 + src/engine + runtime → 浏览器 bundle 与宿主半
+// build-client.ts — 零依赖 mini-bundler：npm 包客户端入口内联 + src/engine（tsc 转译产物）+ runtime → 浏览器 bundle 与宿主半
 // 产出:
 //   package/lib/client.js             包版（window.__ModuleLoader__.load CJS bundle）
 //   client.js                         动态版（cordis_define code.client 函数体）
@@ -8,6 +8,11 @@
 //   package/package.json              产物包声明（版本取自根 package.json）
 //   package/README.md                 用户文档副本
 //
+// 输入形态（P2 / 决策 D1「C-lite」）：
+//   engine —— 源码是 `src/engine/*.ts`，本脚本消费的是 `tsc -p tsconfig.build.json` 的转译产物
+//            `dist/src/engine/*.js`（类型已被 tsc 剥掉）；bundler 自身仍保持零依赖、逐行文本转换。
+//   runtime —— 仍是 `runtime/*.mjs` 原样文本（P3 才转 TS）。
+//
 // 依赖形态（2026-09-30 起）：
 //   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.11`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
@@ -16,27 +21,54 @@
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
 // npm 包走各自的转换器（polyglot 形态：多行 import / export 列表带 as 别名）。
-// 逐行源码解析在 scripts/lib/source-parser.mjs（有单测；兼容现行手写风格与 tsc 默认 emit 的分号/双引号/.js）。
+// 逐行源码解析在 scripts/lib/source-parser.ts（有单测；兼容现行手写风格与 tsc 默认 emit 的分号/双引号/.js）。
 import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseLine } from './lib/source-parser.mjs'
+import { parseLine } from './lib/source-parser.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
-const ENGINE_DIR = join(ROOT, 'src', 'engine')
+const DIST_ENGINE_DIR = join(ROOT, 'dist', 'src', 'engine')
 const THEMES_DIR = join(ROOT, 'src', 'themes')
 const CUSTOM_PRESETS_DIR = join(ROOT, 'src', 'custom-presets')
 const RUNTIME_DIR = join(ROOT, 'runtime')
 const PKG_DIR = join(ROOT, 'package')
 
+/** 构建期内联的 npm 包模块声明：包内文件路径 + 包内相对说明符 → 本 bundle 模块键。 */
+interface InlineModuleSpec {
+  key: string
+  file: string
+  deps: Record<string, string>
+}
+
+/** 构建期内联的 npm 包入口（浏览器没有 node_modules，客户端入口只能打进产物）。 */
+interface InlinePackage {
+  spec: string
+  pkg: string
+  key: string
+  modules: InlineModuleSpec[]
+}
+
+/** 按模块键找到的内联规格。 */
+interface InlineModuleRef {
+  pkg: string
+  spec: InlineModuleSpec
+}
+
+/** npm 包 dist 的 import/export 名字对：本地名 → 导出名（`a as b` 两侧同形）。 */
+interface VendorNamePair {
+  local: string
+  exported: string
+}
+
 // 运行时模块（runtime/*.mjs：面板主体 client 与两侧共用常量 channel；自研更新状态机已删）
-const RUNTIME_MODULE_FILES = { client: 'client.mjs', channel: 'channel.mjs', 'custom-color': 'custom-color.mjs', 'custom-store': 'custom-store.mjs', 'custom-editor': 'custom-editor.mjs', 'ui-fx': 'ui-fx.mjs' }
+const RUNTIME_MODULE_FILES: Record<string, string> = { client: 'client.mjs', channel: 'channel.mjs', 'custom-color': 'custom-color.mjs', 'custom-store': 'custom-store.mjs', 'custom-editor': 'custom-editor.mjs', 'ui-fx': 'ui-fx.mjs' }
 
 // 构建期**内联**进浏览器 bundle 的 npm 包客户端入口（浏览器没有 node_modules，只能打进产物）。
 // 注意这与「宿主半的依赖」是两回事：宿主半那侧是真依赖，运行时从 node_modules 解析。
 // deps 是该包内部相对说明符 → 本 bundle 模块键的映射
-const INLINE_PACKAGES = [
+const INLINE_PACKAGES: InlinePackage[] = [
   {
     spec: 'dsh-log/client',
     pkg: 'dsh-log',
@@ -106,7 +138,7 @@ const INLINE_PACKAGES = [
 ]
 
 /** 按模块键找内联规格（键 → { pkg, 模块声明 }）。 */
-function inlineModuleFor(key) {
+function inlineModuleFor(key: string): InlineModuleRef | null {
   for (const vendor of INLINE_PACKAGES) {
     for (const spec of vendor.modules) {
       if (spec.key === key) return { pkg: vendor.pkg, spec: spec }
@@ -116,7 +148,7 @@ function inlineModuleFor(key) {
 }
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
-const MODULE_ORDER = [
+const MODULE_ORDER: string[] = [
   'upd-config', 'upd-redaction', 'upd-version-judgment', 'upd-check-conclusion', 'upd-registry-fetch', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-codes', 'upd-log-client-queue', 'upd-install-cause', 'upd-panel-copy', 'upd-panel', 'upd-entry',
   'log-core-level', 'log-core-ids', 'log-core-resident', 'log-core-file-name', 'log-core-row',
   'log-core-admission', 'log-core-trace', 'log-config-constants', 'log-config-validate',
@@ -127,18 +159,19 @@ const MODULE_ORDER = [
   'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
 ]
 
-// 引擎/运行时源码的 import/export 解析：见 scripts/lib/source-parser.mjs（本文件只消费 parseLine）。
+// 引擎/运行时源码的 import/export 解析：见 scripts/lib/source-parser.ts（本文件只消费 parseLine）。
 // npm 包 dist 的 ESM 形态：多行 import/export 列表，且带 as 别名
 const PKG_ESM_IMPORT_RE = /^[ \t]*import\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 const PKG_ESM_EXPORT_RE = /^[ \t]*export\s*\{([\s\S]*?)\};?/gm
 // 转出形态：`export { A, B as C } from './x.js'`（dsh-log 0.3.x config.js 通篇此形态）——必须先于 PKG_ESM_EXPORT_RE 处理
 const PKG_ESM_EXPORT_FROM_RE = /^[ \t]*export\s*\{([\s\S]*?)\}\s*from\s*["']([^"']+)["'];?/gm
 
-const q = (s) => JSON.stringify(s)
+/** JSON.stringify 的窄化封装：入参都可序列化，结果一定不是 undefined（用于生成双引号字面量/数组）。 */
+const q = (s: unknown): string => JSON.stringify(s) as string
 
 /** 解析 vendor 的名字表（支持 `a as b`）。统一成 { local, exported }：
  *  import 侧 `源名 as 绑定名`、export 侧 `本地名 as 导出名` 的写法同形。 */
-function vendorNamePairs(body) {
+function vendorNamePairs(body: string): VendorNamePair[] {
   return body
     .split(',')
     .map((part) => part.replace(/\s+/g, ' ').trim())
@@ -150,11 +183,11 @@ function vendorNamePairs(body) {
 }
 
 /** npm 包 vendor 模块 → 本 bundle 的 __mods 形态。 */
-function transformPackageModule(text, spec) {
+function transformPackageModule(text: string, spec: InlineModuleSpec): string {
   let out = text
   // 本模块已绑定的顶层名（import 解构而来）：转出行若重复解构同名会 SyntaxError，只补新增的。
-  const bound = new Set()
-  out = out.replace(PKG_ESM_IMPORT_RE, function (all, names, from) {
+  const bound = new Set<string>()
+  out = out.replace(PKG_ESM_IMPORT_RE, function (all: string, names: string, from: string) {
     const depKey = spec.deps[from]
     if (!depKey) throw new Error('[build] vendor 模块引用了未声明的依赖：' + spec.file + ' -> ' + from)
     // 解构：源名作键、绑定名作值（`{ a: b }`）
@@ -165,7 +198,7 @@ function transformPackageModule(text, spec) {
   })
   // `export { A, B as C } from 'spec'` 转出（dsh-log 0.3.x 的 config.js 通篇此形态）：
   // 从依赖模块解构，累加进本模块导出（不用覆盖写，同一文件可有多行转出再加自有导出）。
-  out = out.replace(PKG_ESM_EXPORT_FROM_RE, function (all, names, from) {
+  out = out.replace(PKG_ESM_EXPORT_FROM_RE, function (all: string, names: string, from: string) {
     const depKey = spec.deps[from]
     if (!depKey) throw new Error('[build] vendor 模块引用了未声明的依赖：' + spec.file + ' -> ' + from)
     const pairs = vendorNamePairs(names)
@@ -177,12 +210,12 @@ function transformPackageModule(text, spec) {
     return decl + '__mods[' + q(spec.key) + '] = Object.assign(__mods[' + q(spec.key) + '] || {}, { ' + exposed + ' });'
   })
   // 行内导出（dsh-log 0.3.x 树状模块的主形态）：去 `export ` 前缀，名字记下来，末尾统一累加进本模块导出。
-  const inlineExported = []
-  out = out.replace(/^export\s+(?:async\s+)?(?:function|const|class|let|var)\s+([A-Za-z0-9_$]+)/gm, function (all, name) {
+  const inlineExported: string[] = []
+  out = out.replace(/^export\s+(?:async\s+)?(?:function|const|class|let|var)\s+([A-Za-z0-9_$]+)/gm, function (all: string, name: string) {
     inlineExported.push(name)
     return all.replace(/^export\s+/, '')
   })
-  out = out.replace(PKG_ESM_EXPORT_RE, function (all, names) {
+  out = out.replace(PKG_ESM_EXPORT_RE, function (all: string, names: string) {
     // 对象字面量：导出名作键、本地名作值（`{ 导出名: 本地名 }`）
     const binding = vendorNamePairs(names).map((p) => (p.local === p.exported ? p.local : p.exported + ': ' + p.local)).join(', ')
     return '__mods[' + q(spec.key) + '] = { ' + binding + ' };'
@@ -197,17 +230,17 @@ function transformPackageModule(text, spec) {
 
 /** 定位已安装的 npm 包目录。故意不走 require.resolve：dsh-log 的 exports 没有 "." 入口、
  *  dsh-plugin-update 没暴露 "./dist/*"，走 exports 解析到不了要的 dist 文件；构建期只要目录。 */
-function installedPackageDir(name) {
+function installedPackageDir(name: string): string {
   const dir = join(ROOT, 'node_modules', name)
   const manifestPath = join(dir, 'package.json')
   if (!existsSync(manifestPath)) throw new Error('[build] 未安装依赖：' + name + '（先在仓库根 npm install）')
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { name?: string }
   if (manifest.name !== name) throw new Error('[build] node_modules 下的包名对不上：' + dir)
   return dir
 }
 
-async function bundleModules() {
-  const parts = []
+async function bundleModules(): Promise<string> {
+  const parts: string[] = []
   for (const key of MODULE_ORDER) {
     parts.push(await loadModule(key))
   }
@@ -216,22 +249,23 @@ async function bundleModules() {
 
 /** 读源码并统一换行：仓库 .gitattributes 是 `* text=auto`，Windows 上的新克隆检出为 CRLF，
  *  而下面的单行正则按 LF 写死（`$` 匹配不到行尾的 \r）。统一在读取处归一，产物与平台无关。 */
-async function readSource(file) {
+async function readSource(file: string): Promise<string> {
   return (await readFile(file, 'utf8')).replace(/\r\n/g, '\n')
 }
 
-async function loadModule(key) {
+async function loadModule(key: string): Promise<string> {
   const inline = inlineModuleFor(key)
   if (inline) {
     const text = await readSource(join(installedPackageDir(inline.pkg), inline.spec.file))
     return transformPackageModule(text, inline.spec)
   }
   const runtimeFile = RUNTIME_MODULE_FILES[key]
-  const file = runtimeFile ? join(RUNTIME_DIR, runtimeFile) : join(ENGINE_DIR, key + '.mjs')
+  // engine 读 tsc 转译产物（dist/src/engine/*.js），runtime 仍读源码 .mjs
+  const file = runtimeFile ? join(RUNTIME_DIR, runtimeFile) : join(DIST_ENGINE_DIR, key + '.js')
   const text = await readSource(file)
   const lines = text.split('\n')
-  const body = []
-  const exported = []
+  const body: string[] = []
+  const exported: string[] = []
   for (const line of lines) {
     const parsed = parseLine(line)
     if (parsed === null) {
@@ -241,20 +275,21 @@ async function loadModule(key) {
     if (parsed.type === 'json-import') {
       // JSON 数据内联（主题数据进 bundle，不落额外文件）：
       // 先 src/themes（TUI vendored），再 src/custom-presets（IP 预置第二来源）。
-      const base = parsed.specifier.split('/').pop()
-      let jsonText = null
+      const base = parsed.specifier.split('/').pop() as string
+      let jsonText: string
       try {
         jsonText = await readFile(join(THEMES_DIR, base), 'utf8')
       } catch (e) {
         // 只有「文件不存在」才落到第二来源；权限等其他错误直接抛（否则报错指向错的目录）。
-        if (!e || e.code !== 'ENOENT') throw e
+        const code = (e as NodeJS.ErrnoException).code
+        if (code !== 'ENOENT') throw e
         jsonText = await readFile(join(CUSTOM_PRESETS_DIR, base), 'utf8')
       }
       body.push('const ' + parsed.localName + ' = ' + jsonText.trim())
       continue
     }
     if (parsed.type === 'js-import') {
-      body.push('const { ' + parsed.names.replace(/\s+/g, ' ') + ' } = __mods[' + q(parsed.specifier.split('/').pop()) + ']')
+      body.push('const { ' + parsed.names.replace(/\s+/g, ' ') + ' } = __mods[' + q(parsed.specifier.split('/').pop() as string) + ']')
       continue
     }
     if (parsed.type === 'pkg-import') {
@@ -282,13 +317,16 @@ async function loadModule(key) {
   return '(function () {\n' + body.join('\n') + '\n})();'
 }
 
-async function packageVersion() {
-  const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8'))
+async function packageVersion(): Promise<string> {
+  const pkg = JSON.parse(await readFile(join(ROOT, 'package.json'), 'utf8')) as { version: string }
   return pkg.version
 }
 
-async function main() {
+async function main(): Promise<void> {
   const version = await packageVersion()
+  if (!existsSync(join(DIST_ENGINE_DIR, 'index.js'))) {
+    throw new Error('[build] dist/src/engine 未生成：先跑 `npx tsc -p tsconfig.build.json`（npm run build 已包含这一步）')
+  }
   // 面板版本号：源码占位统一替换为当前版本（包版/动态版一致）
   const modules = (await bundleModules()).split('__PALETTE_VERSION__').join(version)
   const ID = 'dsh-opencode-palette'
@@ -304,7 +342,7 @@ async function main() {
     ' * dsh-opencode-palette v' + version + ' — 浏览器半（构建产物，勿手改）',
     ' * 数据驱动管线：opencode v1.18.12 官方主题 JSON → 颜色解析 → DSH 适配注入',
     ' * 面板「检查更新」：dsh-plugin-update 客户端入口经构建期内联（宿主半走真依赖）',
-    ' * 源：src/engine/* + runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口',
+    ' * 源：src/engine/*.ts（tsc 转译产物）+ runtime/*.mjs + npm 包 dsh-log / dsh-plugin-update 的客户端入口',
     ' */',
     'window.__ModuleLoader__.load({',
     '  id: ' + q(ID) + ',',
@@ -361,7 +399,7 @@ async function main() {
     // 两处都用精确钉版（0.3.4 / 0.18.11）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
-    // 新鲜度由构建前的 `node scripts/check-deps.mjs` 硬门禁保证（本机落后就拦，离线则放行）。
+    // 新鲜度由构建前的 `node scripts/check-deps.ts` 硬门禁保证（本机落后就拦，离线则放行）。
     dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.11' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
@@ -403,4 +441,4 @@ async function main() {
   console.log('  package/lib/index.js   ' + Buffer.byteLength(host) + ' B')
 }
 
-main().catch(function (e) { console.error(e); process.exit(1) })
+main().catch(function (e: unknown) { console.error(e); process.exit(1) })

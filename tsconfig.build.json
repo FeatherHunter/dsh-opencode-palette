@@ -1,0 +1,16 @@
+{
+  // P2：tsc 只转译（C-lite）—— src/engine 的 .ts 输出到 dist/src/engine/*.js，
+  // 由零依赖 mini-bundler（scripts/build-client.ts）逐行读取；不产 sourcemap、不内联 helpers、不 minify。
+  // scripts/ 不 emit：Node 24 原生类型剥离直跑 .ts（P3 bump engines 后再收口 Node 版本门槛）。
+  // dist/ 不入库，每次 build 重新生成。
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "dist",
+    "rootDir": ".",
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": false
+  },
+  "include": ["src/engine/**/*.ts"]
+}

@@ -11,8 +11,8 @@ import assert from 'node:assert/strict'
 import {
   themeNames, renderTheme, extractPresetPalette, renderCustomTheme, customPreviewColors,
   COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, GROUP_ORDER,
-} from '../src/engine/index.mjs'
-import { buildUpdateTokensFromColors } from '../src/engine/update-tokens.mjs'
+} from '../src/engine/index.ts'
+import { buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
 
 // css 声明抽值：body,body[...]--var:value;…（变量唯一，首命中即准）
 function cssVar(css, name) {

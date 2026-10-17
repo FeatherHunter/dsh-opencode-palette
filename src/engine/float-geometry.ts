@@ -19,7 +19,33 @@ export const MENU_EDGE = 8
 export const MENU_MAX_HEIGHT = 280
 export const MENU_MAX_WIDTH_MARGIN = 48
 
-export function computeMenuGeometry(anchor, viewport, menuWidth, menuHeight) {
+// 输入/输出形状：DOMRect 与 window 的 { width, height } 结构都直接满足
+interface MenuAnchor {
+  readonly left: number
+  readonly top: number
+  readonly right: number
+  readonly bottom: number
+  readonly width: number
+}
+
+interface MenuViewport {
+  readonly width: number
+  readonly height: number
+}
+
+interface MenuGeometry {
+  readonly left: number
+  readonly top: number
+  readonly placement: 'below' | 'above'
+  readonly minW: number
+}
+
+export function computeMenuGeometry(
+  anchor: MenuAnchor | null | undefined,
+  viewport: MenuViewport | null | undefined,
+  menuWidth: number | null | undefined,
+  menuHeight: number | null | undefined,
+): MenuGeometry | null {
   if (!anchor || !viewport) return null
   if (typeof anchor.bottom !== 'number' || typeof anchor.top !== 'number') return null
   if (typeof viewport.width !== 'number' || typeof viewport.height !== 'number') return null
@@ -37,8 +63,8 @@ export function computeMenuGeometry(anchor, viewport, menuWidth, menuHeight) {
   const h = Math.min(menuHeight || MENU_MAX_HEIGHT, MENU_MAX_HEIGHT)
   const below = viewport.height - anchor.bottom - MENU_GAP
   const above = anchor.top - MENU_GAP
-  let top
-  let placement
+  let top: number
+  let placement: 'below' | 'above'
   if (below >= h || below >= above) { top = anchor.bottom + MENU_GAP; placement = 'below' }
   else { top = anchor.top - MENU_GAP - h; placement = 'above' }
   // 极小视口兜底：钳在边缘内（至少露 40px，不为不可见负责，只为不乱飞负责）

@@ -1,7 +1,7 @@
 // float-geometry.test.mjs — 锚定浮层几何单测（纯函数，无 DOM，不依赖宿主）
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { computeMenuGeometry, MENU_MIN_WIDTH, MENU_EDGE } from '../src/engine/float-geometry.mjs'
+import { computeMenuGeometry, MENU_MIN_WIDTH, MENU_EDGE } from '../src/engine/float-geometry.ts'
 
 const VP = { width: 1280, height: 800 }
 

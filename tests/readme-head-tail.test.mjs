@@ -18,7 +18,7 @@ const ZH = readFileSync(join(ROOT, 'README.md'), 'utf8')
 const EN = readFileSync(join(ROOT, 'docs', 'README.en.md'), 'utf8')
 const PKG = readFileSync(join(ROOT, 'package', 'README.md'), 'utf8')
 
-// 构建脚本里的同一段变换（scripts/build-client.mjs）：英文页去掉 showcase 块
+// 构建脚本里的同一段变换（scripts/build-client.ts）：英文页去掉 showcase 块
 const SHOWCASE_RE = /<!-- showcase:start -->[\s\S]*?<!-- showcase:end -->\r?\n?/
 
 // 头部 = 文件开头到 showcase 标记之前；胶囊行只应出现在这一段里

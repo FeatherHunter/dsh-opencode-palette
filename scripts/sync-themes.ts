@@ -1,7 +1,7 @@
 // 数据层同步脚本：从 opencode 官方不可变 commit 拉取全部主题 JSON → src/themes/
 // 用法:
-//   node scripts/sync-themes.mjs                  # 默认：下载→对照检入基线预校验→原子落盘（只读基线，不改基线）
-//   node scripts/sync-themes.mjs --update-baseline # 显式升级：改 OPCODE_SHA 后跑，更新主题 + 基线（需随代码 review）
+//   node scripts/sync-themes.ts                  # 默认：下载→对照检入基线预校验→原子落盘（只读基线，不改基线）
+//   node scripts/sync-themes.ts --update-baseline # 显式升级：改 OPCODE_SHA 后跑，更新主题 + 基线（需随代码 review）
 // 版本锁见 OPCODE_SHA（commit SHA，不跟随 tag 移动；升级 = 改这里 + --update-baseline + npm test）。
 // 职责: 下载 + 结构校验 + 基线预校验 + 原子落盘 + SHA256 指纹基线 + 第三方归属说明
 import { createHash } from 'node:crypto'
@@ -29,8 +29,83 @@ export const THEME_NAMES = ["aura","ayu","carbonfox","catppuccin-frappe","catppu
 // 每个主题必须提供的语义色位（缺失 = 上游结构变化或内容被篡改，同步直接报错）
 export const REQUIRED_KEYS = ["background","text","textMuted","primary","accent","error","warning","success","info","border","borderActive","syntaxComment","syntaxKeyword","syntaxFunction","syntaxVariable","syntaxString","syntaxNumber","syntaxType","syntaxOperator"]
 
+// 同步错误分类（loadBaseline/tamper/expired/落盘），调用方按 kind 分流。
+export type SyncErrorKind = 'no-baseline' | 'tamper-suspect' | 'baseline-expired' | 'io-failed'
+
+export interface SyncError extends Error {
+  kind: SyncErrorKind
+}
+
+interface BaselineThemeEntry {
+  bytes: number
+  sha256: string
+}
+
+interface BaselineManifest {
+  source?: string
+  rev?: string
+  tag?: string
+  syncedAt?: string
+  themes: Record<string, BaselineThemeEntry>
+  adapted20?: unknown
+  // 基线里允许其他未知段（前向兼容），同步段以外的原样带走。
+  [key: string]: unknown
+}
+
+interface StagedTheme {
+  name: string
+  pretty: string
+  sha256: string
+  bytes: number
+}
+
+type ReadText = (path: string, encoding: 'utf8') => Promise<string>
+type WriteText = (path: string, data: string) => Promise<unknown>
+type RenameFile = (from: string, to: string) => Promise<unknown>
+type RemoveFile = (path: string, opts: { force: true }) => Promise<unknown>
+type ListDir = (path: string) => Promise<unknown>
+type Mkdirs = (path: string, opts: { recursive: true }) => Promise<unknown>
+
+interface StagedIo {
+  write: WriteText
+  renameFile: RenameFile
+  remove: RemoveFile
+  read: ReadText
+}
+
+interface WriteStagedOptions extends StagedIo {
+  onlyIfChanged: boolean
+}
+
+interface NoticesIo extends StagedIo {
+  themesDir: string
+}
+
+export interface SyncThemesOptions {
+  themesDir?: string
+  manifestPath?: string
+  noticesPath?: string
+  themeNames?: readonly string[]
+  scriptSha?: string
+  tagAnnotation?: string
+  updateBaseline?: boolean
+  fetchText?: (name: string) => Promise<string>
+  read?: ReadText
+  write?: WriteText
+  renameFile?: RenameFile
+  remove?: RemoveFile
+  listDir?: ListDir
+  mkdirs?: Mkdirs
+}
+
+export interface SyncResult {
+  updated: boolean
+  count: number
+  rev: string
+}
+
 // 第三方主题归属（仅 --update-baseline 时写入 NOTICES，随包分发）
-export function noticesText() {
+export function noticesText(): string {
   return [
     `opencode 主题资产源自 opencode (MIT) 仓库 packages/tui/src/theme/assets/，commit ${OPCODE_SHA}（对应 tag ${OPCODE_TAG_ANNOTATION}，不跟随 tag 移动）。`,
     "各主题原创归属：",
@@ -50,62 +125,70 @@ export function noticesText() {
   ].join('\n')
 }
 
-export function sha256Hex(s) {
+export function sha256Hex(s: string): string {
   return createHash('sha256').update(s).digest('hex')
 }
 
-export function prettyOf(data) {
+export function prettyOf(data: unknown): string {
   return JSON.stringify(data, null, 2) + '\n'
 }
 
 // 结构校验：defs 与 theme 均为对象；theme 含全部必填色位。
 // 抛错（不直接 exit），由调用方分类为“疑似篡改”并拒绝写入。
-export function validateStructure(name, data) {
+export function validateStructure(name: string, data: unknown): true {
   if (typeof data !== 'object' || data === null) throw new Error(name + ': 非对象')
-  if (typeof data.defs !== 'object' || data.defs === null) throw new Error(name + ': 缺 defs')
-  if (typeof data.theme !== 'object' || data.theme === null) throw new Error(name + ': 缺 theme')
+  const doc = data as { defs?: unknown; theme?: unknown }
+  if (typeof doc.defs !== 'object' || doc.defs === null) throw new Error(name + ': 缺 defs')
+  if (typeof doc.theme !== 'object' || doc.theme === null) throw new Error(name + ': 缺 theme')
+  const theme = doc.theme as Record<string, unknown>
   for (const key of REQUIRED_KEYS) {
-    if (!(key in data.theme)) throw new Error(name + ': 缺必填色位 ' + key)
+    if (!(key in theme)) throw new Error(name + ': 缺必填色位 ' + key)
   }
   return true
 }
 
-function syncError(kind, message) {
+function syncError(kind: SyncErrorKind, message: string): SyncError {
   const e = new Error(message)
-  e.kind = kind
-  return e
+  return Object.assign(e, { kind })
 }
 
-function tamperMessage(name, reason, scriptSha) {
+// 保留原有兜底口径：`e && e.message ? e.message : e`（非 Error 值走字符串拼接）。
+function failureText(e: unknown): string {
+  const err = e as { message?: unknown } | null | undefined
+  return err && err.message ? String(err.message) : String(e)
+}
+
+function tamperMessage(name: string, reason: string, scriptSha: string): string {
   return `[sync] 疑似篡改：${name} ${reason}。已拒绝写入，现有主题文件未动。` +
     `排查：检查网络/TLS 与上游 commit ${scriptSha} 是否被改写；` +
     `确认是上游合法变更（而非投毒）后，再按“基线过期”流程显式更新` +
-    `（改 OPCODE_SHA 常量 + node scripts/sync-themes.mjs --update-baseline + npm test）。` +
+    `（改 OPCODE_SHA 常量 + node scripts/sync-themes.ts --update-baseline + npm test）。` +
     `切勿直接 --update-baseline 跳过核查。`
 }
 
-function expiredMessage(scriptSha, baselineRev, count) {
+function expiredMessage(scriptSha: string, baselineRev: string, count: number): string {
   return `[sync] 基线过期：脚本引用的上游 SHA（${scriptSha}）与检入基线（${baselineRev}）不一致，` +
     `${count} 个主题与旧基线不一致属预期。动作：人工 review 上游 diff，确认合法后跑 ` +
-    `\`node scripts/sync-themes.mjs --update-baseline\` 更新基线，再跑 \`npm test\`。`
+    `\`node scripts/sync-themes.ts --update-baseline\` 更新基线，再跑 \`npm test\`。`
 }
 
 // 读检入基线：缺失/损坏/缺条目一律抛 no-baseline（不做“无历史即放行”，首次同步同样受约束）。
-async function loadBaseline(manifestPath, read = readFile) {
-  let raw
+async function loadBaseline(manifestPath: string, read: ReadText = readFile): Promise<BaselineManifest> {
+  let raw: string
   try {
     raw = await read(manifestPath, 'utf8')
   } catch {
     throw syncError('no-baseline',
       `[sync] 无可信基线：${manifestPath} 缺失或不可读。首次同步同样受校验约束，不做“无历史即放行”。` +
-      `动作：确认 OPCODE_SHA 无误后，用 \`node scripts/sync-themes.mjs --update-baseline\` 显式建立基线（随代码 review 入仓），再重跑校验。`)
+      `动作：确认 OPCODE_SHA 无误后，用 \`node scripts/sync-themes.ts --update-baseline\` 显式建立基线（随代码 review 入仓），再重跑校验。`)
   }
-  let manifest
+  let parsed: unknown
   try {
-    manifest = JSON.parse(raw)
+    parsed = JSON.parse(raw)
   } catch (e) {
-    throw syncError('no-baseline', `[sync] 无可信基线：${manifestPath} 不是合法 JSON（${e.message}）。已拒绝写入，现有主题文件未动。`)
+    throw syncError('no-baseline', `[sync] 无可信基线：${manifestPath} 不是合法 JSON（${(e as Error).message}）。已拒绝写入，现有主题文件未动。`)
   }
+  const manifest = parsed as BaselineManifest
   if (typeof manifest !== 'object' || manifest === null || typeof manifest.themes !== 'object' || manifest.themes === null) {
     throw syncError('no-baseline', `[sync] 无可信基线：${manifestPath} 缺 themes 指纹表。已拒绝写入，现有主题文件未动。`)
   }
@@ -131,31 +214,31 @@ export async function syncThemes({
   remove = rm,
   listDir = readdir,
   mkdirs = mkdir,
-} = {}) {
+}: SyncThemesOptions = {}): Promise<SyncResult> {
   manifestPath = manifestPath || join(themesDir, 'MANIFEST.json')
   noticesPath = noticesPath || join(themesDir, 'THIRD_PARTY_NOTICES.md')
   const baseline = updateBaseline ? await loadBaselineLenient(manifestPath, read) : await loadBaseline(manifestPath, read)
   const baselineRev = (baseline && typeof baseline.rev === 'string') ? baseline.rev : null
 
   // 阶段一：全部下载到内存 + 结构校验（不碰磁盘现有文件）。
-  const staged = []
+  const staged: StagedTheme[] = []
   for (const name of themeNames) {
-    let text
+    let text: string
     try {
       text = await fetchText(name)
     } catch (e) {
-      throw syncError('tamper-suspect', tamperMessage(name, '下载失败（' + (e && e.message ? e.message : e) + '）', scriptSha))
+      throw syncError('tamper-suspect', tamperMessage(name, '下载失败（' + failureText(e) + '）', scriptSha))
     }
-    let data
+    let data: unknown
     try {
       data = JSON.parse(text)
     } catch (e) {
-      throw syncError('tamper-suspect', tamperMessage(name, 'JSON 解析失败（' + e.message + '）', scriptSha))
+      throw syncError('tamper-suspect', tamperMessage(name, 'JSON 解析失败（' + (e as Error).message + '）', scriptSha))
     }
     try {
       validateStructure(name, data)
     } catch (e) {
-      throw syncError('tamper-suspect', tamperMessage(name, '结构校验失败（' + e.message + '）', scriptSha))
+      throw syncError('tamper-suspect', tamperMessage(name, '结构校验失败（' + (e as Error).message + '）', scriptSha))
     }
     const pretty = prettyOf(data)
     staged.push({ name, pretty, sha256: sha256Hex(pretty), bytes: pretty.length })
@@ -165,7 +248,7 @@ export async function syncThemes({
     // 显式升级：原子落盘 + 更新基线（保留 adapted20 等非同步段）。
     await mkdirs(themesDir, { recursive: true })
     await writeStaged(themesDir, staged, { write, renameFile, remove, read, onlyIfChanged: false })
-    const next = {
+    const next: BaselineManifest = {
       source: (baseline && baseline.source) || 'anomalyco/opencode',
       rev: scriptSha,
       tag: tagAnnotation + '（注释用，不参与拉取；拉取以 rev 为准）',
@@ -190,14 +273,16 @@ export async function syncThemes({
     return { updated: true, count: staged.length, rev: scriptSha }
   }
 
+  // 校验模式下 loadBaseline 保证非 null（失败已抛错），这里显式收窄类型。
+  const checked = baseline as BaselineManifest
   // 阶段二（校验模式）：对照基线预校验；缺条目 = 无可信对照，不放行。
-  const mismatched = []
+  const mismatched: string[] = []
   for (const s of staged) {
-    const entry = baseline.themes[s.name]
+    const entry = checked.themes[s.name]
     if (!entry || typeof entry.sha256 !== 'string') {
       throw syncError('no-baseline',
         `[sync] 无可信基线：基线缺 ${s.name} 条目。首次同步同样受校验约束，不做“无历史即放行”。` +
-        `动作：确认 OPCODE_SHA 无误后，用 \`node scripts/sync-themes.mjs --update-baseline\` 显式建立基线（随代码 review 入仓），再重跑校验。`)
+        `动作：确认 OPCODE_SHA 无误后，用 \`node scripts/sync-themes.ts --update-baseline\` 显式建立基线（随代码 review 入仓），再重跑校验。`)
     }
     if (entry.sha256 !== s.sha256) mismatched.push(s.name)
   }
@@ -207,8 +292,10 @@ export async function syncThemes({
     }
     const legacyHint = baselineRev ? '' : '（基线为旧格式、无 rev 字段：先核对 OPCODE_SHA 是否对应基线 tag，确认是格式迁移而非投毒后，再用 --update-baseline 显式迁移。）'
     const first = mismatched[0]
+    // first 来自 mismatched，而 mismatched 只从 staged 收集，find 必命中。
+    const firstStaged = staged.find((s) => s.name === first)!
     throw syncError('tamper-suspect',
-      tamperMessage(first, `内容与检入基线不一致（基线 ${baseline.themes[first].sha256.slice(0, 12)}… vs 下载 ${staged.find((s) => s.name === first).sha256.slice(0, 12)}…；共 ${mismatched.length} 个：${mismatched.join('、')}）${legacyHint}`, scriptSha))
+      tamperMessage(first, `内容与检入基线不一致（基线 ${checked.themes[first].sha256.slice(0, 12)}… vs 下载 ${firstStaged.sha256.slice(0, 12)}…；共 ${mismatched.length} 个：${mismatched.join('、')}）${legacyHint}`, scriptSha))
   }
 
   // 全部通过：原子落盘（内容与基线一致；仅当本地缺失/不一致时才写，保证中断后重跑可恢复且平时无抖动）。
@@ -220,11 +307,11 @@ export async function syncThemes({
 }
 
 // --update-baseline 在基线缺失/损坏时仍要能显式建立：宽容读（坏了就从空起，但坏内容不影响下载校验）。
-async function loadBaselineLenient(manifestPath, read) {
+async function loadBaselineLenient(manifestPath: string, read: ReadText): Promise<BaselineManifest | null> {
   try {
     const raw = await read(manifestPath, 'utf8')
-    const m = JSON.parse(raw)
-    if (typeof m === 'object' && m !== null) return m
+    const m: unknown = JSON.parse(raw)
+    if (typeof m === 'object' && m !== null) return m as BaselineManifest
     return null
   } catch {
     return null
@@ -233,8 +320,8 @@ async function loadBaselineLenient(manifestPath, read) {
 
 // 原子落盘：逐文件 tmp + rename（同目录 rename 原子），失败时清理 tmp 残留，不留半成品。
 // onlyIfChanged=true 时内容一致则跳写（减少 mtime 抖动；本地缺失/被改则恢复）。
-async function writeStaged(themesDir, staged, { write, renameFile, remove, read, onlyIfChanged }) {
-  const tmps = []
+async function writeStaged(themesDir: string, staged: StagedTheme[], { write, renameFile, remove, read, onlyIfChanged }: WriteStagedOptions): Promise<void> {
+  const tmps: string[] = []
   try {
     for (const s of staged) {
       const final = join(themesDir, s.name + '.json')
@@ -255,15 +342,15 @@ async function writeStaged(themesDir, staged, { write, renameFile, remove, read,
     for (const t of tmps) {
       try { await remove(t, { force: true }) } catch { /* 清理尽力而为 */ }
     }
-    throw syncError('io-failed', `[sync] 落盘失败：${e && e.message ? e.message : e}。已清理临时文件，现有完好文件未被破坏，重跑可恢复。`)
+    throw syncError('io-failed', `[sync] 落盘失败：${failureText(e)}。已清理临时文件，现有完好文件未被破坏，重跑可恢复。`)
   }
 }
 
 // NOTICES 首行是同步来源 pin（commit SHA），其余行是手工维护的归属说明。
 // 更新时只换首行、保留尾部（含尾换行状态）；文件缺失时才写完整模板。经 tmp + rename 原子落盘。
-async function updateNoticesFirstLine(noticesPath, { read, write, renameFile, remove, themesDir }) {
+async function updateNoticesFirstLine(noticesPath: string, { read, write, renameFile, remove, themesDir }: NoticesIo): Promise<void> {
   const firstLine = noticesText().split('\n')[0]
-  let out
+  let out: string
   try {
     const cur = await read(noticesPath, 'utf8')
     const lines = cur.split('\n')
@@ -279,18 +366,18 @@ async function updateNoticesFirstLine(noticesPath, { read, write, renameFile, re
     await renameFile(tmp, noticesPath)
   } catch (e) {
     try { await remove(tmp, { force: true }) } catch { /* 清理尽力而为 */ }
-    throw syncError('io-failed', `[sync] 落盘失败：${e && e.message ? e.message : e}。已清理临时文件，重跑可恢复。`)
+    throw syncError('io-failed', `[sync] 落盘失败：${failureText(e)}。已清理临时文件，重跑可恢复。`)
   }
 }
 
-async function defaultFetchText(name) {
+async function defaultFetchText(name: string): Promise<string> {
   const url = ASSET_BASE + name + '.json'
   const res = await fetch(url)
   if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + url)
   return await res.text()
 }
 
-async function main() {
+async function main(): Promise<void> {
   const updateBaseline = process.argv.includes('--update-baseline')
   try {
     const r = await syncThemes({ updateBaseline })
@@ -301,14 +388,14 @@ async function main() {
       console.log('[sync] 完成（已校验）: ' + r.count + ' 个主题与检入基线一致 → src/themes/ (' + OPCODE_SHA.slice(0, 12) + '…)')
     }
   } catch (e) {
-    console.error(e && e.message ? e.message : e)
+    console.error(failureText(e))
     process.exit(1)
   }
 }
 
-const invokedAsScript = (() => {
+const invokedAsScript = ((): boolean => {
   try {
-    return process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url
+    return Boolean(process.argv[1]) && pathToFileURL(process.argv[1]).href === import.meta.url
   } catch {
     return false
   }

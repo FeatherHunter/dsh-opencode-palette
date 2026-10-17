@@ -1,5 +1,5 @@
 // group-boundary.test.mjs — #68 色系边界冻结（青绿/青蓝/冷蓝）pin 测试
-// 结论与理由见 src/engine/grouping.mjs 的「色系边界冻结」注释；本文件把「冻结」变成会红的门：
+// 结论与理由见 src/engine/grouping.ts 的「色系边界冻结」注释；本文件把「冻结」变成会红的门：
 //   1) 阈值 pin：160/200/230 的 ±1° 探针各落一侧（改阈值就红）；
 //   2) 归属 pin：边界两侧最近主题钉死在各自组（主题数据升级越界就红）；
 //   3) 余量跳闸线：三条票内边界两侧最近主题 ≥2°（贴边即红，逼一次复审）；
@@ -10,8 +10,8 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { themeNames } from '../src/engine/index.mjs'
-import { themeGroups, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.mjs'
+import { themeNames } from '../src/engine/index.ts'
+import { themeGroups, hueOf, groupOf, resolvePreview } from '../src/engine/grouping.ts'
 
 // HSV(h,100%,100%) → #rrggbb：给 hueOf 一个高饱和探针（低饱和会被判成中性 -2，探不到阈值）
 function hsvHex(h) {

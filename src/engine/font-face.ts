@@ -1,4 +1,4 @@
-// font-face.mjs — 生成文件，勿手改（`node scripts/inline-fonts.mjs` 重新生成）
+// font-face.ts — 生成文件，勿手改（`node scripts/inline-fonts.ts` 重新生成）
 // 内容：4 款 OFL 字体 × 400/500/700 latin 子集的 @font-face（data URI 内联）。
 // 来源：fontsource jetbrains-mono@5.3.0、fira-code@5.3.0、cascadia-code@5.3.0、inter@5.3.0、ibm-plex-mono@5.3.0，OFL-1.1（见 src/themes/THIRD_PARTY_NOTICES.md）。
 // SF Mono / Consolas 因私有许可未收录，面板侧本地检测。

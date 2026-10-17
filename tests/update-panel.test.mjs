@@ -494,9 +494,9 @@ test('渲染：中英文主题面板文案不受更新最小集成影响', () =>
 // ───────────────────────── 四点五、换肤：主题一致（0.13.0 themeTokens，含 newText/newOkText） ─────────────────────────
 
 test('换肤：37 主题的 themeTokens 全过 0.13.0 校验，system/透光回 undefined', async () => {
-  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
+  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.ts')).href)
   const { themeTokensStyleFor } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href)
-  const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.mjs')).href)
+  const { listThemes } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'registry.ts')).href)
   const names = listThemes()
   assert.ok(names.includes('tokyonight') && names.includes('system'), '主题表应含 tokyonight 与 system')
   let themed = 0
@@ -527,7 +527,7 @@ test('换肤：37 主题的 themeTokens 全过 0.13.0 校验，system/透光回 
 })
 
 test('换肤：真挂载入口件随 setThemeTokens 即时换肤（执行级，非源码 grep）', async () => {
-  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.mjs')).href)
+  const { buildUpdateTokens } = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'update-tokens.ts')).href)
   const { mountUpdateEntry } = await import(pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'entry.js')).href)
   const tk = buildUpdateTokens('tokyonight')
   const dracula = buildUpdateTokens('dracula')

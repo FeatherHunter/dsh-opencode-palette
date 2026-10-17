@@ -1,9 +1,9 @@
 {
-  // P1：只做类型检查（noEmit），不迁任何源码。
-  // allowJs 让未迁的 .mjs 进入模块图；checkJs 先关：存量错误留到 P2/P3 逐组打开。
-  // checkJs 关闭期间用文件级 `// @ts-check` 试点（当前仅 scripts/lib/source-parser.mjs），保证门禁不是空转。
-  // 存量错误记账（HEAD 上 `tsc --checkJs` 实测 ≈1,370 条 / 26 类：tests 577、runtime 449、src/engine 185、
-  // scripts 158；其中 runtime/client.mjs 9 条 TS2307 是 bundler 伪路径，P2 改真实相对路径时消掉）。
+  // P2：类型检查（noEmit）。src/engine 与 scripts 已是 .ts；runtime/tests 仍是 .mjs（checkJs 关）。
+  // allowJs 让未迁的 .mjs 进入模块图；checkJs 先关：存量错误留到 P3 逐组打开。
+  // checkJs 关闭期间用文件级 `// @ts-check` 试点（迁移后的 .ts 本身就是受检面，试点注释留在 scripts/lib/source-parser.ts 作后续 .mjs 样例）。
+  // 存量错误记账（P1 在 HEAD 上 `tsc --checkJs` 实测 ≈1,370 条 / 26 类：tests 577、runtime 449、src/engine 185、
+  // scripts 158；其中 runtime/client.mjs 9 条 TS2307 是 bundler 伪路径，P3 改真实相对路径时消掉）。
   // typescript 钉 5.9.3：票面 5.6 无 erasableSyntaxOnly（5.8+）/rewriteRelativeImportExtensions（5.7+），最低需 5.8。
   // target 取 ES2022（105 §7.2 的口径），不跟 106 基线的 esnext：发布目标是 Node>=22 与浏览器 ES2022，
   // 本仓也没有 esnext-only 语法；strict 从第一天就开（checkJs 关闭时对 .mjs 无影响，.ts 不留后补债）。
@@ -26,5 +26,5 @@
     "erasableSyntaxOnly": true,
     "rewriteRelativeImportExtensions": true
   },
-  "include": ["types/**/*.ts", "runtime/**/*.mjs", "src/**/*.mjs", "scripts/**/*.mjs", "tests/**/*.mjs"]
+  "include": ["types/**/*.ts", "src/**/*.ts", "scripts/**/*.mjs", "scripts/**/*.ts", "runtime/**/*.mjs", "tests/**/*.mjs", "tests/**/*.ts"]
 }

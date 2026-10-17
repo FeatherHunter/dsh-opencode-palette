@@ -1,4 +1,4 @@
-// check-deps.mjs — 随包依赖的新鲜度检查（只读、联网）
+// check-deps.ts — 随包依赖的新鲜度检查（只读、联网）
 //
 // 为什么需要它：更新系统（dsh-plugin-update）与日志（dsh-log）都以**运行时依赖**形态随包发出，
 // 用户装我们插件时由 npm 按声明的范围取最新匹配版本。所以「用户拿到的是不是最新的更新系统」
@@ -9,8 +9,8 @@
 //   ③ 我们得知道上游发了什么 —— 没有任何东西会自动提醒，这条命令就是那个提醒
 //
 // 用法：
-//   node scripts/check-deps.mjs              # 硬门禁：有需要动作的项 exit 1（构建与发布流程用）
-//   node scripts/check-deps.mjs --warn-only  # 只警告不失败（离线/镜像延迟不该挡住构建时用）
+//   node scripts/check-deps.ts              # 硬门禁：有需要动作的项 exit 1（构建与发布流程用）
+//   node scripts/check-deps.ts --warn-only  # 只警告不失败（离线/镜像延迟不该挡住构建时用）
 // 离线容忍：取不到 registry 时只给 `?` 不记 behind，exit 0 —— 没信号不拦路，有信号才拦。
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -20,16 +20,35 @@ const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const REGISTRY = 'https://registry.npmjs.org/'
 const WARN_ONLY = process.argv.includes('--warn-only')
 
-function readJson(rel) {
-  try { return JSON.parse(readFileSync(join(ROOT, rel), 'utf8')) } catch (e) { return null }
+interface PackageManifest {
+  version?: string
+  dependencies?: Record<string, string>
+  devDependencies?: Record<string, string>
+}
+
+interface LatestInfo {
+  version: string | null
+  why: string
+}
+
+interface CoverResult {
+  ok: boolean
+  why: string
+}
+
+type Triple = [number, number, number]
+
+// package.json / package/package.json / node_modules/<name>/package.json 是外部 JSON，读入后按用到的字段取。
+function readJson(rel: string): PackageManifest | null {
+  try { return JSON.parse(readFileSync(join(ROOT, rel), 'utf8')) as PackageManifest } catch { return null }
 }
 
 /** 取 x.y.z 三元组；带预发布后缀的一律当「不满足」处理（我们只声明稳定版范围）。 */
-function triple(v) {
+function triple(v: unknown): Triple | null {
   const m = /^(\d+)\.(\d+)\.(\d+)$/.exec(String(v || '').trim())
   return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null
 }
-function cmp(a, b) {
+function cmp(a: Triple, b: Triple): number {
   for (let i = 0; i < 3; i += 1) {
     if (a[i] < b[i]) return -1
     if (a[i] > b[i]) return 1
@@ -37,13 +56,13 @@ function cmp(a, b) {
   return 0
 }
 /** 声明的范围是否覆盖 latest：支持 ^x.y.z / ~x.y.z / 精确 x.y.z。 */
-function covers(spec, latest) {
+function covers(spec: string | undefined, latest: string): CoverResult {
   const want = triple(latest)
   if (!want) return { ok: false, why: '上游 latest 不是稳定三段版本号' }
   const body = String(spec || '').trim()
   const m = /^([\^~]?)(\d+\.\d+\.\d+)$/.exec(body)
   if (!m) return { ok: false, why: '本地声明不是 ^x.y.z / ~x.y.z / x.y.z 形式' }
-  const base = triple(m[2])
+  const base = triple(m[2]) as Triple
   const c = cmp(want, base)
   if (c < 0) return { ok: false, why: '上游 latest 比我们声明的还旧（镜像回退？）' }
   if (m[1] === '') return { ok: c === 0, why: c === 0 ? '' : '精确钉版：上游有新版，需要手动升' }
@@ -54,14 +73,14 @@ function covers(spec, latest) {
   return { ok: inRange, why: inRange ? '' : '上游进了新的次版本/主版本，超出 ^ 范围' }
 }
 
-async function latestOf(name) {
+async function latestOf(name: string): Promise<LatestInfo> {
   try {
     const res = await fetch(REGISTRY + encodeURIComponent(name) + '/latest', { headers: { accept: 'application/json' } })
     if (!res.ok) return { version: null, why: 'registry 返回 HTTP ' + res.status }
-    const value = await res.json()
+    const value = await res.json() as { version?: unknown }
     return { version: typeof value.version === 'string' ? value.version : null, why: 'latest 里没有版本号' }
   } catch (e) {
-    return { version: null, why: '取不到 registry（离线？）：' + String((e && e.message) || e).slice(0, 60) }
+    return { version: null, why: '取不到 registry（离线？）：' + String((e && (e as Error).message) || e).slice(0, 60) }
   }
 }
 
@@ -74,12 +93,18 @@ const pubDeps = published.dependencies || {}
 // 两类的判定方式不同，别混：
 //   dsh-plugin-update：随包发出去的**运行时依赖**，范围决定用户拿到哪一版 → 必须宽到能自动跟上补丁
 //   dsh-log：同为运行时依赖（构建期还要内联它的客户端入口）
-const rows = [
+interface DepRow {
+  name: string
+  spec: string | undefined
+  published: string | undefined
+}
+
+const rows: DepRow[] = [
   { name: 'dsh-plugin-update', spec: deps['dsh-plugin-update'] || devDeps['dsh-plugin-update'], published: pubDeps['dsh-plugin-update'] },
   { name: 'dsh-log', spec: devDeps['dsh-log'] || deps['dsh-log'], published: pubDeps['dsh-log'] },
 ]
 
-function installedVersion(name) {
+function installedVersion(name: string): string | null {
   const manifest = readJson('node_modules/' + name + '/package.json')
   return manifest && typeof manifest.version === 'string' ? manifest.version : null
 }
@@ -91,7 +116,7 @@ let behind = 0
 for (const row of rows) {
   const latest = await latestOf(row.name)
   const installed = installedVersion(row.name)
-  let verdict
+  let verdict: string
   if (!row.spec) { verdict = '✗ 本地没声明'; behind += 1 } else if (latest.version === null) {
     // 离线/registry 不可达：没信号不拦路。但本机根本没装是本地事实，与网络无关，仍要拦。
     if (!installed) { verdict = '✗ 本机没装（' + latest.why + '）；先 npm install'; behind += 1 }
@@ -101,7 +126,8 @@ for (const row of rows) {
     if (!check.ok) { verdict = '↑ ' + check.why + '（latest ' + latest.version + '）'; behind += 1 }
     else if (!installed) { verdict = '✗ 本机没装 ' + latest.version + '；先 npm install'; behind += 1 }
     else {
-      const want = triple(latest.version)
+      // check.ok 为真说明 latest 已解析成稳定三段号，这里不会拿到 null。
+      const want = triple(latest.version) as Triple
       const have = triple(installed)
       if (!have) { verdict = '✗ 已安装版本不是稳定三段号（' + installed + '）；重装一次'; behind += 1 }
       else {

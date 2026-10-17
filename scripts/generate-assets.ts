@@ -1,4 +1,4 @@
-// scripts/generate-assets.mjs — 生成开源展示资产（真实主题色 SVG，中英双语）
+// scripts/generate-assets.ts — 生成开源展示资产（真实主题色 SVG，中英双语）
 // 产出 assets/: theme-stories-{zh,en}.svg —— 「色带基线」版（票 #29 定案 A，票 #31 落地）：
 //   画布 860 × 1812（860 = GitHub 桌面内容宽，1:1 显示不缩字）；一行一款：
 //   名称（zh 中文名 / en 官方名，该主题 primary 色）＋ 主题 id（mono）＋ 一句由来（最多 2 行，栏宽 320）；
@@ -8,25 +8,32 @@
 import { writeFile, mkdir } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { themeNames, previewColors } from '../src/engine/index.mjs'
-import { GROUP_ORDER, groupOf } from '../src/engine/grouping.mjs'
-import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.mjs'
+import { themeNames, previewColors } from '../src/engine/index.ts'
+import { GROUP_ORDER, groupOf } from '../src/engine/grouping.ts'
+import { THEME_ZH, THEME_EN } from '../src/engine/zh-names.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const OUT_DIR = join(ROOT, 'assets')
-const names = themeNames()
-const data = {}
-for (const n of names) data[n] = previewColors(n)
+const names: string[] = themeNames()
+// 引擎的预览色表按 id 查；未知 id 返回 null —— 与迁移前的 falsey 判断一致：该类条目画不出来，直接不登记。
+const data: Record<string, NonNullable<ReturnType<typeof previewColors>>> = {}
+for (const n of names) {
+  const colors = previewColors(n)
+  if (colors) data[n] = colors
+}
+// 引擎名表是对象字面量（非 index signature），这里按 id 查名，先投影成 Record 口径。
+const ZH_NAMES: Record<string, string> = THEME_ZH
+const EN_NAMES: Record<string, string> = THEME_EN
 
-const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-const hex = (v) => v || 'transparent'
+const esc = (s: string): string => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const hex = (v: string | null | undefined): string => v || 'transparent'
 const CHESS = '<pattern id="chess" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#161616"/><rect width="5" height="5" fill="#232323"/><rect x="5" y="5" width="5" height="5" fill="#232323"/></pattern>'
 const SANS = '-apple-system,Segoe UI,Microsoft YaHei,PingFang SC,sans-serif'
 const MONO = 'ui-monospace,SFMono-Regular,Menlo,Consolas,monospace'
 
 // ── 主题中文名与由来（双语）──
-// 名表已下沉至 src/engine/zh-names.mjs（单一来源，面板与生成器共用）：zh 取 THEME_ZH、en 取 THEME_EN
-const THEME_STORY_ZH = {
+// 名表已下沉至 src/engine/zh-names.ts（单一来源，面板与生成器共用）：zh 取 THEME_ZH、en 取 THEME_EN
+const THEME_STORY_ZH: Record<string, string> = {
   opencode: "官方默认主题：深黑底 + 橙 / 蓝 / 紫",
   tokyonight: "东京夜景的深蓝与霓虹紫",
   dracula: "吸血鬼风格的暗紫，经典中的经典",
@@ -62,7 +69,7 @@ const THEME_STORY_ZH = {
   orng: "热烈直白的橙",
   system: "一键回到 DSH 原生外观",
 }
-const THEME_STORY_EN = {
+const THEME_STORY_EN: Record<string, string> = {
   opencode: "The official default theme — deep black with orange / blue / violet",
   tokyonight: "The deep blues and neon violets of Tokyo at night",
   dracula: "The classic vampire-purple, a community icon",
@@ -102,29 +109,33 @@ const THEME_STORY_EN = {
 // ── 策展名单（26 款）与分组口径 ──
 // 只留「名字有来历」的主题；分组走引擎的 groupOf（与面板同源），
 // 组序用 GROUP_ORDER 去掉 neutral（策展名单里没有中性色主题）。
-const STORY_PICKS = ['tokyonight','dracula','gruvbox','matrix','rosepine','catppuccin','catppuccin-frappe','catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight','ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng']
-const GROUP_NAMES = {
+const STORY_PICKS: string[] = ['tokyonight','dracula','gruvbox','matrix','rosepine','catppuccin','catppuccin-frappe','catppuccin-macchiato','solarized','synthwave84','everforest','nord','kanagawa','nightowl','palenight','ayu','carbonfox','cobalt2','aura','flexoki','zenburn','mercury','osaka-jade','vesper','lucent-orng','orng']
+const GROUP_NAMES: Record<string, [string, string]> = {
   warm: ['暖橙', 'Warm'], 'yellow-green': ['黄绿', 'Yellow-green'], teal: ['青绿', 'Teal'],
   'cyan-blue': ['青蓝', 'Cyan-blue'], 'cool-blue': ['冷蓝', 'Cool-blue'], violet: ['蓝紫', 'Violet'],
   transparent: ['透明', 'Transparent'],
 }
-const GROUP_KEYS = GROUP_ORDER.filter((g) => g !== 'neutral' && g !== 'special')
-// 组头色点的代表色（与 src/engine/grouping.mjs 的 GROUP_COLORS 同值；此处只用于画图）
-const GROUP_COLORS_FALLBACK = {
+const GROUP_KEYS: string[] = GROUP_ORDER.filter((g) => g !== 'neutral' && g !== 'special')
+// 组头色点的代表色（与 src/engine/grouping.ts 的 GROUP_COLORS 同值；此处只用于画图）
+const GROUP_COLORS_FALLBACK: Record<string, string> = {
   warm: '#FAB283', 'yellow-green': '#A7C080', teal: '#2DD5B7',
   'cyan-blue': '#88C0D0', 'cool-blue': '#82AAFF', violet: '#C4A7E7', transparent: '#8B8B95',
 }
-const SLOTS = {
+const SLOTS: Record<'zh' | 'en', string[]> = {
   zh: ['背景', '文字', '主色', '强调', '错误', '警告', '成功'],
   en: ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'],
 }
-const BAND_KEYS = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success']
+// 色带七格（顺序即列序）；类型与引擎 PreviewColors 的色位键对齐，可直接索引。
+type BandKey = 'background' | 'text' | 'primary' | 'accent' | 'error' | 'warning' | 'success'
+const BAND_KEYS: readonly BandKey[] = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success']
+
+type Lang = 'zh' | 'en'
 
 /** 文本宽度估算（CJK 全角 = 1em；ASCII 平均 0.56em；空格 0.3em）——由来行折行用。 */
-function measure(s, size) {
+function measure(s: string, size: number): number {
   let w = 0
   for (const ch of String(s)) {
-    const c = ch.codePointAt(0)
+    const c = ch.codePointAt(0) as number
     if ((c >= 0x2e80 && c <= 0x9fff) || (c >= 0xff00 && c <= 0xffef) || c === 0x3000) w += size
     else if (ch === ' ') w += size * 0.3
     else w += size * 0.56
@@ -134,12 +145,12 @@ function measure(s, size) {
 
 /** 贪心折行到最多 maxLines 行（每行不超过 maxW px）；放不下就截尾加省略号。
  *  避头标点（」』）等收尾符号不另起一行——跟在上行尾（汉字排版基本规则，避免孤立收尾符）。 */
-function wrap(s, size, maxW, maxLines) {
+function wrap(s: string, size: number, maxW: number, maxLines: number): string[] {
   const words = String(s).split(/(\s+)/).filter((w) => w !== '')
-  const lines = []
+  const lines: string[] = []
   let cur = ''
-  const cjk = (w) => /[\u2e80-\u9fff\uff00-\uffef\u3000]/.test(w)
-  const push = (piece) => {
+  const cjk = (w: string): boolean => /[\u2e80-\u9fff\uff00-\uffef\u3000]/.test(w)
+  const push = (piece: string): void => {
     if (measure(cur + piece, size) <= maxW) { cur += piece; return }
     if (cur !== '') { lines.push(cur); cur = '' }
     if (measure(piece, size) <= maxW) { cur = piece; return }
@@ -162,12 +173,11 @@ function wrap(s, size, maxW, maxLines) {
   if (cur !== '') lines.push(cur)
   // 收尾符号不另起一行：把它并回上一行（宽度已超一点点，视觉上比孤立标点好）
   for (let i = lines.length - 1; i > 0; i--) {
-    if (/^[」』）】、，。！？；：…]+/.test(lines[i])) {
-      const m = lines[i].match(/^[」』）】、，。！？；：…]+/)
-      lines[i - 1] += lines[i].slice(0, m[0].length)
-      lines[i] = lines[i].slice(m[0].length)
-      if (lines[i] === '') lines.splice(i, 1)
-    }
+    const m = lines[i].match(/^[」』）】、，。！？；：…]+/)
+    if (!m) continue
+    lines[i - 1] += lines[i].slice(0, m[0].length)
+    lines[i] = lines[i].slice(m[0].length)
+    if (lines[i] === '') lines.splice(i, 1)
   }
   if (lines.length <= maxLines) return lines
   const kept = lines.slice(0, maxLines)
@@ -180,7 +190,7 @@ function wrap(s, size, maxW, maxLines) {
 // ── 色带基线（theme-stories-{zh,en}.svg）──
 // 画布与全部几何值来自 #29 定案 A（原型 prototypes/visual-refresh-prototype.html 的 figA），
 // 高度 1812 由内容累加得出（组头 30+10 / 行 54 / 表头 112 / 尾部 16）。
-function themeStoriesDoc(lang) {
+function themeStoriesDoc(lang: Lang): string {
   const W = 860, PAD = 20, TXTW = 320, BX = PAD + TXTW + 16
   const CELL = 64, CG = 6, CH = 30, ROW = 54, GH = 30, GG = 10, Y0 = 112
   const slots = SLOTS[lang]
@@ -188,12 +198,12 @@ function themeStoriesDoc(lang) {
   const groups = GROUP_KEYS
     .map((g) => ({ key: g, ids: STORY_PICKS.filter((n) => data[n] && groupOf(n, data[n]) === g) }))
     .filter((g) => g.ids.length > 0)
-  const out = []
-  const text = (x, y, s, size, color, extra) =>
+  const out: string[] = []
+  const text = (x: number, y: number, s: string, size: number, color: string, extra?: string): string =>
     '<text x="' + x + '" y="' + y + '" font-family="' + SANS + '" font-size="' + size + '" fill="' + color + '"' + (extra || '') + '>' + esc(s) + '</text>'
-  const monoText = (x, y, s, size, color) =>
+  const monoText = (x: number, y: number, s: string, size: number, color: string): string =>
     '<text x="' + x + '" y="' + y + '" font-family="' + MONO + '" font-size="' + size + '" fill="' + color + '">' + esc(s) + '</text>'
-  const box = (x, y, w, h, fill, rx) => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + rx + '" fill="' + fill + '"/>'
+  const box = (x: number, y: number, w: number, h: number, fill: string, rx: number): string => '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="' + rx + '" fill="' + fill + '"/>'
 
   out.push(text(PAD, 30, lang === 'zh' ? '每个主题，逐一拆解' : 'Every theme, decomposed', 22, '#f0f0f0', ' font-weight="800"'))
   out.push(text(PAD, 60, lang === 'zh'
@@ -215,13 +225,14 @@ function themeStoriesDoc(lang) {
     y += GH + GG
     for (const id of g.ids) {
       const c = data[id]
-      const label = (lang === 'zh' ? THEME_ZH[id] : THEME_EN[id]) || id
+      const label = (lang === 'zh' ? ZH_NAMES[id] : EN_NAMES[id]) || id
       out.push(text(PAD, y + 17, label, 16, hex(c.primary), ' font-weight="700"'))
       out.push(monoText(PAD + measure(label, 16) + 10, y + 16, id, 11, '#8b8b95'))
       wrap(story[id] || '', 12.5, TXTW, 2).forEach((line, i) => {
         out.push(text(PAD, y + 35 + i * 15, line, 12.5, '#a1a1aa'))
       })
       BAND_KEYS.forEach((k, j) => {
+        // 值语义同迁移前：undefined/null/空串 → 画棋盘格（transparent 主题）
         const v = c[k]
         const x = BX + j * (CELL + CG)
         out.push(v
@@ -242,7 +253,7 @@ function themeStoriesDoc(lang) {
 }
 
 await mkdir(OUT_DIR, { recursive: true })
-const files = {
+const files: Record<string, string> = {
   'theme-stories-en.svg': themeStoriesDoc('en'),
   'theme-stories-zh.svg': themeStoriesDoc('zh'),
 }

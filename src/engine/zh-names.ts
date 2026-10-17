@@ -40,9 +40,14 @@ export const THEME_ZH_LEGACY = {
   flexoki: ['纸墨'],
 }
 
+// 按任意 slug 查表：两张正名表保留字面量键（键集由测试单源对账 pin 住），这里只加宽查询面的索引签名
+const ZH_BY_SLUG: Record<string, string | undefined> = THEME_ZH
+const EN_BY_SLUG: Record<string, string | undefined> = THEME_EN
+const LEGACY_BY_SLUG: Record<string, string[] | undefined> = THEME_ZH_LEGACY
+
 // 搜索索引文本：内部 id ＋ 中文名 ＋ 英文官方名 ＋ 旧中文名别名（面板搜索命中任一即算）。
 // 单列一处，中英界面共用；索引与界面语言无关，英文界面同样能搜到旧中文名。
-export function themeSearchText(name) {
-  const legacy = THEME_ZH_LEGACY[name]
-  return name + ' ' + (THEME_ZH[name] || '') + ' ' + (THEME_EN[name] || '') + (legacy ? ' ' + legacy.join(' ') : '')
+export function themeSearchText(name: string): string {
+  const legacy = LEGACY_BY_SLUG[name]
+  return name + ' ' + (ZH_BY_SLUG[name] || '') + ' ' + (EN_BY_SLUG[name] || '') + (legacy ? ' ' + legacy.join(' ') : '')
 }
