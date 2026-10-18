@@ -63,14 +63,18 @@ ADR 0003 的 D4 让 `package/` 与根 `client.js` 随源码提交，沿用「构
   新增 `"pretest": "npm run build:artifacts"`。于是 6 个读产物的测试**永远测当前源码**，
   干净检出不需要任何入库字节。
 - **D3 `verify:artifacts` 换新语义**：`"verify:artifacts": "node scripts/verify-artifacts.ts"`，
-  五条断言：
+  六条断言：
   1. **可重复**：连跑两次 `build:artifacts`，8 个产物逐字节一致（构建确定性）；
   2. **完整性**：8 个产物存在且非空；
   3. **集合精确**：`package/lib/` 目录集合与期望**精确相等** —— 陈旧文件（如历史 `lib/channel.mjs`）
      会随 `files` 白名单一起 pack 进包，而 git 不再兜底，必须显式断言集合；
-  4. **生成源同步**：`npm run fonts` 后 `src/engine/font-face.ts` 无 diff；
+  4. **生成源同步**：`src/engine/font-face.ts` 在 `npm run fonts` **前后各比一次**「工作区内容 vs
+     `HEAD` blob」（两侧行尾归一成 LF）——手改生成文件（前比即红）与输入漂移（后比即红）都拦得住，
+     而新克隆的 CRLF 工作区不会假红（`git status --porcelain` 会因 stat cache 未刷新给出 phantom ` M`：
+     blob 完全相同也报改动，实测在干净 worktree 复现 3/3）；
   5. **入库纪律**（回归保险）：8 个产物都**不得**被 git 跟踪（防再被 `git add -f` 加回来），
-     同时 `src/engine/font-face.ts` 仍被跟踪。
+     同时 `src/engine/font-face.ts` 仍被跟踪；
+  6. **换行属性**（回归保险）：`.gitattributes` 必须钉住 `eol=lf`（见 D6）。
 - **D4 判据区分「分发载荷」与「生成源」**：会被源码 import、被编译器覆盖的生成文件仍入库，
   只被判为「复制 / pack 出去的载荷」的才移出。`src/engine/font-face.ts`（459,831 B）是**生成源**：
   被 `tests/engine.test.ts:13` 直接 import、被 `typecheck` 覆盖，仍入库，用「重新生成后无 diff」守
@@ -79,10 +83,19 @@ ADR 0003 的 D4 让 `package/` 与根 `client.js` 随源码提交，沿用「构
 - **D5 不重写历史**：tag 与 SHA 已公开、Release 资产与校验和挂在上面，重写会让既有一切失配。
   只做一次性 `git gc`：实测 `.git` **116.4 MB → 8.6 MB**（size-pack 8.37 MiB），已足够；
   历史 commit 里的旧产物字节仍可 `git show <tag>:package/lib/client.js` 取回。
+- **D6 工作区钉成 LF**：`.gitattributes` 由 `* text=auto` 改为 `* text=auto eol=lf`。
+  理由是 D1 的直接后果：产物不再从 git 检出、而是**本机现产**，工作区行尾于是成了构建输入的一部分 ——
+  实测在 CRLF 工作区里构建，8 件产物各多出其 CRLF 字节数（`client.js` +7921 B、`event-list.json` +293 B、
+  `cordis.patch.yml` +7 B），`npm pack` 出的 tgz 也随之不同（616448 vs 615846 B，sha1 亦不同）。
+  索引里本就没有 CRLF 文件（`git ls-files --eol` 全 `i/lf`），改属性对已跟踪内容零影响。
 
 ## Consequences
 
 - 新克隆 / 新机器首跑 `npm test` 由 `pretest` 现产（约 2 s），不再依赖仓库里有产物；
+- **构建字节与机器无关**：`.gitattributes` 钉 `eol=lf`（D6），新克隆一律 LF 工作区，8 件产物与
+  `npm pack` 出的 tgz 因此逐字节一致（改前实测：CRLF 工作区构建的 `client.js` 多 7921 B，
+  tgz 616448 vs 615846 B、sha1 也不同）。这是 D1 的必要配套——产物从「检出得到」变成「本机构建」后，
+  构建确定性不能再假设工作区行尾；门禁里那条 `eol=lf` 断言就是防它被改回去。
 - 构建不再弄脏工作区（此前每轮 `npm run build` 都会改 8 个跟踪文件）；
 - release 提交不再带约 1.5 MB 生成 diff，`.git` 与 diff 回到可读量级；
 - 发布链**零改动**：`scripts/publish-token.ps1:113-118` 门禁只跑 `build` + `test`，不读 git 里的产物，

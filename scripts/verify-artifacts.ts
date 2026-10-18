@@ -2,13 +2,17 @@
 //
 // 为什么需要它：派生物（根 client.js 与 package/ 下七件）自 ADR 0004 起不入库，git 不再替我们看住
 // 三件本来靠「入库 + git diff」看住的事，这个脚本一次全查：
-//   ① 生成源同步：src/engine/font-face.ts 由 src/fonts/*.woff2 现生成，重新生成后不得有 diff
-//      （它是「生成源」，被 tests/engine.test.ts 直接 import、被 typecheck 覆盖，仍入库）；
+//   ① 生成源同步：src/engine/font-face.ts 由 src/fonts/*.woff2 现生成，重新生成**前后**都不得与
+//      入库版本不同（它是「生成源」，被 tests/engine.test.ts 直接 import、被 typecheck 覆盖，仍入库）。
+//      比较用的是「工作区内容 vs HEAD blob」且两侧行尾统一为 LF：`git status --porcelain` 会因
+//      stat cache 未刷新给出 phantom ` M` —— 干净 CRLF 新克隆上 blob 完全相同也报改动（实测复现 3/3），
+//      而先跑 `npm run fonts` 再比会把「手改生成文件」静默刷掉，所以前后各比一次。
 //   ② 构建可重复：连跑两次 `npm run build:artifacts`，八件产物逐字节一致 —— 换机器、换 Node 版本、
 //      重跑都不该变，发布出来的 tgz 才能被任何人在任何时间复现；
 //   ③ 产物集合精确：必需产物存在且非空；package/lib 里不许有陈旧的额外文件（`files` 白名单是
 //      `lib` + `cordis.patch.yml`，多一个文件就会跟着发出去，而 git 已经看不见它们了）。
-// 另加一条回归保险：这八件派生物不得再被 git 跟踪（谁 `git add -f` 回来，这里就红）。
+// 另加两条回归保险：这八件派生物不得再被 git 跟踪（谁 `git add -f` 回来，这里就红）；
+// `.gitattributes` 必须钉住 eol=lf —— 产物改成现产后，CRLF 工作区会让构建字节随机器而变。
 //
 // 用法：
 //   npm run verify:artifacts     # 干净 exit 0；任何一条不满足 exit 1（发布流程用）
@@ -85,11 +89,20 @@ function gitTrackedAmong(paths: readonly string[]): string[] | null {
   return r.stdout.split('\n').map((s) => s.trim()).filter((s) => s.length > 0)
 }
 
-/** 工作区（含暂存区）里这些路径是否有改动 —— 用 `git status --porcelain` 一次拿全。 */
-function gitDirtyAmong(paths: readonly string[]): string[] | null {
-  const r = spawnSync('git', ['status', '--porcelain', '--', ...paths], { cwd: ROOT, encoding: 'utf8' })
-  if (r.status !== 0) return null
-  return r.stdout.split('\n').map((s) => s.trim()).filter((s) => s.length > 0)
+/** 工作区文本（行尾统一成 LF）：新克隆的 CRLF 工作区不该让门禁假红。 */
+function workingText(rel: string): string | null {
+  try {
+    return readFileSync(join(ROOT, rel), 'utf8').replace(/\r\n/g, '\n')
+  } catch {
+    return null
+  }
+}
+
+/** HEAD 里的入库版本（行尾统一成 LF）；git 不可用或该路径未入库返回 null。 */
+function committedText(rel: string): string | null {
+  const r = spawnSync('git', ['show', `HEAD:${rel}`], { cwd: ROOT, encoding: 'utf8' })
+  if (r.status !== 0 || typeof r.stdout !== 'string') return null
+  return r.stdout.replace(/\r\n/g, '\n')
 }
 
 /** 八件产物的 sha256 快照（缺失记 'MISSING'，便于两次构建对比时把缺失也算成不一致）。 */
@@ -100,15 +113,27 @@ function snapshot(): Map<string, string> {
 }
 
 console.log('[verify-artifacts] 1/4 生成源同步：' + GENERATED_SOURCE)
+{
+  // 先比一次（比的是「手改/漂移」，不是「重新生成的结果」）：跑 fonts 之前就不同 → 有人改了生成文件。
+  const head = committedText(GENERATED_SOURCE)
+  const before = workingText(GENERATED_SOURCE)
+  if (head === null || before === null) {
+    console.log('  · 读不到工作区或 HEAD 版本，跳过生成源检查')
+  } else if (before !== head) {
+    fail(`${GENERATED_SOURCE} 与入库版本不一致（行尾归一化后仍不同）—— 生成文件不要手改；跑 npm run fonts 并提交结果`)
+  }
+}
 npmRun('fonts')
 {
-  const dirty = gitDirtyAmong([GENERATED_SOURCE])
-  if (dirty === null) {
-    console.log('  · git 不可用，跳过生成源 diff 检查')
-  } else if (dirty.length > 0) {
-    fail(`${GENERATED_SOURCE} 重新生成后与入库版本不一致（${dirty.length} 条改动）—— 跑 npm run fonts 并把结果提交`)
+  // 再比一次：inputs（src/fonts/*.woff2）漂移时，现生成结果会与入库版本不同。
+  const head = committedText(GENERATED_SOURCE)
+  const after = workingText(GENERATED_SOURCE)
+  if (head === null || after === null) {
+    console.log('  · 读不到工作区或 HEAD 版本，跳过生成源检查')
+  } else if (after !== head) {
+    fail(`${GENERATED_SOURCE} 重新生成后与入库版本不一致 —— 跑 npm run fonts 并把结果提交`)
   } else {
-    ok(`${GENERATED_SOURCE} 与 src/fonts/*.woff2 现生成结果逐字节一致`)
+    ok(`${GENERATED_SOURCE} 与 src/fonts/*.woff2 现生成结果一致（行尾归一化后比较）`)
   }
 }
 
@@ -169,6 +194,21 @@ console.log('[verify-artifacts] 附加：派生物不得再被 git 跟踪（ADR 
     else ok(`八件派生物均未被跟踪（${ARTIFACTS.length} 件）`)
     if (source.length === 0) fail(`${GENERATED_SOURCE} 是生成源，必须入库（tests/engine.test.ts 直接 import）`)
     else ok(`${GENERATED_SOURCE} 仍被跟踪`)
+  }
+}
+
+console.log('[verify-artifacts] 附加：.gitattributes 钉住 eol=lf（构建字节与机器无关）')
+{
+  const r = spawnSync('git', ['check-attr', 'eol', '--', GENERATED_SOURCE], { cwd: ROOT, encoding: 'utf8' })
+  if (r.status !== 0) {
+    console.log('  · git 不可用，跳过 eol 属性检查')
+  } else if (!r.stdout.includes('eol: lf')) {
+    fail(
+      '.gitattributes 没把 eol 钉成 lf：CRLF 工作区会构建出多出等量字节的产物' +
+        '（实测 client.js +7921 B），npm pack 的 tgz 哈希随机器而变',
+    )
+  } else {
+    ok('.gitattributes 钉住 eol=lf（工作区 LF，构建字节与机器无关）')
   }
 }
 

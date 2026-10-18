@@ -1,2 +1,5 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Auto detect text files and perform LF normalization.
+# eol=lf（ADR 0004 D6）：工作区一律 LF。派生物自 ADR 0004 起由本机现产，若新克隆在 Windows 上
+# 检出 CRLF，构建出的 8 件产物会各多出其 CRLF 字节数（实测 client.js +7921 B），
+# `npm pack` 出的 tgz 哈希随机器而变 —— 发布载荷必须谁都能复现同一串字节。
+* text=auto eol=lf

@@ -22,7 +22,7 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 ### 流程
 
-1. **构建与验证**：`npm run build`（类型检查 `typecheck` → 依赖门禁 `check-deps.ts` → 字体生成 → tsc emit `dist/` → 零依赖内联 `build-client.ts`，末两步即 `npm run build:artifacts`）→ `npm test` 全绿（Node `22.18.0` 与 `24.x` 各跑一遍；源码与测试均为 `.ts`，靠 Node 原生类型剥离直接跑；`pretest` 先跑 `build:artifacts` 现产 8 个产物，读产物的测试因此永远测当前源码）→ `npm run verify:artifacts` 干净（`node scripts/verify-artifacts.ts`：连跑两次构建逐字节一致 / 8 个产物存在非空 / `package/lib` 集合精确 / `npm run fonts` 后 `src/engine/font-face.ts` 无 diff / 8 个产物未被 git 跟踪）→ 在 `package/` 里 `npm pack`，得到 `dsh-opencode-palette-<版本>.tgz`。
+1. **构建与验证**：`npm run build`（类型检查 `typecheck` → 依赖门禁 `check-deps.ts` → 字体生成 → tsc emit `dist/` → 零依赖内联 `build-client.ts`，末两步即 `npm run build:artifacts`）→ `npm test` 全绿（Node `22.18.0` 与 `24.x` 各跑一遍；源码与测试均为 `.ts`，靠 Node 原生类型剥离直接跑；`pretest` 先跑 `build:artifacts` 现产 8 个产物，读产物的测试因此永远测当前源码）→ `npm run verify:artifacts` 干净（`node scripts/verify-artifacts.ts`：连跑两次构建逐字节一致 / 8 个产物存在非空 / `package/lib` 集合精确 / `src/engine/font-face.ts` 与入库版本一致（`npm run fonts` 前后各比一次，行尾归一化后比较）/ 8 个产物未被 git 跟踪 / `.gitattributes` 钉住 `eol=lf`）→ 在 `package/` 里 `npm pack`，得到 `dsh-opencode-palette-<版本>.tgz`。
 2. **npm 发布**：Agent 弹窗拉起向导，人只在浏览器里做 2FA：
    ```powershell
    Start-Process powershell.exe -ArgumentList '-NoExit','-ExecutionPolicy','Bypass','-File','<repo>\scripts\npm-release-wizard.ps1'

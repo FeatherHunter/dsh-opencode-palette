@@ -171,15 +171,19 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
   前因后果见 `docs/adr/0001-vendor-dsh-plugin-update.md`（已 superseded）与 `0002-*.md`。
   构建前 `node scripts/check-deps.ts` 硬门禁保证本机装的是上游最新（钉版落后就拦，离线放行），
   打出的 bundle 与用户装到的宿主依赖是同一版。
-- **换行归一**：仓库 `* text=auto`，Windows 新克隆检出为 CRLF；构建器在读取处统一成 LF，
+- **换行归一**：仓库 `* text=auto eol=lf`（2026-10-18 起钉住，[ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md) D6），
+  工作区一律 LF —— 派生物现产后（见下条），CRLF 工作区会让构建出的 8 件产物各多出其 CRLF 字节数
+  （实测 `client.js` +7921 B），`npm pack` 的 tgz 哈希随机器而变。构建器在读取处仍统一成 LF 兜底，
   否则依赖「行首 import」的正则会全部失配（新克隆上构建静默产出 broken bundle）。
 - **测试与产物门禁**：`npm test` 用 `node --test` 直接跑 `.ts` 测试（Node ≥ 22.18.0 原生类型剥离，
   不经 tsc、不依赖构建）；`pretest` 先跑 `npm run build:artifacts` 现产 8 个产物（实测约 2.0 s），
   所以 6 个读产物的测试永远测当前源码，不依赖任何入库字节；类型正确性由 `npm run typecheck` 独立把关。
-  `npm run verify:artifacts`（`node scripts/verify-artifacts.ts`）五条：① 连跑两次 `build:artifacts`
-  产物逐字节一致；② 8 个产物存在且非空；③ `package/lib/` 目录集合精确（陈旧文件会随 `files` 白名单进包，
-  git 已不兜底）；④ `npm run fonts` 后 `src/engine/font-face.ts` 无 diff；⑤ 8 个产物都未被 git 跟踪
-  （回归保险），而 `font-face.ts` 仍被跟踪。产物去向与回滚见 [ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)。
+  `npm run verify:artifacts`（`node scripts/verify-artifacts.ts`）五条：① 生成源同步——`npm run fonts`
+  **前后各比一次** `src/engine/font-face.ts` 与入库版本（两侧行尾归一成 LF，手改与输入漂移都拦得住，
+  新克隆的 CRLF 工作区也不假红）；② 连跑两次 `build:artifacts` 产物逐字节一致；③ 8 个产物存在且非空；
+  ④ `package/lib/` 目录集合精确（陈旧文件会随 `files` 白名单进包，git 已不兜底）；⑤ 8 个产物都未被
+  git 跟踪（回归保险），而 `font-face.ts` 仍被跟踪；另加一条 `.gitattributes` 必须钉住 `eol=lf`
+  （构建字节与机器无关的前提）。产物去向与回滚见 [ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)。
 
 ## 8. 扩展点（怎么加东西）
 
