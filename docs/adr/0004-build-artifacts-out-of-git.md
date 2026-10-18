@@ -63,18 +63,19 @@ ADR 0003 的 D4 让 `package/` 与根 `client.js` 随源码提交，沿用「构
   新增 `"pretest": "npm run build:artifacts"`。于是 6 个读产物的测试**永远测当前源码**，
   干净检出不需要任何入库字节。
 - **D3 `verify:artifacts` 换新语义**：`"verify:artifacts": "node scripts/verify-artifacts.ts"`，
-  六条断言：
-  1. **可重复**：连跑两次 `build:artifacts`，8 个产物逐字节一致（构建确定性）；
-  2. **完整性**：8 个产物存在且非空；
-  3. **集合精确**：`package/lib/` 目录集合与期望**精确相等** —— 陈旧文件（如历史 `lib/channel.mjs`）
-     会随 `files` 白名单一起 pack 进包，而 git 不再兜底，必须显式断言集合；
-  4. **生成源同步**：`src/engine/font-face.ts` 在 `npm run fonts` **前后各比一次**「工作区内容 vs
+  八条断言（与脚本输出逐字对齐）：
+  1. **字体一致**：`src/engine/font-face.ts` 在 `npm run fonts` **前后各比一次**「工作区内容 vs
      `HEAD` blob」（两侧行尾归一成 LF）——手改生成文件（前比即红）与输入漂移（后比即红）都拦得住，
      而新克隆的 CRLF 工作区不会假红（`git status --porcelain` 会因 stat cache 未刷新给出 phantom ` M`：
      blob 完全相同也报改动，实测在干净 worktree 复现 3/3）；
-  5. **入库纪律**（回归保险）：8 个产物都**不得**被 git 跟踪（防再被 `git add -f` 加回来），
-     同时 `src/engine/font-face.ts` 仍被跟踪；
-  6. **换行属性**（回归保险）：`.gitattributes` 必须钉住 `eol=lf`（见 D6）。
+  2. **可重复**：连跑两次 `build:artifacts`，8 个产物逐字节一致（构建确定性）；
+  3. **完整性**：8 个产物存在且非空；
+  4. **载荷无 CR**：8 个产物均不含 CR（0x0D）字节 —— LF 载荷、与检出 EOL 无关（见 D7）；
+  5. **集合精确**：`package/lib/` 目录集合与期望**精确相等**（恰 4 个文件）—— 陈旧文件（如历史
+     `lib/channel.mjs`）会随 `files` 白名单一起 pack 进包，而 git 不再兜底，必须显式断言集合；
+  6. **入库纪律**（回归保险）：8 个产物都**不得**被 git 跟踪（防再被 `git add -f` 加回来）；
+  7. **生成源入库**（回归保险）：`src/engine/font-face.ts` 仍被跟踪（它是生成源，见 D4）；
+  8. **换行属性**（回归保险）：`.gitattributes` 必须钉住 `eol=lf`（见 D6）。
 - **D4 判据区分「分发载荷」与「生成源」**：会被源码 import、被编译器覆盖的生成文件仍入库，
   只被判为「复制 / pack 出去的载荷」的才移出。`src/engine/font-face.ts`（459,831 B）是**生成源**：
   被 `tests/engine.test.ts:13` 直接 import、被 `typecheck` 覆盖，仍入库，用「重新生成后无 diff」守
@@ -88,6 +89,14 @@ ADR 0003 的 D4 让 `package/` 与根 `client.js` 随源码提交，沿用「构
   实测在 CRLF 工作区里构建，8 件产物各多出其 CRLF 字节数（`client.js` +7921 B、`event-list.json` +293 B、
   `cordis.patch.yml` +7 B），`npm pack` 出的 tgz 也随之不同（616448 vs 615846 B，sha1 亦不同）。
   索引里本就没有 CRLF 文件（`git ls-files --eol` 全 `i/lf`），改属性对已跟踪内容零影响。
+- **D7 载荷一律 LF**：构建器写包内副本前把会成为载荷的文本**统一成 LF** ——
+  `package/README.md`、`package/cordis.patch.yml`、`package/lib/event-list.json` 三处由 `copyFile`
+  改为「读入 → `.replace(/\r\n/g, '\n')` → 写」（`package/lib/index.js` 早在读转译输出时就已归一）。
+  理由：同一 commit 在**任何机器、任何检出 EOL** 下 `npm pack` 出的 tgz 字节必须相同。
+  D6 的 `.gitattributes eol=lf` 只管得住**新克隆**，管不住本机遗留的历史 CRLF 工作区 —— verifier 复验实测：
+  本机那份历史 CRLF 检出构出 `package/README.md` **5315 B/CRLF**，新克隆构出 **5207 B/LF**，
+  于是同一 commit 的 tgz 一个 **615846 B**（sha1 `49870BED…`）、一个 **615833 B**（sha1 `DDB0D029…`）。
+  归一后载荷与检出 EOL 解耦，门禁第 4 条（载荷无 CR）守回归。
 
 ## Consequences
 
@@ -96,6 +105,8 @@ ADR 0003 的 D4 让 `package/` 与根 `client.js` 随源码提交，沿用「构
   `npm pack` 出的 tgz 因此逐字节一致（改前实测：CRLF 工作区构建的 `client.js` 多 7921 B，
   tgz 616448 vs 615846 B、sha1 也不同）。这是 D1 的必要配套——产物从「检出得到」变成「本机构建」后，
   构建确定性不能再假设工作区行尾；门禁里那条 `eol=lf` 断言就是防它被改回去。
+  D7 再兜住**存量 CRLF 检出**：包内文本载荷写盘前一律归一成 LF（包内 README 5315 B/CRLF vs
+  5207 B/LF，tgz 615846 vs 615833、sha1 亦不同），tgz 从此与检出 EOL 完全解耦。
 - 构建不再弄脏工作区（此前每轮 `npm run build` 都会改 8 个跟踪文件）；
 - release 提交不再带约 1.5 MB 生成 diff，`.git` 与 diff 回到可读量级；
 - 发布链**零改动**：`scripts/publish-token.ps1:113-118` 门禁只跑 `build` + `test`，不读 git 里的产物，
