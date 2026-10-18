@@ -13,7 +13,7 @@
 - 语气分体裁：面板＝中性工具体（禁最高级/空话/无结果动词）；README＝实证劝服体（好处断言须有事实锚）。对等指信息对等（动作/对象/结果/条件），不强制句式/句数。
 - 品牌（2026-10-06 已按上游转正）：中文 `OpenCode调色板`、英文 `OpenCode Palette`；依据 opencode.ai `<title>OpenCode | …`＋description `OpenCode - …` 共 17 处 `OpenCode`、0 处裸 `opencode`（域名/URL 小写为技术规范，非品牌证据）。`OpenCode` 孤例即正体，无需改小写。
 
-## 面板 53 键（`runtime/client.mjs`，`{zh,en}` 结构、键名与语言跟随不变）
+## 面板 53 键（`runtime/client.ts`，`{zh,en}` 结构、键名与语言跟随不变）
 
 冻结 42 / 待确认 2（已认可的 defer，占位非终稿）/ 转交 #60 9。上游外迁约 33 条（更新链路＋blocked 9）归上游包内，按地图 out-of-scope 本次不碰。
 
@@ -77,9 +77,9 @@
 
 - 2026-10-06 漏网补齐：`starTitle`／`issueTitle` 进词典走 `tr()`；入口 label 语言切换时重注册（宿主只在注册时读 label）；引流外链 `title` 冒号跟随语言（zh 全角 `：`／en 半角 `:`）。
 
-## 自定义主题编辑器 176 键（`runtime/client.mjs`，#86 新增 / #95 取色器续增，与代码 I18N 逐行对账）
+## 自定义主题编辑器 176 键（`runtime/client.ts`，#86 新增 / #95 取色器续增，与代码 I18N 逐行对账）
 
-中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬，为 #86 首版口径；#92 定稿行以本表与 `src/engine/map-dsh.mjs` 实测映射为准）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
+中文逐字对齐 `prototypes/custom-editor-83.prototype.html`（70 处重写文案照搬，为 #86 首版口径；#92 定稿行以本表与 `src/engine/map-dsh.ts` 实测映射为准）；英文信息对等（动作/对象/结果/条件齐全，不强制同句式）。占位符不调序（`trf` 全量替换）：`{n}`／`{name}`。I18N 串不带首尾空格（mini 长句由 `segJoin` 按语言补连接空格：中文无缝，英文词间空格）。
 
 2026-10-17 #92 命名审查：7 组名、37 个色位名与 37 条作用说明按 DSH token 语义定稿（映射与实测证据见 #92）；下表变更行状态列标「#86 新增，#92 定稿」，其余行维持 #86 原文；code-review 后修订的作用说明同样标 #92 定稿，最终口径以本表为准。
 
@@ -265,12 +265,12 @@
 | `miniCaption` | 输入框外框跟主题走 | The input frame follows the theme | #86 新增 |
 | `miniTip` | 已同步到预览 | Synced to preview | #86 新增 |
 
-## 主题 38＋分组 9（`src/engine/zh-names.mjs` 单一来源，矩阵/故事卡同源）
+## 主题 38＋分组 9（`src/engine/zh-names.ts` 单一来源，矩阵/故事卡同源）
 
 13 保留英文：opencode / One Dark / Monokai / Cursor / GitHub / Vercel＋Solarized / Gruvbox / Ayu / Flexoki（废生造：日光浴/复古凹槽/鮎/纸墨）＋AMOLED / OC 2 / One Dark Pro（缩写·派生）；透光橙/纯橙对仗保留为范式；`system`＝跟随系统。
 
-- 2026-10-06 #67 落码：本表 **en 列即代码 `THEME_EN`**（与 `THEME_ZH` 同键集，`listThemes`／两表 38/38/38 三表对账 pin）；中英界面各取一表、实时切换，**两表都缺键才退回内部 id（slug 兜底）**；故事卡英文图与面板搜索索引（id／中文名／英文官方名三源）同源，词表两列由 `tests/engine.test.mjs` 逐行对账。
-- 2026-10-06 #66 落码：上表四名废生造（日光浴／复古凹槽／鮎／纸墨）**只进搜索索引、不进正名**——老用户按旧名仍搜得到，芯片标签恒为上表的保留英文正名；别名表 `THEME_ZH_LEGACY` 接在 `themeSearchText()` 上，中英界面同一索引（`tests/engine.test.mjs` 断「双向可达＋不进显示名」，产物侧断别名随包发出）。
+- 2026-10-06 #67 落码：本表 **en 列即代码 `THEME_EN`**（与 `THEME_ZH` 同键集，`listThemes`／两表 38/38/38 三表对账 pin）；中英界面各取一表、实时切换，**两表都缺键才退回内部 id（slug 兜底）**；故事卡英文图与面板搜索索引（id／中文名／英文官方名三源）同源，词表两列由 `tests/engine.test.ts` 逐行对账。
+- 2026-10-06 #66 落码：上表四名废生造（日光浴／复古凹槽／鮎／纸墨）**只进搜索索引、不进正名**——老用户按旧名仍搜得到，芯片标签恒为上表的保留英文正名；别名表 `THEME_ZH_LEGACY` 接在 `themeSearchText()` 上，中英界面同一索引（`tests/engine.test.ts` 断「双向可达＋不进显示名」，产物侧断别名随包发出）。
 
 | key | kind | en | 中文终稿 |
 |---|---|---|---|
@@ -322,7 +322,7 @@
 | `transparent` | group | Transparent | 透明 |
 | `special` | group | Special | 特殊 |
 
-分组名体例（2026-10-06 [#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 并排实测后冻结）：整组名 = 两端温度锚（暖橙／冷蓝）＋中段邻接复合（黄绿／青绿／青蓝／蓝紫）——青字头覆盖 `[90,200)`（青绿／青蓝 共享字头、尾字分色向），`[200,230)` 用冷字头（冷蓝）区分纯蓝段；英文按英语习惯（Teal／Violet 为单词色名），不与中文同构。色相阈值 160／200／230 与两侧实测余量见 `src/engine/grouping.mjs` 的冻结注释。
+分组名体例（2026-10-06 [#68](https://github.com/FeatherHunter/dsh-opencode-palette/issues/68) 并排实测后冻结）：整组名 = 两端温度锚（暖橙／冷蓝）＋中段邻接复合（黄绿／青绿／青蓝／蓝紫）——青字头覆盖 `[90,200)`（青绿／青蓝 共享字头、尾字分色向），`[200,230)` 用冷字头（冷蓝）区分纯蓝段；英文按英语习惯（Teal／Violet 为单词色名），不与中文同构。色相阈值 160／200／230 与两侧实测余量见 `src/engine/grouping.ts` 的冻结注释。
 
 ## 双 README 8 节（`README.md`／`docs/README.en.md`，`prototypes/readme-mirror-61.html` v2）
 
@@ -330,7 +330,7 @@
 |---|---|---|
 | 头尾胶囊行 | pass | 有条件 PASS：数量·顺序·链接对称（门禁已钉）；但“期待你参与/PRs welcome”不对等（泛邀请 vs 特指PR），T6 二选一：zh 收窄或 en 放宽。 |
 | 卖点＋求星 | pass | 信息对等即过：粗体一句＋斜体一句＋求星一句的顺序差不算账（#58 Q5）。 |
-| SHOWCASE 选图 | fail | 重出图结论：对称三张——①主界面 opencode ②设置面板 ③同一第三主题（建议 GitHub Light 中英同主题），EN 图重截英文面板，文件名对称。会红测试：tests/readme-body.test.mjs showcase 节（断言 zhImgs[2]/enImgs[2] 现文件名＋图片存在性测试），T6 同步改。 |
+| SHOWCASE 选图 | fail | 重出图结论：对称三张——①主界面 opencode ②设置面板 ③同一第三主题（建议 GitHub Light 中英同主题），EN 图重截英文面板，文件名对称。会红测试：tests/readme-body.test.ts showcase 节（断言 zhImgs[2]/enImgs[2] 现文件名＋图片存在性测试），T6 同步改。 |
 | SHOWCASE alt＋品牌 | fail | 统一 zh=OpenCode调色板 / en=OpenCode Palette（2026-10-06 已按上游转正）；孤例即正体。caption 已去“浅色”claim，保持。 |
 | INSTALL 三步 | fail | 3行4处之其二段：EN L60（×2）＋L84 改英文面板名 Settings → Plugins → OpenCode Palette（已按转正品牌落码）；中文名只出现在中文页。 |
 | THEMES＋EXTENSIONS | fail | 3行4处之其一段：EN L74 改为 (Chinese / English)；其余数据句＋两条目结构对称，算过。口径：3行4处=EN L60×2＋L74＋L84，按段合并3段。 |
@@ -353,7 +353,7 @@
 - 主题名表：专名保留、共识沿用、无生造；`listThemes() == THEME_ZH 键数 == THEME_EN 键数 == 38`、`GROUP_ORDER 9/9` 对齐；面板计数经 `trf({n})` 取 `themeNames().length`（`n≥2` 恒复数，注释注明）。#67 追加：英文名非空不重名、只有 opencode 与 id 同形；词表 en／中文终稿两列与代码两表逐行对账；搜索索引三源；中英**实渲染** 38 款无一退回内部 id。
 - 双 README：无残留中文面板名（EN 只留故意的中文镜像句与图片文件名）、断言有锚、选图对称、计数一致、五枚徽章对等（`欢迎提 Issue`／`Issues welcome`）。
 - 长度：真实容器不溢出、最小宽度冒烟、大字号不截断；`trf` 不调序。
-- 色系边界（#68）：阈值 ±1° 探针、边界两侧最近主题归属、≥2° 余量跳闸线、三组色相连续、青／冷字头体例、明暗不改成员——六条 pin 在 `tests/group-boundary.test.mjs`（越界或改名即红）。
+- 色系边界（#68）：阈值 ±1° 探针、边界两侧最近主题归属、≥2° 余量跳闸线、三组色相连续、青／冷字头体例、明暗不改成员——六条 pin 在 `tests/group-boundary.test.ts`（越界或改名即红）。
 - 先例：状态机＋接线一致＋宿主冒烟的门禁写法；真实渲染抓错的面板渲染回归写法；纯文本断字符串与数值的 README 体写法。
 
 ## 待人定（本表不代选）

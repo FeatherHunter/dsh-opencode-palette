@@ -230,7 +230,7 @@ test('宿主侧：运行时目录被删后写开关仍重建并落盘', async ()
   const previousHome = process.env.DSH_HOME
   process.env.DSH_HOME = home
   try {
-    // runtime/ 已由 .mjs 改名为 .ts（Node 24 类型剥离可直接跑）；带 query 避免同进程模块缓存
+    // 手写运行时源码已迁 TypeScript（Node 22.18+ 原生类型剥离可直接跑）；带 query 避免同进程模块缓存
     const hostModule = await import(pathToFileURL(join(ROOT, 'runtime', 'host.ts')).href + '?logswitch=1') as HostModule
     let route: RouteHandler | null = null
     const ctx = {

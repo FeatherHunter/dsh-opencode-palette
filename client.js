@@ -1,4 +1,4 @@
-// dsh-opencode-palette v2.1.3 — 动态版（构建产物，勿手改）
+// dsh-opencode-palette v2.1.4 — 动态版（构建产物，勿手改）
 // 用法：cordis_define(code.client = 本文件内容) → cordis_run
 var __mods = {};
 (function () {
@@ -116,6 +116,8 @@ const REDACTION_RULE_NAMES = [
 const ENDORSED_REGISTRY_HOSTS = ["registry.npmjs.org"];
 const ABSOLUTE_PATH_RE = /[A-Za-z]:\\[^\s"']*|\\\\[^\s"'()\[\];]+|(^|[\s"'(\[=,])\/\/[^\s"'()\[\];]+|(^|[\s"'(\[=:,])\/(?!\/)[^\s"'()\[\];]+/g;
 const URL_USERINFO_RE = /[A-Za-z][A-Za-z0-9+.-]*:\/\/[^\s/]*@/;
+const URL_USERINFO_MASK_RE = /([A-Za-z][A-Za-z0-9+.-]*:\/\/)[^\s/]*@/g;
+const MASKED_CREDENTIAL_NOTE = "\uFF08\u539F\u8BDD\u91CC\u7684\u8D26\u53F7\u5BC6\u7801\u5DF2\u9690\u53BB\uFF1B\u8BF7\u6838\u5BF9\u6E90\u5730\u5740\u91CC\u7684\u51ED\u636E\u540E\u91CD\u8BD5\uFF09";
 const NPM_TOKEN_RE = /\bnpm_[A-Za-z0-9_-]{8,}/g;
 const GITHUB_TOKEN_RE = /\b(?:gh[pousr]_[A-Za-z0-9]{8,}|github_pat_[A-Za-z0-9_]{10,})/g;
 const SK_TOKEN_RE = /\bsk-[A-Za-z0-9_-]{6,}/g;
@@ -147,9 +149,10 @@ function applyEmailRule(text) {
   EMAIL_RE.lastIndex = 0;
   return text.replace(EMAIL_RE, REDACTED_SECRET);
 }
-function hasUserinfo(text) {
-  URL_USERINFO_RE.lastIndex = 0;
-  return URL_USERINFO_RE.test(text);
+function applyUserinfoRule(text) {
+  if (!URL_USERINFO_RE.test(text)) return { text, masked: false };
+  URL_USERINFO_MASK_RE.lastIndex = 0;
+  return { text: text.replace(URL_USERINFO_MASK_RE, `$1${REDACTED_SECRET}@`), masked: true };
 }
 function truncateToWordBoundary(text, max) {
   const input = String(text ?? "");
@@ -169,20 +172,28 @@ function truncateDetail(text) {
 function truncateForCopy(text) {
   return truncateToWordBoundary(text, COPY_BUDGET_CHARS);
 }
+function truncateWithMaskNote(text, budget) {
+  const room = budget - MASKED_CREDENTIAL_NOTE.length - 1;
+  if (room <= 0) return MASKED_CREDENTIAL_NOTE;
+  const head = truncateToWordBoundary(text, room);
+  return head ? `${head}\uFF1B${MASKED_CREDENTIAL_NOTE}` : MASKED_CREDENTIAL_NOTE;
+}
 function scrubWithoutBudget(text) {
   return applyEmailRule(applyCredPairRule(applyTokenRule(applyPathRule(text))));
 }
 function sanitizeDetail(text) {
   const flat = flattenWhitespace(text);
   if (!flat) return "";
-  if (hasUserinfo(flat)) return "";
-  return truncateDetail(scrubWithoutBudget(flat));
+  const userinfo = applyUserinfoRule(flat);
+  const scrubbed = scrubWithoutBudget(userinfo.text);
+  return userinfo.masked ? truncateWithMaskNote(scrubbed, DETAIL_MAX_CHARS) : truncateDetail(scrubbed);
 }
 function sanitizeForCopy(text) {
   const flat = flattenWhitespace(String(text ?? ""));
   if (!flat) return "";
-  if (hasUserinfo(flat)) return "";
-  return truncateForCopy(scrubWithoutBudget(flat));
+  const userinfo = applyUserinfoRule(flat);
+  const scrubbed = scrubWithoutBudget(userinfo.text);
+  return userinfo.masked ? truncateWithMaskNote(scrubbed, COPY_BUDGET_CHARS) : truncateForCopy(scrubbed);
 }
 function resolveRegistryHost(registryUrl) {
   try {
@@ -286,7 +297,7 @@ function enforceDiagBudget(input) {
   }
   return { ...working, truncated: true };
 }
-__mods["upd-redaction"] = { COPY_BUDGET_CHARS, DETAIL_MAX_CHARS, DIAG_DROP_ORDER, DIAG_INLINE_BUDGET_BYTES, DIAG_NEVER_DROP_KEYS, ENDORSED_REGISTRY_HOSTS, KNOWN_GAP_FILE_URL_PREFIX, REDACTED_PATH, REDACTED_SECRET, REDACTION_RULE_NAMES, diagByteLength, enforceDiagBudget, resolveRegistryHost, sanitizeDetail, sanitizeForCopy, truncateToWordBoundary };
+__mods["upd-redaction"] = { COPY_BUDGET_CHARS, DETAIL_MAX_CHARS, DIAG_DROP_ORDER, DIAG_INLINE_BUDGET_BYTES, DIAG_NEVER_DROP_KEYS, ENDORSED_REGISTRY_HOSTS, KNOWN_GAP_FILE_URL_PREFIX, MASKED_CREDENTIAL_NOTE, REDACTED_PATH, REDACTED_SECRET, REDACTION_RULE_NAMES, diagByteLength, enforceDiagBudget, resolveRegistryHost, sanitizeDetail, sanitizeForCopy, truncateToWordBoundary };
 
 })();
 (function () {
@@ -409,6 +420,14 @@ function upperBound(t, kind, kept) {
   if (kept >= 2) return [t[0], t[1] + 1, 0];
   return [t[0] + 1, 0, 0];
 }
+function upperBoundRelease(t, kind) {
+  if (kind === "~") {
+    return t[0] > 0 || t[1] > 0 ? [t[0], t[1] + 1, 0] : [0, 0, t[2] + 1];
+  }
+  if (t[0] > 0) return [t[0] + 1, 0, 0];
+  if (t[1] > 0) return [0, t[1] + 1, 0];
+  return [0, 0, t[2] + 1];
+}
 function satisfiesNodeRange(nodeVersion, range) {
   if (range === void 0 || range === null) return true;
   const text = String(range).trim();
@@ -434,7 +453,57 @@ function satisfiesNodeRange(nodeVersion, range) {
   }
   return true;
 }
-__mods["upd-version-judgment"] = { RELEASE_CHANNELS, compareReleaseVersions, compareVersions, isPrereleaseVersion, isVersionAllowedInChannel, satisfiesNodeRange, updateError, validReleaseChannel, validReleaseVersion, validVersion };
+function satisfiesDshRange(dshVersion, range) {
+  if (range === void 0 || range === null) return true;
+  const text = String(range).trim();
+  if (text === "" || text === "*") return true;
+  const current = typeof dshVersion === "string" ? dshVersion.trim() : "";
+  if (!current || !validReleaseVersion(current)) return true;
+  if (text.includes("||")) {
+    return text.split("||").map((part) => part.trim()).filter(Boolean).some((part) => satisfiesDshRange(current, part));
+  }
+  const parts = text.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return true;
+  for (const part of parts) {
+    const m = part.match(/^(\^|~|>=|<=|>|<|=)?(.+)$/);
+    if (!m) return true;
+    const op = m[1] || "";
+    const target = m[2];
+    if (!validReleaseVersion(target)) return true;
+    const order = compareReleaseVersions(current, target);
+    if (op === "^" || op === "~") {
+      const core = target.split("-")[0];
+      const triple = parseTriple(core);
+      if (!triple) return true;
+      if (order < 0) return false;
+      const bound = upperBoundRelease(triple, op).join(".");
+      if (compareReleaseVersions(current, bound) >= 0) return false;
+      continue;
+    }
+    if (op === "=" || op === "") {
+      if (order !== 0) return false;
+      continue;
+    }
+    if (op === ">") {
+      if (order !== 1) return false;
+      continue;
+    }
+    if (op === ">=") {
+      if (order < 0) return false;
+      continue;
+    }
+    if (op === "<") {
+      if (order !== -1) return false;
+      continue;
+    }
+    if (op === "<=") {
+      if (order > 0) return false;
+      continue;
+    }
+  }
+  return true;
+}
+__mods["upd-version-judgment"] = { RELEASE_CHANNELS, compareReleaseVersions, compareVersions, isPrereleaseVersion, isVersionAllowedInChannel, satisfiesDshRange, satisfiesNodeRange, updateError, validReleaseChannel, validReleaseVersion, validVersion };
 
 })();
 (function () {
@@ -463,7 +532,7 @@ __mods["upd-check-conclusion"] = { httpStatusOfError, installSourceOf, stableCod
 })();
 (function () {
 // AUTO-GENERATED by node build.mjs — DO NOT EDIT. Source: src/registry-fetch.ts
-const { isVersionAllowedInChannel, updateError, validReleaseVersion } = __mods["upd-version-judgment"];
+const { compareReleaseVersions, isVersionAllowedInChannel, updateError, validReleaseVersion } = __mods["upd-version-judgment"];
 const PACKAGE_NAME = "dsh-mattpocock-skills-deck";
 const NPM_REGISTRY = "https://registry.npmjs.org/";
 const CHECK_TIMEOUT_MS = 1e4;
@@ -561,6 +630,8 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
     const version = value.version;
     const nodeRange = value.engines?.node;
     if (nodeRange !== void 0 && typeof nodeRange !== "string") throw updateError("invalid-release");
+    const dshRange = value.engines?.dsh;
+    if (dshRange !== void 0 && typeof dshRange !== "string") throw updateError("invalid-release");
     const tarballText = value.dist?.tarball;
     const integrity = value.dist?.integrity;
     let tarball;
@@ -572,7 +643,13 @@ async function fetchNpmRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
     const registryOrigin = new URL(registry).origin;
     const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname.endsWith(tarballPathnameOf(targetName, version)) && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
     if (!shapeOk) throw updateError("invalid-release");
-    return { version, nodeRange: typeof nodeRange === "string" ? nodeRange : "*", integrity, tarball: tarball.href };
+    return {
+      version,
+      nodeRange: typeof nodeRange === "string" ? nodeRange : "*",
+      dshRange: typeof dshRange === "string" ? dshRange : "*",
+      integrity,
+      tarball: tarball.href
+    };
   } catch (error) {
     if (error?.code === "check-failed") throw error;
     if (error?.code === "invalid-release") throw error;
@@ -615,6 +692,8 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
     }
     const nodeRange = value.engines?.node;
     if (nodeRange !== void 0 && typeof nodeRange !== "string") throw updateError("invalid-release");
+    const dshRange = value.engines?.dsh;
+    if (dshRange !== void 0 && typeof dshRange !== "string") throw updateError("invalid-release");
     const tarballText = value.dist?.tarball;
     const integrity = value.dist?.integrity;
     let tarball;
@@ -626,7 +705,13 @@ async function fetchNpmVersionRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, o
     const registryOrigin = new URL(registry).origin;
     const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname.endsWith(tarballPathnameOf(targetName, version)) && typeof integrity === "string" && new RegExp(INTEGRITY_PATTERN).test(integrity);
     if (!shapeOk) throw updateError("invalid-release");
-    return { version, nodeRange: typeof nodeRange === "string" ? nodeRange : "*", integrity, tarball: tarball.href };
+    return {
+      version,
+      nodeRange: typeof nodeRange === "string" ? nodeRange : "*",
+      dshRange: typeof dshRange === "string" ? dshRange : "*",
+      integrity,
+      tarball: tarball.href
+    };
   } catch (error) {
     if (error?.code === "check-failed") throw error;
     if (error?.code === "invalid-release") throw error;
@@ -680,7 +765,81 @@ async function fetchPackumentTimes(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts
     throw checkFailedWithStatus(response);
   }
 }
-__mods["upd-registry-fetch"] = { CHECK_TIMEOUT_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY, PACKAGE_NAME, fetchNpmRelease, fetchNpmVersionRelease, fetchPackumentTimes };
+async function fetchNpmChannelRelease(fetchImpl, timeoutMs = CHECK_TIMEOUT_MS, opts) {
+  const targetName = opts?.targetPackageName ?? PACKAGE_NAME;
+  const registry = normalizeRegistry(opts?.registryUrl, NPM_REGISTRY);
+  const channel = opts?.releaseChannel === "prerelease" ? "prerelease" : "stable";
+  const noteFetch = makeFetchNoter(opts?.emitLog, opts?.registryHost);
+  let response = null;
+  const startedAt = Date.now();
+  try {
+    response = await fetchImpl(`${registry}${encodeURIComponent(targetName)}`, {
+      headers: { accept: "application/json" },
+      redirect: "error",
+      signal: timeoutSignal(timeoutMs)
+    });
+  } catch {
+    noteFetch(null, startedAt);
+    throw updateError("check-failed");
+  }
+  noteFetch(httpStatusOf(response), startedAt);
+  try {
+    if (!response.ok) throw checkFailedWithStatus(response);
+    const declared = Number(response.headers.get("content-length"));
+    if (Number.isFinite(declared) && declared > MAX_PACKUMENT_BYTES) throw updateError("invalid-release");
+    const text = await response.text();
+    if (byteLength(text) > MAX_PACKUMENT_BYTES) throw updateError("invalid-release");
+    const value = JSON.parse(text);
+    if (value.name !== targetName) throw updateError("invalid-release");
+    const versions = value.versions;
+    if (!versions || typeof versions !== "object") throw updateError("invalid-release");
+    const registryOrigin = new URL(registry).origin;
+    let best = null;
+    for (const [version, raw] of Object.entries(versions)) {
+      if (!validReleaseVersion(version) || !isVersionAllowedInChannel(version, channel)) continue;
+      if (!raw || typeof raw !== "object") continue;
+      const doc = raw;
+      if (typeof doc.deprecated === "string" && doc.deprecated.trim()) continue;
+      const nodeRange = doc.engines?.node;
+      if (nodeRange !== void 0 && typeof nodeRange !== "string") continue;
+      const dshRange = doc.engines?.dsh;
+      if (dshRange !== void 0 && typeof dshRange !== "string") continue;
+      const integrity = doc.dist?.integrity;
+      if (typeof integrity !== "string" || !new RegExp(INTEGRITY_PATTERN).test(integrity)) continue;
+      let tarball;
+      try {
+        tarball = new URL(String(doc.dist?.tarball));
+      } catch {
+        continue;
+      }
+      const shapeOk = tarball.origin === registryOrigin && !tarball.username && !tarball.password && !tarball.search && !tarball.hash && tarball.pathname.endsWith(tarballPathnameOf(targetName, version));
+      if (!shapeOk) continue;
+      const release = {
+        version,
+        nodeRange: typeof nodeRange === "string" ? nodeRange : "*",
+        dshRange: typeof dshRange === "string" ? dshRange : "*",
+        integrity,
+        tarball: tarball.href
+      };
+      if (!best) {
+        best = release;
+        continue;
+      }
+      try {
+        if (compareReleaseVersions(version, best.version) === 1) best = release;
+      } catch {
+      }
+    }
+    if (!best) throw withStage(updateError("invalid-release"), "channel");
+    return best;
+  } catch (error) {
+    if (error?.code === "check-failed") throw error;
+    if (error?.code === "invalid-release") throw error;
+    if (response !== null && response.ok) throw updateError("invalid-release");
+    throw checkFailedWithStatus(response);
+  }
+}
+__mods["upd-registry-fetch"] = { CHECK_TIMEOUT_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY, PACKAGE_NAME, fetchNpmChannelRelease, fetchNpmRelease, fetchNpmVersionRelease, fetchPackumentTimes };
 
 })();
 (function () {
@@ -695,11 +854,11 @@ function validRequestId(v) {
   if (/^(npm_|gh[pousr]_|github_pat_|sk-|bearer)/i.test(id)) return false;
   return true;
 }
-const { compareReleaseVersions, isVersionAllowedInChannel, satisfiesNodeRange, updateError, validReleaseVersion, validVersion } = __mods["upd-version-judgment"];
-const { compareVersions, compareReleaseVersions: compareReleaseVersions2, isPrereleaseVersion, isVersionAllowedInChannel: isVersionAllowedInChannel2, RELEASE_CHANNELS, satisfiesNodeRange: satisfiesNodeRange2, updateError: updateError2, validReleaseChannel, validReleaseVersion: validReleaseVersion2, validVersion: validVersion2 } = __mods["upd-version-judgment"];
+const { compareReleaseVersions, isVersionAllowedInChannel, satisfiesDshRange, satisfiesNodeRange, updateError, validReleaseVersion, validVersion } = __mods["upd-version-judgment"];
+const { compareVersions, compareReleaseVersions: compareReleaseVersions2, isPrereleaseVersion, isVersionAllowedInChannel: isVersionAllowedInChannel2, RELEASE_CHANNELS, satisfiesDshRange: satisfiesDshRange2, satisfiesNodeRange: satisfiesNodeRange2, updateError: updateError2, validReleaseChannel, validReleaseVersion: validReleaseVersion2, validVersion: validVersion2 } = __mods["upd-version-judgment"];
 const { httpStatusOfError, installSourceOf, stableCodeOf, stageOfError, triggerOf } = __mods["upd-check-conclusion"];
-const { CHECK_TIMEOUT_MS, NPM_REGISTRY, PACKAGE_NAME, fetchNpmRelease, fetchNpmVersionRelease, fetchPackumentTimes } = __mods["upd-registry-fetch"];
-const { CHECK_TIMEOUT_MS: CHECK_TIMEOUT_MS2, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY: NPM_REGISTRY2, PACKAGE_NAME: PACKAGE_NAME2, fetchNpmRelease: fetchNpmRelease2, fetchNpmVersionRelease: fetchNpmVersionRelease2, fetchPackumentTimes: fetchPackumentTimes2 } = __mods["upd-registry-fetch"];
+const { CHECK_TIMEOUT_MS, NPM_REGISTRY, PACKAGE_NAME, fetchNpmChannelRelease, fetchNpmRelease, fetchNpmVersionRelease, fetchPackumentTimes } = __mods["upd-registry-fetch"];
+const { CHECK_TIMEOUT_MS: CHECK_TIMEOUT_MS2, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY: NPM_REGISTRY2, PACKAGE_NAME: PACKAGE_NAME2, fetchNpmChannelRelease: fetchNpmChannelRelease2, fetchNpmRelease: fetchNpmRelease2, fetchNpmVersionRelease: fetchNpmVersionRelease2, fetchPackumentTimes: fetchPackumentTimes2 } = __mods["upd-registry-fetch"];
 const FALLBACK_SLOT_MAX = 16;
 const fallbackSlots = /* @__PURE__ */ new Map();
 let fallbackInstanceSeq = 0;
@@ -730,6 +889,43 @@ function createUpdateCore(ports) {
       emitLog: logPort ?? void 0,
       registryHost
     });
+  }
+  async function fetchEffectiveRelease(tolerateOutOfChannel = false) {
+    try {
+      return await fetchRelease(tolerateOutOfChannel);
+    } catch (error) {
+      if (stableCodeOf(error) !== "invalid-release" || stageOfError(error) !== "channel") throw error;
+      return fetchNpmChannelRelease(ports.fetchImpl, checkTimeoutMs, {
+        targetPackageName,
+        registryUrl,
+        releaseChannel,
+        emitLog: logPort ?? void 0,
+        registryHost
+      });
+    }
+  }
+  function readRunningVersionOf() {
+    try {
+      const value = ports.readRunningVersion();
+      return typeof value === "string" && value.trim() ? value.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+  function readDshVersionOf() {
+    try {
+      const read = ports.readDshVersion;
+      if (typeof read !== "function") return null;
+      const value = read();
+      return typeof value === "string" && value.trim() ? value.trim() : null;
+    } catch {
+      return null;
+    }
+  }
+  function postInstallStateOf(targetVersion, diskVersion) {
+    if (!targetVersion || diskVersion !== targetVersion) return "restart-required";
+    const runningVersion = readRunningVersionOf();
+    return runningVersion !== null && runningVersion === targetVersion ? "completed" : "restart-required";
   }
   let checked = null;
   const fallbackInstanceKey = `instance:${++fallbackInstanceSeq}`;
@@ -763,7 +959,7 @@ function createUpdateCore(ports) {
       blame: "target",
       targetVersion: decision.targetVersion ?? packument.latest,
       latestVersion: packument.latest,
-      runningVersion: ports.readRunningVersion(),
+      runningVersion: readRunningVersionOf(),
       releaseChannel,
       windowMs: decision.windowMs,
       windowSource: decision.windowSource,
@@ -819,31 +1015,34 @@ function createUpdateCore(ports) {
       if (!job.targetVersion || env.installedVersion !== job.targetVersion) {
         return { ...job, state: "interrupted", message: "installation-changed", requestId: job.requestId ?? null };
       }
-      const runningVersion = ports.readRunningVersion();
-      return { ...job, state: runningVersion === job.targetVersion ? "completed" : "restart-required", requestId: job.requestId ?? null };
+      return {
+        ...job,
+        state: postInstallStateOf(job.targetVersion, env.installedVersion),
+        requestId: job.requestId ?? null
+      };
     }
     return job;
   }
   function buildSnapshot(env, job) {
     const present = env.installed !== false;
+    const runningVersion = readRunningVersionOf();
     let blockedReason = present ? env.blockedReason ?? checked?.blockedReason ?? null : env.blockedReason ?? null;
     if (!present && blockedReason === null && checked?.release) {
       if (!isVersionAllowedInChannel(checked.release.version, releaseChannel)) blockedReason = "channel-mismatch";
     }
     if (job?.state === "interrupted" || job?.state === "failed") {
-      if (env.installedVersion !== ports.readRunningVersion()) blockedReason = "recovery-required";
-    } else if (job?.state === "restart-required" || env.installedVersion && env.installedVersion !== ports.readRunningVersion()) {
+      if (runningVersion !== null && env.installedVersion !== runningVersion) blockedReason = "recovery-required";
+    } else if (job?.state === "restart-required" || runningVersion !== null && env.installedVersion && env.installedVersion !== runningVersion) {
       blockedReason = "pending-restart";
     }
     const busy = job?.state === "installing" || job?.state === "verifying";
     const fresh = checked !== null && checked.checkId !== null && ports.now() < checked.expiresAt;
-    const runningVersion = ports.readRunningVersion();
     let newer = false;
     let remoteOk = false;
     try {
-      if (present) {
+      if (present && runningVersion !== null) {
         newer = isVersionAllowedInChannel(runningVersion, releaseChannel) && !!checked?.release && isVersionAllowedInChannel(checked.release.version, releaseChannel) && compareReleaseVersions(checked.release.version, runningVersion) === 1;
-      } else if (checked?.release) {
+      } else if (!present && checked?.release) {
         remoteOk = isVersionAllowedInChannel(checked.release.version, releaseChannel);
       }
     } catch {
@@ -853,6 +1052,16 @@ function createUpdateCore(ports) {
     const canInstall = Boolean(
       env.eligible && !blockedReason && !busy && fresh && checked?.installationKey === env.installationKey && (present ? newer : remoteOk)
     );
+    let identity = null;
+    if (!present) {
+      identity = env.registered === false ? "first-install" : null;
+    } else if (checked?.release && env.installedVersion) {
+      try {
+        identity = compareReleaseVersions(checked.release.version, env.installedVersion) === 1 ? "update" : "up-to-date";
+      } catch {
+        identity = null;
+      }
+    }
     const snapshot = {
       runningVersion,
       installed: present,
@@ -860,7 +1069,10 @@ function createUpdateCore(ports) {
       latestVersion: checked?.release.version ?? null,
       canInstall,
       blockedReason,
-      job
+      job,
+      identity,
+      // #190：在册事实进快照，单插件/批量面板才能不说满「重启宿主后生效」。未知为 null。
+      registered: env.registered ?? null
     };
     noteStatusChanged(snapshot);
     return snapshot;
@@ -868,6 +1080,7 @@ function createUpdateCore(ports) {
   function statusKindOf(snapshot) {
     if (!snapshot.latestVersion) return "unknown";
     if (snapshot.installed === false) return "update-available";
+    if (snapshot.runningVersion === null) return "unknown";
     try {
       const newer = isVersionAllowedInChannel(snapshot.runningVersion, releaseChannel) && isVersionAllowedInChannel(snapshot.latestVersion, releaseChannel) && compareReleaseVersions(snapshot.latestVersion, snapshot.runningVersion) === 1;
       return newer ? "update-available" : "up-to-date";
@@ -888,6 +1101,7 @@ function createUpdateCore(ports) {
     );
   }
   function noteChannelDecision(current, latest) {
+    if (current === null) return;
     const shapeOk = validVersion(current) && validVersion(latest);
     let reason;
     if (!shapeOk) reason = "invalid";
@@ -948,21 +1162,23 @@ function createUpdateCore(ports) {
       try {
         const env = await ports.readInstalled();
         const installedOutOfChannel = env.installed === false || !isVersionAllowedInChannel(env.installedVersion ?? "", releaseChannel);
-        const release2 = await fetchRelease(installedOutOfChannel);
+        const release2 = await fetchEffectiveRelease(installedOutOfChannel);
+        const dshOk = satisfiesDshRange(readDshVersionOf(), release2.dshRange);
         checked = {
           release: release2,
           checkId: ports.randomId(),
           checkedAt: ports.now(),
           expiresAt: ports.now() + confirmationTtlMs,
           installationKey: env.installationKey,
-          blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? null : "incompatible-node"
+          blockedReason: satisfiesNodeRange(ports.nodeVersion, release2.nodeRange) ? dshOk ? null : "incompatible-dsh" : "incompatible-node"
         };
         clearFallbackSlot(env.installationKey);
         const snapshot = buildSnapshot(env, await healedJob(env));
         noteChannelDecision(snapshot.runningVersion, release2.version);
         emit("info", "update.check.done", {
           ok: true,
-          current: snapshot.runningVersion,
+          // #182：运行版未知时省掉 current 格（省略本身即信息），绝不落伪造版本号。
+          ...snapshot.runningVersion === null ? {} : { current: snapshot.runningVersion },
           latest: release2.version,
           channel: releaseChannel,
           ...registryHost ? { source: registryHost } : {},
@@ -999,7 +1215,7 @@ function createUpdateCore(ports) {
     if (typeof resolve !== "function") throw updateError("unsupported");
     if (windowMs === null) {
       clearFallbackSlot(null);
-      return { verdict: resolve({ kind, blame, targetVersion: targetVersion ?? "", latestVersion: "", runningVersion: "", windowMs: null, windowSource, publishedAtMs, timeTable: {}, nowMs: ports.now() }), candidate: null, receipt: null };
+      return { verdict: resolve({ kind, blame, targetVersion: targetVersion ?? "", latestVersion: "", runningVersion: null, windowMs: null, windowSource, publishedAtMs, timeTable: {}, nowMs: ports.now() }), candidate: null, receipt: null };
     }
     if (blame !== "target") {
       clearFallbackSlot(null);
@@ -1033,10 +1249,18 @@ function createUpdateCore(ports) {
     });
     return { verdict, candidate: verdict.version, receipt: { checkId, checkedAt, expiresAt } };
   }
-  async function runBackground(job, envAtStart) {
+  async function runBackground(job, envAtStart, approvedBuilds) {
     let verifiedEnv = null;
     try {
-      if (ports.runInstall) await ports.runInstall({ version: job.targetVersion, profileName: envAtStart.profileName, environmentKind: envAtStart.environmentKind, releaseChannel });
+      if (ports.runInstall)
+        await ports.runInstall({
+          version: job.targetVersion,
+          profileName: envAtStart.profileName,
+          environmentKind: envAtStart.environmentKind,
+          releaseChannel,
+          // 批准构建名单（#194）：只在这次安装带过批准时出现；老调用形状一字不动。
+          ...approvedBuilds && approvedBuilds.length > 0 ? { approvedBuilds } : {}
+        });
       else throw updateError("unsupported");
       const doing = { ...job, state: "verifying", message: null };
       activeJobId = doing.id;
@@ -1048,16 +1272,22 @@ function createUpdateCore(ports) {
           detail: `\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1A\u78C1\u76D8\u4E0A\u662F ${env.installedVersion ?? "\u672A\u77E5"}\uFF0C\u76EE\u6807\u662F ${job.targetVersion ?? "\u672A\u77E5"}`
         });
       }
+      const registrationWasMissing = envAtStart.installed === true && envAtStart.registered === false;
+      if (env.registered === false && !registrationWasMissing) {
+        throw Object.assign(updateError("install-failed"), {
+          detail: "\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1Aprofile \u672A\u767B\u8BB0\u8BE5\u63D2\u4EF6\uFF08\u91CD\u542F\u540E\u4E0D\u4F1A\u52A0\u8F7D\uFF09"
+        });
+      }
       if (env.blockedReason && env.blockedReason !== "pending-restart") {
         throw Object.assign(updateError("install-failed"), { detail: `\u88C5\u5B8C\u6821\u9A8C\u6CA1\u8FC7\uFF1A\u73AF\u5883\u62A5\u544A ${env.blockedReason}` });
       }
-      const done = { ...doing, state: "restart-required", message: null };
+      const state = postInstallStateOf(job.targetVersion, env.installedVersion);
+      const done = { ...doing, state, message: null };
       await saveJob(done);
-      const pendingRestart = ports.readRunningVersion() !== job.targetVersion;
       emit("info", "update.install.verify", {
-        result: pendingRestart ? "restart-required" : "completed",
+        result: state,
         ...env.installedVersion ? { installedVersion: env.installedVersion } : {},
-        pendingRestart
+        pendingRestart: state === "restart-required"
       });
     } catch (error) {
       const code = error?.code;
@@ -1088,15 +1318,23 @@ function createUpdateCore(ports) {
     if (!slot || slot.version !== version || !slot.checkId || slot.checkId !== ctx.checkId || ports.now() >= slot.expiresAt) {
       throw updateError("check-expired");
     }
+    refuseNoopInstall(version, ctx.env);
     if (ctx.env.installationKey !== slot.installationKey) throw updateError("installation-changed");
     if (!ctx.env.eligible || ctx.env.blockedReason) throw updateError(ctx.env.blockedReason ?? "update-busy");
-    const runningVersion = ports.readRunningVersion();
-    if (!validReleaseVersion(runningVersion) || compareReleaseVersions(version, runningVersion) !== 1) {
+    const runningVersion = readRunningVersionOf();
+    if (runningVersion === null) {
+      if (ctx.env.installed !== false) {
+        const installed = ctx.env.installedVersion;
+        if (typeof installed !== "string" || !validReleaseVersion(installed) || compareReleaseVersions(version, installed) !== 1) {
+          throw updateError("installation-changed");
+        }
+      }
+    } else if (!validReleaseVersion(runningVersion) || compareReleaseVersions(version, runningVersion) !== 1) {
       throw updateError("installation-changed");
     }
     emit("info", "update.install.request", {
       from: installSourceOf(ctx.from),
-      current: runningVersion,
+      ...runningVersion === null ? {} : { current: runningVersion },
       latest: version,
       checkAgeMs: Math.max(0, ports.now() - slot.checkedAt)
     });
@@ -1122,13 +1360,14 @@ function createUpdateCore(ports) {
       });
       if (JSON.stringify(current) !== JSON.stringify(slot.release)) throw updateError("check-expired");
       const env = await ports.readInstalled();
+      refuseNoopInstall(version, env);
       if (env.installationKey !== slot.installationKey) throw updateError("installation-changed");
       if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
       rememberPreviousVersion(job, env);
       if (ports.backupJob) await ports.backupJob(job);
       await saveJob(job);
       activeJobId = job.id;
-      void runBackground(job, env).catch(() => {
+      void runBackground(job, env, ctx.approvedBuilds).catch(() => {
       });
       return buildSnapshot(env, job);
     } catch (error) {
@@ -1136,10 +1375,18 @@ function createUpdateCore(ports) {
       throw error;
     }
   }
+  function refuseNoopInstall(targetVersion, env) {
+    if (env.installed !== true || typeof env.installedVersion !== "string") return;
+    if (compareReleaseVersions(targetVersion, env.installedVersion) !== 0) return;
+    throw Object.assign(updateError("installation-changed"), {
+      detail: "\u76EE\u6807\u7248\u672C\u4E0E\u5DF2\u88C5\u7248\u672C\u76F8\u540C\uFF0C\u65E0\u9700\u5B89\u88C5"
+    });
+  }
   async function install(args) {
     const checkId = typeof args?.checkId === "string" ? args.checkId : "";
     const requestId = typeof args?.requestId === "string" ? args.requestId : "";
     if (!checkId || !validRequestId(requestId)) throw updateError("check-expired");
+    const approvedBuilds = Array.isArray(args?.approvedBuilds) ? args.approvedBuilds.filter((name) => typeof name === "string" && name) : [];
     let env = await ports.readInstalled();
     let previous = healJob(await loadJob(), env);
     if (previous?.requestId === requestId) return buildSnapshot(env, previous);
@@ -1147,19 +1394,21 @@ function createUpdateCore(ports) {
       throw updateError("update-busy");
     }
     const wantedVersion = typeof args?.version === "string" && args.version ? args.version : null;
-    if (wantedVersion) return installCandidate(wantedVersion, { checkId, requestId, from: args?.from, env, previous });
+    if (wantedVersion) return installCandidate(wantedVersion, { checkId, requestId, from: args?.from, env, previous, approvedBuilds });
     if (!checked || !checked.checkId || checked.checkId !== checkId || ports.now() >= checked.expiresAt) {
       throw updateError("check-expired");
     }
+    refuseNoopInstall(checked.release.version, env);
     if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
     const snap = buildSnapshot(env, previous);
     if (!snap.canInstall) {
       if (!snap.installed) throw updateError(snap.blockedReason ?? checked.blockedReason ?? "check-expired");
       throw updateError(env.blockedReason ?? checked.blockedReason ?? "update-busy");
     }
+    const currentRunningVersion = readRunningVersionOf();
     emit("info", "update.install.request", {
       from: installSourceOf(args?.from),
-      current: ports.readRunningVersion(),
+      ...currentRunningVersion === null ? {} : { current: currentRunningVersion },
       latest: checked.release.version,
       checkAgeMs: Math.max(0, ports.now() - checked.checkedAt)
     });
@@ -1172,9 +1421,10 @@ function createUpdateCore(ports) {
     };
     if (!await acquire(job.id)) throw updateError("update-busy");
     try {
-      const current = await fetchRelease();
+      const current = await fetchEffectiveRelease();
       if (JSON.stringify(current) !== JSON.stringify(checked.release)) throw updateError("check-expired");
       env = await ports.readInstalled();
+      refuseNoopInstall(checked.release.version, env);
       if (env.installationKey !== checked.installationKey) throw updateError("installation-changed");
       if (!env.eligible || env.blockedReason) throw updateError(env.blockedReason ?? "update-busy");
       rememberPreviousVersion(job, env);
@@ -1185,13 +1435,13 @@ function createUpdateCore(ports) {
       await release(job.id);
       throw error;
     }
-    void runBackground(job, env).catch(() => {
+    void runBackground(job, env, approvedBuilds.length > 0 ? approvedBuilds : void 0).catch(() => {
     });
     return buildSnapshot(env, job);
   }
   return { status, check, install, checkFallback };
 }
-__mods["upd-service"] = { CHECK_TIMEOUT_MS: CHECK_TIMEOUT_MS2, CONFIRMATION_TTL_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY: NPM_REGISTRY2, PACKAGE_NAME: PACKAGE_NAME2, RECHECK_WINDOW_MS, RELEASE_CHANNELS, __resetFallbackSlots, compareReleaseVersions: compareReleaseVersions2, compareVersions, createUpdateCore, fetchNpmRelease: fetchNpmRelease2, fetchNpmVersionRelease: fetchNpmVersionRelease2, fetchPackumentTimes: fetchPackumentTimes2, isPrereleaseVersion, isVersionAllowedInChannel: isVersionAllowedInChannel2, satisfiesNodeRange: satisfiesNodeRange2, updateError: updateError2, validReleaseChannel, validReleaseVersion: validReleaseVersion2, validRequestId, validVersion: validVersion2 };
+__mods["upd-service"] = { CHECK_TIMEOUT_MS: CHECK_TIMEOUT_MS2, CONFIRMATION_TTL_MS, INTEGRITY_PATTERN, MAX_METADATA_BYTES, NPM_REGISTRY: NPM_REGISTRY2, PACKAGE_NAME: PACKAGE_NAME2, RECHECK_WINDOW_MS, RELEASE_CHANNELS, __resetFallbackSlots, compareReleaseVersions: compareReleaseVersions2, compareVersions, createUpdateCore, fetchNpmChannelRelease: fetchNpmChannelRelease2, fetchNpmRelease: fetchNpmRelease2, fetchNpmVersionRelease: fetchNpmVersionRelease2, fetchPackumentTimes: fetchPackumentTimes2, isPrereleaseVersion, isVersionAllowedInChannel: isVersionAllowedInChannel2, satisfiesDshRange: satisfiesDshRange2, satisfiesNodeRange: satisfiesNodeRange2, updateError: updateError2, validReleaseChannel, validReleaseVersion: validReleaseVersion2, validRequestId, validVersion: validVersion2 };
 
 })();
 (function () {
@@ -1378,6 +1628,9 @@ const BILINGUAL_STRINGS = {
   "batch-entry.label.update": { en: "{count} updates available", zh: "{count} \u4E2A\u53EF\u66F4\u65B0", draft: true },
   "batch-entry.label.busy": { en: "Installing\u2026", zh: "\u6B63\u5728\u5B89\u88C5\u2026", draft: true },
   "batch-entry.label.restart": { en: "{count} restarts required", zh: "{count} \u4E2A\u5F85\u91CD\u542F", draft: true },
+  // #190：未登记的行重启也不会加载，入口摘要不许把它们算进「待重启」。
+  "batch-entry.label.restart-unregistered": { en: "{count} installed, not registered", zh: "{count} \u4E2A\u5DF2\u88C5\u672A\u767B\u8BB0\uFF08\u91CD\u542F\u4E0D\u4F1A\u52A0\u8F7D\uFF09", draft: true },
+  "batch-entry.label.restart-mixed": { en: "{count} restarts required, {unregistered} not registered", zh: "{count} \u4E2A\u5F85\u91CD\u542F\uFF0C{unregistered} \u4E2A\u672A\u767B\u8BB0", draft: true },
   "batch-entry.label.failed": { en: "{count} failed \u2014 View details", zh: "{count} \u4E2A\u5931\u8D25\uFF0C\u8BF7\u67E5\u770B\u8BE6\u60C5", draft: true },
   "batch-entry.action.checking": { en: "Checking for updates\u2026", zh: "\u6B63\u5728\u67E5\u8BE2\u7248\u672C\u4FE1\u606F\u2026", draft: true },
   "panel.blocked.unknown-profile.title": { en: "Unrecognized scope or plugin location", zh: "\u65E0\u6CD5\u8BC6\u522B\u4F7F\u7528\u8303\u56F4\u6216\u63D2\u4EF6\u5B89\u88C5\u4F4D\u7F6E", draft: true },
@@ -1389,13 +1642,15 @@ const BILINGUAL_STRINGS = {
   "panel.blocked.invalid-installation.title": { en: "Installed package is incomplete (name mismatch, invalid version, or missing entry file)", zh: "\u5DF2\u5B89\u88C5\u5305\u7ED3\u6784\u4E0D\u5B8C\u6574\uFF08\u5305\u540D / \u7248\u672C\u53F7 / \u5165\u53E3\u6587\u4EF6\u5F02\u5E38\uFF09", draft: true },
   "panel.blocked.invalid-installation.action": { en: "Reinstall the current version to repair the install directory, then check again.", zh: "\u91CD\u65B0\u5B89\u88C5\u5F53\u524D\u7248\u672C\u4EE5\u4FEE\u590D\u5B89\u88C5\u76EE\u5F55\uFF0C\u7136\u540E\u91CD\u65B0\u67E5\u8BE2\u66F4\u65B0", draft: true },
   "panel.blocked.installation-changed.title": { en: "Install location changed during use (directory or package changed)", zh: "\u5B89\u88C5\u4F4D\u7F6E\u53D1\u751F\u53D8\u66F4\uFF08\u76EE\u5F55\u6216\u5305\u4F53\u4E0D\u4E00\u81F4\uFF09", draft: true },
-  "panel.blocked.installation-changed.action": { en: "Reopen the host and check again; if it persists, reinstall.", zh: "\u91CD\u542F\u5BBF\u4E3B\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u91CD\u65B0\u5B89\u88C5", draft: true },
+  "panel.blocked.installation-changed.action": { en: "Reopen the host and check again; if it says you are already up to date, nothing to do; if it persists, reinstall.", zh: "\u91CD\u542F\u5BBF\u4E3B\u540E\u91CD\u65B0\u67E5\u8BE2\uFF1B\u82E5\u8BF4\u660E\u5DF2\u662F\u6700\u65B0\u5219\u65E0\u9700\u64CD\u4F5C\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u91CD\u65B0\u5B89\u88C5", draft: true },
   "panel.blocked.pending-restart.title": { en: "New version is on disk; the running instance is still the old version", zh: "\u65B0\u7248\u672C\u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u5F53\u524D\u8FD0\u884C\u4ECD\u4E3A\u65E7\u7248\u672C", draft: true },
   "panel.blocked.pending-restart.action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\u4EE5\u52A0\u8F7D\u65B0\u7248\u672C\uFF1B\u6B64\u4E3A\u6B63\u5E38\u72B6\u6001\uFF0C\u975E\u5B89\u88C5\u5931\u8D25", draft: true },
   "panel.blocked.registry-conflict.title": { en: "Declared version conflicts with the version on disk", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
   "panel.blocked.registry-conflict.action": { en: "Open the scope manifest and set the target package line to the version number, then retry.", zh: "\u6838\u5BF9\u4F7F\u7528\u8303\u56F4\u6E05\u5355\u6587\u4EF6\u4E2D\u76EE\u6807\u5305\u7684\u7248\u672C\u58F0\u660E\uFF0C\u4FEE\u6B63\u540E\u91CD\u8BD5", draft: true },
   "panel.blocked.incompatible-node.title": { en: "Required Node version does not match the running Node", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
   "panel.blocked.incompatible-node.action": { en: "Upgrade Node to 22 or later, then check again.", zh: "\u8BF7\u5347\u7EA7 Node \u81F3 22 \u6216\u66F4\u9AD8\u7248\u672C\u540E\u91CD\u65B0\u67E5\u8BE2", draft: true },
+  "panel.blocked.incompatible-dsh.title": { en: "New version requires a newer DSH runtime", zh: "\u65B0\u7248\u672C\u8981\u6C42\u66F4\u9AD8\u7684\u5BBF\u4E3B\u8FD0\u884C\u65F6\u7248\u672C", draft: true },
+  "panel.blocked.incompatible-dsh.action": { en: "The running DSH does not satisfy the new version; upgrade DSH first, then update.", zh: "\u5F53\u524D\u5BBF\u4E3B\u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u6EE1\u8DB3\u65B0\u7248\u672C\u8981\u6C42\uFF0C\u8BF7\u5148\u5347\u7EA7\u5BBF\u4E3B\u518D\u66F4\u65B0", draft: true },
   "panel.blocked.recovery-required.title": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
   "panel.blocked.recovery-required.action": { en: "Run install once more; if it persists, follow section 6 to troubleshoot.", zh: "\u91CD\u65B0\u6267\u884C\u5B89\u88C5\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u6309\u7B2C 6 \u8282\u6392\u9519", draft: true },
   "panel.blocked.dev-source.title": { en: "Dev-mode source link, update center unavailable", zh: "\u5F00\u53D1\u6001\u6302\u8F7D\uFF08\u6E90\u7801\u94FE\u63A5\uFF09\uFF0C\u66F4\u65B0\u4E2D\u5FC3\u4E0D\u53EF\u7528", draft: true },
@@ -1441,12 +1696,20 @@ const BILINGUAL_STRINGS = {
   "panel.skip.skipped-title": { en: "Skipped {latest}", zh: "\u5DF2\u8DF3\u8FC7\u7248\u672C {latest}", draft: true },
   "panel.skip.skipped-action": { en: "Select \u201CRestore\u201D to be reminded of this version again; newer versions will still notify.", zh: "\u9009\u62E9\u300C\u6062\u590D\u63D0\u9192\u300D\u53EF\u91CD\u65B0\u63D0\u9192\u8BE5\u7248\u672C\uFF1B\u66F4\u65B0\u7684\u7248\u672C\u4ECD\u4F1A\u6B63\u5E38\u63D0\u9192\u3002", draft: true },
   "panel.banner.restart-title": { en: "Version {latest} is installed; restart the host to take effect.", zh: "\u65B0\u7248\u672C {latest} \u5DF2\u5B89\u88C5\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
+  // #190：在册事实为 false 时不能说满——重启宿主也不会加载未登记的插件。
+  "panel.banner.restart-unregistered-title": { en: "Version {latest} is on disk, but this plugin is not registered in the scope selection, so restarting the host will not load it.", zh: "\u65B0\u7248\u672C {latest} \u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u4F46\u8BE5\u63D2\u4EF6\u672A\u767B\u8BB0\u5728\u4F7F\u7528\u8303\u56F4\u6E05\u5355\uFF0C\u91CD\u542F\u5BBF\u4E3B\u4E5F\u4E0D\u4F1A\u52A0\u8F7D\u3002", draft: true },
+  "panel.banner.restart-unregistered-action": { en: "Select this plugin in the host plugin page first, then restart the host to load the new version.", zh: "\u8BF7\u5148\u5728\u5BBF\u4E3B\u63D2\u4EF6\u9875\u9009\u4E2D\u8BE5\u63D2\u4EF6\uFF0C\u518D\u91CD\u542F\u5BBF\u4E3B\u4EE5\u52A0\u8F7D\u65B0\u7248\u672C\u3002", draft: true },
   "panel.banner.installing-title": { en: "Installing {version}\u2026 Closing the panel won\u2019t interrupt it.", zh: "\u6B63\u5728\u5B89\u88C5 {version}\u2026\u5173\u95ED\u9762\u677F\u4E0D\u4F1A\u4E2D\u65AD\u3002", draft: true },
   "panel.banner.installing-action": { en: "Progress refreshes automatically; reopening the panel restores the view within a second.", zh: "\u8FDB\u5EA6\u5C06\u81EA\u52A8\u8F6E\u8BE2\u5237\u65B0\uFF1B\u91CD\u65B0\u6253\u5F00\u9762\u677F\u5C06\u5728 1 \u79D2\u5185\u6062\u590D\u663E\u793A\u3002", draft: true },
   "panel.action.installing": { en: "Installing\u2026", zh: "\u6B63\u5728\u5B89\u88C5\u2026", draft: true },
   "panel.banner.update-title": { en: "Update available: {latest} (current: {running}).", zh: "\u6709\u65B0\u7248\u672C {latest} \u53EF\u5B89\u88C5\uFF08\u5F53\u524D\u7248\u672C {running}\uFF09\u3002", draft: true },
   "panel.banner.update-action": { en: "Install runs the exact version; only one install runs per scope at a time.", zh: "\u9009\u62E9\u5B89\u88C5\u5C06\u6309\u7CBE\u786E\u7248\u672C\u5B89\u88C5\uFF1B\u540C\u4E00\u4F7F\u7528\u8303\u56F4\u540C\u65F6\u4EC5\u5B89\u88C5\u4E00\u9879\u3002", draft: true },
+  "panel.banner.unknown-running-title": { en: "Running version unknown; cannot tell whether an update is available.", zh: "\u8FD0\u884C\u7248\u672C\u672A\u77E5\uFF0C\u65E0\u6CD5\u5224\u65AD\u662F\u5426\u6709\u65B0\u7248\u53EF\u88C5\u3002", draft: true },
+  "panel.banner.unknown-running-action": { en: "Check the plugin version in the host manifest and reopen the host, then check again.", zh: "\u8BF7\u68C0\u67E5\u5BBF\u4E3B\u6E05\u5355\u91CC\u7684\u63D2\u4EF6\u7248\u672C\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u91CD\u65B0\u67E5\u8BE2", draft: true },
   "panel.action.install-version": { en: "Install {latest}", zh: "\u5B89\u88C5\u7248\u672C {latest}", draft: true },
+  "panel.banner.first-install-title": { en: "First install: {latest} (new dependency).", zh: "\u9996\u6B21\u5B89\u88C5 {latest}\uFF08\u65B0\u589E\u4F9D\u8D56\uFF09\u3002", draft: true },
+  "panel.banner.first-install-action": { en: "Restart the host after installing for it to load.", zh: "\u88C5\u5B8C\u9700\u8981\u91CD\u542F\u5BBF\u4E3B\u624D\u4F1A\u52A0\u8F7D\u3002", draft: true },
+  "panel.action.first-install-version": { en: "Install {latest} (first time)", zh: "\u9996\u6B21\u5B89\u88C5 {latest}", draft: true },
   "panel.banner.update-gated-title": { en: "Version {latest} was just published and is still gated ({unlock}); installing now will fail \u2014 use Install fallback build below if you cannot wait.", zh: "\u65B0\u7248\u672C {latest} \u521A\u53D1\u5E03\u672A\u6EE1\u95E8\uFF0C{unlock}\u53EF\u88C5\uFF1B\u73B0\u5728\u70B9\u5B89\u88C5\u4F1A\u5931\u8D25\uFF0C\u7B49\u4E0D\u53CA\u53EF\u5148\u88C5\u5408\u89C4\u7248\u3002", draft: true },
   "panel.action.install-gated-title": { en: "Come back {unlock} to install {latest}; it is still gated and would fail now.", zh: "{unlock}\u518D\u6765\u88C5 {latest} \u5427\uFF0C\u73B0\u5728\u88C5\u4F1A\u88AB\u95E8\u62E6\u4F4F\u3002", draft: true },
   "panel.banner.done": { en: "Up to date. No update needed.", zh: "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002", draft: true },
@@ -1542,6 +1805,8 @@ const BILINGUAL_STRINGS = {
   "panel.error.log-follow": { en: "Match the request/check IDs above in {eFail}; baseline timing in {eCall}, execution result in {eExec}.", zh: "\u51ED\u4E0A\u65B9\u8BF7\u6C42\uFF0F\u68C0\u67E5\u7F16\u53F7\u5728 {eFail} \u4E2D\u5339\u914D\uFF1B\u57FA\u7EBF\u8017\u65F6\u8BF7\u67E5\u770B {eCall}\uFF0C\u6267\u884C\u7ED3\u679C\u8BF7\u67E5\u770B {eExec}\u3002", draft: true },
   "panel.manual.heading": { en: "Manual fallback command (copy the full line to run):", zh: "\u624B\u5DE5\u5907\u7528\u547D\u4EE4\uFF08\u8BF7\u590D\u5236\u6574\u884C\u6267\u884C\uFF09\uFF1A", draft: true },
   "panel.manual.absent": { en: "No manual command available (unrecognized scope or source install).", zh: "\u5F53\u524D\u6CA1\u6709\u53EF\u7528\u7684\u624B\u5DE5\u547D\u4EE4\uFF08\u4F7F\u7528\u8303\u56F4\u65E0\u6CD5\u8BC6\u522B\u6216\u6E90\u7801\u5B89\u88C5\u573A\u666F\u4E0D\u63D0\u4F9B\uFF09\u3002", draft: true },
+  "panel.manual.updater-nested": { en: "This panel runs a nested copy of the updater ({version}), pinned by the plugin that declares it; update that plugin first (this panel picks up a newer updater only after that plugin widens its range). You can also install the updater at the profile level with the carrier CLI so other plugins sharing that copy get the fixes first: {command}", zh: "\u672C\u9762\u677F\u7684\u66F4\u65B0\u5668\u662F\u5D4C\u5957\u526F\u672C\uFF08{version}\uFF09\uFF0C\u7531\u58F0\u660E\u5B83\u7684\u63D2\u4EF6\u9489\u4F4F\uFF1B\u8BF7\u5148\u66F4\u65B0\u90A3\u4E2A\u63D2\u4EF6\uFF08\u5B83\u53D1\u7248\u62AC\u4E86\u4F9D\u8D56\u8303\u56F4\u540E\uFF0C\u672C\u9762\u677F\u624D\u4F1A\u6362\u65B0\uFF09\u3002\u4E5F\u53EF\u7528\u8F7D\u4F53\u547D\u4EE4\u884C\u628A\u66F4\u65B0\u5668\u88C5\u5230\u4F7F\u7528\u8303\u56F4\u7EA7\uFF0C\u8BA9\u5171\u7528\u90A3\u4E00\u4EFD\u7684\u5176\u4ED6\u63D2\u4EF6\u5148\u62FF\u5230\u4FEE\u590D\uFF1A{command}", draft: true },
+  "panel.manual.updater-nested-nocmd": { en: "This panel runs a nested copy of the updater ({version}), pinned by the plugin that declares it; update that plugin first (this panel picks up a newer updater only after that plugin widens its range).", zh: "\u672C\u9762\u677F\u7684\u66F4\u65B0\u5668\u662F\u5D4C\u5957\u526F\u672C\uFF08{version}\uFF09\uFF0C\u7531\u58F0\u660E\u5B83\u7684\u63D2\u4EF6\u9489\u4F4F\uFF1B\u8BF7\u5148\u66F4\u65B0\u90A3\u4E2A\u63D2\u4EF6\uFF08\u5B83\u53D1\u7248\u62AC\u4E86\u4F9D\u8D56\u8303\u56F4\u540E\uFF0C\u672C\u9762\u677F\u624D\u4F1A\u6362\u65B0\uFF09\u3002", draft: true },
   "panel.footer.note": { en: "Closing never interrupts updates; come back anytime", zh: "\u5173\u95ED\u7A97\u53E3\uFF0C\u66F4\u65B0\u4E0D\u53D7\u5F71\u54CD\uFF0C\u53EF\u968F\u65F6\u8FD4\u56DE\u67E5\u770B\u3002", draft: true },
   "panel.footer.close": { en: "Close", zh: "\u5173\u95ED", draft: true },
   "panel.footer.close-title": { en: "Close the window; updates keep running", zh: "\u5173\u95ED\u7A97\u53E3\uFF0C\u66F4\u65B0\u4E0D\u53D7\u5F71\u54CD", draft: true },
@@ -1575,6 +1840,7 @@ const BILINGUAL_STRINGS = {
   "panel.diag.copy.field.request": { en: "Request={request}", zh: "\u8BF7\u6C42={request}", draft: true },
   "panel.diag.copy.field.check": { en: "Check={check}", zh: "\u68C0\u67E5={check}", draft: true },
   "panel.diag.copy.field.queue": { en: "Queue={queue}", zh: "\u961F\u5217={queue}", draft: true },
+  "panel.diag.copy.field.updater": { en: "Updater={version} ({level})", zh: "\u66F4\u65B0\u5668={version}\uFF08{level}\uFF09", draft: true },
   "panel.diag.copy.field.target": { en: "Target={version}", zh: "\u76EE\u6807={version}", draft: true },
   "panel.diag.copy.line.summary": { en: "Summary={summary}", zh: "\u6458\u8981={summary}", draft: true },
   "panel.diag.copy.line.remedy": { en: "Remedy={remedy}", zh: "\u600E\u4E48\u529E={remedy}", draft: true },
@@ -1603,6 +1869,7 @@ const BILINGUAL_STRINGS = {
   "batch.summary.installing": { en: "{n} installing", zh: "{n} \u4E2A\u5B89\u88C5\u4E2D", draft: true },
   "batch.summary.pending": { en: "{n} not checked", zh: "{n} \u4E2A\u5F85\u67E5\u8BE2", draft: true },
   "batch.summary.restart": { en: "{n} restart required", zh: "{n} \u4E2A\u5F85\u91CD\u542F", draft: true },
+  "batch.summary.restart-unregistered": { en: "{n} not registered (restarting will not load them)", zh: "\u53E6\u6709 {n} \u4E2A\u672A\u767B\u8BB0\uFF0C\u91CD\u542F\u4E0D\u4F1A\u52A0\u8F7D", draft: true },
   "batch.summary.failed": { en: "{n} failed", zh: "{n} \u4E2A\u5931\u8D25", draft: true },
   "batch.summary.skipped": { en: "{n} skipped", zh: "{n} \u4E2A\u5DF2\u8DF3\u8FC7", draft: true },
   "batch.summary.settled": { en: "{n} up to date", zh: "{n} \u4E2A\u5DF2\u662F\u6700\u65B0", draft: true },
@@ -1622,6 +1889,8 @@ const BILINGUAL_STRINGS = {
   "batch.hint.failed": { en: "{n} failed to install; retry each one from the failure notes below.", zh: "{n} \u4E2A\u63D2\u4EF6\u5B89\u88C5\u5931\u8D25\uFF1B\u8BF7\u6309\u4E0B\u65B9\u5931\u8D25\u63D0\u793A\u9010\u9879\u91CD\u8BD5\u3002", draft: true },
   "batch.hint.updatable": { en: "{n} updates available; select \u201CUpdate all\u201D to install at once, or install each one inline.", zh: "{n} \u4E2A\u53EF\u66F4\u65B0\uFF1B\u8BF7\u9009\u62E9\u300C\u5168\u90E8\u66F4\u65B0\u300D\u4E00\u6B21\u5B89\u88C5\u5B8C\u6210\uFF0C\u4E5F\u53EF\u9010\u9879\u9009\u62E9\u300C\u5B89\u88C5\u6B64\u63D2\u4EF6\u300D\u3002", draft: true },
   "batch.hint.restart": { en: "{n} installed; restart the host to take effect.", zh: "{n} \u4E2A\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
+  // #190：全部未登记时重启不会加载，一句话总账不许落到「已全部为最新」。
+  "batch.hint.restart-unregistered": { en: "{n} installed but not registered; restarting the host will not load them.", zh: "{n} \u4E2A\u5DF2\u5B89\u88C5\u4F46\u672A\u767B\u8BB0\uFF0C\u91CD\u542F\u5BBF\u4E3B\u4E0D\u4F1A\u52A0\u8F7D\u3002", draft: true },
   "batch.hint.pending": { en: "{n} not checked yet; select \u201CCheck for updates\u201D for a round.", zh: "{n} \u4E2A\u5C1A\u672A\u67E5\u8BE2\uFF1B\u8BF7\u9009\u62E9\u300C\u68C0\u67E5\u66F4\u65B0\u300D\u67E5\u8BE2\u4E00\u8F6E\u3002", draft: true },
   "batch.hint.done": { en: "All up to date; nothing to do.", zh: "\u5DF2\u5168\u90E8\u4E3A\u6700\u65B0\uFF0C\u65E0\u9700\u64CD\u4F5C\u3002", draft: true },
   "batch.seal.ledger": { en: "Ledger", zh: "\u603B\u8D26", draft: true },
@@ -1638,6 +1907,10 @@ const BILINGUAL_STRINGS = {
   "batch.banner.failed-title": { en: "{n} failed to install.", zh: "{n} \u4E2A\u63D2\u4EF6\u5B89\u88C5\u5931\u8D25\u3002", draft: true },
   "batch.banner.failed-action": { en: "Retry each one inline; if it keeps failing, send the copied diagnostics to the plugin author.", zh: "\u8BF7\u9010\u5BB6\u4F7F\u7528\u884C\u5185\u300C\u91CD\u8BD5\u300D\uFF1B\u82E5\u6301\u7EED\uFF0C\u8BF7\u63D0\u4EA4\u8BCA\u65AD\u4FE1\u606F\u81F3\u63D2\u4EF6\u4F5C\u8005\u3002", draft: true },
   "batch.banner.restart-title": { en: "{n} installed; restart the host to take effect.", zh: "{n} \u4E2A\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
+  // #190：在册事实为 false 的行重启也不会加载——横幅分别计数，不再把「重启后生效」说满。
+  "batch.banner.restart-partial-title": { en: "{n} installed and will take effect after restart; {m} not registered (restarting will not load them).", zh: "\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF1A{n} \u4E2A\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\uFF0C{m} \u4E2A\u672A\u767B\u8BB0\uFF08\u91CD\u542F\u4E0D\u4F1A\u52A0\u8F7D\uFF09\u3002", draft: true },
+  "batch.banner.restart-unregistered-title": { en: "Installed, but these plugins are not registered; restarting the host will not load them.", zh: "\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF0C\u4F46\u8FD9\u4E9B\u63D2\u4EF6\u672A\u767B\u8BB0\uFF0C\u91CD\u542F\u5BBF\u4E3B\u4E5F\u4E0D\u4F1A\u52A0\u8F7D\u3002", draft: true },
+  "batch.banner.restart-unregistered-hint": { en: "Unregistered plugins: select them in the host plugin page first; they will load after restart.", zh: "\u672A\u767B\u8BB0\u7684\u884C\uFF1A\u8BF7\u5148\u5728\u5BBF\u4E3B\u63D2\u4EF6\u9875\u9009\u4E2D\u8BE5\u63D2\u4EF6\uFF0C\u91CD\u542F\u540E\u624D\u4F1A\u52A0\u8F7D\u3002", draft: true },
   "batch.banner.restart-action": { en: "Restart the host to run the new version; this is a normal end state, not a failure.", zh: "\u91CD\u542F\u5BBF\u4E3B\u4EE5\u52A0\u8F7D\u65B0\u7248\u672C\uFF1B\u6B64\u4E3A\u6B63\u5E38\u72B6\u6001\uFF0C\u975E\u5B89\u88C5\u5931\u8D25\u3002", draft: true },
   "batch.banner.restart-button": { en: "Please restart DSH", zh: "\u8BF7\u91CD\u542FDSH", draft: true },
   "batch.row.queued-generic": { en: "Queued \xB7 waiting for the running install to finish", zh: "\u5DF2\u6392\u961F \xB7 \u7B49\u5F85\u524D\u65B9\u5B89\u88C5\u5B8C\u6210", draft: true },
@@ -1649,6 +1922,8 @@ const BILINGUAL_STRINGS = {
   "batch.row.cta-generic": { en: "Select \u201CInstall this plugin\u201D to install the new version", zh: "\u9009\u62E9\u300C\u5B89\u88C5\u6B64\u63D2\u4EF6\u300D\u5B89\u88C5\u65B0\u7248\u672C", draft: true },
   "batch.row.installing": { en: "Installing; please wait", zh: "\u6B63\u5728\u5B89\u88C5\uFF0C\u8BF7\u52FF\u64CD\u4F5C\u3002", draft: true },
   "batch.row.done-restart": { en: "Installed; restart the host to take effect", zh: "\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF0C\u91CD\u542F\u5BBF\u4E3B\u540E\u751F\u6548\u3002", draft: true },
+  "batch.row.done-restart-unregistered": { en: "Installed; not registered (restart will not load it). Select it in the host plugin page first.", zh: "\u5DF2\u5B89\u88C5\uFF0C\u672A\u767B\u8BB0\uFF08\u91CD\u542F\u4E0D\u4F1A\u52A0\u8F7D\uFF09\uFF1B\u8BF7\u5148\u5728\u5BBF\u4E3B\u63D2\u4EF6\u9875\u9009\u4E2D\u8BE5\u63D2\u4EF6", draft: true },
+  "batch.row.unregistered-suffix": { en: " (not registered)", zh: "\uFF08\u672A\u767B\u8BB0\uFF09", draft: true },
   "batch.row.done": { en: "Installed; nothing to do", zh: "\u5DF2\u5B89\u88C5\u5B8C\u6210\uFF0C\u65E0\u9700\u64CD\u4F5C\u3002", draft: true },
   "batch.row.failed-retry": { en: "Install failed; select \u201CRetry\u201D to try again", zh: "\u5B89\u88C5\u5931\u8D25\uFF0C\u8BF7\u9009\u62E9\u300C\u91CD\u8BD5\u300D\u3002", draft: true },
   "batch.row.skipped-idle": { en: "This version is skipped; nothing to do", zh: "\u8BE5\u7248\u672C\u5DF2\u8DF3\u8FC7\uFF0C\u65E0\u9700\u64CD\u4F5C\u3002", draft: true },
@@ -1711,6 +1986,7 @@ const BILINGUAL_STRINGS = {
   "diag.fallback.installation-changed": { en: "Install location changed during use", zh: "\u5B89\u88C5\u4F4D\u7F6E\u53D1\u751F\u53D8\u66F4", draft: true },
   "diag.fallback.pending-restart": { en: "New version is on disk. The running version is still the old one.", zh: "\u65B0\u7248\u672C\u5DF2\u5199\u5165\u78C1\u76D8\uFF0C\u5F53\u524D\u8FD0\u884C\u4ECD\u4E3A\u65E7\u7248\u672C", draft: true },
   "diag.fallback.incompatible-node": { en: "New version needs a different Node version than the running one", zh: "Node \u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
+  "diag.fallback.incompatible-dsh": { en: "New version needs a newer DSH runtime than the running one", zh: "\u5BBF\u4E3B\u8FD0\u884C\u65F6\u7248\u672C\u4E0D\u517C\u5BB9", draft: true },
   "diag.fallback.registry-conflict": { en: "Declared version conflicts with the on-disk version", zh: "\u7248\u672C\u58F0\u660E\u4E0E\u78C1\u76D8\u5B9E\u9645\u7248\u672C\u51B2\u7A81", draft: true },
   "diag.fallback.recovery-required": { en: "Last install was interrupted, leaving a partial task", zh: "\u4E0A\u6B21\u5B89\u88C5\u5F02\u5E38\u4E2D\u65AD\uFF0C\u5B58\u5728\u672A\u5B8C\u6210\u4EFB\u52A1", draft: true },
   "diag.fallback.dev-source": { en: "Dev-mode source link; update center unavailable", zh: "\u5F00\u53D1\u6001\u6E90\u7801\u94FE\u63A5\uFF0C\u66F4\u65B0\u4E2D\u5FC3\u4E0D\u53EF\u7528", draft: true },
@@ -3242,6 +3518,8 @@ const BLOCKED_REASONS = [
   "pending-restart",
   "registry-conflict",
   "incompatible-node",
+  // #195：远端包声明的 engines.dsh 不满足当前 DSH 运行时版本（只在拿得到当前 DSH 版本时判）。
+  "incompatible-dsh",
   "recovery-required",
   "dev-source"
 ];
@@ -3738,6 +4016,7 @@ const BLOCKED_KEYS = {
   "pending-restart": { title: "panel.blocked.pending-restart.title", action: "panel.blocked.pending-restart.action" },
   "registry-conflict": { title: "panel.blocked.registry-conflict.title", action: "panel.blocked.registry-conflict.action" },
   "incompatible-node": { title: "panel.blocked.incompatible-node.title", action: "panel.blocked.incompatible-node.action" },
+  "incompatible-dsh": { title: "panel.blocked.incompatible-dsh.title", action: "panel.blocked.incompatible-dsh.action" },
   "recovery-required": { title: "panel.blocked.recovery-required.title", action: "panel.blocked.recovery-required.action" },
   "dev-source": { title: "panel.blocked.dev-source.title", action: "panel.blocked.dev-source.action" }
 };
@@ -3812,6 +4091,18 @@ const PANEL_DIAG_MAX_CHARS = COPY_BUDGET_CHARS;
 function redactForCopy(text) {
   return sanitizeForCopy(text);
 }
+function updaterPartsOf(updater) {
+  if (!updater || typeof updater !== "object") return null;
+  const version = typeof updater.version === "string" && updater.version.trim() ? updater.version.trim() : null;
+  if (!version) return null;
+  const level = typeof updater.level === "string" && updater.level.trim() ? updater.level.trim() : "unknown";
+  return { version, level };
+}
+function updaterFieldText(updater, lang) {
+  const parts = updaterPartsOf(updater);
+  if (!parts) return null;
+  return copyText("panel.diag.copy.field.updater", lang, { version: parts.version, level: parts.level });
+}
 function buildDiagnosticText(input, langOverride) {
   const l = normalizeLangTag(langOverride ?? input.lang ?? "zh");
   const unknown = copyText("panel.diag.copy.unknown", l);
@@ -3830,6 +4121,8 @@ function buildDiagnosticText(input, langOverride) {
   const hostLine = [copyText("panel.diag.label.host", l, { host: input.hostKind ?? unknown })];
   if (typeof input.profileName === "string" && input.profileName) hostLine.push(copyText("panel.diag.label.profile", l, { profile: input.profileName }));
   hostLine.push(copyText("panel.diag.label.queue", l, { queue }));
+  const updaterLine = updaterFieldText(input.updater, l);
+  if (updaterLine) hostLine.push(updaterLine);
   lines.push(hostLine.join(" / ") + (input.requestId ? ` / ${copyText("panel.diag.label.request", l, { requestId: input.requestId })}` : ""));
   const manual = redactForCopy(input.manual ?? "");
   if (manual) lines.push(copyText("panel.diag.label.manual", l, { manual }));
@@ -3960,6 +4253,8 @@ function buildUpdateDiagCopy(input, langOverride) {
   if (typeof requestRaw === "string" && requestRaw.trim()) prov.push(copyText("panel.diag.copy.field.request", l, { request: requestRaw.trim() }));
   if (typeof checkRaw === "string" && checkRaw.trim()) prov.push(copyText("panel.diag.copy.field.check", l, { check: checkRaw.trim() }));
   prov.push(copyText("panel.diag.copy.field.queue", l, { queue }));
+  const updaterText = updaterFieldText(input.updater, l);
+  if (updaterText) prov.push(updaterText);
   const format = input.format === "line" ? "line" : "block";
   const provLine = redactForCopy(prov.join(" \xB7 "));
   if (format === "line") {
@@ -3977,7 +4272,8 @@ function buildUpdateDiagCopy(input, langOverride) {
 function buildHealthyDiagCopy(input) {
   const l = normalizeLangTag(input.lang ?? "zh");
   const notInstalledWord = input.installed === false ? copyText("panel.banner.not-installed", l) : null;
-  const stateLine = input.canInstall && input.latestVersion ? `\u6709\u65B0\u7248 ${input.latestVersion} \u53EF\u88C5\uFF08\u5F53\u524D ${notInstalledWord ?? input.runningVersion}\uFF09` : notInstalledWord ?? "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002";
+  const runningWord = input.runningVersion ?? copyText("panel.meta.unknown", l);
+  const stateLine = input.canInstall && input.latestVersion ? `\u6709\u65B0\u7248 ${input.latestVersion} \u53EF\u88C5\uFF08\u5F53\u524D ${notInstalledWord ?? runningWord}\uFF09` : input.installed !== false && input.runningVersion === null ? "\u8FD0\u884C\u7248\u672C\u672A\u77E5\uFF0C\u65E0\u6CD5\u5224\u65AD\u662F\u5426\u6709\u65B0\u7248\u53EF\u88C5\u3002" : notInstalledWord ?? "\u5DF2\u662F\u6700\u65B0\uFF0C\u65E0\u9700\u66F4\u65B0\u3002";
   const queueName = queueTextOf(input.queuePosition ?? null, l);
   const envBits = [
     `\u63D2\u4EF6=${input.pluginId}`,
@@ -3987,14 +4283,16 @@ function buildHealthyDiagCopy(input) {
   ];
   if (input.requestId) envBits.push(`\u8BF7\u6C42=${input.requestId}`);
   if (input.checkId) envBits.push(`\u68C0\u67E5=${input.checkId}`);
+  const updaterLine = updaterFieldText(input.updater, l);
+  if (updaterLine) envBits.push(updaterLine);
   const segs = [
     `[update-diag] \u5F53\u524D\u65E0\u5931\u8D25\uFF1A${stateLine}`,
-    `\u7248\u672C\uFF1A\u8FD0\u884C ${input.runningVersion}\uFF0F\u78C1\u76D8 ${input.installedVersion ?? "\u672A\u77E5"}\uFF0F\u8FDC\u7AEF ${input.latestVersion ?? "\u672A\u67E5\u8FC7"}`,
+    `\u7248\u672C\uFF1A\u8FD0\u884C ${input.runningVersion ?? "\u672A\u77E5"}\uFF0F\u78C1\u76D8 ${input.installedVersion ?? "\u672A\u77E5"}\uFF0F\u8FDC\u7AEF ${input.latestVersion ?? "\u672A\u67E5\u8FC7"}`,
     `\u6765\u6E90\uFF1A${envBits.join(" \xB7 ")}`
   ].map((s) => redactForCopy(s));
   return input.format === "line" ? segs.join(" \xB7 ") : segs.join("\n");
 }
-__mods["upd-panel-copy"] = { PANEL_DIAG_MAX_CHARS, blockedCopy, buildDiagnosticText, buildHealthyDiagCopy, buildUpdateDiagCopy, causeRemedyText, failureCodeOf, failureCopy, isKnownFailureCode, queueTextOf, readDiagTolerant, redactForCopy, replyIsCheckExpired, thrownIsCheckExpired };
+__mods["upd-panel-copy"] = { PANEL_DIAG_MAX_CHARS, blockedCopy, buildDiagnosticText, buildHealthyDiagCopy, buildUpdateDiagCopy, causeRemedyText, failureCodeOf, failureCopy, isKnownFailureCode, queueTextOf, readDiagTolerant, redactForCopy, replyIsCheckExpired, thrownIsCheckExpired, updaterPartsOf };
 
 })();
 (function () {
@@ -4121,6 +4419,7 @@ function themeTokensStyleFor(tokens) {
   return parts.join(";");
 }
 const { PANEL_DIAG_MAX_CHARS, blockedCopy, buildHealthyDiagCopy, buildUpdateDiagCopy, failureCodeOf, failureCopy, redactForCopy, replyIsCheckExpired, thrownIsCheckExpired } = __mods["upd-panel-copy"];
+const { updaterPartsOf } = __mods["upd-panel-copy"];
 const { PANEL_DIAG_MAX_CHARS: PANEL_DIAG_MAX_CHARS2, blockedCopy: blockedCopy2, buildDiagnosticText, buildHealthyDiagCopy: buildHealthyDiagCopy2, buildUpdateDiagCopy: buildUpdateDiagCopy2, causeRemedyText, failureCodeOf: failureCodeOf2, failureCopy: failureCopy2, isKnownFailureCode, readDiagTolerant: readDiagTolerant2, redactForCopy: redactForCopy2, replyIsCheckExpired: replyIsCheckExpired2, thrownIsCheckExpired: thrownIsCheckExpired2 } = __mods["upd-panel-copy"];
 const PANEL_SKIPPED_MAX = 50;
 function panelSkipKey(pluginId) {
@@ -4346,13 +4645,14 @@ function panelViewModelCore(input, lang) {
   }
   if (snapshot.blockedReason === "pending-restart") {
     const latest = snapshot.latestVersion ?? snapshot.installedVersion ?? "";
+    const unregistered = snapshot.registered === false;
     return {
       banner: {
         kind: "restart",
         // 文案照原型（archive.html:329）：不带 emoji——警示由横幅左侧的手绘 SVG 标承担，
         // 印章在状态一侧，两者各司其职，不再三重标记。
-        title: copyText("panel.banner.restart-title", l, { latest }),
-        action: blockedCopy("pending-restart", l)?.action ?? ""
+        title: unregistered ? copyText("panel.banner.restart-unregistered-title", l, { latest }) : copyText("panel.banner.restart-title", l, { latest }),
+        action: unregistered ? copyText("panel.banner.restart-unregistered-action", l) : blockedCopy("pending-restart", l)?.action ?? ""
       },
       installEnabled: false,
       installLabel: copyText("panel.action.install", l),
@@ -4379,8 +4679,38 @@ function panelViewModelCore(input, lang) {
       queueNote
     };
   }
+  if (snapshot.installed !== false && snapshot.runningVersion === null) {
+    return {
+      banner: {
+        kind: "blocked",
+        title: copyText("panel.banner.unknown-running-title", l),
+        action: copyText("panel.banner.unknown-running-action", l)
+      },
+      installEnabled: false,
+      installLabel: copyText("panel.action.install", l),
+      skippedLatest: false,
+      showManual: manual ? true : false,
+      showReset: false,
+      queueNote
+    };
+  }
   if (snapshot.canInstall && snapshot.latestVersion) {
-    const running = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.runningVersion;
+    if (snapshot.identity === "first-install") {
+      return {
+        banner: {
+          kind: "update",
+          title: copyText("panel.banner.first-install-title", l, { latest: snapshot.latestVersion }),
+          action: copyText("panel.banner.first-install-action", l)
+        },
+        installEnabled: true,
+        installLabel: copyText("panel.action.first-install-version", l, { latest: snapshot.latestVersion }),
+        skippedLatest: false,
+        showManual: manual ? true : false,
+        showReset: false,
+        queueNote
+      };
+    }
+    const running = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.runningVersion ?? copyText("panel.meta.unknown", l);
     if (gated) {
       const unlock = formatUnlockAt(gated.unlockAtMs, l) ?? "";
       return {
@@ -4530,6 +4860,10 @@ const UPDATE_PANEL_CSS = [
   // 右下角独立 footer 区（#47 定案 A）：与第一章 actions 脱钩，右对齐，一次找到。
   ".dsh-upd-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:14px;padding-top:10px;border-top:1px solid var(--dsh-update-border,#e5e7eb)}",
   ".dsh-upd-foot-note{margin-right:auto;font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.7}",
+  // 更新器自检（#196）：页脚里一行机读事实（品牌名 + 版本 + 层级 token），字号更小、等宽、弱化。
+  ".dsh-upd-updater-note{font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap}",
+  ".dsh-upd-updater-id{margin-top:8px;font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.55;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}",
+  ".dsh-upd-updater-nested{margin-top:8px;font-size:var(--dsh-update-panel-small-font-size,12px);opacity:.8;line-height:1.5;word-break:break-word}",
   ".dsh-upd-footer button{margin:0}",
   ".dsh-upd-chap-head{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}",
   ".dsh-upd-chap-no{font-size:var(--dsh-update-panel-chapter-font-size,13px);font-style:italic;opacity:.6}",
@@ -4563,6 +4897,8 @@ const UPDATE_PANEL_CSS = [
   "@keyframes dsh-upd-shimmer{to{background-position:-200% 0}}",
   ".dsh-upd-tag{display:inline-block;border:1px dashed currentColor;border-radius:3px;padding:1px 8px;margin-right:8px;font-family:Consolas,Menlo,monospace;font-size:var(--dsh-update-panel-small-font-size,12px)}",
   ".dsh-upd-err{font-size:var(--dsh-update-panel-log-font-size,13px);margin:0 0 6px}",
+  // —— 04 错误信息长行换行（#199）：日志/错误行补换行契约，与版本号/状态列同风格；纵滚区横向裁断不动 ——
+  ".dsh-upd-log,.dsh-upd-err{overflow-wrap:anywhere}",
   // —— 全按钮交互反馈（#36：悬停/按下/过渡/在途忙态；浅深双主题通用写法，不碰上面的既有串）——
   ".dsh-upd button{transition:background-color .15s ease,border-color .15s ease,color .15s ease,transform .06s ease}",
   ".dsh-upd button:hover:not(:disabled){border-color:var(--dsh-update-focus,#2563eb)}",
@@ -4948,6 +5284,21 @@ function progressBar(snapshot, lang) {
   const text = state === "installing" ? copyText("panel.progress.installing", l) : copyText("panel.progress.verifying", l);
   return `<div class="dsh-upd-prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${width}"><i class="dsh-upd-prog-bar" style="width:${width}%"></i></div><div class="dsh-upd-progtxt">${escapeHtml(text)}</div>`;
 }
+function updaterIdentityOf(input) {
+  const parts = updaterPartsOf(input.updater);
+  return parts ? `dsh-plugin-update@${parts.version} (${parts.level})` : null;
+}
+function updaterSelfOfEnv(env) {
+  const uv = env["updaterVersion"];
+  const ul = env["updaterCopyLevel"];
+  if (typeof uv !== "string" || !uv.trim()) return null;
+  return { version: uv.trim(), level: typeof ul === "string" && ul.trim() ? ul.trim() : "unknown" };
+}
+function selfUpgradeCommandOf(profileName) {
+  const profile = typeof profileName === "string" ? profileName.trim() : "";
+  if (!profile) return null;
+  return `dsh plugin --profile ${profile} add --save-exact dsh-plugin-update@latest`;
+}
 function renderUpdatePanelKernel(input, view, lang) {
   const { snapshot, manual, queue, mode, showOthers, pluginId, copyNotice } = input;
   const l = normalizeLangTag(lang ?? input.lang ?? "zh");
@@ -5049,7 +5400,7 @@ function renderUpdatePanelKernel(input, view, lang) {
           hasLog = false;
         } else {
           const changelogHTML = renderChangelogHTML(ranged, { lang: l, truncated: report.truncation });
-          const fromText = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : String(snapshot.runningVersion ?? "");
+          const fromText = snapshot.installed === false ? copyText("panel.banner.not-installed", l) : snapshot.runningVersion ?? copyText("panel.meta.unknown", l);
           const toText = String(snapshot.latestVersion ?? "");
           const rangeTitle = fromText && toText ? copyText("panel.changelog.heading-range", l, { from: fromText, to: toText }) : copyText("panel.changelog.heading", l);
           let yankedBanner = "";
@@ -5188,18 +5539,24 @@ ${changelogHTML}
     else errLines.push('<div class="dsh-upd-copy dsh-upd-copy--empty" aria-hidden="true"></div>');
     chapters.push(chapterOf(4, errLines.join(""), "", l));
   }
-  chapters.push(
-    chapterOf(
-      5,
-      view.showManual && manual ? `<div class="dsh-upd-manual"><div>${escapeHtml(copyText("panel.manual.heading", l))}</div><code>${escapeHtml(manual)}</code></div>` : `<div class="dsh-upd-manual"><div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.manual.absent", l))}</div></div>`,
-      "",
-      l
-    )
-  );
+  let manualHtml = view.showManual && manual ? `<div class="dsh-upd-manual"><div>${escapeHtml(copyText("panel.manual.heading", l))}</div><code>${escapeHtml(manual)}</code></div>` : `<div class="dsh-upd-manual"><div class="dsh-upd-changelog-neutral">${escapeHtml(copyText("panel.manual.absent", l))}</div></div>`;
+  const selfParts = updaterPartsOf(input.updater);
+  if (selfParts && selfParts.level === "nested") {
+    const command = selfUpgradeCommandOf(profileName);
+    manualHtml += `<div class="dsh-upd-updater-nested">` + escapeHtml(
+      command ? copyText("panel.manual.updater-nested", l, { version: selfParts.version, command }) : copyText("panel.manual.updater-nested-nocmd", l, { version: selfParts.version })
+    ) + `</div>`;
+  }
+  const updaterIdentity = updaterIdentityOf(input);
+  const footerRendersIdentity = showActions && mode === "dialog";
+  if (updaterIdentity && !footerRendersIdentity) {
+    manualHtml += `<div class="dsh-upd-updater-id">${escapeHtml(updaterIdentity)}</div>`;
+  }
+  chapters.push(chapterOf(5, manualHtml, "", l));
   parts.push('<div class="dsh-upd-body">' + chapters.join("\n") + "</div>");
   if (showActions && mode === "dialog") {
     parts.push(
-      '<div class="dsh-upd-footer"><span class="dsh-upd-foot-note">' + escapeHtml(copyText("panel.footer.note", l)) + `</span><button type="button" data-action="close-view" title="${escapeHtml(copyText("panel.footer.close-title", l))}">${escapeHtml(copyText("panel.footer.close", l))}</button></div>`
+      '<div class="dsh-upd-footer"><span class="dsh-upd-foot-note">' + escapeHtml(copyText("panel.footer.note", l)) + "</span>" + (updaterIdentity ? `<span class="dsh-upd-updater-note">${escapeHtml(updaterIdentity)}</span>` : "") + `<button type="button" data-action="close-view" title="${escapeHtml(copyText("panel.footer.close-title", l))}">${escapeHtml(copyText("panel.footer.close", l))}</button></div>`
     );
   }
   return parts.join("\n");
@@ -5230,7 +5587,7 @@ function isObject(value) {
 function asSnapshot(value) {
   if (!isObject(value)) return null;
   const s = value;
-  if (typeof s["runningVersion"] !== "string") return null;
+  if (s["runningVersion"] !== null && typeof s["runningVersion"] !== "string") return null;
   if (typeof s["canInstall"] !== "boolean") return null;
   return value;
 }
@@ -5689,6 +6046,7 @@ function mountUpdatePanel(container, options) {
   let mounted = true;
   let envProfileName = null;
   let envHostKind = null;
+  let envUpdater = null;
   function sayCopy(text) {
     copyNotice = text;
   }
@@ -5877,6 +6235,8 @@ function mountUpdatePanel(container, options) {
       // 使用范围与宿主种类：调用方显式传的优先，否则用宿主回的真值。
       profileName: profileNameOption ?? envProfileName,
       hostKind: hostKind ?? envHostKind,
+      // 更新器自检（#196）：宿主 includeEnv 回的真值；旧宿主不给就省略（老输出一字不差）。
+      updater: envUpdater,
       // 日志目录（#123）：挂载项给的真值；没给就由错误章路牌退回算式与命令模板。
       logDir: logDirOption
     });
@@ -5906,6 +6266,8 @@ function mountUpdatePanel(container, options) {
         const hk = env["environmentKind"];
         if (typeof pn === "string" && pn.trim()) envProfileName = pn.trim();
         if (typeof hk === "string" && hk.trim()) envHostKind = hk.trim();
+        const selfView = updaterSelfOfEnv(env);
+        if (selfView) envUpdater = selfView;
       }
       const jobState = snapshot?.job?.state ?? null;
       if (jobState === "installing" || jobState === "verifying") {
@@ -5941,6 +6303,8 @@ function mountUpdatePanel(container, options) {
           const hk = env["environmentKind"];
           if (typeof pn === "string" && pn.trim()) envProfileName = pn.trim();
           if (typeof hk === "string" && hk.trim()) envHostKind = hk.trim();
+          const selfView = updaterSelfOfEnv(env);
+          if (selfView) envUpdater = selfView;
         }
       } catch {
       }
@@ -6296,6 +6660,7 @@ function mountUpdatePanel(container, options) {
             profileName: profileNameOption ?? envProfileName,
             requestId,
             checkId: receipt?.checkId ?? null,
+            updater: envUpdater,
             format: diagCopyFormat,
             lang: currentLang()
           });
@@ -6329,6 +6694,7 @@ function mountUpdatePanel(container, options) {
           route: null,
           diag: frozen?.diag ?? null,
           manual,
+          updater: envUpdater,
           format: diagCopyFormat,
           lang: currentLang()
         });
@@ -6538,6 +6904,8 @@ function hasUpdateOf(snapshot) {
   if (!snapshot) return false;
   const latest = snapshot.latestVersion;
   if (typeof latest !== "string" || !latest.trim()) return false;
+  if (snapshot.installed === false) return true;
+  if (snapshot.runningVersion === null) return false;
   return latest.trim() !== snapshot.runningVersion;
 }
 function entryStateKind(state) {
@@ -6672,7 +7040,7 @@ function isObject(value) {
 }
 function asSnapshot(value) {
   if (!isObject(value)) return null;
-  if (typeof value["runningVersion"] !== "string") return null;
+  if (value["runningVersion"] !== null && typeof value["runningVersion"] !== "string") return null;
   if (typeof value["canInstall"] !== "boolean") return null;
   return value;
 }
@@ -20905,7 +21273,7 @@ const STORAGE_KEY = 'dsh.opencode-palette.v2';
 const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2';
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true };
 // 构建时由 scripts/build-client.ts 替换为 package.json 版本（面板底部署小字）
-const PALETTE_VERSION = '2.1.3';
+const PALETTE_VERSION = '2.1.4';
 function getReact() {
     if (typeof require === 'function') {
         try {
@@ -21299,7 +21667,7 @@ function createClient(slotTarget) {
             timer: { timeout: function (fn, ms) { return setTimeout(fn, ms); } },
             storage: (globalThis.localStorage ? globalThis.localStorage : null),
         }, { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX });
-        // ── 检查更新：dsh-plugin-update@0.18.11 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
+        // ── 检查更新：dsh-plugin-update@0.18.24 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
         // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
         // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
         // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）

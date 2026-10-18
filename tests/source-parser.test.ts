@@ -30,7 +30,7 @@ function readNormalized(file: string): string {
 // bundler 实际吃到的是 emit 形态。UNHANDLED 检查按同一条规则投影，才对得上真实输入。
 // 注意：这只是手写投影、不读 dist；真实 dist 输入的最终防线是 build 后的 verify:artifacts 与
 // panel-render 的产物加载用例（#106 §3.4：单测不假装是产物门禁）。
-// runtime 仍是 .mjs，没有 .ts 说明符，改写对它是空操作。
+// runtime 与引擎一样已是 .ts，它的相对说明符同样按 '.ts' → '.js' 投影。
 function emitLine(line: string): string {
   return line.replace(/(['"])((?:\.{1,2}\/)[^'"]+)\.ts\1/g, '$1$2.js$1')
 }
@@ -86,7 +86,7 @@ test('tsc 默认 emit 风格：双引号 + 行尾分号 + .js（C-lite 前置）
   assert.deepEqual(parseLine('export const BAR = 1;'), { type: 'export', kind: 'const', name: 'BAR', strippedLine: 'const BAR = 1;' })
   assert.deepEqual(parseLine('export function foo() {};'), { type: 'export', kind: 'function', name: 'foo', strippedLine: 'function foo() {};' })
   assert.deepEqual(parseLine('export { a, b };'), { type: 're-export', names: ['a', 'b'] })
-  // 迁移后只可能是 .js；.mjs 仍要认（现有运行时/引擎互引就是 .mjs）
+  // 构建输入只可能是 tsc emit 的 .js；手写的 .mjs 旧形态仍要认（迁移前冻结 fixture，见下文 LEGACY）
   assert.deepEqual(parseLine("import { x } from './dep.mjs';"), { type: 'js-import', names: 'x', specifier: 'dep' })
 })
 
@@ -114,7 +114,7 @@ test('非语句行不误伤', () => {
 })
 
 test('迁移前 .mjs 旧风格样本行：parseLine 与改造前内联正则逐字段一致', () => {
-  // 样本取自迁移前 runtime/client.mjs 与 src/engine/*.mjs 的真实行形态（旧风格冻结 fixture）。
+  // 样本取自迁移前手写运行时与引擎源码的真实行形态（旧风格冻结 fixture）。
   const samples = [
     "import { createClient } from 'dsh-log/client'",
     "import { FONTS } from './engine/map-dsh.mjs'",

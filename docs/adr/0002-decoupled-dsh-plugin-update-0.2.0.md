@@ -2,6 +2,10 @@
 
 Status: accepted
 
+> 注（2026-10-18，全仓 TypeScript 化之后）：本文命令与断言里的 `scripts/check-deps.mjs` /
+> `scripts/build-client.mjs` / `tests/update-panel.test.mjs` 已随源码迁移改名为 `.ts` 同名文件
+> （语义与操作步骤不变；迁移决策见 [ADR 0003](0003-typescript-migration.md)）。
+
 ## Context
 
 0001 为绕开 0.1.x 的自锚定缺陷（`containingPackage(import.meta.url)` 从更新包自己的文件位置

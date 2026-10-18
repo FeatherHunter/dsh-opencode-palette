@@ -3,7 +3,7 @@
  *
  * 最小集成后只测外部行为（产物与电话行为），不测实现细节：
  *   一、入口件行为（桩宿主＋替身容器）：文案唯一出处 entryLabelFor 五态、状态优先级、
- *      15 码中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
+ *      已知失败码（更新包导出码表）中文映射与未来码兜底、挂载默认（button 进面静默查、无新版不弹窗由包内保证）；
  *   二、接线一致性：通道常量单一真源、产物里不写死电话名、入口件闭包内联、无 vendor、
  *      产物声明双写一致、宿主有几个电话注册几个；
  *   三、宿主半真机式冒烟：假 connection 装配 runtime/host.ts → 路由注册对 → 电话分派能落到
@@ -38,6 +38,10 @@ const { buildPhoneNames } = await import(
 // 电话名派生（两侧共用同一套拼法；浏览器 bundle 内由入口件现算，不写字面量）。
 const { buildClientPhoneNames } = await import(
   pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'client.js')).href
+)
+// 失败码表也从更新包导出直取（不手抄：上游新增码时本文件自动跟上）。
+const { BLOCKED_REASONS, PHONE_FAILURE_CODES, INTERNAL_CODE } = await import(
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'codes.js')).href
 )
 
 const PHONES = buildClientPhoneNames('palette')
@@ -111,12 +115,8 @@ test('入口件：五态文案唯一出处（中文照包原文）', () => {
   assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，请查看详情')
 })
 
-test('入口件：九种 blocked 都有中文 title＋action（用户该做什么）', () => {
-  const codes = [
-    'unknown-profile', 'channel-mismatch', 'source-install', 'invalid-installation', 'installation-changed',
-    'pending-restart', 'registry-conflict', 'incompatible-node', 'recovery-required',
-  ]
-  for (const code of codes) {
+test('入口件：全部 blocked 码都有中文 title＋action（用户该做什么）', () => {
+  for (const code of BLOCKED_REASONS as string[]) {
     assert.equal(isKnownFailureCode(code), true, code + ' 应为已知码')
     const copy = failureCopy(code)
     assert.ok(copy && typeof copy.zh === 'string' && copy.zh.length > 0, code + ' 缺中文标题')
@@ -126,7 +126,7 @@ test('入口件：九种 blocked 都有中文 title＋action（用户该做什�
 })
 
 test('入口件：电话失败码与 internal 全中文，未来码兜底并带原码', () => {
-  for (const code of ['check-failed', 'invalid-release', 'check-expired', 'update-busy', 'install-failed', 'internal']) {
+  for (const code of [...(PHONE_FAILURE_CODES as string[]), INTERNAL_CODE as string]) {
     assert.equal(isKnownFailureCode(code), true, code + ' 应为已知码')
     assert.ok(failureCopy(code).zh.length > 0, code + ' 缺中文')
   }
@@ -247,7 +247,7 @@ test('接线：包版产物声明两个运行时依赖与 node >=22.18.0', () =>
     files?: string[]
   }
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.11' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.24' })
   assert.equal(pkg.engines?.node, '>=22.18.0', '更新包 0.18.x 要求 node >=22.18.0')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
