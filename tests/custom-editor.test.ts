@@ -35,6 +35,12 @@ import {
 } from '../runtime/custom-store.ts'
 import { UI_FX_CSS, UI_STYLE_ATTR, injectUiFx, TIER_CHIP, TIER_BUTTON, TIER_ROW, TIER_SWATCH, TIER_INPUT, TIER_SWITCH } from '../runtime/ui-fx.ts'
 
+// ── #114：C 类源码代理断言清理说明 ──
+// 本文件保留的源码级断言只有 #106 认可的 B 类（数据字面量、负断言），不再 pin「出现过 / 计数 / 片段」。
+// 能升级为执行级的一律走渲染结果（如 textMuted 载体计数、旧空值钩子绝迹）；交互态（Popover 状态机、
+// 悬浮绑定、滚动测量）没有自动执行入口，删除处注释写明「无自动替代（需真 DOM，手工 scratch 不入库）」。
+// 具体逐条处置见 #114 的 resolution comment。
+
 // 测试用假 localStorage：只实现断言用到的那几个方法。
 interface TestStorage {
   getItem(key: string): string | null
@@ -655,13 +661,10 @@ test('#88 弹窗：可点控件全挂动效钩子，37 色块走 swatch 档', ()
   const swatches = (html.match(/data-palette-interactive="swatch"/g) || []).length
   assert.ok(swatches >= 37, '37 色块必须走 swatch 档，实测：' + swatches)
   assert.ok((html.match(/data-palette-interactive="button"/g) || []).length >= 3, '外观分段/关闭/保存等按钮走 button 档')
-  const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
-  assert.ok(src.includes('UI_INTERACTIVE_ATTR'), '弹窗源码必须消费钩子属性')
-  // 预置载入胶囊只在载入 Popover 展开时渲染，SSR 渲不到 → 档位用源码级断言守（不空转）
-  assert.ok(src.includes('TIER_CHIP'), '预置载入胶囊应走 chip 档')
-  for (const tier of ['TIER_SWATCH', 'TIER_BUTTON', 'TIER_INPUT']) {
-    assert.ok(src.includes(tier), '弹窗源码缺档位使用：' + tier)
-  }
+  // #114：原「源码里出现过 UI_INTERACTIVE_ATTR / TIER_*」的代理断言删除（见文件头 #114 说明）。
+  // 钩子属性由上面的渲染断言证明被真实消费；档位常量（chip/swatch/button/input/switch）由
+  // 「#95 PalettePicker —— 结构部件齐全」的渲染结果断言覆盖（改档位会红）；预置载入胶囊只在展开时
+  // 渲染，无 SSR 入口，其档位与 #95 同源常量。
 })
 
 // ── 原型像素口径审计（custom-editor-83.prototype.html 逐字对齐）──
@@ -679,7 +682,8 @@ test('原型口径：顶栏/rleft/输入/徽标/syslabel 与弹窗定位字面�
   assert.ok(html.includes('color:#F0F0F0'), 'syslabel 回落纯色（原型 :100）')
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("maxWidth: '230px'"), '基底下拉 max-width 230（原型 :94，编辑态才渲染故走源码断言）')
-  assert.equal((src.match(/position: 'fixed', zIndex: 60/g) || []).length, 2, '调色板+预置弹窗均为 fixed（原型 .pop :185）')
+  // #114：原「position: 'fixed', zIndex: 60 出现 2 次」计数断言删除——调色板/预置 Popover 是运行时
+  // 交互态，SSR 渲不到，没有可执行的替代断言（覆盖层口径另见本文件原型审计用例）。
   // #94 起调色板改为「锚定被点元素」的 popoverPosition 纯函数（下方优先/翻转/夹紧），
   // 旧的「视口右夹 + 预览区左夹」公式退役；预置弹窗仍是原型视口坐标公式（原型 :1061-1062），照旧 pin。
   assert.ok(src.includes('vw - W - 20') && src.includes('vh - 430'), '预置弹窗视口坐标公式（原型 :1061-1062）')
@@ -758,15 +762,16 @@ test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦
 })
 
 test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
+  const pal = enginePreset('opencode')
+  const html = renderEditorPure('dark', pal.colors)
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes("Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot))"), 't() 文本 span 吃圈 + 吃悬浮 + 可点开弹板（一句话的每个组成部分）')
   // P3 起参数带注解（slot: string, base?: StyleObject），只要定义仍在 function 形态收口即可。
   assert.ok(src.includes('const clickableSpanStyle = function (slot'), '可点文本 span 的合并样式收口到一处（#94 code-review）')
-  assert.equal((src.match(/clickableSpanStyle\(/g) || []).length, 4, 't() + 3 处裸 span = 4 处引用（定义行不计）')
   assert.ok(src.includes("'data-slot': p.s, className: ringCls(p.s)"), '代码块 token span 吃圈')
-  assert.equal((src.match(/'data-slot': 'textMuted', className: ringCls\('textMuted'\)/g) || []).length, 2, 'textMuted 两处（代码头 js + 输入说明）都吃圈')
-  // 结构门禁：data-slot 落点共 5 处，每处都必须接圈（新增裸 data-slot 会打破计数，逼作者接线）
-  assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点数变化必须同步接圈')
+  // #114：原「'data-slot': 计数 5」「clickableSpanStyle( 引用 4 次」两条计数代理断言删除（引用处数属实现细节，
+  // 见文件头 #114 说明）；原「textMuted 计数 2」升级为渲染计数——两处载体都在 SSR 路径，直接数渲染结果。
+  assert.equal((html.match(/data-slot="textMuted"/g) || []).length, 2, 'textMuted 两处载体（代码头 js + 输入说明）都渲染且接圈')
 })
 
 test('m08636-1：预览小标签改挂 fixed 覆盖层，层级高于预览区且不被容器裁', () => {
@@ -834,10 +839,8 @@ test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 c
   assert.ok(src.includes("row.scrollIntoView({ block: 'center', behavior: 'smooth' })"), '滑动口径 = 原型 scrollToRow :938（居中 + 平滑）')
   assert.equal(src.includes("block: 'nearest'"), false, '旧 nearest 口径已收敛到原型')
   assert.ok(src.includes("ref: leftColRef, className: 'dspe-dlg-left'"), '左列挂 ref（量视野用）')
-  // 结构门禁：预览里 5 处 data-slot 全走 bindSlot（原型 :743 `#mini [data-slot]` 全绑）。
-  // 悬浮因此跟着「最内层命中元素」走 —— 联动的才是用户真正悬停的那个色位。
-  assert.equal((src.match(/bindSlot\(/g) || []).length, 5, 'data-slot 落点数变化必须同步接悬浮')
-  assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点仍是 5 处')
+  // #114：原「bindSlot( / 'data-slot': 各出现 5 次」两条计数代理断言删除——绑定接线需要真 DOM，SSR 无法执行。
+  // 载体「全落位」由渲染断言覆盖；接线本身无自动替代（手工 scratch 不入库，见文件头 #114 说明）。
 })
 
 // ── 用户 m09433（输入框固定宽）→ 用户 m09582 需求 1（胶囊可随名字变长、输入框可变短，总量不变）──
@@ -924,8 +927,8 @@ test('m10028：Popover 定位未算出前不渲染（首帧即最终位，不再
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
   assert.ok(src.includes('if (!pop || !popPos) return null'), '调色板：没定位就不渲染')
   assert.ok(src.includes('if (!showPresets || !presetPos) return null'), '预置弹窗：没定位就不渲染')
-  assert.equal((src.match(/popPos \|\|/g) || []).length, 0, '不许再用 popPos || 兜底位画首帧')
-  assert.equal((src.match(/presetPos \|\|/g) || []).length, 0, '不许再用 presetPos || 兜底位画首帧')
+  // #114：原「popPos || / presetPos || 出现 0 次」两条负计数代理断言删除——首帧闪位是运行时 DOM
+  // 时序问题，SSR 无执行入口；上面的守卫断言只能 pin 源码形态，不能替代该负计数（首帧取证仅手工 scratch）。
   assert.ok(src.includes('}, popPos)'), '调色板坐标只来自定位状态')
   assert.ok(src.includes('}, presetPos)'), '预置弹窗坐标只来自定位状态')
   // 兜底位仍要留给「量不到锚点」的失败路径：否则弹窗永远不出现，比闪一下更糟。
@@ -1073,30 +1076,27 @@ test('#93：popoverPosition —— 非整数锚点/边界下坐标取整且间�
   assert.ok(popRectGap(anchorRect(200.5, 300.5, SWATCH.width, SWATCH.height), frac) <= 8, '间距 ≤8px')
 })
 
-test('#94：37 个 data-slot 全部可点且以被点元素为锚；左列仅不可见才滚动（源码结构）', () => {
+test('#94：源码契约——clickSlot 透传锚点、revealRow 不强制滚动、openPop 归一方向、锚点脱离安全收起', () => {
   const src = readFileSync(join(import.meta.dirname, '..', 'runtime', 'custom-editor.ts'), 'utf8')
-  // 1) 所有 data-slot 载体（node 块 / t 文本 span / 代码 token / textMuted ×2）统一从 bindSlot 拿点击，
-  //    并把被点 DOM 元素透传给 clickSlot（锚点来源）。
+  // 1) data-slot 载体点击把被点 DOM 元素透传给 clickSlot（锚点来源）。
   assert.ok(src.includes('onClick: function (ev) { try { ev.stopPropagation() } catch (err) { /* 忽略 */ } clickSlot(slot, ev.currentTarget) }'), '被点元素传给 clickSlot')
-  assert.equal((src.match(/bindSlot\(/g) || []).length, 5, '5 处 data-slot 载体统一走 bindSlot')
-  assert.equal((src.match(/'data-slot':/g) || []).length, 5, 'data-slot 落点数不变')
+  // #114：原「bindSlot( / 'data-slot': 各出现 5 次」两条计数代理断言删除——绑定接线需要真 DOM，SSR 无法执行。
   // 2) clickSlot：左列改为 revealRow（已在视野就不动），不再强制 scrollToRow 居中。
   const ci = src.search(/function clickSlot\(key(?::\s*[^,)]+)?,\s*anchorEl(?::\s*[^)]+)?\)/)
   assert.ok(ci > 0, 'clickSlot 接收 anchorEl')
   const cseg = src.slice(ci, ci + 420)
   assert.ok(cseg.includes('revealRow(key)'), '左列改用 revealRow（已在视野就不动）')
   assert.ok(cseg.includes('openPop(key, anchorEl)'), '被点元素透传给 openPop')
-  assert.equal(cseg.includes('scrollToRow('), false, '不再强制 scrollToRow 居中')
-  // 3) openPop 记录锚点/首选方向并清旧坐标（防旧位闪帧）。
+  // #114：原「cseg 不含 scrollToRow(」负断言删除——「已在视野就不动」要靠真 DOM 测量才能执行；
+  // SSR 无布局，源码切片负断言只是换一种 grep。revealRow 接线只由上面两条 pin 守住，无执行级替代。
+  // 3) openPop 接收锚点/首选方向并归一（记录状态属真 DOM 面，源码层只能验证接收与归一）。
   const oi = src.search(/function openPop\(key(?::\s*[^,)]+)?,\s*anchorEl(?::\s*[^,)]+)?,\s*preferSide\??(?::\s*[^)]+)?\)/)
   assert.ok(oi > 0, 'openPop 接收 anchorEl 与首选方向')
   const oseg = src.slice(oi, oi + 1100)
   assert.ok(oseg.includes('const anchor = anchorEl || null'), '锚点归一成 anchor')
   assert.ok(oseg.includes('const place = preferSide === PLACE_RIGHT ? PLACE_RIGHT : PLACE_BELOW'), '#93 首选方向归一（默认贴下方）')
-  assert.ok(oseg.includes('preferSide: place'), 'pop 状态记录首选方向')
-  assert.ok(oseg.includes('anchor: anchor'), 'pop 状态记住被点元素')
-  assert.ok(oseg.includes('if (pop && pop.key === key && pop.anchor === anchor && popPos) return'), '同一入口再点保持弹板（不重置坐标、保留编辑中颜色）')
-  assert.ok(oseg.includes('setPopPos(null)'), '换锚点开新弹板先清旧坐标')
+  // #114：原 preferSide / anchor / 「同入口再点保持弹板」/ setPopPos(null) 四条片段 pin 删除——
+  // 弹板状态机要真 DOM 事件才能执行，无自动替代（仅手工 scratch 取证，不入库）。
   // 3b) 点预览控件 / 左列色块（同为调色盘入口）都不算「点弹窗外」：否则同入口重开会先被 mousedown revert 一次。
   assert.ok(src.includes("t.closest('[data-slot]') || t.closest('[data-slot-row]')"), '两类调色盘入口点击都不当作弹窗外关闭')
   assert.equal(src.includes("data-sw="), false, '去掉失效的 data-sw 选择器（无元素渲染该属性）')
@@ -1247,6 +1247,14 @@ test('#95：PalettePicker —— 结构部件齐全且可独立 SSR（无需交�
   const hits = modalInteractiveTags(html)
   assert.ok(hits.length >= 8, '可点控件样本充足：' + hits.length)
   assert.equal(hits.filter((t) => !t.includes('data-palette-interactive')).length, 0, '可点控件全挂动效钩子')
+  // #114：原 #88 用例里「源码出现过 TIER_CHIP/TIER_SWATCH/TIER_BUTTON/TIER_INPUT」的代理断言，升级到这里：
+  // PalettePicker 可独立 SSR，直接断言档位都真实渲染进结果（改档位会红）。
+  for (const tier of ['chip', 'swatch', 'button', 'input']) {
+    assert.ok(html.includes('data-palette-interactive="' + tier + '"'), 'PalettePicker 渲染缺档位：' + tier)
+  }
+  // switch 档只在允许透明的背景槽渲染透明开关时出现（默认非背景槽不渲染该行）。
+  const bgHtml = renderPicker({ allowTransparent: true, value: { hex: '#000000', transparent: false } })
+  assert.ok(bgHtml.includes('data-palette-interactive="switch"'), 'PalettePicker 渲染缺档位：switch（背景槽透明开关）')
 })
 
 test('#95：PalettePicker —— 透明槽/对比度/最近色/初始值', () => {
@@ -1285,7 +1293,8 @@ test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无�
   }
   assert.ok(src.includes("role: 'slider'"), '色相轨 role=slider')
   assert.ok(src.includes('aria-valuetext'), 'aria-valuetext 带度数')
-  assert.equal((src.match(/'data-picker-part':/g) || []).length >= 10, true, '部件标记计数纪律')
+  // #114：原「源码里 'data-picker-part': 计数 ≥10」删除——10 个部件是否真渲染已由 #95 结构用例
+  // 逐部件断言（SSR 结果），本处合并处理、不留源码计数。
   assert.equal(src.includes('EyeDropper'), true, '吸管走特性检测')
   assert.ok(src.includes('setPointerCapture') && src.includes('releasePointerCapture'), '指针捕获成对出现')
   // renderPop 接线：内部组件化 + live commit + 保留关闭/回滚分工（R2）。

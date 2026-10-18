@@ -452,8 +452,11 @@ function renderPanel(opts: RenderOptions = {}) {
       },
     },
   }
+  // #114：捕获面板执行 apply 时注入的 <style>，供「入口去底规则」这类静态断言升级为执行级。
+  // <style> 先 append 再写 textContent，故这里只存引用，断言时再读。
+  const styles: { textContent: string }[] = []
   const documentStub: any = {
-    head: { appendChild: () => {} },
+    head: { appendChild: (el: { textContent: string }) => { styles.push(el) } },
     body: { hasAttribute: () => true, appendChild: (el: { parentNode: unknown }) => { el.parentNode = documentStub.body }, removeChild: () => {} },
     createElement: () => ({ dataset: {}, parentNode: null, textContent: '', style: { cssText: '', fontFamily: '' }, getBoundingClientRect: () => ({ width: 8 }) }),
     documentElement: { lang: opts.lang || 'zh' },
@@ -483,7 +486,7 @@ function renderPanel(opts: RenderOptions = {}) {
   exportsFace.apply(ctx)
   assert.ok(panelCmp, '面板组件未注册')
   const render = () => ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  return { render, html: render() }
+  return { render, html: render(), styles }
 }
 
 /** 假 connection：rpc.call 按电话名回预设结果。 */
@@ -622,11 +625,14 @@ test('单按钮：openOn always 下头行永远只有一个控件，弹窗按需
   }
 })
 
-test('换肤：入口去底只作用入口作用域，dialog 不受影响', () => {
-  const client = read('runtime/client.ts')
+test('换肤：入口去底只作用入口作用域，dialog 不受影响（执行级：读注入的 <style>）', () => {
+  // #114：由源码 grep `runtime/client.ts` 升级为执行级——面板执行 apply 后读它注入的 <style> 内容。
+  const { styles } = renderPanel({ connection: fakeConnection({ [PHONES.updateStatus]: reply(snapshotOf()) }) })
+  const css = styles.map((s) => s.textContent).join('\n')
+  assert.ok(css.length > 0, '面板执行 apply 应注入 <style> 内容')
   const rule = '.dsh-upd-entry .dsh-upd-entry-btn{--dsh-update-button-bg:transparent}'
-  assert.ok(client.includes(rule), '入口去底规则应存在（作用域限定 .dsh-upd-entry）')
-  assert.ok(!client.includes('.dsh-upd button{--dsh-update-button-bg'), '不得裸改 dialog 按钮底色')
+  assert.ok(css.includes(rule), '入口去底规则应出现在注入样式（作用域限定 .dsh-upd-entry）')
+  assert.equal(css.includes('.dsh-upd button{--dsh-update-button-bg'), false, '不得裸改 dialog 按钮底色')
   for (const rel of ['client.js', 'package/lib/client.js']) {
     assert.ok(read(rel).includes(rule), rel + ' 产物应带上入口去底规则')
   }
