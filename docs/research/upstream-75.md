@@ -225,4 +225,4 @@ blocked 9 码（`unknown-profile`、`channel-mismatch`、`source-install`、`inv
 - `.scratch-upstream-75/`：13 个 `.tgz` + `x-<包>-<版本>/package/` 展开目录（`x-dsh-plugin-update-{0.13.0,0.16.0,0.16.1,0.16.2,0.17.0,0.17.1,0.18.0}`、
   `x-dsh-log-{0.2.2,0.3.0,0.3.1,0.3.2,0.3.3,0.3.4}`）+ `resident-check.cjs`（常驻集抽查脚本，可删）。
   交付后是否保留由 Lead 定（`.gitignore` 建议顺手加 `.scratch-upstream-75/`，免得 13 个包进仓）。
-- 本文件：`.research-upstream-75.md`（findings 全文）。
+- 本文件：`docs/research/upstream-75.md`（findings 全文）。
