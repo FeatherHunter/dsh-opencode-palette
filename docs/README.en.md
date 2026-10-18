@@ -125,8 +125,8 @@ If you like this plugin, you might also like:
 
 <div align="center">
 
-Found a bug or have an idea? Please [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). You can also scan the QR code to add the author on Feishu (mention `dsh-opencode-palette`).
+Found a bug or have an idea? Please [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). You can also scan the QR code to join the **DSH plugin community group**.
 
-<img src="../assets/feishu-qr.png" alt="Author's Feishu QR code" width="260" />
+<img src="../assets/feishu-qr.png" alt="DSH plugin community group QR code" width="260" />
 
 </div>

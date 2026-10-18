@@ -180,16 +180,21 @@ test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () =>
   }
 })
 
-// ── 6 · CONNECT：issue 入口 + 飞书码 + 备注词（沿用，不新增渠道） ──
-test('CONNECT：issue 入口与飞书码沿用，备注词不变', () => {
+// ── 6 · CONNECT：issue 入口 + 社群二维码（2026-10-18 由「作者飞书」换成 DSH 插件交流群群码） ──
+test('CONNECT：issue 入口与交流群二维码沿用，宽度不变', () => {
   assert.ok(ZH.includes('[提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文 issue 入口在场')
   assert.ok(EN.includes('[open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '英文 issue 入口在场')
-  assert.ok(ZH.includes('src="assets/feishu-qr.png"'), '中文页飞书码路径在场')
-  assert.ok(EN.includes('src="../assets/feishu-qr.png"'), '英文页飞书码路径在场')
+  assert.ok(ZH.includes('src="assets/feishu-qr.png"'), '中文页二维码路径在场（文件名沿用，内容已换成群码）')
+  assert.ok(EN.includes('src="../assets/feishu-qr.png"'), '英文页二维码路径在场')
   for (const doc of [ZH, EN, PKG]) {
-    assert.ok(doc.includes('`dsh-opencode-palette`'), '备注词 dsh-opencode-palette 在场')
-    assert.ok(doc.includes('width="260"'), '飞书码宽度沿用 260')
+    assert.ok(doc.includes('width="260"'), '二维码宽度沿用 260')
   }
+  // 群码无需备注：文案应写明是交流群，且旧的「加作者 / 备注词」说法不得回潮
+  assert.ok(ZH.includes('DSH 插件交流群'), '中文页应写明社群名称')
+  assert.ok(EN.includes('DSH plugin community group'), '英文页应写明社群名称')
+  assert.equal(ZH.includes('备注 `dsh-opencode-palette`'), false, '中文页不应再有「备注词」旧说法')
+  assert.equal(EN.includes('mention `dsh-opencode-palette`'), false, '英文页不应再有 mention 旧说法')
+  assert.equal(PKG.includes('mention `dsh-opencode-palette`'), false, '包内副本由英文页再生，不应带旧说法')
 })
 
 // ── 7 · 包内副本 = 英文页去掉 showcase 块（构建产物，永不手改） ──

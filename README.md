@@ -125,8 +125,8 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 <div align="center">
 
-遇到问题或有改进建议，欢迎直接 [提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)；也欢迎扫码添加作者飞书，备注 `dsh-opencode-palette`，一起交流。
+遇到问题或有改进建议，欢迎直接 [提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)；也欢迎扫码加入 **DSH 插件交流群**，一起交流。
 
-<img src="assets/feishu-qr.png" alt="作者飞书二维码" width="260" />
+<img src="assets/feishu-qr.png" alt="DSH 插件交流群二维码" width="260" />
 
 </div>
