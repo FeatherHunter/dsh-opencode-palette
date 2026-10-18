@@ -5,6 +5,15 @@ node_modules/
 dist/
 *.log
 
+# 构建产物不入库（ADR 0004）：八个派生物由 scripts/build-client.ts 现产，
+# 发布载荷走 registry / Release 资产 / npm pack，没有任何消费者需要「构建前」从 git 读它们。
+# 测试读到的是 pretest 现产物；`npm run verify:artifacts` 守可重复性与产物集合。
+/client.js
+/package/lib/
+/package/package.json
+/package/README.md
+/package/cordis.patch.yml
+
 # teach workspace（本机学习状态，不属于插件，不提交）
 MISSION.md
 RESOURCES.md
@@ -20,3 +29,10 @@ assets/teach.css
 # Windows 变量名被当成字面量误建的目录（cmd 的 %VAR% 语法混进 pwsh 时产生，如 %SystemDrive%/），
 # 不属于插件；仓库内已跟踪路径无 % 字符，加此规则零误伤
 %*%
+
+# 本机 gh 状态目录（`.local/state/gh/device-id` 曾于 c2ee8cf 误随本机状态入库，已 git rm，历史可追）；
+# 属本机状态、不属于插件，此规则防止再被跟踪
+.local/
+
+# 发布/令牌通道临时件（scripts/publish-token.ps1 缺省日志 `.tmp-publish-token.log` 等，不进仓）
+.tmp-*

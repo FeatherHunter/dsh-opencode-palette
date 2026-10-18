@@ -47,12 +47,12 @@ dsh-opencode-palette/
 │   └── ui-fx.ts              #    面板视觉工具
 ├── tests/                    # 测试（TypeScript，`node --test`，无需编译）
 ├── prototypes/               # 设计原型（历史资产，唯一不迁 TypeScript 的例外，见 ADR 0003）
-├── dist/                     # tsc emit 中间产物（每轮重建，gitignore，不进包）
-├── package/                  # 产物：可分发 npm 包（build 生成，入库）
+├── dist/                     # tsc emit 中间产物（每轮重建，gitignore，不入库、不进包）
+├── package/                  # 产物：可分发 npm 包（build 生成，不入库；release-notes-*.md 手写入库）
 │   ├── package.json
 │   ├── README.md
 │   └── lib/{index.js, client.js, channel.js, event-list.json}
-└── client.js                 # 动态版产物（build 生成，与包版同源）
+└── client.js                 # 动态版，本地开发产物（与包版同源），不入库、不进 npm 包
 ```
 
 ## 3. 分层职责与数据流
@@ -151,7 +151,9 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
 
 为什么两段式而不是让 bundler 直接读 TS：内联器保持零依赖、可读、确定性（文本级替换），
 类型剥离与模块说明符改写交给 tsc 一处完成；bundler 只面对统一形态的普通 JS 与 JSON。
-`dist/` 不入库、不发布（`package/package.json` 的 `files` 白名单只有 `lib` 与 `cordis.patch.yml`）。
+`dist/` 不入库、不发布。`package/` 里的 7 个派生物与根 `client.js`（共 8 个）同样不入库（[ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)）：
+分发载荷只有一个去向——在 `package/` 里 `npm pack` 出 tgz 发 npm registry，同一 tgz 作 GitHub Release 资产；
+根 `client.js` 只是本地开发产物，不进包也不发 Release。`package/package.json` 的 `files` 白名单只有 `lib` 与 `cordis.patch.yml`。
 
 同一个构建器还产出宿主半与 npm 包声明（v1.8.0 起 vendor，0.2.0 起解耦为真依赖）：
 
@@ -172,8 +174,12 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
 - **换行归一**：仓库 `* text=auto`，Windows 新克隆检出为 CRLF；构建器在读取处统一成 LF，
   否则依赖「行首 import」的正则会全部失配（新克隆上构建静默产出 broken bundle）。
 - **测试与产物门禁**：`npm test` 用 `node --test` 直接跑 `.ts` 测试（Node ≥ 22.18.0 原生类型剥离，
-  不经 tsc、不依赖构建）；类型正确性由 `npm run typecheck` 独立把关；`npm run verify:artifacts`
-  重建产物并 `git diff --exit-code package/ client.js`，守住「源码改了产物没重建」的假绿。
+  不经 tsc、不依赖构建）；`pretest` 先跑 `npm run build:artifacts` 现产 8 个产物（实测约 2.0 s），
+  所以 6 个读产物的测试永远测当前源码，不依赖任何入库字节；类型正确性由 `npm run typecheck` 独立把关。
+  `npm run verify:artifacts`（`node scripts/verify-artifacts.ts`）五条：① 连跑两次 `build:artifacts`
+  产物逐字节一致；② 8 个产物存在且非空；③ `package/lib/` 目录集合精确（陈旧文件会随 `files` 白名单进包，
+  git 已不兜底）；④ `npm run fonts` 后 `src/engine/font-face.ts` 无 diff；⑤ 8 个产物都未被 git 跟踪
+  （回归保险），而 `font-face.ts` 仍被跟踪。产物去向与回滚见 [ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)。
 
 ## 8. 扩展点（怎么加东西）
 
@@ -203,3 +209,7 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
 - D6（2026-10-18）**全仓 TypeScript 化**：源码/测试/脚本全 `.ts`，tsc 只做类型检查与 emit，
   零依赖 mini-bundler 继续消费 `dist/`；`engines.node >= 22.18.0`（Node 原生类型剥离下界）；
   `prototypes/` 为唯一例外（历史 HTML/mjs 原型不迁，见 ADR 0003）。
+- D7（2026-10-18）**派生物不入库**：`package/` 里的 7 个派生物与根 `client.js`（共 8 个）移出 git，由
+  `build:artifacts` / `pretest` 现产（约 2.0 s）；`verify:artifacts` 改判「可重复 + 集合精确 +
+  生成源无 diff + 产物不被跟踪」；分发载荷只走 `npm pack` 出的 tgz（npm registry + Release 资产）。
+  见 [ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)（supersede ADR 0003 的 D4）。

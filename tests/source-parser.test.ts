@@ -28,8 +28,9 @@ function readNormalized(file: string): string {
 
 // 引擎源码已迁成 .ts：tsc（rewriteRelativeImportExtensions）会把相对说明符的 '.ts' 改写成 '.js'，
 // bundler 实际吃到的是 emit 形态。UNHANDLED 检查按同一条规则投影，才对得上真实输入。
-// 注意：这只是手写投影、不读 dist；真实 dist 输入的最终防线是 build 后的 verify:artifacts 与
-// panel-render 的产物加载用例（#106 §3.4：单测不假装是产物门禁）。
+// 注意：这只是手写投影、不读 dist；真实 dist 输入由「`npm test` 的 pretest 每次重建产物 + panel-render
+// 的产物加载用例」兜底，产物本身的可重复性与集合完整性由 build 后的 verify:artifacts 守
+//（#106 §3.4：单测不假装是产物门禁）。
 // runtime 与引擎一样已是 .ts，它的相对说明符同样按 '.ts' → '.js' 投影。
 function emitLine(line: string): string {
   return line.replace(/(['"])((?:\.{1,2}\/)[^'"]+)\.ts\1/g, '$1$2.js$1')

@@ -22,7 +22,7 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 ### 流程
 
-1. **构建与验证**：`npm run build`（类型检查 `typecheck` → 依赖门禁 `check-deps.ts` → 字体生成 → tsc emit `dist/` → 零依赖内联 `build-client.ts`）→ `npm test` 全绿（Node `22.18.0` 与 `24.x` 各跑一遍；源码与测试均为 `.ts`，靠 Node 原生类型剥离直接跑）→ `npm run verify:artifacts` 干净（重建产物与仓库内产物逐字节一致）→ 在 `package/` 里 `npm pack`，得到 `dsh-opencode-palette-<版本>.tgz`。
+1. **构建与验证**：`npm run build`（类型检查 `typecheck` → 依赖门禁 `check-deps.ts` → 字体生成 → tsc emit `dist/` → 零依赖内联 `build-client.ts`，末两步即 `npm run build:artifacts`）→ `npm test` 全绿（Node `22.18.0` 与 `24.x` 各跑一遍；源码与测试均为 `.ts`，靠 Node 原生类型剥离直接跑；`pretest` 先跑 `build:artifacts` 现产 8 个产物，读产物的测试因此永远测当前源码）→ `npm run verify:artifacts` 干净（`node scripts/verify-artifacts.ts`：连跑两次构建逐字节一致 / 8 个产物存在非空 / `package/lib` 集合精确 / `npm run fonts` 后 `src/engine/font-face.ts` 无 diff / 8 个产物未被 git 跟踪）→ 在 `package/` 里 `npm pack`，得到 `dsh-opencode-palette-<版本>.tgz`。
 2. **npm 发布**：Agent 弹窗拉起向导，人只在浏览器里做 2FA：
    ```powershell
    Start-Process powershell.exe -ArgumentList '-NoExit','-ExecutionPolicy','Bypass','-File','<repo>\scripts\npm-release-wizard.ps1'
@@ -41,3 +41,4 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 - `E409 Cannot publish over previously staged version`：同一版本早先已被受理（202），**仍在处理中**。等几分钟用 `npm view` 复查即可，**不必升版本号、也不要重发**；确实要清掉再发才用 `npm unpublish dsh-opencode-palette@<版本>`（清完仍可用同一版本号）。
 - `E409 previously published versions`：该版本已正式发布过，这时才需要升版本号。
 - **`scripts/*.ps1` 必须带 UTF-8 BOM**（纯 ASCII 可免）：弹窗跑的是 Windows PowerShell 5.1，它读无 BOM 的 `.ps1` 会按 ANSI/GBK 解码，中文被撕碎后整个脚本解析失败、报错还全是乱码。任何编辑器改写都可能顺手丢掉 BOM —— `tests/release-scripts.test.ts` 守着这条门禁，改完跑 `npm test` 即可发现。
+- **构建产物不入库**（[ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)）：`package/` 里的 7 个派生物（`package.json` / `README.md` / `cordis.patch.yml` / `lib/` 下 4 个文件）与根 `client.js` 已移出 git；`package/release-notes-*.md` 与根 `cordis.patch.yml` 仍是手写源文件，继续入库。后果：新克隆 / 新机器首跑 `npm test` 由 `pretest` 先现产这 8 个产物（约 2 s）；`git pull` 到取消跟踪的那个提交会把这些文件从本地删掉，重跑 `npm run build`（或直接 `npm test`）即恢复；根 `client.js` 只是本地开发产物，不进 npm 包、也不是 Release 资产；改 `scripts/build-client.ts` 里的产物字面量后不必再提交产物文件。回滚 = `git add -f`。

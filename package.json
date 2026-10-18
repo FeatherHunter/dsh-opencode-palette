@@ -12,8 +12,10 @@
     "vendor:check": "node scripts/check-deps.ts",
     "typecheck": "tsc -p tsconfig.json",
     "emit": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json",
-    "build": "npm run typecheck && node scripts/check-deps.ts && node scripts/inline-fonts.ts && npm run emit && node scripts/build-client.ts",
-    "verify:artifacts": "npm run emit && node scripts/build-client.ts && git diff --exit-code package/ client.js",
+    "build:artifacts": "npm run emit && node scripts/build-client.ts",
+    "build": "npm run typecheck && node scripts/check-deps.ts && node scripts/inline-fonts.ts && npm run build:artifacts",
+    "verify:artifacts": "node scripts/verify-artifacts.ts",
+    "pretest": "npm run build:artifacts",
     "test": "node --test tests/engine.test.ts tests/float-geometry.test.ts tests/panel-render.test.ts tests/update-panel.test.ts tests/log-switch.test.ts tests/release-scripts.test.ts tests/sync-verify.test.ts tests/readme-head-tail.test.ts tests/readme-body.test.ts tests/group-boundary.test.ts tests/custom-themes-storage.test.ts tests/custom-editor.test.ts tests/custom-theme.test.ts tests/ip-presets.test.ts tests/source-parser.test.ts"
   },
   "engines": { "node": ">=22.18.0", "dsh": ">=0.2.0-rc.1" },

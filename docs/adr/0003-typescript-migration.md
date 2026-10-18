@@ -2,6 +2,10 @@
 
 Status: accepted
 
+> 注（2026-10-18）：**D4 已被 [ADR 0004](0004-build-artifacts-out-of-git.md) 取代** —— `package/` 与根
+> `client.js` 不再入库，改由 `pretest` / `verify:artifacts` 现产（D1/D2/D3/D5/D6/D7 不变）。本文其余决策、
+> 实施关键点与 Verification 里的实测数字保留为迁移当时的历史记录，不改写。
+
 ## Context
 
 仓库原为手写 `.mjs`（引擎 / 运行时 / 脚本 / 测试共 41 个文件、约 12.5k 行），构建靠 `scripts/build-client.mjs`
@@ -25,7 +29,7 @@ Status: accepted
   `./` 与 `../` 说明符、`.mjs`/`.js` 扩展名；补齐 fixture 与真实源码等价性测试。
 - **D3 手写最小 ambient `types/dsh.d.ts`**（11 接口 + 1 类型别名 + 2 个全局变量，约 36 成员），
   不 import `@deepseek-ai/*`；devDependencies 只钉 `typescript`、`@types/node`、`@types/react`。
-- **D4 产物继续入库**：`package/`、根 `client.js` 随源码提交，沿用「构建产物与源码同提交」惯例；
+- **D4 产物继续入库**（**已被 [ADR 0004](0004-build-artifacts-out-of-git.md) 取代**）：`package/`、根 `client.js` 随源码提交，沿用「构建产物与源码同提交」惯例；
   用 `npm run verify:artifacts`（重建 + `git diff --exit-code package/ client.js`）守假绿。
 - **D5 按依赖组分批，模块与其测试同一次提交**：P0 构建链 → P1 工具链/类型 → P2 engine+scripts →
   P3 runtime/host + 测试全转 → P4 验收/文档/发布。

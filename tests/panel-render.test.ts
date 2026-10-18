@@ -1,6 +1,8 @@
 // panel-render.test.ts — 面板渲染回归测试
 // 用 DSH app 的真实 React 把设置面板 renderToString，抓渲染期错误（如变量遮蔽/括号失衡）
-// 前置：先 npm run build 产出 package/lib/client.js 再跑本测试
+// 前置：产物由 `npm test` 的 pretest 自动重建（package/lib/client.js，约 2 s）；
+// 若绕过 pretest 直接跑 `node --test`，先 `npm run build:artifacts`。
+// 产物不入库（ADR 0004），所以这里读到的永远是当前源码构建出来的字节。
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
