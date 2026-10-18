@@ -21,6 +21,10 @@ const PKG = readFileSync(join(ROOT, 'package', 'README.md'), 'utf8')
 // 构建脚本里的同一段变换（scripts/build-client.ts）：英文页去掉 showcase 块
 const SHOWCASE_RE = /<!-- showcase:start -->[\s\S]*?<!-- showcase:end -->\r?\n?/
 
+// 载荷一律 LF（scripts/build-client.ts 写包内副本前把行尾归一）。比内容时两边都归一：
+// 否则「本机遗留的 CRLF 检出」会被当成期望值 —— 那是检出差，不是内容差（.gitattributes eol=lf）。
+const norm = (t: string): string => t.replace(/\r\n/g, '\n')
+
 // 头部 = 文件开头到 showcase 标记之前；胶囊行只应出现在这一段里
 const headOf = (t: string): string => t.split('<!-- showcase:start -->')[0]
 const count = (t: string, needle: string): number => t.split(needle).length - 1
@@ -189,8 +193,9 @@ test('CONNECT：issue 入口与飞书码沿用，备注词不变', () => {
 })
 
 // ── 7 · 包内副本 = 英文页去掉 showcase 块（构建产物，永不手改） ──
-test('包内副本：逐字节等于英文页去掉 showcase 块', () => {
-  assert.equal(PKG, EN.replace(SHOWCASE_RE, ''), 'package/README.md 应由构建从英文页再生，不得手改')
+test('包内副本：等于英文页去掉 showcase 块（行尾归一化后比较），且一律 LF', () => {
+  assert.equal(norm(PKG), norm(EN.replace(SHOWCASE_RE, '')), 'package/README.md 应由构建从英文页再生，不得手改')
+  assert.equal(/\r/.test(PKG), false, '包内副本一律 LF 行尾（载荷不随检出的 EOL 变）')
   assert.equal(PKG.includes('<!-- showcase:start -->'), false, '包内副本不带 showcase 块')
   assert.equal(PKG.includes('showcase/'), false, '包内副本不引用 showcase 截图')
 })

@@ -423,10 +423,17 @@ async function main(): Promise<void> {
   await rm(join(PKG_DIR, 'node_modules'), { recursive: true, force: true })
   await rm(join(PKG_DIR, 'package-lock.json'), { force: true })
   await mkdir(join(PKG_DIR, 'lib'), { recursive: true })
-  await copyFile(join(ROOT, 'cordis.patch.yml'), join(PKG_DIR, 'cordis.patch.yml'))
+  // 文本源 → 载荷：读入后统一成 LF 再写（同 README 处注释），否则载荷随检出 EOL 变
+  await writeFile(
+    join(PKG_DIR, 'cordis.patch.yml'),
+    (await readFile(join(ROOT, 'cordis.patch.yml'), 'utf8')).replace(/\r\n/g, '\n'),
+  )
   await writeFile(join(PKG_DIR, 'lib', 'client.js'), pkgBundle)
   await writeFile(join(PKG_DIR, 'lib', 'index.js'), host)
-  await copyFile(join(RUNTIME_DIR, 'event-list.json'), join(PKG_DIR, 'lib', 'event-list.json'))
+  await writeFile(
+    join(PKG_DIR, 'lib', 'event-list.json'),
+    (await readFile(join(RUNTIME_DIR, 'event-list.json'), 'utf8')).replace(/\r\n/g, '\n'),
+  )
   // 宿主半与浏览器半共用的接线常量：宿主半按相对路径 import 它，随包一起发（转译输出，扩展名 .js）
   await copyFile(join(DIST_RUNTIME_DIR, 'channel.js'), join(PKG_DIR, 'lib', 'channel.js'))
   // channel 自 P3 起为 tsc 转译输出的 .js（源 runtime/channel.ts）；清理历史工作树里的旧扩展名，
@@ -436,7 +443,12 @@ async function main(): Promise<void> {
   // npm 包 README 用英文版（GitHub 首页 README.md 为中文版）；showcase 真实截图块不进包
   //（npm 保持 SVG 轻量，且 showcase 不在 package.json files 白名单，带图会渲染破裂）
   const readmeFull = await readFile(join(ROOT, 'docs', 'README.en.md'), 'utf8').catch(() => '(README 缺失)')
-  const readme = readmeFull.replace(/<!-- showcase:start -->[\s\S]*?<!-- showcase:end -->\r?\n?/, '')
+  // 行尾归一：载荷必须与「检出的 EOL」解耦 —— .gitattributes 的 eol=lf 只管新克隆，本机工作区仍可能
+  // 是历史 CRLF 检出；不归一的话同一 commit 在不同机器上 pack 出的 tgz 字节不同
+  //（实测 README.md 5315 B/CRLF vs 5207 B/LF，tgz 615846 vs 615833）。
+  const readme = readmeFull
+    .replace(/<!-- showcase:start -->[\s\S]*?<!-- showcase:end -->\r?\n?/, '')
+    .replace(/\r\n/g, '\n')
   await writeFile(join(PKG_DIR, 'README.md'), readme)
   await writeFile(join(ROOT, 'client.js'), dynBundle)
 

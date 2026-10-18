@@ -80,6 +80,15 @@ function sizeOf(rel: string): number | null {
   }
 }
 
+/** 产物里是否含 CR（0x0D）字节；读不到返回 null。载荷必须是 LF —— 否则它跟着检出的 EOL 变。 */
+function hasCR(rel: string): boolean | null {
+  try {
+    return readFileSync(join(ROOT, rel)).includes(0x0d)
+  } catch {
+    return null
+  }
+}
+
 /** git 可用时返回索引中被跟踪的这些路径（不可用返回 null，调用方跳过检查）。 */
 function gitTrackedAmong(paths: readonly string[]): string[] | null {
   const probe = spawnSync('git', ['rev-parse', '--is-inside-work-tree'], { cwd: ROOT, encoding: 'utf8' })
@@ -155,7 +164,7 @@ for (const [rel, hash] of snapshot()) second.set(rel, hash)
   if (stable === ARTIFACTS.length) ok(`八件产物两次构建逐字节一致（sha256 相同）`)
 }
 
-console.log('[verify-artifacts] 3/4 产物存在且非空')
+console.log('[verify-artifacts] 3/4 产物存在且非空、且一律 LF（载荷与检出 EOL 解耦）')
 {
   let present = 0
   for (const rel of ARTIFACTS) {
@@ -165,6 +174,21 @@ console.log('[verify-artifacts] 3/4 产物存在且非空')
     else present += 1
   }
   if (present === ARTIFACTS.length) ok(`八件产物齐全且非空（client.js ${sizeOf('client.js')} B）`)
+
+  let lfOnly = 0
+  let scannable = 0
+  for (const rel of ARTIFACTS) {
+    const cr = hasCR(rel)
+    if (cr === null) continue
+    scannable += 1
+    if (cr) {
+      fail(
+        `${rel} 里含 CR（0x0D）字节：载荷必须与检出的 EOL 解耦，构建器把会成为载荷的文本统一成 LF` +
+          '（否则同一 commit 在不同机器上 pack 出的 tgz 字节不同）',
+      )
+    } else lfOnly += 1
+  }
+  if (scannable > 0 && lfOnly === scannable) ok(`八件产物均不含 CR 字节（LF 载荷，与检出 EOL 无关）`)
 }
 
 console.log('[verify-artifacts] 4/4 产物集合精确：package/lib')
