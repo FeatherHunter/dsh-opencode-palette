@@ -12,6 +12,10 @@ Five canonical triage roles map 1:1 to labels `needs-triage` / `needs-info` / `r
 
 Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+### 本机教学状态（不入库）
+
+个人 teach workspace 整组收在 `teach/`（`MISSION.md` / `RESOURCES.md` / `NOTES.md` / `lessons/` / `reference/` / `learning-records/` / `assets/`），已被 `.gitignore` 覆盖：根目录只放项目门面，教学文件不要放回根目录；教学会话先读 `teach/NOTES.md`。
+
 ## Release
 
 双通道一次跑完：npm 官方源 + GitHub Release。**本仓只负责发布，不负责安装**：Release 正文与 README 只写发布出去的东西（改了什么、验证结果、哈希），安装/升级指引归宿主与市场。
