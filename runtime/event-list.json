@@ -19,6 +19,7 @@
       "fields": [
         "method",
         "kind",
+        "error",
         "errorHash",
         "pluginId"
       ]
@@ -39,7 +40,10 @@
       "kind": "resident",
       "fields": [
         "logSink",
-        "logDirHash"
+        "logDirHash",
+        "updaterVersion",
+        "copyLevel",
+        "hostKind"
       ]
     },
     "update.check.done": {
@@ -51,7 +55,12 @@
         "latest",
         "channel",
         "source",
-        "latencyMs"
+        "latencyMs",
+        "blockedReason",
+        "fallback",
+        "dataSource",
+        "pendingRestart",
+        "jobState"
       ]
     },
     "update.check.fail": {
@@ -60,7 +69,9 @@
       "fields": [
         "stage",
         "errorKind",
-        "httpStatus"
+        "httpStatus",
+        "latencyMs",
+        "source"
       ]
     },
     "update.status.changed": {
@@ -68,7 +79,13 @@
       "kind": "resident",
       "fields": [
         "kind",
-        "latest"
+        "latest",
+        "runningVersion",
+        "installedVersion",
+        "registered",
+        "identity",
+        "blockedReason",
+        "unknownCause"
       ]
     },
     "update.install.request": {
@@ -78,7 +95,22 @@
         "from",
         "current",
         "latest",
-        "checkAgeMs"
+        "checkAgeMs",
+        "intentHash"
+      ]
+    },
+    "update.install.fail": {
+      "level": "warn",
+      "kind": "resident",
+      "fields": [
+        "stage",
+        "reason",
+        "code",
+        "hostCodeHash",
+        "check",
+        "exitCode",
+        "observedVersion",
+        "intentHash"
       ]
     },
     "update.install.verify": {
@@ -96,7 +128,8 @@
       "fields": [
         "total",
         "ownCount",
-        "foreignCount"
+        "foreignCount",
+        "sessionHash"
       ]
     },
     "update.batch.entry.fail": {
@@ -104,7 +137,10 @@
       "kind": "resident",
       "fields": [
         "targetHash",
+        "sessionHash",
         "errorKind",
+        "stage",
+        "index",
         "exitCode"
       ]
     },
@@ -116,7 +152,31 @@
         "ok",
         "failed",
         "skipped",
-        "durationMs"
+        "durationMs",
+        "sessionAgeMs",
+        "resumed",
+        "sessionHash",
+        "stoppedBecause"
+      ]
+    },
+    "update.batch.run.start": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "trigger",
+        "resumed",
+        "total",
+        "pending",
+        "sessionHash"
+      ]
+    },
+    "update.install.retry": {
+      "level": "info",
+      "kind": "resident",
+      "fields": [
+        "reason",
+        "attempt",
+        "requestHash"
       ]
     },
     "update.queue.transition": {
@@ -125,7 +185,8 @@
       "fields": [
         "phase",
         "waitedMs",
-        "position"
+        "position",
+        "holderHash"
       ]
     },
     "update.lock.anomaly": {
@@ -153,7 +214,8 @@
         "mode",
         "theme",
         "lang",
-        "pollMs"
+        "pollMs",
+        "autoCheck"
       ]
     },
     "update.panel.action": {
@@ -162,14 +224,20 @@
       "fields": [
         "action",
         "bytes",
-        "truncated"
+        "truncated",
+        "ok",
+        "errorKind",
+        "durationMs",
+        "errorHash"
       ]
     },
     "update.panel.render.fail": {
       "level": "error",
       "kind": "resident",
       "fields": [
-        "kind"
+        "kind",
+        "phase",
+        "errorHash"
       ]
     },
     "update.check.start": {
@@ -201,11 +269,14 @@
     },
     "update.changelog.parse": {
       "level": "info",
-      "kind": "ondemand",
+      "kind": "resident",
       "fields": [
+        "version",
         "entries",
         "truncated",
         "degraded",
+        "status",
+        "cached",
         "source"
       ]
     },
@@ -239,7 +310,9 @@
       "level": "warn",
       "kind": "selfmon",
       "fields": [
-        "reason"
+        "reason",
+        "event",
+        "field"
       ]
     },
     "log.switch.set": {

@@ -443,7 +443,7 @@ export function apply(ctx: DshContext, opts?: HostApplyOptions) {
   for (const phoneName of Object.keys(update.handlers)) registry.set(phoneName, update.handlers[phoneName])
 
   // 自定义主题存储（#85）：三个电话直接进通用分发管线（dispatch 统一包 { ok, value }、
-  // 处理器抛异常记既有 host.channel.fail），不新增任何日志事件（event-list 31 项锁死）。
+  // 处理器抛异常记既有 host.channel.fail），不新增任何日志事件（event-list 34 项锁死）。
   // 处理器自带 { ok } 内层状态：校验失败回 { ok: false, error: { code: 'invalid-*' } }，
   // 磁盘异常才抛给 dispatch（变外层 { ok: false, error: { code: 'internal' } }）。
   registry.set(PHONE_METHODS.customThemesList, async function () {

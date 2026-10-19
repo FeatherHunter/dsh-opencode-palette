@@ -33,7 +33,7 @@ const { failureCopy, isKnownFailureCode } = await import(
   pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'panel.js')).href
 )
 const { buildPhoneNames } = await import(
-  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'config.js')).href
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'shared', 'config.js')).href
 )
 // 电话名派生（两侧共用同一套拼法；浏览器 bundle 内由入口件现算，不写字面量）。
 const { buildClientPhoneNames } = await import(
@@ -41,7 +41,7 @@ const { buildClientPhoneNames } = await import(
 )
 // 失败码表也从更新包导出直取（不手抄：上游新增码时本文件自动跟上）。
 const { BLOCKED_REASONS, PHONE_FAILURE_CODES, INTERNAL_CODE } = await import(
-  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'codes.js')).href
+  pathToFileURL(join(ROOT, 'node_modules', 'dsh-plugin-update', 'dist', 'shared', 'codes.js')).href
 )
 
 const PHONES = buildClientPhoneNames('palette')
@@ -235,6 +235,8 @@ test('接线：电话名从更新包派生，产物里不写死', () => {
     assert.ok(bundle.indexOf('createClientLog') >= 0, rel + ' 里应有日志包的客户端入口')
     assert.ok(bundle.indexOf('createUpdateController') < 0, rel + ' 里不应再有自研更新控制器')
     assert.ok(bundle.indexOf('__mods["upd-entry"]') >= 0, rel + ' 里应内联入口件闭包')
+    // 旧自研闭包（commands/batch/client 那个 upd-client）已随自研控制器删除而不再内联；
+    // 0.18.33 起的 upd-panel-client 是上游自己的 dist/panel/client.js（面板轮询/电话名派生），与此无关。
     assert.ok(bundle.indexOf('__mods["upd-client"]') < 0, rel + ' 里不应再内联旧自研闭包（commands/batch/client）')
     assert.ok(bundle.indexOf('__mods["update-panel"]') < 0, rel + ' 里不应再有自研状态机模块')
   }
@@ -247,7 +249,7 @@ test('接线：包版产物声明两个运行时依赖与 node >=22.18.0', () =>
     files?: string[]
   }
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.32' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.33' })
   assert.equal(pkg.engines?.node, '>=22.18.0', '更新包 0.18.x 要求 node >=22.18.0')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
@@ -258,9 +260,9 @@ test('接线：新闭包模块全进包，无嵌套双拷贝', () => {
   // #75 实物结论：精确 0.3.4 落在更新包 dsh-log@^0.3.4 内，npm 去重为单拷贝；锁死不断言，后续重装即失据
   assert.ok(!existsSync(join(ROOT, 'node_modules', 'dsh-plugin-update', 'node_modules')), '更新包下不应有嵌套 dsh-log 副本')
   const bundle = read('package/lib/client.js')
-  // 0.18.25 起 panel 闭包新增 last-resort（→ codes）与 manual-absent（→ bilingual/commands/lang）；
-  // 0.18.32 起再新增 hash（多模块共用）、install-fail（→ hash/codes）与 log/panel-client（→ client-queue/hash）
-  for (const key of ['upd-codes', 'upd-last-resort', 'upd-manual-absent', 'upd-commands', 'upd-log-client-queue', 'upd-hash', 'upd-install-fail', 'upd-log-panel-client', 'log-config', 'log-client', 'log-core-level', 'log-config-resolve', 'log-client-write']) {
+  // 0.18.33 起上游把 src/ 拆成 core|panel|host|shared（公开面零变）：客户端内联闭包按新布局重推为 36 件，
+  // 键名随新路径走（upd-shared-* / upd-core-* / upd-panel-* / upd-log-* / upd-entry）。
+  for (const key of ['upd-shared-codes', 'upd-shared-last-resort', 'upd-shared-manual-absent', 'upd-shared-commands', 'upd-shared-config', 'upd-shared-copy', 'upd-shared-hash', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service', 'upd-core-i18n-text', 'upd-core-changelog-parse', 'upd-core-changelog-render-model', 'upd-log-client-queue', 'upd-log-panel-client', 'upd-panel-render', 'upd-panel-mount', 'upd-panel-client', 'upd-panel', 'upd-panel-entry', 'upd-entry', 'log-config', 'log-client', 'log-core-level', 'log-config-resolve', 'log-client-write']) {
     assert.ok(bundle.indexOf('__mods["' + key + '"]') >= 0, '包版应内联 ' + key)
   }
 })
@@ -659,17 +661,19 @@ test('事件清单：形状与计数过检查器，且覆盖运行期真会发�
   const manifest = parseEventListManifest(JSON.parse(read('runtime/event-list.json')))
   assert.equal(manifest.pluginId, 'dsh-opencode-palette')
   // 0.3.0 起清单不再自报 counts：三类计数以 computeEventCounts 自算为准（快照 pin 住，上游增删事件即变红）
-  assert.deepEqual(computeEventCounts(manifest), { resident: 23, ondemand: 7, selfmon: 1 })
+  assert.deepEqual(computeEventCounts(manifest), { resident: 27, ondemand: 6, selfmon: 1 })
   for (const [name, entry] of Object.entries(manifest.events)) {
     const check = checkEventFields(manifest, name, entry.fields)
     assert.equal(check.ok, true, name + ' 的字段白名单检查不过：' + JSON.stringify(check))
     assert.notEqual(lintEventFields(manifest, name, entry.fields).severity, 'error', name + ' 有未知事件')
   }
-  // 运行期会发的事件名：本仓自有 8（update.* 死条目已删，见 #75）+ 面板经 logAppend 发的上游事件抽样
+  // 运行期会发的事件名：本仓自有 8（update.check.ok / update.install.start / update.install.ok 三个死条目已删，见 #75）
+  // + 面板经 logAppend 发的上游事件抽样 + 上游 0.18.x 加回且有发射点的 3 个（update.install.fail 见上游 dist/core/service.js）
   const emitted = [
     'host.call', 'host.call.fail', 'update.install.exec', 'host.channel.fail',
     'log.switch.set', 'log.forward.summary', 'log.switch.watchdog', 'log.export.fail',
     'update.check.start', 'update.check.done', 'update.status.changed', 'update.panel.mount',
+    'update.install.fail', 'update.batch.run.start', 'update.install.retry',
   ]
   for (const name of emitted) {
     assert.ok(manifest.events[name], '事件清单缺 ' + name)
