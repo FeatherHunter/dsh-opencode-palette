@@ -1,0 +1,1426 @@
+<!doctype html><html lang='zh-CN'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>13 款 DSH 主题/背景插件 · 技术实现交互图解</title><style>:root{--bg:#fff;--fg:#1a1a1a;--muted:#666;--line:#e5e5e5;--card:#f5f6f8;--accent:#0b5fff;--code:#eef0f3;--ok:#0e7a3d;--warn:#9a6700;--c1:#0b5fff;--c2:#7c3aed;--c3:#0e7a3d;--c4:#c2410c}
+html[data-theme=dark]{--bg:#141518;--fg:#e8e8ea;--muted:#a7a7ad;--line:#2c2c2e;--card:#1d1e22;--accent:#7aaaff;--code:#26272c;--ok:#5BD98A;--warn:#FFC24B}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.7 -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif}
+.topnav{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+.topnav .in{max-width:1180px;margin:0 auto;padding:10px 22px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.topnav .brand{font-weight:700;font-size:14px;margin-right:auto}
+.topnav a.nl{font-size:13px;color:var(--muted);text-decoration:none;padding:4px 8px;border-radius:8px}.topnav a.nl.on,.topnav a.nl:hover{color:var(--accent);background:var(--card)}
+.search{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 14px;font-size:13px;min-width:200px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:999px;padding:6px 14px;font-size:13px;cursor:pointer}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.wrap{max-width:1180px;margin:0 auto;padding:26px 22px 90px}
+.hero{border:1px solid var(--line);background:linear-gradient(135deg,var(--card),transparent);border-radius:18px;padding:28px;margin-bottom:18px}
+.hero h1{margin:0 0 8px;font-size:27px}.hero p{margin:6px 0;color:var(--muted);font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:16px 0 4px}@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}}
+.stat{border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:10px 12px;text-align:center}
+.stat b{display:block;font-size:26px;color:var(--accent)}.stat span{font-size:12px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:5px 13px;font-size:13px;cursor:pointer;user-select:none}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.chip small{opacity:.7}
+.grp{font-size:12px;color:var(--muted);align-self:center;margin-left:6px}
+section.block{margin:26px 0}section.block>h2{font-size:21px;margin:0 0 4px}section.block>.desc{color:var(--muted);font-size:13.5px;margin:0 0 12px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:900px){.cards{grid-template-columns:1fr}}
+.repo{border:1px solid var(--line);border-radius:14px;background:var(--bg);overflow:hidden}
+.repo.hide{display:none}.repo .hd{padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.repo .hd h3{margin:0 0 6px;font-size:16px}.repo .hd h3 a{color:var(--fg);text-decoration:none}.repo .hd h3 a:hover{color:var(--accent)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.bdg{font-size:11.5px;border-radius:999px;padding:2px 10px;border:1px solid var(--line);background:var(--card);white-space:nowrap}
+.bdg.m-reg{border-color:#0b5fff;color:#0b5fff}.bdg.m-ovr{border-color:#7c3aed;color:#7c3aed}.bdg.m-self{border-color:#c2410c;color:#c2410c}.bdg.m-brg{border-color:#0e7a3d;color:#0e7a3d}
+.bdg.yes{border-color:var(--ok);color:var(--ok)}.bdg.no{color:var(--muted)}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;padding:10px 12px 0}
+.tab{border:1px solid transparent;background:transparent;color:var(--muted);font:inherit;font-size:12.5px;padding:5px 10px;border-radius:8px 8px 0 0;cursor:pointer}
+.tab.on{color:var(--accent);border-color:var(--line);border-bottom-color:var(--bg);background:var(--bg);font-weight:600;margin-bottom:-1px;position:relative;z-index:1}
+.panes{border-top:1px solid var(--line);padding:12px 16px 14px;font-size:13.5px;min-height:120px}
+.pane{display:none}.pane.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1}}
+.pane ul{margin:6px 0;padding-left:19px}.pane li{margin:5px 0}
+code{font-family:'SF Mono','JetBrains Mono',Consolas,monospace;font-size:.85em;background:var(--code);padding:1px 6px;border-radius:6px;word-break:break-all}
+.cp{cursor:pointer;border:1px solid var(--line);background:var(--card);border-radius:6px;font-size:11px;padding:0 7px;margin-left:6px;color:var(--muted)}
+.cp:hover{color:var(--accent);border-color:var(--accent)}
+table.mx{width:100%;border-collapse:collapse;font-size:12.5px;display:block;overflow-x:auto}
+table.mx th,table.mx td{border:1px solid var(--line);padding:7px 9px;vertical-align:top;text-align:left;white-space:nowrap}
+table.mx thead th{position:sticky;top:0;background:var(--card);z-index:5}
+table.mx td.hl,table.mx th.hl{background:rgba(11,95,255,.09)}
+table.mx tr.hide{display:none}table.mx tr.dim{opacity:.35}
+.diag{border:1px solid var(--line);border-radius:14px;padding:16px;background:var(--bg);margin:12px 0}
+.diag h4{margin:0 0 8px;font-size:15px}.diag svg{width:100%;height:auto;display:block}
+.flowbtns{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.achips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.achip{font-family:monospace;font-size:12px;background:var(--code);border-radius:6px;padding:2px 9px}
+details.full{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--bg)}details.full summary{cursor:pointer;padding:11px 15px;font-weight:600}details.full .inner{padding:2px 18px 16px;border-top:1px solid var(--line)}
+details.full .inner table{width:100%;border-collapse:collapse;font-size:13px;display:block;overflow-x:auto}details.full .inner th,details.full .inner td{border:1px solid var(--line);padding:6px 9px}
+.foot{color:var(--muted);font-size:12px;border-top:1px solid var(--line);margin-top:26px;padding-top:12px}
+html{scroll-behavior:smooth}a{color:var(--accent)}[id]{scroll-margin-top:120px}.backtop{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px}
+.inner h1{font-size:20px}.inner h2{font-size:17px}.inner h3{font-size:15px}.inner pre{background:#0f0f11;color:#e8e8ea;border-radius:10px;padding:12px 14px;overflow:auto;font-size:12.5px}.inner pre code{background:transparent;padding:0}.inner blockquote{border-left:4px solid var(--accent);margin:12px 0;padding:8px 14px;background:var(--card);border-radius:0 10px 10px 0}@media print{.topnav,.chips,.backtop,.search,.tabs,.flowbtns,.cp{display:none}.cards{grid-template-columns:1fr}.pane{display:block}}</style></head><body><nav class='topnav'><div class='in'><span class='brand'>DSH 主题/背景 · 13 仓技术实现</span><a class='nl' href='#mx'>对照矩阵</a><a class='nl' href='#dg'>架构图解</a><a class='nl' href='#sa'>整包皮肤</a><a class='nl' href='#sb'>配色外观</a><a class='nl' href='#sc'>动态壁纸</a><a class='nl' href='#sd'>特殊集成</a><a class='nl' href='#app'>全文</a><input class='search' id='q' placeholder='搜索仓库 / token / 文件…'><button class='btn' id='themeBtn'>深色</button></div></nav><div class='wrap'><div class='hero'><h1>13 款 DSH 主题 / 背景插件 · 技术实现交互图解</h1><p>取证 2026-10-18 · 只读源码与文档 · 行号以 pin 时刻为准（漂移以「文件 + 符号」为准）。用筛选器、标签页与架构图阅读，而非通读文本。</p><div class='stats'><div class='stat'><b data-count='13'>0</b><span>仓库</span></div><div class='stat'><b data-count='57'>0</b><span>dream token / 皮肤</span></div><div class='stat'><b data-count='10'>0</b><span>bloom 色板</span></div><div class='stat'><b data-count='4'>0</b><span>catppuccin 风味</span></div><div class='stat'><b>0</b><span>全局字号接管（家）</span></div><div class='stat'><b>13/13</b><span>无独立 BGM</span></div></div><div class='meta' style='color:var(--muted);font-size:12.5px'>生成 2026/10/18 13:57:26 · 底稿 docs/research/ 5 篇（附录内嵌）</div></div><div class='chips' id='filters'><span class='grp'>分组</span><span class='chip on' data-f='g' data-v='all'>全部</span><span class='chip' data-f='g' data-v='skin'>整包皮肤</span><span class='chip' data-f='g' data-v='color'>配色外观</span><span class='chip' data-f='g' data-v='wp'>动态壁纸</span><span class='chip' data-f='g' data-v='x'>特殊集成</span><span class='grp'>机制</span><span class='chip on' data-f='m' data-v='all'>全部</span><span class='chip' data-f='m' data-v='reg'>register</span><span class='chip' data-f='m' data-v='ovr'>overrideTokens</span><span class='chip' data-f='m' data-v='self'>自注入</span><span class='chip' data-f='m' data-v='brg'>桥接/容器</span><span class='grp'>特性</span><span class='chip' data-f='v' data-v='1'>有视频</span><span class='chip' data-f='mo' data-v='1'>按模型切换</span><span class='chip' data-f='f' data-v='1'>接管字族</span><button class='btn' id='resetBtn'>重置</button><span class='grp' id='cnt'></span></div><section class='block' id='mx'><h2>对照矩阵（点击表头高亮该列；受上方筛选器联动）</h2><table class='mx' id='mxTable'><thead><tr><th data-c='0'>#</th><th data-c='1'>仓库</th><th data-c='2'>生效机制</th><th data-c='3'>颜色 token</th><th data-c='4'>字体 / 字号</th><th data-c='5'>背景挂载</th><th data-c='6'>视频</th><th data-c='7'>音乐</th><th data-c='8'>切换</th></tr></thead><tbody><tr data-group='skin' data-mech='reg ovr self'><td>1</td><td><a href='#c-r1'>dream-skin</a></td><td>register 8 皮肤 + 单次 overrideTokens DIY + 材质 style</td><td>57 枚/皮肤</td><td>不管（设置面板 13px）</td><td>fixed 壁纸 div -1 + glow</td><td>无</td><td>无</td><td>选肤 + DIY + 轮播</td></tr><tr data-group='skin' data-mech='ovr self'><td>2</td><td><a href='#c-r2'>open-sea-skin</a></td><td>源码 overrideTokens / 发布包自注入 + iframe 二选一</td><td>9 背景系</td><td>不管</td><td>transparent + WebGPU 海洋</td><td>无</td><td>无</td><td>开关 + daylight</td></tr><tr data-group='skin' data-mech='self'><td>3</td><td><a href='#c-r3'>bloom-theme</a></td><td>自注入 data-plugin-css</td><td>10 套 OKLCH</td><td>不改宿主</td><td>gradient + 玻璃</td><td>无</td><td>无</td><td>变体 × 亮暗</td></tr><tr data-group='skin' data-mech='self'><td>4</td><td><a href='#c-r4'>prts</a></td><td>自注入 html[data-dsh-prts] + !important</td><td>自有 --prts-*</td><td>自有三字族 / 无全局字号</td><td>gradient + SVG/canvas 生成</td><td>无</td><td>无</td><td>只读日夜</td></tr><tr data-group='skin' data-mech='ovr self'><td>5</td><td><a href='#c-r5'>mineradio</a></td><td>override 主 + census + 玻璃辅</td><td>alias 半透明 + specific</td><td>只管字族</td><td>透底 + fixed 二选一</td><td>用户文件（默认关）</td><td>无</td><td>手动 + 二选一</td></tr><tr data-group='color' data-mech='reg'><td>6</td><td><a href='#c-r6'>catppuccin</a></td><td>register（用户覆盖必胜）+ 玻璃链路</td><td>static + alias + shiki</td><td>不管</td><td>纯色风味基座</td><td>无</td><td>无</td><td>换风味 / 覆盖</td></tr><tr data-group='color' data-mech='self'><td>7</td><td><a href='#c-r7'>claude-style</a></td><td>自注入 body scoped + 定点 !important</td><td>宿主语义 + 私有族</td><td>全栈（自带+自放+CJK）</td><td>让位壁纸引擎</td><td>无</td><td>无</td><td>PALETTE×BRAND</td></tr><tr data-group='color' data-mech='ovr'><td>8</td><td><a href='#c-r8'>ui-appearance</a></td><td>overrideTokens + body 22 变量</td><td>6 角色 × 双模式</td><td>不管</td><td>fixed 三层合成</td><td>muted/loop/inline/autoplay</td><td>无</td><td>角色/预设/文件</td></tr><tr data-group='wp' data-mech='brg'><td>9</td><td><a href='#c-r9'>wallpaper-engine</a></td><td>body 壁纸层 + 页面透明化</td><td>不定义颜色 token</td><td>不管</td><td>fixed -2 + scrim -1</td><td>直放 + 转码</td><td>无独立 BGM</td><td>手动 + 轮播</td></tr><tr data-group='wp' data-mech='brg'><td>10</td><td><a href='#c-r10'>any-background</a></td><td>壁纸容器 + token 让位</td><td>复用界面 token</td><td>不管</td><td>fixed -1 单层</td><td>muted 直放</td><td>写死 muted</td><td>类型+profile+轮播池</td></tr><tr data-group='wp' data-mech='brg'><td>11</td><td><a href='#c-r11'>background-by-model</a></td><td>容器 + 规则→主题</td><td>规则自带色</td><td>不管</td><td>fixed -1 + 内双层</td><td>无（v0.3.0 移除）</td><td>无</td><td>按模型 + 规则内 rotation</td></tr><tr data-group='x' data-mech='self'><td>12</td><td><a href='#c-r12'>maid-atelier</a></td><td>自注入 body 作用域</td><td>20 body 变量</td><td>可配（协议投影）</td><td>column-inner 静态图</td><td>无</td><td>无</td><td>五维切换</td></tr><tr data-group='x' data-mech='brg'><td>13</td><td><a href='#c-r13'>beautiCode</a></td><td>bridge（5 脚本 + SSE）</td><td>无颜色 token（自有 tone）</td><td>不管</td><td>body 全局固定层 z-0</td><td>mp4/mov + 回退 muted</td><td>=视频轨开关</td><td>tone + SSE</td></tr></tbody></table><p class='desc'>机制图例：register = 宿主注册合并 · overrideTokens = 宿主覆盖层 · 自注入 = 自写 style + 选择器/!important · 桥接/容器 = body 固定层 + 页面透明化。</p></section><section class='block' id='dg'><h2>架构图解</h2><p class='desc'>三张 SVG：生效三机制 → 落点；背景层叠（可开关透明化）；engine 三通道与 model 跟随流程。悬停色块查看说明。</p><div class='diag'><h4>图 1 · 生效三机制：谁赢得层叠</h4><svg viewBox='0 0 900 250' role='img'><defs><marker id='ar' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8' fill='none' stroke='#888' stroke-width='1.5'/></marker></defs><g font-size='13' font-family='inherit'><rect x='10' y='30' width='200' height='80' rx='10' fill='none' stroke='#0b5fff' stroke-width='2'><title>dream / catppuccin：调宿主 theme.register / overrideTokens，把 token 写进宿主主题层</title></rect><text x='22' y='58' fill='currentColor'>宿主注册 / 覆盖</text><text x='22' y='78' font-size='11' fill='gray'>register · overrideTokens</text><text x='22' y='95' font-size='11' fill='gray'>dream · catppuccin · mineradio 主</text><rect x='10' y='140' width='200' height='80' rx='10' fill='none' stroke='#c2410c' stroke-width='2'><title>bloom / prts / claude / maid：自己写 style 标签，用 scoped 选择器 + !important 赢过宿主</title></rect><text x='22' y='168' fill='currentColor'>自注入 CSS</text><text x='22' y='188' font-size='11' fill='gray'>scoped + !important</text><text x='22' y='205' font-size='11' fill='gray'>bloom · prts · claude · maid</text><rect x='250' y='85' width='200' height='80' rx='10' fill='none' stroke='#0e7a3d' stroke-width='2'><title>engine / any / model / beautiCode：body 下挂固定层 + 把页面置透明露出底层</title></rect><text x='262' y='113' fill='currentColor'>桥接 / 容器</text><text x='262' y='133' font-size='11' fill='gray'>body 固定层 + 页面透明化</text><text x='262' y='150' font-size='11' fill='gray'>engine · any · model · beautiCode</text><rect x='560' y='60' width='300' height='130' rx='10' fill='none' stroke='#888' stroke-width='1.5' stroke-dasharray='6 4'><title>最终渲染：宿主按层序合并，同 token 后写者胜；层序仲裁尚未深挖</title></rect><text x='572' y='88' fill='currentColor'>宿主层叠（后写者胜）</text><text x='572' y='108' font-size='11' fill='gray'>body 内联 → 注册层 → 自注入 style</text><text x='572' y='125' font-size='11' fill='gray'>→ 固定背景层 → 页面透明化露出</text><text x='572' y='142' font-size='11' fill='gray'>叠加层序仲裁 = 已知缺口</text><line x1='210' y1='70' x2='545' y2='100' stroke='#888' stroke-width='1.5' marker-end='url(#ar)'/><line x1='210' y1='180' x2='545' y2='150' stroke='#888' stroke-width='1.5' marker-end='url(#ar)'/><line x1='450' y1='125' x2='545' y2='125' stroke='#888' stroke-width='1.5' marker-end='url(#ar)'/></g></svg></div><div class='diag'><h4>图 2 · 背景层叠可视化（z 轴剖面）</h4><label style='font-size:13px'><input type='checkbox' id='transToggle' checked> 内容层不透明（取消勾选则变透明，示意背景露出）</label><svg viewBox='0 0 900 220' role='img' id='layerSvg'><g font-size='13' font-family='inherit'><rect x='60' y='160' width='780' height='34' rx='8' fill='#0b5fff' opacity='.85'><title>壁纸层：fixed，z-index -2（engine）/ -1（any/model/ui-appearance）；pointer-events none</title></rect><text x='70' y='182' fill='#fff'>壁纸层 fixed · z -2/-1 · image / video / canvas / iframe</text><rect x='60' y='118' width='780' height='34' rx='8' fill='#7c3aed' opacity='.8'><title>scrim 罩：z-index -1，恒压壁纸层之上、界面之下，保文字可读</title></rect><text x='70' y='140' fill='#fff'>scrim 罩 · z -1 · 渐变/半透明（保可读）</text><g id='contentLayer'><rect x='60' y='40' width='780' height='70' rx='8' fill='#0e7a3d' opacity='.85'><title>界面内容：token 改色 + 透明化（body[data-we-wallpaper] 等）后露出底层</title></rect><text x='70' y='66' fill='#fff'>界面内容层 · token 改色 + 透明化</text><text x='70' y='88' font-size='11' fill='#e8e8e8'>侧栏 / 对话列 / 输入框 / 气泡 / overlay（透明度 + blur）</text></g><text x='60' y='18' font-size='12' fill='gray'>z ↑ 内容 · -1 scrim · -2 壁纸（过场时旧层压 -3）—— maid 例外：挂对话列内部（column-inner，随布局收缩）</text></g></svg></div><div class='diag'><h4>图 3 · engine 三通道 vs model 按模型切换</h4><svg viewBox='0 0 900 250' role='img'><g font-size='12.5' font-family='inherit'><text x='10' y='16' font-size='13' font-weight='bold' fill='currentColor'>wallpaper-engine：buildMedia 三选一</text><rect x='10' y='28' width='150' height='44' rx='8' fill='none' stroke='#0b5fff' stroke-width='1.6'><title>默认：WebWallGL iframe，sandbox=allow-scripts</title></rect><text x='20' y='47' fill='currentColor'>实时渲染</text><text x='20' y='63' font-size='11' fill='gray'>scene / web → iframe</text><rect x='175' y='28' width='150' height='44' rx='8' fill='none' stroke='#0b5fff' stroke-width='1.6'><title>isSceneVideo 分支 / 纯 video 类型；autoplay loop preload:auto playsinline</title></rect><text x='185' y='47' fill='currentColor'>视频直放</text><text x='185' y='63' font-size='11' fill='gray'>video + 音频门</text><rect x='340' y='28' width='150' height='44' rx='8' fill='none' stroke='#0b5fff' stroke-width='1.6'><title>img.we-media：作者预览 / 抓帧 _gpu.png / 自定义 / 主题色兜底</title></rect><text x='350' y='47' fill='currentColor'>静态帧</text><text x='350' y='63' font-size='11' fill='gray'>img + poster 垫底</text><rect x='175' y='100' width='150' height='40' rx='8' fill='none' stroke='#888' stroke-width='1.4' stroke-dasharray='5 3'><title>同源 /media/&lt;token&gt;：绝对路径 base64url，Range/HEAD/ETag；Steam 扫描建清单</title></rect><text x='185' y='117' fill='currentColor'>同源 token URL</text><text x='185' y='132' font-size='11' fill='gray'>Range · 预热 metadata</text><text x='10' y='176' font-size='13' font-weight='bold' fill='currentColor'>background-by-model：watchModel → matchRule → applyActive（唯一真做模型跟随）</text><rect x='10' y='188' width='170' height='40' rx='8' fill='none' stroke='#0e7a3d' stroke-width='1.6'><title>三跳：durable modelSelection faceOf + modelDirectories + host 默认兜底</title></rect><text x='20' y='205' fill='currentColor'>watchModel 三跳</text><text x='20' y='220' font-size='11' fill='gray'>faceOf · 目录 · 兜底</text><rect x='200' y='188' width='200' height='40' rx='8' fill='none' stroke='#0e7a3d' stroke-width='1.6'><title>有序规则大小写不敏感子串首命中；空 match 永不命中；无命中回落首个 usable</title></rect><text x='210' y='205' fill='currentColor'>matchRule 首命中</text><text x='210' y='220' font-size='11' fill='gray'>+ fallback rule 1</text><rect x='420' y='188' width='220' height='40' rx='8' fill='none' stroke='#0e7a3d' stroke-width='1.6'><title>模型切换 advance=true → advanceOnSwitch 步进 → scheduleRotation → applyWp；规则内 rotation 5s–24h</title></rect><text x='430' y='205' fill='currentColor'>applyActive（advance）</text><text x='430' y='220' font-size='11' fill='gray'>步进 + 轮播 + cross-fade</text></g></svg></div><div class='diag'><h4>图 4 · 视频自动播放 explorer（点仓库看逐字写法）</h4><div class='flowbtns' id='vpBtns'><button class='chip on' data-vp='engine'>engine</button><button class='chip' data-vp='any'>any</button><button class='chip' data-vp='mineradio'>mineradio</button><button class='chip' data-vp='ui'>ui-appearance</button><button class='chip' data-vp='bc'>beautiCode</button></div><div class='achips' id='vpPanel'></div><p class='desc' id='vpNote' style='font-size:12.5px;color:var(--muted)'></p></div></section><section class='block' id='sa'><h2>A · 整包皮肤系</h2><p class='desc'>共同点：都不用纯 JSON theme；颜色经 alias/specific 语义 token 或同名变量覆盖；动态感走 gradient / canvas / 程序化粒子，仅 mineradio 接用户视频；音乐 5 家全无。</p><div class='cards'><article class='repo' data-group='skin' data-mech='reg ovr self' data-video='0' data-model='0' data-font='0' id='c-r1'><div class='hd'><h3><a href='https://github.com/RevolutionLA/dsh-dream-skin'>1 · dream-skin</a></h3><div class='badges'><span class='bdg m-reg'>register</span><span class='bdg m-ovr'>overrideTokens</span><span class='bdg m-self'>自注入</span><span class='bdg'>v10.16.x · 57 枚/皮肤</span><span class='bdg no'>无视频</span><span class='bdg no'>无音乐</span></div></div><div class='tabs' data-tabs='r1'><button class='tab on' data-pane='r1-0'>总览</button><button class='tab' data-pane='r1-1'>颜色Token</button><button class='tab' data-pane='r1-2'>字体字号</button><button class='tab' data-pane='r1-3'>背景挂载</button><button class='tab' data-pane='r1-4'>资源寻址</button><button class='tab' data-pane='r1-5'>视频音频</button><button class='tab' data-pane='r1-6'>切换</button><button class='tab' data-pane='r1-7'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r1-0'><ul><li>官方双轨：<code>ctx.theme.register</code> 注册 8 皮肤标量 + 合并后单次 <code>overrideTokens("dsh-dream-skin:appearance")</code> 写 DIY 层（Accent / POPUP / wash 三叠加，{light,dark} 对）。</li><li>自注入 <code>&lt;style&gt;</code> 只做液态玻璃材质，不管颜色。</li><li>host 半只做 <code>$DSH_HOME/dream-skin.json</code> 持久化（localStorage 跨 origin 补偿），与注入无关。</li></ul></div><div class='pane' id='p-r1-1'><ul><li>57 枚/皮肤：alias（bg-base/layer-1/2/3/module-platform/overlay/skeleton）、menu、label 三级、brand、button、border-l1~l4、interactive、focus-ring、file-diff 6 件、state、markdown 三件、scrollbar 4 件、specific（sidebar-fill/nav/input/tip/selector/bubble）。</li><li>定义 <code>lib/client.js</code> L423–L935（abyss L424 … rose L935）<button class='cp' data-copy='lib/client.js L423-L935'>复制</button>；源头 <code>scripts/skin-system.cjs</code> L523 OKLCH 解算 → 烘焙。</li><li>主题包白名单：bg-base/layer-1、label、brand-primary、border-l1/l2。</li></ul></div><div class='pane' id='p-r1-2'><ul><li>不管：57 token 零命中 font/size/family；仅设置面板行内 <code>fontSize:"13px"</code>。</li></ul></div><div class='pane' id='p-r1-3'><ul><li>token 改色 + fixed 壁纸 <code>&lt;div&gt;</code>（inset:0, z-index:-1, prepend L6504–L6505；<code>backgroundImage</code>=url/gradient L6513；cover/contain + blur 0–60px + bleed 垫底；kind 仅 image|url|gradient）。</li><li>每皮肤 glow 弥散光；安全阀 http(s)/data:image。</li></ul></div><div class='pane' id='p-r1-4'><ul><li><code>wallpapers/</code> 3 张 .jpg 不打进包；选图→压缩 dataURL→localStorage / 历史 5 条 / URL / 渐变 / 必应每日 + 定时刷新。</li></ul></div><div class='pane' id='p-r1-5'><ul><li>均无：43 万字符全文 music|bgm|mp3|mp4|webm|audio|video|autoplay 零命中；选择器 <code>accept:"image/*"</code>。</li></ul></div><div class='pane' id='p-r1-6'><ul><li>选肤（setTheme + syncSkin 听 theme/change，重入守卫 L6490）+ DIY 叠加 + 壁纸轮播 rotationGroups（后台推迟）。</li></ul></div><div class='pane' id='p-r1-7'><ul><li><code>lib/client.js</code> L7610 apply → L7631 注册 → L2386 override → L2412 材质 → L6504 壁纸层<button class='cp' data-copy='lib/client.js'>复制</button></li><li><code>lib/index.js</code> L45/L69 持久化 · <code>docs/themes-spec.md</code> 白名单</li></ul></div></div></article><article class='repo' data-group='skin' data-mech='ovr self' data-video='0' data-model='0' data-font='0' id='c-r2'><div class='hd'><h3><a href='https://github.com/d-dev0101/open-sea-skin'>2 · open-sea-skin</a></h3><div class='badges'><span class='bdg m-ovr'>overrideTokens</span><span class='bdg m-self'>自注入</span><span class='bdg'>双路径二选一 · 9 背景系</span><span class='bdg no'>无视频</span></div></div><div class='tabs' data-tabs='r2'><button class='tab on' data-pane='r2-0'>总览</button><button class='tab' data-pane='r2-1'>颜色Token</button><button class='tab' data-pane='r2-2'>字体字号</button><button class='tab' data-pane='r2-3'>背景挂载</button><button class='tab' data-pane='r2-4'>视频音频</button><button class='tab' data-pane='r2-5'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r2-0'><ul><li>A 源码集成：<code>harness-plugin/src/client/index.ts</code> L65→L71 applyTokens（enabled:glass 时 overrideTokens，L94 effect 可逆卸载）→ slots.inject shell.background → postMessage 联动 ocean.js。</li><li>B npm 发布包：<code>plugin/client.js</code>（skin-core 生成物）controller.start()；<code>skin-core.js</code> L310–L330 建 iframe + <code>&lt;style id="__open-sea-skin-glass__"&gt;</code>（!important），updateGlass L249–L251 同步。</li><li>优先级：<code>body{background:transparent !important}</code> 先掏底再半透明盖回。</li></ul></div><div class='pane' id='p-r2-1'><ul><li>9 背景系：bg-base（light glass/100，dark max(0.4,light-0.12)，默认 glass:72）/ layer-1/2/3 / module-platform / multi-select / overlay / sidebar-fill / selector（glassTokens L39–L53）。</li></ul></div><div class='pane' id='p-r2-2'><ul><li>不管：Geist @font-face（<code>shared/styles.css</code> L1–L22）只用于 ocean iframe / 自家面板。</li></ul></div><div class='pane' id='p-r2-3'><ul><li>掏底 + 九 token + iframe 置底（<code>/open-sea-skin/skin.html</code>，assetUrl 相对寻址）。</li><li>动态源 <code>shared/ocean.js</code>：WebGPU Three.js TSL 实时海洋（5 Gerstner 波 + FBM + Bloom；12 分钟 daylight cycle + reduced-motion 降帧）。</li><li>侧栏 transparent + 旧 hash 回退；overlay 最高 alpha + settings 保底 .97。</li></ul></div><div class='pane' id='p-r2-4'><ul><li>均无：220 项树除 docs 录屏 gif 外无音视频；ocean.js 等 audio/video/mp3/mp4 零命中（ogg/wav 系误报）；README 原话 <i>rather than a looping wallpaper video</i>。</li></ul></div><div class='pane' id='p-r2-5'><ul><li><code>harness-plugin/src/client/index.ts</code> L39/L44–L53/L77<button class='cp' data-copy='harness-plugin/src/client/index.ts'>复制</button> · <code>shared/skin-core.js</code> L92/L310–L330 · <code>shared/ocean.js</code></li></ul></div></div></article><article class='repo' data-group='skin' data-mech='self' data-video='0' data-model='0' data-font='0' id='c-r3'><div class='hd'><h3><a href='https://github.com/webkubor/dsh-bloom-theme'>3 · bloom-theme</a></h3><div class='badges'><span class='bdg m-self'>自注入</span><span class='bdg'>v0.17.6 · 10 套 OKLCH</span><span class='bdg no'>无视频</span></div></div><div class='tabs' data-tabs='r3'><button class='tab on' data-pane='r3-0'>总览</button><button class='tab' data-pane='r3-1'>颜色Token</button><button class='tab' data-pane='r3-2'>字体字号</button><button class='tab' data-pane='r3-3'>背景挂载</button><button class='tab' data-pane='r3-4'>视频音频</button><button class='tab' data-pane='r3-5'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r3-0'><ul><li>自注入 <code>&lt;style data-plugin-css&gt;</code>（<code>src/dom.ts</code> injectCSS 幂等；client.ts 三表注入 bloom/components/glass）；<code>overrideTokens</code>/<code>ctx.theme</code> 全仓零命中。</li><li>node 半只注册只读 <code>/api/bloom/dsh-version</code>；browser IIFE：readVariant（localStorage，回落 mist）→ 三表 inject → body.dataset.bloomVariant → initAppearanceSync（<code>appearance.ts</code>，亮暗监听）。</li><li>落点：<code>body[data-bloom-variant]{--bloom-ambience…; background-color:var(--dsw-alias-bg-base)!important}</code> + <code>body::before</code> fixed z-index:-1。</li></ul></div><div class='pane' id='p-r3-1'><ul><li><code>src/tokens.ts</code> buildBloomCSS()：PALETTE（<code>palette.ts</code> VARIANTS 10，WCAG AA 全达标）→ bloomTokens（--bloom-morandi/accent/motion/shadow/hairline/glow/code-bg/glass-blur/cursor）→ sharedDswTokens → mistLight/mistDark 完整骨架 → variantBlock（其余 9 变体只覆主色 + 背景调）。</li></ul></div><div class='pane' id='p-r3-2'><ul><li>不改宿主字族：font-family 全仓仅 4 命中且全是自家切换器作用域（switcher.ts L209 诗句衬线 / L360 版本号等宽）。</li><li>宿主字号仅 tabs clamp + 侧栏 12px。</li></ul></div><div class='pane' id='p-r3-3'><ul><li>token + --bloom-ambience radial 串 + ::before；aurora 丝带层（glass.ts，opacity 0.2，reduced-motion 关动画）。</li><li>玻璃走 ::before（backdrop-filter 会劫持 fixed 后代 overlay）；壁纸层 v0.5.0 已移除；src 内 <code>url(</code> 零命中。</li></ul></div><div class='pane' id='p-r3-4'><ul><li>均无：mp3|mp4|webm|ogg|audio|video|autoplay 全零命中。</li></ul></div><div class='pane' id='p-r3-5'><ul><li><code>src/tokens.ts</code> · <code>src/dom.ts</code> · <code>src/client.ts</code> · <code>src/css/component.ts</code> · <code>src/css/glass.ts</code><button class='cp' data-copy='src/tokens.ts'>复制</button></li></ul></div></div></article><article class='repo' data-group='skin' data-mech='self' data-video='0' data-model='0' data-font='1' id='c-r4'><div class='hd'><h3><a href='https://github.com/ash-qw/dsh-theme-prts'>4 · dsh-theme-prts</a></h3><div class='badges'><span class='bdg m-self'>自注入</span><span class='bdg'>@1.4.2 · 自有三字族</span><span class='bdg no'>无视频</span></div></div><div class='tabs' data-tabs='r4'><button class='tab on' data-pane='r4-0'>总览</button><button class='tab' data-pane='r4-1'>颜色Token</button><button class='tab' data-pane='r4-2'>字体字号</button><button class='tab' data-pane='r4-3'>背景挂载</button><button class='tab' data-pane='r4-4'>视频音频</button><button class='tab' data-pane='r4-5'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r4-0'><ul><li>自注入 style（theme-controller-v2.js L132–L140）+ <code>html[data-dsh-prts]</code> 作用域 + !important；<code>overrideTokens</code> 20 文件零命中；读 theme/change 仅同步日夜不写回。</li><li>服务端只注册徽记/头像工具与 API；构建 build.mjs 合成 PRTS_CSS + data-URI 资产 → lib/client.js（~1MB）。</li></ul></div><div class='pane' id='p-r4-1'><ul><li>自有 <code>--prts-*</code> 族（prts.css：canvas/elevated/rail/panel/ink/line/品牌/玻璃四档/气泡/头像环/light 整组/session-flow 三色）+ 极少数 alias 转接（L145–L152）。</li><li>唯一动态 token：session-flow（preferences.js 调色板 × L735 setProperty）。</li></ul></div><div class='pane' id='p-r4-2'><ul><li>--prts-body/display/mono（Noto Sans SC / Arial Narrow / Roboto Mono，L34–L36）；无全局字号（自家面板 .875/.75rem + 8/9/11/12px）。</li></ul></div><div class='pane' id='p-r4-3'><ul><li>token + gradient + 内联 SVG data-URI + JS 生成 SVG/canvas（城市剪影 SILHOUETTE_PATHS、粒子 field-adapter、ambient/particle 层）。</li><li>输入框 <code>[data-composer-card]{background:var(--prts-active-glass)!important; border-bottom:3px solid yellow}</code>；徽记/头像 base64 + RLE（存插件目录）。</li></ul></div><div class='pane' id='p-r4-4'><ul><li>均无：「声纹/波形」系 session-lifeline SVG 动画；「启动序列」系 DOM/CSS 动画。</li></ul></div><div class='pane' id='p-r4-5'><ul><li><code>src/styles/prts.css</code> · <code>src/client/theme-controller-v2.js</code> L735 · <code>facility-vector.js</code> · <code>composer-glass-adapter.js</code><button class='cp' data-copy='src/styles/prts.css'>复制</button></li></ul></div></div></article><article class='repo' data-group='skin' data-mech='ovr self' data-video='1' data-model='0' data-font='1' id='c-r5'><div class='hd'><h3><a href='https://github.com/dhicoc/dsh-theme-mineradio'>5 · dsh-theme-mineradio</a></h3><div class='badges'><span class='bdg m-ovr'>overrideTokens</span><span class='bdg m-self'>自注入</span><span class='bdg yes'>用户视频（默认关）</span><span class='bdg'>只管字族</span></div></div><div class='tabs' data-tabs='r5'><button class='tab on' data-pane='r5-0'>总览</button><button class='tab' data-pane='r5-1'>颜色Token</button><button class='tab' data-pane='r5-2'>背景挂载</button><button class='tab' data-pane='r5-3'>资源寻址</button><button class='tab' data-pane='r5-4'>视频</button><button class='tab' data-pane='r5-5'>音乐</button><button class='tab' data-pane='r5-6'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r5-0'><ul><li>官方叠层为主 + 自注入为辅：applyTokens（L1556–L1564）<code>overrideTokens</code> 写 body 内联 → applySettings（L1311–L1350）写 html 内联 <code>--dsh-aqua-*</code> + 开关 → mountFluid/seamStamper/spotlight/roleCensus/stationDial（L1581–L1595）。</li><li>优先级：token 层（body 内联）&gt; census 层（data-md-role + !important）&gt; 手工玻璃层。</li></ul></div><div class='pane' id='p-r5-1'><ul><li>alias 全套半透明化 + specific（sidebar-fill=transparent 等）+ shadow；mica/compat 双基表；唯一 <code>--dsw-font-family</code>（Inter base64 自托管 + Noto Sans CJK 回退）；无字号 token。</li></ul></div><div class='pane' id='p-r5-2'><ul><li>token 半透明透底 + 底部二选一 fixed 层（critters.ts L89–L107）：fluid shader canvas 或用户壁纸 <code>&lt;img&gt;/&lt;video&gt;</code>（fixed inset:0 z-index:-1）；无内置资源；装饰全程序化（star-river/whale/mesh/spotlight）。</li></ul></div><div class='pane' id='p-r5-3'><ul><li>用户自供：input image/* + video/mp4,webm,ogg,quicktime + FSA；大视频 IDB（<code>wallpaper-store.ts</code>）/ 小视频 data: URL。</li></ul></div><div class='pane' id='p-r5-4'><ul><li>有（默认关）：L1396–L1467 按 isVideo 分流（IDB objectURL / FSA 重读 / data:）；自动播放 <code>loop=true + play().catch→muted 重试</code>；videoBlur 6px / videoBrightness 45 保文字。</li></ul></div><div class='pane' id='p-r5-5'><ul><li>无：audio-reactivity.ts 系麦克风视觉脉动；station-dial 系 hue 隐喻，不发声。</li></ul></div><div class='pane' id='p-r5-6'><ul><li><code>src/client/theme-layer.ts</code> L1556–L1564/L1396–L1467<button class='cp' data-copy='src/client/theme-layer.ts'>复制</button> · <code>role-layer.module.css</code> · <code>wallpaper-store.ts</code></li></ul></div></div></article></div></section><section class='block' id='sb'><h2>B · 配色外观系</h2><p class='desc'>三仓全贴宿主 --dsw-* 体系。pins：catppuccin 94af6d7 / claude d773a62 / ui-appearance e64243a。</p><div class='cards'><article class='repo' data-group='color' data-mech='reg' data-video='0' data-model='0' data-font='0' id='c-r6'><div class='hd'><h3><a href='https://github.com/NoNameLeGo/dsh-catppuccin-theme'>6 · dsh-catppuccin-theme</a></h3><div class='badges'><span class='bdg m-reg'>register</span><span class='bdg'>main@94af6d7 · 4 风味</span><span class='bdg no'>不管字体</span></div></div><div class='tabs' data-tabs='r6'><button class='tab on' data-pane='r6-0'>配色</button><button class='tab' data-pane='r6-1'>生效</button><button class='tab' data-pane='r6-2'>玻璃链路</button><button class='tab' data-pane='r6-3'>字体背景</button><button class='tab' data-pane='r6-4'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r6-0'><ul><li><code>palettes.ts</code>（AUTO-GENERATED，上游 pin 639ed015）：latte(light) / frappe / macchiato / mocha(dark)。</li><li>底层 <code>--dsw-static-*</code> hex + 语义层 <code>--dsw-alias-*</code> var()/color-mix()；代码色独立正交表 <code>shiki-tokens.ts</code>（11 枚 --shiki-*）。</li><li>用户覆盖 <code>state.ts</code> sanitizeOverrides（只留 -- 前缀）。</li></ul></div><div class='pane' id='p-r6-1'><ul><li><code>registerThemeFor()</code> L421–L450 → <code>theme.register({id,colorScheme,tokens})</code>；合并顺序 flavor &lt; shiki &lt; 菜单补丁 &lt; 用户覆盖（最后展开必胜）。</li><li>setTheme 包 restoreGuardSetTheme + scheduleRestore（防重入）；宿主双缝兼容（≤0.1.6 / ≥0.1.7）；<code>/catppuccin/check-update</code> 路由。</li></ul></div><div class='pane' id='p-r6-2'><ul><li>GLASS_CSS_TEXT 懒挂载 + GlassLayer 写 <code>data-dsh-glass/mica/compat</code>；旋钮 <code>--dsh-glass-blur/frost/brightness/glow</code>；82KB 全以属性为门，颜色 color-mix() 自 alias 派生，随风味换色；无 !important。</li></ul></div><div class='pane' id='p-r6-3'><ul><li>不管字体字号（1024 行零命中）。纯色 = 风味基座；图片/视频无证据（氛围光系渐变罩）。</li></ul></div><div class='pane' id='p-r6-4'><ul><li><code>src/client/index.ts</code> L421–L450 · <code>palettes.ts</code> · <code>glass-layer.ts</code><button class='cp' data-copy='src/client/index.ts'>复制</button></li></ul></div></div></article><article class='repo' data-group='color' data-mech='self' data-video='0' data-model='0' data-font='1' id='c-r7'><div class='hd'><h3><a href='https://github.com/Nwflower/dsh-claude-style'>7 · dsh-claude-style</a></h3><div class='badges'><span class='bdg m-self'>自注入</span><span class='bdg'>master@d773a62 · 字体全栈</span><span class='bdg'>壁纸让位</span></div></div><div class='tabs' data-tabs='r7'><button class='tab on' data-pane='r7-0'>配色</button><button class='tab' data-pane='r7-1'>生效</button><button class='tab' data-pane='r7-2'>字体全栈</button><button class='tab' data-pane='r7-3'>背景</button><button class='tab' data-pane='r7-4'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r7-0'><ul><li>唯一事实源 <code>tokens.json</code>（35KB）：ivory/侧栏/边框/slate/clay #D97757 + deepseek #4D6BFE 双品牌；复用宿主语义名 + 私有 <code>--dsh-claude-*</code>。</li><li>变体 PALETTE claude|host × BRAND × MOTION；明暗跟随 <code>[data-ds-dark-theme]</code>。</li></ul></div><div class='pane' id='p-r7-1'><ul><li>构建 build.mjs（esbuild + rank 拼接 + tokens → stylesheet）→ entry.ts adoptSkin() → mountStylesheet；门禁 css.mjs 强制五条（含 <code>body[data-dsh-claude-style]</code> 作用域）。</li><li>互斥 parkForeignSheets + release/keep；!important 定点钉死（code block / 表头 / table-scroll）。</li></ul></div><div class='pane' id='p-r7-2'><ul><li>7 组 @font-face（typography.css）：JetBrains Mono 包内自带（<code>/dsh-claude-style/fonts/</code>）/ Anthropic 3 款用户自放 <code>$DSH_HOME/…/fonts/</code> / Claude Inter/Noto Serif 包内 OFL + x-height 匹配；中文 fallback CJK。</li><li>TYPEFACE claude|host 可让回宿主；字号沿用宿主（表格回退 14px）。</li></ul></div><div class='pane' id='p-r7-3'><ul><li>无自有壁纸：<code>wallpaper.css</code> 全文让位——有 <code>data-we-wallpaper</code> 时只罩 <code>body::after</code> mask（z-index:-1）+ shell 透明。</li></ul></div><div class='pane' id='p-r7-4'><ul><li><code>packages/client/src/theme/tokens.json</code> · <code>typography.css</code> · <code>wallpaper.css</code> · <code>scripts/css.mjs</code><button class='cp' data-copy='packages/client/src/theme/typography.css'>复制</button></li></ul></div></div></article><article class='repo' data-group='color' data-mech='ovr' data-video='1' data-model='0' data-font='0' id='c-r8'><div class='hd'><h3><a href='https://github.com/TQSY114514/dsh-ui-appearance'>8 · dsh-ui-appearance</a></h3><div class='badges'><span class='bdg m-ovr'>overrideTokens</span><span class='bdg'>main@e64243a · 6 角色</span><span class='bdg yes'>自有图文视频层</span></div></div><div class='tabs' data-tabs='r8'><button class='tab on' data-pane='r8-0'>配色</button><button class='tab' data-pane='r8-1'>生效</button><button class='tab' data-pane='r8-2'>背景层</button><button class='tab' data-pane='r8-3'>字体</button><button class='tab' data-pane='r8-4'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r8-0'><ul><li>六角色 accent/background/panel/input/text/border × {light,dark} + 11 预设；<code>buildTokenOverrides()</code> 唯一出口（emit L190；hover 用 mixHex 派生 0.15/0.22；panel 组权重 0.04–0.14）。</li><li>可读性数学 <code>color.ts</code> 纯函数：mixHex/contrast/luminance&lt;0.18/WCAG 二分/a11y/bubbleInk；accent 默认反转保气泡可读。</li></ul></div><div class='pane' id='p-r8-1'><ul><li>apply L106（inject=[slots,locale,theme]）→ rAF 节流 → 双写：<code>overrideTokens</code>（dispose 精确撤回）+ body 22 个 <code>--dsw-appearance-*</code> 变量。</li><li>作用域三板斧：气泡子树重写 + <code>data-dsw-bubble-ink</code> 墨水 + <code>data-dsw-has-bg</code> frame punch-out（transparent !important）+ <code>data-video</code> 切层；slider 拖拽期保 60fps。</li></ul></div><div class='pane' id='p-r8-2'><ul><li><code>#dsw-appearance-bg{fixed; inset:-48px; z-index:-1}</code> 三层合成：base 用户色 + ::before 图片层（cover/opacity/blur≤30）+ ::after scrim 罩；<code>#root</code> 刻意不动。</li><li>图片 IndexedDB/dataURL（image-store.ts）；视频 backgroundVideo + video-store.ts，写法 muted/loop/playsInline/autoplay。</li></ul></div><div class='pane' id='p-r8-3'><ul><li>不管（三文件零 font 定义）。</li></ul></div><div class='pane' id='p-r8-4'><ul><li><code>src/client/tokens.ts</code> L188 · <code>src/client/applier.ts</code> L79–97/L363–364 · <code>color.ts</code><button class='cp' data-copy='src/client/applier.ts'>复制</button></li></ul></div></div></article></div></section><section class='block' id='sc'><h2>C · 动态壁纸系</h2><p class='desc'>挂载一致（body fixed -1/-2 + 页面透明化）；寻址三分；仅 model 跟随模型；自动播放交集 muted+loop+autoplay+playsinline。</p><div class='cards'><article class='repo' data-group='wp' data-mech='brg' data-video='1' data-model='0' data-font='0' id='c-r9'><div class='hd'><h3><a href='https://github.com/elysia395/dsh-wallpaper-engine'>9 · wallpaper-engine</a></h3><div class='badges'><span class='bdg m-brg'>桥接/容器</span><span class='bdg'>01fbb8b8 · 1.3.3</span><span class='bdg yes'>视频直放+转码</span></div></div><div class='tabs' data-tabs='r9'><button class='tab on' data-pane='r9-0'>三通道</button><button class='tab' data-pane='r9-1'>层级</button><button class='tab' data-pane='r9-2'>寻址</button><button class='tab' data-pane='r9-3'>自动播放</button><button class='tab' data-pane='r9-4'>切换音乐</button><button class='tab' data-pane='r9-5'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r9-0'><ul><li>实时渲染 scene/web（默认）：<code>live-layer.js</code> 建 <code>iframe.we-live-iframe</code>（webwallgl + 适配页；网页壁纸 <code>sandbox=allow-scripts</code>）。</li><li>视频：isSceneVideo 分支建 video；纯 video 同路。</li><li>静态帧：<code>img.we-media</code>（预览图 / 抓帧 _gpu.png / 自定义 / 主题色兜底）。</li></ul></div><div class='pane' id='p-r9-1'><ul><li><code>div#dsh-wallpaper-engine-layer.we-layer</code> fixed z-index:-2 + <code>.we-scrim</code> -1（styles-base.js:97/209）；body.appendChild；<code>body[data-we-wallpaper]</code> 置透明露出；过场旧层压 zIndex=-3。</li></ul></div><div class='pane' id='p-r9-2'><ul><li>同源 <code>/wallpaper-engine/media/&lt;token&gt;</code>（绝对路径 base64url，进程内 mediaMap 回查；Range/HEAD/条件 GET）；Steam 扫描建清单（libraryfolders.vdf → workshop 431960）；sceneVideo 无内嵌 MP4 则 null 诚实化；mediaExt 宿主下发；video-preview ffmpeg 抽帧；scene.pkg ETag/304 + loopback media-origin；上传 <code>~/.dsh-wallpaper-engine/uploads</code>。</li></ul></div><div class='pane' id='p-r9-3'><ul><li>主路径 video-layer.js:248-259：<code>autoplay/loop/preload:auto/playsinline/playbackRate</code> + <code>isEffectivelyPlaying</code> 调 play()/pause() + 过场音频门 + metadata-only 预热（20s TTL）+ poster 语义（Image onload 才算有画面）。</li></ul></div><div class='pane' id='p-r9-4'><ul><li>按模型无（picker-model 系过滤器；theme-follow 系反方向默认关）；维度 = 手动 + 轮播 rotationGroups。音乐无独立 BGM（壁纸音轨 + 系统回环频谱/Now Playing 展示面）。</li></ul></div><div class='pane' id='p-r9-5'><ul><li><code>src/live-layer.js</code> :263-296 · <code>src/video-layer.js</code> :248-259 · <code>lib/inventory.js</code> :295 · <code>lib/routes/media-bytes.js</code> :30-55<button class='cp' data-copy='src/live-layer.js'>复制</button></li></ul></div></div></article><article class='repo' data-group='wp' data-mech='brg' data-video='1' data-model='0' data-font='0' id='c-r10'><div class='hd'><h3><a href='https://github.com/Tkingxiao/dsh-any-background'>10 · dsh-any-background</a></h3><div class='badges'><span class='bdg m-brg'>桥接/容器</span><span class='bdg'>bf36b0938 · 0.3.8</span><span class='bdg yes'>muted 直放</span></div></div><div class='tabs' data-tabs='r10'><button class='tab on' data-pane='r10-0'>容器</button><button class='tab' data-pane='r10-1'>寻址</button><button class='tab' data-pane='r10-2'>切换</button><button class='tab' data-pane='r10-3'>自动播放</button><button class='tab' data-pane='r10-4'>性能音乐</button><button class='tab' data-pane='r10-5'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r10-0'><ul><li>单层 div（fixed/inset-0/-1/pointer-events:none），body.prepend；applyWp L3099-3165 总入口。</li><li>image 走 backgroundImage + BgMode（同 URL 跳过防闪白）；video 走子 video；生成背景走子 canvas（bg-generators.ts:51 定位 + 低分辨率 + rAF 启停）。</li></ul></div><div class='pane' id='p-r10-1'><ul><li>同源 <code>/dsh-any-background/wallpaper</code>（+?r=rev；RPC read 只回 URL 不回 bytes；POST raw 上传；导出 <code>dsh-any-theme.json</code> 内嵌 dataURL）。</li><li>视频同源 <code>/video</code>（MIME 槽命名 mp4/webm/ogv/mov/mkv；2GB 上限）。</li></ul></div><div class='pane' id='p-r10-2'><ul><li>backgroundType（image/video/mesh/shader/pattern）+ 手动 profile + 定时 schedule + 轮播池（服务端 copy 进槽）。按模型无。</li></ul></div><div class='pane' id='p-r10-3'><ul><li><code>muted/loop/autoplay/playsInline/preload:auto</code> 双写 + 先 append 后设 src + <code>play().catch</code> + getAttribute(src) 比对防重播；video 帧复用取色。</li></ul></div><div class='pane' id='p-r10-4'><ul><li>拖拽降质 720 JPEG；解码 LRU 6；写 debounce 250ms。音乐无（muted 写死）。</li></ul></div><div class='pane' id='p-r10-5'><ul><li><code>src/client/wallpaper.ts</code> L2982-3041/L3050-3069/L3099-3165<button class='cp' data-copy='src/client/wallpaper.ts'>复制</button> · <code>src/client/rpc.ts</code></li></ul></div></div></article><article class='repo' data-group='wp' data-mech='brg' data-video='0' data-model='1' data-font='0' id='c-r11'><div class='hd'><h3><a href='https://github.com/HarmlessFunny/dsh-background-by-model'>11 · background-by-model</a></h3><div class='badges'><span class='bdg m-brg'>桥接/容器</span><span class='bdg'>893d1b7e · 0.8.2</span><span class='bdg yes'>唯一按模型切换</span><span class='bdg no'>无视频</span></div></div><div class='tabs' data-tabs='r11'><button class='tab on' data-pane='r11-0'>寻址</button><button class='tab' data-pane='r11-1'>按模型切换</button><button class='tab' data-pane='r11-2'>动画性能</button><button class='tab' data-pane='r11-3'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r11-0'><ul><li>slot raw bytes（无扩展名；魔数嗅探）→ RPC dataURL（readSlotAsDataURL）→ displayImageOf 转 blob object URL 缓存；旧 URL 延迟 2s 回收；预设图 jsDelivr 镜像。</li></ul></div><div class='pane' id='p-r11-1'><ul><li>matchRule（modelbg.ts:64-78）：有序、大小写不敏感子串首命中；空 match 永不命中；无命中回落首个 usable。</li><li>watchModel 三跳（L192-310）：durable modelSelection faceOf + modelDirectories + host 默认兜底；会话 id 兼容两代。</li><li>applyActive(advance)：advanceOnSwitch 步进 → scheduleRotation → applyWp；规则内 rotation（5s–24h / order-shuffle / 隐藏停转 / 跨规则 rotIndex=0）。</li></ul></div><div class='pane' id='p-r11-2'><ul><li>无 video（v0.3.0 移除）；cross-fade + palette-fade token 插值；transitionPlan 全局（transform+opacity 纯合成器动画；reduced-motion 否决）。</li><li>容器 + 内双层（absolute/inset-0/opacity，目标层 zIndex=1）；被盖层立即释 bytes；intrinsic 缓存。</li></ul></div><div class='pane' id='p-r11-3'><ul><li><code>src/client/modelbg.ts</code> :64-78/L192-310 · <code>src/client/transition.ts</code> :102-125 · <code>src/index.ts</code> :433-462<button class='cp' data-copy='src/client/modelbg.ts'>复制</button></li></ul></div></div></article></div></section><section class='block' id='sd'><h2>D · 特殊集成系</h2><div class='cards'><article class='repo' data-group='x' data-mech='self' data-video='0' data-model='0' data-font='1' id='c-r12'><div class='hd'><h3><a href='https://github.com/Small-tailqwq/dsh-deep-whale/tree/main/maid-atelier'>12 · maid-atelier</a></h3><div class='badges'><span class='bdg m-self'>自注入</span><span class='bdg'>双半包 · 静态图-only</span><span class='bdg'>column-inner 唯一</span></div></div><div class='tabs' data-tabs='r12'><button class='tab on' data-pane='r12-0'>形态</button><button class='tab' data-pane='r12-1'>五维切换</button><button class='tab' data-pane='r12-2'>挂载寻址</button><button class='tab' data-pane='r12-3'>音乐</button><button class='tab' data-pane='r12-4'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r12-0'><ul><li>node 半挂资源路由 + browser 半 <code>apply()</code> 写 DOM/CSS；<code>skin.json</code>（bodyAttr/wiring）+ 管理器 v2 协议互斥；dshCompatibility=0.2.0rc2。</li></ul></div><div class='pane' id='p-r12-1'><ul><li>亮暗 syncBackdrop + MutationObserver；着陆/对话构图（prepend 对话列 + data-phase）；模型 Pro/Flash（读作曲栏按钮 → html[data-dsh-whale-model] + 眼镜变体）；SFW 总开关/时段；设备拥挤/低功耗/700px 自适应。</li></ul></div><div class='pane' id='p-r12-2'><ul><li>对话列 <code>[class*=centerCol]</code> 内部首子舞台（随布局收缩）+ body 20 变量驱动伪元素（BACKDROP_PROPERTIES 登记，disposer 还原）。</li><li>随包指纹 <code>skin-assets/maid-atelier/&lt;sha64&gt;.webp</code>，immutable 一年 + ETag/304；manifest 31 项全 png/webp。</li></ul></div><div class='pane' id='p-r12-3'><ul><li>无（入口 + 2539 行样式 + 产物前 100KB 零命中）。</li></ul></div><div class='pane' id='p-r12-4'><ul><li><code>src/client/index.ts</code> :247-288/:686-698 · <code>customization.ts</code> :67-76 · <code>skin.json</code><button class='cp' data-copy='src/client/index.ts'>复制</button></li></ul></div></div></article><article class='repo' data-group='x' data-mech='brg' data-video='1' data-model='0' data-font='0' id='c-r13'><div class='hd'><h3><a href='https://github.com/starsstreaming/beautiCode/tree/main/integrations/deepseek-harness'>13 · beautiCode-harness</a></h3><div class='badges'><span class='bdg m-brg'>桥接/容器</span><span class='bdg'>1.0.28 · bridgeProtocol=4</span><span class='bdg yes'>mp4/mov + 回退 muted</span></div></div><div class='tabs' data-tabs='r13'><button class='tab on' data-pane='r13-0'>形态</button><button class='tab' data-pane='r13-1'>背景</button><button class='tab' data-pane='r13-2'>挂载寻址</button><button class='tab' data-pane='r13-3'>切换音乐</button><button class='tab' data-pane='r13-4'>关键文件</button></div><div class='panes'><div class='pane on' id='p-r13-0'><ul><li>Cordis 桥接（beauticode-bridge inject webServer）：<code>webserver/index-inject</code> hook 向每页注入 5 body 脚本；单全局 current 经 SSE 广播；对话面 8 tools + 3 commands。</li></ul></div><div class='pane' id='p-r13-1'><ul><li>图片 jpg/jpeg/png/webp/avif ≤18MB + 视频 mp4/mov ≤800MB；声音 = 视频轨 muted（默认 true；先期望播放失败回退 muted）；氛围水波 canvas + 可读性实色垫片；无分区（preset 只是参数包）。</li></ul></div><div class='pane' id='p-r13-2'><ul><li>页面级 <code>#beauticode-bg-stage{fixed; inset:0; z-index:0}</code>；poster-first 两阶段（60s 首帧升级；8s 应用 deadline）。</li><li>本地绝对路径引用 + 回环 <code>http://127.0.0.1:&lt;port&gt;/…?t=&lt;token&gt;</code>（Range；64hex 双验），不复制用户文件。</li></ul></div><div class='pane' id='p-r13-3'><ul><li>自有 tone + <code>data-bc-resolved-tone</code> 三级回退（data-ds-dark-theme→colorScheme→OS，client.js:403-413），双 Observer；模型无关。音乐 = 视频轨开关。</li></ul></div><div class='pane' id='p-r13-4'><ul><li><code>browser-injection.mjs</code> :4-8/:45 · <code>client.js</code> :403-450 · <code>index.mjs</code> :202/:231<button class='cp' data-copy='browser-injection.mjs'>复制</button></li></ul></div></div></article></div></section><section class='block' id='app'><h2>附录 · 5 篇深挖全文</h2><p class='desc'>底稿全文转换（与 md 同义；上游 raw/blob 链接即一手证据）。</p><details class='full' open><summary>A · 整包皮肤 5 仓深挖全文</summary><div class='inner'><h1 id="5-99">整包皮肤系 5 仓实现原理深挖（#99）</h1>
+<blockquote>
+<p>研究问题：深挖整包皮肤系 5 个仓库的主题生效原理（代码级，只读源码不运行）：dream-skin / open-sea-skin / bloom-theme / prts / mineradio。需回答：颜色/字体/字号 token 如何定义与覆盖、主题为什么能生效（变量/注入/优先级）、各区域背景如何设置、是否有音乐/视频能力。每个结论给出文件路径+关键行。
+来源票：<a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/99">#99</a>（父地图 <a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/98">#98</a>），阻塞 <a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/100">#100</a> 横向综合。
+方法：只读源码+文档，不安装运行；一手来源为各仓库 GitHub 原文（raw / blob）与包内 manifest；凡检索为零命中的否定结论均注明检索范围。5 路并行子调研（background subagents）+ lead 用 gh/本地 clone 复核。
+决策依赖：本篇只调查不设计（地图 98 Out of scope：我们自己 JSON theme 包的设计与实现另议）；输出喂给 #100 横向综合对照表。Standing preferences（2026-10-18 用户已确认）：分篇深挖+综合对比；代码级生效链路（文件路径+关键行+为什么生效）；音乐/视频需含自动播放与格式细节。
+Grilling 检查：本票问题、口径、产物位置在 issue 正文 + 地图 98 Notes 中已显式给定（只读不运行、文件+行、只调查不设计、docs/research 惯例），无“我猜”分支，未向用户追加提问。</p>
+</blockquote>
+<h2 id="5">结论先行（横向 5 仓）</h2>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>生效路线</th>
+<th>token 规模</th>
+<th>字体/字号</th>
+<th>区域背景</th>
+<th>音乐/视频</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/RevolutionLA/dsh-dream-skin">dsh-dream-skin</a> v10.16.0</td>
+<td>官方双轨：<code>ctx.theme.register</code>（8 皮肤标量）+ 合并后单次 <code>ctx.theme.overrideTokens("dsh-dream-skin:appearance")</code>（DIY 层 {light,dark} 对）；自注入 \<style> 只做液态玻璃材质不管颜色</td>
+<td>57 枚/皮肤（alias + specific + menu，见 §1）</td>
+<td>无字体/字号 token；字号仅设置面板行内 <code>fontSize:"13px"</code></td>
+<td>token 改色 + fixed \<div> 壁纸层（<code>backgroundImage</code> 静态图/URL/渐变）+ 每皮肤 glow 弥散光；无视频</td>
+<td>无（accept:"image/*"，全仓 music/bgmp/mp3/mp4/webm/audio/video/autoplay 零命中）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/d-dev0101/open-sea-skin">open-sea-skin</a></td>
+<td>双路径按分发二选一：源码集成走 <code>ctx.theme.overrideTokens</code> 玻璃层；npm 发布包走自注入 \<style id="__open-sea-skin-glass__">（!important）+ 同源 iframe</td>
+<td>9 个背景系 alias/specific（bg-base/layer-1..3/module-platform/multi-select/overlay/sidebar-fill/selector）</td>
+<td>无字体/字号/正文色 token；Geist @font-face 只用于 ocean iframe/自家面板</td>
+<td>透明化 + 半透明 token + iframe 内实时 WebGPU 海洋 canvas（Three.js TSL，5 Gerstner 波+FBM+Bloom）；无 background-image、无静态/视频图</td>
+<td>无（树中无音视频资源；README 原话 "rather than a looping wallpaper video"）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/webkubor/dsh-bloom-theme">dsh-bloom-theme</a> v0.17.6</td>
+<td>自注入 \<style data-plugin-css> + CSS 变量覆盖；<code>overrideTokens</code>/<code>ctx.theme</code> 全仓零命中</td>
+<td>10 套 OKLCH 色板 → alias + specific + 自有 --bloom-*（mist 为完整骨架，其余 9 变体只覆主色+背景调）</td>
+<td>无宿主字族 token（font-family 仅自家切换器 2 处：诗句衬线+版本号等宽）；宿主字号仅 tabs clamp 与侧栏 12px 硬写</td>
+<td>token 改色 + CSS gradient 氛围 + backdrop-filter 玻璃；src 内 url( 零命中；壁纸层 v0.5.0 已移除</td>
+<td>无（mp3/mp4/webm/ogg/audio/video/autoplay 全零命中）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/ash-qw/dsh-theme-prts">dsh-theme-prts</a> @1.4.2</td>
+<td>自注入 \<style> + html[data-dsh-prts] 作用域 + !important；<code>overrideTokens</code> 20 文件零命中；读宿主 theme/change 仅同步日夜不写回</td>
+<td>自有 --prts-<em> 族（canvas/panel/ink/line/品牌/玻璃四档/气泡/头像环）+ 极少数 --dsw-alias-</em> 转接；light 整组覆盖</td>
+<td>--prts-body/display/mono 三字族（Noto Sans SC / Arial Narrow / Roboto Mono 系）；无全局字号 token（自家面板 .875/.75rem + 8/9/11/12px 固定）</td>
+<td>token 改色 + gradient + 内联 SVG data-URI + JS 生成 SVG/canvas（城市剪影/粒子徽记/ambient/particle 层）；无外部背景图/视频</td>
+<td>无（mp3/mp4/webm/audio/video/AudioContext/new Audio 全零命中）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/dhicoc/dsh-theme-mineradio">dsh-theme-mineradio</a></td>
+<td>官方叠层为主 + 自注入为辅：<code>ctx.theme.overrideTokens</code> 写 body 内联 + runtime role census（data-md-role + !important）+ 手工玻璃配方（html 内联 --dsh-aqua-*）</td>
+<td>alias 全套半透明化（bg/border/label/brand/交互/markdown/滚动条）+ specific（sidebar-fill=transparent 等）+ shadow；mica/compat 双基表</td>
+<td>唯一 <code>--dsw-font-family</code>（Inter base64 自托管 + Noto Sans SC fallback）；无字号 token</td>
+<td>token 半透明化透出底部；底部自建 fixed 层二选一：fluid shader canvas 或用户壁纸 \<img>/\<video>；无内置图片/视频资源</td>
+<td>视频有（用户自选，默认关，loop+muted 兜底自动播放，mp4/webm/ogg/mov/m4v/mkv）；音乐播放无（仅麦克风视觉脉动 + 电台调台隐喻）</td>
+</tr>
+</tbody>
+</table>
+<p>共同点：5 家都不用纯 JSON theme；都不用 webserver/index-inject 做主题注入；颜色都经 alias/specific 语义 token 或同名 CSS 变量覆盖生效；背景动态感分别走 CSS gradient / canvas WebGL / 程序化粒子，只有 mineradio 接用户视频文件。音乐播放 5 家全无。</p>
+<h2 id="1-dream-skinrevolutionladsh-dream-skin">1. dream-skin（RevolutionLA/dsh-dream-skin）</h2>
+<p>包：<a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/main/package.json">package.json</a>（v10.16.0，main lib/index.js，dsh.client.inject 含 dsh-client-ui-theme，bundle.patch ./cordis.patch.yml）；<a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/main/cordis.patch.yml">cordis.patch.yml</a>（insert id dream-skin）。</p>
+<h3 id="11-token">1.1 token 定义与覆盖</h3>
+<ul>
+<li>57 枚/皮肤：<code>--dsw-alias-bg-base/layer-1/2/3/module-platform/overlay/skeleton</code>、<code>--dsw-menu-surface-fill</code>、<code>--dsw-alias-menu-group-header-fill</code>、label 三级、brand（primary/soft/text）、button（primary-fill/hover/dimmed/elevated）、border-l1~l4（含 border-l2-darkmode-thin）、interactive（hover/active/hover-danger）、focus-ring、button-tool-bar、bg-mask-drop、file-diff 6 件、state（business/success/warn/error）、markdown 三件、scrollbar 4 件、<code>--dsw-specific-sidebar-fill/nav-item-active/hover/input-major/tip/selector/bubble/bubble-highlight</code>。定义在 <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/HEAD/lib/client.js">lib/client.js</a> L423–L935 SKINS（abyss L424 / aurora L497 / nebula L570 / ember L643 / midnight L716 / ivory L789 / mist L862 / rose L935），例 abyss <code>--dsw-alias-bg-base:"#111317"</code> L428、overlay L433、sidebar-fill L477、input-major L480。源头 <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/HEAD/scripts/skin-system.cjs">scripts/skin-system.cjs</a> L523 起 OKLCH 解算，经 <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/HEAD/scripts/apply-skin-system.cjs">scripts/apply-skin-system.cjs</a> 烘焙（GENERATED L394–L419）。</li>
+<li>glow（每皮肤弥散光，如 L486 radial+linear 串）：非 token，建议壁纸/默认背景；与 tokens+defaults 称三件套；主题包不含 glow（<a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/main/docs/themes-spec.md">docs/themes-spec.md</a> 载荷边界节）。</li>
+<li>defaults（wallpaperOpacity/Blur、sidebar/composer/modalOpacity、material、autodim，如 abyss L488–L496）：域表见 <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/HEAD/scripts/lib/skin-defaults.cjs">scripts/lib/skin-defaults.cjs</a>，只写用户未动键。</li>
+<li>Accent 叠加 ACCENT_TOKENS（L6073，brand-primary/state-business/button-primary-fill/dimmed，L6098–L6108 {light,dark} 成对）；弹窗 POPUP_TOKENS（L4226，bg-overlay/specific-menu/bg-layer-2，92% 可读下限）；壁纸 wash（L6618 shadeTokens2，bg-base/sidebar-fill/--dsh-dream-skin-composer-base/modal-base）。三者先合并再一次 <code>overrideTokens("dsh-dream-skin:appearance")</code>（L2360 source，L2386–L2397 提交）。</li>
+<li>主题包白名单见 <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/main/docs/themes-spec.md">docs/themes-spec.md</a> + <a href="https://raw.githubusercontent.com/RevolutionLA/dsh-dream-skin/HEAD/docs/examples/sample-theme-pack.json">sample-theme-pack.json</a>（必填 bg-base/layer-1、label-primary/secondary、brand-primary、border-l1/l2）。</li>
+<li>字体/字号：57 token 零命中 font/size/family；仅设置 UI fontSize:"13px"（L4531/L4579/L4625/L4655/L5114）。</li>
+</ul>
+<h3 id="12">1.2 为什么生效</h3>
+<ol>
+<li>loader 进树（package.json + patch）→ browser <code>window.__ModuleLoader__.load({id:"dsh-dream-skin"})</code>（lib/client.js L~40）。</li>
+<li>apply(ctx)（L7610）→ 注册 8 皮肤 <code>ctx.theme.register(skinDefinition)</code>（L7631–L7637）→ 宿主 ThemeRuntime 收标量 tokens（落点宿主 ui-layout ThemePresenter 写 body 行内，bundle L394–L396 注释）。</li>
+<li>setSkin → <code>ctx.theme.setTheme(id)</code> + syncSkin 听 theme/change（_applyingWallpaper 守卫防 overrideTokens 重入死循环 L6490，CHANGELOG 有实机背书）。</li>
+<li>DIY 三叠加合并单次 overrideTokens（L2386–L2397）。</li>
+<li>材质 \<style>（MATERIAL_CSS_SOURCE L2412/L2584，@supports(backdrop-filter) + 哈希类，host 换 hash 则 no-op）。</li>
+<li>微调变量直写 documentElement.style.setProperty（composer-fill L2246、modal-fill L4187 等）。</li>
+<li>host 半边 lib/index.js（L45 STATE_FILENAME、L69 API_PREFIX /dream-skin/api）只做 $DSH_HOME/dream-skin.json 持久化（localStorage 跨 origin 失效补偿），与注入无关。</li>
+</ol>
+<h3 id="13">1.3 区域背景</h3>
+<p>全局 canvas/对话区：bg-base 标量 + wash toRgba 叠加；气泡 tip/selector 另有 specific。侧栏：sidebar-fill + nav-item-active/hover，可联动 wash。输入框：input-major + 自注入玻璃 + --dsh-dream-skin-composer-fill。弹窗：POPUP_TOKENS + modal-fill。壁纸层：动态 \<div> fixed inset:0 z-index:-1 prepend（L6504–L6505），backgroundImage=url/gradient（L6513，wallpaperBackgroundCss L6449），cover/contain + blur 0–60px + bleed 垫底。kind 仅 image|url|gradient（L5441）；安全阀 http(s)/data:image（L1808/L6449–L6465）；建议背景即每皮肤 glow。wallpapers/ 仅 3 张 .jpg 且 package.json files 未含、README 明说不打进包不直读；寻址=选图→压缩 data URL→localStorage（L149）/历史5条/URL/渐变/必应每日+定时刷新（WALLPAPER_REFRESH L~6353）。</p>
+<h3 id="14">1.4 音乐/视频</h3>
+<p>无。lib/client.js 全文 430708 字符正则 music|bgm|mp3|mp4|webm|ogg|wav|autoplay|&lt;video|&lt;audio|createElement(audio/video/source/iframe) 零命中；选择器 accept:"image/*"（L4922）；wallpaperEl 为 \<div>（L6504）。README 仅在对比竞品行提到视频以证本仓不做。</p>
+<h2 id="2-open-sea-skind-dev0101open-sea-skin">2. open-sea-skin（d-dev0101/open-sea-skin）</h2>
+<h3 id="21-token">2.1 token 定义与覆盖</h3>
+<p>原生（源码集成）：<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/client/index.ts">harness-plugin/src/client/index.ts</a> L39 glassTokens，L44–L52 九枚：bg-base（light glass/100, dark max(0.4,light-0.12)，默认 glass:72 见 settings-contract）、bg-layer-1/2/3、bg-module-platform/multi-select（+0.02）、bg-overlay（+0.10/+0.14，见 <a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/docs/architecture.md">architecture.md</a>）、specific-sidebar-fill/selector。发布包：<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/shared/skin-core.js">shared/skin-core.js</a> L92 glassCss 同名九枚 !important 模板，mountOcean L310–L330 建 \<style id="__open-sea-skin-glass__">，updateGlass L249–L251 同步。字体/字号/正文色：两路径均无 --dsw-alias-font<em>/--dsw-</em>-text/font-size；Geist @font-face（<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/shared/styles.css">shared/styles.css</a> L1–L22）只用于 iframe/官网。判定：package.json main plugin/index.js、dsh.client.inject:[] 空、<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/cordis.patch.yml">cordis.patch.yml</a> 仅 insert id open-sea-skin、<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/plugin/index.js">plugin/index.js</a> L11 inject=['webServer']；非 JSON theme，无 webserver/index-inject，无 body.style.setProperty。</p>
+<h3 id="22">2.2 为什么生效</h3>
+<p>A 原生（harness-plugin/，未进 npm 主包）：<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/index.ts">src/index.ts:84</a> apply→settings.register + webServer.register prefix /open-sea-skin（L27 ROUTE，L30 ASSET_ROOT ../assets/）；client <a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/client/index.ts">index.ts:57</a> inject=[slots,locale,theme,…]→apply L65→L71 applyTokens（enabled:glass 时 overrideTokens，L94 effect 可逆卸载）→L98 slots.inject shell.background（<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/client/OpenSeaBackground.tsx">OpenSeaBackground.tsx</a> 拼 /open-sea-skin/skin.html?…，<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/client/OpenSeaBackground.module.css">module.css</a> absolute inset:0 pointer-events:none）→postMessage 联动 ocean.js。
+B 发布包（npm open-sea-skin 主包 plugin/+native-dist/+shared/）：<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/plugin/index.js">plugin/index.js:69-79</a> 仅静态路由；<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/plugin/client.js">plugin/client.js</a>（shared/skin-core.js 生成物）controller.start()；skin-core L310–L330 建 iframe（fixed inset:0 z-index:0 pointer-events:none transparent）+ glass \<style>。优先级：body{background:transparent !important} 先掏底再半透明盖回（architecture.md："Glass is applied through Harness semantic tokens, not nested opacity"）。</p>
+<h3 id="23">2.3 区域背景</h3>
+<p>全局：掏底 + 九 token + iframe 置底（src /open-sea-skin/skin.html，发布 <a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/native-dist/skin.html">native-dist/skin.html</a>，assetUrl/chrome.runtime.getURL 相对寻址）。动态源为 <a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/shared/ocean.js">shared/ocean.js</a> WebGPU Three.js TSL 实时海洋（非图片/视频），skin.html 内联 transparent + canvas 淡入。侧栏：sidebar-fill + Desktop 强制 transparent（core L128）+ 旧 hash 回退（L170–L172）。对话区/三列：同组 layer 复用 + #root overlay 透明化（L136–L158）；输入框无独立 token（证据缺口）。overlay：bg-overlay 最高 alpha + settings modal 保底 .97（L161–L167）。ocean 自身 vignette/panel 见 shared/styles.css（vendor fonts 相对寻址；截图仅 docs/ 不参渲染）。</p>
+<h3 id="24">2.4 音乐/视频</h3>
+<p>无。220 项树中除 docs/screenshots/*.gif 录屏外无 mp3/mp4/webm/ogg/wav；ocean.js/plugin/client.js/extension/content.js 中 audio/video/mp3/mp4/webm/music/autoplay/&lt;audio/&lt;video 零命中（ogg/wav 系 toggle/wavelength 误报）；<a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/README.en.md">README.en.md</a> 仅 "rather than a looping wallpaper video" 否定视频。动态=常驻 WebGPU canvas（12 分钟 daylight cycle + reduced-motion 降帧），默认开的是海洋不是媒体。</p>
+<h2 id="3-bloom-themewebkubordsh-bloom-theme">3. bloom-theme（webkubor/dsh-bloom-theme）</h2>
+<p>包：<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/package.json">package.json</a>（v0.17.6，dsh.client.inject:[] 空，immediately:true）；<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/cordis.patch.yml">cordis.patch.yml</a>（insert id bloom-theme）。</p>
+<h3 id="31-token">3.1 token 定义与覆盖</h3>
+<p>大脑 <a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/tokens.ts">src/tokens.ts</a> buildBloomCSS()：PALETTE（<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/palette.ts">src/palette.ts</a>，VARIANTS 10，accentL/D 可读轨 + morandi 气质轨，WCAG AA 全达标表）→ bloomTokens（--bloom-morandi/accent/motion/shadow/hairline/glow/code-bg/glass-blur/cursor-x/y，顺带 state-business-primary、label-deep-diving(-shimmer)）→ sharedDswTokens/borderStack/labelStack（toast/bg-mask-photo 等，防漂移）→ mistLight/mistDark 完整骨架（bg-base/layer-1..3/overlay、specific bubble/highlight/input-major/menu/selector/sidebar-fill）→ variantBlock（其余 9 变体主色+背景调，选择器 body[data-bloom-variant]×body[data-ds-dark-theme]）。字体：tokens 内无 --dsw-font* token；<code>font-family</code> 全仓仅 4 命中且全是自家切换器作用域（<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/css/switcher.ts">switcher.ts L209</a> 诗句列 Songti 衬线、<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/css/switcher.ts">switcher.ts L360</a> 版本号等宽，不写宿主字族——宿主结论“不改字族”成立，原“0 命中”引注以本次 clone 穷举为准修正）；宿主侧字号硬写仅 tabs clamp(13px,0.9vw,14px) 与侧栏 12px + weight 500/600（切换器自家 10–14px 另计）。机制：<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/dom.ts">src/dom.ts</a> injectCSS（style[data-plugin-css] 幂等进 head）；client.ts 三表注入 bloom/components/glass。</p>
+<h3 id="32">3.2 为什么生效</h3>
+<p>node 半侧 <a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/index.ts">src/index.ts</a> 只注册只读 /api/bloom/dsh-version（注释：真正逻辑全在浏览器半侧）。browser <a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/client.ts">src/client.ts</a> IIFE：readVariant（localStorage dsh-bloom-variant，回落 mist）→ 三表 inject → body.dataset.bloomVariant → initAppearanceSync（<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/appearance.ts">appearance.ts</a>，body[data-ds-dark-theme] + matchMedia 监听）→ injectSwitcher/watchSwitcher/watchThinkTags/checkUpdate/watchCursorGlow（唯一 setProperty 写 --bloom-cursor-x/y）。落点：body[data-bloom-variant]{--bloom-ambience…; background-image:var(--bloom-ambience); background-color:var(--dsw-alias-bg-base)!important} + body::before fixed z-index:-1（<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/css/component.ts">component.ts</a>）；author 规则 + 属性选择器提权覆盖宿主蓝灰。</p>
+<h3 id="33">3.3 区域背景</h3>
+<p>全局/对话区：--bloom-ambience radial 串 + ::before；aurora 另有丝带层（<a href="https://raw.githubusercontent.com/webkubor/dsh-bloom-theme/HEAD/src/css/glass.ts">glass.ts</a>，linear+transform 漂移+blur，opacity 0.2，reduced-motion 关动画）。侧栏：sidebar-fill/active/hover + hairline 分界 + 选中圆角（v0.10.x 已删蓝条）；玻璃走 ::before（backdrop-filter 会劫持 fixed 后代 overlay 定位）。气泡：bubble/highlight + 半透 + blur（只接管面级容器，color-mix 跟变体）。输入区：composerSeat::before 重画 ambience + mask 淡入（特异度 (0,3,1) 压宿主 (0,3,0)），card 透明 + 半透 ::before；禁 backdrop-filter/transform/isolation（子树有 fixed overlay）。overlay/dock：overlay/layer/module-platform + dock preview 半透明 blur；设置 overlay fixed inset:0。壁纸/图片/视频：已移除（dom.ts 明示 v0.5.0 移除壁纸/玻璃开关/主题包，玻璃默认常开；glass.ts 头注背景即氛围渐变；url( 全仓零命中；assets 探针全 404）。</p>
+<h3 id="34">3.4 音乐/视频</h3>
+<p>无。src（client/switcher/dom/appearance/css/palette）+ lib/client.js 头 100k 中 mp3/mp4/webm/ogg/wav/audio/video/&lt;audio/&lt;video/autoplay/Audio(/Video 全零命中；README 卖点仅玻璃+莫兰迪+微动效（aurora 丝带、thinking 呼吸、cursor 光斑 pointermove+rAF）。</p>
+<h2 id="4-prtsash-qwdsh-theme-prts">4. prts（ash-qw/dsh-theme-prts）</h2>
+<p>包：<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/package.json">package.json</a>（@ash-qw/dsh-theme-prts@1.4.2，engines.dsh 0.2.0-rc.2，dsh.client immediately:true，bundle.patch）；<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/cordis.patch.yml">cordis.patch.yml</a>（insert id theme-prts）。</p>
+<h3 id="41-token">4.1 token 定义与覆盖</h3>
+<p>全在 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/styles/prts.css">src/styles/prts.css</a>：--prts-canvas/elevated/rail/panel/raised/muted（L2–L8 暗基准）、ink/muted/dim/line/strong（L9–L13）、yellow/cyan/red/green（L14–L18，selection/焦点/流线源）、body/display/mono（L34–L36 Noto Sans SC/Arial Narrow/Roboto Mono 系；落点 L158/L204；宿主字体处 font:inherit L171–L176）、glass 四档 + active-glass(-filter)/dense（L40–L46，分支 L89–L107）、chat-user/assistant/backdrop(-edge)/avatar-ring-image（L47–L52 暗 / L80–L85 亮，头像环为内联 SVG data-URI）、light 整组（L61–L87，root.dataset.prtsScheme 切换）、唯一 alias 转接（L19 primary-inverted，L145–L152 body{--dsw-alias-bg-base:var(--prts-canvas)…}，同文件 CSS 作用域覆盖非 API）、session-flow-back/core/front（<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/preferences.js">preferences.js</a> 调色板 triad/rhodes/amber/alert，<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/theme-controller-v2.js">theme-controller-v2.js</a> L735 setProperty，唯一动态 token）、字号仅自家面板（<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/styles/theme-settings-workbench.css">theme-settings-workbench.css</a> .875/.75rem + 8/9/11/12px）。机制：自注入 \<style>（controller L132–L140 ensureStyle，dataset.plugin）+ html[data-dsh-prts] 作用域 + !important；偏好走 dataset（L726–L736）；overrideTokens 20 文件零命中。</p>
+<h3 id="42">4.2 为什么生效</h3>
+<p>服务端 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/index.js">src/index.js</a>（inject tools/attachments/connection/webServer）只注册徽记/头像工具与 API，不管主题。构建 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/scripts/build.mjs">scripts/build.mjs</a> 合成 PRTS_CSS + data-URI 资产 → <a href="https://github.com/ash-qw/dsh-theme-prts">lib/client.js</a>（~1MB，<strong>ModuleLoader</strong>.load）。客户端 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/index.js">src/client/index.js</a> inject=[slots,theme]→applyPrtsPlugin 取 themeService、订 theme/change 只读日夜→ensureStyle 注 style→apply 写 root dataset + setProperty→applyVisualState/theme.apply，dispose 摘除。优先级：html[data-dsh-prts] 起手 + !important（输入框 L1512、气泡 L1243/L1266）；默认 enabled:false，?prts-safe=1 安全模式；声明不改第三方弹窗（<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/README.md">README</a>）。</p>
+<h3 id="43">4.3 区域背景</h3>
+<p>全局：background:var(--prts-canvas)（L145–L156，暗 #080a0c/亮 #eef1f3）。侧栏 rail：var(--prts-rail)（L216–L228）+ facility-face/脊线/向量为 JS 注入 SVG（<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/facility-vector.js">facility-vector.js</a>，配色 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/styles/facility-vector.css">facility-vector.css</a>）。对话区：ambient 双 linear-gradient（L1391–L1406）+ particle 透明 canvas（L1439–L1452，<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/particle-field-adapter.js">particle-field-adapter.js</a>）；气泡纯色 token；texture 开关降透明（L1422–L1437）。输入框：[data-composer-card]{background:var(--prts-active-glass)!important; backdrop-filter; border-bottom:3px solid yellow}（L1506–L1525），textarea 透明，逻辑 <a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/client/composer-glass-adapter.js">composer-glass-adapter.js</a>。浮层：floating-glass popover/dialog + shadow（L1575–L1590），设置面板 color-mix。城市剪影/纹理：JS 生成 SVG（SILHOUETTE_PATHS far/near + grid/scanline pattern；过渡 HUD 网格 data-URI L578/L587），动态为粒子重组/滚动 + reveal 动画，无视频。徽记/头像：5 阵营 PNG + SVG 构建转 data-URI/base64 + RLE（<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/scripts/build.mjs">build.mjs</a>，存 $DSH_HOME/plugins/dsh-theme-prts/emblems）；光标：<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/src/styles/cursor.css">cursor.css</a> data-URI PNG（源 crowninggg/prts-cursor）。</p>
+<h3 id="44">4.4 音乐/视频</h3>
+<p>无。20 客户端文件搜 mp3|mp4|webm|wav|ogg|m4a|&lt;audio|&lt;video|AudioContext|new Audio(|HTMLAudio|HTMLVideo 零真命中；<a href="https://data.jsdelivr.com/v1/packages/npm/@ash-qw/dsh-theme-prts@1.4.2">jsDelivr @1.4.2 清单</a> 无音视频扩展名；<a href="https://raw.githubusercontent.com/ash-qw/dsh-theme-prts/HEAD/CHANGELOG.md">CHANGELOG</a> music/audio/video/mp3/mp4/webm/bgm/sound 零命中。README “声纹/波形”系 session-lifeline SVG 动画 + session-flow 颜色，“启动序列”系 DOM/CSS 动画。</p>
+<h2 id="5-mineradiodhicocdsh-theme-mineradio">5. mineradio（dhicoc/dsh-theme-mineradio）</h2>
+<p>入口：<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/cordis.patch.yml">cordis.patch.yml</a>（insert id ui-mineradio）；宿主 <a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/lib/index.js">lib/index.js</a>（<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/index.ts">src/index.ts</a> 产物）空 apply；浏览器 <a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/index.ts">src/client/index.ts</a> inject=[theme,slots,locale]→apply→MineradioLayer mount→applyTokens+applySettings（+ settings.plugins.tab / general.item order 11）。</p>
+<h3 id="51-token">5.1 token 定义与覆盖</h3>
+<p>唯一字体 <code>--dsw-font-family</code>（<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/theme-layer.ts">theme-layer.ts</a> L48 FONT_STACK，L98 both()；Inter base64 自托管 <a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/fonts.module.css">fonts.module.css</a>，CJK 系统 fallback；全文件仅一处 dsw-font，无 font-size）。表面组 L70–L71（42 背景）/L106–L117（bg-base/layer-1/2/3/overlay/module-platform/multi-select/skeleton/mask/drop 半透明化）；border L120–L126（香槟金）；label 7 枚 L129–L137 + 第二层 inkOverrides（L239/L266/L1566–L1580，textStyle 四档只重写 label）；brand/交互/markdown/滚动条 L139–L193（CHAMPAGNE #f4d28a / 深金 #9a6f2c L53–L54、薄荷、玫瑰）；specific L199–L211（sidebar-fill=transparent 等）；shadow L223–L229；MINERADIO（L101）vs COMPAT（L298）双基表（L1556 applyTokens 二选一）。自注入 knob --dsh-aqua-*（L1318–L1348 写 html 内联 + <a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/mineradio.module.css">mineradio.module.css</a> L20–L67 :root 声明）。判定：<a href="https://github.com/dhicoc/dsh-theme-mineradio/blob/HEAD/README.md">README How coverage works (3.0)</a> 三段（overrideTokens 写 body 内联 + role census data-md-role+!important + carve-outs 豁免）；<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/build-tools/build-client.mjs">build-client.mjs</a> 每 module.css 一份注入；无 webserver/index-inject，无 JSON theme。</p>
+<h3 id="52">5.2 为什么生效</h3>
+<p>mount（L1581–L1595）：html[data-dsh-aqua]→ensureAmbientScene/ensurePageFades→applySettings→applyTokens→mountFluid/seamStamper/spotlight/roleCensus/stationDial。applyTokens（L1556–L1564）：ctx.theme.overrideTokens('dsh-theme-mineradio',{...base,...inkOverrides()})（body 内联最高，无 !important 需求；::before 继承亦生效；setEnabled(false) L1751 释放+摘属性）。applySettings（L1311–L1350）：html 内联 --dsh-aqua-blur/frost/wallpaper-blur/video-blur/dim/brightness/bloom-h/spot-color + data-dsh-float/compat/spotlight 开关。优先级：token 层（body 内联）&gt; census 层（<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/role-layer.module.css">role-layer.module.css</a>，2.x 类名 (0,2,0) 落败故 3.0 census+!important）&gt; 手工玻璃层（mineradio.module.css，按 data-dsh-float/composer-card/sidebarCol）。activeScheme L837–L839 读 body[data-ds-dark-theme]；theme/change 双 store 重渲染。</p>
+<h3 id="53">5.3 区域背景</h3>
+<p>全局地基：bg-base 等半透明透底 + census ground/structure transparent !important（README 自测 97% 背景归 token）。底部二选一 fixed 层：<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/critters.ts">critters.ts L89–L107</a> ambient(div)+fluid canvas + wallpaper-layer(img/video loop playsinline)，CSS L244–L340 fixed inset:0 z-index:-1，dataset.background 翻 fluid/wallpaper（L1361–L1363）；用户自供无内置（input image/<em> + video/mp4,webm,ogg,quicktime + FSA video/</em> .mp4/.webm/.ogg/.mov/.m4v/.mkv，<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/MineradioAppearanceRow.tsx">AppearanceRow L171–200/380–394</a>；大视频 IDB dsh-aqua-media 标记 idb:/fsa:，<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/wallpaper-store.ts">wallpaper-store.ts</a>，小视频 data: URL）。侧栏/对话/输入/overlay：sidebar-fill transparent + nav active/hover + bubble/markdown + input-major + menu/tip/toast/tooltip + role pane/overlay + 手工玻璃（css L662–L760/L922–L1017/L114/L151/L164–L180/L1087–L1165；伪元素浮层落 ::before；background-image 刻意不动）。装饰全程序化（fluid-shader/star-river/whale/mesh/spotlight/dispersion；fluidHue+station+autoTint；reduced-motion 停；perf 三档）。</p>
+<h3 id="54">5.4 音乐/视频</h3>
+<p>视频有、音乐无。播放 <a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/theme-layer.ts">theme-layer.ts L1396–L1467</a>：isVideo=data:video//idb:/fsa:（L1370）→IDB objectURL（L1399–L1412）/FSA 重读（L1416–L1434）/小视频 data:（L1440–L1442）；非壁纸 pause+清 src（L1445–L1447）。自动播放 L1460–L1467 loop=true + play().catch→muted 重试（注释 autoplay with muted fallback；直连 \<video> 以便 backdrop-filter 采样）。格式见 §5.3；默认 background:'fluid'、wallpaper:''（L480–L481）即视频默认关；videoBlur 6px、videoBrightness 45（L499–L500）罩层 alpha 保文字（L1342）。audio-reactivity（<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/audio-reactivity.ts">audio-reactivity.ts</a>，getUserMedia→Analyser→三包络，默认 audioReact:false L489）为麦克风视觉脉动，无 \<audio>/mp3/播放列表。station-dial（<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/src/client/station-dial.ts">station-dial.ts</a>，<a href="https://raw.githubusercontent.com/dhicoc/dsh-theme-mineradio/HEAD/docs/radio.md">radio.md</a>）为 workspace→hue 隐喻（TUNE_MS 2200ms、FM 044），不发声。</p>
+<h2 id="6">6. 未验证事项（明确写出，不猜）</h2>
+<ol>
+<li>DSH 宿主 design-platform token 语义与 ThemePresenter 落点（body 内联 + data-ds-dark-theme + 字号/字族变量）引自本仓 #96 §2–§3 与各插件注释，未在本轮拉取宿主仓逐行核对；各仓“覆盖/未覆盖”指本仓可见范围。</li>
+<li>全仓穷举受限：取数时段 GitHub API 匿名配额 403，改用 raw 单文件 + gh（已登录）文件清单 + 本地 shallow clone（dream/prts）补齐；“零内置 mp3/mp4”“无 overrideTokens”等否定结论均已注明检索范围（文件/字符数/误报排除），行号以 HEAD 当日 raw 为准（CHANGELOG 迭代快，拼入 #100 时建议保留文件链+token 名、行号作约读）。</li>
+<li>输入框/新组件选择器存在版本漂移面：bloom/open-sea/prts/mineradio 均有“宿主改版致 hash/结构失效则 no-op/回落默认”的注释与兜底；仅读源码未做 DOM 实测，#100 引用时应标“源码级，未实测”。</li>
+<li>open-sea npm 主包 vs harness-plugin 源码两条链路勿混用（后者未发布，前者默认走自注入+iframe）；dream 主题包 glow/defaults 不跟包（schema v1 边界）；mineradio 视频“含音频轨取决于用户文件，策略下静音”。</li>
+</ol>
+<h2 id="7">7. 来源清单（一手）</h2>
+<ul>
+<li>5 仓库首页与包 manifests、patch、lib/client（HEAD/main raw）见各节内链；dream 本地 clone 复核（.scratch/skin99，未进包）；prts <a href="https://data.jsdelivr.com/v1/packages/npm/@ash-qw/dsh-theme-prts@1.4.2">jsDelivr 1.4.2 清单</a>。</li>
+<li>DSH 机制背景：本仓 <a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/96">#96</a> §2（ctx.theme/overrideTokens/validateOverrides/ThemePresenter）与 <a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/98">#98</a> Notes/Standing preferences。</li>
+<li>子调研 markdown 片段（5 份，约 12k 字符/份）已合入上文，不另存。</li>
+<li>对抗复核 clone（depth 1，2026-10-18）：bloom / open-sea-skin / mineradio（.scratch/skin99b，已清理）；dream / prts 首轮已 clone 穷举（.scratch/skin99，已清理）。</li>
+</ul>
+<h2 id="8-2026-10-18">8. 对抗审查（第一性原理·证据链重审，2026-10-18）</h2>
+<blockquote>
+<p>口径：只审本篇（#99），逐条把核心结论打回一手源码行，裁决三档——【实证】原文行可点名 /【推断】源码+常识但缺宿主侧闭环 /【缺席】零命中否定（注明检索域）。推翻项当场改正文（bloom 字体条），其余成立项补强引用。</p>
+</blockquote>
+<h3 id="81">8.1 裁决表</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>被审结论</th>
+<th>裁决</th>
+<th>对抗过程与一手行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>bloom“自注入、不走 overrideTokens”</td>
+<td>【实证】成立</td>
+<td>clone 穷举 src 内 <code>overrideTokens|ctx.theme</code> 零命中；node 半侧仅只读版本号端点（src/index.ts）；三表经 dom.ts injectCSS 进 <code>style[data-plugin-css]</code>。与原子报告一致，无需改。</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>bloom“无 font-family、不改字族”</td>
+<td>【实证】成立、引注推翻</td>
+<td>clone 穷举 <code>font-family</code> 实为 4 命中（lib/client.js:2806/:2957 即 switcher.ts:209/:360 的构建产物），作用域全是自家切换器（诗句列 <code>.dsh-bloom-option__en</code> Songti 衬线 + 版本号 <code>.dsh-bloom-dsh-ver</code> 等宽，注释明示“只在这一列用宋体”“正文保持无衬线”）。宿主字族结论成立，但原子报告“0 命中”失实——正文 §3.1 与横向表已按本条修正。另 <code>src</code> 内 <code>url(</code> 零命中补测通过，渐变背景结论不变。</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>bloom“无音视频”</td>
+<td>【缺席】成立（域内）</td>
+<td>src 全域 <code>mp3\|mp4\|webm\|ogg\|wav\|audio\|video\|&lt;audio\|&lt;video\|autoplay</code> 零命中（本轮 clone 实测）；lib 头 100k 同零。否定仅及检索域，行文已注“域内”。</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>open-sea“双路径二选一”</td>
+<td>【实证】成立</td>
+<td><code>ctx.theme.overrideTokens</code> 亲测在 <a href="https://raw.githubusercontent.com/d-dev0101/open-sea-skin/HEAD/harness-plugin/src/client/index.ts">harness-plugin/src/client/index.ts:77</a>（<code>disposeTokens = next.enabled ? overrideTokens(PACKAGE_NAME, glassTokens(next.glass)) : undefined</code>），九 token 表 glassTokens L39–L53 逐行点名；发布包自注入 <code>__open-sea-skin-glass__</code>（skin-core L310–L330）与 architecture.md 双轨自述互锁。</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>open-sea“无音视频、无背景图”</td>
+<td>【缺席】成立（域内，误报已排除）</td>
+<td>25 命中逐条核对全系误报：<code>wavelength</code>（ocean.js:70 波长变量）、<code>depthTexture</code>（three.webgpu.js:394)、<code>wave-diagram</code>（website 官网样式）；<code>url(</code> 仅字体 woff2 与官网 jpg（website/site.css:253，不进插件渲染）。宿主字体 114 命中全系 Geist（iframe/官网）与自家面板 <code>-apple-system</code>，无 <code>--dsw-font*</code> 写操作——“不改宿主字体”为有证据的缺席。</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>mineradio“override 主 + census 辅”</td>
+<td>【实证】成立</td>
+<td>theme-layer.ts:1559 <code>this.ctx.theme.overrideTokens(</code> 亲测；L98 <code>'--dsw-font-family': both(FONT_STACK)</code> 亲测（含 L97 注释）；README §50 双轨自述与 build-client.mjs 注入互锁。bundle 单行（lib/client.js:137，minified）致 grep 虚增——凡引 bundle 行均以 src 为准，行文已注。</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>mineradio“视频有、音乐播放无”</td>
+<td>【实证】成立、措辞补强</td>
+<td><code>&lt;video data-dsh-aqua-wallpaper-video loop playsinline&gt;</code>（critters.ts:107）、拾取器视频格式表（AppearanceRow.tsx:181）、loop+muted 兜底（theme-layer L1460–L1467）三链完整。<code>AudioContext</code> 仅出现在 audio-reactivity.ts（mic→Analyser→粒子包络，默认关）与 CHANGELOG“随音乐律动”——第一性原理区分：<strong>播放能力（解码/出声）零证据，响应能力（随环境声视觉脉动）有证据</strong>。正文“音乐播放无（仅麦克风视觉脉动）”措辞已精确，不断言“无音乐相关能力”。</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>dream“register+单次 override、57 token、无音视频”</td>
+<td>【实证/缺席】成立</td>
+<td>首轮本地 clone 全仓 <code>mp3\|mp4\|webm\|ogg\|wav\|&lt;audio\|&lt;video\|autoplay</code> 零命中；SKINS 八段 L423–L935 + COMBINED_OVERRIDE_SOURCE L2360/L2386–L2397 + themes-spec 白名单互锁。clone 已清理，复测记录备查。</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>prts“自注入、无 override、无音视频”</td>
+<td>【实证/缺席】成立</td>
+<td>首轮 clone：<code>overrideTokens</code> 20 文件零命中；<code>theme.register</code> 同零；<code>setTheme</code> 仅读宿主日夜（controller-v2 L681–L711）；音视频模式串零真命中 + jsDelivr 清单无媒体扩展名。clone 已清理。</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>“5 家无音乐播放”共性</td>
+<td>【推断】成立、边界收窄</td>
+<td>5 家“播放”皆零证据；但 mineradio 麦克风律动在有环境音乐时构成弱音乐响应——共性行“音乐播放 5 家全无”指播放能力，不含响应面，特此收窄，防 #100 误读为“与声音完全无关”。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82">8.2 方法论自检</h3>
+<ul>
+<li>“零命中否定”有效，但仅及检索域：本轮把每条否定都重跑到本地 clone 全文（含 vendor/官网/CHANGELOG），误报逐条点名（wavelength、depthTexture、toggle），不再是“raw 头 100k”弱证据。bundle 单行（mineradio lib/client.js:137、prts 1MB 产物）不计数，行号一律以 src 为准。</li>
+<li>“宿主落点”（body 内联、ThemePresenter）仍是【推断】：引自 #96 与各插件注释，未拉宿主仓闭环——#100 引用须标“插件侧实证+宿主侧转述”，不得写成“宿主源码已核”。</li>
+<li>未做 DOM 实测：选择器漂移（hash 类、slot 名）只在源码级成立，#100 表格建议加“源码级”列注。</li>
+</ul></div></details><details class='full'><summary>B · 配色外观 3 仓深挖全文</summary><div class='inner'><h1 id="issue-102-3">Issue 102 深挖：配色外观系 3 仓主题生效原理（代码级）</h1>
+<blockquote>
+<p>回答票：GitHub issue 102（父地图 98：13 款 DSH 主题/背景类插件深度调查的 4 个深挖子票之一）
+版本日期：2026-10-18（Asia/Shanghai取证日）
+本仓路径：<code>docs/research/color-appearance-catppuccin-claude-ui-102.md</code>
+方法：只读源码 + 文档（一手来源：目标仓库 README / package.json / cordis.patch.yml / src 与 theme CSS / 构建脚本；GitHub 页面与 raw 文件经 web_fetch 取证）。不安装、不运行任何代码，未向工作区克隆。
+缺失声明：取证中 GitHub REST API 触发 rate limit（403），3 仓 HEAD SHA 改由 commits 分支 atom 与先前 API 成功返回交叉确认；npm registry 元数据未取，版本以各仓 package.json 原文为准。见末尾"证据缺口/不确定项"。</p>
+</blockquote>
+<h2 id="_1">取证基线</h2>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>默认分支</th>
+<th>HEAD SHA（取证时）</th>
+<th>package.json 版本/包名</th>
+<th>取证日期</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NoNameLeGo/dsh-catppuccin-theme</td>
+<td>main</td>
+<td><code>94af6d7</code>（2026-10-17，fix settings seam 0.2.1，v0.6.3）</td>
+<td><code>@nonamelego/dsh-catppuccin@0.6.3</code></td>
+<td>2026-10-18</td>
+</tr>
+<tr>
+<td>Nwflower/dsh-claude-style</td>
+<td>master</td>
+<td><code>d773a62</code>（2026-10-17）</td>
+<td><code>dsh-claude-style@0.16.2</code></td>
+<td>2026-10-18</td>
+</tr>
+<tr>
+<td>TQSY114514/dsh-ui-appearance</td>
+<td>main</td>
+<td><code>e64243a</code>（2026-10-16T15:47Z）</td>
+<td><code>dsh-ui-appearance@0.1.23</code></td>
+<td>2026-10-18</td>
+</tr>
+</tbody>
+</table>
+<p>三仓 cordis.patch.yml 接线 id：<code>dsh-catppuccin</code>（另含 tui-themes）、<code>ui-skin-claude-style</code>、<code>ui-appearance</code>。三仓宿主侧全部围绕宿主 <code>--dsw-*</code> token 体系做事，无自立 token 孤岛（命名证据见各节）。</p>
+<hr>
+<h2 id="nonamelegodsh-catppuccin-themecatppuccin">仓一：NoNameLeGo/dsh-catppuccin-theme（Catppuccin 四风味 + 玻璃拟态）</h2>
+<h3 id="1">1. 配色体系如何组织</h3>
+<ul>
+<li>调色板定义：<code>src/client/palettes.ts</code>（约 54KB，文件头注明 AUTO-GENERATED，生成器 <code>scripts/generate-palettes.mjs</code>，上游 Catppuccin 官方版本 pin <code>639ed015</code>）。关键符号：<code>CatppuccinFlavorId = latte | frappe | macchiato | mocha</code>；每风味导出如 <code>CATPPUCCIN_LATTE { themeId: 'catppuccin-latte', colorScheme: 'light', accent: '#1e66f5', tokens: {...} }</code>。</li>
+<li>token 命名：两层。底层 <code>--dsw-static-*</code> 直接给十六进制（如 <code>--dsw-static-blue-500: #1e66f5</code>）；语义层 <code>--dsw-alias-*</code> 用 <code>var()</code> 引用静态层并用 <code>color-mix()</code> 派生明暗步阶。明暗不由用户调，由风味自带：latte <code>colorScheme: 'light'</code>，其余三风味为 dark。</li>
+<li>代码着色是独立正交表：<code>src/client/shiki-tokens.ts</code>（约 6.4KB），<code>SHIKI_TOKENS[flavor][style]</code> 给出 11 个 <code>--shiki-*</code> token，值为各风味字面 hex（如 latte 注释 <code>#7c7f93</code>），fg/bg 两项用 <code>var()</code> 回指语义层。</li>
+<li>用户自定义覆盖：<code>src/state.ts</code> —— <code>CATPPUCCIN_THEME_IDS</code> + <code>CATPPUCCIN_ENTRY_ID = 'dsh-catppuccin'</code>（与 cordis.patch.yml 的接线契约）；<code>sanitizeOverrides()</code> 只保留 <code>--</code> 前缀的字符串值，鉴定"用户覆盖层"的合法输入形状。</li>
+</ul>
+<h3 id="2-css">2. CSS 变量/覆盖如何生效（注入链路）</h3>
+<p>链路（按调用顺序）：<code>src/client/index.ts</code> <code>registerThemeFor()</code>（L421–450）→ <code>tolerantRegistration(() =&gt; theme.register({ id: flavor.themeId, colorScheme: flavor.colorScheme, tokens: {...} } as ThemeTokens))</code>（L37 引入宿主 ThemeRuntime / ThemeTokens 类型）→ 宿主 ThemeRuntime 合并。</p>
+<ul>
+<li>合并优先级写在展开顺序里（同文件 L421–450）：<code>{ ...flavor.tokens, ...shiki, ...menuSurfaceFor(hostHasMenuBlur), ...readOverrides() }</code>，即用户覆盖最后展开、必胜，其次菜单面补丁，再次 shiki，最底层是风味基座。为什么生效：宿主 theme.register 以后写入为准的对象合并语义 + 同一 token 后展开覆盖先展开。</li>
+<li>主题切换守卫：<code>setTheme</code> 包裹 <code>restoreGuardSetTheme</code>（L609–618）+ <code>scheduleRestore</code> 微任务（L633–651，注释指向 issue #10 重入问题）→ <code>applyDesired</code>（L653–684）→ 存储同步（L687–709）；偏好重应用 <code>reapplyThemePrefs</code>（L512–518）。</li>
+<li>宿主侧设置缝：<code>src/index.ts</code> 双缝兼容 —— 旧宿主（≤0.1.6）走 installSection，新宿主（≥0.1.7）走 Config.volatile；<code>inject = [webServer]</code>，并挂 <code>/catppuccin/check-update</code> 路由做更新检查。</li>
+<li>玻璃层是第二条独立链路：GLASS_CSS_TEXT（由 scripts/gen-glass-css.mjs 从 glass.module.css 生成，懒挂载为独立 stylesheet）+ GlassLayer 在 <html> 写 data-dsh-glass / mica / compat 属性；调节旋钮为 <code>--dsh-glass-blur / frost / brightness / glow</code>（glass-layer.ts L~50–70）。glass.module.css（约 82KB）全部规则以 [data-dsh-glass] 为门，recipes 挂在 body 上（注释写明原因是可做 var() 替换），颜色全部 color-mix() 自 --dsw-alias-* 派生——所以玻璃外观跟随风味 token 自动换色。</li>
+<li>作用域与 !important：主题 token 走宿主注册层（无 scoped 选择器、无 !important，靠注册合并赢）；玻璃 CSS 用属性门控 + 层叠，不依赖 !important（与后两仓"定点 !important"风格不同）。</li>
+</ul>
+<h3 id="3">3. 字号字体如何控制</h3>
+<p>无证据（阴性结论）：对 src/client/index.ts 全文（1024 行）关键字检索，唯一的样式探针是 --dsw-menu-backdrop-filter 探测（L305–326，判断宿主有无菜单模糊）；零 font-family / font-size / --dsw-font-* 定义与配置项；README 亦无字体/字号说明。结论：该插件不管字体字号，完全沿用宿主。</p>
+<h3 id="4">4. 背景能力边界</h3>
+<ul>
+<li>纯色：有——即风味基座的 --dsw-alias-bg-*（换风味即换底色），无独立"纯色选择器"。</li>
+<li>图片 / 动态 / 视频：无证据。全仓无 background-image / video / object-fit 相关代码；玻璃层的"氛围底光 + 辉光"是半透明渐变罩，不是壁纸层。</li>
+</ul>
+<hr>
+<h2 id="nwflowerdsh-claude-styleclaude-code-desktop">仓二：Nwflower/dsh-claude-style（Claude Code Desktop 皮肤）</h2>
+<h3 id="1_1">1. 配色体系如何组织</h3>
+<ul>
+<li>调色板定义：packages/client/src/theme/tokens.json（约 35KB）是唯一事实源——docs/STYLE.md（约 67KB）头注声明其配色表由此 JSON 生成。色板：ivory #FCFCFB / 侧栏 #FBFBF9 / 边框 #E8E6DC / slate #141413 / clay 主色 #D97757 / accent-deep #C6613F；第二品牌 deepseek 主色 #4D6BFE。</li>
+<li>token 命名：palette[] 复用宿主语义名（--dsw-alias-bg-base / layer-1..3 / overlay、border-l1..3、brand-primary（双品牌值）、button fills、interactive、label-primary/secondary/tertiary/caption、state-business、link、shadow-lv2、specific-input-major 等）+ 皮肤私有 --dsh-claude-*（hover-bg、inline-code、link、table-head、canvas、sidebar-canvas 等）；typeface[7] 另管字体（见第 3 节）。</li>
+<li>变体/明暗：偏好合约 packages/client/src/prefs.ts —— PALETTE: claude | host（claude 全量皮肤色 / host 跟随宿主只留描线）、BRAND: claude | deepseek、MOTION: system | reduced | full；明暗跟随宿主 [data-ds-dark-theme]（各 CSS 以此切深色值）。接线：skin.json { id: 'claude-style', accent: '#d97757', bodyAttr: 'data-dsh-claude-style' }；constants.ts 定义 STYLE_ID / SURFACE_STYLE_ID / PALETTE_ATTR / TYPEFACE_ATTR / BRAND_ATTR / MOTION_ATTR / PAGE_ZOOM_ATTR / SETTINGS_ENTRY_FALLBACK = 'ui-skin-claude-style'。</li>
+</ul>
+<h3 id="2-css_1">2. CSS 变量/覆盖如何生效（注入链路）</h3>
+<p>链路：构建期 scripts/build.mjs（esbuild 打包 packages/client/src/entry.ts，external react/host；theme/*.css 按 rank 拼接 + tokens.json → token stylesheet + assets/fonts → lib/fonts）→ 运行期 entry.ts（约 18KB）adoptSkin() → core/stylesheet.ts mountStylesheet(STYLE_ID='dsh-claude-style-style', STYLESHEET + pluginCss)。</p>
+<ul>
+<li>门禁脚本 scripts/css.mjs 强制五条（构建失败即拦）：每条选择器必须含 body[data-dsh-claude-style]（作用域）、token 门、:has 末复位、composer 门、motion/layer 检查。作用域结论：全皮肤为 body 属性 scoped，无 :root 全局污染；与其他主题/皮肤的互斥靠 entry.ts parkForeignSheets() + FEATURES 延迟块 + release/keep 实现。</li>
+<li>canvas 规则 theme/tokens.css：body[data-dsh-claude-style][data-dsh-claude-palette="claude"]:not([data-we-wallpaper]) 下侧栏/主列上色；html:has(...) 变体给 canvas #fcfcfb / #fafbff；hailline 用 0.5px 边框。theme/chrome.css（约 16.8KB）：三列底色 + 列间 0.5px 分割线 + 顶部 fade（四段 color-mix() ramp，注释说明不进 tokens.json 的原因是"每 palette 经 --dsw-alias-bg-base 自解析"）。</li>
+<li>!important 策略是"定点钉死"：markdown-code-block（tokens.json 注释 pinned by !important）、typography.css 表头 background: var(--dsh-claude-table-head) !important、table-scroll 布局组（width/margin/padding/border-collapse 一组 !important）。其余靠"属性选择器特异度"赢宿主，不撒网式 !important。</li>
+<li>与壁纸插件的协作是"主动让位"（见第 4 节）。</li>
+</ul>
+<h3 id="3_1">3. 字号字体如何控制</h3>
+<ul>
+<li>定义位置：packages/client/src/theme/typography.css（约 12KB）顶部 7 组 @font-face：(1) JetBrains Mono variable（包内自带，路由 /dsh-claude-style/fonts/，L5–21）；(2) Anthropic Sans/Serif/Mono 三款 400（不在 npm 包内，需用户自行放入 $DSH_HOME/dsh-claude-style/fonts/，否则回退系统安装的同名/栈后续字体，L26–50）；(3) Claude Style Inter / Claude Style Noto Serif woff2（包内自带，SIL OFL 1.1，按 Anthropic 原脸裁剪覆盖、匹配 x-height/cap-height/小写宽度以不重排，L56–71）。</li>
+<li>生效范围：body[data-dsh-claude-style] { font-family: var(--dsw-font-family); }（L73–74）；markdown 正文 :is([data-dsh-claude-part~="markdown"]) { font-family: var(--dsh-claude-font-prose); }（L100–101，中英混排中文 fallback 到 sans CJK）；h1–h4 显示衬线 --dsh-claude-font-serif（L84–85）；宿主给 markdown 元素写了 font: 简写，皮肤逐项重声明 font: var(--dsw-font-markdown-h1..h4); font-family: var(--dsh-claude-font-prose);（L114–117，注释写明"shorthand 重断 family，必须补回"）。</li>
+<li>是否可配：TYPEFACE: claude | host（prefs.ts）——选 host（follow-host）即把 token 让给宿主/其他主题；字号无配置项，沿用宿主（表格 font-size: var(--dsh-content-font-size, 14px) L122；正文行高 calc(23px + var(--dsh-content-font-delta, 0px))）。</li>
+</ul>
+<h3 id="4_1">4. 背景能力边界</h3>
+<ul>
+<li>无自有壁纸；设计上主动让位给壁纸引擎：packages/client/src/theme/wallpaper.css（约 4KB）全文是让位逻辑——有 data-we-wallpaper（dsh-plugin-wallpaper-engine 标记）时皮肤不画 canvas/columns，只罩一层 body::after mask（z-index: -1，color-mix(canvas 86%/82%) 保证可读性）并把 shell 置透明。</li>
+<li>纯色：有——即 canvas token（claude palette 下 #fcfcfb 系）。</li>
+<li>图片 / 动态 / 视频：无证据（无 background-image/video/object-fit 代码；视频/动态完全不在本仓职责内，由壁纸引擎负责）。</li>
+</ul>
+<hr>
+<h2 id="tqsy114514dsh-ui-appearance">仓三：TQSY114514/dsh-ui-appearance（自定义配色 + 壁纸/视频背景）</h2>
+<h3 id="1_2">1. 配色体系如何组织</h3>
+<ul>
+<li>角色模型：src/appearance-settings.ts（约 13KB）—— APPEARANCE_SETTINGS_NAMESPACE = 'ui-appearance'；六角色 APPEARANCE_ROLES = accent / background / panel / input / text / border；可反转 INVERTIBLE = accent, background 且 DEFAULT_INVERT { accent: true }（accent 默认自动反转保证气泡可读）；每角色 ModeThemeSettings { light, dark } 双模式 + preset / invert，顶层另有 legacy 镜像字段。</li>
+<li>预设：src/client/tokens.ts（约 44KB/910 行）尾部 —— LIGHT_PRESETS（L776 起：default / dawn / sky / mint / sakura / clay，六键全 hex）与 DARK_PRESETS（L841 起：default / midnight / ocean / forest / rose / monochrome），合并为 APPEARANCE_PRESETS（L906）。</li>
+<li>推导函数 buildTokenOverrides(settings): ThemeTokenOverrides（L188）：每 token 发 { light, dark } 对（宿主要求）；accent → --dsw-alias-brand-primary / state-business-primary / button-info-fill，hover 用 mixHex(accent, LIGHT_BASE/DARK_BASE, 0.15/0.22) 派生；background → --dsw-alias-bg-base；panel → layer-1..3/overlay/module-platform/sidebar-fill/bubble/bubble-highlight/menu/fill-l1/l2/tip 一组（权重 0.04–0.14 的 mix）。emit(name, light, dark)（L190）是唯一出口。</li>
+<li>可读性数学全在 src/client/color.ts（纯函数，无 DOM）：mixHex / withAlpha / contrastRatio / relativeLuminance / isDarkColor（dark 阈值 luminance &lt; 0.18）；tokens.ts onInk()（LIGHT_INK #fafaf9 vs DARK_INK #0f1115 二选一，0.5 偏移偏向浅色墨）+ a11yLabelStep()（24 轮二分找满足 WCAG 对比度的最大 mix 权重）+ bubbleInk()。</li>
+</ul>
+<h3 id="2-css_2">2. CSS 变量/覆盖如何生效（注入链路）</h3>
+<p>链路：src/client/index.ts apply(ctx)（L106，inject = [slots, locale, theme]，L51）→ rAF 节流 scheduleApply / flushApply（L124–146，高频 slider 拖拽合帧）→ applier.apply(current)（L135/146/172）→ 双写：(1) ctx.theme.overrideTokens(OVERRIDE_SOURCE, tokens)（applier.ts L363–364，OVERRIDE_SOURCE = '@deepseek-ai/dsh-client-ui-appearance'）把 buildTokenOverrides 结果进宿主主题层，返回 removeOverrides 供 dispose 时精确撤回（L361–364/611）；(2) DOM 写 body 上 22 个 BODY_VARIABLES（--dsw-appearance-*，L20–43）供自有 stylesheet 消费。设置行挂 settings.general.item（L380），持久化 STORAGE_KEY = 'dsh-ui-appearance.settings' + sanitizeSettings + 跨 tab storage 事件。</p>
+<ul>
+<li>!important 定点使用：Windows 框 punch-out（html[data-dsw-has-bg] … _frame { background: transparent !important; }，Issue #31）、--dsw-menu-surface-fill: var(--dsw-specific-menu) !important（tokens.ts L579 注释 cyclic reference 说明）、solid 标签组、slider 拖拽期 transition-duration: 0s !important 保 60fps。token 主体靠 overrideTokens 层赢，不靠 !important。</li>
+<li>作用域三板斧（全部属性门控、禁用即精确还原， applier 头注释）：(1) 气泡子树 scoped 重写 —— #root [class<em>="_bubble"], #root [class</em>="bubble" i] { --dsw-alias-state-business-primary/--dsw-alias-brand-primary: var(--dsw-alias-label-primary); }（L186–189，Issue #27：accent 气泡底 + accent refChip 字 1:1 对比度不可见）+ body[data-dsw-bubble-ink-light/dark] 门控的墨水切换（L199–222）；(2) data-dsw-has-bg（<html>，L371）触发 frame 透明规则；(3) data-video 切换图片/视频层（L97/110）。</li>
+</ul>
+<h3 id="3_2">3. 字号字体如何控制</h3>
+<p>无证据（阴性结论）：appearance-settings.ts（全部可配键见检索：preset/image/alpha/blur/scrim，无 font 项）、tokens.ts、applier.ts（BODY_VARIABLES 22 项无字体项）均无 font-family / font-size 定义与配置。该插件不管字体字号。</p>
+<h3 id="4_2">4. 背景能力边界（本票三仓中唯一真做背景的）</h3>
+<ul>
+<li>纯色：有——background 角色色进 --dsw-alias-bg-base（buildTokenOverrides bg 段）。</li>
+<li>图片：有——backgroundImage: string 存 IndexedDB record key（legacy 兼容 inline data URL）（settings.ts L102–103）；image-store.ts 持久化；SHEET（applier.ts L79–97）#dsw-appearance-bg{ position: fixed; inset: -48px; z-index: -1 } 三层合成：base canvas（用户 background 色）+ ::before 图片层（cover / --dsw-appearance-bg-opacity / blur(--dsw-appearance-blur)，上限 BACKGROUND_BLUR_MAX = 30）+ ::after scrim 罩（--dsw-appearance-scrim，明暗两套渐变）。</li>
+<li>视频/动态：有——backgroundVideo: string（L104–105）+ video-store.ts；<video muted loop playsInline autoplay>（L587–594，ensureVideo），object-fit: cover，同一透明度/模糊变量；data-video 有则 ::before 熄灭、video 显示（L97–110）；URL.createObjectURL(record)（L552）+ 编解码失败回退（onerror 撤层 L557–559，onloadeddata 上报 L565）。inset: -48px 给 blur 留边、防边缘透光；#root 刻意不动（长注释论证：动 #root 会把 fixed 菜单/toast trap 进 stacking context，盖住 z-1000 设置弹窗）。</li>
+<li>不透明度/玻璃：surfaceAlpha / sidebarAlpha / modalAlpha / inputAlpha / codeAlpha / sidebarOpaque / glassBlur（上限 GLASS_BLUR_MAX = 20，EMPHASIS_ALPHA 0..0.45）；背景图层"暗色判定" imageDark 参与可读性。</li>
+<li>边界：图片/视频来自用户上传（IndexedDB），无外部 URL 拉取证据；无播放控制 UI（只有存/清 key）；视频与图片共享一层（互斥，video 优先）。</li>
+</ul>
+<hr>
+<h2 id="3_3">横向小结（仅综合本票 3 仓）</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>catppuccin</th>
+<th>claude-style</th>
+<th>ui-appearance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>范式</td>
+<td>整套风味注册（换整套 token）</td>
+<td>定制皮肤样式表（scoped CSS + token 表）</td>
+<td>用户自定义覆盖（角色色推导 + 覆盖层）</td>
+</tr>
+<tr>
+<td>token 入口</td>
+<td>theme.register({id, colorScheme, tokens})</td>
+<td>构建期 tokens.json→stylesheet + 运行期 mount</td>
+<td>ctx.theme.overrideTokens(SOURCE, {light,dark}) + body 变量</td>
+</tr>
+<tr>
+<td>明暗</td>
+<td>风味自带（latte 光/其余暗）</td>
+<td>跟随宿主 data-ds-dark-theme</td>
+<td>每 token 自带 light/dark 对</td>
+</tr>
+<tr>
+<td>可配粒度</td>
+<td>风味 4 选 1 + 全 token 手工覆盖</td>
+<td>palette 2 选 + brand 2 选 + motion + typeface</td>
+<td>6 角色 x 双模式 + 11 预设 + 不透明度/模糊组</td>
+</tr>
+<tr>
+<td>!important</td>
+<td>不用（靠注册合并）</td>
+<td>定点（code block/表头/表格布局）</td>
+<td>定点（frame punch-out/菜单面/solid/drag 期）</td>
+</tr>
+<tr>
+<td>字体</td>
+<td>不管</td>
+<td>全管（自带 4 款 + 用户 3 款 + CJK 策略）</td>
+<td>不管</td>
+</tr>
+<tr>
+<td>背景图/视频</td>
+<td>无（仅玻璃氛围光）</td>
+<td>主动让位给壁纸引擎</td>
+<td>自有 bg 层（图 + 视频 + scrim + punch-out）</td>
+</tr>
+</tbody>
+</table>
+<p>给 100 号综合对照表的事实输入（一句话版）：catppuccin = "换整套官方色 + 用户覆盖兜底"；claude-style = "scoped 皮肤 + 双品牌 + 字体全栈 + 壁纸让位"；ui-appearance = "角色色推导 + overrideTokens + 自有图文视频背景层"。三者 token 命名都贴宿主 --dsw-*，可共存但叠加语义由宿主层序决定（本票未深挖层序仲裁，留给 100 号）。</p>
+<h2 id="_2">证据缺口/不确定项</h2>
+<ol>
+<li>npm registry 元数据未取（rate limit 期间未补）：三仓版本号以 raw package.json 原文为准，未与 registry latest 交叉。</li>
+<li>claude-style tokens.json（35KB）未逐条全文核对，token 清单以 docs/STYLE.md 生成表 + 文件片段相互印证；若 100 号需要逐 token 表，需二次取证。</li>
+<li>catppuccin glass-layer.ts 调节旋钮行号为约数（L~50–70，文件经截断打印定位），符号名（--dsh-glass-*、data-dsh-glass）已确认精确。</li>
+<li>三仓 dist / lib 构建丧物未读（exports 表以 package.json 为准）；行为结论全部来自源码与文档，无运行时验证（符合本票只读要求）。</li>
+<li>"无字体/无背景"均为源码关键字检索阴性结论（检索词：font-family / font-size / --dsw-font / background-image / video / object-fit），若上游后续版本新增能力，本结论以取证 SHA 为准过期。</li>
+</ol>
+<h2 id="2026-10-18asiashanghai">附录：复现命令/取证链接（取证日 2026-10-18，Asia/Shanghai）</h2>
+<pre><code class="language-powershell"># 仅用 web 读取（no clone / no install / no run），以下任选其一复核
+# Catppuccin
+Invoke-WebRequest https://raw.githubusercontent.com/NoNameLeGo/dsh-catppuccin-theme/main/package.json
+Invoke-WebRequest https://raw.githubusercontent.com/NoNameLeGo/dsh-catppuccin-theme/main/src/client/index.ts
+Invoke-WebRequest https://raw.githubusercontent.com/NoNameLeGo/dsh-catppuccin-theme/main/src/client/palettes.ts
+# Claude-style
+Invoke-WebRequest https://raw.githubusercontent.com/Nwflower/dsh-claude-style/master/package.json
+Invoke-WebRequest https://raw.githubusercontent.com/Nwflower/dsh-claude-style/master/packages/client/src/theme/tokens.json
+Invoke-WebRequest https://raw.githubusercontent.com/Nwflower/dsh-claude-style/master/packages/client/src/theme/typography.css
+# UI-appearance
+Invoke-WebRequest https://raw.githubusercontent.com/TQSY114514/dsh-ui-appearance/main/package.json
+Invoke-WebRequest https://raw.githubusercontent.com/TQSY114514/dsh-ui-appearance/main/src/client/tokens.ts
+Invoke-WebRequest https://raw.githubusercontent.com/TQSY114514/dsh-ui-appearance/main/src/client/applier.ts
+</code></pre>
+<ul>
+<li>commit 链接：github.com/NoNameLeGo/dsh-catppuccin-theme/commit/94af6d7、github.com/Nwflower/dsh-claude-style/commit/d773a62、github.com/TQSY114514/dsh-ui-appearance/commit/e64243a。</li>
+<li>格式参照：本仓 docs/research/dsh-plugin-update-latest-api.md、docs/research/palette-picker-survey.md。</li>
+</ul></div></details><details class='full'><summary>C · 动态壁纸 3 仓深挖全文</summary><div class='inner'><h1 id="103">动态壁纸系实现原理：一手源码研究（回答 #103）</h1>
+<ul>
+<li>版本日期：2026-10-18（Asia/Shanghai）</li>
+<li>目标票：FeatherHunter/dsh-opencode-palette#103；父 map #98（为未来 JSON theme 包提供事实输入，本次只调查不设计）</li>
+<li>方法：只读一手来源（GitHub 仓库源码、README、package.json、manifest/client 入口），只读不安装不运行。下文每个结论标注“文件 + 关键符号/行”，行号以 pin commit 时刻为准；不引二手博客。</li>
+<li>Standing preferences：分篇深挖 + 综合对比；代码级生效链路（文件路径 + 关键行 + 为什么生效）；音乐/视频含自动播放与格式细节。</li>
+</ul>
+<h2 id="_1">目录</h2>
+<ul>
+<li><a href="#0-结论总表">0. 结论总表</a></li>
+<li><a href="#1-dsh-wallpaper-engine">1. dsh-wallpaper-engine（Scene/Web 实时渲染 + 视频直放）</a></li>
+<li><a href="#2-dsh-any-background">2. dsh-any-background（图片 / 视频 / 生成式同层）</a></li>
+<li><a href="#3-dsh-background-by-model">3. dsh-background-by-model（按模型规则换静态图）</a></li>
+<li><a href="#4-三仓横向对照">4. 三仓横向对照</a></li>
+<li><a href="#5-不确定项--证据缺口">5. 不确定项 / 证据缺口</a></li>
+<li><a href="#6-对抗审查记录2026-10-18-v2">6. 对抗审查记录（2026-10-18 v2）</a></li>
+<li><a href="#附录复现命令">附录：复现命令（含 fetch 过的 URL）</a></li>
+</ul>
+<h2 id="0">0. 结论总表</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>维度</th>
+<th>wallpaper-engine</th>
+<th>any-background</th>
+<th>background-by-model</th>
+<th>来源列</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>插件形态/入口</td>
+<td>npm 包 dsh-plugin-wallpaper-engine@1.3.3；exports ./client 经 scripts/build-client.mjs 由 src/client.js 内联生成 lib/client.js；dsh.client inject runtime、immediately:true；host 行 wallpaper-engine（inject webServer，无 headless 挂载）</td>
+<td>npm 包 dsh-any-background@0.3.8；exports ./client 为 tsdown 打包 src/client/index.tsx；dsh.client inject 五件套 immediately:true；host inject connection+webServer</td>
+<td>npm 包 dsh-background-by-model@0.8.2；client 入口与 any 同构（另有 ./invariant）；dsh.client 同五件套；RPC 通道 /dsh-background-by-model</td>
+<td>engine package.json:exports/dsh；any package.json:exports/dsh；model package.json:dsh + src/client/rpc.ts:6-8</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>壁纸层 DOM/层级</td>
+<td>div#dsh-wallpaper-engine-layer.we-layer（fixed，z-index -2）+ div.we-scrim（z-index -1）；body.appendChild；body[data-we-wallpaper] 让页面透明露出底层</td>
+<td>单层 div（fixed/inset-0/z-index -1/pointer-events none/overflow hidden）；body.prepend；图片走 backgroundImage，视频走子 video，生成背景走子 canvas</td>
+<td>容器 div[data-dab-wp]（同 any 的 fixed/-1/prepend）内含双层 div[data-dab-wp-layer]（absolute/inset-0/opacity 0）；切换时前后层 zIndex 1/0 cross-fade</td>
+<td>engine src/styles-base.js:97,209 + src/live-layer.js:288-296；any src/client/wallpaper.ts:2850-2855；model src/client/wallpaper.ts:1283-1303,1501-1502</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>静态图寻址</td>
+<td>同源路由 GET /wallpaper-engine/media/加 token（token=文件绝对路径 base64url，进程内 mediaMap 回查磁盘；Range 支持）；预览 preview/加 token；上传存 ~/.dsh-wallpaper-engine/uploads</td>
+<td>同源 serve URL /dsh-any-background/wallpaper；RPC read 只回 URL 不回 bytes；上传 POST raw bytes；setWpImageUrl 做 rev 生效</td>
+<td>无 HTTP 图片路由用于绘制：modelbg-加 slot 的 raw bytes 经 RPC 以 dataURL 读写，客户端 displayImageOf 转 blob: object URL 缓存绘制</td>
+<td>engine lib/inventory.js:295,301 + lib/routes/media-bytes.js:30-55；any src/client/rpc.ts:6-10（6 VIDEO_SERVE_URL；8 WALLPAPER_SERVE_URL）+ rpc.ts:69-71（both travel as serve URLs—never bytes）+ src/client/state.ts:93；model src/index.ts:9-10,38,433-462（433-438 sniff魔数；442-462 readSlotAsDataURL函数体）+ src/client/state.ts:61-87</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>视频寻址/格式</td>
+<td>同上 media/加 token；容器后缀由宿主 mediaExt 下发（客户端不猜扩展名）；场景内嵌 MP4 另有 scene-video/；缩略图 video-preview/（ffmpeg 抽帧 JPEG）；pinnedFaststartVariant + moov 前置；serveFile Range/HEAD/条件 GET</td>
+<td>同源 /dsh-any-background/video；按 MIME 命名槽文件（mp4/webm/ogv/mov/mkv）；2GB 上传上限；导出 dsh-any-theme.json 内嵌 dataURL</td>
+<td>不支持视频（v0.3.0 breaking 移除，见 README 与 CHANGELOG）</td>
+<td>engine lib/inventory.js:296-300 + lib/routes/media-bytes.js:30-57（serveFile Range/HEAD/条件GET）+ lib/mp4-vfs.js + src/video-layer.js（pinnedFaststartVariant+moov前置/抽帧；README L90/L220仅作支持性旁证）；any src/index.ts:57-65,41 + README L70；model README.md:14</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>按模型切换</td>
+<td>无。picker-model.js 只是选择器过滤（类型/分级/分页）；theme-follow.js 是壁纸到主题（反方向，默认关）；切换维度是用户轮播列表 rotationGroups</td>
+<td>无。切换维度是 backgroundType（image/video/mesh/shader/pattern）+ 手动 profile（activeProfile，另有定时 schedule）+ 轮播池（reload/daily/weekly，服务端 copy 进 wallpaper 槽）</td>
+<td>有：有序规则 matchRule（大小写不敏感子串首命中，空 match 不命中，无命中回退首条 usable）；监听会话 durable modelSelection（faceOf）+ modelDirectories + host 默认；模型切换可触发所属规则 advanceOnSwitch 步进</td>
+<td>engine src/picker-model.js:94-140 + src/theme-follow.js 头注；any src/client/index.tsx:385 + src/index.ts:133-138,830-842；model src/client/modelbg.ts:64-78,116-310（64-78 matchRule；148-180 resolveMainSessionId；192发起watchModel；229 faceOf('modelSelection')；275 modelDirectories；200-310三跳+host默认兜底）+ src/client/index.tsx:334-348,469</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>自动播放</td>
+<td>video autoplay=true, loop=true, preload=auto, playsinline；applyVideoPlayback 按 isEffectivelyPlaying 调 play()/pause()；WE 动图 preview 不作 poster（防先播预览）；场景/网页 live 走 WebWallGL iframe（sandbox=allow-scripts）+ muted query</td>
+<td>video muted/loop/autoplay/playsInline/preload auto；挂载后 play().catch；属性比对防重复换源（比 getAttribute(src) 而非解析后 URL）</td>
+<td>无视频故无自动播放；切换动画是双层 opacity/transform cross-fade（transitionPlan，prefers-reduced-motion 一票否决，首绘硬切）</td>
+<td>engine src/video-layer.js:248-259（纯video主路径：autoplay/loop/preload auto/playsinline/playbackRate）+ src/media-prep.js:630-638（sceneVideo分支）+ src/client-audio-playback.js:155-163；any src/client/wallpaper.ts:3050-3069；model src/client/transition.ts:102-125（transitionPlan；98-101为reducedMotion注释）+ src/client/wallpaper.ts:1411-1413</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>性能</td>
+<td>预热只到元数据（preload=metadata、绝不 play，TTL 20s）；失败记忆/首帧预算/stall 自救/隐藏实例不拉载荷；Edge 用 canvas 镜像；过场音频门；帧率上限抽帧转码；scene.pkg ETag/304 + loopback 媒体源</td>
+<td>同 URL 跳过重设（防闪白）；滑块拖拽降质（DRAG_MAX_SIDE=720 JPEG）；解码 LRU 缓存（6）；生成背景低分辨率 canvas + rAF 启停；配置写 debounce 250ms；video 快照复用做取色</td>
+<td>被盖层立即释放解码 bytes（clearLayer）；fade 纯合成器动画（will-change）；rotation timer 隐藏页停；图片异步解码 + intrinsic 缓存；object URL 延迟 2s 回收防 fade 中 blank</td>
+<td>engine src/video-layer.js 常量 + docs/HOW-IT-WORKS.md；any src/client/wallpaper.ts:2989-2993,2891-2923 + src/client/utils/image.ts:49-65；model src/client/wallpaper.ts:1315-1326,1514-1523</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-dsh-wallpaper-engine">1. dsh-wallpaper-engine</h2>
+<p>仓库：https://github.com/elysia395/dsh-wallpaper-engine ，pin commit 01fbb8b8e66fd7e405e9c878d18dbd456187f111（HEAD）。包名 dsh-plugin-wallpaper-engine@1.3.3（来源：package.json: name/version）。</p>
+<h3 id="11">1.1 静态 / 动态 / 视频背景如何加载</h3>
+<p>三条通道（来源：src/media-prep.js:585-684 buildMedia + docs/HOW-IT-WORKS.md 出图顺序）：</p>
+<ol>
+<li>实时渲染（scene/web，默认）—— liveRenderEnabled（src/live-layer.js）为真时建 iframe.we-live-iframe，src 为 /wallpaper-engine/scene-live/index.html（liveRenderUrl 拼 type/fit/sceneFps/muted/src/mediaBase）。渲染器是 npm 依赖 webwallgl@^3.0.0 + 本仓 lib/webwallgl/ 适配页（index.html/renderer.js）。网页壁纸强制 sandbox=allow-scripts（严格沙箱，第三方 HTML 拿不到 DSH origin）。</li>
+<li>视频 —— isSceneVideo 分支建 video 元素（见 1.4）；纯 video 类型壁纸同路。</li>
+<li>静态帧 —— img.we-media（作者预览图 / 实时抓帧 _gpu.png / 自定义画面 / 主题色兜底，buildLivePoster 垫底）。</li>
+</ol>
+<p>DOM 注入点与层级（为什么生效）：</p>
+<ul>
+<li>层定义 src/styles-base.js:97：.we-layer 为 fixed 铺满、z-index -2（行 80-97 注释）；.we-scrim 在 L209-210 为 z-index -1，永远压在壁纸层之上、界面之下。关键：不依赖数值竞争——过场时显式把旧层压到 zIndex=-3（src/layer-core.js startLayerTransition 内 outgoing.style.zIndex），两者仍在 scrim 之下。</li>
+<li>建层 src/live-layer.js:263-296 syncLayers：getElementById(LAYER_ID) 命中即复用 → 否则 createElement(div)，node.id = LAYER_ID（即 dsh-wallpaper-engine-layer，src/client.js 顶层 const），className=we-layer，appendChild(buildMedia 产物)，document.body.appendChild(node)。另有 staging 领养路径（pendingStagedLayerNode，iframe 全程不移动，L266-271）。</li>
+<li>露出链路：body[data-we-wallpaper]（ACTIVE_ATTR，src/client.js）→ styles-base.js:222 起页面基色/侧栏填充置透明，壁纸层才可见。玻璃配方与壁纸无关（data-we-glass-page 恒挂）。</li>
+</ul>
+<p>client/manifest 入口：package.json: exports（. → lib/index.js，./client → lib/client.js）+ dsh.client（inject @deepseek-ai/dsh-client-runtime，platform web，immediately true）；src/client.js 文件头声明 CANONICAL source，scripts/build-client.mjs 内联生成 lib/client.js。host 行：cordis.patch.yml:19-23（id: wallpaper-engine，inject webServer 硬依赖，无 webserver 的 headless/TUI 不加载）。</p>
+<h3 id="12">1.2 图片 / 视频 / 资源寻址</h3>
+<ul>
+<li>同目录约定（无）→ token 约定：清单由宿主扫描 Steam（libraryfolders.vdf → workshop/content/431960 + projects/）生成；客户端拿到的全是同源相对 URL，磁盘绝对路径永不过网。lib/inventory.js:295 media、L301 preview、L120 sceneVideo（仅探测确认内嵌 MP4 才给，否则 null“诚实化”）、L316 props、L318 liveFrame。tokenFor = 绝对路径 base64url（L61-64 注释：重启回放旧载荷会 404，故索引只存扫描原料、每次重组）。</li>
+<li>容器格式：mediaExt 由宿主下发（L296-300 注释“客户端按 URL 猜容器恒判不可解”）；视频缩略图走 GET /video-preview/（ffmpeg 抽帧 JPEG）。</li>
+<li>Range/缓存：lib/routes/media-bytes.js:30-55 经 serveFile 直出（Range/HEAD/条件 GET，video seek 依赖它）；scene.pkg（实测最大 336MB）带 ETag/304；场景载荷走独立 loopback 媒体源 GET /wallpaper-engine/media-origin（桌面壳能力头栅栏下 iframe 会 403，故另起端口；远程页面回落自身 origin）。</li>
+<li>自定义上传：~/.dsh-wallpaper-engine/uploads（设置可改盘符），走同一套 /media 管道。</li>
+</ul>
+<h3 id="13">1.3 按模型切换</h3>
+<p>不支持（证据缺口，非遗漏）：src/picker-model.js:94-140 的 model 指选择器数据模型（pickerModel(input)：类型/分级过滤 + 分页切片），与对话模型无关；src/theme-follow.js 是壁纸→主题方向（开时按壁纸亮度写深/浅，默认关），与模型→壁纸相反。切换维度只有：手动选择（applySelection，src/media-prep.js:44“唯一的选中项落地入口”）+ 用户轮播列表 rotationGroups（src/client-rotation.js：后台/隐藏时推迟 deferRotationWhileHidden，可见恢复补做）。</p>
+<h3 id="14">1.4 自动播放与性能</h3>
+<ul>
+<li>自动播放：纯video主路径 src/video-layer.js:248-259（autoplay L248、loop L249、preload auto L255、playsinline L257、playbackRate L259）；sceneVideo分支 src/media-prep.js:630-638（autoplay L635、loop L636、playsinline L637，该窗口无preload/playbackRate，不要拿它证主路径）。preload=auto 是刻意选择（注释：缺省 metadata + moov 在文件尾会导致 Chromium 取完 moov 就停，play 要等更晚一趟 syncLayers）。</li>
+<li>音频：默认 0 音量等价 muted；src/client-audio-playback.js:155-163 按 isEffectivelyPlaying() 调 video.play()/pause()；过场有音频门（layer-core.js openRotationAudioGate：新层静音到旧层退场才放音）。</li>
+<li>poster 语义：probeVideoPoster（video-layer.js）——属性存在不等于已加载，只有 Image onload 才算有画面；视频档不用 WE 动图 preview.gif 作 poster（会先播预览再停，改用插件自抽静态缩略图，buildVideoMedia 注释）。</li>
+<li>预热：warmVideoUrl 只到 preload=metadata、绝不 play()（单槽位 + 20s TTL + 悬停 120ms 防抖），点击领养（consumeWarmVideo）。</li>
+<li>节流/降级：首帧预算动态（liveFirstFrameBudget 按包大小）、失败记忆（timeout/stall 落盘，传输未完成只记会话）、stall 心跳自救、隐藏实例摘 src 中止载荷、Edge 可见 video 藏 + canvas 镜像（buildVideoMedia IS_EDGE 分支）、帧率上限抽帧转码（capNeedsTranscode）。遮挡/失焦暂停见 README L178。</li>
+</ul>
+<h2 id="2-dsh-any-background">2. dsh-any-background</h2>
+<p>仓库：https://github.com/Tkingxiao/dsh-any-background ，pin commit bf36b0938ea7eab2d76faa5ca727c870ace39deb。包名 dsh-any-background@0.3.8。</p>
+<h3 id="21">2.1 静态 / 动态 / 视频背景如何加载</h3>
+<p>单容器三内容（来源：src/client/wallpaper.ts: applyWp L3099-3165 总入口）：</p>
+<ul>
+<li>image：容器 backgroundImage=url + 按 BgMode 写 backgroundSize/Position（applyImageWp L2982-3041；同 URL 跳过重设防闪白 L2989-2993）。</li>
+<li>video：子 video 元素（见 2.4；applyVideoWp L3046-3090）。</li>
+<li>mesh/shader/pattern：bg-generators.ts 工厂（mesh 径向渐变 / shader WebGL / pattern 六预设）返回 canvas+stop/pause/resume/snapshot，wpEl.appendChild(canvas)，首帧后 snapshot 作取色/预览（setBackgroundType L2055-2078；applyGeneratedBg L2103-2130；bg-generators.ts:18-47 newRaf）。</li>
+</ul>
+<p>DOM 注入点与层级：ensureWpContainer L2850-2855 —— div，cssText 为 position:fixed/inset:0/z-index:-1/pointer-events:none/overflow:hidden，document.body.prepend(wpEl)。注意是 prepend（与 engine 的 appendChild 不同，但同为 body 级 -1 层；界面不透明度/模糊全走 CSS 变量覆盖而非层叠竞争）。卸载 teardownWp L3167-3179 摘除整层并清 token。</p>
+<p>client/manifest 入口：package.json: exports（. → lib/index.js，./client → lib/client.js，tsdown 打包）+ dsh.client.inject（store/locale/connection/theme/settings，immediately:true，L123-133）；dev 叠加 cordis.yml（insert id dsh-any-background），发布用 cordis.patch.yml。host：src/index.ts:23 inject = [connection,webServer]；客户端经 initRpc + RPC_CHANNEL=/dsh-any-background（rpc.ts:6）通信。</p>
+<h3 id="22">2.2 图片 / 视频 / 资源寻址</h3>
+<ul>
+<li>serve URL（相对）：WALLPAPER_SERVE_URL=/dsh-any-background/wallpaper、VIDEO_SERVE_URL=/dsh-any-background/video（rpc.ts:6-10：6 VIDEO_SERVE_URL，8 WALLPAPER_SERVE_URL）。RPC read 回 config + wallpaper URL + video URL（rpc.ts:69-71注释 both travel as serve URLs—never bytes），bytes 只在 upload（raw POST）与主题导出（dataURL 内嵌 dsh-any-theme.json）时走。</li>
+<li>同目录约定：服务端数据盘 dsh home 下 .dsh-any-background-data/（index.ts；README L173：config JSON + wallpaper + rotation 池 + video + font；原子写 temp+rename）。视频槽按 MIME 命名（wallpaper.mp4/webm/ogv/mov/mkv，L57-65；VIDEO_CANDIDATES）。</li>
+<li>缓存破坏：state.ts:97-112 setWpVideoUrl —— serve URL 稳定，换内容靠 ?r=rev query（blob:/data: 除外）；图片侧 setWpImageUrl 经 bumpImageRev（L93）同理。换源比对用 getAttribute(src)（相对值）而非解析后绝对 URL，否则每次重播（applyVideoWp L3064-3069 注释）。</li>
+<li>网络 URL：粘贴 http(s) 由服务端下载进槽（setWallpaperFromUrl/setVideoFromUrl；25MB/20s 上限，index.ts:47-48），之后一切走 serve URL。</li>
+</ul>
+<h3 id="23">2.3 按模型切换</h3>
+<p>不支持按模型。切换维度（index.tsx 全是 applyWp() 调用点，boot 在 loadPersisted().then…applyWp L398-406）：一是 backgroundType 切换（setBackgroundType L2055；image 切回时恢复 retained 上传并清动态 verdict）；二是手动 profile（activeProfile；want === cfg.activeProfile 即 return，L385；另有 day/night schedule 定时切）；三是轮播池 rotation（enabled/mode shuffle-order/interval reload-daily-weekly/current/items≤30/lastRotate，index.ts:132-138,435-516）——服务端把选中文件 copy 进 wallpaper 槽（handleRotationSet L830-842），其余管道零改动。</p>
+<h3 id="24">2.4 自动播放与性能</h3>
+<ul>
+<li>自动播放：applyVideoWp L3050-3063 —— muted/loop/autoplay/playsInline（属性+property 双写）/preload=auto；先 append 后设 src（注释：detached video 首帧延迟），void videoEl.play().catch(()=&gt;undefined)（自动播放被拒静默，靠后继 syncLayers 补播）。placement 映射 object-fit（fit+iw → 绝对定位盒 + object-fit:fill 等比；否则 stretch→fill / fill,tile→cover / 余→contain，L3071-3084）。</li>
+<li>视频帧复用：captureVideoSnapshot（utils/video.ts:31-62：muted + preload auto + playsInline，seek 后抓帧）供预览/取色/位置编辑器/verdict（README L67,70）。</li>
+<li>性能：watchWallpaperDragQuality L2927（滑块拖拽换 720px JPEG，松手恢复，浏览器缓存命中）；loadImage 解码 LRU（IMG_CACHE_MAX=6，utils/image.ts:49-65）；生成背景低分辨率 canvas（bg-generators.ts:3-5 注释 fraction of CSS size）+ rAF 启停（pauseGeneratedBg/resumeGeneratedBg，index.tsx L486-496 visibility 处理）；配置写 SAVE_DEBOUNCE_MS=250 + pagehide flush（rpc.ts:74-94）。</li>
+</ul>
+<h2 id="3-dsh-background-by-model">3. dsh-background-by-model</h2>
+<p>仓库：https://github.com/HarmlessFunny/dsh-background-by-model ，pin commit 893d1b7e3204d826de692f536e7dac97029d8d64。包名 dsh-background-by-model@0.8.2。纯静态图插件：README L14 v0.3.0 breaking 移除了 video wallpapers, generated backgrounds and the single global theme color。</p>
+<h3 id="31">3.1 静态背景如何加载（无视频通道）</h3>
+<p>applyWp L1565-1607 是规则切换唯一入口 → rWp() 取当前图 → applyImageWp L1470-1524 双层 cross-fade：</p>
+<ul>
+<li>容器/层级：ensureWpContainer L1290-1302 —— div[data-dab-wp]（position:fixed/inset:0/z-index:-1/pointer-events:none/overflow:hidden）+ body.prepend；内两层 div[data-dab-wp-layer]（createLayer L1283-1288：absolute/inset-0/opacity 0）。切换把目标层 zIndex=1、旧层 0（L1501-1502），按 transitionPlan 写 transition 后 rAF 起播，fadeTimer = durationMs + 160 落 finishFade（L1523）；连切走 settleFade/cancelFade（L1441-1467），A→B→A 同图复用已在画层（L1473-1479）。</li>
+<li>为什么生效：filter（brightness+blur 合成，wpFilter L1542-1549）写在每层而非容器（注释 L1554-1556：写父级则 opacity fade 每帧重跑全屏 filter）；容器只写 opacity（规则级 wallpaperOpacity，applyWpEffects L1551-1561）。</li>
+<li>首绘/降级：canAnimateFrom（无旧图或 opacity 约 0 → 硬切，L1411-1414）+ prefers-reduced-motion 一票否决（L1417-1420）；无图规则 → dropWpContainer 拆层（L1306-1313），token 保留。</li>
+</ul>
+<p>client/manifest 入口：与 any 同构（package.json dsh.client.inject 五件套 + immediately:true）；另有 ./invariant export。host：src/index.ts:959-962 经 ctx.inject([connection,webServer], …register(kind:prefix, path: RPC_CHANNEL…))——注释明说同步 apply 内注册会因 webServer 不可解析失败，故走 inject 回调。</p>
+<h3 id="32-slot-dataurl-blob-url">3.2 资源寻址（slot → dataURL → blob URL）</h3>
+<ul>
+<li>磁盘：modelbg-加 slot 的 raw bytes 无扩展名、一图一文件（index.ts:9-10,38；MIME 按魔数嗅探 L433 起；legacy wallpaper.* 一次性迁移 L220）。</li>
+<li>传输：RPC 读写 dataURL（state.ts:56 imageOf 存 dataURL；index.ts:433-462：433-438 sniff魔数，442-462 readSlotAsDataURL函数体）。</li>
+<li>绘制：displayImageOf L61-70 把 dataURL 转 URL.createObjectURL(Blob) 缓存；替换旧 URL 延迟 2s 回收（L40-49 注释：fade 中回收会 blank）；无 createObjectURL 时回退直接用 dataURL。</li>
+<li>同目录/相对：客户端无相对路径概念——地址即 blob: object URL（内存）+ config 内 dataURL（持久）；预设图走 jsDelivr 镜像引用（index.ts:64-146，immutable + purge 说明）。</li>
+</ul>
+<h3 id="33">3.3 按模型切换（本系唯一实现）</h3>
+<p>链路 watchModel → matchRule → setActive → applyActive → applyWp：</p>
+<ul>
+<li>匹配 src/client/modelbg.ts:64-78 matchRule：有序规则从上到下、大小写不敏感子串首命中；空 match 永不命中；无命中回退首个 usable（ruleCanPaint：带图或自有主题色，schema.ts）；label 取 provider+id+display 名（modelLabelOf L88-100）。</li>
+<li>监听 watchModel L192-310三跳：一是当前会话 durable modelSelection（L229 ctx.sessions.binding(id).session.projections.faceOf('modelSelection')，composer 与 /model 弹窗同源）；二是 modelDirectories 补 provider 分组目录（L275 directoryFor）；三是 caller 传 host 默认模型兜底（200-310）。会话 id 解析兼容两代（resolveMainSessionId L148-180）。会话 id 解析兼容两代（resolveMainSessionId L148-180：老 list.current → 新 uiSession.current 行表；注释明说旧读法在 0.1.7 取不到会钉死 rule 1）。</li>
+<li>落地 src/client/index.tsx:334-348 applyActive(advance)：模型切换传 advance=true → 若规则 rotate.advanceOnSwitch 则步进一步骤 → scheduleRotation() → applyWp()。规则内多图轮播：setInterval(rotateTick, intervalMs)（L429，ROTATE 5s–24h，schema.ts:103-104；order/shuffle，shuffle 永不重复当前）；隐藏页停转（visibilitychange L440）；setActive 跨规则重置 rotIndex=0（state.ts:109-115）。</li>
+</ul>
+<h3 id="34">3.4 自动播放与性能（无视频；动画即过渡）</h3>
+<ul>
+<li>无 video 元素（wallpaper.ts 全文件零 video 命中；见本节头 README 引文）。动态仅指 cross-fade + 调色板 fade（palette-fade.ts：token 插值过渡）。</li>
+<li>过渡全局唯一（transition.ts:60-125 resolveFadeMs/transitionPlan）：effect none 即硬切；duration 全局；transform+opacity 双属性；will-change 当帧提升，纯合成器动画熬过主题重注册（L1514-1516 注释）。</li>
+<li>解码成本：被盖层 clearLayer 立即清 bytes（L1315-1326 注释不让第二张全分辨率图留在解码器里）；imageNatSize intrinsic 缓存；center 模式先 contain 占位后精确尺寸。</li>
+</ul>
+<h2 id="4">4. 三仓横向对照</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>wallpaper-engine</th>
+<th>any-background</th>
+<th>background-by-model</th>
+<th>给 JSON theme 包的事实输入</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>层叠锚点</td>
+<td>body 子层 fixed/-2 + scrim -1；页面透明化（data-we-wallpaper）</td>
+<td>body 首个子层 fixed/-1；界面靠 token 透明度让位</td>
+<td>body 首个子层 fixed/-1 + 内双层 absolute；界面靠 token 让位</td>
+<td>theme 包只需描述背景源 + 不透明度/模糊，三仓挂载位一致（body 级 fixed -1/-2，pointer-events:none）</td>
+</tr>
+<tr>
+<td>内容元素</td>
+<td>video / img / iframe（canvas 镜像）/ live-poster div</td>
+<td>background-image / video / canvas</td>
+<td>background-image（双层）</td>
+<td>JSON 只需 image/video/generated 三类源；engine 的 iframe-live 是 WE 专有，不进通用包</td>
+</tr>
+<tr>
+<td>寻址</td>
+<td>同源 token URL（服务端文件）</td>
+<td>同源 serve URL（服务端文件）</td>
+<td>blob object URL（内存 dataURL 缓存）</td>
+<td>通用包用相对 slot 路径/URL 字符串 + 可选 dataURL 内嵌（any 的 dsh-any-theme.json 导出、model 的 dsh-background-by-model-theme.json 导出已是先例）</td>
+</tr>
+<tr>
+<td>模型跟随</td>
+<td>无</td>
+<td>无</td>
+<td>有（规则老档：match 子串 + fallback rule 1）</td>
+<td>跟随语义抄 model：有序规则、首命中、fallback、advanceOnSwitch</td>
+</tr>
+<tr>
+<td>视频</td>
+<td>有（直放+转码+帧率上限）</td>
+<td>有（muted loop 直放）</td>
+<td>无（v0.3.0 移除）</td>
+<td>视频字段可选；自动播放约定抄 any/engine：muted+loop+autoplay+playsinline+preload auto，play() 拒诺静默</td>
+</tr>
+<tr>
+<td>轮播</td>
+<td>rotationGroups（用户列表+间隔+过场）</td>
+<td>rotation 池（服务端 copy 进槽，reload/daily/weekly）</td>
+<td>rule 内 rotation（interval+order/shuffle+advanceOnSwitch）</td>
+<td>三种轮播语义不同：engine/any 是换文件，model 是规则内换图 + 模型切换步进——包格式需区分 global-rotation vs per-rule-rotation</td>
+</tr>
+<tr>
+<td>主题联动方向</td>
+<td>壁纸→主题（theme-follow，可选）</td>
+<td>壁纸→主题（取色/verdict，自动）</td>
+<td>规则→主题（per-image color，无色跟系统）</td>
+<td>包内颜色归属：model 的 per-image color 最细；any 的单 color 最粗</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5">5. 不确定项 / 证据缺口</h2>
+<ol>
+<li>engine 过场新层挂载确切行：syncLayers 后半（pendingReveal/rotationFade 提交段）超出本次抓取窗口——只确认旧层让出 LAYER_ID（live-layer.js:406-425）与 startLayerTransition（layer-core.js），未逐行核对新层 append 时机。降级为文档+行为描述：README L149“准备后切换：下一张准备完成后再交接”。</li>
+<li>any 生成背景 canvas 的 CSS 定位：已关闭——bg-generators.ts:51 有 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover'（对抗核查补证），与 appendChild(canvas)（wallpaper.ts:2110）+低分辨率渲染互相印证；原“未逐行确认”作废。</li>
+<li>model 图片 RPC 往返形态：确认 dataURL（state.ts:56-70）与 readSlotAsDataURL（index.ts:433-462，见§3.2），但 handleRpcMethod read 分支的图片字段名未抓取——不影响 slot→dataURL→blob URL 结论。</li>
+<li>行号漂移：行号以 pin commit 为准（见附录），后续提交可能漂移；复现命令固定了 tree sha。</li>
+<li>音乐/音频：三仓均无独立BGM通道（结论成立，但表述收紧）。engine 有两层音频面：一是壁纸自带音轨（场景包 BGM/音效 + 网页音频反应，随音量/壁纸音轨设置，HOW-IT-WORKS 场景段）与 live iframe muted query，二是README“音乐联动”行（系统输出回环频谱 + Now Playing 歌曲信息/封面 + 按需在线歌词）——后者是系统音频可视化/信息展示，不是 theme 包可复用的 BGM 播放通道；any/model 全程静音（muted=true 写死，any wallpaper.ts:3052；model 无音频面）。未来 theme 包如需 BGM，需另行设计（无现成事实输入）。</li>
+</ol>
+<h2 id="6-2026-10-18-v2">6. 对抗审查记录（2026-10-18 v2）</h2>
+<ul>
+<li>公理：DSH 双半结构（host Node / client 浏览器，唯一接口是同源 HTTP 路由+RPC）+ 浏览器约束（body级fixed层须配页面透明才可见；视频自动播放须muted/inline，play()拒诺须catch）。</li>
+<li>标准：T1-T7+§5 全行核（pin+文件+行+生效链缺一即fail；行号漂移亦记）。</li>
+<li>核查：只读 verifier（subagent a6fe4571）实测三pin raw 200且包名/版本吻合；T2全绿；T3-T6语义无造假、无文件缺失、无越界行号（any wallpaper.ts全长3257行，已绕过fetch 100k截断用Node直取验证）。</li>
+<li>修正（保持pin，只改引证）：A engine T6补引video-layer.js:248-259；B model T5 116-200扩至116-310；C model T3 433-442扩至433-462；D any T3 rpc 8-10改为6-10+69-71；E engine T4补media-bytes/mp4-vfs/video-layer强引证；F transition 98-125收紧至102-125；§5.2凭bg-generators.ts:51关闭；§5.5音乐表述收紧（engine系统回环频谱/Now Playing是信息展示面，非BGM通道）。</li>
+<li>结论：主结论（T2挂载/T3寻址/T5仅model跟随/T6自动播放约定/无独立音乐通道）成立，可作#100输入；剩余缺口（§5.1 engine新层append时机、§5.3 RPC字段名、§5.4行号漂移）已标注，不拦下游。</li>
+</ul>
+<h2 id="_2">附录：复现命令</h2>
+<p>pin：engine 01fbb8b8e66fd7e405e9c878d18dbd456187f111；any bf36b0938ea7eab2d76faa5ca727c870ace39deb；model 893d1b7e3204d826de692f536e7dac97029d8d64。以下 URL 均为本次实际 fetch（raw 固定 commit；api 取 tree）：</p>
+<ul>
+<li>文件清单（三仓）：https://api.github.com/repos/elysia395/dsh-wallpaper-engine/git/trees/HEAD?recursive=1 ；https://api.github.com/repos/Tkingxiao/dsh-any-background/git/trees/HEAD?recursive=1 ；https://api.github.com/repos/HarmlessFunny/dsh-background-by-model/git/trees/HEAD?recursive=1</li>
+<li>engine 基地址 https://raw.githubusercontent.com/elysia395/dsh-wallpaper-engine/01fbb8b8e66fd7e405e9c878d18dbd456187f111/ 下：package.json、cordis.patch.yml、src/client.js、src/we-base.js、src/layer-core.js、src/live-layer.js、src/media-prep.js、src/video-layer.js、src/styles.js、src/styles-base.js、src/client-rotation.js、src/client-media-frame.js、src/client-audio-playback.js、src/persistence.js、src/picker-model.js、src/theme-follow.js、docs/HOW-IT-WORKS.md、README.md、lib/index.js、lib/inventory.js、lib/routes/media-bytes.js</li>
+<li>any 基地址 https://raw.githubusercontent.com/Tkingxiao/dsh-any-background/bf36b0938ea7eab2d76faa5ca727c870ace39deb/ 下：package.json、cordis.yml、cordis.patch.yml、README.md、src/index.ts、src/client/index.tsx、src/client/runtime.ts、src/client/state.ts、src/client/rpc.ts、src/client/types.ts、src/client/wallpaper.ts、src/client/utils/bg-generators.ts、src/client/utils/video.ts、src/client/utils/image.ts</li>
+<li>model 基地址 https://raw.githubusercontent.com/HarmlessFunny/dsh-background-by-model/893d1b7e3204d826de692f536e7dac97029d8d64/ 下：package.json、cordis.yml、cordis.patch.yml、README.md、CHANGELOG.md、src/index.ts、src/schema.ts、src/client/index.tsx、src/client/state.ts、src/client/rpc.ts、src/client/types.ts、src/client/wallpaper.ts、src/client/modelbg.ts、src/client/rotation.ts、src/client/transition.ts、src/client/repaint.ts、src/client/palette-fade.ts</li>
+</ul>
+<blockquote>
+<p>范围外引用（仅作形态对照，非证据）：本仓 docs/research/dsh-plugin-update-latest-api.md（文档格式模板）。</p>
+</blockquote></div></details><details class='full'><summary>D · 特殊集成双路深挖全文</summary><div class='inner'><h1 id="maid-atelier-beauticode-harness-101">特殊集成系实现原理：maid-atelier / beautiCode-harness 集成（#101）</h1>
+<blockquote>
+<p>父票：<a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/98">#98</a> 13 款 DSH 主题/背景类插件实现原理深度调查；本票是 4 个深挖子票之一（整包皮肤系 #99、配色外观系 #102、动态壁纸系 #103、综合对照表 #100 被本票等 4 票阻塞）。
+方法：只读源码不运行；分支均为 main（2026-10-18 读取）；一手来源为 GitHub 仓库文件与 raw 内容，结论均带文件路径与关键行；不设计新方案。
+目标读者：要做 #100 横向对照表、以及未来 JSON theme 包事实输入的人。</p>
+</blockquote>
+<h2 id="100">结论先行（给 #100 的对照输入）</h2>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>maid-atelier（Small-tailqwq/dsh-deep-whale 子目录）</th>
+<th>beautiCode-harness 集成（starsstreaming/beautiCode 子目录）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一句话形态</td>
+<td>DSH 双半式客户端 UI 皮肤插件包（node 半挂资源路由＋browser 半 <code>apply()</code> 写 DOM/CSS），附 <code>skin.json</code> 供皮肤中心互斥切换</td>
+<td>DSH Cordis 桥接插件包（<code>beauticode-dsh</code>/<code>beauticode-bridge</code>，<code>inject: [webServer]</code>），向每个 DSH 页面注入背景桥接脚本</td>
+</tr>
+<tr>
+<td>背景能力</td>
+<td>静态图片-only：亮/暗两套宫殿图＋双女仆独立层，无视频/音频（入口完整读＋样式前 100KB/2539 行＋产物 bundle 前 100KB 零命中；<code>runtime/manifest.json</code> 31 项全 png/webp；方法边界见 §5）</td>
+<td>图片＋视频：<code>jpg/jpeg/png/webp/avif</code>（18MB 以内）＋<code>mp4/mov</code>（800MB 以内），声音＝视频轨 <code>muted</code> 开关，无独立音频</td>
+</tr>
+<tr>
+<td>分区/场景</td>
+<td>单一 maid/atelier 场景；按亮暗 × 着陆/对话 × 模型 × 开关/时段 × 设备五维切换同一套图（见 1.1 节）</td>
+<td>无分区/场景概念；单全局状态 <code>current</code> 经 SSE 广播全部页面（见 2.1 节）</td>
+</tr>
+<tr>
+<td>挂载位置</td>
+<td>对话列 <code>[class*=centerCol]</code> 内部首子（随聊天区同步收缩）</td>
+<td>页面级 body 全局固定层 <code>#beauticode-bg-stage{position:fixed;inset:0;z-index:0}</code></td>
+</tr>
+<tr>
+<td>资源寻址</td>
+<td>随包分发，指纹化 <code>skin-assets/maid-atelier/&lt;sha64&gt;.webp</code>，同源路由，immutable 缓存一年</td>
+<td>本地绝对路径引用＋回环媒体服务（<code>http://127.0.0.1:&lt;port&gt;/…?t=&lt;token&gt;</code>，Range 支持），不复制用户文件</td>
+</tr>
+<tr>
+<td>主题切换信号</td>
+<td>读宿主 <code>body[data-ds-dark-theme]</code>（MutationObserver 跟随）</td>
+<td>自有 <code>tone</code>＋<code>data-bc-resolved-tone</code>；<code>resolvedTone()=dshAppearance()</code> 三级回退宿主 <code>data-ds-dark-theme</code>→<code>colorScheme</code>→OS（<code>client.js:403-413</code>），双 Observer 跟随（<code>:434-450</code>）</td>
+</tr>
+<tr>
+<td>按模型切换</td>
+<td>有：Pro 留左女仆 / Flash 留右女仆（＋眼镜变体），读作曲栏模型按钮</td>
+<td>无（模型无关；只有已保存主题名）</td>
+</tr>
+<tr>
+<td>宿主约定的接口</td>
+<td><code>package.json:dsh.bundle.patch</code>＋<code>cordis.patch.yml</code>（insert <code>ui-skin-maid-atelier</code>）＋<code>skin.json</code>（<code>bodyAttr/wiring</code>）＋皮肤管理器 v2 协议</td>
+<td><code>package.json:dsh.bundle.patch</code>＋<code>cordis.patch.yml</code>（insert <code>beauticode-bridge</code> inject webServer）＋<code>name/inject/apply</code>＋<code>webserver/index-inject</code> hook＋对话面 tools/commands</td>
+</tr>
+<tr>
+<td>卸载/还原</td>
+<td>Cordis effect disposer 还原全部 CSS/DOM 写入</td>
+<td>安装器备份 <code>*.beauticode-backup-&lt;ts&gt;</code>；页面开关恢复宿主样式（README 级断言；浏览器侧 1866 行完整读未见 teardown，见 §5）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="0">0. 研究问题与决策依赖</h2>
+<p>本票 Question 要求：深挖 2 个仓库的实现原理（代码级，只读源码不运行），回答分区/场景化背景如何实现、集成形态与宿主约定的接口、资源目录结构，每个结论给出文件路径＋关键行。
+源仓库：https://github.com/Small-tailqwq/dsh-deep-whale/tree/main/maid-atelier ；https://github.com/starsstreaming/beautiCode/tree/main/integrations/deepseek-harness 。
+决策依赖（来自 #98 map 正文）：13 仓库深挖完成后做 #100 横向综合对照表（列口径：token/区域/背景类型/资源路径/生效版本），为未来 JSON theme 包提供事实输入；本次只调查不设计；产物只链不贴。
+澄清说明：Question 无歧义（目标、路径、分支、三个必答维度均明确），无需要猜测之处，故未触发 grilling。</p>
+<hr>
+<h2 id="1-maid-atelierdsh-deep-whale-maid-atelier">1. maid-atelier（dsh-deep-whale / maid-atelier）</h2>
+<blockquote>
+<p>皮肤自述（README 首段）：深海女仆工坊——两位鲸鱼娘女仆、深海蓝蕾丝与 Q 版侧栏；纯展示层客户端插件，<code>apply()</code> 设 <code>data-dsh-maid-atelier</code> 作用域。来源：https://raw.githubusercontent.com/Small-tailqwq/dsh-deep-whale/main/maid-atelier/README.md</p>
+</blockquote>
+<h3 id="11">1.1 分区/场景化背景如何实现</h3>
+<p>不是多房间/多场景路由，而是单一场景＋五维切换＋多挂载层。背景分区＝挂在不同 DSH 区域的静态图层；场景切换＝同一套图按条件换装/换构图。</p>
+<p>五维切换：</p>
+<ol>
+<li>亮/暗主题：<code>src/client/index.ts:686-698</code> <code>syncBackdrop()</code> 读 <code>body</code> 是否有 <code>data-ds-dark-theme</code> 二选一（<code>MAID_ATELIER_PALACE_DARK</code> / <code>MAID_ATELIER_PALACE_LIGHT</code>），写入 body 的 <code>--maid-palace-art</code>；<code>src/client/index.ts:1058-1059,1119</code> MutationObserver 监听该属性触发热切换。暗色另有滤镜（<code>maid-atelier.module.css:286-288</code>）。</li>
+<li>着陆/对话构图：<code>src/client/index.ts:283-288</code> <code>ensureChatAreaStage()</code> 把舞台 prepend 进对话列；CSS 按 <code>[data-phase]</code> 与 <code>[data-maid-chat-active]</code> 收放角色高度（着陆大构图 vs 对话小构图）。</li>
+<li>模型（Pro/Flash）：<code>src/client/customization.ts:67-76</code> <code>modelFamily()</code> 读作曲栏模型按钮判 family，经投影写 <code>html[data-dsh-whale-model]</code>；CSS 规则（<code>module.css:376-388</code>）pro 时右/vision 层退出、flash 时左层退出；<code>flashGlasses</code> 切眼镜变体（<code>module.css:415-427</code>）。</li>
+<li>总开关/时段（SFW）：<code>customization.ts:182-203</code> <code>exposeSkinCustomization({skinId:maid-atelier, settings:[artwork, sfwMode(visibility-schedule), ...]})</code>；<code>art=hidden</code> 全藏（<code>module.css:370-374</code>），按本机时间段隐藏大幅立绘。</li>
+<li>设备/拥挤自适应：<code>src/client/character-fit.ts:27-31,69-70</code>（<code>CROWDED_GAP_PX=32</code>/<code>RESTORE_GAP_PX=96</code>，ResizeObserver 量左右角色盒间距写 <code>body[data-maid-figures-crowded]</code>）；窄列时按模型规则退场一位（<code>module.css:390-410</code> 注释：no state leaves the stage empty）；软渲染走 <code>data-maid-low-power</code> 去滤镜；700px 以下改淡入淡出（<code>module.css:429-445</code>）。</li>
+</ol>
+<p>生效链路表：</p>
+<table>
+<thead>
+<tr>
+<th>资源</th>
+<th>代码位置</th>
+<th>挂载目标</th>
+<th>为什么生效</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>宫殿亮 <code>52e7dce…webp</code> / 暗 <code>ae6917…webp</code></td>
+<td><code>src/client/background-art.generated.ts</code>（<code>MAID_ATELIER_PALACE_LIGHT/DARK</code>，经 <code>asset-url.ts:skinAssetUrl()</code> 拼 <code>skin-assets/maid-atelier/&lt;hash&gt;</code>）→ <code>index.ts:686-698</code></td>
+<td>body 的 <code>--maid-palace-art</code> → <code>module.css:230</code> 背景声明</td>
+<td>变量本身就是背景值；Observer 跟随宿主亮暗属性</td>
+</tr>
+<tr>
+<td>左女仆 <code>2818e535…</code> / 右 <code>7c5a5493…</code> / 眼镜 <code>98cf9484…</code></td>
+<td>同上 ＋ <code>vision-art.generated.ts</code> → <code>index.ts:247-288</code> <code>createCharacterStage()</code>＋<code>ensureChatAreaStage()</code></td>
+<td><code>div[data-skin-chrome=character-stage]</code>＋三 <code>img[data-maid-character]</code>，prepend 进 <code>[class*=centerCol]</code>（选择器见 <code>index.ts:63-64</code>），z-index 0</td>
+<td>挂在聊天列内部，工作台挤压聊天区时同步收缩；CSS 按高度定位</td>
+</tr>
+<tr>
+<td>侧栏/输入框/工作区/顶底饰件</td>
+<td><code>art.ts</code>、<code>composer-art.generated.ts</code>、<code>workspace-art.generated.ts</code>、<code>chrome-art.generated.ts</code> → <code>index.ts:655-684</code></td>
+<td>body CSS 变量 → 各区域伪元素/边框</td>
+<td>20 个变量在 <code>BACKDROP_PROPERTIES</code>（<code>index.ts:224-245</code>）统一登记，disposer 按表还原（<code>index.ts:596-598</code>）</td>
+</tr>
+<tr>
+<td>启动失败页立绘</td>
+<td><code>boot-error.ts</code>（<code>BOOT_SELECTOR=[data-dsh-boot]</code>，匹配内核 <code>Failed to load plugins</code> 标题）</td>
+<td><code>[data-maid-boot-error]</code> 属性 → <code>boot-error.module.css</code></td>
+<td>只装饰不替换诊断信息；无失败标题时保留原生页</td>
+</tr>
+<tr>
+<td>favicon/manifest/title</td>
+<td><code>page-icons.ts</code>、<code>index.ts:628-643,1143-1146</code>（<code>SKIN_TITLE</code>，<code>SKIN_SYSTEM_CHROME_COLOR=#0b193f</code>）</td>
+<td>head/dataset</td>
+<td>disposer 恢复原值（<code>index.ts:610-613</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>格式与加载：node 半与 <code>shared/skin-assets.ts</code> 双重锁死扩展名 <code>png|webp</code>、哈希文件名、仅图片 Content-Type、一年 immutable＋ETag＋304、仅 GET/HEAD；客户端所见全是 <code>&lt;img&gt;</code>（入口完整读＋类型清单无媒体文件；大文件尾部未读，边界见 §5）。详见仓根 <code>docs/asset-delivery.md</code>（https://raw.githubusercontent.com/Small-tailqwq/dsh-deep-whale/main/docs/asset-delivery.md）。</p>
+<h3 id="12">1.2 集成形态与宿主约定的接口</h3>
+<p>形态一句话：DSH 双半式客户端 UI 皮肤插件包（npm <code>@smalltailqwq/dsh-client-ui-skin-maid-atelier</code>；node 半供资源路由，browser 半执行 <code>apply(ctx)</code>；另附皮肤元数据供管理器互斥切换）。</p>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>位置</th>
+<th>约定内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包入口</td>
+<td><code>maid-atelier/package.json</code>（name/main/exports）</td>
+<td><code>.</code>→<code>lib/index.js</code>（node 半），<code>./client</code>→<code>lib/client.js</code>（browser 半）；files 白名单含 lib/patch/skin.json/preview/runtime/locale</td>
+</tr>
+<tr>
+<td>补丁声明</td>
+<td><code>package.json:dsh.bundle.patch</code> → <code>maid-atelier/cordis.patch.yml</code>（<code>insert: [{id: ui-skin-maid-atelier}]</code>）</td>
+<td>bundle 安装时插入 web 插件名单</td>
+</tr>
+<tr>
+<td>客户端声明</td>
+<td><code>package.json:dsh.client{inject:[], platform:web}</code></td>
+<td>web 端注入形态</td>
+</tr>
+<tr>
+<td>对等依赖</td>
+<td><code>peerDependencies: @deepseek-ai/cordis, @deepseek-ai/dsh</code></td>
+<td>宿主运行时由 profile 提供</td>
+</tr>
+<tr>
+<td>node 半入口</td>
+<td><code>maid-atelier/src/index.ts:apply(ctx)</code></td>
+<td>调 <code>installSkinAssets(ctx,maid-atelier,&lt;assets/runtime URL&gt;,files)</code> 注册 <code>skin-assets/maid-atelier/*</code> 路由</td>
+</tr>
+<tr>
+<td>browser 半入口</td>
+<td><code>src/client/index.ts:516 apply(ctx)</code></td>
+<td>置 <code>body[data-dsh-maid-atelier]</code>（:644）、写变量、建舞台/饰件、装 Observer；<code>:563-614</code> disposer 还原一切</td>
+</tr>
+<tr>
+<td>皮肤声明</td>
+<td><code>maid-atelier/skin.json</code></td>
+<td><code>id=maid-atelier</code>、<code>bodyAttr=data-dsh-maid-atelier</code>、<code>wiring={id:ui-skin-maid-atelier}</code>、preview、<code>dshCompatibility=0.2.0rc2</code></td>
+</tr>
+<tr>
+<td>构建指纹</td>
+<td><code>maid-atelier/skin.build.json</code></td>
+<td>schema/fingerprint/sourceCommit，升级需与 lib＋runtime 同步</td>
+</tr>
+<tr>
+<td>设置协议</td>
+<td><code>customization.ts → ../../../skin-manager/src/protocol.ts</code></td>
+<td>以 <code>skinId=maid-atelier</code> 注册 artwork/sfwMode/font/workspaceFont/modelExit/mobileModelExit/flashGlasses/mobileNav/composerMode/composerBottomOnly/workspaceRowHeight，投影为 html 属性</td>
+</tr>
+<tr>
+<td>发现与加载</td>
+<td>README 安装段</td>
+<td><code>dsh plugin --profile web add</code> 对应包名（＋manager 包），重启后皮肤管理中选择，热重载切换；卸载即还原</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13">1.3 资源目录结构</h3>
+<p><code>maid-atelier/</code>（16 项）：<code>README.md</code>；<code>package.json</code>；<code>skin.json</code>/<code>skin.build.json</code>；<code>cordis.patch.yml</code>；<code>src/index.ts</code>（node 半）；<code>src/client/</code>（27 模块：<code>index.ts</code> 总装、<code>maid-atelier.module.css</code> 全部样式、6 个 <code>*-art.generated.ts</code> 资源常量、customization/character-fit/boot-error/page-icons/composer-<em>/mobile-</em>/table-card/titlebar-brand 等分区模块）；<code>assets/</code>（23 项：宫殿 day/night、左右/眼镜女仆、输入框/侧栏/工作区饰件、<code>icons/</code>、<code>boot-error/</code> 生成源、<code>runtime/</code> 31 个指纹产物＋<code>manifest.json</code>——唯一被服务的目录）；<code>lib/</code> 构建产物；<code>build/</code>（<code>tsdown.client.ts</code>、<code>web-platform.ts:PLATFORM_MODULES</code>）；<code>locale/{zh,en}.json</code>；<code>preview/{light,dark}.webp</code>；<code>tests/</code> 12 个 spec（含 <code>skin-manager-contract.spec.ts</code> 反向契约）；<code>LICENSE/LICENSE-ARTWORK/NOTICE</code>（MIT＋CC BY-NC-SA 4.0＋三级署名链）。</p>
+<hr>
+<h2 id="2-beauticode-harness-beauticode-integrationsdeepseek-harness">2. beautiCode-harness 集成（beautiCode / integrations/deepseek-harness）</h2>
+<blockquote>
+<p>包自述（package.json）：<code>Cordis plugin: image/video backgrounds for DeepSeek Harness Web and Desktop.</code> 来源：https://raw.githubusercontent.com/starsstreaming/beautiCode/main/integrations/deepseek-harness/package.json</p>
+</blockquote>
+<h3 id="21">2.1 分区/场景化背景如何实现</h3>
+<p>无分区/场景概念；职责是全局页面壁纸桥接。单全局状态 <code>current</code>（<code>index.mjs:/__beauticode/apply</code>）经 SSE 广播全部页面；无 partitionId/sceneId 字段。背景种类：图片 <code>jpg/jpeg/png/webp/avif</code>（18MB 以内）＋视频 <code>mp4/mov</code>（800MB 以内）；声音＝视频轨 <code>muted</code> 开关（默认 <code>desiredModes={fish:false,muted:true,tone:auto}</code>，<code>client.js:13</code>），先按期望播放、失败回退 muted；氛围层 <code>atmosphere.js</code>（<code>#beauticode-gallery-bg</code>＋水波 canvas，<code>presets.mjs:ATMOSPHERE_PRESETS={internal,infernal}</code>）；可读性垫片 <code>readability.js</code>（压成实色底，非代码美化）；fish 摸鱼、tone、dim/blur、全屏均为页面级开关。</p>
+<p>生效链路表：</p>
+<table>
+<thead>
+<tr>
+<th>环节</th>
+<th>哪段代码</th>
+<th>把哪份资源挂到哪里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Host 注入脚本</td>
+<td><code>browser-injection.mjs:createBrowserInjection().contribute(table)</code> → 5 条 <code>{kind:script-src, placement:body}</code>（:45，表见 :4-8）＋桌面 key（:43）</td>
+<td>经宿主 <code>webserver/index-inject</code> hook（<code>index.mjs:231</code>）向每个 DSH 页面注入 transport/atmosphere/client/console/gallery</td>
+</tr>
+<tr>
+<td>Host 服务路由</td>
+<td><code>index.mjs:202 apply(ctx)</code> 内 <code>ctx.webServer.register({kind:exact})</code> 约 10 条以上</td>
+<td><code>/__beauticode/{transport.js,atmosphere.js,client.js,console.js,gallery.js,events,apply,mode,status,ack,version}</code>、主题图片、<code>/__beauticode/ui/*</code></td>
+</tr>
+<tr>
+<td>浏览器传输</td>
+<td><code>transport.js</code>（EventSource 或 fetch-SSE；Desktop 附 key）</td>
+<td>页面 clientId 订阅 <code>GET /__beauticode/events</code>；Host 广播 <code>{type:apply/mode}</code></td>
+</tr>
+<tr>
+<td>浏览器渲染</td>
+<td><code>client.js:154ff</code> <code>#beauticode-bg-stage</code>＋<code>[data-bc-role=current|candidate]</code> 槽位，<code>img/video{object-fit:cover}</code>；状态经 documentElement.dataset 驱动</td>
+<td>poster-first 两阶段提交：先图片 poster，60s 内首帧升级（<code>VIDEO_SETTLE_TIMEOUT_MS=60000</code>，<code>client.js:29,1695</code>）</td>
+</tr>
+<tr>
+<td>Node 落盘/引擎</td>
+<td><code>ui-host.mjs</code>（Windows 强制 local 引用）＋<code>host-apply.mjs:resolveApplyBackend()</code>（tray 优先，否则 in-process）</td>
+<td>本地绝对路径；回环媒体 URL（Range 支持）</td>
+</tr>
+<tr>
+<td>对话面触发（可选）</td>
+<td><code>agent.mjs:555 registerBeauticodeTools</code>（8 工具：apply_image/video/theme_list/theme_use/clear/status/set_fish/set_muted，:561-678）＋ <code>:711</code> commands（<code>bg/bg-theme/bg-clear</code>）</td>
+<td>同一后端通道（<code>callDshControl/resolveApplyBackend</code>）</td>
+</tr>
+</tbody>
+</table>
+<p>自动播放/格式细节：<code>video{autoplay,loop,playsInline,preload:auto,muted}</code>（<code>client.js:1627ff,376-380</code>）；startAt seek（差值 0.25s 以上才跳）；超时 <code>CLIENT_APPLY_DEADLINE_MS=8000</code>（Host 10s 校验内，<code>client.js:14-17</code> 注释）、图片 <code>3000ms×2</code>、冷启动黑帧预热；安全：回环白名单＋64 hex token（<code>TOKEN_PATTERN</code>，<code>index.mjs:17</code>）＋同源/Desktop-key 双验＋<code>MAX_BODY_BYTES=64KB</code>。</p>
+<h3 id="22">2.2 集成形态与宿主约定的接口</h3>
+<p>形态一句话：以 Cordis 插件包形态集成到 deepseek-harness，通过 <code>dsh.bundle.patch</code> 声明的 <code>cordis.patch.yml</code> 插入点被宿主发现与加载，不启动宿主。</p>
+<table>
+<thead>
+<tr>
+<th>接口</th>
+<th>位置/符号</th>
+<th>约定内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>包 manifest</td>
+<td><code>package.json</code>（<code>name=beauticode-dsh@1.0.28</code>，<code>main=./index.mjs</code>，<code>bin</code>，<code>dsh.bundle.patch</code>）</td>
+<td>宿主按包名发现，按 patch 文件接线</td>
+</tr>
+<tr>
+<td>补丁声明</td>
+<td><code>cordis.patch.yml</code>（insert <code>beauticode-bridge</code> inject webServer）</td>
+<td>插入 ID＋注入 webServer（安装器生成 <code>file://</code> 变体）</td>
+</tr>
+<tr>
+<td>插件入口</td>
+<td><code>index.mjs:12-14,202</code>（<code>name/inject/bridgeProtocol=4/apply(ctx,config)</code>）</td>
+<td>Cordis 约定三件套</td>
+</tr>
+<tr>
+<td>页面注入钩子</td>
+<td><code>index.mjs:231 ctx.on(webserver/index-inject)</code>＋effect cleanup</td>
+<td>宿主装配页面时回调</td>
+</tr>
+<tr>
+<td>服务注册</td>
+<td><code>index.mjs:236-398 ctx.webServer.register({kind:exact,…})</code></td>
+<td>静态/事件/控制路由全在 <code>apply()</code> 闭包内</td>
+</tr>
+<tr>
+<td>对话扩展</td>
+<td><code>agent.mjs:762 registerAgentSurfaces</code>（失败吞掉保活页面桥）</td>
+<td>tools 8＋commands 3，见上表</td>
+</tr>
+<tr>
+<td>配置/目录</td>
+<td><code>control-client.mjs:defaultBeauticodeDataRoot()</code>，<code>skin-center.json</code> 固定中心 URL</td>
+<td>宿主与托盘同数据根；皮肤中心来源固定</td>
+</tr>
+<tr>
+<td>发现与加载</td>
+<td><code>bin/beauticode-dsh → cli.js:runCli()</code> 或 <code>dsh plugin --profile add</code>；Desktop 端口 19387</td>
+<td>README：不启动 DSH、不需要 fork、不需要托盘</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23">2.3 资源目录结构</h3>
+<p><code>integrations/deepseek-harness/</code>（22 项）：<code>package.json</code>＋<code>cordis.patch.yml</code>（发现接线）；<code>index.mjs</code>（唯一宿主入口，669 行）；<code>browser-injection.mjs</code>（63 行，挂载决策表）；<code>transport.js</code>；<code>client.js</code>（1866 行，渲染主体）；<code>atmosphere.js</code>；<code>readability.js</code>；<code>console.js</code>（设置→背景页）；<code>gallery.js</code>＋<code>gallery-host.mjs</code>（皮肤中心前后端）；<code>ui-host.mjs</code>；<code>host-apply.mjs</code>；<code>control-client.mjs</code>；<code>agent.mjs</code>（790 行）；<code>presets.mjs</code>；<code>cli.js</code>＋<code>bin/beauticode-dsh</code>；<code>skin-center.json</code>、<code>screenshots.json</code>、<code>README.zh-CN.md</code>、<code>test/</code>。</p>
+<hr>
+<h2 id="3-100">3. 给 #100 的横向对照要点（只综合不设计）</h2>
+<ul>
+<li>挂载哲学相反：maid 缩进对话列内部（跟随布局），beautiCode 铺满视口全局（无视布局）。JSON theme 若要统一背景区域口径，必须区分列内背景与页面背景两种锚点。</li>
+<li>资源哲学相反：maid 随包指纹分发（不可换图，只能开关），beautiCode 引用用户本地文件（任意换图，依赖回环服务）。资源路径列需区分 bundle 相对路径 vs 绝对回环路径。</li>
+<li>切换信号不同：maid 跟随宿主已有属性（零配置），beautiCode 自建模式状态机（需 ack 回执）。生效版本列需标注各自验证版本（maid <code>dshCompatibility=0.2.0rc2</code>；beautiCode <code>bridgeProtocol=4</code>）。</li>
+<li>音乐能力：两者均无独立音频；beautiCode 的声音只是视频 muted（#98 map 要求的音乐/自动播放细节在此系的答案就是无独立音乐）。</li>
+</ul>
+<h2 id="4">4. 来源清单</h2>
+<p>maid-atelier（一手）：repo 树 https://github.com/Small-tailqwq/dsh-deep-whale/tree/main/maid-atelier ；API https://api.github.com/repos/Small-tailqwq/dsh-deep-whale/contents/maid-atelier ；raw 文件：README.md、package.json、skin.json、skin.build.json、cordis.patch.yml、src/index.ts、src/client/index.ts、maid-atelier.module.css、art.ts、asset-url.ts、background-art.generated.ts、boot-error.ts、customization.ts、character-fit.ts、assets/runtime/manifest.json；仓根 docs/asset-delivery.md（https://raw.githubusercontent.com/Small-tailqwq/dsh-deep-whale/main/docs/asset-delivery.md）。
+beautiCode（一手）：repo 树 https://github.com/starsstreaming/beautiCode/tree/main/integrations/deepseek-harness ；API https://api.github.com/repos/starsstreaming/beautiCode/contents/integrations/deepseek-harness ；raw 文件：package.json、cordis.patch.yml、README.zh-CN.md、index.mjs、browser-injection.mjs、transport.js、client.js、atmosphere.js、readability.js、console.js、gallery.js、gallery-host.mjs、ui-host.mjs、host-apply.mjs、control-client.mjs、agent.mjs、presets.mjs、skin-center.json、cli.js、bin/beauticode-dsh。</p>
+<h2 id="5">5. 证据缺口</h2>
+<ul>
+<li>beautiCode：<code>vendor/adapter-dsh</code> 与 <code>themes/internal-beyond</code> 在 GitHub 树中不可见（疑似构建产物），只证实引用关系；<code>bridge-manifest.json</code> 缺失（回退 <code>{protocol:4, revision:source}</code>，<code>index.mjs:21-34</code>）；宿主侧 <code>webserver/index-inject</code> 完整契约只见插件侧调用形状。</li>
+<li>beautiCode（新增，代码级确定缺口）：浏览器侧 <code>client.js</code> 1866 行完整读无 <code>beforeunload/unload/dispose</code>、无哨兵复位（<code>__beauticodeBridgeLoaded</code> 只防重复注入）；<code>#beauticode-bg-stage</code> 常驻 body，无卸载删除路径的代码证据。卸载行为仅 README 级描述——给 #100 的“卸载行为”列：maid 可验证还原 vs bc 未见代码。</li>
+<li>maid-atelier：宿主侧装载只见皮肤侧声明，宿主实现不在子目录内；<code>assets/icons/</code> 在复核时遇 GitHub API rate-limit 未能列出（<code>package.json:files</code> 白名单与 README 旁证其为 ICO/运行时 PNG，不影响背景机制结论）。否定性结论（无视频/音频）的方法边界：抓取单文件截断于 100KB，<code>module.css</code>（约 254KB）与 <code>lib/client.js</code>（305KB）只读了前部；结论靠三重收敛支撑——① <code>src/client</code> 27 文件类型清单完整（全 <code>.ts/.css</code>）、<code>runtime/manifest.json</code> 完整（31 项全 png/webp）；② 已读部分（入口完整＋样式 2539 行＋产物前部）零媒体 <code>url()</code>、零远端 <code>http</code> url、零 <code>@font-face</code>/<code>data:</code> URL；③ 文档互证（README 不依赖远端 URL＋asset-delivery allowlist）。残余风险低。</li>
+<li>通用：#98 map 要求的列口径最终收敛留给 #100。</li>
+</ul></div></details><details class='full'><summary>E · 13 仓横向综合对照全文</summary><div class='inner'><h1 id="13-100">13 仓库横向综合对照表（#100，只综合不设计）</h1>
+<blockquote>
+<p>目标票：<a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/100">#100</a>（父地图 <a href="https://github.com/FeatherHunter/dsh-opencode-palette/issues/98">#98</a>）。
+版本日期：2026-10-18（Asia/Shanghai）。
+方法：只复用本仓既有 4 篇深挖，不新查一手源码（4 篇已覆盖全部 13 仓、代码级文件+行证据；新查适用条件未触发——不适用原因：既有笔记已回答本次问题，无缺口需要新查）。产物只链不贴：结论行链深挖与上游一手行，不粘贴全文。
+范围：只综合、不设计新方案（地图 98 Out of scope：我们自己 JSON theme 包的设计与实现另议）。下文"给未来 JSON 包的事实输入"只列观察到的必须覆盖的事实面，不提任何 schema/字段设计。</p>
+</blockquote>
+<h2 id="_1">复用既有一览（路径 + 一句话结论，不粘贴全文）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>路径</th>
+<th>一句话结论</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>99</td>
+<td><code>docs/research/skin-5-repos-99.md</code>（168 行，含 §8 对抗裁决 A1–A10）</td>
+<td>5 整包皮肤：颜色全经 alias/specific 语义 token 或同名 CSS 覆盖生效；动态感走 gradient/canvas/程序化粒子，只有 mineradio 接用户视频文件；5 家音乐播放全无（mineradio 麦克风律动仅响应面）。</td>
+</tr>
+<tr>
+<td>102</td>
+<td><code>docs/research/color-appearance-catppuccin-claude-ui-102.md</code>（153 行，pins <code>94af6d7</code>/<code>d773a62</code>/<code>e64243a</code>）</td>
+<td>3 配色外观：catppuccin 整套风味注册、claude-style scoped 皮肤+字体全栈+壁纸让位、ui-appearance 角色色推导+自有图文视频背景层；三者命名都贴宿主 <code>--dsw-*</code>。</td>
+</tr>
+<tr>
+<td>103</td>
+<td><code>docs/research/wallpaper-dynamic-background-103.md</code>（175 行，pins engine <code>01fbb8b8</code>/any <code>bf36b0938</code>/model <code>893d1b7e</code>，v2 对抗已收敛）</td>
+<td>3 动态壁纸：挂载位一致（body 级 fixed -1/-2 + 页面透明化）；寻址三分（同源 token URL / 同源 serve URL / blob object URL）；仅 model 跟随模型；自动播放约定 muted+loop+autoplay+playsinline；三仓均无独立 BGM 通道。</td>
+</tr>
+<tr>
+<td>101</td>
+<td><code>docs/research/special-integration-maid-beautiCode-101.md</code>（140 行，6 项修复已合入）</td>
+<td>2 特殊集成：maid 缩进对话列内部静态图-only（随包指纹分发），beautiCode 铺满视口图文视频（引用用户本地文件+回环服务）；两者均无独立音频；卸载证据 maid 可验证还原 vs bc 未见代码。</td>
+</tr>
+</tbody>
+</table>
+<h2 id="100-question">列口径收敛（先收敛再填表，#100 Question 要求）</h2>
+<table>
+<thead>
+<tr>
+<th>列</th>
+<th>定义（本表内含义）</th>
+<th>取值封闭集</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>生效范式</td>
+<td>颜色/样式以何种机制赢得层叠</td>
+<td><code>register</code>（宿主注册合并） / <code>overrideTokens</code>（宿主覆盖层） / <code>self-inject</code>（自注入 \<style> + 选择器/!important） / <code>bridge</code>（页面注入桥接脚本） / 组合（主+辅注明）</td>
+</tr>
+<tr>
+<td>token/字体字号</td>
+<td>管哪些 token；字体/字号是否接管宿主</td>
+<td>token 面只记命名族（alias/specific/私有族/shiki/角色推导），字体记接管与否+来源（自带/用户自放/CJK 回退），字号记接管与否</td>
+</tr>
+<tr>
+<td>区域背景锚点与类型</td>
+<td>背景挂在哪、盖住什么、属哪类内容</td>
+<td>锚点：<code>page-fixed</code>（body 级 fixed -1/-2） / <code>column-inner</code>（列内跟随布局） / <code>iframe-live</code>；类型：<code>none</code>/<code>pure</code>/<code>gradient</code>/<code>image</code>/<code>video</code>/<code>canvas</code>/<code>svg-procedural</code></td>
+</tr>
+<tr>
+<td>静态图寻址</td>
+<td>图片 bytes 如何到像素</td>
+<td><code>bundle-relative</code>（随包指纹相对路径） / <code>serve-url</code>（同源路由 URL/token） / <code>blob-url</code>（内存 objectURL + dataURL 持久） / <code>local-abs-loopback</code>（绝对路径+回环媒体服务） / <code>none</code></td>
+</tr>
+<tr>
+<td>视频与自动播放</td>
+<td>视频有无、格式、自动播放写法</td>
+<td>有/无 + 格式表 + 自动播放属性组（原文照录，不归纳为"都一样"）</td>
+</tr>
+<tr>
+<td>音乐/音频</td>
+<td>有无可出声的播放通道</td>
+<td>只认"播放能力（解码/出声）"；响应/可视化/信息展示另行注明，不计入播放</td>
+</tr>
+<tr>
+<td>切换信号</td>
+<td>背景/主题因何而换</td>
+<td>宿主亮暗属性 / 模型选择 / 定时轮播 / 手动 profile / 自有 tone 状态机 / 用户换文件</td>
+</tr>
+<tr>
+<td>版本 pin</td>
+<td>本表事实有效的版本锚</td>
+<td>各仓取证 SHA/版本号（行号以 pin 时刻为准，后续漂移以文件+符号为准）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="a-token">表 A：生效范式 × token × 字体字号 × 区域背景</h2>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>生效范式</th>
+<th>token/变量（命名族）</th>
+<th>字体/字号</th>
+<th>区域背景锚点与类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/RevolutionLA/dsh-dream-skin">dsh-dream-skin</a></td>
+<td><code>register</code>（8 皮肤标量）+ 单次 <code>overrideTokens("dsh-dream-skin:appearance")</code>（DIY 三叠加合并）+ 自注入材质 \<style>（只管液态玻璃不管色）</td>
+<td>57 枚/皮肤（alias bg/label/brand/button/border/interactive/file-diff/state/markdown/scrollbar + specific sidebar/nav/input/tip/selector/bubble；Accent/POPUP/wash 三叠加；主题包白名单 bg-base/layer-1/label/brand/border）</td>
+<td>不管（57 token 零命中 font/size；仅设置面板行内 <code>fontSize:"13px"</code>）</td>
+<td>token 改色 + <code>page-fixed</code> 壁纸 \<div>（fixed inset:0 z-index:-1，<code>backgroundImage</code> url/gradient，cover/contain + blur 0–60px + bleed 垫底，kind 仅 image/url/gradient）+ 每皮肤 glow 弥散光；无视频</td>
+</tr>
+<tr>
+<td><a href="https://github.com/d-dev0101/open-sea-skin">open-sea-skin</a></td>
+<td>双路径二选一：源码集成 <code>overrideTokens</code> 玻璃层 / npm 发布包自注入 <code>__open-sea-skin-glass__</code>（!important）+ 同源 iframe</td>
+<td>9 背景系（bg-base/layer-1..3/module-platform/multi-select/overlay/sidebar-fill/selector；bg-base light glass/72、dark 回落算法见深挖 §2.1）</td>
+<td>不管（Geist @font-face 只用于 ocean iframe/自家面板）</td>
+<td>掏底 transparent + 半透明 token + <code>iframe-live</code> 实时 WebGPU 海洋 canvas（Three.js TSL，12 分钟 daylight cycle）；无 background-image、无静态/视频图</td>
+</tr>
+<tr>
+<td><a href="https://github.com/webkubor/dsh-bloom-theme">dsh-bloom-theme</a></td>
+<td><code>self-inject</code>（<code>style[data-plugin-css]</code> 三表注入 + body[data-bloom-variant]×body[data-ds-dark-theme] 选择器提权；<code>overrideTokens</code> 全仓零命中）</td>
+<td>10 套 OKLCH 色板 → alias + specific + 自有 <code>--bloom-*</code>；mist 完整骨架其余 9 变体只覆主色+背景调</td>
+<td>不改宿主字族（font-family 仅自家切换器 2 处：诗句衬线+版本号等宽）；宿主字号仅 tabs clamp + 侧栏 12px 硬写</td>
+<td>token + CSS gradient 氛围 + backdrop-filter 玻璃（::before，劫持 fixed 后代 overlay）；<code>url(</code> 全仓零命中；壁纸层 v0.5.0 已移除</td>
+</tr>
+<tr>
+<td><a href="https://github.com/ash-qw/dsh-theme-prts">dsh-theme-prts</a></td>
+<td><code>self-inject</code>（<code>html[data-dsh-prts]</code> 作用域 + !important；读宿主 theme/change 仅同步日夜不写回；<code>overrideTokens</code> 20 文件零命中）</td>
+<td>自有 <code>--prts-*</code> 族（canvas/elevated/rail/panel/ink/line/品牌/玻璃四档/气泡/头像环/light 整组/session-flow 三色）+ 极少数 <code>--dsw-alias-*</code> 转接</td>
+<td><code>--prts-body/display/mono</code> 三字族（Noto Sans SC / Arial Narrow / Roboto Mono 系）；无全局字号 token（自家面板 .875/.75rem + 8/9/11/12px）</td>
+<td>token + gradient + 内联 SVG data-URI + JS 生成 SVG/canvas（城市剪影/粒子徽记/ambient/particle 层）；无外部背景图/视频</td>
+</tr>
+<tr>
+<td><a href="https://github.com/dhicoc/dsh-theme-mineradio">dsh-theme-mineradio</a></td>
+<td><code>overrideTokens</code> 写 body 内联为主 + role census（data-md-role + !important）+ 手工玻璃配方（html 内联 <code>--dsh-aqua-*</code>）</td>
+<td>alias 全套半透明化 + specific（sidebar-fill=transparent 等）+ shadow；mica/compat 双基表；唯一 <code>--dsw-font-family</code>（Inter base64 自托管 + Noto Sans CJK 回退）</td>
+<td>只管字族不管字号（全文件仅一处 dsw-font，无 font-size）</td>
+<td>token 半透明化透底 + 底部二选一 <code>page-fixed</code> fixed 层：fluid shader canvas 或用户壁纸 \<img>/\<video>；无内置图片/视频资源；装饰全程序化（fluid-shader/star-river/whale/mesh/spotlight）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/NoNameLeGo/dsh-catppuccin-theme">dsh-catppuccin-theme</a></td>
+<td><code>register</code>（每风味 <code>theme.register({id,colorScheme,tokens})</code>；用户覆盖最后展开必胜；玻璃是第二条独立链路）</td>
+<td><code>--dsw-static-*</code> hex 底层 + <code>--dsw-alias-*</code> var()/color-mix() 语义层；<code>--shiki-*</code> 11 枚独立正交表；明暗风味自带（latte 光/其余暗）</td>
+<td>不管（1024 行入口零 font 定义；README 无字体说明）</td>
+<td>纯色（风味基座 <code>--dsw-alias-bg-*</code>，无独立纯色选择器）；图片/动态/视频无证据；玻璃"氛围底光+辉光"为半透明渐变罩非壁纸层</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Nwflower/dsh-claude-style">dsh-claude-style</a></td>
+<td><code>self-inject</code>（构建期 tokens.json→stylesheet + 运行期 mount，<code>body[data-dsh-claude-style]</code> 作用域 + 定点 !important；互斥靠 parkForeignSheets）</td>
+<td>palette 复用宿主语义名 + 私有 <code>--dsh-claude-*</code>；变体 PALETTE claude/host × BRAND claude/deepseek；明暗跟随宿主 <code>[data-ds-dark-theme]</code></td>
+<td>全管（JetBrains Mono 包内自带 + Anthropic 三款需用户自放 <code>$DSH_HOME/.../fonts/</code> + Claude Style Inter/Noto Serif 包内 OFL + 中文 fallback 到 sans CJK；TYPEFACE claude/host 可让回宿主；字号沿用宿主）</td>
+<td>无自有壁纸，主动让位壁纸引擎（有 <code>data-we-wallpaper</code> 时只罩 <code>body::after</code> mask z-index:-1 + shell 透明）；纯色 canvas token</td>
+</tr>
+<tr>
+<td><a href="https://github.com/TQSY114514/dsh-ui-appearance">dsh-ui-appearance</a></td>
+<td><code>overrideTokens</code>（<code>{light,dark}</code> 对，dispose 精确撤回）+ DOM 写 body 22 个 <code>--dsw-appearance-*</code> 变量（rAF 节流；定点 !important 四处）</td>
+<td>6 角色（accent/background/panel/input/text/border）×双模式 + 11 预设；<code>buildTokenOverrides</code> 唯一出口；accent 默认反转保气泡可读；可读性数学（mixHex/contrast/luminance/WCAG 二分）</td>
+<td>不管（三文件关键字检索零 font 定义）</td>
+<td>自有 <code>#dsw-appearance-bg</code>（fixed inset:-48px z-index:-1）三层合成：base canvas 用户色 + ::before 图片层（cover/opacity/blur≤30）+ ::after scrim 罩；<code>#root</code> 刻意不动（防 fixed 菜单 trap 进 stacking context）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/elysia395/dsh-wallpaper-engine">dsh-wallpaper-engine</a></td>
+<td><code>bridge</code> 变体：body 级壁纸层 + 页面透明化（<code>body[data-we-wallpaper]</code>），玻璃配方与壁纸无关</td>
+<td>不定义颜色 token（壁纸→主题方向 theme-follow 可选，默认关）</td>
+<td>不管</td>
+<td><code>page-fixed</code> div <code>#dsh-wallpaper-engine-layer</code>（fixed z-index:-2）+ scrim（z-index:-1，恒压界面下）；内容：实时渲染 iframe（webwallgl）/ video / img 静态帧 / live-poster；body.appendChild（过场旧层压 zIndex=-3）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Tkingxiao/dsh-any-background">dsh-any-background</a></td>
+<td>壁纸容器 + 界面 token 透明度让位（卸载 teardown 摘整层清 token）</td>
+<td>复用界面 token 做不透明度/模糊（无自立颜色体系）</td>
+<td>不管</td>
+<td>单层 <code>page-fixed</code> div（fixed/inset-0/z-index:-1/pointer-events:none，body.prepend）：image 走 backgroundImage / video 走子 video / mesh-shader-pattern 走子 canvas（低分辨率 + rAF 启停）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/HarmlessFunny/dsh-background-by-model">dsh-background-by-model</a></td>
+<td>壁纸容器 + 规则→主题（per-image color，无色跟系统；palette-fade token 插值过渡）</td>
+<td>无自立颜色体系（规则自带色）</td>
+<td>不管</td>
+<td>容器 <code>page-fixed</code> + 内双层 cross-fade（absolute/inset-0/opacity，目标层 zIndex=1，纯合成器动画 will-change；reduced-motion 一票否决；首绘硬切）</td>
+</tr>
+<tr>
+<td><a href="https://github.com/Small-tailqwq/dsh-deep-whale/tree/main/maid-atelier">maid-atelier</a></td>
+<td><code>self-inject</code>（<code>body[data-dsh-maid-atelier]</code> 作用域；node 半只供资源路由；disposer 按表还原；皮肤管理器 v2 协议互斥）</td>
+<td>20 个 body CSS 变量（<code>BACKDROP_PROPERTIES</code> 登记，宫殿/角色/侧栏/输入框/工作区/顶底饰件）</td>
+<td>字体可配（font/workspaceFont 经皮肤协议投影为 html 属性；背景机制外）</td>
+<td><code>column-inner</code>：对话列 <code>[class*=centerCol]</code> 内部首子舞台（随聊天区同步收缩）+ body 变量驱动各区域伪元素/边框；静态图片-only</td>
+</tr>
+<tr>
+<td><a href="https://github.com/starsstreaming/beautiCode/tree/main/integrations/deepseek-harness">beautiCode-harness</a></td>
+<td><code>bridge</code>（<code>webserver/index-inject</code> hook 向每页注入 5 body 脚本；单全局 <code>current</code> 经 SSE 广播；8 tools + 3 commands 走同一后端）</td>
+<td>不定义颜色 token（自有 tone + <code>data-bc-resolved-tone</code>，三级回退宿主；可读性垫片压实色底）</td>
+<td>不管</td>
+<td><code>page-fixed</code> 全局固定层 <code>#beauticode-bg-stage</code>（position:fixed inset:0 z-index:0，无视布局）；poster-first 两阶段（先图片 poster，60s 内首帧升级）；氛围层水波 canvas + gallery</td>
+</tr>
+</tbody>
+</table>
+<h2 id="b-pin">表 B：资源寻址 × 视频自动播放 × 音乐 × 切换信号 × 版本 pin</h2>
+<table>
+<thead>
+<tr>
+<th>仓库</th>
+<th>静态图寻址</th>
+<th>视频寻址与自动播放</th>
+<th>音乐/音频（播放能力）</th>
+<th>切换信号</th>
+<th>版本 pin</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dream-skin</td>
+<td>选图→压缩 data URL→localStorage（历史 5 条）/URL/渐变/必应每日+定时刷新；<code>wallpapers/</code> 3×.jpg 不打进包不直读；安全阀 http(s)/data:image</td>
+<td>无（<code>accept:"image/*"</code>；全仓 music/bgmp3/mp4/webm/audio/video/autoplay 零命中；壁纸 \<div> 非 video）</td>
+<td>无</td>
+<td>手动选肤 + DIY 叠加 + 壁纸轮播 rotationGroups（后台/隐藏推迟）</td>
+<td>v10.16.8（SKINS L423–L935，8 皮肤）</td>
+</tr>
+<tr>
+<td>open-sea-skin</td>
+<td>无图片寻址（ocean 为实时 TSL 非文件；<code>url(</code> 仅字体 woff2 与官网 jpg，不进渲染）</td>
+<td>无（220 项树除 docs 录屏 gif 外无音视频；ocean 常驻 canvas，默认开的是海洋非媒体；README 否定 looping video）</td>
+<td>无</td>
+<td>手动开关 + daylight cycle（12 分钟）+ reduced-motion 降帧</td>
+<td>npm 主包 vs harness-plugin 源码双链路（后者未发布；本表以后者 glassTokens L39–L53 与前者 skin-core L92/L310–L330 为准）</td>
+</tr>
+<tr>
+<td>bloom-theme</td>
+<td>无（<code>url(</code> 全仓零命中；assets 探针全 404；氛围即渐变）</td>
+<td>无（src + lib 头 100k 全零命中）</td>
+<td>无（卖点仅玻璃+莫兰蒂+微动效）</td>
+<td>手动 variant 10 选 + 明暗跟随 body[data-ds-dark-theme] + matchMedia</td>
+<td>v0.17.6（VARIANTS 10，WCAG AA 全达标表）</td>
+</tr>
+<tr>
+<td>prts</td>
+<td>内联 SVG data-URI + JS 生成 SVG/canvas；徽记 5 阵营 PNG→构建转 data-URI/base64/RLE（<code>$DSH_HOME/plugins/dsh-theme-prts/emblems</code>）；光标 data-URI PNG</td>
+<td>无（20 客户端文件音视频串零真命中 + jsDelivr 1.4.2 清单无媒体扩展名）</td>
+<td>无（"声纹/波形/启动序列"系 SVG/CSS 动画隐喻）</td>
+<td>偏好 dataset（scheme/palette/triad）+ 宿主日夜只读同步</td>
+<td>@1.4.2（engines.dsh 0.2.0-rc.2）</td>
+</tr>
+<tr>
+<td>mineradio</td>
+<td>用户自供（input image/* + FSA；无内置资源）</td>
+<td>用户视频：input video/mp4,webm,ogg,quicktime + FSA .mp4/.webm/.ogg/.mov/.m4v/.mkv；大视频 IDB <code>dsh-aqua-media</code> 标记 idb:/fsa: + 小视频 data: URL；播放 <code>loop=true</code> + <code>play().catch→muted</code> 兜底自动播放（默认 background:'fluid' 即视频默认关；videoBlur 6px/videoBrightness 45 罩保文字；backdrop-filter 直接采样 video）</td>
+<td>播放无（<code>audio-reactivity</code> 为麦克风→Analyser→粒子包络视觉脉动，默认关；station-dial 为 workspace→hue 隐喻 2200ms/044，不发声）</td>
+<td>手动（fluid/wallpaper 二选一）+ activeScheme 读宿主亮暗 + theme/change 双 store</td>
+<td>mineradio 双基表 MINERADIO vs COMPAT（applyTokens L1556 二选一）</td>
+</tr>
+<tr>
+<td>catppuccin</td>
+<td>无（无 background-image/video/object-fit 代码）</td>
+<td>无</td>
+<td>无</td>
+<td>手动风味 4 选 + 用户覆盖层 + 明暗风味自带</td>
+<td><code>@nonamelego/dsh-catppuccin@0.6.3</code>，HEAD <code>94af6d7</code>（2026-10-17）</td>
+</tr>
+<tr>
+<td>claude-style</td>
+<td>无（无 background-image/video/object-fit；视频职责归壁纸引擎）</td>
+<td>无</td>
+<td>无</td>
+<td>手动（palette/brand/motion/typeface）+ 明暗跟随宿主 + 壁纸让位（mask 86%/82% 保可读）</td>
+<td><code>dsh-claude-style@0.16.2</code>，HEAD <code>d773a62</code>（2026-10-17）</td>
+</tr>
+<tr>
+<td>ui-appearance</td>
+<td>用户上传 IndexedDB record key（legacy 兼容 inline data URL；<code>image-store.ts</code> 持久化；无外部 URL 拉取证据）</td>
+<td>用户视频 IndexedDB（<code>video-store.ts</code>）：<code>\&lt;video muted loop playsInline autoplay&gt;</code>（ensureVideo L587–594），object-fit:cover，共享透明度/模糊变量，data-video 有则图片层熄灭（video 优先）；<code>URL.createObjectURL(record)</code> + onerror 撤层 + onloadeddata 上报；无播放控制 UI（存/清 key 而已）</td>
+<td>无（全程静音；muted 写死）</td>
+<td>手动角色色/预设/不透明度/模糊 + data-video 图片视频互斥 + data-dsw-has-bg frame 透明</td>
+<td><code>dsh-ui-appearance@0.1.23</code>，HEAD <code>e64243a</code>（2026-10-16）</td>
+</tr>
+<tr>
+<td>wallpaper-engine</td>
+<td>同源 token URL（<code>GET /wallpaper-engine/media/&lt;token&gt;</code>，token=绝对路径 base64url，进程内 mediaMap 回查磁盘；Range/HEAD/条件 GET；scene.pkg ETag/304 + loopback media-origin；预览 preview/ + 上传 <code>~/.dsh-wallpaper-engine/uploads</code>）</td>
+<td>同管道 media token（容器后缀宿主 mediaExt 下发；场景内嵌 MP4 另有 scene-video/；缩略 video-preview/ ffmpeg 抽帧 JPEG；pinnedFastStart + moov 前置；纯 video 主路径 <code>autoplay/loop/preload:auto/playsinline</code> + <code>isEffectivelyPlaying</code> 调 play()/pause() + 过场音频门 + 预热 metadata-only TTL 20s；WE 动图 preview 不作 poster）</td>
+<td>无独立 BGM 通道（壁纸自带音轨随音量/壁纸音轨设置 + live iframe muted query；README"音乐联动"系系统输出回环频谱 + Now Playing 信息/封面/按需歌词，属信息展示面）</td>
+<td>手动选择 + 用户轮播 rotationGroups；按模型不支持（picker-model 系选择器过滤；theme-follow 系壁纸→主题反方向）</td>
+<td><code>dsh-plugin-wallpaper-engine@1.3.3</code>，pin <code>01fbb8b8</code></td>
+</tr>
+<tr>
+<td>any-background</td>
+<td>同源 serve URL（<code>/dsh-any-background/wallpaper</code> + <code>?r=rev</code> 缓存破坏；RPC read 只回 URL 不回 bytes；raw bytes 仅 upload POST 与主题导出 dataURL 内嵌 <code>dsh-any-theme.json</code>；服务端盘 <code>.dsh-any-background-data/</code>；网络 URL 下载进槽 25MB/20s）</td>
+<td>同源 <code>/dsh-any-background/video</code>（槽按 MIME 命名 mp4/webm/ogv/mov/mkv，2GB 上限；<code>muted/loop/autoplay/playsInline/preload:auto</code> 双写 + 先 append 后设 src + <code>play().catch</code> 静默 + <code>getAttribute(src)</code> 比对防重播；placement 映射 object-fit；video 帧复用抓帧供预览/取色）</td>
+<td>无（muted=true 写死；全程静音）</td>
+<td>backgroundType（image/video/mesh/shader/pattern）+ 手动 profile（activeProfile + day/night schedule）+ 轮播池（服务端 copy 进槽，reload/daily/weekly）；按模型不支持</td>
+<td><code>dsh-any-background@0.3.8</code>，pin <code>bf36b0938</code></td>
+</tr>
+<tr>
+<td>background-by-model</td>
+<td>slot raw bytes（无扩展名一图一文件；MIME 魔数嗅探；legacy 一次性迁移）→ RPC dataURL（<code>readSlotAsDataURL</code>）→ 绘制 <code>displayImageOf</code> 转 blob: object URL 缓存（替换旧 URL 延迟 2s 回收防 fade 中 blank；无 createObjectURL 回退直用 dataURL）；预设图 jsDelivr 镜像引用</td>
+<td>无视频（v0.3.0 breaking 移除 video wallpapers；wallpaper.ts 全文件零 video 命中；动态仅 cross-fade + palette-fade token 插值）</td>
+<td>无</td>
+<td>按模型：有序规则 <code>matchRule</code>（大小写不敏感子串首命中；空 match 永不命中；无命中回落首个 usable；provider+id+display 名）× watchModel 三跳（durable modelSelection faceOf + modelDirectories + host 默认兜底；会话 id 兼容两代）+ advanceOnSwitch 步进 + 规则内 rotation（interval 5s–24h/shuffle/隐藏页停转/跨规则 rotIndex=0）</td>
+<td><code>dsh-background-by-model@0.8.2</code>，pin <code>893d1b7e</code></td>
+</tr>
+<tr>
+<td>maid-atelier</td>
+<td>随包分发（<code>skin-assets/maid-atelier/&lt;sha64&gt;.webp</code> 指纹化，node 半 <code>installSkinAssets</code> 注册路由；immutable 一年 + ETag/304 + 仅 GET/HEAD；客户端所见全 \<img>；<code>runtime/manifest.json</code> 31 项全 png/webp）</td>
+<td>无（入口完整读 + 样式 2539 行 + 产物前 100KB 零命中 + 类型清单全 .ts/.css + 文档互证）</td>
+<td>无</td>
+<td>五维：宿主亮暗 MutationObserver + 着陆/对话 data-phase + 模型 Pro/Flash（作曲栏按钮→html[data-dsh-whale-model]）+ SFW 总开关/时段 + 设备拥挤/低功耗/700px 自适应</td>
+<td><code>dshCompatibility=0.2.0rc2</code>（skin.build.json 指纹/源码提交同步）</td>
+</tr>
+<tr>
+<td>beautiCode-harness</td>
+<td>本地绝对路径引用（不复制用户文件；Windows 强制 local 引用；回环媒体 URL <code>http://127.0.0.1:&lt;port&gt;/…?t=&lt;token&gt;</code> Range 支持；64 hex token + 同源/Desktop-key 双验）</td>
+<td>图片 jpg/jpeg/png/webp/avif ≤18MB + 视频 mp4/mov ≤800MB；<code>video{autoplay,loop,playsInline,preload:auto,muted}</code> + 先期望播放失败回退 muted；poster-first 两阶段（60s 首帧升级 <code>VIDEO_SETTLE_TIMEOUT_MS</code>；图片 3000ms×2；冷启动黑帧预热；startAt seek 差值 0.25s；<code>CLIENT_APPLY_DEADLINE_MS=8000</code>）</td>
+<td>播放无（声音=视频轨 muted 开关，默认 muted:true）</td>
+<td>自有 tone 状态机 + <code>data-bc-resolved-tone</code>（三级回退宿主 data-ds-dark-theme→colorScheme→OS，双 Observer）+ SSE 全页广播；模型无关</td>
+<td><code>beauticode-dsh@1.0.28</code>，<code>bridgeProtocol=4</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">跨仓事实（只收敛分歧，不设计）</h2>
+<ol>
+<li>生效三条路（13 仓全覆盖）：宿主注册/覆盖（dream register、catppuccin register、open-sea 原生 overrideTokens、mineradio overrideTokens 主、ui-appearance overrideTokens + body 变量）/ 自注入 CSS（bloom、prts、open-sea 发布包、claude-style scoped、maid、mineradio 辅层）/ 桥接与容器（engine/any/model/beautiCode 的 body 级固定层 + 页面透明化）。同一效果可由任一路达成，叠加语义由宿主层序决定（#102 留给本表的层序仲裁缺口依然存在：三仓命名都贴 <code>--dsw-*</code>，叠加时谁赢取决于宿主注册顺序，本轮未深挖仲裁，标缺口不猜）。</li>
+<li>背景挂载两哲学：<code>page-fixed</code>（engine -2+scrim -1 / any -1 / model -1+内双层 / ui-appearance -1 三层 / beautiCode z-0 / mineradio fluid/wallpaper 二选一）vs <code>column-inner</code>（maid 对话列内部，唯一跟随布局收缩）。JSON 若要统一区域口径，必须区分这两类锚点（#101 输入，原样收敛）。</li>
+<li>资源寻址四制：bundle 指纹相对（maid）、同源 serve/token URL（engine/any）、blob objectURL + dataURL/IndexedDB 持久（model/ui-appearance/dream localStorage 历史）、本地绝对路径 + 回环服务（beautiCode）。通用包需同时容纳相对与绝对两类路径（#101 输入，原样收敛）；<code>?r=rev</code>/ETag/Range/immutable 一年等缓存语义各仓自立，无统一契约。</li>
+<li>视频自动播放五件套（有视频的 5 仓逐字对照）：engine <code>autoplay/loop/preload:auto/playsinline + isEffectivelyPlaying</code>、any <code>muted/loop/autoplay/playsInline/preload:auto + play().catch</code>、model 无视频、mineradio <code>loop + play().catch→muted</code>、ui-appearance <code>muted/loop/playsInline/autoplay</code>、beautiCode <code>autoplay/loop/playsInline/preload:auto/muted(+期望回退)</code>。交集是 muted+loop+autoplay+playsinline，但 preload/catch/回退/占位策略各异，不宜归纳为同一实现。</li>
+<li>音乐结论（13/13）：无一家提供独立 BGM 播放通道。engine 的系统回环频谱/Now Playing、mineradio 的麦克风律动、prts 的"声纹"SVG 均为响应/展示面，非播放能力；any/model/beautiCode 全程 muted 或无音频面。未来包如需 BGM，无现成事实输入（#103 §5.5 原话收敛）。</li>
+<li>按模型切换（13 仓仅 1 家真做）：background-by-model（有序子串首命中 + fallback rule 1 + advanceOnSwitch + 规则内 rotation）。dream 的 picker-model 系选择器过滤、engine 的 theme-follow 系壁纸→主题反方向、maid 的 Pro/Flash 系作曲栏按钮读数，均非"会话模型→壁纸规则"语义，不可混为一谈。</li>
+<li>字体/字号（13 仓仅 2 家接管字族、0 家接管全局字号）：claude-style 全栈（自带+用户自放+CJK 回退+host 让回）、mineradio 仅 <code>--dsw-font-family</code>、prts 自有三字族（不写宿主）；其余 10 家沿用宿主。字号 13 家全部沿用宿主（仅硬写局部：dream 设置面板 13px、bloom tabs clamp/侧栏 12px、prts 自家面板组、claude 表格回退 14px）。</li>
+<li>卸载/还原（证据强度分级）：可验证还原（dream 持久化补偿、mineradio removeOverrides + 摘属性、ui-appearance dispose 精确撤回、maid disposer 按表还原、any teardown 摘层）vs README 级断言（beautiCode 1866 行无 teardown 代码证据）vs 版本兜底（bloom/prts/open-sea 的 hash/结构漂移 no-op 回落）。</li>
+</ol>
+<h2 id="json-theme">给未来 JSON theme 包的事实输入（只列需覆盖面，不设计字段）</h2>
+<ul>
+<li>颜色：alias 全套 + specific（sidebar/input/menu/bubble/tip/selector/overlay）+ shadow；私有族（bloom/prts/claude/mineradio/aqua/glass/appearance）；shiki 代码色正交表；light/dark 对（风味自带 vs 每 token 自带 vs 跟随宿主）；用户覆盖层（白名单/消毒/最后展开必胜）；可读性数学（mixHex/contrast/luminance/WCAG 二分/反转/罩层 alpha）。</li>
+<li>字体：字族栈 + 自带 base64/woff2 vs 用户自放目录 vs 系统回退（含 CJK/等宽/衬线分组 + x-height 匹配不断行）；让回宿主开关（TYPEFACE host）；字号本轮无全局接管事实（仅局部硬写点）。</li>
+<li>区域：全局/侧栏/对话列/输入框/overlay 菜单/气泡/代码块/表格/顶栏，每区透明度 + 模糊（blur 上限各仓自立：ui-appearance 背景 30/glass 20、mineradio videoBlur 6 等）+ scrim/罩层 + hairline 分割 + stacking 约束（#root 不动、::before 劫持 fixed 后代、popover 自带 shadow）。</li>
+<li>背景内容：none/pure/gradient/image/video/canvas（WebGPU/Three TSL/低分辨率 rAF）/SVG 程序化（剪影/粒子/纹理）/iframe-live（webwallgl + sandbox）；per-image color（model）vs 单 color（any）vs 无色（其余）；global-rotation vs per-rule-rotation（含 advanceOnSwitch）必须区分。</li>
+<li>资源：相对指纹路径（immutable/ETag）/ 同源 serve-token URL（Range/HEAD/rev）/ blob objectURL（2s 延迟回收）/ dataURL 内嵌（主题导出先例：<code>dsh-any-theme.json</code>、<code>dsh-background-by-model-theme.json</code>）/ 本地绝对路径 + 回环 token 服务（Range/鉴权）；上传 caps（18MB 图/800MB 视频/2GB 槽/25MB 拉取）与失败回退（onerror 撤层/回落默认/诚实 null）。</li>
+<li>播放：muted/loop/autoplay/playsinline/preload + <code>play().catch</code> 静默 + muted 重试兜底 + 首帧预算/stall 自救/warmup metadata-only/60s 首帧升级/8s 应用 deadline；音频轨取决于用户文件且策略下静音（mineradio 注释原话）。</li>
+<li>信号：宿主亮暗属性（MutationObserver/双 store）/ 会话模型 faceOf 三跳 / 定时（schedule/rotation interval/shuffle）/ 手动 profile-variant-palette-brand-tone / 自有 tone 三级回退 + SSE 广播 + ack 回执。</li>
+<li>版本与证据：每机制标注来源仓库 + pin（SHA/版本号）+ 文件+符号；行号作约读（CHANGELOG 迭代快）；"零命中否定"仅及检索域（检索式见各深挖 §5/§8）；源码级未实测 DOM（选择器漂移面标注）。</li>
+</ul>
+<h2 id="_3">证据缺口（不拦本票关闭，转交未来包自查）</h2>
+<ol>
+<li>宿主侧仲裁：<code>--dsw-*</code> 叠加层序、ThemePresenter body 内联落点、design-platform token 语义，仍是插件侧转述（#99 §6.1），未拉宿主仓闭环。</li>
+<li>行号漂移：行号以各深挖 pin 时刻 raw 为准；复用时以文件+符号为准，行号作约读。</li>
+<li>engine 新层 append 时机、model RPC read 图片字段名两处未逐行核对（#103 §5 降级为文档+行为描述），不影响本表挂载/寻址结论。</li>
+<li>三仓 dist/lib 构建产物未读；行为结论全部来自源码与文档，无运行时验证（符合只读要求）。</li>
+<li>"无字体/无背景/无音乐"均为源码关键字检索阴性结论（检索词与误报排除见各深挖），以上游取证 SHA 为准过期。</li>
+</ol></div></details></section><div class='foot'>行号以 pin 时刻 raw 为准，漂移以「文件 + 符号」为准；「无 Xxx」为检索域内阴性结论。底稿 docs/research/ 5 篇 md。</div></div><div class='backtop'><button class='btn' onclick='window.print()'>打印 / PDF</button><a class='btn' href='#' style='text-decoration:none;text-align:center'>顶部</a></div><script>const $=function(s,r){return (r||document).querySelector(s)};const $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var F={g:'all',m:'all',v:null,mo:null,f:null,q:''};
+try{if(localStorage.getItem('rpt-theme')==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}
+$('#themeBtn').addEventListener('click',function(){var d=document.documentElement.getAttribute('data-theme')==='dark';if(d){document.documentElement.removeAttribute('data-theme');try{localStorage.setItem('rpt-theme','light')}catch(e){} this.textContent='深色';}else{document.documentElement.setAttribute('data-theme','dark');try{localStorage.setItem('rpt-theme','dark')}catch(e){} this.textContent='浅色';}});
+$$('[data-count]').forEach(function(el){var t=+el.getAttribute('data-count'),s=Date.now(),D=900;function f(){var p=Math.min(1,(Date.now()-s)/D);el.textContent=Math.round(t*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(f);}requestAnimationFrame(f);});
+document.addEventListener('click',function(e){var t=e.target.closest('.tab');if(!t)return;var bar=t.parentElement;$$('.tab',bar).forEach(function(x){x.classList.remove('on')});t.classList.add('on');var card=t.closest('.repo');$$('.pane',card).forEach(function(p){p.classList.toggle('on',p.id==='p-'+t.getAttribute('data-pane'))});});
+document.addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;var v=b.getAttribute('data-copy');function ok(){b.textContent='已复制';setTimeout(function(){b.textContent='复制'},1200);}if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,ok);}else{var ta=document.createElement('textarea');ta.value=v;document.body.appendChild(ta);ta.select();try{document.execCommand('copy')}catch(x){}document.body.removeChild(ta);ok();}});
+function applyF(){var n=0;$$('.repo').forEach(function(c){var ok=(F.g==='all'||c.getAttribute('data-group')===F.g)&&(F.m==='all'||c.getAttribute('data-mech').split(' ').indexOf(F.m)>=0)&&(!F.v||c.getAttribute('data-video')===F.v)&&(!F.mo||c.getAttribute('data-model')===F.mo)&&(!F.f||c.getAttribute('data-font')===F.f)&&( !F.q||c.textContent.toLowerCase().indexOf(F.q)>=0);c.classList.toggle('hide',!ok);if(ok)n++;});$$('#mxTable tbody tr').forEach(function(r){var ok=(F.g==='all'||r.getAttribute('data-group')===F.g)&&(F.m==='all'||r.getAttribute('data-mech').split(' ').indexOf(F.m)>=0);r.classList.toggle('hide',!ok);});$('#cnt').textContent='命中 '+n+' / 13';}
+$$('#filters .chip').forEach(function(c){c.addEventListener('click',function(){var f=c.getAttribute('data-f'),v=c.getAttribute('data-v');if(f==='g'||f==='m'){$$('#filters .chip[data-f="'+f+'"]').forEach(function(x){x.classList.remove('on')});c.classList.add('on');F[f]=v;}else{if(F[f]===v){F[f]=null;c.classList.remove('on');}else{F[f]=v;c.classList.add('on');}}applyF();});});
+$('#resetBtn').addEventListener('click',function(){F={g:'all',m:'all',v:null,mo:null,f:null,q:''};$('#q').value='';$$('#filters .chip').forEach(function(x){var f=x.getAttribute('data-f');x.classList.toggle('on',(f==='g'||f==='m')&&x.getAttribute('data-v')==='all');});applyF();});
+$('#q').addEventListener('input',function(){F.q=this.value.trim().toLowerCase();applyF();});applyF();
+$$('#mxTable thead th').forEach(function(th){th.style.cursor='pointer';th.addEventListener('click',function(){var c=th.getAttribute('data-c');$$('#mxTable th,#mxTable td').forEach(function(x){x.classList.remove('hl')});$$('#mxTable tr').forEach(function(r){var x=r.children[+c];if(x)x.classList.add('hl');});});});
+var spy={};var links=$$('.topnav a.nl');var obs=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){links.forEach(function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id)})}})},{rootMargin:'-40% 0px -55% 0px'});['mx','dg','sa','sb','sc','sd','app'].forEach(function(id){var el=document.getElementById(id);if(el)obs.observe(el);});
+$('#transToggle').addEventListener('change',function(){var g=document.getElementById('contentLayer');g.style.transition='opacity .3s';g.style.opacity=this.checked?'1':'0.15';});
+var VP={engine:{n:'wallpaper-engine',c:['autoplay','loop','preload:auto','playsinline','playbackRate'],x:'isEffectivelyPlaying 调 play()/pause() + 过场音频门 + metadata-only 预热 20s TTL + poster 须 Image onload'},any:{n:'any-background',c:['muted','loop','autoplay','playsInline','preload:auto'],x:'先 append 后设 src + play().catch 静默 + getAttribute(src) 比对防重播'},mineradio:{n:'mineradio',c:['loop','play().catch → muted 重试'],x:'直连 video 以便 backdrop-filter 采样；videoBlur 6 / brightness 45'},ui:{n:'ui-appearance',c:['muted','loop','playsInline','autoplay'],x:'三层合成层内 video；BACKGROUND_BLUR_MAX=30'},bc:{n:'beautiCode',c:['autoplay','loop','playsInline','preload:auto','muted(+期望回退)'],x:'poster-first 两阶段；60s 首帧升级；8s 应用 deadline'}};
+function vpShow(k){$$('#vpBtns .chip').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-vp')===k)});var d=VP[k];$('#vpPanel').innerHTML=d.c.map(function(c){return '<span class=achip>'+c+'</span>'}).join('');$('#vpNote').textContent=d.n+'：'+d.x+' —— 交集 muted+loop+autoplay+playsinline，但 preload/catch/回退/占位各异。';}
+$$('#vpBtns .chip').forEach(function(b){b.addEventListener('click',function(){vpShow(b.getAttribute('data-vp'))})});vpShow('engine');window.addEventListener('beforeprint',function(){$$('details.full').forEach(function(d){d.setAttribute('data-was-open',d.open?'1':'');d.open=true})});window.addEventListener('afterprint',function(){$$('details.full').forEach(function(d){if(!d.getAttribute('data-was-open'))d.open=false;d.removeAttribute('data-was-open')})});</script></body></html>
