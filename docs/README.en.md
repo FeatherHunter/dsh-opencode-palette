@@ -4,9 +4,9 @@
 
 **🌐 [中文](../README.md) · [English](README.en.md)**
 
-**Built for long coding sessions — 38 eye-friendly themes, one click.**
+**38 themes for DSH, one click.**
 
-*为长时间编程而生 —— 38 款护眼配色一键换上，眼睛舒服，码字开心。*
+*38 款配色，一键给 DSH 换装。*
 
 Your ⭐ is the brightest star in my night sky.
 
@@ -23,15 +23,15 @@ Your ⭐ is the brightest star in my night sky.
 
 <div align="center">
 
-Staring at a screen ten-plus hours a day, tired eyes are inevitable — a gentler palette lets them rest.
+Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.
 
-OpenCode's 37 classic themes are loved by developers everywhere, plus a native look that touches no colors: one click dresses your whole DSH, dark for the night, light for the day.
+Of the 38 themes, 37 are OpenCode's classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.
 
-**👇 This is what it looks like after install and restart (opencode theme).**
+**👇 After install and restart, the main screen looks like this (opencode theme).**
 
 ![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png)
 
-**👇 Settings panel: 38 themes grouped by color family, search and switch.**
+**👇 Settings panel: 38 themes lined up by color family — search by name and switch.**
 
 ![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png)
 
@@ -52,7 +52,7 @@ npm install -g @deepseek-ai/dsh
 # 2. add the plugin to your profile
 dsh plugin --profile web add dsh-opencode-palette
 
-# 3. restart DSH when done (or refresh the browser page)
+# 3. restart DSH once it's installed (or refresh the browser page)
 ```
 
 **① Install the plugin.**
@@ -63,17 +63,17 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>THEMES</sub><br>Themes</h2>
 
-38 entries, grouped by color family and one search away. Every cell in the picture below is a palette.
+38 entries lined up by color family — search by name and switch. Every cell in the picture below is a palette.
 
 ![theme stories](../assets/theme-stories-en.svg)
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
-**Plenty of fonts.** Typography is its own dimension: apply it to all text or code only, 11–24 px, your pick of code font — orthogonal to color, kept across restarts.
+**Fonts on their own.** Color is color, fonts are fonts, and the two never collide: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and you can pick the code font from the fonts installed on this machine. Saved changes survive a restart.
 
-**A panel you can find.** 38 entries grouped by color family, searchable, and following your DSH interface language (Chinese / English).
+**A panel that speaks your DSH.** DSH is in Chinese, so the panel is too; switch DSH to English and the panel follows.
 
-**Your own themes.** A 37-color visual editor tunes slot by slot, with a miniature DSH preview — click an element in the preview and the matching slot row jumps into view on the left, both ways; 21 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
+**Your own palette.** 37 slots, one at a time, with a miniature DSH preview on the right: click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. 21 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
@@ -83,19 +83,19 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Prefer a button? Go to Settings → Plugins → OpenCode Palette: the **Check for updates** button at the right of the title row only goes online when you click it; when a newer version exists it turns into “Update available vX.Y.Z” right there — click to open the panel, then install. Restart DSH to apply: until you do, a banner stays at the top of the panel.
+Don't want to type commands? The panel has a button too: Settings → Plugins → OpenCode Palette, with a **Check for updates** at the right of the title row — it only goes online when you click it. When a newer version exists, that button turns into “Update available vX.Y.Z” right there; click to open the panel, then install. It takes effect after a DSH restart — until you do, a banner stays at the top of the panel.
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
 <div align="center">
 
-If you like this plugin, you might also like:
+If you like this plugin, these might be useful too:
 
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — When you get stuck writing a prompt, it has 24 deep templates — one click, straight into your input box
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The few prompts you type every day, saved as templates: one click drops the whole thing into your input box (24 prebuilt, and you can save your own)
 
-**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — Want your AI to do more than chat? 25 engineering skills, installed with a single prompt
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills covering TDD, bug diagnosis, specs, code review; ready as soon as it's installed
 
-**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Supercharge the dsh-im plugin and DSH workspaces for a better experience.
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im: which workspace has an assistant on duty, which conversation group went wrong — the left rail shows it at a glance (install dsh-im first)
 
 </div>
 
@@ -125,7 +125,7 @@ If you like this plugin, you might also like:
 
 <div align="center">
 
-Found a bug or have an idea? Please [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). You can also scan the QR code to join the **DSH plugin community group**.
+Found a bug or have an idea? Just [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). And if you'd rather talk it over, scan the code to join the **DSH plugin community group**.
 
 <img src="../assets/feishu-qr.png" alt="DSH plugin community group QR code" width="260" />
 

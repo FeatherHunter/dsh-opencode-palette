@@ -96,11 +96,16 @@ for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本'
 }
 
 // ── 3 · 英文页删掉多余的第二句卖点；中文页与英文页严格镜像 ──
+// 2026-10-19 文案重写：两页卖点各改成一句「短句」，另一语言那句作镜像斜体，
+// 头部逐行同形那条门禁（见第 9 组）继续盯着「每页一句卖点、另一语言一句」。
 test('顶部区：英文页删掉第二句卖点，且中英卖点都保留 38 款', () => {
   assert.equal(EN.includes('Easier on the eyes, nicer to code in.'), false, '英文页应删掉第二句卖点')
   assert.equal(PKG.includes('Easier on the eyes, nicer to code in.'), false, '包内副本同样不该有')
-  assert.ok(ZH.includes('为长时间编程而生 —— 38 款护眼配色一键换上，眼睛舒服，码字开心。'), '中文卖点应保留且含 38')
-  assert.ok(EN.includes('Built for long coding sessions — 38 eye-friendly themes, one click.'), '英文卖点应保留且含 38')
+  assert.ok(ZH.includes('**38 款配色，一键给 DSH 换装。**'), '中文卖点应为定稿原文且含 38')
+  assert.ok(EN.includes('**38 themes for DSH, one click.**'), '英文卖点应为定稿原文且含 38')
+  // 镜像句：中文页的斜体是英文卖点，英文页的斜体是中文卖点
+  assert.ok(ZH.includes('*38 themes for DSH, one click.*'), '中文页应镜像英文卖点一句')
+  assert.ok(EN.includes('*38 款配色，一键给 DSH 换装。*'), '英文页应镜像中文卖点一句')
 })
 
 test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck 同款）', () => {
@@ -114,11 +119,21 @@ test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck
   assert.ok(EN.includes('Your ⭐ is the brightest star in my night sky.'), '英文求星句在场')
 })
 
-// ── 4 · MORE：新增 im-companion 且排在最后；旧两条不动 ──
-test('MORE：im-companion 以定稿句排在第三条（旧两条不动）', () => {
-  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强 dsh-im 插件和DSH工作区的能力，给你更优质的用户体验。'),
+// ── 4 · MORE：三条兄弟插件各一句定稿，im-companion 排在最后 ──
+// 2026-10-19 用户逐条改写 MORE 三行（mattpocock/skills 的 star 数按 GitHub API 实测写「近 30 万」，
+// 不写死会过期的数字；dsh-prompt 改成「天天要敲的那几句存成模板」的真实用法），此处跟着定稿走。
+test('MORE：三条兄弟插件各为定稿句，im-companion 排在第三条', () => {
+  assert.ok(ZH.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 天天要敲的那几句提示词，存成模板就省了：点一下，整段直接进输入框（预置 24 条，也能存自己的）'),
+    '中文 dsh-prompt 一行应为定稿原文')
+  assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The few prompts you type every day, saved as templates: one click drops the whole thing into your input box (24 prebuilt, and you can save your own)'),
+    '英文 dsh-prompt 一行应为定稿原文')
+  assert.ok(ZH.includes('**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），TDD、诊断 bug、写规格、代码评审那套工程工作流，装好即用'),
+    '中文 deck 一行应为定稿原文')
+  assert.ok(EN.includes("**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills covering TDD, bug diagnosis, specs, code review; ready as soon as it's installed"),
+    '英文 deck 一行应为定稿原文')
+  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念：哪个工作区有助理在、哪组会话出了问题，左栏一眼看清（要先装 dsh-im 本体）'),
     '中文 im-companion 一行应为定稿原文')
-  assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Supercharge the dsh-im plugin and DSH workspaces for a better experience.'),
+  assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im: which workspace has an assistant on duty, which conversation group went wrong — the left rail shows it at a glance (install dsh-im first)'),
     '英文 im-companion 一行应为定稿原文')
   for (const doc of [ZH, EN, PKG]) {
     const more = doc.indexOf('<sub>MORE</sub>')
@@ -182,7 +197,7 @@ test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () =>
 
 // ── 6 · CONNECT：issue 入口 + 社群二维码（2026-10-18 由「作者飞书」换成 DSH 插件交流群群码） ──
 test('CONNECT：issue 入口与交流群二维码沿用，宽度不变', () => {
-  assert.ok(ZH.includes('[提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文 issue 入口在场')
+  assert.ok(ZH.includes('[提 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文 issue 入口在场')
   assert.ok(EN.includes('[open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '英文 issue 入口在场')
   assert.ok(ZH.includes('src="assets/feishu-qr.png"'), '中文页二维码路径在场（文件名沿用，内容已换成群码）')
   assert.ok(EN.includes('src="../assets/feishu-qr.png"'), '英文页二维码路径在场')

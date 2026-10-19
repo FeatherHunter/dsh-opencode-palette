@@ -4,9 +4,9 @@
 
 **🌐 [中文](README.md) · [English](docs/README.en.md)**
 
-**为长时间编程而生 —— 38 款护眼配色一键换上，眼睛舒服，码字开心。**
+**38 款配色，一键给 DSH 换装。**
 
-*Built for long coding sessions — 38 eye-friendly themes, one click.*
+*38 themes for DSH, one click.*
 
 你的 ⭐ 是我夜空中最亮的星。
 
@@ -23,15 +23,15 @@
 
 <div align="center">
 
-每天盯屏幕十几个小时，眼睛难免发涩——换套温柔的配色，让眼睛歇一会儿。
+一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。
 
-OpenCode 的 37 套经典配色深受开发者喜爱，另有一个不碰颜色的原生外观：一键给整个 DSH 换上，深色护眼、浅色通透，白天黑夜各取所需。
+38 款主题里，37 款是 OpenCode 那套经典配色；剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。
 
-**👇 装完重启后，主界面就是这个样子（opencode 主题）。**
+**👇 装完重启，主界面长这样（opencode 主题）。**
 
 ![OpenCode调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
 
-**👇 设置面板：38 款按色系分组，搜一下即切。**
+**👇 设置面板：38 款按色系排好，搜名字就能切。**
 
 ![OpenCode调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
 
@@ -52,28 +52,28 @@ npm install -g @deepseek-ai/dsh
 # ② 把插件装进你的 profile
 dsh plugin --profile web add dsh-opencode-palette
 
-# ③ 跑完重启 DSH（或刷新浏览器页面）
+# ③ 装完重启 DSH（或刷新浏览器页面）
 ```
 
-**① 安装好本插件。**
+**① 装好插件。**
 
 **② 打开「OpenCode调色板」。** 设置 → 插件 → OpenCode调色板
 
-**③ 挑选喜爱的主题。**
+**③ 挑一个喜欢的主题。**
 
 <h2 align="center"><sub>THEMES</sub><br>主题</h2>
 
-38 个入口按色系分组，一搜即切。下图每一格都是一种配色。
+38 个入口按色系排好，搜名字就能切。下面这张图，每一格都是一款配色。
 
 ![theme stories](assets/theme-stories-zh.svg)
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 
-**丰富的字体。** 排印是独立维度：作用到全部文字或仅代码、字号 11–24 px、代码字体随你挑，与颜色互不干扰，重启不丢。
+**字体单独调。** 颜色归颜色，字体归字体，两边互不干扰：等宽（终端风）把整个界面换成等宽字，常规（界面风）只让代码块用等宽；字号 11–24 px，代码字体可以从本机字体里挑。改完存着，重启还在。
 
-**面板好找。** 38 个入口按色系分组、搜索即切，并跟随 DSH 的界面语言（中文 / English）。
+**面板跟得上 DSH 的语言。** DSH 界面是中文，这里就显示中文；切成 English，这里也跟着变。
 
-**自定义主题。** 37 色可视化编辑器逐色位调，配微缩 DSH 预览——点预览里的元素就跳到左侧对应色位行，两边互相定位；21 个 IP 预置可当基底，存下来的主题落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
+**自己配色。** 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。21 个 IP 预置可以直接当基底挑，存好的主题落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
@@ -83,19 +83,19 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<版本>
 ```
 
-不想敲命令就点面板：「设置 → 插件 → OpenCode调色板」，标题行右侧的 **检查更新** 点一下才联网；有新版本按钮就地变成「有新版本 vX.Y.Z」，点开弹窗再点安装。重启 DSH 后生效——重启前面板顶部一直挂着横幅提醒。
+不想敲命令，面板里也有按钮：「设置 → 插件 → OpenCode调色板」，标题行右边有个 **检查更新**，只有点了它才会联网去查。有新版本时，这个按钮就地变成「有新版本 vX.Y.Z」，点开弹窗再点安装。装完要重启 DSH 才生效，没重启之前，面板顶上会一直挂着提醒横幅。
 
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 
 <div align="center">
 
-喜欢这个插件的话，这些可能你也用得上：
+喜欢这个插件的话，这几个你可能也用得上：
 
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 写 Prompt 卡壳的时候，里面有 24 条深度模板，点一下直接进输入框
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 天天要敲的那几句提示词，存成模板就省了：点一下，整段直接进输入框（预置 24 条，也能存自己的）
 
-**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 想让 AI 不只是会聊天？25 个工程技能装好即用，一条安装 Prompt 的事
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），TDD、诊断 bug、写规格、代码评审那套工程工作流，装好即用
 
-**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 增强 dsh-im 插件和DSH工作区的能力，给你更优质的用户体验。
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念：哪个工作区有助理在、哪组会话出了问题，左栏一眼看清（要先装 dsh-im 本体）
 
 </div>
 
@@ -103,9 +103,9 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 <div align="left">
 
-[@oopsdoes](https://github.com/oopsdoes) — #46 提案不透明主题也跟随浅色宿主（#45 搁置的另一半）🌹、#55 揪出跟随系统写成深色 🌹
+[@oopsdoes](https://github.com/oopsdoes) — #46 提议不透明主题也跟随浅色宿主（#45 搁置的另一半）🌹、#55 揪出跟随系统写成深色 🌹
 
-[@gitwch1](https://github.com/gitwch1) — #73 用全新安装复现不出，提出漏重启 DSH 或被别的主题插件双重覆盖 🌹
+[@gitwch1](https://github.com/gitwch1) — #73 在全新安装上复现不出，提出漏重启 DSH 或被别的主题插件双重覆盖 🌹
 
 [@anci3ntr0ck](https://github.com/anci3ntr0ck) — #73 报大部分主题 diff 行看不清：增删底色压着文字，北极整条同色 🌹
 
@@ -125,7 +125,7 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 <div align="center">
 
-遇到问题或有改进建议，欢迎直接 [提交 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)；也欢迎扫码加入 **DSH 插件交流群**，一起交流。
+遇到问题或者有改进想法，直接 [提 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues) 就行；也想找人聊聊，扫下面的码进 **DSH 插件交流群**。
 
 <img src="assets/feishu-qr.png" alt="DSH 插件交流群二维码" width="260" />
 

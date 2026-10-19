@@ -117,23 +117,25 @@ test('图片引用存在性：三份文档里的每个 <img src> / ![..]() 都�
   assert.deepEqual(missing, [], '以下图片引用指向不存在的文件（GitHub 上会裂图）：\n' + missing.join('\n'))
 })
 
-// ── 5 · 口径定稿：38 = 37 上游 + 原生外观由「图」承担；排印只讲一次 ──
+// ── 5 · 口径定稿：38 = 37 上游 + 原生外观由「图」承担；字体只讲一次 ──
 // 用户 2026-09-17 复稿：THEMES 首句精简成一句，不再在正文里铺 37/原生 的口径
 // （口径改由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
+// 2026-10-19 全篇文案重写（用户逐段确认）：首句与 EXTENSIONS 三条的措辞随之改写，
+// 断言跟着新定稿走 —— 门禁盯的是「定稿那句不许被顺手改掉」，不是某几个旧字面量。
 test('口径：THEMES 正文只留一句，不再复述 37 上游 / 原生外观', () => {
-  assert.ok(ZH.includes('38 个入口按色系分组，一搜即切。下图每一格都是一种配色。'),
-    '中文数据句应为复稿原文')
-  assert.ok(EN.includes('38 entries, grouped by color family and one search away. Every cell in the picture below is a palette.'),
-    '英文数据句应为复稿原文')
+  assert.ok(ZH.includes('38 个入口按色系排好，搜名字就能切。下面这张图，每一格都是一款配色。'),
+    '中文数据句应为定稿原文')
+  assert.ok(EN.includes('38 entries lined up by color family — search by name and switch. Every cell in the picture below is a palette.'),
+    '英文数据句应为定稿原文')
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('（默认）'), false, `${name} 不应再给 system 标「默认」`)
   }
 })
 
-test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
+test('字体话题只讲一次：全部落在 EXTENSIONS 段内', () => {
   const ext = (t: string): number => t.indexOf('<sub>EXTENSIONS</sub>')
-  // 英文页原文是句首的 "Typography"（大写），所以这里统一小写后比，避免被大小写绊倒
-  for (const [name, doc, word] of [['中文页', ZH, '排印'], ['英文页', EN, 'typography']]) {
+  // 英文页正文里是 "monospace"（含 "monospaced"），所以这里统一小写后比，避免被大小写绊倒
+  for (const [name, doc, word] of [['中文页', ZH, '等宽'], ['英文页', EN, 'monospace']]) {
     const lower = (t: string): string => t.toLowerCase()
     assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
     assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
@@ -145,7 +147,7 @@ test('排印只讲一次：全部落在 EXTENSIONS 段内', () => {
   }
 })
 
-test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+「面板好找」+「自定义主题」三条', () => {
+test('EXTENSIONS：不自贬也不摆卖方口吻，且是「字体单独调」+「面板跟得上 DSH」+「自己配色」三条', () => {
   const extBlock = (t: string): string => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
@@ -162,16 +164,16 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「丰富的字体」+
   }
   assert.ok(ZH.includes('<sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能'), '中文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
-  assert.ok(ZH.includes('**丰富的字体。** 排印是独立维度：'), '中文首条应为「丰富的字体」')
-  assert.ok(EN.includes('**Plenty of fonts.** Typography is its own dimension:'), '英文首条应为 "Plenty of fonts"')
-  // 三条：字体 + 面板好找 + 自定义主题（2026-10-17 补 v2.1.0 新功能一条）
-  assert.equal(count(extBlock(ZH), '**面板好找。**'), 1, '中文应保留「面板好找」一条')
-  assert.equal(count(extBlock(EN), '**A panel you can find.**'), 1, '英文应保留该条')
-  assert.equal(count(extBlock(ZH), '**自定义主题。**'), 1, '中文应新增「自定义主题」一条')
-  assert.equal(count(extBlock(EN), '**Your own themes.**'), 1, '英文应新增同形一条（逐块同形门禁盯着）')
-  // v2.1.0 事实：37 色编辑器 + 微缩预览双向定位 + 21 IP 预置基底（含库洛米）+ 单文件落盘路径
-  assert.ok(extBlock(ZH).includes('37 色可视化编辑器'), '中文该条应讲到 37 色编辑器')
-  assert.ok(extBlock(EN).includes('37-color visual editor'), '英文该条应讲到 37 色编辑器')
+  assert.ok(ZH.includes('**字体单独调。**'), '中文首条应为「字体单独调」')
+  assert.ok(EN.includes('**Fonts on their own.**'), '英文首条应为 "Fonts on their own"')
+  // 三条：字体 + 面板语言跟随 + 自己配色（2026-10-19 文案重写后的定稿）
+  assert.equal(count(extBlock(ZH), '**面板跟得上 DSH 的语言。**'), 1, '中文应保留「面板跟得上 DSH 的语言」一条')
+  assert.equal(count(extBlock(EN), '**A panel that speaks your DSH.**'), 1, '英文应保留该条')
+  assert.equal(count(extBlock(ZH), '**自己配色。**'), 1, '中文应有「自己配色」一条')
+  assert.equal(count(extBlock(EN), '**Your own palette.**'), 1, '英文应有同形一条（逐块同形门禁盯着）')
+  // v2.1.0 事实：37 色位编辑器 + 微缩预览双向定位 + 21 IP 预置基底（含库洛米）+ 单文件落盘路径
+  assert.ok(extBlock(ZH).includes('37 个色位'), '中文该条应讲到 37 个色位')
+  assert.ok(extBlock(EN).includes('37 slots'), '英文该条应讲到 37 个色位')
   for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
     assert.ok(block.includes('21'), `${name} 该条应讲到 21 个 IP 预置基底`)
     assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)
@@ -239,6 +241,13 @@ test('showcase：中英各三张且都真实存在，第 3 张不再自称浅色
   assert.equal(enImgs[2], 'showcase/overview-tokyonight-en.png', '英文第 3 张应为存在的那张英文图')
   assert.equal(ZH.includes('浅色主题同样完整覆盖'), false, '中文页不应再自称浅色概览（现有截图是深色）')
   assert.equal(EN.includes('full light coverage included'), false, '英文页不应再自称 full light coverage')
+  // 2026-10-19：第 3 张的 caption 改回中性表述（「另一款主题的观感。」/ "How another theme feels."）。
+  // 实测两张第 3 图的平均亮度 18.6 / 32.7、暗像素 98% / 96%（.scratch/check-shots.py），
+  // 所以 showcase 段里任何「浅色 / light theme」的说法都不成立 —— 这条守住它不许回来。
+  const zhShow = ZH.slice(ZH.indexOf('<!-- showcase:start -->'), ZH.indexOf('<!-- showcase:end -->'))
+  const enShow = EN.slice(EN.indexOf('<!-- showcase:start -->'), EN.indexOf('<!-- showcase:end -->'))
+  assert.equal(/浅色/.test(zhShow), false, '中文页 showcase 段不应出现「浅色」说法（截图实测是深色）')
+  assert.equal(/light theme/i.test(enShow), false, '英文页 showcase 段不应出现 "light theme" 说法（截图实测是深色）')
   assert.equal(/34 themes/.test(EN), false, '英文页不应再出现过期的 34 themes')
   assert.equal(/38 款同款|38 themes\)/.test(ZH), false, '中文页不应再有冗余的「38 款同款」')
 })
