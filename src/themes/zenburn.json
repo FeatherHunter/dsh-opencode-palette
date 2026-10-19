@@ -1,15 +1,15 @@
 {
   "$schema": "https://opencode.ai/theme.json",
   "defs": {
-    "bg": "#3f3f3f",
-    "bgAlt": "#4f4f4f",
-    "bgPanel": "#5f5f5f",
-    "fg": "#dcdccc",
-    "fgMuted": "#9f9f9f",
-    "red": "#cc9393",
+    "bg": "#3F3F3F",
+    "bgAlt": "#474747",
+    "bgPanel": "#4E4E4E",
+    "fg": "#E9E9DE",
+    "fgMuted": "#DBDBDB",
+    "red": "#D7AAAA",
     "redBright": "#dca3a3",
-    "green": "#7f9f7f",
-    "greenBright": "#8fb28f",
+    "green": "#A4BBA4",
+    "greenBright": "#9EBD9E",
     "yellow": "#f0dfaf",
     "yellowDim": "#e0cf9f",
     "blue": "#8cd0d3",
@@ -184,7 +184,7 @@
       "light": "#3f3f3f"
     },
     "syntaxComment": {
-      "dark": "#7f9f7f",
+      "dark": "#A4BBA4",
       "light": "#5f7f5f"
     },
     "syntaxKeyword": {

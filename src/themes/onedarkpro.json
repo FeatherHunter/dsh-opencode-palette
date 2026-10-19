@@ -18,12 +18,16 @@
       "light": "#2B303B"
     },
     "textMuted": {
-      "dark": "#6C717C",
-      "light": "#868990"
+      "dark": "#B5B8BD",
+      "light": "#404144"
     },
     "primary": {
       "dark": "#61AFEF",
-      "light": "#528BFF"
+      "light": "#406DC8"
+    },
+    "secondary": {
+      "dark": "#E06C75",
+      "light": "#D85462"
     },
     "accent": {
       "dark": "#E06C75",
@@ -31,19 +35,19 @@
     },
     "error": {
       "dark": "#E06C75",
-      "light": "#E06C75"
+      "light": "#CF646C"
     },
     "warning": {
       "dark": "#E5C07B",
-      "light": "#D19A66"
+      "light": "#A97C52"
     },
     "success": {
       "dark": "#98C379",
-      "light": "#4FA66D"
+      "light": "#479461"
     },
     "info": {
       "dark": "#56B6C2",
-      "light": "#61AFEF"
+      "light": "#4C8ABC"
     },
     "border": {
       "dark": "#949BA7",
@@ -54,8 +58,8 @@
       "light": "#6C6F77"
     },
     "syntaxComment": {
-      "dark": "#5C6370",
-      "light": "#6A717D"
+      "dark": "#8E939C",
+      "light": "#636975"
     },
     "syntaxKeyword": {
       "dark": "#C678DD",
@@ -63,7 +67,7 @@
     },
     "syntaxFunction": {
       "dark": "#61AFEF",
-      "light": "#528BFF"
+      "light": "#3B65BA"
     },
     "syntaxVariable": {
       "dark": "#ABB2BF",
@@ -71,23 +75,23 @@
     },
     "syntaxString": {
       "dark": "#98C379",
-      "light": "#4FA66D"
+      "light": "#38744C"
     },
     "syntaxNumber": {
       "dark": "#D19A66",
-      "light": "#986801"
+      "light": "#8D6001"
     },
     "syntaxType": {
       "dark": "#56B6C2",
-      "light": "#61AFEF"
+      "light": "#3C6D94"
     },
     "syntaxOperator": {
-      "dark": "#6C717C",
-      "light": "#868990"
+      "dark": "#B5B8BD",
+      "light": "#404144"
     },
     "markdownLink": {
-      "dark": "#E06C75",
-      "light": "#D85462"
+      "dark": "#E17079",
+      "light": "#AF4450"
     },
     "markdownHeading": {
       "dark": "#ABB2BF",
@@ -95,7 +99,7 @@
     },
     "markdownCode": {
       "dark": "#61AFEF",
-      "light": "#528BFF"
+      "light": "#3B65BA"
     },
     "markdownEmph": {
       "dark": "#ABB2BF",
@@ -106,8 +110,8 @@
       "light": "#2B303B"
     },
     "markdownBlockQuote": {
-      "dark": "#6C717C",
-      "light": "#868990"
+      "dark": "#B5B8BD",
+      "light": "#404144"
     },
     "markdownHorizontalRule": {
       "dark": "#949BA7",

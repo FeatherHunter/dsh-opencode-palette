@@ -14,7 +14,7 @@
 //            `rewriteRelativeImportExtensions` 改写成 `.js`）；bundler 自身仍保持零依赖、逐行文本转换。
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.25`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.32`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
 //     只有它的**入口件闭包**（entry→panel→{config/redaction/service/changelog/queue/log-events/lang/bilingual/codes/log-client-queue/install-cause/panel-copy}，service→{version-judgment/check-conclusion/registry-fetch}）仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
@@ -119,26 +119,29 @@ const INLINE_PACKAGES: InlinePackage[] = [
     pkg: 'dsh-plugin-update',
     key: 'upd-entry',
     modules: [
-      { key: 'upd-config', file: 'dist/config.js', deps: {} },
-      { key: 'upd-redaction', file: 'dist/redaction.js', deps: {} },
-      { key: 'upd-version-judgment', file: 'dist/version-judgment.js', deps: {} },
-      { key: 'upd-check-conclusion', file: 'dist/check-conclusion.js', deps: {} },
-      { key: 'upd-registry-fetch', file: 'dist/registry-fetch.js', deps: { './version-judgment.js': 'upd-version-judgment' } },
-      { key: 'upd-service', file: 'dist/service.js', deps: { './version-judgment.js': 'upd-version-judgment', './check-conclusion.js': 'upd-check-conclusion', './registry-fetch.js': 'upd-registry-fetch' } },
-      { key: 'upd-install-cause', file: 'dist/install-cause.js', deps: {} },
-      { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './service.js': 'upd-service', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
-      { key: 'upd-queue', file: 'dist/queue.js', deps: {} },
-      { key: 'upd-log-events', file: 'dist/log-events.js', deps: {} },
-      { key: 'upd-lang', file: 'dist/lang.js', deps: {} },
-      { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: { './lang.js': 'upd-lang' } },
-      { key: 'upd-commands', file: 'dist/commands.js', deps: {} },
-      { key: 'upd-manual-absent', file: 'dist/manual-absent.js', deps: { './bilingual.js': 'upd-bilingual', './commands.js': 'upd-commands', './lang.js': 'upd-lang' } },
-      { key: 'upd-codes', file: 'dist/codes.js', deps: {} },
-      { key: 'upd-last-resort', file: 'dist/last-resort.js', deps: { './codes.js': 'upd-codes' } },
-      { key: 'upd-log-client-queue', file: 'dist/log/client-queue.js', deps: {} },
-      { key: 'upd-panel-copy', file: 'dist/panel-copy.js', deps: { './bilingual.js': 'upd-bilingual', './codes.js': 'upd-codes', './install-cause.js': 'upd-install-cause', './lang.js': 'upd-lang', './redaction.js': 'upd-redaction' } },
-      { key: 'upd-panel', file: 'dist/panel.js', deps: { './config.js': 'upd-config', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang', './codes.js': 'upd-codes', './log/client-queue.js': 'upd-log-client-queue', './install-cause.js': 'upd-install-cause', './panel-copy.js': 'upd-panel-copy', './last-resort.js': 'upd-last-resort', './manual-absent.js': 'upd-manual-absent' } },
-      { key: 'upd-entry', file: 'dist/entry.js', deps: { './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
+      { key: 'upd-config', file: 'dist/config.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-redaction', file: 'dist/redaction.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-version-judgment', file: 'dist/version-judgment.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-check-conclusion', file: 'dist/check-conclusion.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-hash', file: 'dist/hash.js', deps: {} },
+      { key: 'upd-install-fail', file: 'dist/install-fail.js', deps: { './hash.js': 'upd-hash', './codes.js': 'upd-codes' } },
+      { key: 'upd-registry-fetch', file: 'dist/registry-fetch.js', deps: { './hash.js': 'upd-hash',  './version-judgment.js': 'upd-version-judgment', './check-conclusion.js': 'upd-check-conclusion' } },
+      { key: 'upd-service', file: 'dist/service.js', deps: { './hash.js': 'upd-hash', './codes.js': 'upd-codes', './version-judgment.js': 'upd-version-judgment', './check-conclusion.js': 'upd-check-conclusion', './registry-fetch.js': 'upd-registry-fetch', './install-fail.js': 'upd-install-fail' } },
+      { key: 'upd-install-cause', file: 'dist/install-cause.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-changelog', file: 'dist/changelog.js', deps: { './hash.js': 'upd-hash',  './service.js': 'upd-service', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
+      { key: 'upd-queue', file: 'dist/queue.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-log-events', file: 'dist/log-events.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-lang', file: 'dist/lang.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-bilingual', file: 'dist/bilingual.js', deps: { './hash.js': 'upd-hash',  './lang.js': 'upd-lang' } },
+      { key: 'upd-commands', file: 'dist/commands.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-manual-absent', file: 'dist/manual-absent.js', deps: { './hash.js': 'upd-hash',  './bilingual.js': 'upd-bilingual', './commands.js': 'upd-commands', './lang.js': 'upd-lang' } },
+      { key: 'upd-codes', file: 'dist/codes.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-last-resort', file: 'dist/last-resort.js', deps: { './hash.js': 'upd-hash',  './codes.js': 'upd-codes' } },
+      { key: 'upd-log-client-queue', file: 'dist/log/client-queue.js', deps: { './hash.js': 'upd-hash' } },
+      { key: 'upd-log-panel-client', file: 'dist/log/panel-client.js', deps: { './client-queue.js': 'upd-log-client-queue', '../hash.js': 'upd-hash' } },
+      { key: 'upd-panel-copy', file: 'dist/panel-copy.js', deps: { './hash.js': 'upd-hash',  './bilingual.js': 'upd-bilingual', './codes.js': 'upd-codes', './install-cause.js': 'upd-install-cause', './lang.js': 'upd-lang', './redaction.js': 'upd-redaction' } },
+      { key: 'upd-panel', file: 'dist/panel.js', deps: { './hash.js': 'upd-hash',  './config.js': 'upd-config', './service.js': 'upd-service', './changelog.js': 'upd-changelog', './queue.js': 'upd-queue', './log-events.js': 'upd-log-events', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang', './codes.js': 'upd-codes', './log/client-queue.js': 'upd-log-client-queue', './log/panel-client.js': 'upd-log-panel-client', './install-cause.js': 'upd-install-cause', './panel-copy.js': 'upd-panel-copy', './last-resort.js': 'upd-last-resort', './manual-absent.js': 'upd-manual-absent' } },
+      { key: 'upd-entry', file: 'dist/entry.js', deps: { './hash.js': 'upd-hash',  './config.js': 'upd-config', './panel.js': 'upd-panel', './bilingual.js': 'upd-bilingual', './lang.js': 'upd-lang' } },
     ],
   },
 ]
@@ -155,7 +158,7 @@ function inlineModuleFor(key: string): InlineModuleRef | null {
 
 // 模块执行顺序 = 依赖顺序（模块顶层不得调用其他模块导出，见 DESIGN.md）
 const MODULE_ORDER: string[] = [
-  'upd-config', 'upd-redaction', 'upd-version-judgment', 'upd-check-conclusion', 'upd-registry-fetch', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-commands', 'upd-manual-absent', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-codes', 'upd-last-resort', 'upd-log-client-queue', 'upd-install-cause', 'upd-panel-copy', 'upd-panel', 'upd-entry',
+  'upd-config', 'upd-redaction', 'upd-hash', 'upd-codes', 'upd-version-judgment', 'upd-check-conclusion', 'upd-install-fail', 'upd-registry-fetch', 'upd-service', 'upd-lang', 'upd-bilingual', 'upd-commands', 'upd-manual-absent', 'upd-changelog', 'upd-queue', 'upd-log-events', 'upd-last-resort', 'upd-log-client-queue', 'upd-log-panel-client', 'upd-install-cause', 'upd-panel-copy', 'upd-panel', 'upd-entry',
   'log-core-level', 'log-core-ids', 'log-core-resident', 'log-core-file-name', 'log-core-row',
   'log-core-admission', 'log-core-trace', 'log-config-constants', 'log-config-validate',
   'log-config-event-list', 'log-config-phones', 'log-config-log-names', 'log-config-resolve', 'log-config',
@@ -402,11 +405,11 @@ async function main(): Promise<void> {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
-    // 两处都用精确钉版（0.3.4 / 0.18.25）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
+    // 两处都用精确钉版（0.3.4 / 0.18.32）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.ts` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.25' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.32' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

@@ -18,12 +18,16 @@
       "light": "#0A0A0A"
     },
     "textMuted": {
-      "dark": "#8C8C8C",
-      "light": "#727272"
+      "dark": "#A5A5A5",
+      "light": "#3B3B3B"
     },
     "primary": {
       "dark": "#B388FF",
       "light": "#6200FF"
+    },
+    "secondary": {
+      "dark": "#FF4081",
+      "light": "#F8007C"
     },
     "accent": {
       "dark": "#FF4081",
@@ -31,19 +35,19 @@
     },
     "error": {
       "dark": "#FF1744",
-      "light": "#FF1744"
+      "light": "#FA1743"
     },
     "warning": {
       "dark": "#FFEA00",
-      "light": "#FFAB00"
+      "light": "#AD7400"
     },
     "success": {
       "dark": "#00FF88",
-      "light": "#00E676"
+      "light": "#00934B"
     },
     "info": {
       "dark": "#18FFFF",
-      "light": "#00B0FF"
+      "light": "#0087C4"
     },
     "border": {
       "dark": "#D6D6D6",
@@ -54,12 +58,12 @@
       "light": "#545454"
     },
     "syntaxComment": {
-      "dark": "#555555",
-      "light": "#757575"
+      "dark": "#7D7D7D",
+      "light": "#636363"
     },
     "syntaxKeyword": {
       "dark": "#FF00FF",
-      "light": "#D500F9"
+      "light": "#AA00C7"
     },
     "syntaxFunction": {
       "dark": "#B388FF",
@@ -71,7 +75,7 @@
     },
     "syntaxString": {
       "dark": "#00FF88",
-      "light": "#00E676"
+      "light": "#00733B"
     },
     "syntaxNumber": {
       "dark": "#B388FF",
@@ -79,15 +83,15 @@
     },
     "syntaxType": {
       "dark": "#18FFFF",
-      "light": "#00B0FF"
+      "light": "#006A9A"
     },
     "syntaxOperator": {
-      "dark": "#8C8C8C",
-      "light": "#727272"
+      "dark": "#A5A5A5",
+      "light": "#3B3B3B"
     },
     "markdownLink": {
       "dark": "#FF4081",
-      "light": "#FF0080"
+      "light": "#C40062"
     },
     "markdownHeading": {
       "dark": "#FFFFFF",
@@ -106,8 +110,8 @@
       "light": "#0A0A0A"
     },
     "markdownBlockQuote": {
-      "dark": "#8C8C8C",
-      "light": "#727272"
+      "dark": "#A5A5A5",
+      "light": "#3B3B3B"
     },
     "markdownHorizontalRule": {
       "dark": "#D6D6D6",

@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import {
-  themeNames, themeStats, previewColors, renderTheme, auditAll, delegatesBackground,
+  themeNames, themeStats, previewColors, renderTheme, auditAll, delegatesBackground, listIpPresets, renderCustomTheme,
 } from '../src/engine/index.ts'
 import { resolveColor, resolveThemeColors, collectErrors, ansiToHex, withAlpha, shade, contrastText, contrastRatio as engineContrastRatio, blendOntoBase } from '../src/engine/resolve.ts'
 import { getThemeJson, isSystem, SYSTEM_THEME } from '../src/engine/registry.ts'
@@ -743,14 +743,15 @@ test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛�
   assert.equal(t('--dsw-alias-file-diff-deleted-gutter'), '#0A0506', 'file-diff-deleted-gutter 兜底压暗后达标')
   assert.equal(t('--dsw-alias-file-diff-deleted-marker'), '#CB4F64', 'file-diff-deleted-marker 复用兜底后前景')
   assert.equal(t('--dsw-alias-state-idle-primary'), '#5C9CF5', 'state-idle 应直配 secondary')
-  assert.equal(t('--dsw-alias-menu-icon'), '#808080', 'menu-icon 应直配 textMuted')
+  assert.equal(t('--dsw-alias-menu-icon'), '#9F9F9F', 'menu-icon 应直配 textMuted')
   assert.equal(t('--dsw-alias-toast-label'), '#EEEEEE', 'toast-label 应直配 text')
-  assert.equal(t('--dsw-alias-tooltip-key-bg'), '#1E1E1E', 'tooltip-key-bg 应直配 backgroundElement')
-  // issue 80：桌面 4 主题经转换器补齐 diff 种子后走同一保证，不再静默回落；secondary 仍缺槽跳过
+  // #120 缺陷 B：键帽底不再与浮层底同值，改为 backgroundElement → 可读文字色的混合派生（opencode #1E1E1E → #424242）
+  assert.equal(t('--dsw-alias-tooltip-key-bg'), '#424242', 'tooltip-key-bg 应由 backgroundElement 派生（可辨识）')
+  // issue 80：桌面 4 主题经转换器补齐 diff 种子后走同一保证，不再静默回落；#117 起 secondary 从 accent 派生补槽
   const am = renderTheme('amoled', TYPO)
   assert.ok(am.tokens['--dsw-alias-code-diff-added'], '桌面主题补齐后应有 diff 前景')
   assert.ok(am.tokens['--dsw-alias-file-diff-deleted-bg'], '桌面主题补齐后应有 diff 背景')
-  assert.equal(am.tokens['--dsw-alias-state-idle-primary'], undefined, '缺 secondary 应跳过')
+  assert.equal(am.tokens['--dsw-alias-state-idle-primary'] && am.tokens['--dsw-alias-state-idle-primary'].dark, '#FF4081', '桌面主题 secondary 由 accent 派生')
   assert.ok(am.tokens['--dsw-alias-menu-icon'], '中性 menu-icon 缺槽主题仍应有')
   assert.ok(am.tokens['--dsw-alias-toast-label'], '中性 toast-label 缺槽主题仍应有')
   // 透明主题：透明源跳过，非透明中性保留
@@ -758,6 +759,61 @@ test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛�
   assert.equal(lucent.tokens['--dsw-alias-file-diff-added-bg'], undefined, '透明源应跳过')
   assert.equal(lucent.tokens['--dsw-alias-tooltip-key-bg'], undefined, '透明浮起面应跳过')
   assert.ok(lucent.tokens['--dsw-alias-menu-icon'], '透明主题中性图标仍保留')
+})
+
+// #120 缺陷 B：宿主 tooltip 标签色硬编码白字（浅色浮层上 1.00–1.25:1），引擎按实际浮层底现算
+// 文字色并用 [role="tooltip"] 元素规则覆盖；键帽底与浮层底同值时改为派生可辨色。
+test('tooltip 可读性（#120 缺陷 B）：全主题文字 vs 浮层底 >= 4.5，键帽底与浮层底可辨', () => {
+  // 引擎原样透出主题文字色（可能是 #FFF / #RRGGBB / #RRGGBBAA 等缩写或带 alpha）
+  const RULE = /\[role="tooltip"\]\{color:(#[0-9a-fA-F]{3,8});\}/g
+  const effective = (fg: string, bg: string): string => (/^#[0-9a-fA-F]{8}$/.test(fg) ? blendOntoBase(fg, bg) : fg)
+  const tooltipColors = (css: string): string[] => {
+    const out: string[] = []
+    let m: RegExpExecArray | null
+    while ((m = RULE.exec(css)) !== null) out.push(m[1])
+    RULE.lastIndex = 0
+    return out
+  }
+  const assertKeyDistinct = (name: string, key: { light?: string; dark?: string } | undefined, bg: { light?: string; dark?: string }, half: 'light' | 'dark'): void => {
+    assert.ok(key, name + ' 应派生键帽底')
+    const k = key[half]
+    const b = bg[half]
+    assert.ok(k && b, name + '/' + half + ' 键帽或浮层底缺值')
+    assert.ok(engineContrastRatio(k, b) >= 1.5, name + '/' + half + ' 键帽底与浮层底不可辨: ' + k + ' on ' + b)
+  }
+  // 预置主题：自持画布两半同值 + 联合选择器；委托画布透明浮层交还宿主默认（不发规则）
+  for (const name of themeNames()) {
+    if (name === 'system') continue
+    const r = renderTheme(name, TYPO)
+    const bg = r.tokens['--dsw-alias-tooltip-bg']
+    const key = r.tokens['--dsw-alias-tooltip-key-bg']
+    if (!bg) {
+      assert.equal(name, 'lucent-orng', name + ' 只有委托画布才允许缺 tooltip-bg')
+      assert.deepEqual(tooltipColors(r.css), [], '透明浮层不应发 tooltip 标签色规则')
+      assert.equal(key, undefined, '透明浮层不应派生键帽底')
+      continue
+    }
+    assert.ok(bg.dark, name + ' tooltip-bg 缺 dark 半')
+    assert.equal(bg.light, bg.dark, name + ' 自持画布 tooltip-bg 两半应同值')
+    const colors = tooltipColors(r.css)
+    assert.equal(colors.length, 1, name + ' 应发且只发一条 tooltip 标签色规则')
+    assert.ok(engineContrastRatio(effective(colors[0], bg.dark), bg.dark) >= 4.5, name + ' tooltip 文字对比不足: ' + colors[0] + ' on ' + bg.dark)
+    assertKeyDistinct(name, key, bg, 'dark')
+  }
+  // IP/自定义主题：renderCustomTheme 走单套色路径，标签色按浮层底现算
+  for (const seed of listIpPresets()) {
+    const r = renderCustomTheme({ id: seed.name, appearance: seed.appearance, colors: seed.colors }, {})
+    const bg = r.tokens['--dsw-alias-tooltip-bg']
+    const key = r.tokens['--dsw-alias-tooltip-key-bg']
+    assert.ok(bg, seed.name + ' 缺 tooltip-bg')
+    const half = seed.appearance === 'light' ? 'light' : 'dark'
+    const b = bg[half]
+    assert.ok(b, seed.name + ' 缺 tooltip-bg/' + half)
+    const colors = tooltipColors(r.css)
+    assert.equal(colors.length, 1, seed.name + ' 应发且只发一条 tooltip 标签色规则')
+    assert.ok(engineContrastRatio(effective(colors[0], b), b) >= 4.5, seed.name + ' tooltip 文字对比不足: ' + colors[0] + ' on ' + b)
+    assertKeyDistinct(seed.name, key, bg, half)
+  }
 })
 
 // issue 80：全主题 diff 对比度兜底（深色外观 4 对 fg/bg >= 4.5，增删背景不原样同值；透明主题跳过）
@@ -832,7 +888,7 @@ test('颜色 CSS：委托按外观分区，自持维持联合选择器', () => {
   const darkText = (l.match(/body\[data-ds-dark-theme\]\{[^}]*?--dsw-alias-label-primary:([^;]+);/) || [])[1]
   assert.equal(darkText, '#EEEEEE', '深色声明缺失')
   assert.ok(!l.includes('body,body[data-ds-dark-theme]{--dsw-alias-label-primary'), '委托主题不得再联合硬灌文字色')
-  assert.ok(l.includes('blockquote{color:#B0851F'), '委托主题浅色引用块应取作者浅色')
+  assert.ok(l.includes('blockquote{color:#95711A'), '委托主题浅色引用块应取作者浅色')
   assert.ok(l.includes('body[data-ds-dark-theme] blockquote{color:#FFF7F1'), '委托主题深色引用块保持原值')
   const o = renderTheme('opencode', TYPO).css
   assert.ok(o.includes('body,body[data-ds-dark-theme]{'), '自持主题保持联合选择器')

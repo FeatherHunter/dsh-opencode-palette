@@ -1,0 +1,149 @@
+{
+  "$comment": "IP 主题设计例外记档（判尺见 docs/theme-audit/criteria.md 与 map #115 Notes）。只记录 docs/ip-presets-v3-notes.md 明确写下的有意并岗/几何，行号引用该文件；对 notes 未点名的同值角色不记档，留给策展修复或另案决定。字段与 scripts/audit-themes.ts 的 Exceptions 接口一致；已记档告警从 baseline.md 的待处理数中扣除。",
+  "themes": {
+    "pokemon": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:7）：error·keyword·diffRemoved 同火红；success·string·diffAdded 同草绿；number·warning 同火橙；info·link 合并信息青；secondary 提亮水蓝兼 syntaxType；blockquote 并入 muted。",
+      "allowedCollisions": [
+        [
+          "error",
+          "diffRemoved",
+          "syntaxKeyword"
+        ],
+        [
+          "success",
+          "diffAdded",
+          "syntaxString"
+        ],
+        [
+          "warning",
+          "syntaxNumber"
+        ],
+        [
+          "info",
+          "markdownLink"
+        ],
+        [
+          "secondary",
+          "syntaxType"
+        ],
+        [
+          "textMuted",
+          "markdownBlockQuote"
+        ]
+      ]
+    },
+    "dc-comics": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:15）：borderActive·function 并入 secondary 英雄金；heading 搬出改白并入 strong；link·info 并入 primary 可操作蓝。",
+      "allowedCollisions": [
+        [
+          "primary",
+          "info",
+          "markdownLink"
+        ],
+        [
+          "secondary",
+          "borderActive",
+          "syntaxFunction"
+        ],
+        [
+          "markdownHeading",
+          "markdownStrong"
+        ]
+      ],
+      "allowedMarkdownDuplicates": [
+        [
+          "markdownHeading",
+          "markdownStrong"
+        ]
+      ]
+    },
+    "doraemon": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:51）：heading·emph 并入 strong 墨色强调岗；link 与 primary 同一可交互蓝的明暗分档。",
+      "allowedCollisions": [
+        [
+          "markdownHeading",
+          "markdownEmph",
+          "markdownStrong"
+        ]
+      ],
+      "allowedMarkdownDuplicates": [
+        [
+          "markdownHeading",
+          "markdownEmph",
+          "markdownStrong"
+        ]
+      ]
+    },
+    "dragon-ball": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:39）：borderActive 并入 primary。",
+      "allowedCollisions": [
+        [
+          "primary",
+          "borderActive"
+        ]
+      ]
+    },
+    "genshin": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:67）：link 并入交互蓝（info）。",
+      "allowedCollisions": [
+        [
+          "info",
+          "markdownLink"
+        ]
+      ]
+    },
+    "hello-kitty": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:47）：borderActive 收编品牌红（borderActive 并入 primary）。",
+      "allowedCollisions": [
+        [
+          "primary",
+          "borderActive"
+        ]
+      ]
+    },
+    "marvel": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:11）：borderActive 并入 primary（红即品牌/焦点）。",
+      "allowedCollisions": [
+        [
+          "primary",
+          "borderActive"
+        ]
+      ]
+    },
+    "transformers": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:59）：info 并入 secondary（火种蓝同一故事）、审慎保留 link/borderActive 同值（可交互同一事）；原「heading 并入 primary」已在 v3.1 整改中拆分——标题独立为深底 5.9:1 的珊瑚朱，primary 压暗保反白 4.6:1，故移除该并岗（见 docs/ip-presets-v3-notes.md:85）。",
+      "allowedCollisions": [
+        [
+          "secondary",
+          "info"
+        ],
+        [
+          "borderActive",
+          "markdownLink"
+        ]
+      ]
+    },
+    "star-wars": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:19）：link 故意保留与 secondary 同蓝（可交互同一岗）；borderActive 属同一交互/焦点家族，按该理由随附记录（notes 只点名 link=secondary，属推断记档）。",
+      "allowedCollisions": [
+        [
+          "secondary",
+          "borderActive",
+          "markdownLink"
+        ]
+      ]
+    },
+    "cyberpunk-2077": {
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:79）：error·diffRemoved 统一正红；secondary 改霓虹品红，notes 明言「黄-品红分裂互补」，故 94.2° 判为有意几何而非串戏（分类器四档：近似/三角/互补之外的分裂互补，记为 unclassified 例外）。",
+      "allowedCollisions": [
+        [
+          "error",
+          "diffRemoved"
+        ]
+      ],
+      "allowedBrandGeometry": [
+        "unclassified"
+      ]
+    }
+  }
+}

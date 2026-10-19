@@ -9,9 +9,10 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  themeNames, renderTheme, extractPresetPalette, renderCustomTheme, customPreviewColors,
+  themeNames, renderTheme, extractPresetPalette, renderCustomTheme, customPreviewColors, listIpPresets,
   COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, GROUP_ORDER,
 } from '../src/engine/index.ts'
+import { contrastRatio } from '../src/engine/resolve.ts'
 import { buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
 
 // css 声明抽值：body,body[...]--var:value;…（变量唯一，首命中即准）
@@ -152,6 +153,58 @@ test('customPreviewColors：三外观 + light+transparent 胶囊口径 + 四色�
   assert.equal(sys.appearance, 'system')
   const weird = customPreviewColors({ appearance: 'nope', colors: base })
   assert.equal(weird.appearance, 'dark')
+})
+
+// #120 缺陷 A 回归：自定义浅色主题的 diff 兜底必须走 light repair（向白提亮）。
+// 旧引擎 del=false 把 dark repair 写进 { light, dark } 两半，浅色 IP 的 diff 底被压成 #000000。
+test('renderCustomTheme：浅色主题 diff 兜底走 light 方向（#120 缺陷 A）', () => {
+  // 1) 合成一套「diff 对不达标」的浅色色板：旧实现 light 半会被写成深色修复值
+  const synthetic = {
+    background: '#FFFFFF',
+    text: '#1A1A1A',
+    diffAdded: '#66AA77',
+    diffAddedBg: '#E8F5E9',
+    diffAddedLineNumberBg: '#E8F5E9',
+    diffRemoved: '#CC7788',
+    diffRemovedBg: '#FDECEA',
+    diffRemovedLineNumberBg: '#FDECEA',
+  }
+  const r = renderCustomTheme({ id: 'light-diff', appearance: 'light', colors: synthetic }, {})
+  const pairs = [
+    ['--dsw-alias-code-diff-added', ['--dsw-alias-file-diff-added-bg', '--dsw-alias-file-diff-added-gutter']],
+    ['--dsw-alias-code-diff-deleted', ['--dsw-alias-file-diff-deleted-bg', '--dsw-alias-file-diff-deleted-gutter']],
+  ] as const
+  for (const [fgKey, bgKeys] of pairs) {
+    const fg = r.tokens[fgKey]
+    assert.ok(fg, fgKey + ' 不应缺槽')
+    const fgL = fg.light
+    const fgD = fg.dark
+    assert.ok(fgL && fgD, fgKey + ' 两半都应有值')
+    for (const bgKey of bgKeys) {
+      const bg = r.tokens[bgKey]
+      assert.ok(bg, bgKey + ' 不应缺槽')
+      const bgL = bg.light
+      const bgD = bg.dark
+      assert.ok(bgL && bgD, bgKey + ' 两半都应有值')
+      assert.ok(contrastRatio(fgL, bgL) >= 4.5, 'light 半 diff 对未达 4.5: ' + bgKey)
+      assert.ok(contrastRatio(fgD, bgD) >= 4.5, 'dark 半 diff 对未达 4.5: ' + bgKey)
+      assert.notEqual(bgL.toUpperCase(), '#000000', 'light 半 diff 底不得被深色修复压成 #000000')
+      assert.notEqual(bgL.toUpperCase(), bgD.toUpperCase(), '两半修复方向应不同（浅色不应复用深色修复值）')
+    }
+  }
+  // 2) 全量浅色 IP：light 半的 diff 底必须是亮色（回归审计里被记为 #000000 的浅色 IP）
+  const lightIps = listIpPresets().filter((p) => p.appearance === 'light')
+  assert.ok(lightIps.length >= 4, '应至少覆盖 4 套浅色 IP')
+  for (const seed of lightIps) {
+    const ip = renderCustomTheme({ id: seed.name, name: seed.title, appearance: 'light', colors: seed.colors }, {})
+    for (const bgKey of ['--dsw-alias-file-diff-added-bg', '--dsw-alias-file-diff-deleted-bg']) {
+      const bg = ip.tokens[bgKey]
+      assert.ok(bg, seed.name + ' ' + bgKey + ' 不应缺槽')
+      const bgL = bg.light
+      assert.ok(bgL, seed.name + ' ' + bgKey + ' 缺 light 半')
+      assert.notEqual(bgL.toUpperCase(), '#000000', seed.name + ' light 半 diff 底不得为 #000000')
+    }
+  }
 })
 
 test('buildUpdateTokensFromColors：system 无色，其余单套直驱', () => {

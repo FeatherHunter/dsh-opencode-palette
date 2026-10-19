@@ -3,6 +3,45 @@
   "rev": "0dd6950d1b06958fbcdcadf0ad56258257ab7fdb",
   "tag": "v1.18.12（注释用，不参与拉取；拉取以 rev 为准）",
   "syncedAt": "2026-09-17T12:07:03.482Z",
+  "localCuration": {
+    "policy": "preserve-local",
+    "note": "33 套预置 TUI 主题已本地直接整改（见 DESIGN.md 与 docs/themes-sync-policy.md），不再等于 opencode 上游内容。sync verify 只报告漂移、不写主题 JSON；覆盖必须显式（--write / sync:update）。desktop-2.0 的 4 套派生主题由 convert-desktop-themes.ts 生成，不在 sync 校验范围（见 adapted20）。",
+    "themes": {
+      "aura": true,
+      "ayu": true,
+      "carbonfox": true,
+      "catppuccin-frappe": true,
+      "catppuccin-macchiato": true,
+      "catppuccin": true,
+      "cobalt2": true,
+      "cursor": true,
+      "dracula": true,
+      "everforest": true,
+      "flexoki": true,
+      "github": true,
+      "gruvbox": true,
+      "kanagawa": true,
+      "lucent-orng": true,
+      "material": true,
+      "matrix": true,
+      "mercury": true,
+      "monokai": true,
+      "nightowl": true,
+      "nord": true,
+      "one-dark": true,
+      "opencode": true,
+      "orng": true,
+      "osaka-jade": true,
+      "palenight": true,
+      "rosepine": true,
+      "solarized": true,
+      "synthwave84": true,
+      "tokyonight": true,
+      "vercel": true,
+      "vesper": true,
+      "zenburn": true
+    }
+  },
   "themes": {
     "aura": {
       "bytes": 1966,
@@ -143,20 +182,20 @@
     "sources": "src/themes/desktop-2.0/*.json (originals, do not edit outputs by hand)",
     "themes": {
       "amoled": {
-        "bytes": 2716,
-        "sha256": "174913d5d9f55a0d3a444f4189251329144951dfaf0c0d99d977a3012b028f0a"
+        "bytes": 2792,
+        "sha256": "cc344cded5341614a5ed6d176a631e5a511342ee1eb69f11e8ca3028b4166722"
       },
       "oc-2": {
-        "bytes": 2716,
-        "sha256": "633c86766fb35b2748656b3d3808f6d984453724858cd7dc0d2323baa821c87f"
+        "bytes": 2792,
+        "sha256": "248a531583b665464b95af52aa41d86149c74e1c2e7906a6e5ff166140a306ca"
       },
       "onedarkpro": {
-        "bytes": 2716,
-        "sha256": "9b7f02ba980c4dd206d2490564d7318c692b7169aceb8352e620bf1588532f94"
+        "bytes": 2792,
+        "sha256": "24e6278c2a11900ca8df8c5ded5b8be08da15e69cc7aacd42ee19883d6348fde"
       },
       "shadesofpurple": {
-        "bytes": 2716,
-        "sha256": "5b3f1d921ccfbf9e5ec2cd6dd36dc7f5b792a850cd39197b6169c88d7ab43866"
+        "bytes": 2792,
+        "sha256": "3b94e1d91c28dabbb5bde993d2f6a03f5b8cfe58bdb7690e757b450a891a5ea8"
       }
     }
   }

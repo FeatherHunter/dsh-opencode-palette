@@ -81,3 +81,39 @@ secondary 改霓虹品红（黄-品红分裂互补，远离正红）；error·di
 ## 美少女战士（revise，6 条）
 
 secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光金；Kitty 无制服藏青体系，库洛米黑紫与浅粉底不兼容，IP 唯一成立）；info·success·warning·error 全压深达 4.5:1；muted 加深与 blockquote 解耦；borderActive 改 primary 同源深阶梯；code 改变身紫；strong 与 text 解耦；operator 改哑灰退后；number 改 vivid 橙与 type 柔金拉开。
+
+## v3.1 可读性整改（21 套，硬性/UI 0 违例、设计告警 0 待处理，2026-10-19）
+
+起因：v3 定版后机器审计（docs/theme-audit/criteria.md：38 硬对 4.5:1 + 15 UI 对 3:1 + IP 设计规范）仍全 21 套失守——91 条 text-ish 硬违规 + 17 条 UI 违规，设计告警 55 条（22 documented / 33 open）。本轮不改设计理念与角色故事，只做「同人设下的可读性返修」：动值、明度与并岗关系，不动色相叙事。
+
+- 唯一结构性改动：6 套浅色主题（迪士尼/马里奥/乐高/Hello Kitty/哆啦A梦/美少女战士）代码区由深色舞台改为同色系浅色纸面舞台（codeBlockBg/codeHeaderBg 见 notes 与 src/custom-presets），syntax 七色转深墨。text/弱文字全局唯一、必须同时适配浅底，深 code 卡必然让正文判负（对比 1.0~1.6:1）；库洛米的浅色纸卡是既有先例。
+- 反白修正（contrastText 按 luma 自动取 #141414/#F4F4F5）：漫威/DC/龙珠/Hello Kitty/奥特曼/变形金刚/美少女战士 的 primary（及同值并岗组）按最小 ΔE 压暗或提亮到反白 4.6:1，identity 色相不动；DC primary·info·link 整组提亮为 #64A2FF。
+- 撞色解耦：pokemon primary/borderActive/markdownHeading 三连拆成 #FFCB05/#FFE14D/#FFD96B；cyberpunk borderActive/heading 拆成 #FFF24A/#FFF7A8；disney info=borderActive、doraemon/genshin/mario/lego primary=borderActive、lego text=strong 各自拆开；kuromi error/diffRemoved 拆成 #A81B38/#A31638；dragon-ball warning/heading/syntaxFunction 三连解耦。
+- 几何修形：disney secondary 压深为 #A86F00（与 primary 夹角 44.2° 类比）、harry-potter secondary #BA3E40（41.7° 类比）、ultraman secondary #FFAD00（42.5° 类比）、kuromi secondary #A84AB2（43.6° 类比）；cyberpunk 黄-品红分裂互补（94.2°）经 documented 保留。
+- 退后/区分度：全部主题的 syntax 五核心在 codeBlockBg 上重建 ≥4.5 且两两 ΔE76 ≥10；comment/operator 统一弱于正文（浅色主题转深墨后重排退后档）。
+- 并岗记档重排：transformers 原「heading 并入 primary」取消（标题独立为 #FF5C4D，深底 5.9:1），docs/theme-audit/exceptions.json 同步删除该组；其余 documented 并岗全部保留，合计 21 条 documented / 0 open。
+- 结果：node scripts/audit-themes.ts --out D:\Temp\audit-t3 --check 退出码 0；IP 硬性 0 + 0 UI；预置主题本轮前已由 T2 清零，全库硬性违例合计 0。
+
+逐套改动（设计意图见 docs/ip-presets-notes.md）：
+
+- 宝可梦：borderActive/heading 三连拆成 #FFE14D/#FFD96B、弱文字提亮；六组并岗保留。
+- 漫威：primary·borderActive 收拢 #D51A20（反白 4.6:1），operator 提亮。
+- DC：primary·info·link 整组提亮 #64A2FF，comment 提亮。
+- 星球大战：弱文字/comment 提亮，退后层级重建。
+- 哈利波特：secondary #BA3E40（41.7° 类比）、heading 拆出 #FFD478、弱文字微提。
+- 迪士尼：代码区改暖纸 #F3E6CE/#EBD9B8 + 深墨 syntax；borderActive #1577B8、secondary #A86F00（44.2°）。
+- 马里奥：代码区改日光蓝 #D3E8F9/#C2DDF4 + 深墨 syntax；borderActive #C41E1A 解耦，heading/弱文字微调。
+- 乐高：代码区改浅灰底盘 #E3E5E9/#D9DCE2 + 深墨 syntax；borderActive #A80D0F 解耦、strong #141416 拆出、secondary 压深达 UI。
+- 龙珠：primary·borderActive 提亮 #FF810D（反白 4.6:1、几何 179.4° 互补），comment 提亮、warning/heading/function 解耦。
+- 火影忍者：弱文字提亮，引用与 function/keyword 微调。
+- Hello Kitty：代码区改草莓纸 #FBE7ED/#F6D9E3 + 深墨 syntax；primary·borderActive 压深 #DB0011（反白 4.6:1）、secondary 压深达 UI。
+- 哆啦A梦：代码区改晴空纸 #CBE7F8/#B8DBF2 + 深墨 syntax；primary #0072A8、borderActive #005A88（解耦+UI），secondary 压深。
+- 奥特曼：primary #CF292E、secondary #FFAD00（42.5°），弱文字/comment 提亮。
+- 变形金刚：heading 拆出 #FF5C4D（原并入 primary 取消），primary #CF2E25（反白 4.6:1），弱文字/operator 提亮。
+- 海贼王：弱文字/引用提亮，keyword 微调。
+- 原神：borderActive #34D399 与 primary 解耦，弱文字提亮。
+- 塞尔达传说：弱文字/comment 提亮，keyword 微调。
+- 新世纪福音战士：弱文字微提。
+- 赛博朋克 2077：borderActive/heading 拆 #FFF24A/#FFF7A8，弱文字提亮（与引用解耦），error=diffRemoved 并岗保留。
+- 美少女战士：代码区改月光灰紫纸 #F1ECF3/#E8E3EA + 深墨 syntax；primary 压深 #C42C6B（反白 4.6:1）、comment/operator 重建退后。
+- 库洛米（第 21 套，质量标杆）：secondary 提为 #A84AB2（43.6° 类比）、error/diffRemoved 拆分、弱文字提亮；浅色纸卡结构保持。

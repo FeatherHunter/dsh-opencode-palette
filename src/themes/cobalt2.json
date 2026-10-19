@@ -5,16 +5,16 @@
     "backgroundAlt": "#122738",
     "backgroundPanel": "#1f4662",
     "foreground": "#ffffff",
-    "foregroundMuted": "#adb7c9",
+    "foregroundMuted": "#C3CAD7",
     "yellow": "#ffc600",
     "yellowBright": "#ffe14c",
     "orange": "#ff9d00",
     "orangeBright": "#ffb454",
     "mint": "#2affdf",
     "mintBright": "#7efff5",
-    "blue": "#0088ff",
+    "blue": "#4DACFF",
     "blueBright": "#5cb7ff",
-    "pink": "#ff628c",
+    "pink": "#FF638C",
     "pinkBright": "#ff86a5",
     "green": "#9eff80",
     "greenBright": "#b9ff9f",
@@ -186,7 +186,7 @@
       "light": "#193549"
     },
     "syntaxComment": {
-      "dark": "#0088ff",
+      "dark": "#088CFF",
       "light": "#5c6b7d"
     },
     "syntaxKeyword": {

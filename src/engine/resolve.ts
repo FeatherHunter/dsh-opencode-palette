@@ -184,6 +184,17 @@ export function contrastRatio(a: unknown, b: unknown): number {
   return (hi + 0.05) / (lo + 0.05)
 }
 
+// 在给定不透明底色上取「可读文字色」：纯黑/纯白中对比度更高者。
+// 任意底色下至少一者 >= 4.58（WCAG 黑/白端点），用于宿主硬编码白字（tooltip 标签）的覆盖兜底；
+// 与 contrastText 的区别：contrastText 返回柔和的 #141414/#F4F4F5，观感好但中灰底不保证 AA。
+export function readableTextOn(bgHex: unknown): string {
+  try {
+    return contrastRatio('#000000', bgHex) >= contrastRatio('#FFFFFF', bgHex) ? '#000000' : '#FFFFFF'
+  } catch (e) {
+    return '#FFFFFF'
+  }
+}
+
 // 8 位 hex（含 alpha）按底色混合为不透明；不透明原样大写返回
 export function blendOntoBase(fgHex: unknown, baseHex: unknown): string {
   const t = String(fgHex || '').trim()

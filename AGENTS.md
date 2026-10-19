@@ -16,6 +16,16 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 个人 teach workspace 整组收在 `teach/`（`MISSION.md` / `RESOURCES.md` / `NOTES.md` / `lessons/` / `reference/` / `learning-records/` / `assets/`），已被 `.gitignore` 覆盖：根目录只放项目门面，教学文件不要放回根目录；教学会话先读 `teach/NOTES.md`。
 
+## 预置主题同步（本地定制）
+
+`src/themes/*.json` 是**直接维护的本地定制**（不是上游原样 vendoring）：整改/调色改 JSON 本身，不要建 sidecar 覆盖。完整策略、命令表与升级流程见 [docs/themes-sync-policy.md](docs/themes-sync-policy.md)。
+
+- `npm run sync`（默认 verify）**只报告不写盘**：检测本地漂移并列出文件 + 差异键 + 期望 vs 本地；已在 `src/themes/MANIFEST.json` 的 `localCuration.themes` 声明的差异算预期（退出码 0），未声明漂移/文件缺失/JSON 损坏退出码 1。**手工修改不会被静默回滚。**
+- 覆盖本地必须显式：`npm run sync -- --write`（警告：丢弃本地定制并清除 localCuration）或 `npm run sync:update`（改 `OPCODE_SHA` 后升级基线，同样覆盖主题）。
+- 有意修改主题后：`git diff` 复核 → `npm run sync -- --accept-local` 登记本地定制 → `npm test` 全绿。
+- 上游 pin = `scripts/sync-themes.ts` 的 `OPCODE_SHA`（不可变 commit）。升级 = 改 SHA → `npm run sync:update` → 人工把本地定制合并回来 → `--accept-local` → `npm test`；同步器不会自动保留本地改动。
+- 4 套 desktop-2.0 派生主题（amoled/oc-2/onedarkpro/shadesofpurple）由 `scripts/convert-desktop-themes.ts` 生成，不在 sync 校验范围（见 `MANIFEST.adapted20`）。
+
 ## Release
 
 双通道一次跑完：npm 官方源 + GitHub Release。**本仓只负责发布，不负责安装**：Release 正文与 README 只写发布出去的东西（改了什么、验证结果、哈希），安装/升级指引归宿主与市场。
@@ -39,7 +49,7 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 ### 坑
 
-- **随包依赖要主动查**：`dsh-plugin-update` 以**运行时依赖**随包发出，且是**精确钉版**（现为 `0.18.25`）——上游一发新版就得我们改声明重发，用户才拿得到（0.1.x 的 vendor 已删，见 [ADR 0002](docs/adr/0002-decoupled-dsh-plugin-update-0.2.0.md)，0001 仅留历史）。`npm run build` 先跑 `node scripts/check-deps.ts` 硬门禁，对照 registry 报「本地声明 / 已安装 / 产物声明 / 上游 latest」：钉版落后于 latest 就拦（否则 bundle 旧、宿主依赖新，两侧错位），离线只给 `?` 不拦。两个包都钉死，所以没有「范围内自动跟上」这回事：升级＝改两处声明（根 `package.json` + `scripts/build-client.ts` 产物字面量）再 `npm install && npm run build && npm test`（`npm run deps:sync` / `vendor:check` 只在将来改回区间声明时才有用）。升级步骤（含门禁自举那一步）、以及门禁查不出、必须人眼对照的本地契约（日志事件白名单）都写在 ADR 0002。
+- **随包依赖要主动查**：`dsh-plugin-update` 以**运行时依赖**随包发出，且是**精确钉版**（现为 `0.18.32`）——上游一发新版就得我们改声明重发，用户才拿得到（0.1.x 的 vendor 已删，见 [ADR 0002](docs/adr/0002-decoupled-dsh-plugin-update-0.2.0.md)，0001 仅留历史）。`npm run build` 先跑 `node scripts/check-deps.ts` 硬门禁，对照 registry 报「本地声明 / 已安装 / 产物声明 / 上游 latest」：钉版落后于 latest 就拦（否则 bundle 旧、宿主依赖新，两侧错位），离线只给 `?` 不拦。两个包都钉死，所以没有「范围内自动跟上」这回事：升级＝改两处声明（根 `package.json` + `scripts/build-client.ts` 产物字面量）再 `npm install && npm run build && npm test`（`npm run deps:sync` / `vendor:check` 只在将来改回区间声明时才有用）。升级步骤（含门禁自举那一步）、以及门禁查不出、必须人眼对照的本地契约（日志事件白名单）都写在 ADR 0002。
 
 - **发布是异步的**：本账号的 `npm publish` 回 **`202 Accepted`**，npm 自己会打印 `Your package is being processed and may take a few minutes to become available.`。命令成功 ≠ 立刻可查——版本要几分钟后才出现在 registry。所以验证必须轮询（向导已改成最多等 240 秒），查一次读到旧版**不是失败**。
 - `E409 Cannot publish over previously staged version`：同一版本早先已被受理（202），**仍在处理中**。等几分钟用 `npm view` 复查即可，**不必升版本号、也不要重发**；确实要清掉再发才用 `npm unpublish dsh-opencode-palette@<版本>`（清完仍可用同一版本号）。

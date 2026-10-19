@@ -5,7 +5,7 @@
     "backgroundAlt": "#1e1f1c",
     "backgroundPanel": "#3e3d32",
     "foreground": "#f8f8f2",
-    "comment": "#75715e",
+    "comment": "#C2C1B8",
     "red": "#f92672",
     "orange": "#fd971f",
     "lightOrange": "#e69f66",
@@ -14,7 +14,7 @@
     "cyan": "#66d9ef",
     "blue": "#66d9ef",
     "purple": "#ae81ff",
-    "pink": "#f92672"
+    "pink": "#FA4989"
   },
   "theme": {
     "primary": {

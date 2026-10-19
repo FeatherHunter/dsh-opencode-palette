@@ -15,18 +15,24 @@
     "build:artifacts": "npm run emit && node scripts/build-client.ts",
     "build": "npm run typecheck && node scripts/check-deps.ts && node scripts/inline-fonts.ts && npm run build:artifacts",
     "verify:artifacts": "node scripts/verify-artifacts.ts",
+    "audit:themes": "node scripts/audit-themes.ts",
     "pretest": "npm run build:artifacts",
     "test": "node --test tests/engine.test.ts tests/float-geometry.test.ts tests/panel-render.test.ts tests/update-panel.test.ts tests/log-switch.test.ts tests/release-scripts.test.ts tests/sync-verify.test.ts tests/readme-head-tail.test.ts tests/readme-body.test.ts tests/group-boundary.test.ts tests/custom-themes-storage.test.ts tests/custom-editor.test.ts tests/custom-theme.test.ts tests/ip-presets.test.ts tests/source-parser.test.ts"
   },
-  "engines": { "node": ">=22.18.0", "dsh": ">=0.2.0-rc.1" },
+  "engines": {
+    "node": ">=22.18.0",
+    "dsh": ">=0.2.0-rc.1"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/FeatherHunter/dsh-opencode-palette.git"
   },
   "homepage": "https://github.com/FeatherHunter/dsh-opencode-palette",
-  "bugs": { "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues" },
+  "bugs": {
+    "url": "https://github.com/FeatherHunter/dsh-opencode-palette/issues"
+  },
   "dependencies": {
-    "dsh-plugin-update": "0.18.25"
+    "dsh-plugin-update": "0.18.32"
   },
   "devDependencies": {
     "@types/node": "22.20.5",
@@ -37,7 +43,9 @@
     "typescript": "5.9.3"
   },
   "dsh": {
-    "bundle": { "patch": "./cordis.patch.yml" }
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
   },
   "license": "MIT"
 }

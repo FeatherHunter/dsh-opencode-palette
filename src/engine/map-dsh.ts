@@ -2,7 +2,7 @@
 // DSH 升级改 CSS 变量名时，只需要改这一个文件。
 // 值 = opencode 色位名；generate.ts 负责取值与派生（提亮/透明/对比色）。
 
-import { shade, withAlpha, contrastText, type ResolvedColorMap } from './resolve.ts'
+import { shade, withAlpha, contrastText, mixHex, readableTextOn, contrastRatio, type ResolvedColorMap } from './resolve.ts'
 
 // 派生 token 的 helpers 来自 resolve.ts（shade/withAlpha/contrastText）
 
@@ -79,7 +79,8 @@ export const TOKEN_MAP: ReadonlyArray<readonly [string, string]> = [
   ['--dsw-alias-border-l4', 'borderActive'],
   ['--dsw-alias-button-ghost-active-border', 'borderActive'],
   // F5 新增缺口（DSH 0.1.7 rc.1/rc.2 design-platform diff 全量直配；缺槽/透明靠 usable() 跳过，不污染）
-  // diff 系取增/删前景与背景槽直配；state-idle 取中性次级（缺槽即跳过）；菜单/toast/tooltip 取中性直配。
+  // diff 系取增/删前景与背景槽直配；state-idle 取中性次级（缺槽即跳过）；菜单/toast 取中性直配；
+  // tooltip 键帽底不能与浮层底同值，走 DERIVED_TOKENS（#120）。
   ['--dsw-alias-code-diff-added', 'diffAdded'],
   ['--dsw-alias-code-diff-deleted', 'diffRemoved'],
   ['--dsw-alias-file-diff-added-bg', 'diffAddedBg'],
@@ -91,10 +92,28 @@ export const TOKEN_MAP: ReadonlyArray<readonly [string, string]> = [
   ['--dsw-alias-state-idle-primary', 'secondary'],
   ['--dsw-alias-menu-icon', 'textMuted'],
   ['--dsw-alias-toast-label', 'text'],
-  ['--dsw-alias-tooltip-key-bg', 'backgroundElement'],
   // 内联代码无芯片（opencode TUI 风格，固定 transparent）
   ['--dsw-alias-markdown-inline-code', '__transparent__'],
 ]
+
+// #120 缺陷 B：宿主键帽底默认 color-mix(tooltip-bg, white 18%)，浮层底换成主题浅色 surface 后
+// 键帽与浮层几乎同色。派生取「浮层底 → 其在底上的可读文字色」混合，并保证与浮层底至少
+// KEYCAP_MIN_CONTRAST 的可辨差异（16% 起步，不足则按 4% 步进加浓，上限 40%）。
+const KEYCAP_MIN_CONTRAST = 1.5
+const KEYCAP_MIX_START = 0.16
+const KEYCAP_MIX_STEP = 0.04
+const KEYCAP_MIX_MAX = 0.4
+
+function keycapColor(bg: string): string {
+  const target = readableTextOn(bg)
+  let mix = KEYCAP_MIX_START
+  let color = mixHex(bg, target, mix)
+  while (contrastRatio(color, bg) < KEYCAP_MIN_CONTRAST && mix < KEYCAP_MIX_MAX) {
+    mix += KEYCAP_MIX_STEP
+    color = mixHex(bg, target, mix)
+  }
+  return color
+}
 
 // ── 2. 派生 token：值不是直接取自色位，而是按规则计算 ──
 // 格式: [DSH 变量, 计算函数(colors) → 值]（colors = resolveThemeColors 输出）
@@ -141,6 +160,13 @@ export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMa
   ['--dsw-specific-sidebar-nav-item-hover', (c) => withAlpha(c.text, 0.08)],
   ['--dsw-specific-sidebar-nav-item-active', (c) => withAlpha(c.text, 0.14)],
   ['--dsw-specific-sidebar-nav-item-active-accent', (c) => withAlpha(c.primary, 0.35)],
+  // #120 缺陷 B：键帽底 = 浮层底 → 可读文字色混合（keycapColor 保证可辨识）；
+  // 背景透明（委托画布）→ transparent 跳过，交还宿主默认配色。
+  ['--dsw-alias-tooltip-key-bg', (c) => {
+    const bg = c.backgroundElement
+    if (typeof bg !== 'string' || bg === 'transparent') return 'transparent'
+    return keycapColor(bg)
+  }],
 ]
 
 // ── 3. shiki 语法高亮变量（DSH 只认 10 个，opencode 9 色位做角色合并）──
@@ -171,6 +197,13 @@ export const CSS_RULES: ReadonlyArray<{ selector: string; prop: string; from: st
   // issue 70：hr 跟边框走（桌面转换器惯例 markdownHorizontalRule=border；orng 数据里 hr 灰而 border 橙即混杂源）
   { selector: 'hr', prop: 'borderColor', from: 'border' },
 ]
+
+// ── 4b. tooltip 标签色选择器（#120）──
+// DSH 宿主 tooltip 气泡的标签色硬编码为 --dsw-static-neutral-bluish-00（白），没有 alias 变量可覆盖；
+// 全站 role="tooltip" 只此一处（气泡 span，内嵌 kbd 键帽），故用元素规则覆盖。
+// 特异性：`body [role="tooltip"]` = (0,1,1) > 宿主 `._bubble_xxx` = (0,1,0)，且本插件 <style> 后注入 → 双重胜出。
+// 文字色由 generate.ts 按 tooltip-bg 现算（正文色优先，不足 4.5 退纯黑/白）。
+export const TOOLTIP_TEXT_SELECTOR = '[role="tooltip"]'
 
 // ── 5. 字体预设（主题无关维度；等宽栈尾部保留 CJK 字体避免 Windows 中文回退 SimSun）──
 // 回退栈按可用性排序：自选 > 随包 OFL > OFL 但不随包（Maple Mono NF CN：中英同字体）>

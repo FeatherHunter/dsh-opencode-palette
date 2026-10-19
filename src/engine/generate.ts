@@ -1,15 +1,15 @@
 // generate.ts — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
-import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors } from './map-dsh.ts'
+import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors, TOOLTIP_TEXT_SELECTOR } from './map-dsh.ts'
 import { FONT_FACE_CSS } from './font-face.ts'
 import { quoteFontFamily } from './font-names.ts'
-import { withAlpha, isDelegatedSurface, ensureDiffContrast, type ColorError, type ResolvedColorMap } from './resolve.ts'
+import { withAlpha, isDelegatedSurface, ensureDiffContrast, blendOntoBase, contrastRatio, readableTextOn, type ColorError, type ResolvedColorMap } from './resolve.ts'
 
 // 颜色值类型复用 resolve.ts 的 ResolvedColorMap（HEX/'transparent' 或失败占位 { __error }）
 
 // overrideTokens 的半边载荷；缺席即不写该半边
 interface TokenModes { light?: string; dark?: string }
-type TokenMap = Record<string, TokenModes>
+export type TokenMap = Record<string, TokenModes>
 
 // 面板传入的排印参数；缺省由各函数自行回填
 interface Typography { mode?: string; size?: number; fontKey?: string }
@@ -68,12 +68,16 @@ function usable(colors: ResolvedColorMap | null | undefined, from: string): stri
 }
 
 // token 层：overrideTokens 需要的 { light, dark } 对象
-// issue 45：自持画布维持深色同值（零回归）；委托画布按外观取作者值，
-// 缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
-// 单参调用保持 legacy 语义（同一套色值写两半），存量调用方兼容。
+// issue 45：委托画布按外观取作者值，缺半边不跨外观回填（宁可缺席走宿主默认，也不伪造对侧值）。
+// #120 缺陷 A：单套色（自定义 / IP 主题，delegated=false）两半各自按自己的 isDark 修复——
+// light 半用 light repair（向白提亮），dark 半用 dark repair（向黑压暗）；旧实现把 dark 修复
+// 写进两半，浅色自定义主题的 diff 底因此被压成 #000000。单参调用仍兼容（两半同源，仅兜底方向不同）。
 export function buildTokens(darkColors: ResolvedColorMap | null | undefined, lightColors?: ResolvedColorMap | null, delegated?: boolean | null): TokenMap {
   const rawDark = darkColors || {}
   const rawLight = (lightColors === undefined) ? rawDark : (lightColors || {})
+  // #120 缺陷 A：lightColors 与 darkColors 是同一对象 = 单套色主题（renderCustomTheme 传 norm 两次）
+  // 还是两套色板（预置主题，light/dark 各自解析）？只有单套色主题需要「两半各自修复」。
+  const singlePalette = lightColors !== undefined && lightColors === darkColors
   darkColors = ensureDiffContrast(normalizeThemeColors(rawDark), true)
   const light = ensureDiffContrast(normalizeThemeColors(rawLight), false)
   const del = (lightColors === undefined) ? false : !!delegated
@@ -83,6 +87,17 @@ export function buildTokens(darkColors: ResolvedColorMap | null | undefined, lig
     const dok = dv !== null && dv !== undefined
     if (!lok && !dok) return
     if (!del) {
+      if (singlePalette) {
+        // 单套色主题（自定义 / IP 主题）：两半各自按自己的 isDark 修复。light 半用第 79 行的
+        // light repair（向白提亮），dark 半用 dark repair（向黑压暗）；旧实现把 dark 修复写进
+        // 两半，浅色自定义主题的 diff 底因此被压成 #000000。半边缺失回填另一侧，保持容错。
+        const lightValue = (lv !== null && lv !== undefined) ? lv : (dv as string)
+        const darkValue = (dv !== null && dv !== undefined) ? dv : (lv as string)
+        tokens[name] = { light: lightValue, dark: darkValue }
+        return
+      }
+      // 两套色板但非委托画布（自持预置主题）：维持 issue 45 的「两半深色同值=深色观感」，
+      // 颜色 CSS 走联合选择器同步用 dark 半；此处改动会破坏该不变式，故只对单套色生效。
       if (dok) tokens[name] = { light: dv, dark: dv }
       return
     }
@@ -164,9 +179,37 @@ export function buildTypographyCss(typography: Typography | null | undefined): s
   ].join('')
 }
 
+// ── tooltip 标签色（#120）──
+// DSH 宿主 tooltip 气泡的标签色在 CSS 里硬编码 --dsw-static-neutral-bluish-00（白），不读主题 alias，
+// 只映射 tooltip-bg 会出现「白字压浅色浮层」（浅色主题实测 1.00–1.25:1）。这里按 tooltip 底现算
+// 文字色并用元素规则覆盖：正文色优先（观感一致）；与底不足 4.5 时退纯黑/白（任意底至少一者 >= 4.58）。
+// 浮层底透明/缺席（委托画布）→ null 不发规则，交还宿主默认深底白字。
+const TOOLTIP_BG_TOKEN = '--dsw-alias-tooltip-bg'
+const TOOLTIP_TEXT_SOURCE = '--dsw-alias-label-primary'
+const TOOLTIP_TEXT_THRESHOLD = 4.5
+
+function tooltipTextColor(tokens: TokenMap, mode: 'light' | 'dark'): string | null {
+  const bg = tokens[TOOLTIP_BG_TOKEN] && tokens[TOOLTIP_BG_TOKEN][mode]
+  if (!bg || bg === TRANSPARENT) return null
+  // tooltip 底可能带 alpha：先按宿主页面底（该半的 bg-base）合成为不透明色再算对比
+  let bgEff = bg
+  const page = tokens['--dsw-alias-bg-base'] && tokens['--dsw-alias-bg-base'][mode]
+  if (page && page !== TRANSPARENT) {
+    try { bgEff = blendOntoBase(bg, page) } catch (e) { bgEff = bg }
+  }
+  const text = tokens[TOOLTIP_TEXT_SOURCE] && tokens[TOOLTIP_TEXT_SOURCE][mode]
+  if (text && text !== TRANSPARENT) {
+    try {
+      if (contrastRatio(blendOntoBase(text, bgEff), bgEff) >= TOOLTIP_TEXT_THRESHOLD) return text
+    } catch (e) { /* 退兜底 */ }
+  }
+  return readableTextOn(bgEff)
+}
+
 // 颜色 CSS（仅主题模式；system 不调用）
 // issue 45：自持画布走 legacy 联合选择器（字节一致）；委托画布按外观分区发射，
 // 浅色走宿主默认作用域，深色走宿主深色作用域。
+// #120：两分支都追加 tooltip 标签色规则（宿主唯一没有 alias 可覆盖的硬编码文字色）。
 export function buildColorCss(darkColors: ResolvedColorMap | null | undefined, lightColors: ResolvedColorMap | null | undefined, tokens: TokenMap, delegated: boolean | null | undefined): string {
   if (darkColors) darkColors = normalizeThemeColors(darkColors)
   if (lightColors) lightColors = normalizeThemeColors(lightColors)
@@ -182,6 +225,9 @@ export function buildColorCss(darkColors: ResolvedColorMap | null | undefined, l
       if (v === null) continue
       rules.push(rule.selector + '{' + rule.prop + ':' + v + ';}')
     }
+    // #120：tooltip 标签色覆盖（单套色两半的 tooltip 底同源，取 dark 半即可）
+    const tooltipText = tooltipTextColor(tokens, 'dark')
+    if (tooltipText !== null) rules.push('body ' + TOOLTIP_TEXT_SELECTOR + '{color:' + tooltipText + ';}')
     // 内联代码无芯片背景（固定规则，opencode TUI 同款）
     rules.push('code:not(pre code){background:transparent;}')
     return 'body,body[data-ds-dark-theme]{' + decls.join('') + '}' + rules.join('')
@@ -204,10 +250,15 @@ export function buildColorCss(darkColors: ResolvedColorMap | null | undefined, l
     }
     return out.join('')
   }
+  // #120：tooltip 标签色按两半各自的浮层底现算；浮层底透明的半边不发规则（宿主默认深底白字）
+  const tooltipLight = tooltipTextColor(tokens, 'light')
+  const tooltipDark = tooltipTextColor(tokens, 'dark')
   return 'body{' + declsFor('light') + '}' +
     'body[data-ds-dark-theme]{' + declsFor('dark') + '}' +
     rulesFor(lightColors, 'body') +
     rulesFor(darkColors, 'body[data-ds-dark-theme]') +
+    (tooltipLight === null ? '' : 'body ' + TOOLTIP_TEXT_SELECTOR + '{color:' + tooltipLight + ';}') +
+    (tooltipDark === null ? '' : 'body[data-ds-dark-theme] ' + TOOLTIP_TEXT_SELECTOR + '{color:' + tooltipDark + ';}') +
     'code:not(pre code){background:transparent;}'
 }
 
