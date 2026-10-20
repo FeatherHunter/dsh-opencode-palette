@@ -2,7 +2,7 @@
 
 > **调研对象**：[github.com/elysia395/dsh-wallpaper-engine](https://github.com/elysia395/dsh-wallpaper-engine)，npm 包 `dsh-plugin-wallpaper-engine`
 > **版本快照**：`v1.3.3`，HEAD = `01fbb8b`（浅克隆 depth=50），本机 Windows / Node v24.19.0
-> **调研方法**：主控独立核查（跑命令、读源码、跑构建、`npm pack --dry-run`）+ 11 路并发 subagent 分维度深挖 + 对抗性审计
+> **调研方法**：主控独立核查（跑命令、读源码、跑构建、`npm pack --dry-run`）+ 11 路并发 subagent 分维度深挖 + 对抗性审计 + **越过插件边界直接拉取第三方渲染引擎 `webwallgl@3.0.0` 的 npm 包读源码**（§4.18）
 > **证据约定**：本文所有 `<路径>:<行号>` 锚点**相对被调查仓库根目录**（`D:\dsh-plugin\dsh-wallpaper-engine`）。凡标「推断」者为判断而非事实。**源码与仓库文档冲突时以源码为准**，冲突点逐条列出。
 > **本报告写在**：`dsh-opencode-palette/docs/research/`（本仓既有笔记目录）。
 
@@ -26,18 +26,18 @@
 | 1 | [它是什么：定位、能力边界与规模](#1-它是什么定位能力边界与规模) | 定位、非目标、99,309 行规模基线、依赖面 |
 | 2 | [架构总览](#2-架构总览一个包两个半边一张路由表) | 两个半边、43 条路由契约、生命周期时间线、loopback 例外通道 |
 | 3 | [发现链：从 Steam 到一份清单](#3-发现链从-steam-到一份清单) | Steam 探测 → 扫描 → 归属 → 清单 → 播放列表 → 上传 |
-| 4 | [出画面](#4-出画面从-wallpaper-engine-内容到屏幕上的那一帧) | 五级来源链、渲染页、围栏、抓帧回填、失败记忆、取色 |
+| 4 | [出画面](#4-出画面从-wallpaper-engine-内容到屏幕上的那一帧) | 五级来源链、渲染页、围栏、抓帧回填、失败记忆、取色、**引擎侧 WebWallGL 本体与遮挡四档阈值** |
 | 5 | [视频壁纸与媒体传输管线](#5-视频壁纸与媒体传输管线) | `<video>` 垫底、media-bridge/ffmpeg/Swift、自研 MP4 VFS、loopback 媒体源 |
 | 6 | [遮挡判定与性能治理](#6-遮挡判定与性能治理) | X11/EWMH 原理、心跳看护、首帧预算、失败记忆、性能夹具 |
 | 7 | [设置、持久化与预设](#7-设置持久化与预设) | 唯一 schema、两层存储、原子落盘、预设四段键集 |
 | 8 | [客户端渲染分层与液态玻璃 UI](#8-客户端渲染分层与液态玻璃-ui-管线) | 三层浮序、`backdrop-filter` 配方、令牌接管、ADR-0008/0010 |
 | 9 | [字体排版系统与国际化](#9-字体排版系统与国际化) | 三条落点通道、字体集两层、本机字体枚举、i18n 三闸、令牌契约 |
-| 10 | [构建与验证体系](#10-构建与验证体系) | 手写零依赖内联器、三道构建守卫、57+6+6 守卫链、CI 三个反直觉决定 |
+| 10 | [构建与验证体系](#10-构建与验证体系) | 手写零依赖内联器、**六道构建硬失败**、守卫链是数据不是字符串、ADR-0007 撤散文守卫、无框架自建断言、ESLint 两套 + TS 一小片、CI 四个反直觉决定 |
 | 11 | [工程治理、宿主兼容与生态](#11-工程治理宿主兼容与生态) | `engines.dsh`、harness-compat、让路协议、文档体系、贡献者、开放 issue |
 | 12 | [优点](#12-优点) | |
 | 13 | [缺点与风险](#13-缺点与风险) | |
 | 14 | [平台覆盖矩阵](#14-平台覆盖矩阵) | |
-| 15 | [结论](#15-结论) | 值得抄的五件事 / 最该补的五个洞 / 适用性判断 / 复算命令 |
+| 15 | [结论](#15-结论) | 值得抄的六件事 / 最该补的六个洞 / 适用性判断 / 复算命令 |
 
 ---
 
@@ -1171,6 +1171,114 @@ function reportDiag(msg, level) {
 
 `diagOrigin()` 从 `current.mediaBase` 推出 origin（`:44-50`），所以媒体源场景下诊断会打到**媒体源**的 `/diag`（`lib/routes/diag.js`）。
 
+### 4.18 引擎侧：WebWallGL 本体（`npm pack webwallgl@latest` → **3.0.0**）
+
+前面 §4.1–§4.17 讲的都是**插件自己**怎么把画面弄出来。但真正把像素画到屏幕上的是另一个包——`webwallgl`，一个 **MIT 协议、repo 在 `github.com/oneincase/webwallgl`、依赖 `mediabunny@^1.56.0`** 的独立引擎。本节是本报告唯一一处越过插件边界、直接读第三方引擎源码的地方；为了避免"二手转述"，这里直接给出 npm 上拉下来的真实包。
+
+#### 4.18.1 包本身
+
+`npm pack webwallgl@latest` → **3.0.0**（发布于 2026-10-12T16:09:06Z），tarball **952,354 B**，解包 **2,788,804 B / 9 个文件**。
+
+| 文件 | 大小 | 角色 |
+|---|---|---|
+| `webwallgl.global.min.js` | 1,106,453 B | **UMD 主 bundle**（插件实际加载的就是它） |
+| `webwallgl.mjs` | 1,395,072 B | ESM 版（可读源码，逻辑与 UMD 同构建） |
+| `types.d.ts` | 61,488 B | 完整类型声明 |
+| `webwallgl.d.ts` | 3,362 B | 精简入口声明 |
+
+`package.json:33-43`：`main = webwallgl.global.min.js`、`module = webwallgl.mjs`、`exports["."].import = ./webwallgl.mjs` / `.default = ./webwallgl.global.min.js`。
+
+版本序列（npm 实测）：`1.0.0-beta1 → 1.0.0 → 1.1.0 → 1.3.5 → 1.3.16 → 1.4.1 → 1.4.2 → 2.1.0 → 2.2.0-beta1 → 2.2.1 → 3.0.0`。`dist-tags.beta = 2.2.0-beta1`。
+
+> 插件声明的是 `webwallgl@^3.0.0`，而 latest 恰好就是 3.0.0 ⇒ **当前满足**。但 `^3.0.0` 是开区间（推断：不钉 lockfile 时未来的 3.x 会被自动取到）。
+
+#### 4.18.2 为什么插件要"定位包目录按文件直出"，而不是 import
+
+这是 §4.4 那个"引擎依赖不是 import"的**引擎侧解释**：
+
+- ESM 版 `webwallgl.mjs:1`：`import { Input, ALL_FORMATS, UrlSource, VideoSampleSink } from "mediabunny"` —— **裸导入**，浏览器直接加载需要 import map 或 bundler。
+- UMD 版 `webwallgl.global.min.js:1` 是 `to(Kn.WebWallGL={})` 包装，**挂全局**；而且实测 **global 包内不含 `"mediabunny"` 字符串，但含它的运行时代码**（`UrlSource` / `canDecode` / `VideoSample` / `ISO_8859_1` 枚举）⇒ **mediabunny 已被内联并 tree-shake / 改名**。3.0.0 的 release notes 同证："ESM 不再内联 mediabunny…UMD 版仍然内联"。
+
+所以插件的 `lib/webwallgl/index.html:43` 那条注释（先加载经典脚本 `./engine/webwallgl.global.min.js`，再 `<script type="module" src="./renderer.js">`）**在源码层面成立**。
+
+`lib/routes/scene-serve.js:97-104` 按**任意文件名**从引擎包目录直出（整包可直出）；`:98-102` 无包 → 404 `webwallgl-not-installed`。
+
+> 📌 **issue #218 的定性**：`webwallgl-not-installed` 的**唯一**触发点是 `WEBWALLGL_PKG_DIR` 为空 ⇒ **是"依赖没装"（安装链路问题），不是"版本不兼容"**。而 `webwallgl.global.min.js` 这个文件名从 1.4.2 到 3.0.0 **全程存在**（实测各版本 `npm pack --dry-run`：1.4.2 = 16 文件 / 20.9 MB、2.1.0 = 16 文件 / 24.0 MB、2.2.1 = 25 文件 / 37.9 MB、3.0.0 = 9 文件 / 2.8 MB）⇒ 版本漂移不会导致该文件找不到。
+
+#### 4.18.3 API 面：插件用到的 30 个调用点全部存在
+
+UMD 全局导出 10 个（`Kn.<name>=` 命中），与 ESM `webwallgl.mjs:35419-35430` 完全一致：
+
+`createScene` / `mount` / `httpSource` / `fileSource` / `bytesSource` / `mediaSource` / `createMediaSource` / `mediaColor` / `sniffMediaType` / `workshopIdFromSourceKey`
+
+`SceneInstance`（`types.d.ts:528-657`）的方法面：`pause`/`resume`/`paused`、`setFit`/`setFps`/`setVolume`/`setRenderDpr`、`setQuality`/`getQuality`、`setVideoTexScale`/`getVideoTexScale`、**`setOcclusion`**、`setProperties`/`getProperties`、`setAudio`/`setMedia`/`media`、`pushPointer`/`pointerLeave`/`pushWheel`、`load`/`release`/`restore`/`destroy`、`stats`/`info`/`on`。
+
+两处**没有**的东西值得记：`SceneInstance` **无 `getOcclusion`**、**无 `capture`**（截图能力在另一个包 `@webwallgl/editor` 里；插件是自己用 `toDataURL` 画的）。
+
+**兼容性结论**：插件用到的 30 个引擎调用点**全部存在于 3.0.0**，签名兼容，没有缺失或改名；`createScene` 传的 `fit`/`fps`/`volume`/`renderDpr`/`videoTexScale`/`autoQuality`/`bake`/`onDiagnostic` 全是合法 `MountOptions` 键，fit 白名单与引擎 `Fit` 类型完全一致。插件既不 import webwallgl、也不用子路径外的单文件名 ⇒ **不受 3.0.0 拆包的破坏性变更影响**。
+
+#### 4.18.4 渲染栈与场景格式
+
+- **WebGL2**（`webwallgl.mjs:11093` `getContext`、`:11094` 抛"当前浏览器不支持 WebGL2"、`:11095` 要求 `EXT_color_buffer_float`）。
+- **无 WebGPU、无 Worker、无 OffscreenCanvas、无 `transferControlToOffscreen`**（各 0 命中）⇒ 单线程主循环。
+- 视频解码走 mediabunny + `requestVideoFrameCallback`（`:24248`/`:24255`/`:24257`）。
+- `Source` 形态（`types.d.ts:33-88`）= `scenePkg()` 必选 + 可选 `sceneDir?`/`project?`/`webEntry?`/`mediaEntry?`/`key?`/`dispose?`；**形态判定只看 `project.json` 的 `file` 后缀**（`.json` = 松散、`.pkg` = 包，`types.d.ts:14-15`）；属性 `general.properties` 只有 bool / slider / combo / textinput / file / directory / color 七种（`types.d.ts:3-8`）；逻辑分辨率 = `scene.json` 的 `general.orthogonalprojection`（`types.d.ts:304`）。
+- 插件侧 `lib/webwallgl/renderer.js:64-91` **自造 `Source`，从不自己解析 `scene.pkg`** ⇒ 解析是引擎的活。
+
+性能默认值（`types.d.ts`）：`autoQuality` 默认开（软件渲染自动关后处理 + 压分辨率；帧率连续 3 s 低于上限 85% ⇒ 后处理降一档，**只降不升**，`:401-407`）；`bake` 默认开（贴图预缩放，注释记实测 **−80% 解码耗时**，`:408-414`）；`mountTimeoutMs` 60000（首帧看门狗，`:415-428`）；`renderDpr` 物理最长边封顶 4096（`:346-353`）；`videoTexScale` 自动下坡（`:354-362`）；画质档默认 AA off / 粒子 high / 后处理 high（`:280-301`）。
+
+#### 4.18.5 ★ 遮挡四档的**真实阈值**（本节最有价值的部分）
+
+第 6 章说过"渲染器四档阈值在 npm 依赖内部，本仓 `node_modules` 缺失所以无法逐行验证"。**这一节把它补上了**——阈值就在 `webwallgl.mjs:686-695`：
+
+```js
+const BAND_ORDER = ["run", "light", "heavy", "pause"];
+const DEFAULT_OCCLUSION_CONFIG = {
+  pause: 0.05, heavy: 0.3, light: 0.7,
+  heavyFps: 24, lightFps: 40,
+  hysteresis: 0.05, dwellMs: 400
+};
+```
+
+**阈值语义是"可见比例"，不是遮挡比例——越小遮得越狠**（`types.d.ts:499-506` 有同样表述）：
+
+| 档 | 可见比例 | 帧率上限 | 行为 |
+|---|---|---|---|
+| `run` | > 0.70 | `userFps`（缺省 60） | 全量 |
+| `light` | ≤ 0.70 | `min(userFps, 40)` | 轻降帧 |
+| `heavy` | ≤ 0.30 | `min(userFps, 24)` | 重降帧 |
+| `pause` | ≤ 0.05 | 0 | **停渲染**，画面冻在最后一帧 |
+
+判档 `bandForRatio`（`:718-723`）、帧率映射 `occlusionFpsCap`（`:752-758`）。
+
+**滞回与驻留**（`nextBand`，`:724-751`）：**降档立即生效**；升档需同时满足 `ratio > 档阈值 + 0.05`（5 个百分点滞回）**且**在该档驻留 ≥ 400 ms。
+
+**归一化钳制**（`:696-717`）：`pause ∈ [0, 0.5]`、`heavy ∈ [pause, 0.8]`、`light ∈ [heavy, 1]`（相邻差 < 0.02 时强制拉开）、`heavyFps`/`lightFps ∈ [20, 60]`、`hysteresis ∈ [0, 0.15]`、`dwellMs ∈ [0, 2000]`。
+
+**可见率怎么算**（`computeOcclusionFrame`，`:759-767`）：遮挡矩形 → `decomposeVisibleRects` 扣减出可见区 → `mergeFragments` → 8 px 量化 → `exactVisibleRatio` **精确可见率**（16×16 的 `gridCoverage` 只作对照读数）；若宿主直接给了 `payload.ratio` 则优先用它。
+
+**fail-open**（`:768-771`）：`OCCLUSION_STALE_MS = 3e3`；`:1158-1164` 超 3 s 没有新推送 ⇒ `clearOcclusion` **回全量**（宁可不省电，也不把画面永久冻住）。心跳定时器 1 s 一跳（`:1109-1116`）。
+
+**三条落地路径**：scene（`:24066-24076`，pause 档直接停循环 + `frameGate.setFps`）、media `<video>`（`:32194-32211`，只能 pause）、web 壁纸 iframe shim（`:34565-34569`，`setFps` 尽力降帧）。
+
+**四档之外的第四种省电手段：ROI 图层剔除**（`:13241-13243`，遮挡区外整层跳过绘制；`roiWorldRects` 逆映射 `:674-685`；观测面 `roiCullStats()` `:14093-14099`）。上游 issue #12 的原名就是"网格暂停 + 分档降帧 + ROI 图层剔除"。
+
+观测面：`stats.occluded`（pause 档）、`stats.throttled`（band ≠ run）（`types.d.ts:461-468`）。
+
+**插件实际生效的值 = 引擎默认四档**：`lib/webwallgl/renderer.js:93-102` 的 `createScene` **没有传 `occlusion` 键** ⇒ 回落 `DEFAULT_OCCLUSION_CONFIG`（`webwallgl.mjs:34966-34968` + `:1097-1100`）。插件也**不传 `ratio`**（`src/occlusion.js:180` 的 payload 只有 `{occluders, epoch, gen}`）⇒ 引擎用自己算的精确可见率。
+
+> ✅ **两处独立信源互证**：插件自己的规格文档 `docs/wip/LINUX-OCCLUSION.md:36-43` **独立写下**了同一套数值（pause ≤ 0.05 / heavy ≤ 0.3 → 24 fps / light ≤ 0.7 → 40 fps、迟滞 0.05、驻留 400 ms、3 s 过期、矩形同时进 ROI 剔除）⇒ **2.1.0 → 3.0.0 阈值零变化**，文档与引擎实现一致。
+
+#### 4.18.6 引擎侧暴露的两个新问题
+
+1. **`getOcclusion()` 是空桩**：`lib/webwallgl/renderer.js:296-298` 恒返回 `null`；但插件自己的规格 `docs/wip/LINUX-OCCLUSION.md:237-239` 把它当 **QA 契约**，要从中读 band / ratio / gridCoverage。引擎侧没有这个 getter（公开的只有 `stats.occluded` / `stats.throttled`）⇒ **实现与规格脱节**，且缺口**无法完全补齐**（拿不到精确 band / ratio）。
+2. **`getState().paused` 的语义陷阱**：`renderer.js:305` 用 `inst.paused`，而引擎明确**用户暂停意图**与**遮挡 pause** 是两套独立记账（`types.d.ts:560-561`）⇒ 遮挡把画面全遮住时，看护若只看 `getState().paused` 会误判"没在跑"。插件已在客户端侧自建镜像 `occlusionRendererPaused()`（`src/occlusion.js:174-177`），但**没有暴露回 `getState`**。
+
+#### 4.18.7 文档漂移
+
+`docs/wip/LINUX-OCCLUSION.md:23` 仍写"WebWallGL 2.1.0，vendored pin `4ba71c40`"和"压缩符号锚点定位法"，但 `lib/webwallgl/` 下**已无 `.upstream.json`**（只有 `index.html` / `renderer.js` / `occlusion-bridge.js` / `default-wallpaper/`）—— 改用 npm 依赖后，那套定位法已不适用。
+
+
 ---
 
 ## 5. 视频壁纸与媒体传输管线
@@ -1663,11 +1771,11 @@ stall 处理：20 拍先 `resume` 自救一次，40 拍才判失败（`:445-457`
 
 hub 1Hz + 客户端 1Hz ⇒ 遮挡生效最坏 **~2 秒**。这与文档实测"1–2s 进入 pause"一致（`LINUX-OCCLUSION.md:238-239`）。
 
-渲染器的四档阈值在 npm 依赖 `webwallgl@^3.0.0` **内部**（`lib/webwallgl/renderer.js:1-18`、`:313-319`）——本仓 node_modules 缺失，**无法逐行验证**。
+渲染器的四档阈值在 npm 依赖 `webwallgl@^3.0.0` **内部**（`lib/webwallgl/renderer.js:1-18`、`:313-319`）。**本报告已在 §4.18.5 直接拉取 `webwallgl@3.0.0` 的包源码逐行核实了这套阈值**：pause ≤ 0.05 / heavy ≤ 0.30（24 fps）/ light ≤ 0.70（40 fps）/ 其余全量，滞回 5 pp、驻留 400 ms、3 s 过期回全量。
 
 ### 6.11 未解清单
 
-1. `webwallgl@3.x` 内部四档阈值原文（需装依赖核对）
+1. ~~`webwallgl@3.x` 内部四档阈值原文~~ —— **已由 §4.18.5 解决**（拉取 `webwallgl@3.0.0` 包源码逐行核实）。
 2. 上游 webwallgl 同步后本仓锚点漂移问题
 3. `0.05` 阈值复制机制无测试守护
 4. Windows 原生遮挡的可接入性（EnumWindows 方案是否可行）
@@ -1675,6 +1783,8 @@ hub 1Hz + 客户端 1Hz ⇒ 遮挡生效最坏 **~2 秒**。这与文档实测"1
 6. Wayland 各条路线的排期
 7. EWMH 窗口管理器缺失时的降级路径体验
 8. 遮挡与 `blurPause`/`desktop` 壳交互的完整真值表
+9. **新增**：`getOcclusion()` 是空桩恒返回 `null`（`lib/webwallgl/renderer.js:296-298`），而插件规格把它当 QA 契约（`docs/wip/LINUX-OCCLUSION.md:237-239`）⇒ 实现与规格脱节，且引擎侧无此 getter，**无法完全补齐**（见 §4.18.6）。
+10. **新增**：`getState().paused` 反映的是**用户暂停意图**而非遮挡 pause（`renderer.js:305` 用 `inst.paused`；引擎 `types.d.ts:560-561` 明确二者独立记账）⇒ 全遮时看护若只看它会误判"没在跑"；客户端侧已有镜像 `occlusionRendererPaused()`（`src/occlusion.js:174-177`）但未暴露回 `getState`（见 §4.18.6）。
 
 ---
 
@@ -2652,11 +2762,13 @@ return WE_I18N_DEFAULT_LOCALE;
 
 ### 10.0 一句话
 
-**构建不是打包器，是一只"手写的、零依赖的、确定性的内联器"；验证不是测试框架，是 57 步硬 + 6 步软 + 6 步冒烟的守卫链，而且 CI 故意不装依赖。** 两者共同的取向是：**把"会漂的东西"变成"会红的东西"，并且尽量不依赖外部世界。**
+**构建不是打包器，是一只"手写的、零依赖的、确定性的内联器"；验证不是测试框架，是一条 70 步的守卫链——而且它是被当成数据来管理的。** 两者共同的取向是：**把"会漂的东西"变成"会红的东西"，并且尽量不依赖外部世界。**
+
+这一章的规模感来自一个数字：守卫链 70 步、静态门禁 225 个文件、`test/tools/` 20 个工具、ESLint 25 条手写规则——**全部由只依赖 Node 内置模块的脚本写成**，CI 里连 `npm ci` 都不跑。
 
 ### 10.1 构建：`scripts/build-client.mjs` 是一台手写内联机
 
-它的头注释自称（逐字）："a deterministic, dependency-free stand-in for `tsdown bundle`"——即**确定性、零依赖的 tsdown 替代品**。产物形态是硬编码的：
+文件 47,123 B / 804 行，**只 import 4 个 `node:` 内置**（`:33-36`），头注释自称（逐字）："a deterministic, dependency-free stand-in for `tsdown bundle`"——即**确定性、零依赖的 tsdown 替代品**。产物形态是硬编码的：
 
 ```
 window.__ModuleLoader__.load({
@@ -2676,27 +2788,53 @@ window.__ModuleLoader__.load({
 
 **为什么敢拆**（注释逐字）："Shape mismatches are a **hard build failure**, never a silent empty prelude — that is what keeps the split honest."——**形状不匹配必须硬失败，绝不允许静默产出空 prelude**，这是让"拆分"保持诚实的关键约束。
 
-`INLINE_MODULES`（`scripts/build-client.mjs:46`）是一张带 `why` 说明的表，每个模块还带 `markers`：**"结构变了就报错"的锚点**——缺任何一个都构建失败。
+`INLINE_MODULES`（`:46`）是一张 73 条的表，每条 = `{ file, why, markers[] }`：`why` 说明"这个模块为什么存在"，`markers` 是**"结构变了就报错"的锚点**。
 
-### 10.2 三道构建期守卫
+### 10.2 构建期硬失败的六道闸
 
-| 守卫 | 位置 | 断言内容 |
-|---|---|---|
-| **marker 锚点** | `:46-51` | 每个内联模块的 `markers`（如 `src/about-assets.js` 的 4 个常量字面量）必须逐字命中，缺一个即构建失败 |
-| **`injectRopeArt()`** | `:691-745` | 占位符形态、声明名与占位符名一致、锚点**恰好命中一次**、PNG magic `89504e470d0a1a0a`、声明条数与占位符条数相等、注入后**无残留占位符** |
-| **`assertNoShadowedScopeDecls()`** | `:765-787` | 同一作用域内**不得有两个同名顶层声明** |
+`readInlinedPrelude()`（`:600-666`）与主流程（`:541-585`）合起来构成六道闸：
 
-第三条值得逐字看它的错误文案（`:781-783`）：
+| # | 闸 | 位置 | 断言 |
+|---|---|---|---|
+| 1 | **浏览器安全清单** | `:617-623` | 内联模块里不得出现 `import` 语句 / `require()` / `export default` / `process.*` / `__dirname`\|`__filename` |
+| 2 | **markers 锚点** | `:630-635` | 每个内联模块的 `markers` 必须逐字命中，缺一个即 `console.error(...)` + `process.exit(1)` |
+| 3 | **export 块剥离 + 残留检测** | `:641-649` | 剥离 `export` 块后不得留残渣 |
+| 4 | **名字唯一性** | `:657-664` | `[build-client] src/client.js 重复声明了内联模块提供的常量/函数：…` |
+| 5 | **平铺作用域重名** | `:765-787` | 同一作用域内不得有两个同名顶层声明 |
+| 6 | **语法校验** | `:576-579` | `new Script(output, { filename: 'lib/client.js' })`，失败即 `process.exit(1)`——**产物必须能解析才会被写出** |
 
-> "平铺后同一作用域里有同名顶层声明（后声明静默胜出 ⇒ 前者是死代码；反过来删掉后者会让前者无声复活，行为改变而语法层无感）"
+第 1 道闸有个容易被忽略的细节：**先剥注释再判**（`:614-616` 注释逐字：否则模块头写一句 `node -e "require('fs')…"` 就被误判）。剥注释用的是共享的字符串感知实现 `test/tools/js-text.mjs:45`（等长替换、保留换行 ⇒ 行号不漂）。
 
-实现方式是扫 `DECL_RE`（`:539`）匹配 `const|let|var|function|class` 声明，并**只取最小缩进层级**（顶层）来判定。**这条守卫是为一个真实缺陷写的**：`src/client.js` 里 `onStartEditCacheDir` 被声明两次，脚本语义下后者静默胜出 ⇒ 前者是死代码；删掉后者会让前者**静默复活**，而当时守卫链全绿。
+第 5 道闸的注释是全仓最有价值的一段"为什么需要专门一条判据"的说明（`:751-761` 逐字）：
 
-**这正是"70+ 模块平铺进一个作用域"的真实代价**，也是 `docs/CODE-STRUCTURE.md:238` 把这条守卫说反（说成"vm.Script 语法检查兜住"）的地方——`vm.Script` 只报语法错，重名声明在脚本语义下根本不报错。
+> `new Script(output)` 只报**语法**错误。而 `var` / `function` 的重复声明在**脚本**语义下是合法的 —— 后声明**静默胜出**。…… `readInlinedPrelude()` 的撞名判据是 `injected ∩ bodyDecls`，而 `injected` 是 **Map**：内联模块**彼此之间**的重名会被 `Map.set` 静默覆盖。…… **实测（本仓真实缺陷，这条判据就是为它写的）**：`src/client.js` 里 `onStartEditCacheDir` 被声明两次 … 后者胜出 ⇒ 前者是永不执行的死代码；而**删掉后者** … 就会让前者**静默复活** ⇒ 「更改」按钮不再弹目录浏览器，**而当时的守卫链全绿**。
 
-还有一处细节值得单独说：`stripHeader()`（`:792` 起）不只剥掉源文件开头"这不是产物 / 去改 src"的横幅，它还**返回 `codeStart`**，让所有报错判据都能指回**原文件**的行号。注释逐字："报'正文第 3 行'对读日志的人毫无用处。"
+实现方式是扫 `DECL_RE`（`:539`）匹配 `const|let|var|function|class` 声明，并**只取最小缩进层级**（顶层）来判定——口径是"缩进 == 本文件声明的最小缩进"而非行首，否则 `src/picker-modal.js` / `src/quick-panel.js` 的带缩进顶层声明会漏判（`:535-538` 注释）。
 
-### 10.3 实测产物（Windows / Node v24.19.0，`node scripts/build-client.mjs`）
+**这正是"73 个模块平铺进一个作用域"的真实代价**，也是 `docs/CODE-STRUCTURE.md:238` 把这条守卫说反（说成"vm.Script 语法检查兜住"）的地方——`vm.Script` 只报语法错，重名声明在脚本语义下根本不报错。
+
+还有一处细节值得单独说：`stripHeader()`（`:792-804`）不只剥掉源文件开头"这不是产物 / 去改 src"的横幅，它还**返回 `codeStart`**，让所有报错判据都能指回**原文件**的行号。注释逐字："报'正文第 3 行'对读日志的人毫无用处。"
+
+另外两处工程细节：
+
+- **进度信息走 stderr**（`console.error`），因为 stdout 要留给 `npm pack --json` 的纯 JSON。
+- **行尾归一 + 孤立 CR 断言**（`readNormalized()`，`:519-528`）：源文件若混进 `\r\r\n`，Windows 检出就会残留孤立 CR ⇒"同一份源码在两个平台产出不同字节的产物（实测过：一条 CI 腿红、另一条绿）"。**这是"产物逐字节可比"得以成立的前提。**
+
+### 10.3 大二进制搬出源码：`injectRopeArt()`
+
+`:691-745`。文件头 `:668-690` 记：10 张立绘原本是 **2,369,676 字符 data URI / 1,777,009 字节 PNG** 内联在 `src/client.js`，"全仓最大的一处内聚污染"。现在字节住在 `assets/rope/<name>.png`，源码只留占位：
+
+```js
+const ROPE_IMG_<NAME> = "data:image/png;base64,__ROPE_ART_<NAME>__";
+```
+
+构建期回填，并跑**五条断言**：① 声明名 ↔ 占位符名一致；② 每个占位符**恰好命中一次**（`text.split(anchor).length !== 2` 即红）；③ `const ROPE_IMG_` 声明数 == 命中数；④ 载荷 magic 校验 `89504e470d0a1a0a`（PNG）；⑤ 替换后不得残留 `__ROPE_ART_`。
+
+替换是**逐字符替换** ⇒ 注释声明"占位符回填后必须与拆分前的 `lib/client.js` **逐字节相同**（sha256 不变）"（`:686-688`），且替换**不改行数** ⇒ `codeStart` 行号映射不受影响。
+
+> ⚠️ 事实与推断的分界：机制（占位符替换 + 五断言 + 不改行数）是事实；**"与拆分前逐字节相同"是注释里的声明，本次调查未跑构建（磁盘上产物不存在），无法实测确认 sha256 不变。**
+
+### 10.4 实测产物（Windows / Node v24.19.0，`node scripts/build-client.mjs`）
 
 **构建脚本零运行时依赖，没有 `node_modules` 也能构建成功。**
 
@@ -2711,18 +2849,19 @@ window.__ModuleLoader__.load({
 
 PNG 已是压缩格式，gzip 几乎压不动——**这就是产物体积的主要来源，也是它降不下去的原因**（第 13 章 §13.3.2）。
 
-### 10.4 产物与源码的边界（ADR-0012）
+### 10.5 产物与源码的边界（ADR-0003 D6 → ADR-0012）
 
-- `git ls-files lib/client.js` = **空** ⇒ 产物不入库（ADR-0012 兑现）。
+- `git ls-files lib/client.js` = **空**；`git check-ignore -v` ⇒ `.gitignore:26:/lib/client.js`。
+- ADR-0003 的 D6「产物入库」被 `docs/adr/0012-artifact-untracking.md` 修订（`:28-38` D1–D5）；理由（`:18-24`）：安装路径收敛到 npm/tgz 且 prepack 现场构建 ⇒ 前提消失；每次重建留 2.6–4.5 MB blob。
 - 三条构建路径各自构建：开发者手跑 `npm run build` / CI 的 `verify-client-sync` / `npm pack` 的 `prepack`。
-- 守卫 `test/verify-client-sync.mjs` 是 verify 链的**第一步** ⇒ **产物永远等于源码**。
+- 守卫 `test/verify-client-sync.mjs:9-19`（verify 链**第一步**）的判据从"git diff"改成**真跑构建逐字节比对 + `git ls-files` 判未跟踪** ⇒ **产物永远等于源码**。
 - 代价：commit SHA 全变、clone 变慢、`github:` 直装不支持。
 
-### 10.5 `prepack` 而不是 `prepare`（issue #141）—— 一个非常具体的工程决策
+### 10.6 `prepack` 而不是 `prepare`（issue #141）—— 一个非常具体的工程决策
 
-`scripts/prepare.mjs` 的头注释把这个坑写得一字不漏（逐字）：
+`package.json:109` 的 `"prepack": "node scripts/prepare.mjs"`。脚本头注释把这个坑写得一字不漏（逐字）：
 
-> 挂 `prepack` 而不是 `prepare` 是 issue #141 的直接修法：`prepare` 会在**安装期**跑（git 直装 / 解包当根项目 `pnpm install`），而 pnpm 11 对 git 依赖的构建脚本有 allowBuilds 安全闸 —— 插件市场默认走 `git+https://…` 直装，于是每个用户都被 `ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED` 拒装。改成 `prepack` 后：发布仍是"先构建再打包"，而**安装期一个脚本都不跑** —— 装出来的包直接用随包发布的 `lib/client.js`（它由 CI 的 build 幂等与 client-sync 守卫看着，见 `test/verify-package-publish.mjs` ⑦）。
+> 挂 `prepack` 而不是 `prepare` 是 issue #141 的直接修法：`prepare` 会在**安装期**跑（git 直装 / 解包当根项目 `pnpm install`），而 pnpm 11 对 git 依赖的构建脚本有 allowBuilds 安全闸 —— 插件市场默认走 `git+https://…` 直装，于是每个用户都被 `ERR_PNPM_GIT_DEP_PREPARE_NOT_ALLOWED` 拒装。改成 `prepack` 后：发布仍是"先构建再打包"，而**安装期一个脚本都不跑** —— 装出来的包直接用随包发布的 `lib/client.js`（它由 CI 的 build 幂等与 client-sync 守卫看着）。
 
 它自己判定"有没有源"：
 
@@ -2734,7 +2873,9 @@ const hasSource = existsSync(resolve(root, 'src', 'client.js')) &&
 
 这与 `files` 白名单**不包含 `src/`** 是一套设计：发布包里没有源码，只有现成的 `lib/client.js`。
 
-### 10.6 npm 包实测（`npm pack --dry-run --json`）
+**这个约定是被机器钉死的**：`test/verify-package-publish.mjs:316-319` 断言 `pkg.scripts.prepack === 'node scripts/prepare.mjs'`，并断言四个安装期钩子（`preinstall` / `install` / `postinstall` / `prepare`）**一律不许出现**。
+
+### 10.7 npm 包实测（`npm pack --dry-run --json`）
 
 - `dsh-plugin-wallpaper-engine@1.3.3`，**81 个文件 / 6,279,749 B（5.99 MB）unpacked**。
 - 包内最大文件：`lib/client.js` **4,542,261（占包 72.3%）** · `icon.png` 185,266 · `lib/glass-presets/factory-author.json` 156,003 · `lib/settings-schema.js` 130,205 · `lib/about/qq-group.png` 99,790 · `lib/about/update-notice.jpg` 89,198 · `lib/about/douyin-group.png` 83,520 · `lib/index.js` 81,597 · `lib/glass-presets/purple-mood.json` 66,503。
@@ -2742,37 +2883,227 @@ const hasSource = existsSync(resolve(root, 'src', 'client.js')) &&
 - `files` 白名单 **42 条**；`exports` 暴露 `.` / `./client` / `./cordis.patch.yml` / `./package.json`；`main` = `lib/index.js`。
 - 运行时依赖只有两个：`webwallgl@^3.0.0`、`x11@^4.3.1`；`overrides` 钉 `js-yaml 4.3.2`；devDeps 只有 eslint / typescript / @types/node；React 走 peerDep ⇒ **零运行时框架依赖**。
 
-### 10.7 守卫链：三档
+### 10.8 守卫链：**清单即真源，链是数据不是字符串**
 
-`test/run-guards.mjs` 是唯一的守卫入口（实测计数）：
+旧 `verify` 是 `package.json` 里**一行 1.6 KB / 43 条 `&&`**。`test/run-guards.mjs:5-13` 逐字说明为什么改：
 
-| 档位 | 命令 | 步数 | 内容 |
+> ①不可读（档位/参数/位置靠人肉数）②不可判（「想断言"链里有没有漏掉某条守卫"，只能去正则抠那行字符串（`verify-package-files` 的 P5 就是这么干的）。字符串一改，判据就静默缩水。」
+
+`test/run-guards.mjs:15-20` 逐字：
+
+> `MANIFEST` 是这条链的**唯一真源**，本文件**不读 `package.json`**（否则 runner 与 package.json 互为循环、等价证明无从谈起）。
+
+四组（`:183-188`）：
+
+```js
+const MANIFEST = {
+  verify: { chainKey: 'verify', steps: VERIFY_STEPS },
+  docs: { chainKey: 'verify:docs', steps: DOCS_STEPS },
+  smoke: { chainKey: 'smoke', steps: SMOKE_STEPS },
+  all: { chainKey: 'verify:all', steps: [npmStep('build'), ...VERIFY_STEPS, ...DOCS_STEPS, ...SMOKE_STEPS] },
+};
+```
+
+`all` **直接引用同一批步骤对象不复制**；且 `build` **必须不经过** `verify` 组（否则跑 `all` 之外的组时会被意外触发产物重写）。
+
+实测 `--list-json`：
+
+| 组 | 步数 | 档位 | 内容 |
 |---|---|---|---|
-| 硬档 | `npm run verify` | **57 步** | `test/verify-*.mjs` 全家：`verify-client-sync`（第一位）→ `verify-client` → `verify-scene-live`（6,854 行）→ `verify-glass-surfaces` → `verify-presets` → `verify-token-contract` → `verify-route-index` → `verify-system-fonts` → `verify-i18n` → … |
-| 软档 | `npm run verify:docs` | **6 步** | `verify-module-layout` / `verify-reachability` / `verify-retired-lines` / `verify-dead-declarations` / `verify-guard-map` / `verify-guard-chain` |
-| 冒烟 | `npm run smoke` | **6 步** | `rotation-smoke` / `rotation-live-smoke` / `rotation-prepared-leak-smoke` / `live-frame-backfill-smoke` / `live-frame-async-identity-smoke` / `fontset-load-smoke` |
-| 组合 | `npm run verify:all` | — | build → verify → verify:docs → smoke |
+| `verify` | 57 | 56 硬 + **1 软** | 首 `test/verify-client-sync.mjs`；唯一软档在第 16 位 `test/verify-media-bridge.mjs --allow-skip`（probe=true）；末 `test/verify-settings-schema-exports.mjs` |
+| `docs` | 6 | **全软** | module-layout / reachability / retired-lines / dead-declarations / guard-map / guard-chain |
+| `smoke` | 6 | **全硬** | rotation-smoke / rotation-live-smoke / rotation-prepared-leak-smoke / live-frame-backfill-smoke / live-frame-async-identity-smoke / fontset-load-smoke |
+| `all` | 70 | — | 1 npm 步（build）+ 57 + 6 + 6 |
 
-**软档那 6 步恰好就是"死代码与可达性"这一组** ⇒ 死声明 / 不可达 / 退役行这三类检查**永远不会让流水线变红**（第 13 章 §13.5 要点的缺点）。
+**软档那 6 步恰好就是"死代码与可达性"这一组** ⇒ 死声明 / 不可达 / 退役行这三类检查**永远不会让流水线变红**（第 13 章 §13.6 要点的缺点）。
 
-为什么把三档收进一个 runner 而不是留在 `package.json` 的 `&&` 链里（`test/run-guards.mjs:7`、`:91` 注释逐字）："`verify` 与 `smoke` 里有依赖前一步副作用的守卫（如 `verify-client-sync` 重建产物后……）"——**守卫之间有顺序依赖**，用 `&&` 表达不出来。
+调度机制（`:87-88`、`:295-313`）：
 
-`test/verify-media-bridge.mjs` 是唯一一个带 `['--allow-skip']` + `'soft'` + 第四参数的步骤 ⇒ 允许在没装媒体二进制的机器上跳过。
+```js
+const step = (file, args = [], tier = 'hard', probe = false) => ({ file, args, tier, probe });
+// ……
+const status = runStep(s);
+if (status === null) { /* 子进程没起来 */ process.exit(1); }
+if (status !== 0 && s.tier !== 'soft') { /* 短路 */ process.exit(status); }
+if (status !== 0) { console.log('⚠ … 软档守卫原退出码 = ' + status + '（已由 warn-only 降级，不决定本组红绿）'); }
+```
 
-### 10.8 CI 的三个反直觉决定
+三个容易踩的坑，都写在注释里：
 
-- **故意不跑 `npm ci`**：守卫链只用 Node 内置模块，`test/verify-package-files.mjs` P5 钉住 ⇒ 守卫不依赖供应链状态，也不受"装不上"影响。
+- **软档必须传仓库根相对路径**（`:230-233` 逐字）："`test/warn-only.mjs` 自己按 `join(ROOT, target)` 解析目标（它的契约就是"收相对路径"），给绝对路径会被它拼成 `<ROOT>/<绝对路径>` ⇒ 前置缺失，全组以合成码 2 退出（**实测踩过**）。硬档那侧直接执行，传绝对路径无所谓。"两侧刻意不一样（`:240-242`）。
+- **清单漂了当场报**（`:284-289`）：执行前检查每个 `s.file` 是否存在，不存在即 exit 2（`「清单漂了」`），而不是等 npm 报 `Cannot find module`。
+- **npm 步骤的跨平台姿势**（`:67-77` `npmLaunch()`）：Windows 上裸 `'npm'` 必 ENOENT、`'npm.cmd'` 必 EINVAL（Node 拒绝不经 shell 起 .cmd）⇒ 可靠姿势是**用当前 node 直接跑 npm 自己的 CLI 入口 `npm-cli.js`**。
+
+**链的形状被逐字冻结**：`test/verify-guard-chain.mjs`（175 行）读 `MANIFEST`（经 `--list-json` **子进程**读出）与 fixture `test/fixtures/verify-chain.json`（27,602 B / 1,142 行）逐条比对。四条判据（`:19-23`）：① fixture 四组逐条一致 ② 每组硬档条数 ≥ 地板 ③ 清单里每个 `file` 真实存在 ④ `all` 组恰好 = `build` + 其余三组的有序拼接。
+
+它存在的原因写得很直白（`:1-33`）："P5 … 钉的是"链上零裸包依赖 + 条数不低于地板"——它**允许**换掉一条守卫……于是"把 `verify-permissions.mjs` 从链里删掉"这种改动在现有判据下**全绿**，而它意味着一条硬档判据静默脱离了 PR 门禁。"
+
+地板值在共享库 `test/tools/guard-chain.mjs:33`：`export const TIER_FLOOR = { verify: 24, docs: 0, smoke: 5, all: 29 };`——**docs 地板是 0**，理由写在注释里："docs 整组软档 ⇒ 地板 0，对它设 1 会把"整组软档"这个**设计**判成违规"。
+
+重冻结是**显式动作**：改链 ⇒ `node test/verify-guard-chain.mjs --write-fixture`，并与业务改动放同一次提交。
+
+### 10.9 硬/软两档：按**"失败的含义"**分，而不是按"判据重不重要"
+
+`docs/adr/0004-two-tier-guard-verification.md:25` 逐字：
+
+> **按"失败的含义"把守卫分两档**，而不是按"判据重不重要"。
+
+`:27-30` 两档定义逐字：
+
+- **硬档**：失败意味着**用户会撞上** —— 真机行为、发布面、平台契约、打包面。跑在 `npm run verify` 与 CI 里，**挡 PR**。
+- **软档**：失败意味着**仓库内务 / 账本自洽 / 一次性清理的验收判据**不准了 —— 要人回来看，但不该拦住别人的改动。跑在 `npm run verify:docs`，**只出声、不挡人**。
+
+分档的动因（`:14-19`）逐字："所有判据共用同一种红 ⇒ 一次**文档排版**改动与"发布面漏了一个文件"会让**同一条命令**失败 —— 改一行的合规成本被最贵的那条判据决定"，后果三条：贡献者倾向于**绕过整条链** / 真正危险的失败被淹没在无关的红里 / 「"让链变绿"的动机变成改判据，而不是改代码」。
+
+D1–D5（`:34-42`）：
+
+- **D1** 分档只改「谁决定红绿」，判据一字不动（降级的是**退出码**）。
+- **D2** 软档照跑照打印 `✓/✗`，原退出码写在末尾显式行上。
+- **D3 跳过不得与通过同形**。
+- **D4** 入口用子进程包装，不用 `node --import`："因为包管理器会吞掉 `--import` 参数，降级会失效、链条当场断在第一条软档守卫上（这是实测到的，不是推测）"。
+- **D5** 拿不准的**放软档** ——"硬档的门槛是"能说出用户侧后果"，说不出的先别挡人"。
+
+降级器 `test/warn-only.mjs`（78 行）做两件事：① 软档守卫失败时打印 `[warn-only] 软档守卫原退出码 = N`，本入口以 0 退出（判据一字未改 ⇒ 跳过不得与通过同形）；② **起不了子进程时打具名 SKIP 而不是当成断言失败**——文件头记「**本机实测**：同一个二进制用 `--provision` 下得下来（`fetch` 不受限），但起不来；普通终端里同一套参数全过 ⇒ 那是"跑命令的方式"不是被测代码的缺陷 ⇒ 打 SKIP + 原因，不当断言失败」。spawn 失败（status===null）也走具名 SKIP，理由是"把合成码 1 当"原退出码"打印后 exit 0 与"守卫真的红了一次"同形：判据没跑，报告里却像跑过"。
+
+CI 上还有**第二层**（`.github/workflows/verify.yml:100-102`）：`verify:docs` 带 `continue-on-error: true`，注释逐字："`continue-on-error` 是这一档的定义本身，不是权宜 … 这里再加一层是**双保险**（CI 上若有人改坏了那层包装，这步仍不会变红）"。
+
+### 10.10 ADR-0006 / ADR-0007：**把守散文的守卫撤掉**
+
+这是本仓最独特的一节纪律，也是"AI 时代怎么写机器判据"的一个现成答案。
+
+`docs/adr/0007-machine-checks-target-code-not-prose.md:38` 逐字：
+
+> **判据的判定对象只能是"代码""磁盘""生成物"与"程序运行结果"；不得是"作者怎么措辞"。**
+
+**四问**（`:40-52`，全过才留）：
+
+1. **判定对象是机器事实，还是人的措辞？** 措辞（注释/文档的句子、标签文案、H1、笔误）⇒ **不加**。
+2. **失败信号能否转成"可机械执行的动作"？** "若答案是"把那句话改回来"⇒ 判据守的是编辑，**不加**"。
+3. **判据能否被"空壳"满足？** "能（例：一份标题对、正文空的文档就能满足"H1 点名"）⇒ 它守的是形式而非实质，**不加**。"
+4. **判据里是否出现面向用户的文案字面量？** "是 ⇒ 只有两种出路：改成**可译键**（经 `weT(...)` 读，由 `verify-i18n` 承担"进没进词表"），或**撤除**。`includes('某句中文')` 直接进判据 = 违反本条。"
+
+**豁免**（`:54-56`）：判定对象是**运行结果**时不适用第 1、4 问；区分办法是"那段文字是**从被测代码跑出来的**，还是**从源码文件里读出来的**"。
+
+撤除清单（`:69-80`）摘三条：
+
+| 位置 | 原判据 | 撤除理由 |
+|---|---|---|
+| `verify-scene-live` | `sidebarSrc.includes('/设置\|Settings/i.test')` | 第 2 问：失败信号要求"保持原样"，而原样正是那个 locale bug（宿主语言繁中 `設定` 时设置入口静默失效） |
+| `verify-retired-lines` | `状态行不再出现笔误「秡」` | 第 3 问 + 写作纪律 5：P0-4 收口后恒真，属"已死仍占位" |
+| `verify-module-layout` ⑥ 后半 | `src/` 子目录被常青文档 **H1** 点名 | 第 1/3 问：守标题措辞，且空壳文档即可满足 |
+
+**保留清单**（`:58-67`，四条）：`verify-route-index`（生成物 ↔ 复算逐字节一致）、`verify-module-layout` ⑧（枚举面完整性）、`verify-module-layout` ⑥（磁盘计数门槛 `SRC_DIR_MIN_MEMBERS`）、`verify-i18n`（可译键在位）。
+
+**实测印证**：今天 `docs` 软档组 6 条守卫里，**没有任何一条**把散文句子当判据。仍引用 `docs/` 的守卫读的是**生成物**（`docs/GUARD-MAP.md` / `docs/ROUTE-INDEX.md` / `docs/TOKEN-CONTRACT.md`）或**枚举面**（`docs/DEV-GUIDE.md` 的工具点名）。
+
+**ADR-0006 是执行票**（`docs/adr/0006-comment-discipline-as-written-convention.md:6-8` 逐字）："纪律条文与 ADR 已落地；**文档类守卫文件已物理下线**（`verify-comment-discipline` / `verify-ledger` 已从 `test/` 删除、并移出 `npm run verify:docs` 链）"。
+
+撤除的**经验依据**（`:18-20` 逐字）："实测证据是：被守卫覆盖的数字没有漂（构建清单计数、路由条数、工具清单），而**没被覆盖的数字全漂了**"。
+
+三个结构性代价（`:22-31`）：守卫在替作者思考 / 纪律的守卫本身需要维护且会腐化（"改写句子会让判据**静默失效**，守卫转而去守"句子别被改写""）/ 摩擦落在最不该付的人身上。D1 给了明确的撤除边界："只撤"文档/注释/账本散文"类；守**代码**问题的守卫（可达性、退役线、声明孤儿、模块布局）**保留**"。
+
+**代价**（`docs/adr/0007:91-99`）：`src/` 子目录的"有没有自己的权威文档"不再有机器兜底；改文案的自由换来"文案腐化无人拦"；四问仍是判断不是算法。
+
+### 10.11 守卫地图：覆盖是从代码里**派生**的，不是手工维护的
+
+`docs/GUARD-MAP.md`（27,971 B / 221 行，**生成物**）给出全仓口径："模块面 130 个 · 守卫 73 个"；其中 `lib/client.js` 一个文件就有 41 个守卫；**全表无零覆盖行**。
+
+- 派生工具 `test/tools/guard-targets.mjs` 定义六种"这个守卫在守哪块代码"的写法 + **四条不许放宽的边界**；`SELF_REFERENTIAL`（`:63-72`）注释记"实测踩过两次"——即守卫必须能把自己也算进去。
+- `test/verify-guard-map.mjs` 属**软档**（它守的是内务形式，说不出用户侧后果），但 `ZERO_COVERAGE_WHY` **只许缩小不许放宽**（靠人工纪律，没有机器信号）。
+
+**"牙齿"由 `test/tools/audit-guard-teeth.mjs` 普查**（20,506 B / 291 行，只给候选、**退出码恒 0**、不进链）。A–F 六判据：对照没被评估 / log 伪判据 / 零引用判据 / 恒真写法 / 没有会红出口 / 朴素剥注释丢真代码（实测单文件最长被吃 **331 行**）。判据自身带 **20 条正负对照自检**，无牙则 exit 2。
+
+### 10.12 `test/tools/` 的 20 个工具：真正的 `audit-*` 只有 4 个
+
+| 类别 | 数量 | 代表 |
+|---|---|---|
+| 真 `audit-*` 前缀 | **4** | `audit-guard-teeth` / `audit-write-only-state` / `audit-import-closure` / `audit-fixture-coverage` |
+| **同时是守卫的共享库** | 6（`docs/DEV-GUIDE.md` §4.6 明列） | `src-scope` / `token-contract` / `host-route-index` / `i18n-scan` / `js-text` |
+| 其余 | 其余 | 各类共享工具 |
+
+> ⚠️ 题面把 8 个工具都叫 `audit-*.mjs`，与源码不符：**真 `audit-` 前缀只有 4 个**。
+
+最深的一个是 `audit-write-only-state.mjs`（28,116 B / 460 行）：它**六类结构性假阳**，46 条候选逐条判完后"没有一条能落进『机械可判且当下非空』的窄桶"⇒ 明确**不建** `verify-write-only-state.mjs`（`:44-45`）。
+
+**这是本仓对"守卫资格"的态度样板**：不为了覆盖率硬造一条判据；写不出一条机械可判、且当下非空的判据时，**正确的动作是把这个守卫明确记录为"不建"**，而不是造一条恒真或恒假的守卫。
+
+### 10.13 测试：**没有框架**，53 个守卫各造各的轮子
+
+实测：`vitest|jest|mocha|node:test` 命中 **0**；`node:assert/strict` 只有 **4** 个守卫在用；自建 `check()` 的守卫 **53** 个；import `test/tools/assert-harness.mjs` 的 **6** 个。
+
+规模：`test/verify-*.mjs` **64 个 / 2,917,120 B**；`test/*.mjs` 顶层 **77 个 / 3,354,381 B**。
+
+范式（`test/verify-scene.mjs:44-60`）：`check()` 输出 `'  ✓ '` / `'  ✗ '`；`platformSkip()` 输出 `'  ○ '` 且**不计入通过**。
+
+共享脚手架 `test/tools/assert-harness.mjs`（114 行）从两个大守卫**逐字提取**：`createCheck` / `normCrlf` / `fnNameBody` / `braceBody` / `naiveBlockBody` / `naiveFuncSlice`——注释写明两个约束："行为必须逐字节不变"、**"两种口径不可互换"**。
+
+> 📌 这条"共享脚手架必须逐字节等价"的纪律，是第 9 章讲的"字节级契约保证不漂移但不保证不荒谬"（`docs/wip/ISSUE-AUDIT-148PLUS.md:738` 那个恒 0 计数 bug）在**同一套方法论下的另一个面**：**机器判据本身也需要被机器钉住**。
+
+### 10.14 静态门禁：ESLint 分两套，TypeScript 只覆盖一小片
+
+**`eslint.config.mjs`（13,193 B / 219 行）为什么是两套配置**——文件头 `:1-31` 逐字：
+
+- **宿主半边**（`lib/**`、`scripts/**`、`test/**`）是**真 ESM 模块**，ESLint 默认模型成立、`no-undef` 有牙。
+- **客户端半边**（`src/**`）是**扁平作用域片段**（不是模块，是被 `build-client.mjs` 按 `INLINE_MODULES` 顺序平铺进同一 factory 作用域的代码段），按默认模型判会**系统性误报**——"`src/styles.js` 里用 `weClampTo` 合法，因由内联清单里更前的 `src/we-base.js` 提供；而 `src/we-base.js` 里的函数又被判成"定义了没人用""。
+- **"误报比不报更坏"**：它训练人忽略这门检查 ⇒ `src/**` 显式关掉 `no-undef` / `no-unused-vars`，把"跨文件名字对得上"交给**真正拥有这个判据的人**：撞名 → `build-client.mjs` 的 `readInlinedPrelude()` 机器提取注入名后与正文比对、**构建期硬失败**；未定义 → 构建期 `new Script(output)` 语法解析 + 运行期。
+
+| 块 | 行 | 内容 |
+|---|---|---|
+| ignores | `:76-80` | `lib/client.js`（产物）、`node_modules/**`、`.npm-cache/**`、`.test-cache/**`、`assets/**`、`lib/types/**` |
+| 宿主块 | `:83-119` | `ecmaVersion: 2024`、`sourceType: 'module'`、自写 `NODE_GLOBALS`（`:34-40`："不引入 `globals` 包：少一个依赖，且清单有界"）；recommended + `JUSTIFIED_OFF` + **25 条手写规则**（`no-unused-private-class-members`（注释："捕获"抛了却没人接"的静默失败：本仓的守卫文化要求失败必须可见"）、`no-constant-binary-expression`、`require-atomic-updates`、`no-eval`/`no-implied-eval`/`no-new-func`/`no-script-url`、`eqeqeq: ['error','always',{null:'ignore'}]`、`no-var`、`prefer-const`…） |
+| `JUSTIFIED_OFF` | `:64-73` | 三条**带理由**的关闭：`no-useless-escape`（守卫与构建脚本大量"先剥注释再判文本"的正则）、`no-empty`（空 catch 是刻意的"探测"形态）、`no-control-regex`（设置与 i18n 词表里**故意**匹配 `[\x00-\x1f]`） |
+| 浏览器块 | `:120-140` | `BROWSER_GLOBALS` 按**实测**逐个加入（`:52-62`："不做"把 DOM 全搬进来"—— 多写一个名字就会静默放过一个真拼错的引用"） |
+| test 块 | `:142-149` | 关 `no-new-func`/`no-eval`/`no-implied-eval`/`no-script-url`（守卫要**求值被抽出来的客户端代码**，"关掉只会逼人加 eslint-disable，从而失去"一处豁免一处理由"的可审计性"） |
+| src 块 | `:150-182` | **只关两条**（`no-undef`/`no-unused-vars`）；`no-redeclare: 'error'`（片段内**文件内**重复声明仍是真问题，平铺后同作用域一定是 SyntaxError）；`no-var: 'off'` 是**契约**（换成 let/const 会把跨片段引用变成时序敏感的 TDZ 崩溃面）；`:175-180` 明确**故意不声明** `react-hooks/exhaustive-deps`（"声明未安装插件的规则只会在配置层制造假错误"）⇒ **实测 `src/**` 现在零 `eslint-disable` 指令** |
+| `src/client.js` 单独块 | `:184-192` | `sourceType: 'commonjs'`："按 `module` 解析会把收尾那个 `return` 判成 `Parsing error: 'return' outside of function` —— 而**一条解析错误会吞掉整个文件的全部判据**……按 `commonjs` 解析正是它的真实形态，**实测这条修好后立刻暴露了两条真违规**" |
+| 豁免面（**必须排最后**） | `:194-218` | `:194-198` 逐字："上面 `src/**` 那块 spread 了 `js.configs.recommended.rules`，而 `@eslint/js` v10 的 recommended **包含** `no-irregular-whitespace` ⇒ 任何写在它**之前**的豁免都会被重新打开（实测：`src/styles-base.js` 的 U+3000 一度照红）" |
+
+**`tsconfig.json`（2,111 B / 36 行）——只为 `npm run typecheck` 存在**（头注释 `:1-16` 逐字）：
+
+> 本仓没有 .ts 源码，也不产出类型。…… 守卫擅长钉住**已知**的判据，但对"这个属性名在这个对象上根本不存在"这类跨文件形状错配无能为力 —— 而那正是把大文件拆成模块时最容易引入的错误…`tsc --checkJs` 恰好补这一格：它不要求写类型注解，只做形状推断。
+
+口径采用**基线棘轮**而不是"一次修到零"："45,000+ 行历史 JS 首次打开 checkJs 必然有存量报错…基线按**错误码**而不是按行/文件：拆文件会让行号全变。"
+
+```json
+  "include": ["lib/**/*.js", "scripts/**/*.mjs", "lib/types/**/*.d.ts"],
+  "exclude": ["node_modules", "lib/client.js"]
+```
+
+`compilerOptions`：`target/lib: ES2023 + DOM`、`module/moduleResolution: NodeNext`、`allowJs: true` + `checkJs: true`、`noEmit: true`、**`strict: false`**、`noImplicitAny: false`、`skipLibCheck: true`。
+
+**结论**：TypeScript 覆盖 ① `lib/**` 的 JS（形状推断，不产类型）② `scripts/**` 的 `.mjs` ③ `lib/types/**` 的 `.d.ts`；**不覆盖 `test/**` 与 `src/**`**（前者"故意"读畸形输入，形状错配是手法不是缺陷；后者是平铺片段，单文件看必然"名字都不存在"）。`strict: false` ⇒ **远不是"严格类型检查"**。
+
+**手写的发布面类型声明**：`lib/types/index.d.ts`（7,302 B / 143 行，宿主半边）+ `lib/types/client.d.ts`（3,550 B / 83 行，浏览器半边），**只有 2 个文件**。它们不是编译产物、会漂 ⇒ 漂移由 `test/verify-types.mjs`（315 行）用**文本对账**钉住，判据核心是"**声明集 == 手工钉住的必需字段集**"（P8/P9 散文不变量里，路由条数取**生成的索引**里的 `共 **N** 条路由` 而非写死数字）。
+
+**静态门禁本体 `test/verify-static.mjs`（10,482 B / 207 行）** 有**两份不变量，缺一不可**：
+
+1. **计数上限**（任一格 `当前 > 基线` ⇒ FAIL；改进是绿的但会**提示**跑 `--write-baseline` 收紧——"不收紧就等于把这份改善借给下一次回归"）；
+2. **扫描面下限**（`filesLinted`）——"只钉计数会留一个后门 —— 往 `ignores` 里加一条就能"减少违规""。
+
+且"**脚本是唯一真源**"：本守卫**不硬抄** `eslint .` / `tsc --noEmit`，而是读 `package.json` 的 `lint`/`typecheck` 两条脚本、把可执行名换成仓内路径后**原样执行**；脚本被改成别的工具时当场 FAIL。
+
+当前基线 `test/fixtures/static-baseline.json`：`{"eslint":{"filesLinted":225,"byRule":{}},"tsc":{"byCode":{}}}` ⇒ **ESLint 零违规、tsc 零错误码**，扫描面地板 225 个文件。
+
+### 10.15 CI 的四个反直觉决定
+
+- **故意不跑 `npm ci`**：守卫链只用 Node 内置模块，`test/verify-package-files.mjs` P5 钉住 ⇒ 守卫不依赖供应链状态，也不受"装不上"影响。（安装步骤用的是 `npm ci --omit=peer --ignore-scripts`。）
 - **双平台 + `fail-fast: false`**：矩阵 `[windows-latest, ubuntu-latest]`。理由写在 workflow 注释里：只有 POSIX 的 `chmod` 能阻止 `unlink`；目录链接在 win32 是 **junction**、在 POSIX 是 **dir 符号链接**；`verify-media-bridge` 有 win32 专用断言；**"只跑一个平台 ⇒ 另一半零覆盖"**。
-- `npm ci --omit=peer --ignore-scripts` ⇒ 任何依赖安装脚本的原生构建**都不被验证**；`verify:docs` 步 `continue-on-error: true` ⇒ 文档类守卫不拦合并。
+- **`concurrency` 必须挂在作业上**（`:15-24`）：实测挂在 workflow 级会得到 0 秒失败、`jobs=[]`。
+- **`verify:static` 刻意独立**（devDependencies 不得进零裸依赖链）；`verify:docs` 额外 `continue-on-error: true` 作双保险。
 
-**没有 macOS。** 这一点在第 13 章 §13.1.2 与第 14 章都要再算一次账。
+**没有 macOS，也没有任何 Node 版本矩阵**：`node-version: '22'` 固定（`verify.yml:47-49`）——**`engines.node: ">=18"` 与 CI 实测的 22 之间没有任何机器覆盖**（第 13 章 §13.6）。
 
-### 10.9 这套体系自己的代价
+`harness-compat.yml` 另行：只 `workflow_dispatch`、单平台 windows、checkout 用 **deploy key**（个人仓库 ruleset 不允许把 GitHub Actions 列为 bypass actor，实测 422）、tarball 通道看 `peerDependencies` 能否在安装闭包里解析。
 
-- **手工内联器 = 手工实现的模块系统**：所有模块平铺进同一个 factory 作用域 ⇒ ① 重名即静默覆盖（所以才需要 `assertNoShadowedScopeDecls`）；② **依赖关系只存在于文件头注释里**（ADR-0003 的代价）；③ **不能按需加载**，整包一次性求值；④ **注释随包发给用户**；⑤ 产物即契约。
+### 10.16 这套体系自己的代价
+
+- **手工内联器 = 手工实现的模块系统**：所有模块平铺进同一个 factory 作用域 ⇒ ① 重名即静默覆盖（所以才需要第 5 道闸）② **依赖关系只存在于文件头注释里**（ADR-0003 的代价）③ **不能按需加载**，整包一次性求值 ④ **注释随包发给用户** ⑤ 产物即契约。
 - **客户端侧没有死代码检测**：`test/verify-dead-declarations.mjs:6-12` 明确说 `src/**` 不适用（"按『本文件只出现一次』判会得到 **44 处假阳性**"）⇒ 5,416 行的 `src/client.js` 没有任何退役/死代码检查，且这条守卫还属于 soft 组。
 - **零依赖既是优点也是风险**：好处是 `node scripts/build-client.mjs` 在任何机器上都能跑、CI 不用装东西；坏处是**没有第三方工具帮忙抓 bug**，模块解析、作用域判定、注入完整性全靠自研守卫。
 - **236 KB CSS 在工厂顶层同步注入**（`src/client.js:5101-5115`）⇒ 首屏阻塞项；且 `data-we-glass-page` 这类"无条件挂载"的锚点意味着**没开壁纸也要付这份钱**。
+- **`test/tools/` 的 20 个工具都没有 CI 消费者**（除被守卫 import 的共享库外，审计类工具"退出码恒 0、不进链"）⇒ 它们是**给人用的**，不是机器用的。
+- **`docs` 软档会长期腐化**：`ZERO_COVERAGE_WHY` 只许缩小这条规则**靠人工纪律收紧**，没有机器信号。
+
 
 ---
 
@@ -3169,12 +3500,18 @@ GitHub Release 的角色主要是**传播素材**：`media-v1` 展示图资产�
 - **守卫链只用 Node 内置模块**，CI **故意不跑 `npm ci`**（`test/verify-package-files.mjs` P5 钉住）⇒ 守卫不依赖供应链状态。
 - **双平台 CI 且关掉 fail-fast**（`windows-latest` + `ubuntu-latest`，`fail-fast: false`），理由写得很清楚："只跑一个平台 ⇒ 另一半**零覆盖**"。
 - **ADR 的判据不是"记了什么"，而是"实现重写后是否依然成立"**；被推翻时**不改写正文**，只把 `Status` 改成 `Superseded by ADR-NNNN`（`docs/adr/README.md`）——这是很少见的、正确的 ADR 维护方式。
+- **把"链"本身当成数据来管**：`test/run-guards.mjs:15-20` 逐字——"`MANIFEST` 是这条链的**唯一真源**，本文件**不读 `package.json`**（否则 runner 与 package.json 互为循环、等价证明无从谈起）"。链的形状还被 fixture **逐字冻结**（`test/fixtures/verify-chain.json`，1,142 行），地板写死 `TIER_FLOOR = { verify: 24, docs: 0, smoke: 5, all: 29 }` ⇒ "把某条硬档守卫从链里删掉"这种改动**会当场变红**（旧方案下它是全绿的）。
+- **硬/软分档的依据是"失败的含义"，不是"判据重不重要"**（ADR-0004:25 逐字）：硬档 = 失败意味着**用户会撞上**（真机行为 / 发布面 / 平台契约 / 打包面）；软档 = 仓库内务不准了。分档**只改"谁决定红绿"，判据一字不动**（降级的是退出码），并且"跳过不得与通过同形"是明写的 D3。
+- **ADR-0007 把"什么该用机器判据"写成了一段可操作的程序**（逐字）："**判据的判定对象只能是'代码''磁盘''生成物'与'程序运行结果'；不得是'作者怎么措辞'。**"配四问（是机器事实还是人的措辞 / 失败信号能否转成机械动作 / 能否被空壳满足 / 是否出现面向用户的文案字面量）。据此**物理删掉了** `verify-comment-discipline` 与 `verify-ledger` 两个守卫文件（ADR-0006）。撤除的经验依据也是实测的（ADR-0006:18-20 逐字）："被守卫覆盖的数字没有漂……而**没被覆盖的数字全漂了**"。
+- **静态门禁有两份不变量**：**计数上限** + **扫描面下限**（`filesLinted`）——"只钉计数会留一个后门 —— 往 `ignores` 里加一条就能'减少违规'"。当前基线：ESLint 零违规、tsc 零错误码、扫描面 225 个文件。
+- **知道什么时候"不建守卫"**：`test/tools/audit-write-only-state.mjs`（460 行）逐条判完 46 条候选后得出"没有一条能落进『机械可判且当下非空』的窄桶"⇒ **明确不建** `verify-write-only-state.mjs` 并把理由写进代码。**不为了覆盖率硬造一条恒真或恒假的守卫**——这是很难得的克制。
 
 ### 12.4 测试体量与形态
 
 - `test/` **52,716 行 / 97 文件**，`src/` 29,389 行 / 73 文件，`lib/` 15,882 行 / 58 文件 ⇒ **测试代码比产品代码多**（45,271 行）。
 - 断言不是"跑通就行"，而是**把契约钉成数字**：例如 `test/verify-scene-live.mjs:3751-3755` 的 #190 棘轮（`stroke+fill ≤ 40`、`blur ≤ 24`）、`test/verify-presets.mjs:128-162` 的预设键集双向对账、`test/verify-token-contract.mjs` 的令牌逐字节一致 + 负对照探针 + 门控计数自洽。
 - 危险动作有专门的守卫：`src/**` 里 `window.confirm` 必须为 **0**；`lib/` 里破坏性操作必须走两下确认。
+- **测试断言本身也被机器钉住**：`test/tools/assert-harness.mjs`（114 行）从两个大守卫**逐字提取**共享脚手架（`createCheck` / `normCrlf` / `fnNameBody` / `braceBody` / `naiveBlockBody` / `naiveFuncSlice`），纪律写死两条："行为必须逐字节不变"、**"两种口径不可互换"**。这与第 9 章"字节级契约保证不漂移但不保证不荒谬"是同一套方法论的两面：**机器判据自己也需要被机器钉住**。
 
 ### 12.5 媒体管线的工程含量
 
@@ -3241,6 +3578,7 @@ setUploadDir(dir, migrate).then(…)
 - 真宿主兼容测试是**派发制**（`.github/workflows/harness-compat.yml` 只有 `workflow_dispatch`），而仓库自己承认"**三条判据自 bb06fc2 起一直红且看不出原因**（harness-compat 是派发制，没人重跑就没人发现）"（`docs/CHANGELOG.md:1864`；`docs/archive/audits/TEST-ANTIPATTERN-AUDIT.md:38`）。
 - CI **无 macOS**（`.github/workflows/verify.yml:39` `os: [windows-latest, ubuntu-latest]`）且 `npm ci --omit=peer --ignore-scripts`（`:56`）⇒ macOS 专属路径（`swiftc` 编译 audio-tap、`system_profiler`/`osascript` 字体枚举、darwin media-bridge）**在 CI 中一次都没跑过**；`--ignore-scripts` 意味着任何依赖安装脚本的原生构建也不被验证。
 - 主客户端行为测的是**手写假 DOM**：`test/verify-client.mjs`（396KB / 5,270 行）自带 `makeEl`/`classList`/`activeElement` 仿真，在 `node:vm` 里跑 bundle ⇒ **真浏览器里的事件顺序、焦点、CSS 合成、`backdrop-filter` 行为都测不到**——而玻璃 UI 恰恰最依赖真实渲染。
+- **CI 没有任何 Node 版本矩阵**：`package.json` 声明 `engines.node: ">=18"`，而 `.github/workflows/verify.yml:47-49` 把 `node-version` **固定成 `'22'`** ⇒ **18–21 这四个版本在 CI 里零覆盖**，22 以上零覆盖，而声明却允许 18。插件声明支持的最老那批 Node，**从来没有被任何自动流程验证过**。
 
 ### 13.2 中高
 
@@ -3357,6 +3695,37 @@ try { unlinkSync(join(dir, name)); } catch { /* ignore */ }
 
 `lib/asset-paths.js:31`（`DSH_WE_UPLOAD_DIR`，**不做归一化**）、`:51-52`（`DSH_WE_ASSETS_DIR`，走 `normalize()`，两者口径不一致）、`lib/index.js:290`（`DSH_WE_DATA_DIR`）、`:317`（`DSH_WE_CACHE_DIR`）。注释写明设计用途是**测试隔离**（`lib/index.js:278-280`："自检脚本会 PUT 设置，绝不能写用户真实的那份 config.json"）⇒ **"测试便利"换来了生产面暴露**。
 
+#### 13.3.9 判据会腐烂，而且**腐烂的三种形态都没有机器信号**
+
+`test/tools/audit-guard-teeth.mjs`（291 行）自己列了判据腐烂的三种形态：**假绿**（判据恒真）、**假红**（判据恒假）、**恒真写法**。它的 A–F 六判据（对照没被评估 / log 伪判据 / 零引用判据 / 恒真写法 / 没有会红出口 / 朴素剥注释丢真代码——实测单文件最长被吃 **331 行**）**只给候选，退出码恒 0，不进链**。
+
+⇒ 也就是说：**"守卫是否还有牙齿"这件事本身没有任何机器判据**。它靠两条人工纪律撑着：① 每个审计判据自带 20 条正负对照自检（自检能保证"判据自己没写错"）；② `docs/GUARD-MAP.md` 的 `ZERO_COVERAGE_WHY` 只许缩小不许放宽。**但"负对照漏写了一条"没有任何信号**——第 9 章那个恒 0 计数 bug（`docs/wip/ISSUE-AUDIT-148PLUS.md:738`）就是这一类问题的活样本：**逐字节比对把一个荒谬的数字永久冻绿了**。
+
+#### 13.3.10 软档（`verify:docs`）会长期腐化
+
+`docs` 组 6 条守卫**全是软档**（module-layout / reachability / retired-lines / dead-declarations / guard-map / guard-chain），且这 6 条恰好覆盖"死代码与可达性"这一整类。加上 CI 上 `continue-on-error: true` 的双保险 ⇒ **这一整类问题永远不会让流水线变红**。
+
+更微妙的是：软档的唯一硬约束是"跳过不得与通过同形"，而**软档失败本身是正常输出** ⇒ 没人会去读它。`ZERO_COVERAGE_WHY` 只许缩小这条规则**完全靠人工纪律**，没有机器信号。
+
+#### 13.3.11 `test/tools/` 的 20 个工具**都没有 CI 消费者**
+
+`test/tools/` 共 20 个工具、250,590 B，其中真正的 `audit-*` 只有 4 个（`guard-teeth` / `write-only-state` / `import-closure` / `fixture-coverage`）。审计类工具**退出码恒 0、不进链**；共享库（`src-scope` / `token-contract` / `host-route-index` / `i18n-scan` / `js-text`）由守卫 import 才被执行。
+
+⇒ **它们是给人用的工具，不是机器用的判据**。这本身不是缺陷（人工审计辅助是合理的），但它意味着"审计结论过期"没有任何拦截机制——第 13.3.2 节那份记着 `2,332,806 B` 旧值的审计文档，就是这样静静留在 `docs/wip/` 里的。
+
+#### 13.3.12 宿主兼容基线的"内容身份"路径**当前不触发**
+
+`scripts/harness-compat-baseline.mjs:93-105` 的 `pluginRevision()` 用 `git ls-tree -r` 的内容 sha256 前 16 位——**不用 commit sha**，理由写在 `:20-28`：record 把基线提交进 main 会推进 HEAD，否则每小时重跑一轮 5–9 分钟。
+
+**但盘上的 `.github/harness-baseline.json`（16 行）没有 `revision` 字段** ⇒ `decide()` 走的是退化路径（退回按 sha 比较）⇒ **内容相同就秒过的那条优化路径实际未生效**，而当前插件版本（1.3.3）与基线记录的版本（1.0.1 × harness 0.1.7-rc.2）已经差了 9 个版本。
+
+#### 13.3.13 引擎侧的两处契约缺口（§4.18.6）
+
+1. **`getOcclusion()` 是空桩恒返回 `null`**（`lib/webwallgl/renderer.js:296-298`），而插件自己的规格 `docs/wip/LINUX-OCCLUSION.md:237-239` 把它当 **QA 契约**，要从中读 band / ratio / gridCoverage ⇒ **实现与规格脱节**；且引擎侧 `SceneInstance` **根本没有这个 getter**（公开的只有 `stats.occluded` / `stats.throttled`）⇒ **这个缺口无法完全补齐**。
+2. **`getState().paused` 的语义陷阱**：`renderer.js:305` 用 `inst.paused`，而引擎明确**用户暂停意图**与**遮挡 pause** 是两套独立记账（`types.d.ts:560-561`）⇒ 遮挡把画面全遮住时，看护若只看 `getState().paused` 会误判"没在跑"。客户端侧已有镜像 `occlusionRendererPaused()`（`src/occlusion.js:174-177`），但**没有暴露回 `getState`**。
+
+这一条的意义超出"有个 bug"：**它说明插件与引擎之间没有共享的"语义契约"文档**——插件在自己的一侧复制了引擎的阈值（`src/occlusion.js:160` 复制了 `0.05`），却对"什么算 paused"的理解与引擎不一致；而 §4.18.5 已经证明**引擎 2.1.0 → 3.0.0 的阈值零变化**，也就是说这份复制目前是对的——**但它对得上只是运气，不是机制**。
+
 ### 13.4 结构性 / 产品级
 
 - **没有玻璃总开关**。全仓 grep `glassEnabled|glassOff|noGlass` → **0 命中**。用户看到的永远是"半玻璃"，没有"关掉玻璃、只留壁纸"的选项。四态共存（`full|glass-only|wallpaper-only|off`）在 ADR-0010 里写明，但**模式键在代码里不存在** ⇒ 纸面设计。
@@ -3381,19 +3750,24 @@ try { unlinkSync(join(dir, name)); } catch { /* ignore */ }
 | 维度 | 严重度 | 本质 |
 |---|---|---|
 | CSRF / 任意目录创建 | 高 | 边界外：宿主 HTTP 模型 + 无 Origin 校验 |
-| 测试盲区（无真端到端、无 macOS CI、compat 派发制） | 高 | 边界外：需要真宿主 + 真浏览器 + 多平台 runner |
+| 测试盲区（无真端到端、无 macOS CI、compat 派发制、**CI 无 Node 版本矩阵**） | 高 | 边界外：需要真宿主 + 真浏览器 + 多平台 runner |
 | 围栏三档不齐 | 中高 | 边界内但**没统一收口**（正确写法就在同仓） |
 | 磁盘 / 内存无界、token 可逆泄露路径 | 中高 | 边界外：会话时长与素材规模不可控 |
 | loopback 媒体源无鉴权 | 中高 | 边界外：本机进程模型 |
 | ADR 状态双向不可信；无 ADR 覆盖"执行下载的二进制" | 中 | 边界内：流程缺陷 |
 | 产物 4.54MB（52.2% base64）+ 同步注入 236KB CSS | 中 | 边界内：设计取舍已定，但**审计数值已过期** |
+| **判据腐烂无机器信号**（守卫是否有牙齿靠人工；负对照漏写无信号） | 中 | 边界内：方法论的天花板 |
+| **软档整组腐化**（`verify:docs` 6 条全软，覆盖死代码/可达性整类） | 中 | 边界内：分档设计的代价 |
+| **CI 不验证 `engines.node` 声明的下界**（18–21 零覆盖） | 中 | 边界内：矩阵缺一维 |
 | 音频链路静默回落模拟频谱 | 中 | 边界内：与项目自身的"诚实"原则不一致 |
 | `x11` 物化安装下静默失效、UI 无提示 | 中 | 边界外：安装形态 |
 | 遮挡只在 Linux X11；无 Now Playing on Windows | 中 | 边界外：平台现实 |
+| **引擎侧契约缺口**（`getOcclusion()` 空桩 vs 规格；`getState().paused` 语义混淆） | 中 | 边界外：插件与第三方引擎无共享语义契约 |
 | 玻璃无总开关 / 四态纸面 / 依赖宿主私有类名 | 中 | 边界外：宿主 UI 契约 |
 | 文档漂移（4 处不一致 + 行号过期 + 审计数值过期） | 中低 | 边界内：人工维护的必然 |
 | 无 CSP / nosniff / 安全响应头 | 中低 | 边界内：可补 |
 | uploads / ffmpeg-err 残留不清理、mediaMap 无上限 | 低 | 边界内：可补 |
+| `test/tools/` 20 个工具无 CI 消费者、审计结论可长期过期 | 低 | 边界内：设计上就是给人用的 |
 
 ---
 
@@ -3409,7 +3783,7 @@ try { unlinkSync(join(dir, name)); } catch { /* ignore */ }
 |---|---|---|---|---|
 | 宿主半边（Node 插件） | ✅ | ✅ | ✅ | `package.json:6-9` `engines.node >=18` |
 | 浏览器半边（Web GUI 壁纸层） | ✅ | ✅ | ✅ | 渲染发生在 DSH 的 iframe 里，与宿主平台无关 |
-| 场景实时渲染（WebWallGL） | ✅ 需装 `webwallgl` 包 | ✅ 同左 | ✅ 同左 | `lib/routes/scene-serve.js:98-102`（未装 → 404 `webwallgl-not-installed`） |
+| 场景实时渲染（WebWallGL） | ✅ 需装 `webwallgl` 包 | ✅ 同左 | ✅ 同左 | `lib/routes/scene-serve.js:98-102`（未装 → 404 `webwallgl-not-installed`）；引擎本身**跨平台无差异**（WebGL2 + mediabunny，见 §4.18.4） |
 | 网页壁纸（HTML + 严格沙箱） | ✅ | ✅ | ✅ | `src/live-layer.js` + `lib/media-origin.js:166-170` |
 | 视频壁纸转码 | ✅ `ffmpeg-win32-x64` / `-ia32` | ✅ `ffmpeg-darwin-x64` / `-arm64` | ✅ `ffmpeg-linux-{x64,ia32,arm,arm64}` | `lib/transcode.js:103-105` |
 | 媒体桥（媒体元数据） | ✅ x64 原生；**ARM64 回落 x64** | ✅ `darwin-universal` | ✅ x64 走 musl 静态；arm64 需 glibc ≥ 2.34 | `lib/media/provision.js:38-52`、`:68-74` |
@@ -3494,21 +3868,23 @@ darwin: { x64: 'ffmpeg-darwin-x64', arm64: 'ffmpeg-darwin-arm64' },
 - **对插件作者**：一份**反教程**级别的工程样本 —— 99,309 行、233 个文件里，测试代码（52,716 行）比产品代码（45,271 行）还多；12 篇 ADR、43 条机器生成的路由索引、173 条字节级令牌契约、57 步硬守卫；以及一个**手写的零依赖内联器**当构建系统。
 - **对架构读者**：一次**跨半边插件**的完整解剖 —— 宿主半边（Node，`lib/`）与浏览器半边（`src/`）之间只有一个面（43 条同源 HTTP 路由），唯一共享的内核（settings schema）被内联进两端以保证一致。
 
-### 15.3 最值得抄的五件事
+### 15.3 最值得抄的六件事
 
 1. **把"不确定"变成状态，而不是变成猜测。** 删掉整条 CPU 兜底出图线（约 1 万行）换"要么给真画面、要么明确留空"；围栏判定异常时 fail-closed；设置值非法时作废而不是修剪；遮挡拿不到就恒定返回 `backend:'none'`；载荷账本读不到就回 `ok:false`（**未知**）而不是伪装成"没在动"。**这是全仓最一致的一条原则。**
-2. **把"会漂的东西"变成"会红的东西"。** 路由索引、令牌契约、守卫地图全部机器生成 + 守卫回查；产物即契约且不入库（ADR-0012）；`assertNoShadowedScopeDecls()` 直接抓真实缺陷；`stripHeader()` 让报错指回原文件行号。
-3. **写状态端点也要有围栏，而且围栏要分层。** `/scene-files` 的三层围栏（字面路径 → 符号链接 → `realpathSync.native` 真实路径）是一个可以直接抄的模板——**正确写法就在同一个仓里，可惜没统一收口**（第 13 章 §13.2.1）。
-4. **克制。** 不用原生 `window.confirm`（棘轮按 0 钉住）、不用 `worker_threads`、不装 X11 原生库、不引入测试框架、**Wayland 宁可完全禁用也不给残缺数据**、**不替用户猜一张糊图**。
-5. **在文档里写"为什么"，并把决策的状态显式化。** ADR 的判据是"实现重写后是否依然成立"，被推翻时**不改写正文**、只改 `Status`；`docs/README.md` 明确禁止"唯一的进度真源"这类台账——**需要看守的东西一律写成守卫，因为账本自己会漂、且漂了不会变红**。
+2. **把"会漂的东西"变成"会红的东西"。** 路由索引、令牌契约、守卫地图全部机器生成 + 守卫回查；产物即契约且不入库（ADR-0012）；`assertNoShadowedScopeDecls()` 直接抓真实缺陷；`stripHeader()` 让报错指回原文件行号；守卫链的**形状本身**被 fixture 逐字冻结（`test/fixtures/verify-chain.json`）⇒ "把某条硬档守卫从链里删掉"会当场变红。
+3. **把"什么该用机器判据"写成一段可执行的程序。** ADR-0007 逐字："**判据的判定对象只能是'代码''磁盘''生成物'与'程序运行结果'；不得是'作者怎么措辞'。**"配四问（是机器事实还是措辞 / 失败信号能否转成机械动作 / 能否被空壳满足 / 是否出现面向用户的文案字面量），据此**物理删掉**两个守散文的守卫文件，并写下撤除的经验依据："被守卫覆盖的数字没有漂……而**没被覆盖的数字全漂了**"。**这是 AI 时代写机器判据最该抄的一份纪律。**
+4. **写状态端点也要有围栏，而且围栏要分层。** `/scene-files` 的三层围栏（字面路径 → 符号链接 → `realpathSync.native` 真实路径）是一个可以直接抄的模板——**正确写法就在同一个仓里，可惜没统一收口**（第 13 章 §13.2.1）。
+5. **克制。** 不用原生 `window.confirm`（棘轮按 0 钉住）、不用 `worker_threads`、不装 X11 原生库、不引入测试框架、**Wayland 宁可完全禁用也不给残缺数据**、**不替用户猜一张糊图**、**判据写不机械就不建守卫**（`audit-write-only-state.mjs` 逐条判完 46 条候选后明确写下"不建"的理由）。
+6. **在文档里写"为什么"，并把决策的状态显式化。** ADR 的判据是"实现重写后是否依然成立"，被推翻时**不改写正文**、只改 `Status`；`docs/README.md` 明确禁止"唯一的进度真源"这类台账——**需要看守的东西一律写成守卫，因为账本自己会漂、且漂了不会变红**。
 
-### 15.4 最该补的五个洞（按性价比排序）
+### 15.4 最该补的六个洞（按性价比排序）
 
 1. **写状态端点加 Origin 闸 + `Content-Type: application/json` 要求 + 目录白名单**（`POST /upload-dir`、`POST /we-assets-dir`）。当前可被"简单请求免预检"打到，代价是能在受害者机器上建任意目录并改上传落点。**改动量小，收益最大。**
 2. **围栏统一收口**：把 `/scene-files` 的三层实现抽成一个共享函数，套到 `/we-assets` 与 `lib/scene-manifest.js` 的 `dirSceneAccess` 上。**正确写法已在同仓，缺的是统一。**
-3. **给 macOS 加 CI 腿**（`macos-latest`）。`swiftc` 编译 audio-tap、`system_profiler` 字体枚举、darwin media-bridge 三条路径**目前一次都没在 CI 里跑过**，而双平台 rationale 本身就写着"只跑一个平台 ⇒ 另一半零覆盖"——这句话应该推到第三个平台。
+3. **给 CI 补上缺的两维**：① 第三个平台 `macos-latest`（`swiftc` 编译 audio-tap、`system_profiler` 字体枚举、darwin media-bridge 三条路径**目前一次都没在 CI 里跑过**，而双平台 rationale 本身就写着"只跑一个平台 ⇒ 另一半零覆盖"）；② **Node 版本矩阵**（`engines.node: ">=18"` 声明允许 18，但 CI 把 `node-version` 固定成 `'22'` ⇒ 18–21 零覆盖）。两处都是**声明与实测不一致**，补起来只是加 matrix 维度。
 4. **给玻璃一个真开关**，把 ADR-0010 的四态从纸面变成代码（`glass-only|wallpaper-only|coexistMode` 在全仓 `.js` 里 0 命中），并同步修正 ADR-0011 的 `Status`（已实现却写 `Proposed`）。**同时补一篇覆盖"下载并执行外部二进制（media-bridge）"的 ADR**——这是 12 篇 ADR 里的唯一真空，也是风险最高的一条边界。
 5. **产物瘦身**：52.2% 的体积是 10 张 base64 PNG。把它们改成**按需拉取**（走已有的 `/we-assets` 或独立静态资源）能直接砍掉约 2.4MB，gzip 后约 1.4MB。这是第 13 章里唯一一条"既减体积又不动架构"的改进。
+6. **把插件与引擎之间的语义契约固化下来**。现状是：插件在客户端侧**复制**了引擎的遮挡阈值 `0.05`（`src/occlusion.js:160`），却对"什么算 paused"的理解与引擎不一致（`getState().paused` 用的是 `inst.paused`，而引擎把用户暂停与遮挡 pause **分开记账**，`types.d.ts:560-561`）；插件的 `getOcclusion()` 又是空桩，与自己的规格文档脱节。**修法**有三条，按代价排序：① 把 `occlusionRendererPaused()` 暴露回 `getState`（一行级改动，直接消掉一个误判源）；② 给"客户端复制的阈值 == 引擎默认值"加一条一致性守卫（§4.18.5 已证明 2.1.0→3.0.0 阈值零变化，但那是运气，不是机制）；③ 把 `getOcclusion()` 的契约改成读引擎公开的 `stats.occluded` / `stats.throttled`，并同步改规格文档。
 
 ### 15.5 适用性判断
 
@@ -3529,6 +3905,7 @@ darwin: { x64: 'ffmpeg-darwin-x64', arm64: 'ffmpeg-darwin-arm64' },
 ### 15.7 本次调查的方法与可复核性
 
 - **一手来源**：全部结论来自被调查仓 `D:\dsh-plugin\dsh-wallpaper-engine`（v1.3.3，HEAD `01fbb8b`）的源码与仓内文档，以及对 npm registry / GitHub 的直接查询；引用一律带 `<路径>:<行号>` 锚点与逐字引用。
+- **越过插件边界读引擎**：渲染引擎 `webwallgl` 是独立的第三方包（`github.com/oneincase/webwallgl`），不在被调查仓内。本报告**直接 `npm pack webwallgl@latest` 拉下 3.0.0 并解包读源码**（§4.18），因而遮挡四档阈值这类"插件里看不到、但决定了插件行为"的数值是一手事实而不是转述。
 - **并行分维度调查**：11 个维度由后台 agent 并发完成（架构 / 发现链 / WebWallGL / 视频媒体 / 玻璃 UI / 遮挡性能 / 设置预设 / 构建验证 / 字体 i18n / 生态治理 / 对抗性审计），主控另做**独立核查**（亲手跑命令测产物体积、base64 占比、gzip、npm 包清单、CI 矩阵、平台分支表）。
 - **交叉核对**：凡是子 agent 与主控实测不一致的（例如 base64 占比 52.2% vs 早先记的 56.6%、gzip 2,517,081 B、路由 43 条 vs 42 处注册调用点），**一律以源码实测为准**并在正文标注。
 - **未解项**：见各章末尾与第 13 章 §13.6；特别是宿主 `webServer.register` 的重复路径处理、宿主是否有本插件之外的 Origin 闸、macOS 专属路径的真实行为。
