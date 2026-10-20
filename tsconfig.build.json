@@ -5,7 +5,7 @@
   // 是 tsc 转译输出（S2），不再原样复制源码。
   // scripts/ 不 emit：Node 22.18+ 原生类型剥离直跑 .ts（engines 门槛已 bump 到 >=22.18.0）。
   // dist/ 不入库；`npm run emit` 先清空 dist 再转译，避免删/改名的模块在 dist 里静默复活（确定性产物）。
-  // 注意：resolveJsonModule 会把被 import 的 37+23 个主题/预设 JSON 复制进 dist/src/{themes,custom-presets}；
+  // 注意：resolveJsonModule 会把被 import 的 37+25 个主题/预设 JSON 复制进 dist/src/{themes,custom-presets}；
   // bundler 的 JSON 内联直接读 src/，不读这些副本——它们只是 tsc 的附带产物，随 dist 一起被忽略。
   "extends": "./tsconfig.json",
   "compilerOptions": {

@@ -28,7 +28,7 @@ dsh-opencode-palette/
 │   └── build-client.ts       # ④ 构建层：零依赖 mini-bundler → 产物
 ├── src/
 │   ├── themes/               # ① vendored 主题数据（37 个 JSON + NOTICES + MANIFEST）
-│   ├── custom-presets/       # ① IP 预置数据（23 个 JSON）
+│   ├── custom-presets/       # ① IP 预置数据（25 个 JSON）
 │   └── engine/               # ② 纯逻辑引擎（TypeScript，无 DOM 依赖，可 node 直测）
 │       ├── resolve.ts        #    颜色解析器：引用链 → RGBA/HEX
 │       ├── font-face.ts      #    生成文件：随包 OFL 字体 @font-face（inline-fonts.ts 生成，勿手改）

@@ -171,11 +171,11 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「字体单独调」+
   assert.equal(count(extBlock(EN), '**A panel that speaks your DSH.**'), 1, '英文应保留该条')
   assert.equal(count(extBlock(ZH), '**自己配色。**'), 1, '中文应有「自己配色」一条')
   assert.equal(count(extBlock(EN), '**Your own palette.**'), 1, '英文应有同形一条（逐块同形门禁盯着）')
-  // v2.1.0 事实：37 色位编辑器 + 微缩预览双向定位 + 23 IP 预置基底（含库洛米、原神与马里奥的明暗双册）+ 单文件落盘路径
+  // v2.1.7 事实：37 色位编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径
   assert.ok(extBlock(ZH).includes('37 个色位'), '中文该条应讲到 37 个色位')
   assert.ok(extBlock(EN).includes('37 slots'), '英文该条应讲到 37 个色位')
   for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
-    assert.ok(block.includes('23'), `${name} 该条应讲到 23 个 IP 预置基底`)
+    assert.ok(block.includes('25'), `${name} 该条应讲到 25 个 IP 预置基底`)
     assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)
   }
 })
