@@ -1,21 +1,21 @@
 {
  "colors": {
-  "background": "#05091C",
-  "sidebarBg": "#070D27",
-  "codeHeaderBg": "#080F2D",
-  "backgroundPanel": "#0A1236",
-  "inputBg": "#0C1541",
-  "backgroundElement": "#1B253B",
-  "bubbleBg": "#202C46",
-  "codeBlockBg": "#030314",
+  "background": "#0F0814",
+  "sidebarBg": "#150C1A",
+  "codeHeaderBg": "#1A1020",
+  "backgroundPanel": "#211627",
+  "inputBg": "#271C2E",
+  "backgroundElement": "#2E2235",
+  "bubbleBg": "#36293D",
+  "codeBlockBg": "#0A050D",
   "text": "#E8E3DB",
-  "primary": "#FCE39F",
+  "primary": "#CD1E28",
   "secondary": "#30B4EC",
   "info": "#97A5FE",
   "success": "#6EC3AE",
   "warning": "#E28950",
-  "error": "#E02A34",
-  "border": "#273554",
+  "error": "#EB3D48",
+  "border": "#41304B",
   "borderActive": "#7AD2FF",
   "diffAdded": "#7DD2B5",
   "diffRemoved": "#D65166",
@@ -23,7 +23,7 @@
   "diffRemovedBg": "#2A0B11",
   "diffAddedLineNumberBg": "#183A31",
   "diffRemovedLineNumberBg": "#400709",
-  "markdownHeading": "#F9C843",
+  "markdownHeading": "#FCE39F",
   "markdownLink": "#78C1E9",
   "markdownCode": "#FAEAD3",
   "markdownEmph": "#D17380",
@@ -34,73 +34,73 @@
   "syntaxType": "#D09A90",
   "syntaxNumber": "#D09A06",
   "syntaxString": "#8ADCD0",
-  "textMuted": "#9AA4D1",
+  "textMuted": "#9DA7D2",
   "syntaxComment": "#827893",
   "syntaxOperator": "#7C738F"
  },
  "provenance": {
   "background": {
-   "anchor": "#091031",
-   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 6.5%",
-   "value": "#05091C",
-   "note": "主画布：星海最底"
+   "op": "锚点色相不变，彩度 40.0% / 明度 5.5%",
+   "value": "#0F0814",
+   "note": "主画布：星海近黑（紫＝两刃交点）"
   },
   "sidebarBg": {
-   "anchor": "#091031",
-   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 9.0%",
-   "value": "#070D27",
-   "note": "侧栏：比主画布抬一档"
+   "op": "锚点色相不变，彩度 36.0% / 明度 7.5%",
+   "value": "#150C1A",
+   "note": "侧栏：抬一档"
   },
   "codeHeaderBg": {
-   "anchor": "#091031",
-   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 10.5%",
-   "value": "#080F2D",
-   "note": "代码卡头：比侧栏再抬半档"
+   "op": "锚点色相不变，彩度 32.0% / 明度 9.5%",
+   "value": "#1A1020",
+   "note": "代码卡头：影院顶灯框"
   },
   "backgroundPanel": {
-   "anchor": "#091031",
-   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 12.5%",
-   "value": "#0A1236",
+   "op": "锚点色相不变，彩度 28.0% / 明度 12.0%",
+   "value": "#211627",
    "note": "面板：卡片底"
   },
   "inputBg": {
-   "anchor": "#091031",
-   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 15.0%",
-   "value": "#0C1541",
+   "op": "锚点色相不变，彩度 24.0% / 明度 14.5%",
+   "value": "#271C2E",
    "note": "输入框：可编辑面"
   },
   "backgroundElement": {
-   "anchor": "#273554",
-   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 17.0%",
-   "value": "#1B253B",
+   "op": "锚点色相不变，彩度 22.0% / 明度 17.0%",
+   "value": "#2E2235",
    "note": "浮层：下拉/提示/工具条"
   },
   "bubbleBg": {
-   "anchor": "#273554",
-   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "锚点 H/S 不变，明度阶 20.0%",
-   "value": "#202C46",
+   "op": "锚点色相不变，彩度 20.0% / 明度 20.0%",
+   "value": "#36293D",
    "note": "气泡：对话主体"
   },
   "codeBlockBg": {
-   "anchor": "#030318",
-   "anchorNote": "1.jpg 夜空最深处 · 天行者崛起 边框",
-   "poster": "1.jpg",
-   "op": "锚点 H/S 不变，明度阶 4.5%",
-   "value": "#030314",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
+   "poster": "2.jpg",
+   "op": "锚点色相不变，彩度 45.0% / 明度 3.5%",
+   "value": "#0A050D",
    "note": "代码台：全屏最深处"
   },
   "text": {
@@ -112,12 +112,12 @@
    "note": "正文：海报纸白"
   },
   "primary": {
-   "anchor": "#FCE39F",
-   "anchorNote": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
-   "poster": "1.jpg",
-   "op": "原样取用",
-   "value": "#FCE39F",
-   "note": "品牌：STAR WARS 字标的招牌金"
+   "anchor": "#AA1921",
+   "anchorNote": "3.jpg 红色光剑亮部 · 最后的绝地武士 剑身",
+   "poster": "3.jpg",
+   "op": "锚点 H/S 不变，明度阶 46.0%",
+   "value": "#CD1E28",
+   "note": "品牌＝红刃：主按钮/品牌字/激活导航"
   },
   "secondary": {
    "anchor": "#30B4EC",
@@ -125,7 +125,7 @@
    "poster": "2.jpg",
    "op": "原样取用",
    "value": "#30B4EC",
-   "note": "第二品牌色：光剑蓝"
+   "note": "第二品牌色＝蓝刃"
   },
   "info": {
    "anchor": "#97A5FE",
@@ -141,7 +141,7 @@
    "poster": "1.jpg",
    "op": "原样取用",
    "value": "#6EC3AE",
-   "note": "成功：绿光剑辉"
+   "note": "成功：绿光剑辉（素材只占 1.1%，只作注脚）"
   },
   "warning": {
    "anchor": "#E28950",
@@ -152,20 +152,20 @@
    "note": "警告：剑与人物之间的热核"
   },
   "error": {
-   "anchor": "#AA1921",
-   "anchorNote": "3.jpg 红色光剑亮部 · 最后的绝地武士 剑身",
+   "anchor": "#B4131D",
+   "anchorNote": "3.jpg 红色光剑 · 最后的绝地武士 左剑",
    "poster": "3.jpg",
-   "op": "锚点 H/S 不变，明度阶 52.0%",
-   "value": "#E02A34",
-   "note": "错误：红剑纯色阶"
+   "op": "锚点 H/S 不变，明度阶 58.0%",
+   "value": "#EB3D48",
+   "note": "错误：红刃亮阶（亮于品牌深刃一档）"
   },
   "border": {
-   "anchor": "#273554",
-   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "anchor": "#160C1C",
+   "anchorNote": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
    "poster": "2.jpg",
-   "op": "原样取用",
-   "value": "#273554",
-   "note": "装饰边框：海报海军蓝"
+   "op": "锚点色相不变，彩度 22.0% / 明度 24.0%",
+   "value": "#41304B",
+   "note": "装饰边框：底色家族抬一档"
   },
   "borderActive": {
    "anchor": "#7AD2FF",
@@ -173,7 +173,7 @@
    "poster": "1.jpg",
    "op": "原样取用",
    "value": "#7AD2FF",
-   "note": "焦点环：剑光炽白"
+   "note": "焦点环：剑光炽白（蓝刃阵营）"
   },
   "diffAdded": {
    "anchor": "#7DD2B5",
@@ -227,9 +227,9 @@
    "anchor": "#FCE39F",
    "anchorNote": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
    "poster": "1.jpg",
-   "op": "锚点 H/S 不变，明度阶 62.0%",
-   "value": "#F9C843",
-   "note": "标题：招牌金的暗一档"
+   "op": "原样取用",
+   "value": "#FCE39F",
+   "note": "标题：字标香槟金（排版位，不是色块位）"
   },
   "markdownLink": {
    "anchor": "#78C1E9",
@@ -237,7 +237,7 @@
    "poster": "2.jpg",
    "op": "原样取用",
    "value": "#78C1E9",
-   "note": "链接：天蓝"
+   "note": "链接：天蓝（蓝刃阵营）"
   },
   "markdownCode": {
    "anchor": "#FAEAD3",
@@ -253,7 +253,7 @@
    "poster": "2.jpg",
    "op": "原样取用",
    "value": "#D17380",
-   "note": "强调：塔图因落日玫瑰"
+   "note": "强调：塔图因落日玫瑰（红刃阵营）"
   },
   "markdownStrong": {
    "anchor": "#F5FAFB",
@@ -314,21 +314,21 @@
   "textMuted": {
    "anchor": "#8793CA",
    "anchorNote": "1.jpg 长春花蓝 · 天行者崛起 冷调剑晕",
-   "op": "与 #F5FAFB 线性混合 12%（自动求「最暗且全档达标」）",
-   "value": "#9AA4D1",
+   "op": "与 #F5FAFB 线性混合 14%（自动求「最暗且全档达标」）",
+   "value": "#9DA7D2",
    "note": "次级正文：长春花蓝提亮阶"
   },
   "syntaxComment": {
    "anchor": "#716882",
    "anchorNote": "2.jpg 灰紫 · 天行者的崛起 阴影面",
-   "op": "锚点 H/S 不变，明度阶 52.5%（退后档 4.92:1）",
+   "op": "锚点 H/S 不变，明度阶 52.5%（退后档 4.86:1）",
    "value": "#827893",
    "note": "注释：退后梯队的浅档"
   },
   "syntaxOperator": {
    "anchor": "#716882",
    "anchorNote": "2.jpg 灰紫 · 天行者的崛起 阴影面",
-   "op": "锚点 H/S 不变，明度阶 50.5%（退后档 4.58:1）",
+   "op": "锚点 H/S 不变，明度阶 50.5%（退后档 4.52:1）",
    "value": "#7C738F",
    "note": "运算符：退后梯队的深档"
   }
@@ -343,6 +343,16 @@
    "hex": "#030318",
    "note": "1.jpg 夜空最深处 · 天行者崛起 边框",
    "poster": "1.jpg"
+  },
+  "black": {
+   "hex": "#070306",
+   "note": "1.jpg 夜空近黑（出现率 41.4%，全场最接近「黑」的主色）",
+   "poster": "1.jpg"
+  },
+  "violetblack": {
+   "hex": "#160C1C",
+   "note": "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）",
+   "poster": "2.jpg"
   },
   "indigo": {
    "hex": "#252645",
@@ -489,8 +499,8 @@
   {
    "code": "text@background",
    "fg": "#E8E3DB",
-   "bg": "#05091C",
-   "ratio": 15.478,
+   "bg": "#0F0814",
+   "ratio": 15.436,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -499,8 +509,8 @@
   {
    "code": "text@backgroundPanel",
    "fg": "#E8E3DB",
-   "bg": "#0A1236",
-   "ratio": 14.264,
+   "bg": "#211627",
+   "ratio": 13.602,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -509,8 +519,8 @@
   {
    "code": "text@backgroundElement",
    "fg": "#E8E3DB",
-   "bg": "#1B253B",
-   "ratio": 11.963,
+   "bg": "#2E2235",
+   "ratio": 11.774,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -519,8 +529,8 @@
   {
    "code": "text@sidebarBg",
    "fg": "#E8E3DB",
-   "bg": "#070D27",
-   "ratio": 15.003,
+   "bg": "#150C1A",
+   "ratio": 14.955,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -529,8 +539,8 @@
   {
    "code": "text@bubbleBg",
    "fg": "#E8E3DB",
-   "bg": "#202C46",
-   "ratio": 10.888,
+   "bg": "#36293D",
+   "ratio": 10.667,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -539,8 +549,8 @@
   {
    "code": "text@inputBg",
    "fg": "#E8E3DB",
-   "bg": "#0C1541",
-   "ratio": 13.71,
+   "bg": "#271C2E",
+   "ratio": 12.728,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -549,8 +559,8 @@
   {
    "code": "text@codeBlockBg",
    "fg": "#E8E3DB",
-   "bg": "#030314",
-   "ratio": 16.009,
+   "bg": "#0A050D",
+   "ratio": 15.803,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -559,8 +569,8 @@
   {
    "code": "text@codeHeaderBg",
    "fg": "#E8E3DB",
-   "bg": "#080F2D",
-   "ratio": 14.725,
+   "bg": "#1A1020",
+   "ratio": 14.437,
    "threshold": 4.5,
    "class": "hard",
    "group": "text",
@@ -568,9 +578,9 @@
   },
   {
    "code": "textMuted@background",
-   "fg": "#9AA4D1",
-   "bg": "#05091C",
-   "ratio": 8.1,
+   "fg": "#9DA7D2",
+   "bg": "#0F0814",
+   "ratio": 8.348,
    "threshold": 4.5,
    "class": "hard",
    "group": "muted",
@@ -578,9 +588,9 @@
   },
   {
    "code": "labelDimmed@background",
-   "fg": "#7C85AD",
-   "bg": "#05091C",
-   "ratio": 5.474,
+   "fg": "#8187AC",
+   "bg": "#0F0814",
+   "ratio": 5.628,
    "threshold": 4.5,
    "class": "hard",
    "group": "dimmed",
@@ -588,9 +598,9 @@
   },
   {
    "code": "textMuted@backgroundPanel",
-   "fg": "#9AA4D1",
-   "bg": "#0A1236",
-   "ratio": 7.465,
+   "fg": "#9DA7D2",
+   "bg": "#211627",
+   "ratio": 7.356,
    "threshold": 4.5,
    "class": "hard",
    "group": "muted",
@@ -598,9 +608,9 @@
   },
   {
    "code": "labelDimmed@backgroundPanel",
-   "fg": "#7D87B2",
-   "bg": "#0A1236",
-   "ratio": 5.188,
+   "fg": "#848AB0",
+   "bg": "#211627",
+   "ratio": 5.165,
    "threshold": 4.5,
    "class": "hard",
    "group": "dimmed",
@@ -608,9 +618,9 @@
   },
   {
    "code": "textMuted@backgroundElement",
-   "fg": "#9AA4D1",
-   "bg": "#1B253B",
-   "ratio": 6.261,
+   "fg": "#9DA7D2",
+   "bg": "#2E2235",
+   "ratio": 6.368,
    "threshold": 4.5,
    "class": "hard",
    "group": "muted",
@@ -618,9 +628,9 @@
   },
   {
    "code": "labelDimmed@backgroundElement",
-   "fg": "#818BB3",
-   "bg": "#1B253B",
-   "ratio": 4.567,
+   "fg": "#878CB3",
+   "bg": "#2E2235",
+   "ratio": 4.606,
    "threshold": 4.5,
    "class": "hard",
    "group": "dimmed",
@@ -628,9 +638,9 @@
   },
   {
    "code": "markdownHeading@background",
-   "fg": "#F9C843",
-   "bg": "#05091C",
-   "ratio": 12.587,
+   "fg": "#FCE39F",
+   "bg": "#0F0814",
+   "ratio": 15.61,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -638,9 +648,9 @@
   },
   {
    "code": "markdownHeading@backgroundPanel",
-   "fg": "#F9C843",
-   "bg": "#0A1236",
-   "ratio": 11.6,
+   "fg": "#FCE39F",
+   "bg": "#211627",
+   "ratio": 13.756,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -649,8 +659,8 @@
   {
    "code": "markdownLink@background",
    "fg": "#78C1E9",
-   "bg": "#05091C",
-   "ratio": 9.981,
+   "bg": "#0F0814",
+   "ratio": 9.955,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -659,8 +669,8 @@
   {
    "code": "markdownLink@backgroundPanel",
    "fg": "#78C1E9",
-   "bg": "#0A1236",
-   "ratio": 9.199,
+   "bg": "#211627",
+   "ratio": 8.772,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -669,8 +679,8 @@
   {
    "code": "markdownStrong@background",
    "fg": "#F5FAFB",
-   "bg": "#05091C",
-   "ratio": 18.78,
+   "bg": "#0F0814",
+   "ratio": 18.73,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -679,8 +689,8 @@
   {
    "code": "markdownStrong@backgroundPanel",
    "fg": "#F5FAFB",
-   "bg": "#0A1236",
-   "ratio": 17.307,
+   "bg": "#211627",
+   "ratio": 16.505,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -689,8 +699,8 @@
   {
    "code": "markdownEmph@background",
    "fg": "#D17380",
-   "bg": "#05091C",
-   "ratio": 6.095,
+   "bg": "#0F0814",
+   "ratio": 6.079,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -699,8 +709,8 @@
   {
    "code": "markdownEmph@backgroundPanel",
    "fg": "#D17380",
-   "bg": "#0A1236",
-   "ratio": 5.617,
+   "bg": "#211627",
+   "ratio": 5.357,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -709,8 +719,8 @@
   {
    "code": "markdownBlockQuote@background",
    "fg": "#7986C4",
-   "bg": "#05091C",
-   "ratio": 5.667,
+   "bg": "#0F0814",
+   "ratio": 5.652,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -719,8 +729,8 @@
   {
    "code": "markdownBlockQuote@backgroundPanel",
    "fg": "#7986C4",
-   "bg": "#0A1236",
-   "ratio": 5.223,
+   "bg": "#211627",
+   "ratio": 4.981,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -729,8 +739,8 @@
   {
    "code": "markdownCode@background",
    "fg": "#FAEAD3",
-   "bg": "#05091C",
-   "ratio": 16.732,
+   "bg": "#0F0814",
+   "ratio": 16.687,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -739,8 +749,8 @@
   {
    "code": "markdownCode@backgroundPanel",
    "fg": "#FAEAD3",
-   "bg": "#0A1236",
-   "ratio": 15.42,
+   "bg": "#211627",
+   "ratio": 14.705,
    "threshold": 4.5,
    "class": "hard",
    "group": "markdown",
@@ -749,8 +759,8 @@
   {
    "code": "syntaxComment@codeBlockBg",
    "fg": "#827893",
-   "bg": "#030314",
-   "ratio": 4.924,
+   "bg": "#0A050D",
+   "ratio": 4.861,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -759,8 +769,8 @@
   {
    "code": "syntaxKeyword@codeBlockBg",
    "fg": "#CBA8EC",
-   "bg": "#030314",
-   "ratio": 10.079,
+   "bg": "#0A050D",
+   "ratio": 9.949,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -769,8 +779,8 @@
   {
    "code": "syntaxFunction@codeBlockBg",
    "fg": "#A5E0FF",
-   "bg": "#030314",
-   "ratio": 14.32,
+   "bg": "#0A050D",
+   "ratio": 14.135,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -779,8 +789,8 @@
   {
    "code": "syntaxType@codeBlockBg",
    "fg": "#D09A90",
-   "bg": "#030314",
-   "ratio": 8.478,
+   "bg": "#0A050D",
+   "ratio": 8.369,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -789,8 +799,8 @@
   {
    "code": "syntaxNumber@codeBlockBg",
    "fg": "#D09A06",
-   "bg": "#030314",
-   "ratio": 8.088,
+   "bg": "#0A050D",
+   "ratio": 7.984,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -799,8 +809,8 @@
   {
    "code": "syntaxString@codeBlockBg",
    "fg": "#8ADCD0",
-   "bg": "#030314",
-   "ratio": 12.881,
+   "bg": "#0A050D",
+   "ratio": 12.715,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -809,8 +819,8 @@
   {
    "code": "syntaxOperator@codeBlockBg",
    "fg": "#7C738F",
-   "bg": "#030314",
-   "ratio": 4.582,
+   "bg": "#0A050D",
+   "ratio": 4.523,
    "threshold": 4.5,
    "class": "hard",
    "group": "syntax",
@@ -858,9 +868,9 @@
   },
   {
    "code": "contrastText(primary)@primary",
-   "fg": "#141414",
-   "bg": "#FCE39F",
-   "ratio": 14.587,
+   "fg": "#F4F4F5",
+   "bg": "#CD1E28",
+   "ratio": 5.012,
    "threshold": 4.5,
    "class": "hard",
    "group": "onPrimary",
@@ -869,8 +879,8 @@
   {
    "code": "borderActive@background",
    "fg": "#7AD2FF",
-   "bg": "#05091C",
-   "ratio": 11.758,
+   "bg": "#0F0814",
+   "ratio": 11.726,
    "threshold": 3.0,
    "class": "ui",
    "group": "borderActive",
@@ -879,8 +889,8 @@
   {
    "code": "borderActive@backgroundPanel",
    "fg": "#7AD2FF",
-   "bg": "#0A1236",
-   "ratio": 10.836,
+   "bg": "#211627",
+   "ratio": 10.333,
    "threshold": 3.0,
    "class": "ui",
    "group": "borderActive",
@@ -889,8 +899,8 @@
   {
    "code": "borderActive@backgroundElement",
    "fg": "#7AD2FF",
-   "bg": "#1B253B",
-   "ratio": 9.088,
+   "bg": "#2E2235",
+   "ratio": 8.945,
    "threshold": 3.0,
    "class": "ui",
    "group": "borderActive",
@@ -898,9 +908,9 @@
   },
   {
    "code": "primary@background",
-   "fg": "#FCE39F",
-   "bg": "#05091C",
-   "ratio": 15.652,
+   "fg": "#CD1E28",
+   "bg": "#0F0814",
+   "ratio": 3.579,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -908,9 +918,9 @@
   },
   {
    "code": "primary@backgroundPanel",
-   "fg": "#FCE39F",
-   "bg": "#0A1236",
-   "ratio": 14.425,
+   "fg": "#CD1E28",
+   "bg": "#211627",
+   "ratio": 3.154,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -919,8 +929,8 @@
   {
    "code": "secondary@background",
    "fg": "#30B4EC",
-   "bg": "#05091C",
-   "ratio": 8.346,
+   "bg": "#0F0814",
+   "ratio": 8.323,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -929,8 +939,8 @@
   {
    "code": "secondary@backgroundPanel",
    "fg": "#30B4EC",
-   "bg": "#0A1236",
-   "ratio": 7.691,
+   "bg": "#211627",
+   "ratio": 7.334,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -939,8 +949,8 @@
   {
    "code": "info@background",
    "fg": "#97A5FE",
-   "bg": "#05091C",
-   "ratio": 8.594,
+   "bg": "#0F0814",
+   "ratio": 8.571,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -949,8 +959,8 @@
   {
    "code": "info@backgroundPanel",
    "fg": "#97A5FE",
-   "bg": "#0A1236",
-   "ratio": 7.92,
+   "bg": "#211627",
+   "ratio": 7.553,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -959,8 +969,8 @@
   {
    "code": "success@background",
    "fg": "#6EC3AE",
-   "bg": "#05091C",
-   "ratio": 9.489,
+   "bg": "#0F0814",
+   "ratio": 9.464,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -969,8 +979,8 @@
   {
    "code": "success@backgroundPanel",
    "fg": "#6EC3AE",
-   "bg": "#0A1236",
-   "ratio": 8.745,
+   "bg": "#211627",
+   "ratio": 8.34,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -979,8 +989,8 @@
   {
    "code": "warning@background",
    "fg": "#E28950",
-   "bg": "#05091C",
-   "ratio": 7.463,
+   "bg": "#0F0814",
+   "ratio": 7.443,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -989,8 +999,8 @@
   {
    "code": "warning@backgroundPanel",
    "fg": "#E28950",
-   "bg": "#0A1236",
-   "ratio": 6.878,
+   "bg": "#211627",
+   "ratio": 6.559,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -998,9 +1008,9 @@
   },
   {
    "code": "error@background",
-   "fg": "#E02A34",
-   "bg": "#05091C",
-   "ratio": 4.283,
+   "fg": "#EB3D48",
+   "bg": "#0F0814",
+   "ratio": 4.97,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -1008,9 +1018,9 @@
   },
   {
    "code": "error@backgroundPanel",
-   "fg": "#E02A34",
-   "bg": "#0A1236",
-   "ratio": 3.947,
+   "fg": "#EB3D48",
+   "bg": "#211627",
+   "ratio": 4.379,
    "threshold": 3.0,
    "class": "ui",
    "group": "brand",
@@ -1019,7 +1029,7 @@
  ],
  "warnings": [],
  "brandGeometry": {
-  "deg": 154.0,
+  "deg": 158.7,
   "type": "互补"
  }
 }

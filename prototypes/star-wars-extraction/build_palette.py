@@ -13,6 +13,8 @@ OUT = HERE
 ANCHORS = {
     "void":       ("#091031", "2.jpg 深空底 · 天行者的崛起 星空", "2.jpg"),
     "void2":      ("#030318", "1.jpg 夜空最深处 · 天行者崛起 边框", "1.jpg"),
+    "black":      ("#070306", "1.jpg 夜空近黑（出现率 41.4%，全场最接近「黑」的主色）", "1.jpg"),
+    "violetblack": ("#160C1C", "2.jpg 紫黑（红刃 357° 与蓝刃 198° 的中点 277°＝两刃交点）", "2.jpg"),
     "indigo":     ("#252645", "1.jpg 远景靛蓝 · 天行者崛起 人物背后的夜", "1.jpg"),
     "navy":       ("#273554", "2.jpg 海军蓝 · 天行者的崛起 主色场", "2.jpg"),
     "saber":      ("#30B4EC", "2.jpg 蓝色光剑核心 · 天行者的崛起 中央斜剑", "2.jpg"),
@@ -152,36 +154,44 @@ def hue_of(hexv):
 
 
 # ══════════════════════════════════════════════════════════
-#  37 色位规格
+#  37 色位规格（v4 · 双刃对分）
 #  ("token", "anchor", "op", arg, note)
-#   op "exact" 原样 | "L" 明度阶 | "mix" 与白/黑线性混合 | "auto" 自动求解
+#   op "exact" 原样 | "L" 明度阶 | "HSL" 锚点色相+彩度明度阶 | "mix" 线性混色 | "auto" 自动求解
+#
+#  配比原则（第一性）：
+#   ① 两把光剑 = 红刃 / 蓝刃，是海报唯一的两个主角，必须等重；
+#      按引擎里的「着色面积」排：primary（按钮+品牌字+激活导航+悬停）= 红刃，
+#      secondary / info / link / focus / 语法 function 等一整套冷色岗位 = 蓝刃。
+#   ② 底色必须是「两刃的交点」（红+蓝=紫）且去饱和，否则底色会变成第三个阵营；
+#      1.jpg 出现率 41.4% 的 #070306 正是这个交点（近黑泛紫）。
+#   ③ 金与薄荷只作「注脚」：字标属排版不是色块，所以金只留标题与数字两席。
 # ══════════════════════════════════════════════════════════
 SPEC = [
-    # ── 8 背景：深空靛单家族（一个色相 + 纯明度阶梯）──
-    ("background",            "void",   "L",   6.5,  "主画布：星海最底"),
-    ("sidebarBg",             "void",   "L",   9.0,  "侧栏：比主画布抬一档"),
-    ("codeHeaderBg",          "void",   "L",   10.5, "代码卡头：比侧栏再抬半档"),
-    ("backgroundPanel",       "void",   "L",   12.5, "面板：卡片底"),
-    ("inputBg",               "void",   "L",   15.0, "输入框：可编辑面"),
-    ("backgroundElement",     "navy",   "L",   17.0, "浮层：下拉/提示/工具条"),
-    ("bubbleBg",              "navy",   "L",   20.0, "气泡：对话主体"),
-    ("codeBlockBg",           "void2",  "L",   4.5,  "代码台：全屏最深处"),
+    # ── 8 背景：近黑的紫＝两刃交点（红 357° 与 蓝 198° 的中点 277°），明度阶 + 彩度微降 ──
+    ("background",            "violetblack", "HSL", (40.0,  5.5),  "主画布：星海近黑（紫＝两刃交点）"),
+    ("sidebarBg",             "violetblack", "HSL", (36.0,  7.5),  "侧栏：抬一档"),
+    ("codeHeaderBg",          "violetblack", "HSL", (32.0,  9.5),  "代码卡头：影院顶灯框"),
+    ("backgroundPanel",       "violetblack", "HSL", (28.0, 12.0),  "面板：卡片底"),
+    ("inputBg",               "violetblack", "HSL", (24.0, 14.5),  "输入框：可编辑面"),
+    ("backgroundElement",     "violetblack", "HSL", (22.0, 17.0),  "浮层：下拉/提示/工具条"),
+    ("bubbleBg",              "violetblack", "HSL", (20.0, 20.0),  "气泡：对话主体"),
+    ("codeBlockBg",           "violetblack", "HSL", (45.0,  3.5),  "代码台：全屏最深处"),
 
     # ── 2 正文 ──
     ("text",                  "parchment", "exact", None, "正文：海报纸白"),
-    ("textMuted",             "periwinkle", "auto", None, "次级正文：长春花蓝提亮阶（自动求最低可读档）"),
+    ("textMuted",             "periwinkle", "auto", None, "次级正文：长春花蓝（自动求最低可读档）"),
 
-    # ── 6 品牌 / 语义 ──
-    ("primary",               "gold",   "exact", None, "品牌：STAR WARS 字标的招牌金"),
-    ("secondary",             "saber",  "exact", None, "第二品牌色：光剑蓝"),
+    # ── 6 品牌 / 语义：红刃与蓝刃对分，金与薄荷只作注脚 ──
+    ("primary",               "blade2", "L",   46.0, "品牌＝红刃：主按钮/品牌字/激活导航"),
+    ("secondary",             "saber",  "exact", None, "第二品牌色＝蓝刃"),
     ("info",                  "peri",   "exact", None, "信息：蓝紫剑晕"),
-    ("success",               "mint",   "exact", None, "成功：绿光剑辉"),
+    ("success",               "mint",   "exact", None, "成功：绿光剑辉（素材只占 1.1%，只作注脚）"),
     ("warning",               "amber",  "exact", None, "警告：剑与人物之间的热核"),
-    ("error",                 "blade2", "L",   52.0, "错误：红剑纯色阶"),
+    ("error",                 "blade",  "L",   58.0, "错误：红刃亮阶（亮于品牌深刃一档）"),
 
     # ── 2 边框 ──
-    ("border",                "navy",   "exact", None, "装饰边框：海报海军蓝"),
-    ("borderActive",          "icehot", "exact", None, "焦点环：剑光炽白"),
+    ("border",                "violetblack", "HSL", (22.0, 24.0),  "装饰边框：底色家族抬一档"),
+    ("borderActive",          "icehot", "exact", None, "焦点环：剑光炽白（蓝刃阵营）"),
 
     # ── 6 diff ──
     ("diffAdded",             "mint2",  "exact", None, "新增行：绿剑亮部"),
@@ -192,10 +202,10 @@ SPEC = [
     ("diffRemovedLineNumberBg", "blood", "L", 14.0, "删除行号槽"),
 
     # ── 6 markdown ──
-    ("markdownHeading",       "gold",   "L",   62.0, "标题：招牌金的暗一档"),
-    ("markdownLink",          "sky",    "exact", None, "链接：天蓝"),
+    ("markdownHeading",       "gold",   "exact", None, "标题：字标香槟金（排版位，不是色块位）"),
+    ("markdownLink",          "sky",    "exact", None, "链接：天蓝（蓝刃阵营）"),
     ("markdownCode",          "cream",  "exact", None, "行内码：奶油白"),
-    ("markdownEmph",          "rose",   "exact", None, "强调：塔图因落日玫瑰"),
+    ("markdownEmph",          "rose",   "exact", None, "强调：塔图因落日玫瑰（红刃阵营）"),
     ("markdownStrong",        "starwhite", "exact", None, "强调正文：星尘白"),
     ("markdownBlockQuote",    "periwinkle", "L", 62.0, "引用：长春花蓝的暗一档"),
 
@@ -227,6 +237,10 @@ def derive(anchor, op, arg, colors):
         return hexv
     if op == "L":
         return hsl(hexv, l=arg)
+    if op == "HSL":
+        s, l = arg
+        h = rgb2hsl(hex2rgb(hexv))[0]
+        return rgb2hex(hsl2rgb(h, s, l))
     if op == "mix":
         other, t = arg
         return mix(hexv, ANCHORS[other][0], t)
@@ -245,6 +259,8 @@ def build():
             how = "原样取用"
         elif op == "L":
             how = "锚点 H/S 不变，明度阶 %s%%" % arg
+        elif op == "HSL":
+            how = "锚点色相不变，彩度 %s%% / 明度 %s%%" % (arg[0], arg[1])
         else:
             how = "与 %s 线性混合 %.0f%%" % (arg[0], arg[1] * 100)
         prov[tok] = {"anchor": ANCHORS[anchor][0], "anchorNote": ANCHORS[anchor][1],

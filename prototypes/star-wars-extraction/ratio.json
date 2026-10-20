@@ -1,0 +1,418 @@
+{
+ "rows": [
+  {
+   "slot": "background",
+   "hex": "#0F0814",
+   "camp": "场域",
+   "weight": 11,
+   "aliases": [
+    "--dsw-alias-bg-base",
+    "--dsw-alias-bg-layer-1",
+    "--dsw-alias-bg-layer-2",
+    "--dsw-alias-bg-overlay",
+    "--dsw-alias-bg-layer-3",
+    "--dsw-alias-markdown-code-segment-unselected"
+   ]
+  },
+  {
+   "slot": "sidebarBg",
+   "hex": "#150C1A",
+   "camp": "场域",
+   "weight": 2,
+   "aliases": [
+    "--dsw-specific-sidebar-fill"
+   ]
+  },
+  {
+   "slot": "codeHeaderBg",
+   "hex": "#1A1020",
+   "camp": "场域",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-markdown-code-block-banner",
+    "--dsl-code-block-background"
+   ]
+  },
+  {
+   "slot": "backgroundPanel",
+   "hex": "#211627",
+   "camp": "场域",
+   "weight": 8,
+   "aliases": [
+    "--dsw-alias-markdown-tag",
+    "--dsw-alias-markdown-placeholder",
+    "--dsw-alias-bg-multi-select",
+    "--dsw-alias-button-elevated-fill",
+    "--dsw-alias-button-floating-fill"
+   ]
+  },
+  {
+   "slot": "inputBg",
+   "hex": "#271C2E",
+   "camp": "场域",
+   "weight": 2,
+   "aliases": [
+    "--dsw-specific-input-major",
+    "--dsw-specific-login-input"
+   ]
+  },
+  {
+   "slot": "backgroundElement",
+   "hex": "#2E2235",
+   "camp": "场域",
+   "weight": 13,
+   "aliases": [
+    "--dsw-alias-markdown-code-segment-selected",
+    "--dsw-alias-markdown-citation",
+    "--dsw-alias-bg-module-platform",
+    "--dsw-specific-selector",
+    "--dsw-specific-tip",
+    "--dsw-specific-bubble-highlight",
+    "--dsw-alias-toast-bg",
+    "--dsw-alias-tooltip-bg",
+    "--dsw-alias-tooltip-key-bg (derived)"
+   ]
+  },
+  {
+   "slot": "bubbleBg",
+   "hex": "#36293D",
+   "camp": "场域",
+   "weight": 1,
+   "aliases": [
+    "--dsw-specific-bubble"
+   ]
+  },
+  {
+   "slot": "codeBlockBg",
+   "hex": "#0A050D",
+   "camp": "场域",
+   "weight": 1,
+   "aliases": [
+    "--dsw-alias-markdown-code-block"
+   ]
+  },
+  {
+   "slot": "text",
+   "hex": "#E8E3DB",
+   "camp": "墨",
+   "weight": 30,
+   "aliases": [
+    "--dsw-alias-label-primary",
+    "--dsw-alias-label-primary-dimmed",
+    "--dsw-alias-button-contrast-fill",
+    "--dsw-alias-toast-label",
+    "--shiki-foreground",
+    "--dsw-alias-label-primary-inverted (derived)",
+    "--dsw-alias-button-ghost-active-fill (derived)",
+    "--dsw-alias-bg-skeleton (derived)",
+    "--dsw-alias-button-tool-bar-fill (derived)",
+    "--dsw-alias-button-tool-bar-hover (derived)",
+    "--dsw-alias-button-tool-bar-fill-invisible (derived)",
+    "--dsw-alias-interactive-bg-active (derived)",
+    "--dsw-alias-interactive-bg-hover (derived)",
+    "--dsw-alias-scrollbar-bg-l1 (derived)",
+    "--dsw-alias-scrollbar-bg-l2 (derived)",
+    "--dsw-specific-sidebar-nav-item-hover (derived)",
+    "--dsw-specific-sidebar-nav-item-active (derived)"
+   ]
+  },
+  {
+   "slot": "primary",
+   "hex": "#CD1E28",
+   "camp": "红刃",
+   "weight": 17,
+   "aliases": [
+    "--dsw-alias-brand-primary",
+    "--dsw-alias-brand-text",
+    "--dsw-alias-button-primary-fill",
+    "--dsw-alias-state-business-primary",
+    "--dsw-alias-button-primary-hover (derived)",
+    "--dsw-alias-label-primary-foreground (derived)",
+    "--dsw-alias-brand-primary-invert (derived)",
+    "--dsw-alias-button-primary-dimmed (derived)",
+    "--dsw-alias-state-business-tertiary (derived)",
+    "--dsw-alias-interactive-bg-hover-accent (derived)",
+    "--dsw-specific-sidebar-nav-item-active-accent (derived)"
+   ]
+  },
+  {
+   "slot": "secondary",
+   "hex": "#30B4EC",
+   "camp": "青",
+   "weight": 1,
+   "aliases": [
+    "--dsw-alias-state-idle-primary"
+   ]
+  },
+  {
+   "slot": "info",
+   "hex": "#97A5FE",
+   "camp": "蓝刃",
+   "weight": 4,
+   "aliases": [
+    "--dsw-alias-button-info-fill",
+    "--dsw-alias-button-info-hover (derived)"
+   ]
+  },
+  {
+   "slot": "success",
+   "hex": "#6EC3AE",
+   "camp": "绿剑",
+   "weight": 4,
+   "aliases": [
+    "--dsw-alias-state-success-primary",
+    "--dsw-alias-state-success-secondary (derived)",
+    "--dsw-alias-state-success-tertiary (derived)"
+   ]
+  },
+  {
+   "slot": "warning",
+   "hex": "#E28950",
+   "camp": "金",
+   "weight": 5,
+   "aliases": [
+    "--dsw-alias-state-warn-primary",
+    "--dsw-alias-state-warn-label",
+    "--dsw-alias-state-warn-secondary (derived)",
+    "--dsw-alias-state-warn-tertiary (derived)"
+   ]
+  },
+  {
+   "slot": "error",
+   "hex": "#EB3D48",
+   "camp": "红刃",
+   "weight": 4,
+   "aliases": [
+    "--dsw-alias-state-error-primary",
+    "--dsw-alias-state-error-secondary (derived)",
+    "--dsw-alias-interactive-bg-hover-danger (derived)"
+   ]
+  },
+  {
+   "slot": "border",
+   "hex": "#41304B",
+   "camp": "场域",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-border-l1",
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "borderActive",
+   "hex": "#7AD2FF",
+   "camp": "蓝刃",
+   "weight": 6,
+   "aliases": [
+    "--dsw-alias-border-l2",
+    "--dsw-alias-border-l2-darkmode-thin",
+    "--dsw-alias-border-l3",
+    "--dsw-alias-border-l4",
+    "--dsw-alias-button-ghost-active-border"
+   ]
+  },
+  {
+   "slot": "diffAdded",
+   "hex": "#7DD2B5",
+   "camp": "绿剑",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-code-diff-added",
+    "--dsw-alias-file-diff-added-marker"
+   ]
+  },
+  {
+   "slot": "diffRemoved",
+   "hex": "#D65166",
+   "camp": "红刃",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-code-diff-deleted",
+    "--dsw-alias-file-diff-deleted-marker"
+   ]
+  },
+  {
+   "slot": "diffAddedBg",
+   "hex": "#102822",
+   "camp": "绿剑",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-file-diff-added-bg"
+   ]
+  },
+  {
+   "slot": "diffRemovedBg",
+   "hex": "#2A0B11",
+   "camp": "红刃",
+   "weight": 2,
+   "aliases": [
+    "--dsw-alias-file-diff-deleted-bg"
+   ]
+  },
+  {
+   "slot": "diffAddedLineNumberBg",
+   "hex": "#183A31",
+   "camp": "绿剑",
+   "weight": 1,
+   "aliases": [
+    "--dsw-alias-file-diff-added-gutter"
+   ]
+  },
+  {
+   "slot": "diffRemovedLineNumberBg",
+   "hex": "#400709",
+   "camp": "红刃",
+   "weight": 1,
+   "aliases": [
+    "--dsw-alias-file-diff-deleted-gutter"
+   ]
+  },
+  {
+   "slot": "markdownHeading",
+   "hex": "#FCE39F",
+   "camp": "金",
+   "weight": 1,
+   "aliases": [
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "markdownLink",
+   "hex": "#78C1E9",
+   "camp": "蓝刃",
+   "weight": 5,
+   "aliases": [
+    "--dsw-alias-label-primary-bluish",
+    "--dsw-alias-link",
+    "--shiki-token-link",
+    "markdown 规则",
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "markdownCode",
+   "hex": "#FAEAD3",
+   "camp": "墨",
+   "weight": 1,
+   "aliases": [
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "markdownEmph",
+   "hex": "#D17380",
+   "camp": "红刃",
+   "weight": 1,
+   "aliases": [
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "markdownStrong",
+   "hex": "#F5FAFB",
+   "camp": "墨",
+   "weight": 1,
+   "aliases": [
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "markdownBlockQuote",
+   "hex": "#7986C4",
+   "camp": "蓝刃",
+   "weight": 1,
+   "aliases": [
+    "markdown 规则"
+   ]
+  },
+  {
+   "slot": "syntaxKeyword",
+   "hex": "#CBA8EC",
+   "camp": "紫",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-keyword"
+   ]
+  },
+  {
+   "slot": "syntaxFunction",
+   "hex": "#A5E0FF",
+   "camp": "蓝刃",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-function"
+   ]
+  },
+  {
+   "slot": "syntaxType",
+   "hex": "#D09A90",
+   "camp": "红刃",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-parameter"
+   ]
+  },
+  {
+   "slot": "syntaxNumber",
+   "hex": "#D09A06",
+   "camp": "金",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-constant"
+   ]
+  },
+  {
+   "slot": "syntaxString",
+   "hex": "#8ADCD0",
+   "camp": "绿剑",
+   "weight": 2,
+   "aliases": [
+    "--shiki-token-string",
+    "--shiki-token-string-expression"
+   ]
+  },
+  {
+   "slot": "textMuted",
+   "hex": "#9DA7D2",
+   "camp": "蓝刃",
+   "weight": 7,
+   "aliases": [
+    "--dsw-alias-label-secondary",
+    "--dsw-alias-label-tertiary",
+    "--dsw-alias-label-caption",
+    "--dsw-alias-menu-icon",
+    "--dsw-alias-label-dimmed (derived)"
+   ]
+  },
+  {
+   "slot": "syntaxComment",
+   "hex": "#827893",
+   "camp": "墨",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-comment"
+   ]
+  },
+  {
+   "slot": "syntaxOperator",
+   "hex": "#7C738F",
+   "camp": "墨",
+   "weight": 1,
+   "aliases": [
+    "--shiki-token-punctuation"
+   ]
+  }
+ ],
+ "campWeight": {
+  "红刃": 28,
+  "青": 1,
+  "蓝刃": 24,
+  "绿剑": 11,
+  "金": 7,
+  "紫": 1
+ },
+ "red": 28,
+ "blue": 26,
+ "redPct": 51.9,
+ "bluePct": 48.1
+}

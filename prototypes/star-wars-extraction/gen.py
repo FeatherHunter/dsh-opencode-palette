@@ -185,11 +185,75 @@ for r in ["syntaxKeyword", "syntaxFunction", "syntaxType", "syntaxNumber", "synt
         '<tr><td><span class="chipc" style="background:%s"></span><code>%s</code></td><td>%s</td>'
         '<td class="num">%.2f:1</td><td>%s</td></tr>' % (v, v, role, cr, "≥4.5 达标"))
 
+# ── 配比数据（ratio.py 的产物）──
+RATIO = json.load(open(os.path.join(HERE, "ratio.json"), encoding="utf-8"))
+REDW = RATIO["red"]
+BLUEW = RATIO["blue"]
+NOTEW = RATIO["campWeight"].get("绿剑", 0) + RATIO["campWeight"].get("金", 0)
+CAMP_DESC = {
+    "红刃": "红刃", "蓝刃": "蓝刃", "紫": "蓝刃", "青": "蓝刃",
+    "绿剑": "绿剑", "金": "金", "黄绿": "绿剑",
+}
+
+
+def camp_rows(camp_names):
+    out = []
+    rows = [r for r in RATIO["rows"] if r["weight"] > 0
+            and CAMP_DESC.get(r["camp"], r["camp"]) in camp_names]
+    rows.sort(key=lambda r: -r["weight"])
+    for r in rows:
+        al = "、".join(a.replace("--dsw-alias-", "").replace("--dsw-specific-", "")
+                       for a in r["aliases"][:2])
+        out.append(
+            '<tr><td><span class="chipc" style="background:%s"></span><code>%s</code></td>'
+            '<td class="num">%d</td><td>%s</td></tr>' % (r["hex"], r["slot"], r["weight"], al))
+    return "\n".join(out)
+
+
+red_rows = camp_rows({"红刃"})
+blue_rows = camp_rows({"蓝刃"})
+tot_camp = REDW + BLUEW + NOTEW
+KEY_RATIO = {
+    "redPct": round(REDW * 100.0 / (REDW + BLUEW), 1),
+    "bluePct": round(BLUEW * 100.0 / (REDW + BLUEW), 1),
+    "diffPct": round(abs(REDW - BLUEW) * 100.0 / (REDW + BLUEW), 1),
+    "redFlex": max(REDW, 1),
+    "blueFlex": max(BLUEW, 1),
+    "noteFlex": max(NOTEW, 1),
+}
+
+# 引擎口径的反白（resolve.ts contrastText）：luma > 0.6 → #141414，否则 #F4F4F5
+def contrast_text(hexv):
+    r, g, b = (int(hexv.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+    return "#141414" if (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6 else "#F4F4F5"
+
+
+ONPRIMARY = contrast_text(C["primary"])
+ONINFO = contrast_text(C["info"])
+
+# :root 变量表（全部由 palette.json 生成，不手写色值）
+ROOT_CSS = "\n    ".join([
+    "--bg:%s; --panel:%s; --elem:%s; --sidebar:%s;" % (C["background"], C["backgroundPanel"], C["backgroundElement"], C["sidebarBg"]),
+    "--bubble:%s; --input:%s; --code:%s; --codehead:%s;" % (C["bubbleBg"], C["inputBg"], C["codeBlockBg"], C["codeHeaderBg"]),
+    "--text:%s; --muted:%s;" % (C["text"], C["textMuted"]),
+    "--primary:%s; --secondary:%s; --info:%s; --success:%s;" % (C["primary"], C["secondary"], C["info"], C["success"]),
+    "--warning:%s; --error:%s;" % (C["warning"], C["error"]),
+    "--border:%s; --active:%s;" % (C["border"], C["borderActive"]),
+    "--dadd:%s; --drem:%s; --daddbg:%s; --drembg:%s;" % (C["diffAdded"], C["diffRemoved"], C["diffAddedBg"], C["diffRemovedBg"]),
+    "--daddln:%s; --dremln:%s;" % (C["diffAddedLineNumberBg"], C["diffRemovedLineNumberBg"]),
+    "--h:%s; --link:%s; --mcode:%s; --em:%s; --strong:%s; --quote:%s;" % (
+        C["markdownHeading"], C["markdownLink"], C["markdownCode"], C["markdownEmph"],
+        C["markdownStrong"], C["markdownBlockQuote"]),
+    "--scom:%s; --skw:%s; --sfn:%s; --styp:%s; --snum:%s; --sstr:%s; --sop:%s;" % (
+        C["syntaxComment"], C["syntaxKeyword"], C["syntaxFunction"], C["syntaxType"],
+        C["syntaxNumber"], C["syntaxString"], C["syntaxOperator"]),
+])
+
 # 关键数据
 KEY = {
     "text": contrast(C["text"], C["background"]),
     "muted": contrast(C["textMuted"], C["background"]),
-    "primary": contrast("#141414", C["primary"]),
+    "primary": contrast(ONPRIMARY, C["primary"]),
     "focus": contrast(C["borderActive"], C["background"]),
     "code": contrast(C["syntaxKeyword"], C["codeBlockBg"]),
     "mincore": min(contrast(C[r], C["codeBlockBg"]) for r in SYNTAX_CORE),
@@ -209,17 +273,8 @@ HTML = r"""<!DOCTYPE html>
 <title>星球大战 theme preview</title>
 <style>
   :root{
-    --bg:#05091C; --panel:#0A1236; --elem:#1B253B; --sidebar:#070D27;
-    --bubble:#202C46; --input:#0C1541; --code:#030314; --codehead:#080F2D;
-    --text:#E8E3DB; --muted:#9AA4D1;
-    --primary:#FCE39F; --secondary:#30B4EC; --info:#97A5FE; --success:#6EC3AE;
-    --warning:#E28950; --error:#E02A34;
-    --border:#273554; --active:#7AD2FF;
-    --dadd:#7DD2B5; --drem:#D65166; --daddbg:#102822; --drembg:#2A0B11;
-    --daddln:#183A31; --dremln:#400709;
-    --h:#F9C843; --link:#78C1E9; --mcode:#FAEAD3; --em:#D17380; --strong:#F5FAFB; --quote:#7986C4;
-    --scom:#827893; --skw:#CBA8EC; --sfn:#A5E0FF; --styp:#D09A90; --snum:#D09A06; --sstr:#8ADCD0; --sop:#7C738F;
-    --page:#02030B; --paper:#0A0F26;
+    __ROOTCSS__
+    --page:#02030B; --paper:#0F0814;
     --hover:color-mix(in srgb, var(--text) 8%, transparent);
     --active08:color-mix(in srgb, var(--text) 14%, transparent);
     --dim:color-mix(in srgb, var(--muted) 80%, transparent);
@@ -255,7 +310,7 @@ HTML = r"""<!DOCTYPE html>
   .brand .badge{font-size:10px;color:var(--muted);border:.5px solid var(--border);border-radius:5px;padding:1px 4px;margin-left:auto}
   .ws{display:flex;align-items:center;gap:8px;background:var(--panel);border:.5px solid var(--border);
     border-radius:10px;padding:7px 9px;font-size:12.5px;margin-bottom:14px}
-  .ws .dot{width:16px;height:16px;border-radius:5px;background:var(--primary);color:#141414;font-size:9px;
+  .ws .dot{width:16px;height:16px;border-radius:5px;background:var(--primary);color:__ONPRIMARY__;font-size:9px;
     display:grid;place-items:center;font-weight:600}
   .ws .caret{margin-left:auto;color:var(--muted);font-size:10px}
   .nav{display:flex;flex-direction:column;gap:2px}
@@ -272,7 +327,7 @@ HTML = r"""<!DOCTYPE html>
   .th:hover{background:var(--hover)}
   .th.sel{background:var(--active08);color:var(--text)}
   .sb-foot{margin-top:auto;display:flex;align-items:center;gap:9px;padding:9px 6px 2px;border-top:.5px solid var(--border);font-size:12px}
-  .av{width:24px;height:24px;border-radius:50%;background:var(--primary);color:#141414;display:grid;place-items:center;font-size:11px;font-weight:600}
+  .av{width:24px;height:24px;border-radius:50%;background:var(--primary);color:__ONPRIMARY__;display:grid;place-items:center;font-size:11px;font-weight:600}
   .sb-foot .gear{margin-left:auto;color:var(--muted);font-size:13px}
 
   .main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
@@ -285,7 +340,8 @@ HTML = r"""<!DOCTYPE html>
   .chip i{width:6px;height:6px;border-radius:50%;background:var(--info)}
   .chip i.idle{background:var(--secondary)}
   .btn{border:0;border-radius:8px;font-size:12px;padding:6px 12px;cursor:default;font-family:inherit}
-  .btn.primary{background:var(--primary);color:#141414;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .btn.primary{background:var(--primary);color:__ONPRIMARY__;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.3)}
+  .btn.info{background:var(--info);color:__ONINFO__;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.3)}
   .btn.ghost{background:transparent;color:var(--muted);border:.5px solid transparent}
   .btn.ghost:hover{background:var(--active08);color:var(--text)}
   .btn.outline{background:transparent;border:.5px solid var(--active);color:var(--text)}
@@ -375,7 +431,7 @@ HTML = r"""<!DOCTYPE html>
   .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);
     background:var(--panel);border:.5px solid var(--border);border-radius:999px;padding:3px 8px}
   .pill i{width:5px;height:5px;border-radius:50%;background:var(--primary)}
-  .send{width:28px;height:28px;border-radius:9px;background:var(--primary);color:#141414;display:grid;place-items:center;
+  .send{width:28px;height:28px;border-radius:9px;background:var(--primary);color:__ONPRIMARY__;display:grid;place-items:center;
     font-size:13px;font-weight:700;border:0}
   .hint{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--dim);padding:7px 4px 0}
   .hint .r{margin-left:auto;display:flex;gap:6px;align-items:center}
@@ -449,25 +505,38 @@ HTML = r"""<!DOCTYPE html>
   .score .sc b{display:block;font-size:19px;color:var(--primary);font-family:"Cascadia Code",Consolas,monospace}
   .score .sc span{font-size:10.5px;color:var(--muted)}
   .foot{display:flex;justify-content:space-between;margin-top:26px;font-size:10.5px;color:var(--dim)}
+  /* ── 配比审计 ── */
+  .ratiowrap{background:var(--paper);border:.5px solid var(--border);border-radius:12px;padding:16px}
+  .ratiobar{display:flex;height:46px;border-radius:9px;overflow:hidden;border:.5px solid var(--border)}
+  .ratiobar .seg{display:grid;place-items:center;font-size:11.5px;font-weight:600;min-width:0;overflow:hidden;white-space:nowrap}
+  .ratiobar .seg.red{background:linear-gradient(180deg,var(--primary),color-mix(in srgb,var(--primary) 72%,#000));color:#F4F4F5}
+  .ratiobar .seg.blue{background:linear-gradient(180deg,var(--secondary),color-mix(in srgb,var(--secondary) 72%,#000));color:#04121B}
+  .ratiobar .seg.note{background:color-mix(in srgb,var(--muted) 22%,transparent);color:var(--muted)}
+  .ratiometa{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+  .ratiometa b{display:block;font-size:19px;color:var(--primary);font-family:"Cascadia Code",Consolas,monospace}
+  .ratiometa span{font-size:10.5px;color:var(--muted)}
 </style>
 </head>
 <body>
 <div class="sheet">
   <div class="eyebrow">DSH / OpenCode Palette · Custom Theme</div>
-  <h1 class="title">星球大战 <em>Star Wars</em> — 双刃与星尘</h1>
+  <h1 class="title">星球大战 <em>Star Wars</em> — 双刃对分</h1>
   <div class="sub">
-    三张海报当唯一样本：<b>每一个色位都是图里真实存在的像素</b>，只做明度阶与线性混合的推导，不另造颜色。
-    设计骨架一句话——<b>用亮度分层，而不是用边框分割</b>：底色是海报的深空靛，文字是字标的奶油纸白，
-    品牌是招牌金与光剑蓝这一对互补色（夹角 <b>__GEOM__°</b>），红刃管危险、绿刃管正向、紫水晶管关键字。
+    三张海报当唯一样本：<b>每一个色位都是图里真实存在的像素</b>，只做明度阶、彩度阶与线性混合的推导，不另造颜色。
+    第一性推导只有三步：① <b>两把光剑是海报唯一的两个主角</b>，所以红刃与蓝刃必须等重——按引擎里真实的着色面积排，
+    红刃拿下最大的一块（主按钮 / 品牌字 / 激活导航 / 危险态），蓝刃拿下整套冷色岗位（链接 / 焦点 / 提示 / 次级文字 / 函数）；
+    ② <b>底色必须是两刃的交点</b>，红 357° 与蓝 198° 的中点是紫 277°，所以背景是近黑的紫，不偏任何一边；
+    ③ <b>字标属排版不属色块</b>，金只留标题与数字两席，绿剑素材只占 1.1%，两者都只作注脚。
+    配比审计（权重＝该色位驱动的 DSH 变量数）：<b>红刃 __REDPCT__% / 蓝刃 __BLUEPCT__%</b>。
     判据自检：硬性 __HARD__ 对 + UI __UI__ 对，<b>__FAILS__ 条违例</b>，设计告警 __WARNS__ 条。
   </div>
   <div class="anchors">
-    <span class="anchor"><i style="background:#FCE39F"></i>招牌金 <b>#FCE39F</b></span>
-    <span class="anchor"><i style="background:#30B4EC"></i>光剑蓝 <b>#30B4EC</b></span>
-    <span class="anchor"><i style="background:#E02A34"></i>红刃 <b>#E02A34</b></span>
+    <span class="anchor"><i style="background:#CD1E28"></i>红刃 <b>__PRIMARY__</b></span>
+    <span class="anchor"><i style="background:#30B4EC"></i>蓝刃 <b>#30B4EC</b></span>
+    <span class="anchor"><i style="background:#EB3D48"></i>亮刃（错误） <b>#EB3D48</b></span>
+    <span class="anchor"><i style="background:#FCE39F"></i>字标金 <b>#FCE39F</b></span>
     <span class="anchor"><i style="background:#6EC3AE"></i>全息薄荷 <b>#6EC3AE</b></span>
     <span class="anchor"><i style="background:#CBA8EC"></i>星云紫 <b>#CBA8EC</b></span>
-    <span class="anchor"><i style="background:#E28950"></i>琥珀热核 <b>#E28950</b></span>
     <span class="anchor"><i style="background:#D17380"></i>落日玫瑰 <b>#D17380</b></span>
   </div>
 
@@ -508,6 +577,7 @@ HTML = r"""<!DOCTYPE html>
           <span class="chip"><i class="idle"></i>就绪</span>
           <span class="chip"><i></i>deepseek-flash</span>
           <button class="btn ghost">分享</button>
+          <button class="btn info">导入配置</button>
           <button class="btn primary">新建会话</button>
         </div>
       </div>
@@ -523,35 +593,38 @@ HTML = r"""<!DOCTYPE html>
         </div>
 
         <div class="md">
-          <h2>37 色位已落位，全部有出处</h2>
-          <p>核心只有一句话：<strong>用亮度分层，而不是用边框分割</strong>。底色是海报的深空靛——八个背景槽是
-            <em>同一个色相</em>的明度阶梯（色相偏差 ≤ 10°），所以界面天生是一整片星海；文字是字标的奶油纸白。</p>
+          <h2>红刃与蓝刃，各占一半</h2>
+          <p>核心只有一句话：<strong>两把光剑必须等重</strong>。海报的红色与蓝色是场里的两个主角，
+            界面就得按同样的比例把两色铺开——红刃拿下着色面积最大的一块（主按钮、品牌字、激活导航、危险态），
+            蓝刃拿下整套冷色岗位（链接、焦点环、提示、次级文字、函数名）。</p>
           <ul>
-            <li>品牌是一对<strong>互补色</strong>：招牌金 <code>#FCE39F</code>（字标辉光）与光剑蓝 <code>#30B4EC</code>（剑心），夹角 <code>__GEOM__°</code>。金走深色按钮（引擎按亮度选 <code>#141414</code> 作字），蓝走链接与焦点环。</li>
-            <li>红刃管危险（<code>error</code> / 删除行），绿刃管正向（<code>success</code> / 新增行），星云紫管关键字——三把刃各司其职，互不串戏。</li>
+            <li>底色是<strong>两刃的交点</strong>：红 357° 与蓝 198° 的中点是紫 277°，所以八个背景槽是近黑的紫（色相 275–279°，偏差 ≤ 4°）——底色不偏任何一边，两色才都立得住。</li>
+            <li>字标金只管<strong>排版</strong>：金色在海报里是 logo，是字不是色块，所以它只出现在标题与数字两席，不再占按钮；绿剑素材全场只占 1.1%，也只作注脚。</li>
+            <li>错误色用<strong>亮一档的刃</strong>（<code>#EB3D48</code>）配深刃品牌色（<code>__PRIMARY__</code>）：同族不同值，亮红永远比品牌红更刺眼，<code>error</code> 与 <code>primary</code> 不撞值也不撞岗。</li>
+          </ul>
+          <blockquote>星星是场，光刃是动作；把场让给交点，把动作一分为二。</blockquote>
             <li>退后梯队做在代码区：注释 <code>__SCOM__</code> 与运算符 <code>__SOP__</code> 都压在 5:1 上下，五个核心语法色在 <code>__MINCORE__</code> 以上。</li>
           </ul>
-          <blockquote>星星是场，光刃是动作，招牌金是传说；UI 只是把它们排好队。</blockquote>
 
           <div class="cc">
             <div class="hd"><span class="lang">css</span><span class="fn">star-wars.theme.ts</span><span class="cp">复制</span></div>
 <pre><span class="tk-com">// 每个值都有海报出处（1/2/3.jpg 实拍取色）</span>
 <span class="tk-kw">const</span> <span class="tk-fn">starWars</span> <span class="tk-op">=</span> {
-  <span class="tk-fn">void</span>:     <span class="tk-str">"#05091C"</span>,  <span class="tk-com">// 1.jpg 星空底 · 明度阶</span>
+  <span class="tk-fn">void</span>:     <span class="tk-str">"__BG__"</span>,  <span class="tk-com">// 2.jpg 紫黑（两刃交点）· 明度阶</span>
   <span class="tk-fn">paper</span>:   <span class="tk-str">"#E8E3DB"</span>,  <span class="tk-com">// 1.jpg 海报纸白 · 原样</span>
-  <span class="tk-fn">gold</span>:    <span class="tk-str">"#FCE39F"</span>,  <span class="tk-com">// 1.jpg 字标辉光 · 原样</span>
+  <span class="tk-fn">blade</span>:   <span class="tk-str">"__PRIMARY__"</span>,  <span class="tk-com">// 3.jpg 红剑 · 明度阶</span>
   <span class="tk-fn">saber</span>:   <span class="tk-str">"#30B4EC"</span>,  <span class="tk-com">// 2.jpg 蓝剑剑心 · 原样</span>
-  <span class="tk-fn">blade</span>:   <span class="tk-str">"#E02A34"</span>,  <span class="tk-com">// 3.jpg 红剑 · 明度阶</span>
   <span class="tk-fn">contrast</span>: <span class="tk-num">__TEXTC__</span> <span class="tk-kw">as</span> <span class="tk-typ">Ratio</span>,
 };</pre>
           </div>
 
           <table>
             <tr><th>检查项</th><th>结果</th><th>色值</th></tr>
-            <tr><td>正文对比度</td><td><span class="ok">__TEXTC__ : 1</span></td><td class="mono">#E8E3DB / #05091C</td></tr>
-            <tr><td>主按钮白字</td><td><span class="ok">__PRIM__ : 1</span></td><td class="mono">#141414 / #FCE39F</td></tr>
-            <tr><td>焦点环</td><td><span class="ok">__FOCUS__ : 1</span></td><td class="mono">#7AD2FF / #05091C</td></tr>
-            <tr><td>品牌几何</td><td><span class="ok">__GEOM__° 互补</span></td><td class="mono">gold / saber</td></tr>
+            <tr><td>正文对比度</td><td><span class="ok">__TEXTC__ : 1</span></td><td class="mono">#E8E3DB / __BG__</td></tr>
+            <tr><td>主按钮反白</td><td><span class="ok">__PRIM__ : 1</span></td><td class="mono">__ONPRIMARY__ / __PRIMARY__</td></tr>
+            <tr><td>焦点环</td><td><span class="ok">__FOCUS__ : 1</span></td><td class="mono">#7AD2FF / __BG__</td></tr>
+            <tr><td>红蓝配比</td><td><span class="ok">__REDPCT__% / __BLUEPCT__%</span></td><td class="mono">blade / saber</td></tr>
+            <tr><td>品牌几何</td><td><span class="ok">__GEOM__° 互补</span></td><td class="mono">blade / saber</td></tr>
             <tr><td>深色代码台</td><td><span class="ok">采用</span></td><td class="mono">shiki fg = text</td></tr>
           </table>
 
@@ -630,6 +703,44 @@ __SIGS__
 __PROVROWS__
       </tbody>
     </table>
+  </div>
+
+  <!-- ═══ 配比审计 ═══ -->
+  <div class="sect" id="ratio">
+    <div class="head"><h3>配比审计</h3><span class="hintx">权重＝该色位在 map-dsh.ts 里驱动的 DSH 变量数（填充类 ×2）· 场域与墨不计入阵营</span></div>
+    <div class="ratiowrap">
+      <div class="ratiobar">
+        <div class="seg red" style="flex:__REDFLEX__"><span>红刃 __REDPCT__%</span></div>
+        <div class="seg blue" style="flex:__BLUEFLEX__"><span>蓝刃 __BLUEPCT__%</span></div>
+        <div class="seg note" style="flex:__NOTEFLEX__"><span>注脚（绿剑 + 金）</span></div>
+      </div>
+      <div class="ratiometa">
+        <div><b>__REDPCT__% / __BLUEPCT__%</b><span>红刃 / 蓝刃（着色岗位口径）</span></div>
+        <div><b>__DIFFPCT__%</b><span>两色差值（越接近 0 越对分）</span></div>
+        <div><b>__GEOM__°</b><span>两刃夹角（互补）</span></div>
+        <div><b>277°</b><span>底色色相＝两刃交点</span></div>
+      </div>
+    </div>
+    <div class="cols2" style="margin-top:16px">
+      <div class="panel">
+        <h4>红刃承担了什么</h4>
+        <table class="ruler">
+          <thead><tr><th>色位</th><th>色值</th><th class="num">权重</th><th>落点</th></tr></thead>
+          <tbody>
+__REDROWS__
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <h4>蓝刃承担了什么</h4>
+        <table class="ruler">
+          <thead><tr><th>色位</th><th>色值</th><th class="num">权重</th><th>落点</th></tr></thead>
+          <tbody>
+__BLUEROWS__
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ 判据报告 ═══ -->
@@ -719,8 +830,21 @@ html = html.replace("__PROVROWS__", prov_rows)
 html = html.replace("__GROWROWS__", "\n".join(group_rows))
 html = html.replace("__SYNROWS__", "\n".join(syn_rows))
 html = html.replace("__DEROWS__", "\n".join(de_rows))
+html = html.replace("__REDROWS__", red_rows)
+html = html.replace("__BLUEROWS__", blue_rows)
 html = html.replace("__PALETTE__", json.dumps(C))
 html = html.replace("__PROV__", json.dumps(PROV, ensure_ascii=False))
+html = html.replace("__ROOTCSS__", ROOT_CSS)
+html = html.replace("__ONPRIMARY__", ONPRIMARY)
+html = html.replace("__ONINFO__", ONINFO)
+html = html.replace("__REDPCT__", str(KEY_RATIO["redPct"]))
+html = html.replace("__BLUEPCT__", str(KEY_RATIO["bluePct"]))
+html = html.replace("__DIFFPCT__", str(KEY_RATIO["diffPct"]))
+html = html.replace("__REDFLEX__", str(KEY_RATIO["redFlex"]))
+html = html.replace("__BLUEFLEX__", str(KEY_RATIO["blueFlex"]))
+html = html.replace("__NOTEFLEX__", str(KEY_RATIO["noteFlex"]))
+html = html.replace("__PRIMARY__", C["primary"])
+html = html.replace("__BG__", C["background"])
 html = html.replace("__GEOM__", str(KEY["geometry"]))
 html = html.replace("__HARD__", str(KEY["hard"]))
 html = html.replace("__UI__", str(KEY["ui"]))

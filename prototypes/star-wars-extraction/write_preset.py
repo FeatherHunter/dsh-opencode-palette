@@ -17,7 +17,7 @@ obj = OrderedDict([
     ("id", "star-wars"),
     ("name", "星球大战"),
     ("schema", "dsh-opencode-palette.custom-theme.v1"),
-    ("updatedAt", "2026-10-20T10:25:00+08:00"),
+    ("updatedAt", "2026-10-20T10:30:00+08:00"),
 ])
 line = json.dumps(obj, ensure_ascii=False, separators=(", ", ": "))
 with open(PRESET, "w", encoding="utf-8", newline="") as fp:
