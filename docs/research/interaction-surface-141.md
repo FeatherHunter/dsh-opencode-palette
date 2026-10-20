@@ -131,10 +131,10 @@
 
 | 指标 | 数值 | 出处 |
 | --- | --- | --- |
-| 可点元素总数 | 51 | `onClick` 出现 36 处（`runtime/client.ts` 17 + `runtime/custom-editor.ts` 19，PowerShell 计数）+ 其它可点语义元素 |
-| 已带钩子 | 48（**94%**） | `runtime/client.ts` 19/19；`runtime/custom-editor.ts` 29/32 |
+| 可点元素总数（审计估计） | 51 | `onClick` 出现 36 处（`runtime/client.ts` 17 + `runtime/custom-editor.ts` 19，PowerShell 计数）；差额来自 map 渲染出的重复元素与 label 包裹的 input，**逐元素点算，非逐行点算** |
+| 已带钩子（审计估计） | 48（**94%**） | `runtime/client.ts` 19/19；`runtime/custom-editor.ts` 29/32。钩子**属性出现处**是 43 处（见下行），元素数多于属性数是因为同一处属性在 `.map()` 里渲染出多个元素（如 `runtime/custom-editor.ts:1157`、`:646` 的 swatch） |
 | 钩子点位 | 43 处 | `runtime/client.ts` 19 处（`:1169,1184,1237,1255,1295,1321,1340,1377,1415,1498,1520,1660,1753,1832,1845,1859,1872,1914,1933`）；`runtime/custom-editor.ts` 24 处（`:556,566,591,612,634,646,656,662,680,689,693,1157,1251,1277,1328,1579,1597,1633,1671,1697,1702,1707,1716,1726`） |
-| 档位分布 | button 19 / input 10 / chip 5 / row 4 / switch 3 / swatch 2 | 6 档全有使用者，无未定义档位值 |
+| 档位分布（按属性出现处计，43 处） | button 19 / input 10 / chip 5 / row 4 / switch 3 / swatch 2 | `runtime/client.ts`：BUTTON 8（`:1169,1184,1255,1340,1520,1660,1845,1859`）、CHIP 3（`:1377,1415,1498`）、INPUT 2（`:1321,1933`）、ROW 4（`:1237,1295,1753,1914`）、SWITCH 2（`:1832,1872`）；`runtime/custom-editor.ts`：BUTTON 11（`:556,662,689,693,1633,1671,1697,1702,1707,1716,1726`）、INPUT 8（`:566,591,634,656,1251,1328,1579,1597`）、CHIP 2（`:612,1277`）、SWATCH 2（`:646,1157`）、SWITCH 1（`:680`）。6 档全有使用者，无未定义档位值 |
 | 空值（LEGACY）钩子 | **0 处** | grep `UI_INTERACTIVE_ATTR]: ''` 0 命中 ⇒ LEGACY 档在 runtime 内无使用者，**是死 CSS** |
 | 内联 `cursor:'pointer'` 却无钩子 | 0 处 | — |
 
