@@ -95,12 +95,19 @@
 ③借物：info 胶囊科技青 #266670、success 神龙那美克星绿 #367036、warning 龙珠金压深 #7A4C00、error 如意棒赤 #6B1C21。语法七色按 IP 语义重分且色相不变、转深墨：keyword 魔贯光杀炮紫 #42365C、function 龙珠金 #664C19、type 仙豆黄绿 #335C22、number 胶囊粉 #61435F、string 球体橙 #612B05、operator 悟空肤色暖灰 #756148、comment 修行烟尘灰 #70615C（后两色 4.54/4.55 退到核心语法最低 6.00 之下）。
 ④技巧：**大面积低彩度、小面积高彩度**——这是这次改版的全部理由。上一版把 21% 的屏幕面积铺成 S87 的饱和橘 #FCB120，一眼是龙珠但长时间盯着刺眼；现在饱和橘只留在真正需要提示的小面积（主按钮、侧栏、代码卡顶带、行内码、diff），画布交给 S5–15 的暖纸。**浅底上弱文字必须更深**：textMuted #573E2A（土棕）在暖纸上的 80% 透明合成仍有 4.74:1，浅色主题的 labelDimmed 才是真正的坑。53 对判尺全绿（正文最低 10.76:1、语法最低 6.00:1、主按钮反白 5.01:1），全库审计 0 违例、IP 设计规范 0 待处理；4 个 diff 底色是「真实像素 × 真实暗底」的合成值（图里本就没有暗绿/暗红），其余 33 槽是原图 1:1 像素。
 
-## 火影忍者（dark）
+## 火影忍者（light·晒过的和纸）
 
-①基调：木叶隐村夜林，background #141A10 暖墨橄榄绿（原冷青绿改掉）。8 槽 80~100° 黄绿家族阶梯：codeBlockBg #090C07 最深 → sidebarBg → background → panel → inputBg → element → bubbleBg → header 最亮。
-②组合：primary 鸣人战衣橘 #FF7F1F（原通用红改掉）× secondary 螺旋丸查克拉蓝 #2FB0F5，橙蓝互补对冲（鸣人佐助对立共生）；borderActive 鸣人橘高亮变体，border 竹林暗线。
-③借物：info 查克拉蓝、success 木叶新芽绿、warning 九尾查克拉金、error 写轮眼血红、diffAdded 木叶嫩芽+深绿底、diffRemoved 晓红云浅红+暗红底。syntax：keyword 写轮眼红、function 螺旋丸蓝、type 白眼薰衣草紫、number 九尾金、string 木叶绿、operator 苦无冷钢银、comment 旧卷轴棕灰。
-④技巧：codeBlockBg 压两档成近黑舞台（卷轴结界浮出）；text 卷轴米白 #F5F1E3（暖纸贴林地质感），textMuted 竹雾灰；markdown 标题鸣人橘做招牌、链接查克拉蓝做指引、行内码九尾金做封印高光（排版即剧情）。
+①基调：**晒过的和纸**。三张参考图（2.jpg 剧场版海报 466×659 / 3.jpg 第七班合影 555×553 / images.jpg 单行本卷一封面 364×549）里没有一块大面积的「漫画纸」—— 唯一真纸页是封面 #FFFFFF，其余奶油色都是皮肤与光影。所以亮册 8 个表面槽是**按封面金黄云纹的色相（H 95）派生的暖纸阶梯**，不是直采像素：inputBg #FDFBF7（L\*98.7 C\*2.1）→ background #F7F5EF（96.5/3.1）→ backgroundPanel #F0EDE8（93.8/2.8）→ codeBlockBg #EBE6D6（91.3/8.5）→ bubbleBg #FFDBDD（90.4/13.3，樱花粉）→ backgroundElement #E0D9C7（86.8/9.7）→ codeHeaderBg #D0C5A7（79.7/16.5）→ sidebarBg #C4C0B4（77.7/6.6）。浅底主题的「暖纸同族」是有意的规矩：7 个 chrome 表面同属 GOLD 锚点 ±20°，bubbleBg 是唯一的樱粉例外。
+②组合：primary 鸣人战衣橘 #A0542D（L\*44.2 C\*45.8 H52）× secondary 佐助藏青 #364364（28.7/21.5/H282），HSL 夹角 157.3° 落进**互补**。**故意不做高彩度橘**：参考图的战衣橘是照片固有色（C\*48），而龙珠/马里奥/乐高的 primary 是合成高彩度（C\*74–85）—— 保持低彩度正是本主题读作「照片里的鸣人战衣」而不是「通用橙」的原因；与龙珠 primary 的感知距离 ΔE2000 8.1 / ΔE76 28.7，拉开靠的是彩度不是色相。borderActive 藏青 #1C578C，border 冷灰 #C1C2C7。
+③借物：text 勾线墨 #2B2D39、textMuted 面罩蓝灰 #3B3F4F、info 天空查克拉蓝 #407AA8、success 乌鸦暗部松绿 #477C68、warning 金发暗阶 #6C6A25、error 樱红衣 #AB475A；markdownHeading 藏青 #203E74、markdownLink 封面蓝天 #0869A8、markdownCode 战衣深橘 #7C3D18、markdownEmph 樱肤 #975A60、markdownStrong 纯墨 #171923、markdownBlockQuote 背心橄榄 #666B5F。syntax 五核心：keyword 深橘 #823B29、function 藏青 #48609A、type 钢蓝 #44668D、number 橄榄金 #5A5A03、string 松绿 #335A4A（两两 ΔE76 最小 12.9）；comment #5A6A54 与 operator #66676D 退到核心之下。
+④技巧：**大面积低彩、小面积高彩**。渲染实测（playwright 逐像素统计）：bubbleBg 占屏 10.7%、响度 14.2；primary 只占 1.05%、响度 4.8 —— 这套盘子的第一眼不跳橙色，要看第二眼，这是「参考图里本就没有大面积橙色」的素材事实的直接后果。浅底上弱文字才是真正的坑：textMuted 的 80% 合成（labelDimmed）在 backgroundElement 上仍有 4.59:1。四支 diff 色显式给足：diffAdded #134C3A / diffAddedBg #CFDFD8（7.16:1）、diffRemoved #7D263A / diffRemovedBg #E2CDCE（6.27:1），引擎 ensureDiffContrast 对本册 6 支 diff 色 0 改写。
+
+## 火影忍者（dark·夜之暗）
+
+①基调：**夜之暗**。暗册不做「藏青一路到底」—— 仓内已有 8+ 个藏青暗主题。8 个表面槽按 L\* 拉开且各自微微偏一点：background #0A0E18（L\*4.0 C\*6.4）→ codeBlockBg #121319（6.0/4.3）→ sidebarBg #181920（8.9/5.2）→ inputBg #1C1C2B（10.9/11.0）→ backgroundPanel #1E2334（14.0/12.2）→ backgroundElement #232C3D（17.9/12.1）→ codeHeaderBg #27324F（21.1/19.8）→ bubbleBg #3A3746（23.9/10.1）。**bubbleBg 原本给的是樱红 #43292B，判尺报出「色相孤岛」告警**（8 个背景槽里彩度 ≥8 的必须落在基色 ±60°，樱红 H 15.9 与基色 H 279 差 97°）—— 改成同一藏青家族里偏紫的 #3A3746 后告警清零，代价是暗册失去了唯一一抹樱色，改由 error #D76979 与 markdownEmph #EDAAAF 承担。
+②组合：primary 战衣橘 #EF9568（L\*70.1 C\*48.0 H52）× secondary 藏青 #5C6D91（46.0/21.9/H277.8），夹角 159.2° 互补。**暗册是「先亮后暖」**：primary 是全册最亮的高彩色，从近黑的底上天然跳出来；与龙珠 primary 的感知距离 ΔE2000 24.8。borderActive 亮蓝 #7CA3D6、border 冷灰 #38393F。
+③借物：text 卷白 #E7E8EC、textMuted 银发 #B1B3BC、info 夜空钢蓝 #7C8CA7、success 背心灰绿 #83A294、warning 金发亮阶 #E2C377、error 樱红衣提亮 #D76979；markdownHeading 金发 #F0DC94、markdownLink 查克拉天蓝 #97B8E9、markdownCode 樱肤 #E5A88C、markdownEmph 樱粉 #EDAAAF、markdownStrong 纯白 #FBFCFF、markdownBlockQuote 银灰 #9A9BA2。syntax 五核心：keyword 桃红 #F39984、function 亮蓝 #8E9ED8、type 钢蓝 #6F8DBC、number 柠檬金 #C9C474、string 薄荷松绿 #B2D3C6（两两 ΔE76 最小 10.7）。
+④技巧：**代码卡是近黑的洞**（codeBlockBg #121319 比 background 深两档），配 codeHeaderBg #27324F 的顶沿，块码像从夜里挖出来的一块。暗册四支 diff 色：diffAdded #ADE3CD / diffAddedBg #1D2D26（10.06:1）、diffRemoved #EB929E / diffRemovedBg #352023（6.61:1）；**diffRemovedLineNumberBg 原给 #523D3E 时对比只有 4.36:1，运行时引擎 ensureDiffContrast 会改写它、并把两个 diff 底压成同一个值** —— 提前压深到 #4D393A（4.66:1）后引擎 0 改写。这是「判尺全绿 ≠ 出货即最终值」的实例：判尺只查作者值，运行时兜底是另一套算法。
 
 ## Hello Kitty（light）
 
