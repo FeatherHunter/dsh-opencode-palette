@@ -33,6 +33,15 @@ Create a GitHub issue.
 
 Run `gh issue view <number> --comments`.
 
+## Reading a single ticket: `blocking` is expensive, default it off
+
+The deck plugin's `deck_issue_get` returns the relationship edges on a ticket; the `gh` commands above do not. Two facts about that tool, measured on this repo (150 open tickets) on 2026-10-20:
+
+- **`blocking` defaults to on, and it costs ~25 s.** The reverse edge ("what am I blocking") is computed by scanning the whole repository's issue list, so the cost grows with the repo — measured 1.1 s with `blocking=false` versus 25–29 s with the default, on the same ticket, back to back. Pass `blocking=false` when reading a ticket for context. Pass `blocking=true` only when the answer changes a decision, which in practice means **before closing a ticket**, to confirm nothing downstream still depends on it.
+- `blocking=false` still returns the forward edge (`blockedBy`) and the parent link, and the call notes say the reverse edge was not fetched. An empty reverse list then means "not fetched", not "none".
+
+Upstream filed the underlying cost as [dsh-mattpocock-skills-deck#1304](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck/issues/1304). Once that lands the default can go back to "on": the reverse edge will then come from GitHub's native `blocking` field in a single query, instead of a whole-repo scan.
+
 ## Wayfinding operations
 
 Used by `/wayfinder`. The **map** is a single issue with **child** issues as tickets.
