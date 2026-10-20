@@ -1,0 +1,1469 @@
+{
+ "light": {
+  "background": "#F4E9D4",
+  "backgroundPanel": "#E9DEC3",
+  "backgroundElement": "#EEDCBC",
+  "sidebarBg": "#D7C19E",
+  "bubbleBg": "#F5E2D7",
+  "inputBg": "#F5F3EF",
+  "codeBlockBg": "#F3ECE0",
+  "codeHeaderBg": "#E5CFAC",
+  "text": "#402C27",
+  "textMuted": "#553E38",
+  "primary": "#2A3B6B",
+  "secondary": "#9A7855",
+  "info": "#4E658C",
+  "success": "#49655A",
+  "warning": "#7F6247",
+  "error": "#92331F",
+  "border": "#DCCEB2",
+  "borderActive": "#8F6F55",
+  "diffAdded": "#45554D",
+  "diffRemoved": "#9F3721",
+  "markdownHeading": "#2E375A",
+  "markdownLink": "#435982",
+  "markdownCode": "#65463B",
+  "markdownEmph": "#526157",
+  "markdownStrong": "#442920",
+  "markdownBlockQuote": "#664F45",
+  "syntaxComment": "#73594B",
+  "syntaxKeyword": "#2E345E",
+  "syntaxFunction": "#51554D",
+  "syntaxType": "#394E7A",
+  "syntaxNumber": "#6B513C",
+  "syntaxString": "#514D6E",
+  "syntaxOperator": "#595745",
+  "diffAddedBg": "#E9DDC1",
+  "diffAddedLineNumberBg": "#D0CEB4",
+  "diffRemovedBg": "#EFD9BC",
+  "diffRemovedLineNumberBg": "#EAC9AC"
+ },
+ "dark": {
+  "background": "#432E27",
+  "backgroundPanel": "#352427",
+  "backgroundElement": "#3B3533",
+  "sidebarBg": "#392D27",
+  "bubbleBg": "#3F3F3A",
+  "inputBg": "#2E2B28",
+  "codeBlockBg": "#2F1F29",
+  "codeHeaderBg": "#473733",
+  "text": "#F5E5D0",
+  "textMuted": "#C6BBA1",
+  "primary": "#8EA793",
+  "secondary": "#DCB581",
+  "info": "#9FC0CF",
+  "success": "#6D9689",
+  "warning": "#DDAA77",
+  "error": "#CE8070",
+  "border": "#7A6C5C",
+  "borderActive": "#E2C49D",
+  "diffAdded": "#7D9D8B",
+  "diffRemoved": "#D28B7C",
+  "markdownHeading": "#B1CEE0",
+  "markdownLink": "#93B4C8",
+  "markdownCode": "#B69571",
+  "markdownEmph": "#77A398",
+  "markdownStrong": "#E8DCC1",
+  "markdownBlockQuote": "#B8AD93",
+  "syntaxComment": "#998776",
+  "syntaxKeyword": "#BAD8E3",
+  "syntaxFunction": "#85B0A6",
+  "syntaxType": "#93A4CB",
+  "syntaxNumber": "#DDBD8E",
+  "syntaxString": "#8490C3",
+  "syntaxOperator": "#948C76",
+  "diffAddedBg": "#2E2E2A",
+  "diffAddedLineNumberBg": "#333632",
+  "diffRemovedBg": "#302C28",
+  "diffRemovedLineNumberBg": "#442824"
+ },
+ "recipes": {
+  "light": {
+   "background": "paper #F3E3C6 ⨯0.307 white #F6F5F4",
+   "backgroundPanel": "cream #E6DCC2 ⨯0.229 paper #F3E3C6",
+   "backgroundElement": "sandLite #E6D0AD ⨯0.614 paper #F3E3C6",
+   "sidebarBg": "sand #D5BF9D ⨯0.091 sandLite #E6D0AD",
+   "bubbleBg": "blush #F4DACB ⨯0.281 white #F6F5F4",
+   "inputBg": "cream #E6DCC2 ⨯0.908 white #F6F5F4",
+   "codeBlockBg": "warmWhite #EEDCBE ⨯0.634 white #F6F5F4",
+   "codeHeaderBg": "sandLite #E6D0AD ⨯0.046 sand #D5BF9D",
+   "text": "ink #432E27 ⨯0.294 char #382726",
+   "textMuted": "umber #6C5045 ⨯0.836 chestnut #513A36",
+   "primary": "indigo #312D53 ⨯0.945 deepIndigo #2A3C6C",
+   "secondary": "gold #DAB078 ⨯0.427 ink #432E27",
+   "info": "mistBlue #8DAEC4 ⨯0.639 deepIndigo #2A3C6C",
+   "success": "teal #528374 ⨯0.331 char #382726",
+   "warning": "gold #DAB078 ⨯0.604 ink #432E27",
+   "error": "scarlet #B83E25 ⨯0.339 cocoa #471F13",
+   "border": "stone #A89C82 ⨯0.699 paper #F3E3C6",
+   "borderActive": "gold #DAB078 ⨯0.679 umber #6C5045",
+   "diffAdded": "teal #528374 ⨯0.497 char #382726",
+   "diffRemoved": "scarlet #B83E25 ⨯0.223 cocoa #471F13",
+   "markdownHeading": "deepIndigo #2A3C6C ⨯0.262 char #382726",
+   "markdownLink": "mistBlue #8DAEC4 ⨯0.745 deepIndigo #2A3C6C",
+   "markdownCode": "cocoa #471F13 ⨯0.803 umber #6C5045",
+   "markdownEmph": "teal #528374 ⨯0.472 chestnut #513A36",
+   "markdownStrong": "ink #432E27 ⨯0.343 cocoa #471F13",
+   "markdownBlockQuote": "warmBrown #8D7661 ⨯0.657 chestnut #513A36",
+   "syntaxComment": "warmBrown #8D7661 ⨯0.775 umber #6C5045",
+   "syntaxKeyword": "deepIndigo #2A3C6C ⨯0.542 indigo #312D53",
+   "syntaxFunction": "teal #528374 ⨯0.630 chestnut #513A36",
+   "syntaxType": "mistBlue #8DAEC4 ⨯0.846 deepIndigo #2A3C6C",
+   "syntaxNumber": "gold #DAB078 ⨯0.735 ink #432E27",
+   "syntaxString": "starBlue #7B85BE ⨯0.540 plum #2E1E29",
+   "syntaxOperator": "olive #66644D ⨯0.226 inkCool #2D2C28",
+   "diffAddedBg": "paper #F3E3C6 ⨯0.063 teal #528374",
+   "diffAddedLineNumberBg": "paper #F3E3C6 ⨯0.216 teal #528374",
+   "diffRemovedBg": "paper #F3E3C6 ⨯0.060 scarlet #B83E25",
+   "diffRemovedLineNumberBg": "paper #F3E3C6 ⨯0.160 scarlet #B83E25"
+  },
+  "dark": {
+   "background": "ink #432E27 ⨯0.029 char #382726",
+   "backgroundPanel": "char #382726 ⨯0.284 plum #2E1E29",
+   "backgroundElement": "tealDark #3E4541 ⨯0.529 char #382726",
+   "sidebarBg": "inkCool #2D2C28 ⨯0.546 ink #432E27",
+   "bubbleBg": "teal #528374 ⨯0.741 char #382726",
+   "inputBg": "inkCool #2D2C28 ⨯0.129 char #382726",
+   "codeBlockBg": "char #382726 ⨯0.892 plum #2E1E29",
+   "codeHeaderBg": "char #382726 ⨯0.136 stone #A89C82",
+   "text": "cream2 #F5E4CE ⨯0.064 white #F6F5F4",
+   "textMuted": "cream #E6DCC2 ⨯0.519 stone #A89C82",
+   "primary": "teal #528374 ⨯0.403 cream #E6DCC2",
+   "secondary": "gold #DAB078 ⨯0.077 white #F6F5F4",
+   "info": "mistBlue #8DAEC4 ⨯0.289 skyPale #CCEDEB",
+   "success": "teal #528374 ⨯0.164 white #F6F5F4",
+   "warning": "orange #E49C75 ⨯0.712 gold #DAB078",
+   "error": "scarlet #B83E25 ⨯0.361 white #F6F5F4",
+   "border": "stone #A89C82 ⨯0.408 char #382726",
+   "borderActive": "gold #DAB078 ⨯0.295 white #F6F5F4",
+   "diffAdded": "teal #528374 ⨯0.294 cream #E6DCC2",
+   "diffRemoved": "scarlet #B83E25 ⨯0.419 white #F6F5F4",
+   "markdownHeading": "sky2 #B0CCDF ⨯0.049 skyPale #CCEDEB",
+   "markdownLink": "mistBlue #8DAEC4 ⨯0.090 skyPale #CCEDEB",
+   "markdownCode": "gold2 #C9A77B ⨯0.219 ochre #74564B",
+   "markdownEmph": "teal #528374 ⨯0.303 skyPale #CCEDEB",
+   "markdownStrong": "cream #E6DCC2 ⨯0.232 warmWhite #EEDCBE",
+   "markdownBlockQuote": "cream #E6DCC2 ⨯0.738 stone #A89C82",
+   "syntaxComment": "taupe #876D67 ⨯0.545 stone #A89C82",
+   "syntaxKeyword": "sky2 #B0CCDF ⨯0.360 skyPale #CCEDEB",
+   "syntaxFunction": "teal #528374 ⨯0.420 skyPale #CCEDEB",
+   "syntaxType": "starBlue #7B85BE ⨯0.294 skyPale #CCEDEB",
+   "syntaxNumber": "gold #DAB078 ⨯0.291 cream #E6DCC2",
+   "syntaxString": "starBlue #7B85BE ⨯0.106 skyPale #CCEDEB",
+   "syntaxOperator": "stone #A89C82 ⨯0.188 tealDark #3E4541",
+   "diffAddedBg": "inkCool #2D2C28 ⨯0.024 teal #528374",
+   "diffAddedLineNumberBg": "inkCool #2D2C28 ⨯0.382 tealDark #3E4541",
+   "diffRemovedBg": "inkCool #2D2C28 ⨯0.024 scarletD #972B17",
+   "diffRemovedLineNumberBg": "char #382726 ⨯0.129 scarletD #972B17"
+  }
+ },
+ "auditLight": [
+  {
+   "label": "text@background",
+   "fg": "#402C27",
+   "bg": "#F4E9D4",
+   "ratio": 10.857,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@backgroundPanel",
+   "fg": "#402C27",
+   "bg": "#E9DEC3",
+   "ratio": 9.767,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@backgroundElement",
+   "fg": "#402C27",
+   "bg": "#EEDCBC",
+   "ratio": 9.703,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@sidebarBg",
+   "fg": "#402C27",
+   "bg": "#D7C19E",
+   "ratio": 7.472,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@bubbleBg",
+   "fg": "#402C27",
+   "bg": "#F5E2D7",
+   "ratio": 10.415,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@inputBg",
+   "fg": "#402C27",
+   "bg": "#F5F3EF",
+   "ratio": 11.787,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@codeBlockBg",
+   "fg": "#402C27",
+   "bg": "#F3ECE0",
+   "ratio": 11.126,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@codeHeaderBg",
+   "fg": "#402C27",
+   "bg": "#E5CFAC",
+   "ratio": 8.617,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@background",
+   "fg": "#553E38",
+   "bg": "#F4E9D4",
+   "ratio": 8.185,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@backgroundPanel",
+   "fg": "#553E38",
+   "bg": "#E9DEC3",
+   "ratio": 7.363,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@backgroundElement",
+   "fg": "#553E38",
+   "bg": "#EEDCBC",
+   "ratio": 7.315,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@background",
+   "fg": "#756057",
+   "bg": "#F4E9D4",
+   "ratio": 4.893,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@backgroundPanel",
+   "fg": "#735E54",
+   "bg": "#E9DEC3",
+   "ratio": 4.54,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@backgroundElement",
+   "fg": "#745E52",
+   "bg": "#EEDCBC",
+   "ratio": 4.501,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownHeading@background",
+   "fg": "#2E375A",
+   "bg": "#F4E9D4",
+   "ratio": 9.641,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownHeading@backgroundPanel",
+   "fg": "#2E375A",
+   "bg": "#E9DEC3",
+   "ratio": 8.673,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownLink@background",
+   "fg": "#435982",
+   "bg": "#F4E9D4",
+   "ratio": 5.837,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownLink@backgroundPanel",
+   "fg": "#435982",
+   "bg": "#E9DEC3",
+   "ratio": 5.251,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownStrong@background",
+   "fg": "#442920",
+   "bg": "#F4E9D4",
+   "ratio": 11.019,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownStrong@backgroundPanel",
+   "fg": "#442920",
+   "bg": "#E9DEC3",
+   "ratio": 9.914,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownEmph@background",
+   "fg": "#526157",
+   "bg": "#F4E9D4",
+   "ratio": 5.443,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownEmph@backgroundPanel",
+   "fg": "#526157",
+   "bg": "#E9DEC3",
+   "ratio": 4.897,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownBlockQuote@background",
+   "fg": "#664F45",
+   "bg": "#F4E9D4",
+   "ratio": 6.302,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownBlockQuote@backgroundPanel",
+   "fg": "#664F45",
+   "bg": "#E9DEC3",
+   "ratio": 5.67,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownCode@background",
+   "fg": "#65463B",
+   "bg": "#F4E9D4",
+   "ratio": 7.002,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownCode@backgroundPanel",
+   "fg": "#65463B",
+   "bg": "#E9DEC3",
+   "ratio": 6.299,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxComment@codeBlockBg",
+   "fg": "#73594B",
+   "bg": "#F3ECE0",
+   "ratio": 5.487,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxKeyword@codeBlockBg",
+   "fg": "#2E345E",
+   "bg": "#F3ECE0",
+   "ratio": 10.111,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxFunction@codeBlockBg",
+   "fg": "#51554D",
+   "bg": "#F3ECE0",
+   "ratio": 6.489,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxType@codeBlockBg",
+   "fg": "#394E7A",
+   "bg": "#F3ECE0",
+   "ratio": 7.028,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxNumber@codeBlockBg",
+   "fg": "#6B513C",
+   "bg": "#F3ECE0",
+   "ratio": 6.238,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxString@codeBlockBg",
+   "fg": "#514D6E",
+   "bg": "#F3ECE0",
+   "ratio": 6.784,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxOperator@codeBlockBg",
+   "fg": "#595745",
+   "bg": "#F3ECE0",
+   "ratio": 6.223,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "diffAdded@diffAddedBg",
+   "fg": "#45554D",
+   "bg": "#E9DDC1",
+   "ratio": 5.857,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "diffRemoved@diffRemovedBg",
+   "fg": "#9F3721",
+   "bg": "#E8D0BB",
+   "ratio": 4.658,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@diffAddedBg",
+   "fg": "#402C27",
+   "bg": "#E9DDC1",
+   "ratio": 9.69,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@diffRemovedBg",
+   "fg": "#402C27",
+   "bg": "#E8D0BB",
+   "ratio": 8.815,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "contrastText(primary)@primary",
+   "fg": "#F4F4F5",
+   "bg": "#2A3B6B",
+   "ratio": 9.867,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "borderActive@background",
+   "fg": "#8F6F55",
+   "bg": "#F4E9D4",
+   "ratio": 3.817,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "borderActive@backgroundPanel",
+   "fg": "#8F6F55",
+   "bg": "#E9DEC3",
+   "ratio": 3.434,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "borderActive@backgroundElement",
+   "fg": "#8F6F55",
+   "bg": "#EEDCBC",
+   "ratio": 3.411,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "primary@background",
+   "fg": "#2A3B6B",
+   "bg": "#F4E9D4",
+   "ratio": 9.013,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "primary@backgroundPanel",
+   "fg": "#2A3B6B",
+   "bg": "#E9DEC3",
+   "ratio": 8.109,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "secondary@background",
+   "fg": "#9A7855",
+   "bg": "#F4E9D4",
+   "ratio": 3.362,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "secondary@backgroundPanel",
+   "fg": "#9A7855",
+   "bg": "#E9DEC3",
+   "ratio": 3.024,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "info@background",
+   "fg": "#4E658C",
+   "bg": "#F4E9D4",
+   "ratio": 4.897,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "info@backgroundPanel",
+   "fg": "#4E658C",
+   "bg": "#E9DEC3",
+   "ratio": 4.405,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "success@background",
+   "fg": "#49655A",
+   "bg": "#F4E9D4",
+   "ratio": 5.301,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "success@backgroundPanel",
+   "fg": "#49655A",
+   "bg": "#E9DEC3",
+   "ratio": 4.769,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "warning@background",
+   "fg": "#7F6247",
+   "bg": "#F4E9D4",
+   "ratio": 4.666,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "warning@backgroundPanel",
+   "fg": "#7F6247",
+   "bg": "#E9DEC3",
+   "ratio": 4.198,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "error@background",
+   "fg": "#92331F",
+   "bg": "#F4E9D4",
+   "ratio": 6.427,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "error@backgroundPanel",
+   "fg": "#92331F",
+   "bg": "#E9DEC3",
+   "ratio": 5.782,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "border@background",
+   "fg": "#DCCEB2",
+   "bg": "#F4E9D4",
+   "ratio": 1.291,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@backgroundPanel",
+   "fg": "#DCCEB2",
+   "bg": "#E9DEC3",
+   "ratio": 1.162,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@backgroundElement",
+   "fg": "#DCCEB2",
+   "bg": "#EEDCBC",
+   "ratio": 1.154,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@sidebarBg",
+   "fg": "#DCCEB2",
+   "bg": "#D7C19E",
+   "ratio": 1.125,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@bubbleBg",
+   "fg": "#DCCEB2",
+   "bg": "#F5E2D7",
+   "ratio": 1.239,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@inputBg",
+   "fg": "#DCCEB2",
+   "bg": "#F5F3EF",
+   "ratio": 1.402,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@codeBlockBg",
+   "fg": "#DCCEB2",
+   "bg": "#F3ECE0",
+   "ratio": 1.323,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@codeHeaderBg",
+   "fg": "#DCCEB2",
+   "bg": "#E5CFAC",
+   "ratio": 1.025,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "diffAddedBg@background",
+   "fg": "#E9DDC1",
+   "bg": "#F4E9D4",
+   "ratio": 1.12,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "diffRemovedBg@background",
+   "fg": "#E8D0BB",
+   "bg": "#F4E9D4",
+   "ratio": 1.232,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxComment@codeHeaderBg",
+   "fg": "#73594B",
+   "bg": "#E5CFAC",
+   "ratio": 4.25,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxKeyword@codeHeaderBg",
+   "fg": "#2E345E",
+   "bg": "#E5CFAC",
+   "ratio": 7.831,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxFunction@codeHeaderBg",
+   "fg": "#51554D",
+   "bg": "#E5CFAC",
+   "ratio": 5.026,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxType@codeHeaderBg",
+   "fg": "#394E7A",
+   "bg": "#E5CFAC",
+   "ratio": 5.444,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxNumber@codeHeaderBg",
+   "fg": "#6B513C",
+   "bg": "#E5CFAC",
+   "ratio": 4.831,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxString@codeHeaderBg",
+   "fg": "#514D6E",
+   "bg": "#E5CFAC",
+   "ratio": 5.254,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxOperator@codeHeaderBg",
+   "fg": "#595745",
+   "bg": "#E5CFAC",
+   "ratio": 4.82,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "tooltipText@backgroundElement",
+   "fg": "#402C27",
+   "bg": "#EEDCBC",
+   "ratio": 9.703,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  }
+ ],
+ "auditDark": [
+  {
+   "label": "text@background",
+   "fg": "#F5E5D0",
+   "bg": "#432E27",
+   "ratio": 10.249,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@backgroundPanel",
+   "fg": "#F5E5D0",
+   "bg": "#352427",
+   "ratio": 11.864,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@backgroundElement",
+   "fg": "#F5E5D0",
+   "bg": "#3B3533",
+   "ratio": 9.754,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@sidebarBg",
+   "fg": "#F5E5D0",
+   "bg": "#392D27",
+   "ratio": 10.77,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@bubbleBg",
+   "fg": "#F5E5D0",
+   "bg": "#3F3F3A",
+   "ratio": 8.571,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@inputBg",
+   "fg": "#F5E5D0",
+   "bg": "#2E2B28",
+   "ratio": 11.392,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@codeBlockBg",
+   "fg": "#F5E5D0",
+   "bg": "#2F1F29",
+   "ratio": 12.604,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@codeHeaderBg",
+   "fg": "#F5E5D0",
+   "bg": "#473733",
+   "ratio": 9.13,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@background",
+   "fg": "#C6BBA1",
+   "bg": "#432E27",
+   "ratio": 6.646,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@backgroundPanel",
+   "fg": "#C6BBA1",
+   "bg": "#352427",
+   "ratio": 7.693,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "textMuted@backgroundElement",
+   "fg": "#C6BBA1",
+   "bg": "#3B3533",
+   "ratio": 6.325,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@background",
+   "fg": "#AC9F89",
+   "bg": "#432E27",
+   "ratio": 4.868,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@backgroundPanel",
+   "fg": "#A99D89",
+   "bg": "#352427",
+   "ratio": 5.493,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "labelDimmed@backgroundElement",
+   "fg": "#AAA08B",
+   "bg": "#3B3533",
+   "ratio": 4.653,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownHeading@background",
+   "fg": "#B1CEE0",
+   "bg": "#432E27",
+   "ratio": 7.701,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownHeading@backgroundPanel",
+   "fg": "#B1CEE0",
+   "bg": "#352427",
+   "ratio": 8.914,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownLink@background",
+   "fg": "#93B4C8",
+   "bg": "#432E27",
+   "ratio": 5.789,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownLink@backgroundPanel",
+   "fg": "#93B4C8",
+   "bg": "#352427",
+   "ratio": 6.701,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownStrong@background",
+   "fg": "#E8DCC1",
+   "bg": "#432E27",
+   "ratio": 9.307,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownStrong@backgroundPanel",
+   "fg": "#E8DCC1",
+   "bg": "#352427",
+   "ratio": 10.773,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownEmph@background",
+   "fg": "#77A398",
+   "bg": "#432E27",
+   "ratio": 4.507,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownEmph@backgroundPanel",
+   "fg": "#77A398",
+   "bg": "#352427",
+   "ratio": 5.217,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownBlockQuote@background",
+   "fg": "#B8AD93",
+   "bg": "#432E27",
+   "ratio": 5.689,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownBlockQuote@backgroundPanel",
+   "fg": "#B8AD93",
+   "bg": "#352427",
+   "ratio": 6.585,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownCode@background",
+   "fg": "#B69571",
+   "bg": "#432E27",
+   "ratio": 4.537,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "markdownCode@backgroundPanel",
+   "fg": "#B69571",
+   "bg": "#352427",
+   "ratio": 5.252,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxComment@codeBlockBg",
+   "fg": "#998776",
+   "bg": "#2F1F29",
+   "ratio": 4.509,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxKeyword@codeBlockBg",
+   "fg": "#BAD8E3",
+   "bg": "#2F1F29",
+   "ratio": 10.393,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxFunction@codeBlockBg",
+   "fg": "#85B0A6",
+   "bg": "#2F1F29",
+   "ratio": 6.493,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxType@codeBlockBg",
+   "fg": "#93A4CB",
+   "bg": "#2F1F29",
+   "ratio": 6.237,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxNumber@codeBlockBg",
+   "fg": "#DDBD8E",
+   "bg": "#2F1F29",
+   "ratio": 8.707,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxString@codeBlockBg",
+   "fg": "#8490C3",
+   "bg": "#2F1F29",
+   "ratio": 5.01,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "syntaxOperator@codeBlockBg",
+   "fg": "#948C76",
+   "bg": "#2F1F29",
+   "ratio": 4.65,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "diffAdded@diffAddedBg",
+   "fg": "#7D9D8B",
+   "bg": "#302A25",
+   "ratio": 4.764,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "diffRemoved@diffRemovedBg",
+   "fg": "#D28B7C",
+   "bg": "#302C28",
+   "ratio": 5.093,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@diffAddedBg",
+   "fg": "#F5E5D0",
+   "bg": "#302A25",
+   "ratio": 11.459,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "text@diffRemovedBg",
+   "fg": "#F5E5D0",
+   "bg": "#302C28",
+   "ratio": 11.21,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "contrastText(primary)@primary",
+   "fg": "#141414",
+   "bg": "#8EA793",
+   "ratio": 7.105,
+   "need": 4.5,
+   "verdict": "pass",
+   "cls": "hard"
+  },
+  {
+   "label": "borderActive@background",
+   "fg": "#E2C49D",
+   "bg": "#432E27",
+   "ratio": 7.606,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "borderActive@backgroundPanel",
+   "fg": "#E2C49D",
+   "bg": "#352427",
+   "ratio": 8.804,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "borderActive@backgroundElement",
+   "fg": "#E2C49D",
+   "bg": "#3B3533",
+   "ratio": 7.238,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "primary@background",
+   "fg": "#8EA793",
+   "bg": "#432E27",
+   "ratio": 4.883,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "primary@backgroundPanel",
+   "fg": "#8EA793",
+   "bg": "#352427",
+   "ratio": 5.652,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "secondary@background",
+   "fg": "#DCB581",
+   "bg": "#432E27",
+   "ratio": 6.613,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "secondary@backgroundPanel",
+   "fg": "#DCB581",
+   "bg": "#352427",
+   "ratio": 7.655,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "info@background",
+   "fg": "#9FC0CF",
+   "bg": "#432E27",
+   "ratio": 6.58,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "info@backgroundPanel",
+   "fg": "#9FC0CF",
+   "bg": "#352427",
+   "ratio": 7.617,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "success@background",
+   "fg": "#6D9689",
+   "bg": "#432E27",
+   "ratio": 3.843,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "success@backgroundPanel",
+   "fg": "#6D9689",
+   "bg": "#352427",
+   "ratio": 4.448,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "warning@background",
+   "fg": "#DDAA77",
+   "bg": "#432E27",
+   "ratio": 6.083,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "warning@backgroundPanel",
+   "fg": "#DDAA77",
+   "bg": "#352427",
+   "ratio": 7.042,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "error@background",
+   "fg": "#CE8070",
+   "bg": "#432E27",
+   "ratio": 4.187,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "error@backgroundPanel",
+   "fg": "#CE8070",
+   "bg": "#352427",
+   "ratio": 4.847,
+   "need": 3,
+   "verdict": "pass",
+   "cls": "ui"
+  },
+  {
+   "label": "border@background",
+   "fg": "#7A6C5C",
+   "bg": "#432E27",
+   "ratio": 2.488,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@backgroundPanel",
+   "fg": "#7A6C5C",
+   "bg": "#352427",
+   "ratio": 2.88,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@backgroundElement",
+   "fg": "#7A6C5C",
+   "bg": "#3B3533",
+   "ratio": 2.368,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@sidebarBg",
+   "fg": "#7A6C5C",
+   "bg": "#392D27",
+   "ratio": 2.614,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@bubbleBg",
+   "fg": "#7A6C5C",
+   "bg": "#3F3F3A",
+   "ratio": 2.081,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@inputBg",
+   "fg": "#7A6C5C",
+   "bg": "#2E2B28",
+   "ratio": 2.765,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@codeBlockBg",
+   "fg": "#7A6C5C",
+   "bg": "#2F1F29",
+   "ratio": 3.06,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "border@codeHeaderBg",
+   "fg": "#7A6C5C",
+   "bg": "#473733",
+   "ratio": 2.216,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "diffAddedBg@background",
+   "fg": "#302A25",
+   "bg": "#432E27",
+   "ratio": 1.118,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "diffRemovedBg@background",
+   "fg": "#302C28",
+   "bg": "#432E27",
+   "ratio": 1.094,
+   "need": 3,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxComment@codeHeaderBg",
+   "fg": "#998776",
+   "bg": "#473733",
+   "ratio": 3.266,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxKeyword@codeHeaderBg",
+   "fg": "#BAD8E3",
+   "bg": "#473733",
+   "ratio": 7.528,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxFunction@codeHeaderBg",
+   "fg": "#85B0A6",
+   "bg": "#473733",
+   "ratio": 4.703,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxType@codeHeaderBg",
+   "fg": "#93A4CB",
+   "bg": "#473733",
+   "ratio": 4.518,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxNumber@codeHeaderBg",
+   "fg": "#DDBD8E",
+   "bg": "#473733",
+   "ratio": 6.307,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxString@codeHeaderBg",
+   "fg": "#8490C3",
+   "bg": "#473733",
+   "ratio": 3.629,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "syntaxOperator@codeHeaderBg",
+   "fg": "#948C76",
+   "bg": "#473733",
+   "ratio": 3.368,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  },
+  {
+   "label": "tooltipText@backgroundElement",
+   "fg": "#F5E5D0",
+   "bg": "#3B3533",
+   "ratio": 9.754,
+   "need": 4.5,
+   "verdict": "info",
+   "cls": "info"
+  }
+ ],
+ "designWarnings": 0,
+ "hardLight": {
+  "hardFails": 0,
+  "hardTotal": 38,
+  "uiFails": 0,
+  "uiTotal": 15,
+  "byGroup": {},
+  "info": {
+   "borderBelow3": 8,
+   "diffBgBelow3": 2,
+   "syntaxHeaderBelow45": 1,
+   "tooltipBelow45": false
+  }
+ },
+ "hardDark": {
+  "hardFails": 0,
+  "hardTotal": 38,
+  "uiFails": 0,
+  "uiTotal": 15,
+  "byGroup": {},
+  "info": {
+   "borderBelow3": 7,
+   "diffBgBelow3": 2,
+   "syntaxHeaderBelow45": 3,
+   "tooltipBelow45": false
+  }
+ }
+}

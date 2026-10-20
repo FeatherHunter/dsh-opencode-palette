@@ -8,14 +8,20 @@
 
 > v3.5 逐像素取色（2026-10-20）：**宝可梦整版重绘**——37 槽全部改由四张参考图（官方图鉴立绘 / wikiHow 平涂 / 30 周年 / 合志插画）逐像素直采，只允许「与原图某像素完全一致」一种来源，0 阶梯 0 混色 0 想象；id / name / appearance 不变（仍是同名 `pokemon` 胶囊，dark）。取色台账与原图裁切见 `prototypes/pokemon-theme-preview.html`；管线见 `prototypes/pokemon-extraction/`。硬对 38 / UI 15 全绿，设计告警 0 条（v3 记档的 6 组并岗已全部拆开，exceptions.json 的 pokemon 条目随之删除）。其余 20 套不受影响。
 
+> v3.6 逐像素取色 + 对抗式审查（2026-10-20）：**宝可梦二次重绘**——v3.5 交付后做了一轮四路对抗式审查（范式 / 出处 / 审美 / 证伪，原文见 `prototypes/pokemon-adversarial-review.md`），据此修掉 5 处实质问题：3.jpg 周年海报原本对色板近乎零贡献（文档却声称它供给了红与金）→ `borderActive` 改取 3.jpg 奶油金 `#FEED79`；`diffRemovedLineNumberBg` 与 `sidebarBg` 完全同值 `#060606` → 拆成 `#141000`；两个大黄同屏（`markdownHeading` `#FAE721` 与 primary `#FFCB05` 互相对比 1.20:1）→ heading 改 `#E3C371`；`syntaxNumber` 与 `borderActive` 的 ΔE76 9.46 是全矩阵最差的一对 → number 改 `#C5A863`；纯黑代码台 → `codeBlockBg` 改 `#0C0C10`，并把描边 `border` 收到 `#40404A`（首次比它框的面暗，层级倒置修正）。37 槽仍是 37 个不同值、全部直采、0 阶梯 0 混色 0 想象；硬对 38 / UI 15 全绿，设计告警 0。审查同时**证伪了「3:1 规则决定必须暗场」这条原理由**（3:1 只规定哪个槽位能放亮黄、不规定场；暗场成立靠的是素材的场本来就是暗的、「0 混色」判尺只有暗场守得住、暗场明度跑道是浅场的两倍）。其余 20 套不受影响。
+
 > v3.4 逐像素取色（2026-10-20）：**原神整版重绘 · 明暗两套**——五张参考图（官方主视觉 / 派蒙 / 可莉 / 温迪 / 旅行者）逐像素取样，只允许「直采 / 两色定比混色」两种来源。胶囊从一条变两条：`genshin`（原神，light，纸感明信片）与 `genshin-night`（原神 · 夜航，dark，夜航明信片）——自定义胶囊一条只装一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定宿主按哪种外观显示），所以「明暗一体」只能靠两条胶囊各自带自己的 appearance 实现。硬对 38 / UI 15 全绿，设计告警 0 条。其余 20 套不受影响。
+
+> v3.9 逐像素取证重绘（2026-10-20）：**奥特曼整版重绘**——37 槽全部改由两张参考图（`C:\Users\辰辰洋洋\Pictures\奥特曼\` 下的 `2.jpg` 奥特战士立绘 / `images.jpg`「奥特曼图鉴」海报）逐像素取证，只允许「直采 / 明度阶梯 / 定比混色」三种来源，id / name / appearance 不变（仍是同名 `ultraman` 胶囊，dark）。品牌重切成奥特曼的两个声部——**红冠 + 金眼**（primary 战甲受光正红 `#D52518` × secondary 金瞳边缘高光 `#EFCB5D`，色相差 41.1° 类比）；画布换成海报里最黑的那格 `#000600`，场域收进海报标题靛 `#2D2C8A` 染出来的 7 档明度阶。取色台账与原图裁切见 `prototypes/ultraman-theme-preview.html`；取色与自检管线见 `prototypes/ultraman-extraction/`。house 判尺 53/53 全过（硬性 38 + UI 15），宿主现实 49 对 0 硬违例，设计告警 0 条，引擎 `ensureDiffContrast` 对本套 37 槽 **no-op**（台账值＝出货值）。其余 23 套不受影响。
 
 ## 宝可梦（dark）
 
-①基调：**图鉴卡的暗场**。四张图里只有 01 号官方图鉴立绘有黑白结构，所以场域全部收进它的冷调明度阶梯（基准色相 240.0°，0 个色相孤岛）：codeBlockBg #000000 最深（对战舞台）→ sidebarBg #060606 → inputBg #0C0C10 → background #1C1C22 → bubbleBg #28282D → backgroundPanel #37373B → backgroundElement #40404A → codeHeaderBg #48484D。**冷场暖字**：底是卡面的冷调蓝黑，暖意全交给徽章金与御三家。旧版的常磐森林深墨绿 #0E1B13 整族作废（那张图里一个像素都没有）。
-②组合：primary 图鉴卡编号徽章黄 #FFCB05 × secondary 2.jpg wikiHow 蓝底 #799DFE = 176.2° 互补。**黄只做「牌」不做「底」**——它是填充色，引擎按 contrastText 派生前景 #141414（12.10:1）；徽章黄在暗底上当文字只有 1.4:1，绝不做正文。borderActive 用皮卡丘受光面 #F4D77C（焦点环比品牌亮一档），border 退为精灵球带灰 #58585A。
-③借物：4.jpg 合志插画一次交齐御三家——success 妙蛙种子绿 #7AA85D、warning 小火龙橙 #FB8603、error 精灵球红 #F93D32、info 杰尼龟蓝 #289BCA。diffAdded 合志浅青绿 #7FC9AE、diffRemoved 2.jpg 脸颊红 #FE4C1C。syntax：keyword 皮卡丘嘴部藕粉 #C790A3、function wikiHow 蓝底暗面 #6E9BBC、type 合志青灰 #658F8B、number 皮卡丘中金 #DFBF6F、string 合志浅青绿 #80CAAF、comment #85858A / operator #7A7A7F 退后。
-④技巧：text 取 01 号图鉴卡页脚自己的白字 #EEEEF4、textMuted 取合志插画的淡灰蓝 #D3D3D8，弱文字用其褪色版（labelDimmed = withAlpha(textMuted, 0.8)）。markdown：heading wikiHow 平涂黄 #FAE721、link 合志天空蓝 #95C7F8、code 合志奶黄 #FDE7B5、emph 合志暖杏 #F9B584、strong 卡纸白 #FFFFFF、blockquote 合志淡灰蓝阶 #BDBDC3。v3.5：37 槽全部改由四张参考图**逐像素直采**（0 阶梯 0 混色），硬对 38 / UI 15 全绿，设计告警 0（v3 记档的 6 组并岗全部拆开）。
+> v3.6 二次重绘（2026-10-20，逐像素直采 + 对抗式审查）：四路审查（范式 / 出处 / 审美 / 证伪）后修掉 5 处实质问题——3.jpg 周年海报对色板贡献近乎为零却写着它供给了红与金（→ `borderActive` 改取 3.jpg 奶油金）、`diffRemovedLineNumberBg` 与 `sidebarBg` 完全同值（→ 拆成 `#141000`）、两个大黄同屏违反自己的第①条律（→ `markdownHeading` 改 `#E3C371`）、`syntaxNumber` 与 `borderActive` 的 ΔE76 9.46 是全矩阵最差对（→ `#C5A863`）、纯黑代码台是洞不是面（→ `codeBlockBg` 改 `#0C0C10`）。同时**证伪了原理由**「3:1 决定必须暗场」：3:1 只规定哪个槽位能放亮黄、不规定场。审查原文见 `prototypes/pokemon-adversarial-review.md`，详情见 docs/ip-presets-v3-notes.md 末节。
+
+①基调：**图鉴卡的暗场**。四张图里只有 01 号官方图鉴立绘有黑白结构，所以场域全部收进它的冷调明度阶梯（基准色相 240.0°，0 个色相孤岛）：inputBg #000000 画框墨（74,363 px）→ sidebarBg #060606（700 px）→ codeBlockBg #0C0C10 卡面暗场（27,378 px）→ background #1C1C22 卡面页底（58,800 px）→ bubbleBg #28282D（31 px）→ backgroundPanel #37373B（47 px）→ backgroundElement #48484D（37 px）→ codeHeaderBg #58585A（993 px，4.jpg）。**冷场暖字**：底是卡面的冷调蓝黑，暖意全交给徽章金与御三家。旧版的常磐森林深墨绿 #0E1B13 整族作废（那张图里一个像素都没有）。
+②组合：primary 图鉴卡编号徽章黄 #FFCB05（01 编号徽章 3,012 px）× secondary 2.jpg wikiHow 蓝底 #799DFE（88,538 px）= 176.2° 互补。**黄只做「牌」不做「底」**——它是填充色，引擎按 contrastText 派生前景 #141414（12.10:1）；徽章黄在暗底上当文字只有 1.4:1，绝不做正文。焦点环 borderActive 改取 3.jpg 周年海报奶油金 #FEED79（1,516 px，比品牌黄亮一档）；描边 border 收成 01 卡边细线 #40404A（L* 27.44，比它框的 codeHeaderBg 暗 3.32，层级不再倒置）。
+③借物：4.jpg 合志插画一次交齐御三家——success 妙蛙种子绿 #7AA85D、warning 小火龙橙 #FB8603、error 精灵球红 #F93D32、info 杰尼龟蓝 #289BCA。diffAdded 合志浅青绿 #7FC9AE、diffAddedBg 深青 #0A2828、diffAddedLineNumberBg 精灵球黑面 #191917（1,613 px）；diffRemoved 2.jpg 脸颊红 #FE4C1C、diffRemovedBg #0C0406、diffRemovedLineNumberBg 画框暖黑 #141000（v3.5 的 #060606 与 sidebarBg 完全同值，v3.6 拆开，37 槽因此 0 重复）。syntax：keyword 皮卡丘嘴部藕粉 #C790A3、function 合志蓝面 #6E9BBC、type 合志青灰 #658F8B、number 皮卡丘中金 #C5A863（与 borderActive 的 ΔE76 由 9.46 拉到 92.16）、string 合志浅青绿 #80CAAF、comment #85858A / operator #7A7A7F 退后。
+④技巧：text 取 01 号图鉴卡页脚自己的白字 #EEEEF4（2,157 px）、textMuted 取 01 图注小字的淡灰蓝 #D3D3D8（41 px），弱文字用其褪色版（labelDimmed = withAlpha(textMuted, 0.8)）。markdown：heading 皮卡丘中金 #E3C371（3,755 px）、link 合志天空蓝 #95C7F8、code 合志奶黄 #FDE7B5、emph 合志暖杏 #F9B584、strong 卡纸白 #FFFFFF、blockquote #BDBDC3。v3.6：37 槽仍全部由四张参考图**逐像素直采**（0 阶梯 0 混色 0 想象），四图精确命中 331,427 / 830,418 px = 39.9%（01 210,119 / 2.jpg 88,570 / 3.jpg 2,568 / 4.jpg 30,170），硬对 38 / UI 15 全绿，设计告警 0（v3 记档的 6 组并岗全部拆开，exceptions.json 的 pokemon 条目已删）。
 
 ## 漫威（dark）
 
@@ -27,10 +33,12 @@
 
 ## DC（dark）
 
-①基调：哥谭市午夜沥青黑，低饱和紫灰家族阶梯：codeBlockBg #07070B 最深 → background #0B0B11 → sidebarBg → panel → inputBg → bubbleBg → element → codeHeaderBg #20202E 收顶，如从街面到楼顶探照灯的光梯。
-②组合：primary DC 子弹标志超人蓝 #3D8BFF × secondary 超人 S 盾描边蝙蝠椭圆金 #FFCF40，蓝金互补撞色（漫画封面经典对撞）；borderActive 蝙蝠信号灯金 #FFD23F，像探照灯弹出来。 v3.1：primary·info·link 整组提亮为 #64A2FF（深字反白约 7:1，超人蓝更亮）；comment 提为 #787889。
-③借物：info 孤独堡垒水晶蓝、success 绿灯戒能量绿、warning 逆闪神速力电光黄、error 达克赛德欧米茄射线红、diffAdded 氪石辉光+矿洞暗绿底、diffRemoved 欧米茄红+天启星暗红底。syntax：comment 哥谭雾灰、keyword 超人披风红、string 氪石绿、function 闪电侠神速金、type 海王亚特兰蒂斯海青、number 三叉戟古铜橙、operator 小丑毒气紫兼扎坦娜魔法紫。
-④技巧：codeBlockBg 比 background 深两档挖出蝙蝠洞舞台；markdownHeading 与 function 共用蝙蝠金（标题函数名都像招牌发光），markdownCode 独占氪石绿 #9DFF6E 跳脱；text 偏冷对话气泡白、textMuted 石像鬼灰，深底对比拉满不刺眼。
+> v3.7 整版重绘（2026-10-20，逐像素取色 + 对抗式审查）：三张参考图当唯一样本——1.jpg 群像海报 / 2.jpg DC 徽章圆盘 / 3.jpg THE DC ENCYCLOPEDIA 百科封面。**判尺只允许一种来源：直采**（37 个色位落在 36 个不同色值上，全部是图里的真实像素，0 想象）；材质真伪改用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）判定——三张图都是连续渐变，某个 hex 的精确像素常常只有个位数，按精确命中判「想象色」会误杀真材质。台账见 `prototypes/dc-comics-extraction/palette.json`，逐色位原图裁切见 `prototypes/dc-comics-theme-preview.html` 的「出处证据」段，对抗式审查记录见 `prototypes/dc-comics-adversarial-review.md`。
+
+①基调：夜蓝场，不再是「哥谭市午夜沥青黑」。8 个场域槽收在一条色相 H202–226（跨度 23.2°，0 色相孤岛），只拉开 L\*：codeBlockBg #000515（披风深处黑蓝，L\* 1.5）→ sidebarBg #0A0F12（人物之间死黑，4.1）→ background #0C1326（海报底部蓝黑，6.2）→ backgroundPanel #09203F（披风受光深蓝，12.3）→ codeHeaderBg #122543（超人披肩深蓝，14.7）→ inputBg #192D52（战衣受影的蓝，18.8）→ backgroundElement #263356（钢仔装甲的蓝，21.8）→ bubbleBg #0F437D（徽章圆盘深蓝，28.4），每步 +2.1 … +6.6 L\*，无重复行、无层级倒挂。
+②组合：primary DC 徽章圆盘本体蓝 #0373B3（2.jpg 主体像素 48,154 px）配 secondary 神奇女侠金冠 #E4BA56，H201.8° × H42.3° = **159.6° 互补**。主色取徽章本体那一档而不是更暗的邻档（#0272B2 / #025C9A）——更暗的两档在面板上会掉出 UI 3:1；反白 4.65:1（引擎走白字分支）。
+③借物：正文 text #FEFAD4（百科封面旧纸）、次级 textMuted #BDC0C5（蓝雾天光）、边界 border #7C7D7F（钢仔装甲银灰）、焦点环 borderActive #D6F0FF（徽章白星冷光；对主按钮填充 4.33:1、对浮层 10.51:1）。语义色：info #91C1CF（速度力水蓝）、success #64AB65（绿灯侠战衣绿）、warning #C2A595（封面天空陶土）、error #BE4B48（红披风暗面）、diffAdded #8BB551（封面绿灯侠黄绿）、diffRemoved #D37B6D（火焰旁披风暖红），两个 diff 底用封面暖影 #221A17 / #18100D。syntax：keyword #BDA3B0（封面暗肤玫瑰灰——图里没有饱和紫）、function #008AC9（徽章圆盘上缘）、type #BEDCDE（钢仔银青高光）、number #E6B189（封面里那本旧漫画的纸）、string #89BF81（绿灯侠战衣浅绿），退后两档 comment #717F8A（钢仔钢灰 4.94）/ operator #7D7875（装甲与硝烟暖灰 4.66）都低于核心五色下限 5.31，核心最小 ΔE76 = 26.66。
+④技巧：焦点环与主色**分工不重叠**（深主色 + 浅焦点环）——同族青做焦点环时它对浅填充只有 1.29:1，等于没画；边界取中性银灰而不是饱和蓝，免得和品牌蓝抢戏（v1 的 #1D365F 在浮层上只有 1.03:1，0.5px 结构线等于没画）；弱化文字的余量不靠提亮品牌色挣，靠**压暗浮层**换（labelDimmed@浮层 4.58 → 4.97）。v3 终审记档的三处并岗（primary·info·link、secondary·borderActive·function、heading·strong）全部拆开，25 个设计角色 0 同值、markdown 六角色 0 同值。
 
 ## 星球大战（dark）
 
@@ -108,19 +116,24 @@
 ③借物：info 身体蓝加深、success 竹蜻蜓竹叶绿、warning 铃铛黄压暗保可读、error 红鼻子红、diffAdded 竹叶深绿系、diffRemoved 红鼻子红系。syntax 改晴空纸面深墨：keyword #8C4550 深门粉、function #1D6378 深海身体蓝、type #6D581A 暗金、string #2B6648 深竹绿、number #675084 深薰衣草紫、operator #50667E 云影深灰、comment #4C6272 云影灰蓝。
 ④技巧：代码区由深蓝卡片改为晴空纸面（浅底主题的代码区同色系浅卡，syntax 转深墨），markdownCode #8C4A1F 铜锣烧焦糖棕满屏蓝里一点棕最哆啦A梦；warning 比 secondary 压暗两档（同取铃铛，亮处点缀暗处告警）；v3.1 弱文字 textMuted 压深为 #2F4250、引用 #4E6A7D，浅底全部达标。
 
-## 奥特曼（dark）
+## 奥特曼（dark，v3.9 逐像素取证重绘）
 
-①基调：光之国之外的宇宙深空夜战，background #0A0E22 带紫调深空靛黑（原通用藏青改掉）。8 槽同靛紫家族阶梯：codeBlockBg #050816 最深 → … → codeHeaderBg #232F66 封顶（深空→夜战城市→指挥室灯光）。
-②组合：primary 银色身躯红条纹奥特红 #E62E33 × secondary 双眼炽黄目光 #FFC627，红金类比英雄组合；info 胸前计时器冰蓝构成三角色对冲（红战斗、金目光、蓝科技）；borderActive 目光高亮金。 v3.1：primary 压为 #CF292E（反白 4.6:1）、secondary 目光金调为 #FFAD00（与主红夹角 42.5° 归红金类比）。
-③借物：info 计时器蓝灯、success 银河水晶盖亚大地绿、warning 计时器闪烁告警橙黄、error 计时器红灯告急、diffAdded 水晶绿、diffRemoved 杰顿火球红。syntax：keyword 斯派修姆红斩、function 必杀起手目光金、type 计时器冰蓝、number 杰顿火球橙、string 等离子生命光绿、operator M78 星云紫、comment 怪兽潜伏夜雾灰。
-④技巧：codeBlockBg 比 background 深两档成深空舞台，header 反跳家族最亮做顶灯（一暗一亮锁代码区）；markdownHeading 弃对比度差的奥特红改用目光金当招牌，markdownLink 计时器蓝（黄眼+蓝灯=脸部组合）；borderActive 与 warning 拉开一档明度（炽白闪光 vs 橙黄预警，避免描边告警撞衫）。
+①基调：**两张图里的同一个奥特曼**。2.jpg 是奥特战士站在森林里（蓝天在上），images.jpg 是「奥特曼图鉴」海报（白圆角面板 + ~40 个立绘网格 + 靛蓝→紫→亮蓝的相框渐变 + 深蓝大标题）。场域不取通用深空靛，而是取海报画框里最黑的那一格当画布——`#000600`（2.jpg (12,224)，44 px）——再把海报标题笔画的那支靛 `#2D2C8A`（images.jpg (256,25)，11 px）按目标 L\* 反解出 7 档 α 染上去：codeBlockBg `#060B11`（α=0.1268, L\*2.88）→ sidebarBg `#0A0F1F`（0.2237, 4.56）→ inputBg `#0E112A`（0.3026, 5.97）→ bubbleBg `#111433`（0.3667, 7.75）→ backgroundPanel `#14163C`（0.4342, 9.39）→ backgroundElement `#161945`（0.4964, 11.24）→ codeHeaderBg `#191C4E`（0.5658, 13.15）。步长 ΔL\* 1.41–1.91（house 判尺要求 ≥1.4），两支染色源本身也都是直采像素。
+②组合：**红冠 + 金眼**——奥特曼的两个声部。primary 战甲受光正红 `#D52518`（2.jpg (199,249) 胸腹甲片）× secondary 角色立绘金瞳的边缘高光 `#EFCB5D`（images.jpg (317,214)），色相差 **41.1° 类比**（红金同族，比 v3.1 的 42.5° 略近一档）。焦点环不跟品牌色抢同一支：borderActive 取战甲肩后的天空 `#87C3F5`（2.jpg (145,118)）——界面里最醒目的一个点是天空，不是按钮。info 战甲之外的天空 `#2AA1B7`（2.jpg (380,241)），success 胸前绿色计时器的核心 `#2F9877`（images.jpg (211,237)），warning 金色头冠的暗面 `#BD8E36`（images.jpg (139,457)，与 secondary 同一束金的暗面），error 战甲受光朱红 `#F05F4E`（2.jpg (266,216)，比 primary 更浅更偏橙的受光面）。四支暖色按亮度排成一条「淡金→古金→朱红→正红」的阶梯。
+③借物：diffAdded 森林树冠的翠绿 `#3C9B6F`（2.jpg (39,209)）、diffRemoved 角色立绘的玫瑰红 `#C9667B`（images.jpg (154,340)）；4 个 diff 底是这两个直采色按 α=0.13 / 0.20 染在画布上（`#08190E` / `#1A1210` / `#0C2416` / `#281919`）。markdown：heading 冰蓝装甲高光 `#C0ECFF`、link 天海交界的青 `#51AEB5`、code 山坡赭金 `#D0B26C`、emph 海报下缘淡紫 `#B6A8CB`、strong 战甲近白高光 `#F8FBE6`、blockquote 银白甲片 `#91B2B7`。syntax：keyword 战甲受光红 `#D95638`、function 海报相框能量蓝 `#3A80FA`、type 天顶淡蓝 `#8CCDE9`、number 金瞳核心 `#F4C738`（与 secondary 同源相邻 1 px，ΔE76 14.2）、string 计时器外缘 `#67CDA6`、operator 海报下缘紫灰 `#8774A2`、comment 战甲暗部紫灰 `#747D86`。text 取战甲银白高光 `#DEEFF6`（2.jpg (206,27)），textMuted 取银灰暗面 `#AFB9BB`（148,111）。
+④技巧：codeBlockBg 只比画布高一档（`#060B11` vs `#000600`）——舞台是近乎黑的深空，代码靠 syntax 七色自己发亮，不靠底色对比；header 反跳到家族最亮当顶灯（一暗一亮锁住代码区）。brandGeometry 走 41.1° 类比而不是硬凑互补：红与金在图里本来就是同一张脸的两半。warning 与 secondary 同束不同面（暗面 #BD8E36 vs 高光 #EFCB5D），「提示」和「品牌」因此不会撞衫。primary 同时是宿主的文字色角色（`--dsw-alias-state-business-primary`），12px 芯片上只有 3.77–4.00:1——记为已知限制，house 24 套里 6 套暗色红主题同病（3.36–3.85:1），本套比它们好。
+⑤已知边界：① **26 个直采色全是边缘像素**（5×5 邻域极差 43–255）——JPEG 参考图里根本没有平坦色（找过，候选 0 个），所以「等于原图某像素」保证的是**没有一个标志性颜色是想象出来的**，不是「取到了一大片实色」；② 每个直采色在原 JPEG 里通常只出现 1 次，换解码器或重存可能带来 ±1 偏移；③ 11 个混合槽按构造不是原图像素，是可复算配方（α 精确到 4 位小数）；④ primary 的 12px 文字缺口（3.55–4.00:1）。
+⑥判据：house 硬性 38 对 **0 违例**（最紧 contrastText(primary)@primary 4.65）、UI 15 对 **0 违例**（最紧 primary@backgroundPanel 3.39）；宿主现实 49 对 **0 硬违例**（最紧 info 实心填充+#fff 3.05、primary@codeHeaderBg 3.12——焦点环真会落在代码卡顶栏上）；角色同值碰撞 0、markdown 同值 0、品牌几何 41.1° 类比、语法核心最小 ΔE76 40.0、comment 4.72 / operator 4.75 退到核心最低 5.02 之下；**色盲四态** normal 23.5 / deutan 18.6 / protan 14.5 ΔE76（house 24 套中位 9.8、最好 18.3、doraemon 样板 4.5、旧 ultraman 7.3）；borderActive ↔ syntaxComment ΔE76 35.2（house 24 套最小 11.7，无一套 <10）。引擎 `ensureDiffContrast` 对本套 37 槽 **no-op**——台账里的值就是出货值。
 
-## 变形金刚（dark）
+## 变形金刚（dark，v5 逐像素取证重绘）
 
-①基调：赛博坦钢铁夜，8 槽 H212 钢铁青灰家族阶梯：codeBlockBg #080B10 地核停机场黑最深 → background → sidebarBg → panel → inputBg → header → bubbleBg → element 悬浮层收尾。
-②组合：primary 汽车人徽章红 #E63329 × secondary 能量晶体蓝 #38A1FF，红蓝高对比互补（汽车人 vs 霸天虎）；border 钢铁接缝灰收敛，borderActive secondary 高亮辉光变体（充能亮起）。
-③借物：info 能量晶体蓝、success 救护车医疗绿+能量晶绿、warning 大黄蜂车漆黄、error 威震天融合炮火火种灼烧红、diffAdded 能量晶体生长绿、diffRemoved 霸天虎锈蚀战损红。syntax：keyword 擎天柱火焰号令红、function 大黄蜂行动黄、string 能量晶体绿、type 声波显示屏塞伯坦青、number 领导模块火种金、comment 战场烟灰、operator 赛博坦钢铁银。
-④技巧：codeBlockBg 压两档下沉舞台，header 上浮成盖板；markdownCode 独占火种金 #FFD166（满屏红蓝中跳出，与 number 同家族呼应但更亮）；warning 与 syntaxFunction 共用大黄蜂黄（一静一动同一灵魂），borderActive 比 secondary 提亮一档做辉光不另起色相。 v3.1：原「heading 并入 primary」取消——markdownHeading 独立为 #FF5C4D（深底 5.9:1 标题朱橙），primary 压到 #CF2E25 保反白 4.6:1；info=secondary、borderActive=markdownLink 两处有意并岗保留。
+①基调：赛博坦午夜天台。8 槽不是算出来的阶梯，而是 **5.jpg 夜空里真实像素排成的明度阶**——codeBlockBg #020B1C 地核停机坪 → sidebarBg #021128 侧舱走道 → background #08122B 主场 → backgroundPanel #04133A 舱室面板 → inputBg #022447 输入甲板 → codeHeaderBg #0A2250 代码盖板 → backgroundElement #0D2354 悬浮钢层；气泡槽 bubbleBg #241340 取 5.jpg 星云洋红，是全界面唯一的色相孤族（相对基准 222.9° 偏 39°，仍在 60° 线内）。
+②组合：primary 汽车人徽章红 #D70A2B × secondary 能量电蓝 #3366A8，350.3° / 213.8° 夹角 **136.5° → 三角**（汽车人红 / 霸天虎蓝 / 大黄蜂黄三张脸都在图里）；borderActive 单独占大黄蜂车漆黄 #F4C803 —— 界面最醒目的一个点是车灯，不是按钮。
+③借物：info 塞伯坦全息青 #0A6999、success 山林苔色 #A7ABAA、warning 车漆阴影琥珀 #B07400、error 肩炮熔炉橙 #FF5B02、diffAdded 战场草坡 #8F8C7D、diffRemoved 战损锈铜 #BC9D80。syntax：keyword 胸窗辉光红 #FF0044、function 车漆深金 #E1AA00、type Arcee 玫瑰粉 #F68C8E、number 引擎盖暖砂 #D9B9A0、string 没上漆的钢灰蓝 #8E979C、comment 战场烟灰 #767C72、operator 远景雾蓝 #727A85。
+④技巧：**这版的硬约束是「所有颜色必须从参考图产生」**，因此每个色位都带一份机器可复算的配方证明（prototypes/transformers-extraction/sources.py）：直采＝hex 与某张图的某像素完全一致，且 49×49 邻域内至少 24 个同伴像素（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素）；阶梯＝同一色相族内的明度阶且每一阶本身也是真实像素；混色＝两个采样色按固定比例相乘。四个 diff 底色是混色（引擎要求 6 位不透明）：diffAddedBg #182135 = #8F8C7D×12% + #08122B×88%，diffRemovedBg #1E2335 = #BC9D80×12% + #08122B×88%。
+⑤已知边界：五张图里 **没有一处纯正的信号绿**（海报上的绿只有 3.jpg 苔色与 4.jpg 远景草坡），所以 success 只能是山林苔色 #A7ABAA、diffAdded 是草坡橄榄 #8F8C7D——两级明度分开承担「完成」与「新增」，不另造一个更漂亮的绿；同理 markdownStrong 取 1.jpg 白棚里的纯白 #FFFFFF，text 只能退到钢白 #CFE2E8（两者 ΔE76 仅 13.4，明度上限被素材锁死）。
+⑥判据：硬性 38 对 0 违例（最紧 syntaxOperator@codeBlockBg 4.53）、UI 15 对 0 违例（最紧 info@backgroundPanel 3.01）、角色同值碰撞 0、背景色相孤岛 0、语法核心最小 ΔE76 27.6、comment 4.59 / operator 4.53 均退到核心最低 5.00 之下、会同时同屏的相邻岗位最小 ΔE76 11.6。 v3.1 旧版（info=secondary、borderActive=markdownLink 两处并岗、heading 并入 primary）在本版全部拆开，exceptions.json 里的 transformers 记档同步删除。
+
 
 ## 海贼王（light，v4 逐像素取色重绘）
 

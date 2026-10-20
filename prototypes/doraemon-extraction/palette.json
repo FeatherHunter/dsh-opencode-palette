@@ -1,0 +1,1339 @@
+{
+ "tokens": {
+  "inputBg": "#FBFDFF",
+  "background": "#EFF9FF",
+  "bubbleBg": "#E4F6FF",
+  "sidebarBg": "#DBF2FF",
+  "backgroundPanel": "#D0EFFF",
+  "codeBlockBg": "#C5EBFF",
+  "codeHeaderBg": "#B9E7FE",
+  "backgroundElement": "#AEE2FE",
+  "text": "#1A1617",
+  "textMuted": "#202E42",
+  "primary": "#135F7B",
+  "secondary": "#9E7F09",
+  "info": "#2D61A1",
+  "success": "#496352",
+  "warning": "#733D18",
+  "error": "#6F1319",
+  "border": "#B7DDF4",
+  "borderActive": "#025DA1",
+  "diffAdded": "#36473D",
+  "diffAddedBg": "#E8EFEA",
+  "diffAddedLineNumberBg": "#D7E2DA",
+  "diffRemoved": "#7D141A",
+  "diffRemovedBg": "#FDE4E5",
+  "diffRemovedLineNumberBg": "#FBD1D3",
+  "markdownHeading": "#056D96",
+  "markdownLink": "#063F6B",
+  "markdownCode": "#7B4F42",
+  "markdownEmph": "#843F59",
+  "markdownStrong": "#0C0C10",
+  "markdownBlockQuote": "#666666",
+  "syntaxComment": "#626262",
+  "syntaxKeyword": "#821823",
+  "syntaxFunction": "#204069",
+  "syntaxType": "#175B7B",
+  "syntaxNumber": "#5A3B34",
+  "syntaxString": "#3E5345",
+  "syntaxOperator": "#4B5B62"
+ },
+ "provenance": {
+  "inputBg": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.033)"
+  },
+  "background": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.122)"
+  },
+  "bubbleBg": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.207)"
+  },
+  "sidebarBg": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.285)"
+  },
+  "backgroundPanel": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.367)"
+  },
+  "codeBlockBg": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.456)"
+  },
+  "codeHeaderBg": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.544)"
+  },
+  "backgroundElement": {
+   "note": "5.jpg 柔蓝 × 1.png 漫画纸白 定比混色（按实测 L* 目标反解）",
+   "kind": "混色",
+   "recipe": "mix(#FFFFFF, #7FD2FE, 0.633)"
+  },
+  "text": {
+   "note": "3.png 漫画勾线墨",
+   "kind": "直采",
+   "recipe": "#1A1617"
+  },
+  "textMuted": {
+   "note": "3.png 勾线墨 × 6.jpg 字标靛蓝 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#1A1617, #316AB1, 0.28)"
+  },
+  "primary": {
+   "note": "1.png 身体青蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#189BC8, #0C0C10, 0.42)"
+  },
+  "secondary": {
+   "note": "1.png 铃铛黄 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#FFCB05, #0C0C10, 0.40)"
+  },
+  "info": {
+   "note": "6.jpg 字标靛蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#316AB1, #0C0C10, 0.10)"
+  },
+  "success": {
+   "note": "3.png 蓝黄交叠真绿 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#6F997A, #0C0C10, 0.38)"
+  },
+  "warning": {
+   "note": "4.jpg 舌头橙 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#F07A22, #0C0C10, 0.55)"
+  },
+  "error": {
+   "note": "4.jpg 嘴内红 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#ED1B24, #0C0C10, 0.56)"
+  },
+  "border": {
+   "note": "3.png 浅天蓝 × 5.jpg 柔蓝 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#CAE1F0, #7FD2FE, 0.25)"
+  },
+  "borderActive": {
+   "note": "3.png 字标深蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#0168B5, #0C0C10, 0.12)"
+  },
+  "diffAdded": {
+   "note": "3.png 叠色绿 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#6F997A, #0C0C10, 0.58)"
+  },
+  "diffAddedBg": {
+   "note": "3.png 叠色绿 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#6F997A, #FFFFFF, 0.84)"
+  },
+  "diffAddedLineNumberBg": {
+   "note": "3.png 叠色绿 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#6F997A, #FFFFFF, 0.72)"
+  },
+  "diffRemoved": {
+   "note": "4.jpg 嘴内红 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#ED1B24, #0C0C10, 0.50)"
+  },
+  "diffRemovedBg": {
+   "note": "4.jpg 嘴内红 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#ED1B24, #FFFFFF, 0.88)"
+  },
+  "diffRemovedLineNumberBg": {
+   "note": "4.jpg 嘴内红 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#ED1B24, #FFFFFF, 0.80)"
+  },
+  "markdownHeading": {
+   "note": "3.png 招牌青蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#00ADEF, #0C0C10, 0.40)"
+  },
+  "markdownLink": {
+   "note": "3.png 字标深蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#0168B5, #0C0C10, 0.45)"
+  },
+  "markdownCode": {
+   "note": "5.jpg 铜锣烧棕 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#AF6E5A, #0C0C10, 0.32)"
+  },
+  "markdownEmph": {
+   "note": "6.jpg 标题粉点 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#F36E9D, #0C0C10, 0.48)"
+  },
+  "markdownStrong": {
+   "note": "1.png 信息栏纯黑（全场最重的墨）",
+   "kind": "直采",
+   "recipe": "#0C0C10"
+  },
+  "markdownBlockQuote": {
+   "note": "4.jpg 暗场中灰 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#515151, #FFFFFF, 0.12)"
+  },
+  "syntaxComment": {
+   "note": "4.jpg 暗场中灰 × 1.png 漫画纸白 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#515151, #FFFFFF, 0.10)"
+  },
+  "syntaxKeyword": {
+   "note": "1.png 鼻尖红 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#E22233, #0C0C10, 0.45)"
+  },
+  "syntaxFunction": {
+   "note": "6.jpg 字标靛蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#316AB1, #0C0C10, 0.45)"
+  },
+  "syntaxType": {
+   "note": "4.jpg 暗场亮蓝 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#21A3DD, #0C0C10, 0.48)"
+  },
+  "syntaxNumber": {
+   "note": "5.jpg 铜锣烧棕 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#AF6E5A, #0C0C10, 0.52)"
+  },
+  "syntaxString": {
+   "note": "3.png 叠色绿 × 1.png 纯墨黑 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#6F997A, #0C0C10, 0.50)"
+  },
+  "syntaxOperator": {
+   "note": "4.jpg 暗场中灰 × 4.jpg 暗场亮蓝 定比混色",
+   "kind": "混色",
+   "recipe": "mix(#515151, #21A3DD, 0.12)"
+  }
+ },
+ "sources": {
+  "#FFFFFF": {
+   "img": "1.png",
+   "element": "漫画纸白",
+   "note": "1.png 全身立绘的纯白纸面",
+   "px": 39280,
+   "exact": true
+  },
+  "#189BC8": {
+   "img": "1.png",
+   "element": "身体蓝",
+   "note": "1.png 躯干与手臂的平涂青蓝",
+   "px": 5119,
+   "exact": true
+  },
+  "#E22233": {
+   "img": "1.png",
+   "element": "鼻尖红",
+   "note": "1.png 圆鼻子与红球",
+   "px": 389,
+   "exact": true
+  },
+  "#FFCB05": {
+   "img": "1.png",
+   "element": "铃铛黄",
+   "note": "1.png 铃铛与左下角标",
+   "px": 3012,
+   "exact": true
+  },
+  "#0C0C10": {
+   "img": "1.png",
+   "element": "纯墨黑",
+   "note": "1.png 底部信息栏纯黑",
+   "px": 27171,
+   "exact": true
+  },
+  "#0168B5": {
+   "img": "3.png",
+   "element": "字标深蓝",
+   "note": "3.png \"Doraemon\" 字标描边深蓝",
+   "px": 2315,
+   "exact": true
+  },
+  "#00ADEF": {
+   "img": "3.png",
+   "element": "招牌青蓝",
+   "note": "3.png 字标与身体的亮青蓝",
+   "px": 5795,
+   "exact": true
+  },
+  "#CAE1F0": {
+   "img": "3.png",
+   "element": "浅天蓝",
+   "note": "3.png 字标内圈的浅天蓝描边",
+   "px": 319,
+   "exact": true
+  },
+  "#1A1617": {
+   "img": "3.png",
+   "element": "勾线墨",
+   "note": "3.png 全部描边的墨线",
+   "px": 3577,
+   "exact": true
+  },
+  "#6F997A": {
+   "img": "3.png",
+   "element": "叠色绿",
+   "note": "3.png 字标蓝与黄底交叠处的真绿",
+   "px": 39,
+   "exact": true
+  },
+  "#F07A22": {
+   "img": "4.jpg",
+   "element": "舌头橙",
+   "note": "4.jpg 张嘴造型的橙舌",
+   "px": 6570,
+   "exact": false
+  },
+  "#ED1B24": {
+   "img": "4.jpg",
+   "element": "嘴内红",
+   "note": "4.jpg 口腔内壁的正红",
+   "px": 11821,
+   "exact": false
+  },
+  "#21A3DD": {
+   "img": "4.jpg",
+   "element": "暗场亮蓝",
+   "note": "4.jpg 暗背景里受光的身体蓝",
+   "px": 5558,
+   "exact": false
+  },
+  "#515151": {
+   "img": "4.jpg",
+   "element": "暗场中灰",
+   "note": "4.jpg 深色渐变背景中段中灰",
+   "px": 11285,
+   "exact": false
+  },
+  "#7FD2FE": {
+   "img": "5.jpg",
+   "element": "柔蓝",
+   "note": "5.jpg 近景造型的柔调身体蓝",
+   "px": 16393,
+   "exact": false
+  },
+  "#AF6E5A": {
+   "img": "5.jpg",
+   "element": "铜锣烧棕",
+   "note": "5.jpg 手里铜锣烧的焦糖棕",
+   "px": 2976,
+   "exact": false
+  },
+  "#316AB1": {
+   "img": "6.jpg",
+   "element": "字标靛蓝",
+   "note": "6.jpg \"ドラえもん\" 字标主蓝",
+   "px": 5379,
+   "exact": false
+  },
+  "#F36E9D": {
+   "img": "6.jpg",
+   "element": "标题粉点",
+   "note": "6.jpg 字标上的粉点",
+   "px": 830,
+   "exact": false
+  }
+ },
+ "bg_ratio": {
+  "inputBg": 0.033333333333333603,
+  "background": 0.12222222222222284,
+  "bubbleBg": 0.20703125000000017,
+  "sidebarBg": 0.2851562500000001,
+  "backgroundPanel": 0.36666666666666725,
+  "codeBlockBg": 0.4555555555555558,
+  "codeHeaderBg": 0.544444444444445,
+  "backgroundElement": 0.6333333333333342
+ },
+ "fails": [],
+ "design": [],
+ "checks": [
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@background",
+   "fg": "#1A1617",
+   "bg": "#EFF9FF",
+   "ratio": 16.792,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@backgroundPanel",
+   "fg": "#1A1617",
+   "bg": "#D0EFFF",
+   "ratio": 14.92,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@backgroundElement",
+   "fg": "#1A1617",
+   "bg": "#AEE2FE",
+   "ratio": 12.902,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@sidebarBg",
+   "fg": "#1A1617",
+   "bg": "#DBF2FF",
+   "ratio": 15.505,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@bubbleBg",
+   "fg": "#1A1617",
+   "bg": "#E4F6FF",
+   "ratio": 16.161,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@inputBg",
+   "fg": "#1A1617",
+   "bg": "#FBFDFF",
+   "ratio": 17.587,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@codeBlockBg",
+   "fg": "#1A1617",
+   "bg": "#C5EBFF",
+   "ratio": 14.262,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@codeHeaderBg",
+   "fg": "#1A1617",
+   "bg": "#B9E7FE",
+   "ratio": 13.598,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "textMuted@background",
+   "fg": "#202E42",
+   "bg": "#EFF9FF",
+   "ratio": 12.845,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "labelDimmed@background",
+   "fg": "#495768",
+   "bg": "#EFF9FF",
+   "ratio": 6.908,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "textMuted@backgroundPanel",
+   "fg": "#202E42",
+   "bg": "#D0EFFF",
+   "ratio": 11.413,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "labelDimmed@backgroundPanel",
+   "fg": "#435568",
+   "bg": "#D0EFFF",
+   "ratio": 6.382,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "textMuted@backgroundElement",
+   "fg": "#202E42",
+   "bg": "#AEE2FE",
+   "ratio": 9.87,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "labelDimmed@backgroundElement",
+   "fg": "#3C5268",
+   "bg": "#AEE2FE",
+   "ratio": 5.814,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownHeading@background",
+   "fg": "#056D96",
+   "bg": "#EFF9FF",
+   "ratio": 5.411,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownHeading@backgroundPanel",
+   "fg": "#056D96",
+   "bg": "#D0EFFF",
+   "ratio": 4.808,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownLink@background",
+   "fg": "#063F6B",
+   "bg": "#EFF9FF",
+   "ratio": 10.183,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownLink@backgroundPanel",
+   "fg": "#063F6B",
+   "bg": "#D0EFFF",
+   "ratio": 9.048,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownStrong@background",
+   "fg": "#0C0C10",
+   "bg": "#EFF9FF",
+   "ratio": 18.281,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownStrong@backgroundPanel",
+   "fg": "#0C0C10",
+   "bg": "#D0EFFF",
+   "ratio": 16.243,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownEmph@background",
+   "fg": "#843F59",
+   "bg": "#EFF9FF",
+   "ratio": 6.933,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownEmph@backgroundPanel",
+   "fg": "#843F59",
+   "bg": "#D0EFFF",
+   "ratio": 6.16,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownBlockQuote@background",
+   "fg": "#666666",
+   "bg": "#EFF9FF",
+   "ratio": 5.377,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownBlockQuote@backgroundPanel",
+   "fg": "#666666",
+   "bg": "#D0EFFF",
+   "ratio": 4.777,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownCode@background",
+   "fg": "#7B4F42",
+   "bg": "#EFF9FF",
+   "ratio": 6.47,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "markdownCode@backgroundPanel",
+   "fg": "#7B4F42",
+   "bg": "#D0EFFF",
+   "ratio": 5.749,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxComment@codeBlockBg",
+   "fg": "#626262",
+   "bg": "#C5EBFF",
+   "ratio": 4.851,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxKeyword@codeBlockBg",
+   "fg": "#821823",
+   "bg": "#C5EBFF",
+   "ratio": 7.938,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxFunction@codeBlockBg",
+   "fg": "#204069",
+   "bg": "#C5EBFF",
+   "ratio": 8.356,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxType@codeBlockBg",
+   "fg": "#175B7B",
+   "bg": "#C5EBFF",
+   "ratio": 5.925,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxNumber@codeBlockBg",
+   "fg": "#5A3B34",
+   "bg": "#C5EBFF",
+   "ratio": 7.916,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxString@codeBlockBg",
+   "fg": "#3E5345",
+   "bg": "#C5EBFF",
+   "ratio": 6.606,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "syntaxOperator@codeBlockBg",
+   "fg": "#4B5B62",
+   "bg": "#C5EBFF",
+   "ratio": 5.62,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "diffAdded@diffAddedBg",
+   "fg": "#36473D",
+   "bg": "#E8EFEA",
+   "ratio": 8.452,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "diffAdded@diffAddedLineNumberBg",
+   "fg": "#36473D",
+   "bg": "#D7E2DA",
+   "ratio": 7.424,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "diffRemoved@diffRemovedBg",
+   "fg": "#7D141A",
+   "bg": "#FDE4E5",
+   "ratio": 8.76,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "diffRemoved@diffRemovedLineNumberBg",
+   "fg": "#7D141A",
+   "bg": "#FBD1D3",
+   "ratio": 7.631,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@diffAddedBg",
+   "fg": "#1A1617",
+   "bg": "#E8EFEA",
+   "ratio": 15.342,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "text@diffRemovedBg",
+   "fg": "#1A1617",
+   "bg": "#FDE4E5",
+   "ratio": 14.863,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "repo",
+   "code": "contrastText(primary)@primary",
+   "fg": "#F4F4F5",
+   "bg": "#135F7B",
+   "ratio": 6.475,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@background",
+   "fg": "#135F7B",
+   "bg": "#EFF9FF",
+   "ratio": 6.665,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@backgroundPanel",
+   "fg": "#135F7B",
+   "bg": "#D0EFFF",
+   "ratio": 5.922,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@backgroundElement",
+   "fg": "#135F7B",
+   "bg": "#AEE2FE",
+   "ratio": 5.121,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@sidebarBg",
+   "fg": "#135F7B",
+   "bg": "#DBF2FF",
+   "ratio": 6.154,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@bubbleBg",
+   "fg": "#135F7B",
+   "bg": "#E4F6FF",
+   "ratio": 6.414,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@inputBg",
+   "fg": "#135F7B",
+   "bg": "#FBFDFF",
+   "ratio": 6.98,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@codeBlockBg",
+   "fg": "#135F7B",
+   "bg": "#C5EBFF",
+   "ratio": 5.66,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "primary@codeHeaderBg",
+   "fg": "#135F7B",
+   "bg": "#B9E7FE",
+   "ratio": 5.397,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@background",
+   "fg": "#2D61A1",
+   "bg": "#EFF9FF",
+   "ratio": 5.894,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@backgroundPanel",
+   "fg": "#2D61A1",
+   "bg": "#D0EFFF",
+   "ratio": 5.237,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@backgroundElement",
+   "fg": "#2D61A1",
+   "bg": "#AEE2FE",
+   "ratio": 4.529,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@sidebarBg",
+   "fg": "#2D61A1",
+   "bg": "#DBF2FF",
+   "ratio": 5.443,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@bubbleBg",
+   "fg": "#2D61A1",
+   "bg": "#E4F6FF",
+   "ratio": 5.673,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@inputBg",
+   "fg": "#2D61A1",
+   "bg": "#FBFDFF",
+   "ratio": 6.174,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@codeBlockBg",
+   "fg": "#2D61A1",
+   "bg": "#C5EBFF",
+   "ratio": 5.006,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "info@codeHeaderBg",
+   "fg": "#2D61A1",
+   "bg": "#B9E7FE",
+   "ratio": 4.773,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@background",
+   "fg": "#496352",
+   "bg": "#EFF9FF",
+   "ratio": 6.165,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@backgroundPanel",
+   "fg": "#496352",
+   "bg": "#D0EFFF",
+   "ratio": 5.478,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@backgroundElement",
+   "fg": "#496352",
+   "bg": "#AEE2FE",
+   "ratio": 4.737,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@sidebarBg",
+   "fg": "#496352",
+   "bg": "#DBF2FF",
+   "ratio": 5.692,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@bubbleBg",
+   "fg": "#496352",
+   "bg": "#E4F6FF",
+   "ratio": 5.933,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@inputBg",
+   "fg": "#496352",
+   "bg": "#FBFDFF",
+   "ratio": 6.457,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@codeBlockBg",
+   "fg": "#496352",
+   "bg": "#C5EBFF",
+   "ratio": 5.236,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@codeHeaderBg",
+   "fg": "#496352",
+   "bg": "#B9E7FE",
+   "ratio": 4.992,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@background",
+   "fg": "#733D18",
+   "bg": "#EFF9FF",
+   "ratio": 8.161,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@backgroundPanel",
+   "fg": "#733D18",
+   "bg": "#D0EFFF",
+   "ratio": 7.251,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@backgroundElement",
+   "fg": "#733D18",
+   "bg": "#AEE2FE",
+   "ratio": 6.27,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@sidebarBg",
+   "fg": "#733D18",
+   "bg": "#DBF2FF",
+   "ratio": 7.535,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@bubbleBg",
+   "fg": "#733D18",
+   "bg": "#E4F6FF",
+   "ratio": 7.854,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@inputBg",
+   "fg": "#733D18",
+   "bg": "#FBFDFF",
+   "ratio": 8.547,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@codeBlockBg",
+   "fg": "#733D18",
+   "bg": "#C5EBFF",
+   "ratio": 6.931,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@codeHeaderBg",
+   "fg": "#733D18",
+   "bg": "#B9E7FE",
+   "ratio": 6.609,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@background",
+   "fg": "#6F1319",
+   "bg": "#EFF9FF",
+   "ratio": 11.028,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@backgroundPanel",
+   "fg": "#6F1319",
+   "bg": "#D0EFFF",
+   "ratio": 9.799,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@backgroundElement",
+   "fg": "#6F1319",
+   "bg": "#AEE2FE",
+   "ratio": 8.474,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@sidebarBg",
+   "fg": "#6F1319",
+   "bg": "#DBF2FF",
+   "ratio": 10.183,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@bubbleBg",
+   "fg": "#6F1319",
+   "bg": "#E4F6FF",
+   "ratio": 10.614,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@inputBg",
+   "fg": "#6F1319",
+   "bg": "#FBFDFF",
+   "ratio": 11.551,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@codeBlockBg",
+   "fg": "#6F1319",
+   "bg": "#C5EBFF",
+   "ratio": 9.367,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@codeHeaderBg",
+   "fg": "#6F1319",
+   "bg": "#B9E7FE",
+   "ratio": 8.931,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@自身14%底(background)",
+   "fg": "#733D18",
+   "bg": "#DEDFDF",
+   "ratio": 6.526,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "warning@自身14%底(inputBg)",
+   "fg": "#733D18",
+   "bg": "#E8E2DF",
+   "ratio": 6.796,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "error@自身12%底(background)",
+   "fg": "#6F1319",
+   "bg": "#E0DDE3",
+   "ratio": 8.761,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "success@自身14%底(background)",
+   "fg": "#496352",
+   "bg": "#D8E4E7",
+   "ratio": 5.07,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "#fff@error(宿主写死白字)",
+   "fg": "#FFFFFF",
+   "bg": "#6F1319",
+   "ratio": 11.777,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "#fff@info(宿主写死白字)",
+   "fg": "#FFFFFF",
+   "bg": "#2D61A1",
+   "ratio": 6.295,
+   "thr": 4.5
+  },
+  {
+   "cls": "hard",
+   "src": "extra",
+   "code": "#fff@primary(宿主写死白字)",
+   "fg": "#FFFFFF",
+   "bg": "#135F7B",
+   "ratio": 7.117,
+   "thr": 4.5
+  },
+  {
+   "cls": "ui",
+   "code": "borderActive@background",
+   "fg": "#025DA1",
+   "bg": "#EFF9FF",
+   "ratio": 6.378,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "borderActive@backgroundPanel",
+   "fg": "#025DA1",
+   "bg": "#D0EFFF",
+   "ratio": 5.667,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "borderActive@backgroundElement",
+   "fg": "#025DA1",
+   "bg": "#AEE2FE",
+   "ratio": 4.901,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "primary@background",
+   "fg": "#135F7B",
+   "bg": "#EFF9FF",
+   "ratio": 6.665,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "primary@backgroundPanel",
+   "fg": "#135F7B",
+   "bg": "#D0EFFF",
+   "ratio": 5.922,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "secondary@background",
+   "fg": "#9E7F09",
+   "bg": "#EFF9FF",
+   "ratio": 3.58,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "secondary@backgroundPanel",
+   "fg": "#9E7F09",
+   "bg": "#D0EFFF",
+   "ratio": 3.181,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "info@background",
+   "fg": "#2D61A1",
+   "bg": "#EFF9FF",
+   "ratio": 5.894,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "info@backgroundPanel",
+   "fg": "#2D61A1",
+   "bg": "#D0EFFF",
+   "ratio": 5.237,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "success@background",
+   "fg": "#496352",
+   "bg": "#EFF9FF",
+   "ratio": 6.165,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "success@backgroundPanel",
+   "fg": "#496352",
+   "bg": "#D0EFFF",
+   "ratio": 5.478,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "warning@background",
+   "fg": "#733D18",
+   "bg": "#EFF9FF",
+   "ratio": 8.161,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "warning@backgroundPanel",
+   "fg": "#733D18",
+   "bg": "#D0EFFF",
+   "ratio": 7.251,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "error@background",
+   "fg": "#6F1319",
+   "bg": "#EFF9FF",
+   "ratio": 11.028,
+   "thr": 3.0
+  },
+  {
+   "cls": "ui",
+   "code": "error@backgroundPanel",
+   "fg": "#6F1319",
+   "bg": "#D0EFFF",
+   "ratio": 9.799,
+   "thr": 3.0
+  }
+ ],
+ "n_hard": 40,
+ "n_extra": 47,
+ "n_ui": 15,
+ "core_min_syntax": 5.924838150048645,
+ "dots": {
+  "secondary": {
+   "hex": "#9E7F09",
+   "L": 54.5
+  },
+  "success": {
+   "hex": "#496352",
+   "L": 39.5
+  },
+  "warning": {
+   "hex": "#733D18",
+   "L": 31.9
+  },
+  "error": {
+   "hex": "#6F1319",
+   "L": 23.4
+  }
+ },
+ "brand_geometry": "互补",
+ "brand_hue_diff": 148.6,
+ "ladder": [
+  [
+   "background",
+   97.4,
+   "#EFF9FF"
+  ],
+  [
+   "backgroundPanel",
+   92.7,
+   "#D0EFFF"
+  ],
+  [
+   "backgroundElement",
+   87.3,
+   "#AEE2FE"
+  ],
+  [
+   "sidebarBg",
+   94.2,
+   "#DBF2FF"
+  ],
+  [
+   "bubbleBg",
+   95.8,
+   "#E4F6FF"
+  ],
+  [
+   "inputBg",
+   99.2,
+   "#FBFDFF"
+  ],
+  [
+   "codeBlockBg",
+   91.0,
+   "#C5EBFF"
+  ],
+  [
+   "codeHeaderBg",
+   89.2,
+   "#B9E7FE"
+  ]
+ ]
+}

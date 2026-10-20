@@ -1,0 +1,117 @@
+EVA IP 主题 · 37 色位取色台账
+源图：C:\Users\辰辰洋洋\Pictures\新世纪福音战士（1.jpg / 2.jpg / 3.jpg）
+
+slot                       dark      light     配方(dark)                         配方(light)              落点
+------------------------------------------------------------------------------------------------------------------------------------------------------
+background                 #181824   #D8E3F3   直采 #181824                       定比混色 #EFF2F7 78% + #87AFE3 22% --dsw-alias-bg-base · bg-layer-1/2/3 · bg-overlay
+backgroundPanel            #111B3E   #FEFEFE   直采 #111B3E                       直采 #FEFEFE             --dsw-alias-markdown-tag · bg-multi-select · button-elevated-fill
+backgroundElement          #1C284D   #EFE7FC   定比混色 #111B3E 90% + #7DA0D8 10%   定比混色 #FEFEFE 78% + #BB96F5 22% --dsw-alias-markdown-citation · bg-module-platform · toast-bg · tooltip-bg
+sidebarBg                  #25203D   #A3ADB8   定比混色 #1F1D32 75% + #382A5F 25%   定比混色 #EFF2F7 55% + #47586C 45% --dsw-specific-sidebar-fill
+bubbleBg                   #1F2454   #DDD3F6   定比混色 #111B3E 74% + #473D94 26%   定比混色 #EFF2F7 66% + #BB96F5 34% --dsw-specific-bubble
+inputBg                    #131A35   #CAD0D8   定比混色 #111B3E 65% + #181824 35%   定比混色 #EFF2F7 78% + #47586C 22% --dsw-specific-input-major · login-input
+codeBlockBg                #252630   #C9E1F4   定比混色 #151419 70% + #4A5164 30%   定比混色 #EFF2F7 15% + #C2DEF4 85% --dsw-alias-markdown-code-block
+codeHeaderBg               #2B334F   #7D85B9   定比混色 #4A5164 45% + #111B3E 55%   定比混色 #C2DEF4 45% + #453D88 55% --dsw-alias-markdown-code-block-banner · --dsl-code-block-background
+text                       #D5D8DE   #111B3E   定比混色 #EFF2F7 88% + #181824 12%   直采 #111B3E             --dsw-alias-label-primary · button-contrast-fill · toast-label
+textMuted                  #AFAEBC   #2F3D57   定比混色 #9A97A8 75% + #EFF2F7 25%   定比混色 #47586C 55% + #111B3E 45% --dsw-alias-label-secondary · tertiary · caption · menu-icon
+primary                    #BB96F5   #473D94   直采 #BB96F5                       直采 #473D94             --dsw-alias-brand-primary · button-primary-fill · state-business-primary
+secondary                  #BEABD4   #394159   定比混色 #BFB7C2 65% + #BB96F5 35%   定比混色 #4A5164 70% + #111B3E 30% --dsw-alias-state-idle-primary
+info                       #7DA0D8   #526B91   直采 #7DA0D8                       定比混色 #A1CCF6 45% + #111B3E 55% --dsw-alias-button-info-fill
+success                    #DBFD68   #537B50   直采 #DBFD68                       定比混色 #77AE5A 65% + #111B3E 35% --dsw-alias-state-success-primary
+warning                    #E69402   #996032   直采 #E69402                       定比混色 #BA7528 45% + #7E4E3A 55% --dsw-alias-state-warn-primary · state-warn-label
+error                      #DE5C4B   #9D3D38   定比混色 #D8402B 85% + #FEFEFE 15%   定比混色 #A53C36 90% + #534A4B 10% --dsw-alias-state-error-primary
+border                     #382A5F   #87AFE3   直采 #382A5F                       直采 #87AFE3             --dsw-alias-border-l1 · border-inverted · hr
+borderActive               #7A91BA   #6A7FA7   直采 #7A91BA                       定比混色 #7A91BA 85% + #111B3E 15% --dsw-alias-border-l2/l3/l4 · button-ghost-active-border
+diffAdded                  #AFC755   #2B4429   直采 #AFC755                       直采 #2B4429             --dsw-alias-code-diff-added · file-diff-added-marker
+diffRemoved                #DF8C85   #803438   定比混色 #D8402B 55% + #E8E8F2 45%   定比混色 #A53C36 75% + #111B3E 25% --dsw-alias-code-diff-deleted · file-diff-deleted-marker
+diffAddedBg                #2A2D2A   #E5EBDD   定比混色 #181824 88% + #AFC755 12%   定比混色 #EFF2F7 84% + #AFC755 16% --dsw-alias-file-diff-added-bg
+diffRemovedBg              #2F1D25   #EDDEDE   定比混色 #181824 88% + #D8402B 12%   定比混色 #EFF2F7 88% + #DC4C2A 12% --dsw-alias-file-diff-deleted-bg
+diffAddedLineNumberBg      #212227   #D9E3C0   定比混色 #181824 94% + #AFC755 6%    定比混色 #EFF2F7 66% + #AFC755 34% --dsw-alias-file-diff-added-gutter
+diffRemovedLineNumberBg    #241A24   #EACAC6   定比混色 #181824 94% + #D8402B 6%    定比混色 #EFF2F7 76% + #DC4C2A 24% --dsw-alias-file-diff-removed-gutter
+markdownHeading            #FAAB00   #292A65   直采 #FAAB00                       定比混色 #473D94 45% + #111B3E 55% body h1–h6
+markdownLink               #A1CCF6   #0044A0   直采 #A1CCF6                       直采 #0044A0             a · .markdown a · shiki-token-link
+markdownCode               #B98EA1   #635696   定比混色 #D7A2B2 85% + #111B3E 15%   定比混色 #BB96F5 48% + #111B3E 52% code:not(pre code)
+markdownEmph               #97AD50   #4C545E   定比混色 #DBFD68 65% + #181824 35%   定比混色 #6C7270 65% + #111B3E 35% em
+markdownStrong             #EFF2F7   #181824   直采 #EFF2F7                       直采 #181824             strong
+markdownBlockQuote         #BAC6DC   #46567C   定比混色 #7A91BA 45% + #EFF2F7 55%   定比混色 #7A91BA 50% + #111B3E 50% blockquote
+syntaxComment              #8D8E93   #47586C   定比混色 #74757A 80% + #EFF2F7 20%   直采 #47586C             --shiki-token-comment
+syntaxKeyword              #A2A1C5   #26285F   定比混色 #453D88 45% + #EFF2F7 55%   定比混色 #473D94 38% + #111B3E 62% --shiki-token-keyword
+syntaxFunction             #C2DEF4   #403A81   直采 #C2DEF4                       定比混色 #453D88 90% + #111B3E 10% --shiki-token-function
+syntaxType                 #BFB7C2   #3F3C47   直采 #BFB7C2                       定比混色 #534A4B 70% + #111B3E 30% --shiki-token-parameter
+syntaxNumber               #E4980E   #A87916   定比混色 #FAAB00 65% + #BA7528 35%   定比混色 #FAAB00 65% + #111B3E 35% --shiki-token-constant
+syntaxString               #6B9C57   #243A2E   定比混色 #77AE5A 88% + #111B3E 12%   定比混色 #2B4429 75% + #111B3E 25% --shiki-token-string
+syntaxOperator             #73904D   #5E6476   直采 #73904D                       定比混色 #4A5164 88% + #EFF2F7 12% --shiki-token-punctuation
+
+锚点取样（声明色 → 原图平涂区代表色）
+  anchor        声明色       取样色       支撑      平坦度     图       描述
+  ink0          #0A091A   #181824   968     0       3.jpg   海报黑底
+  ink1          #141A41   #111B3E   1278    0       2.jpg   夜蓝
+  ink2          #222946   #22223E   1258    0       3.jpg   装甲深蓝
+  ink3          #34304D   #382A5F   543     0       3.jpg   装甲暗紫
+  sidebar       #15142A   #1F1D32   1086    0       3.jpg   海报暗紫
+  codebg        #171726   #151419   640     0       3.jpg   画幅黑
+  violet        #463C99   #473D94   235     0       2.jpg   机体主紫
+  violetHi      #4A3A9E   #443F8F   188     1       2.jpg   机体紫受光面
+  violetLit     #BA99F5   #BB96F5   144     0       3.jpg   机体高光淡紫
+  violetLit2    #BA97F8   #BD9CF5   54      1       3.jpg   机体高光紫
+  sky           #7FA8E4   #7DA0D8   1818    0       3.jpg   天空蓝
+  skyLight      #ADCEEC   #C2DEF4   504     0       3.jpg   浅云蓝
+  cyan          #A3D9F4   #A1CCF6   4889    0       3.jpg   高光青
+  cloud         #EBF2FB   #EFF2F7   1875    0       3.jpg   云白
+  paper         #FFFFFF   #FEFEFE   16449   0       2.jpg   海报纸白
+  paperCool     #F8FAF9   #F8FAF9   0       0       2.jpg   冷纸白
+  lime          #A4CA3C   #AFC755   6       9       2.jpg   同步绿
+  limeHi        #D9FF5D   #DBFD68   330     0       3.jpg   荧绿高光
+  limeDeep      #709E35   #73904D   22      13      2.jpg   深绿
+  green2        #86C467   #77AE5A   20      7       3.jpg   浅绿受光面
+  forest        #2B4429   #2B4429   0       0       2.jpg   林绿
+  gold          #FCAA00   #FAAB00   52      0       1.jpg   标题金
+  orange        #ED9107   #E69402   27      4       1.jpg   装甲橙
+  orangeHi      #F69604   #EDA200   25      4       1.jpg   亮橙高光
+  amberDeep     #CD8A25   #BA7528   6       19      2.jpg   赭金
+  brown         #906244   #7E4E3A   32      5       3.jpg   机体棕
+  red           #E23423   #DC4C2A   318     0       1.jpg   明日香装甲红
+  redHot        #E74A22   #D8402B   217     0       1.jpg   装甲红受光面
+  redDeep       #A02639   #A53C36   113     1       1.jpg   深红
+  plum          #634858   #534A4B   43      31      3.jpg   暗紫棕
+  mauve         #BC9DBE   #BFB7C2   83      10      3.jpg   樱紫灰
+  pink          #CE95AB   #D7A2B2   627     0       3.jpg   樱粉
+  steel         #7A96B1   #7A91BA   178     0       1.jpg   钢青
+  indigo        #344D94   #453D88   80      15      1.jpg   靛蓝
+  blue          #044196   #0044A0   12      8       1.jpg   标题蓝
+  violetGray    #4A4379   #4A5164   1423    0       3.jpg   紫灰
+  mist          #86869B   #9A97A8   123     0       1.jpg   雾紫灰
+  gray          #70767F   #74757A   4245    0       3.jpg   云影灰
+  grayBlue      #979BA9   #7F97B9   117     0       1.jpg   灰蓝
+  warmGray      #B0A3A3   #C5B3B1   77      0       1.jpg   暖灰
+  slate         #55667A   #47586C   136     0       1.jpg   蓝灰
+  haze          #D5DAE3   #E8E8F2   504     0       3.jpg   霾
+  pale          #A2B6E1   #87AFE3   2089    0       3.jpg   淡蓝
+  teal          #6D7B7B   #6C7270   93      5       3.jpg   青灰
+
+判尺自检
+  硬性违例：5
+    ✗ dark  syntaxOperator@codeBlockBg         #73904D / #252630 = 4.17 (需 4.5)
+    ✗ dark  contrastText(error)@error          #F4F4F5 / #DE5C4B = 3.33 (需 4.5)
+    ✗ light  syntaxNumber@codeBlockBg           #A87916 / #C9E1F4 = 2.88 (需 4.5)
+    ✗ light  syntaxOperator@codeBlockBg         #5E6476 / #C9E1F4 = 4.37 (需 4.5)
+    ✗ light  contrastText(success)@success      #F4F4F5 / #537B50 = 4.43 (需 4.5)
+  设计告警：1
+    ! light 退后失败: comment 5.40 / operator 4.37 vs 核心最低 2.88
+  扩展矩阵提示（文字类 @ 8 表面 < 4.5，仅诊断）：13
+    · dark  markdownCode             @ codeHeaderBg         = 4.41
+    · light  textMuted                @ codeHeaderBg         = 3.08
+    · light  markdownHeading          @ codeHeaderBg         = 3.67
+    · light  markdownLink             @ sidebarBg            = 3.95
+    · light  markdownLink             @ codeHeaderBg         = 2.54
+    · light  markdownCode             @ sidebarBg            = 2.79
+    · light  markdownCode             @ bubbleBg             = 4.46
+    · light  markdownCode             @ inputBg              = 4.10
+    · light  markdownCode             @ codeHeaderBg         = 1.80
+    · light  markdownEmph             @ sidebarBg            = 3.37
+    · light  markdownEmph             @ codeHeaderBg         = 2.17
+    · light  markdownBlockQuote       @ sidebarBg            = 3.20
+    · light  markdownBlockQuote       @ codeHeaderBg         = 2.06
+  [dark] 核心 ΔE76 16.1 (syntaxKeyword×syntaxType) · 退后 comment 4.59 / operator 4.17 ≤ 核心最低 4.66 · 品牌几何 4.4° (analogous 近似)
+  [dark] 去重后色值：37 / 37
+  [light] 核心 ΔE76 12.8 (syntaxKeyword×syntaxFunction) · 退后 comment 5.40 / operator 4.37 ≤ 核心最低 2.88 · 品牌几何 21.9° (analogous 近似)
+  [light] 去重后色值：37 / 37

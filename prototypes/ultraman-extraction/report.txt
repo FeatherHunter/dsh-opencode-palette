@@ -1,0 +1,76 @@
+═══ ① 直采：从参考图重新读像素
+  OK  background              #000600  2.jpg (12, 224)  森林最深处的阴影（画布）
+  OK  border                  #2F3D6A  images.jpg (31, 633)  海报画框的深靛
+  OK  borderActive            #87C3F5  2.jpg (145, 118)  战甲肩后的天空（焦点环）
+  OK  diffAdded               #3C9B6F  2.jpg (39, 209)  森林树冠的翠绿
+  OK  diffRemoved             #C9667B  images.jpg (154, 340)  角色立绘的玫瑰红
+  OK  error                   #F05F4E  2.jpg (266, 216)  战甲受光朱红（侧腹甲片）
+  OK  info                    #2AA1B7  2.jpg (380, 241)  战甲之外的天空（森林树梢上方）
+  OK  markdownBlockQuote      #91B2B7  images.jpg (37, 576)  角色立绘的银白甲片
+  OK  markdownCode            #D0B26C  2.jpg (393, 393)  山坡的赭金
+  OK  markdownEmph            #B6A8CB  images.jpg (258, 637)  海报下缘的淡紫
+  OK  markdownHeading         #C0ECFF  images.jpg (328, 324)  角色立绘冰蓝装甲的高光
+  OK  markdownLink            #51AEB5  2.jpg (327, 224)  天海交界的青
+  OK  markdownStrong          #F8FBE6  2.jpg (223, 51)  战甲近白高光（额侧）
+  OK  primary                 #D52518  2.jpg (199, 249)  战甲受光正红（胸腹甲片）
+  OK  secondary               #EFCB5D  images.jpg (317, 214)  角色立绘金瞳的边缘高光（第二声部）
+  OK  success                 #2F9877  images.jpg (211, 237)  角色胸前绿色计时器的核心
+  OK  syntaxComment           #747D86  images.jpg (443, 372)  角色立绘的紫灰（战甲暗部）
+  OK  syntaxFunction          #3A80FA  images.jpg (472, 16)  海报画框的能量蓝
+  OK  syntaxKeyword           #D95638  2.jpg (268, 219)  战甲受光红·亮档
+  OK  syntaxNumber            #F4C738  images.jpg (318, 214)  角色立绘金瞳的核心（与次色相邻 1 px）
+  OK  syntaxOperator          #8774A2  images.jpg (458, 627)  海报下缘的紫灰
+  OK  syntaxString            #67CDA6  images.jpg (212, 235)  角色胸前绿色计时器的外缘
+  OK  syntaxType              #8CCDE9  2.jpg (314, 0)  天顶的淡蓝
+  OK  text                    #DEEFF6  2.jpg (206, 27)  战甲银白高光（头冠尖脊）
+  OK  textMuted               #AFB9BB  2.jpg (148, 111)  战甲银灰暗面（向左伸出的手臂）
+  OK  warning                 #BD8E36  images.jpg (139, 457)  角色立绘金色头冠的暗面（琥珀）
+  直采 26 槽：命中 26 / 26
+
+═══ ② 梯子：画布 #000600 染标题靛 #2D2C8A，按目标 L* 反解 α
+  background        #000600  α=0.0000  L*=1.18  
+  codeBlockBg       #060B11  α=0.1268  L*=2.88  ΔL*=+1.70
+  sidebarBg         #0A0F1F  α=0.2237  L*=4.56  ΔL*=+1.69
+  inputBg           #0E112A  α=0.3026  L*=5.97  ΔL*=+1.41
+  bubbleBg          #111433  α=0.3667  L*=7.75  ΔL*=+1.78
+  backgroundPanel   #14163C  α=0.4342  L*=9.39  ΔL*=+1.64
+  backgroundElement #161945  α=0.4964  L*=11.24  ΔL*=+1.85
+  codeHeaderBg      #191C4E  α=0.5658  L*=13.15  ΔL*=+1.91
+
+═══ ③ diff 底：直采色按固定 α 染在画布上
+  diffAddedBg                #08190E  = #3C9B6F × 0.13 + #000600 × 0.87
+  diffRemovedBg              #1A1210  = #C9667B × 0.13 + #000600 × 0.87
+  diffAddedLineNumberBg      #0C2416  = #3C9B6F × 0.20 + #000600 × 0.80
+  diffRemovedLineNumberBg    #281919  = #C9667B × 0.20 + #000600 × 0.80
+
+  与出货值（src/custom-presets/ultraman.json）比对：37/37 一致
+
+═══ ④ house 判尺（硬性 38 + UI 15）
+  硬性 38 对违例 0；UI 15 对违例 0
+  最紧 6： contrastText(primary)@primary 4.65(+0.15), syntaxComment@codeBlockBg 4.72(+0.22), syntaxOperator@codeBlockBg 4.75(+0.25), primary@backgroundPanel 3.39(+0.39), diffRemoved@diffRemovedBg 4.98(+0.48), syntaxKeyword@codeBlockBg 5.02(+0.52)
+
+═══ ⑤ 宿主现实（app.asar 实证契约）
+  LIMIT primary@business-tertiary 芯片(13px): 3.77 (需 4.5)
+  LIMIT primary@交互悬停强调底(20%): 3.55 (需 4.5)
+  LIMIT primary@页面底(12px 文字): 4.0 (需 4.5)
+  共 49 对，硬判违例 0；已知限制 3 条
+  最紧 6： info 填充 + #fff 3.05(+0.05), primary@codeHeaderBg 3.12(+0.12), info@侧栏选中底 4.62(+0.12), primary@backgroundElement 3.26(+0.26), success@backgroundPanel 4.86(+0.36), primary@backgroundPanel 3.39(+0.39)
+
+═══ ⑥ IP 设计规范
+  roleCollision / markdownDuplicate：0
+  brandGeometry: primary h4.1 ↔ secondary h45.2 = 41.1° (类比 ≤45)  OK
+  syntaxCoreMin ΔE76 = 40.0 (≥10)  OK
+  syntaxRecede: comment 4.72 / operator 4.75 ≤ 核心最低 5.02  OK
+  最小两两 ΔE76： success↔diffAdded 6.3, error↔syntaxKeyword 8.8, markdownBlockQuote↔textMuted 9.0, info↔markdownLink 10.0
+
+═══ ⑦ 色盲四态可分性（宿主 8px 状态圆点）
+  normal 23.5 (secondary↔warning)   deutan 18.6 (secondary↔error)   protan 14.5 (secondary↔error)
+  亮度阶梯 L*： secondary 82.8, success 56.5, warning 62.0, error 59.2
+  house 24 套参考：中位 9.8，最好 18.3，最差 3.4；doraemon（house 复核样板）4.5；旧 ultraman 7.3
+  borderActive ↔ syntaxComment ΔE76 = 35.2（house 24 套最小 11.7，无一套 <10）
+
+═══ 汇总
+  直采命中 26/26  ·  与出货值一致 37/37
+  house 硬性 0 违例 / UI 0 违例  ·  宿主现实硬判 0 违例
+  总违例：0
+  写出 palette.json / provenance.json / checks.json（report.txt 由调用方重定向捕获）

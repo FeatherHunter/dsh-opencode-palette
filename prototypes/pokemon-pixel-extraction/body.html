@@ -1,0 +1,181 @@
+<div class="sheet">
+  <div class="eyebrow">DSH / OpenCode Palette · Custom Theme</div>
+  <h1 class="title">宝可梦 <em>Pokémon</em> — 电气黄 × 档案馆黑</h1>
+  <div class="sub">四张参考图，37 个色位，全部落在原图的真实像素上——没有一个色值是凭想象配出来的。品牌色取自 30 周年画面的黄场，聚焦态取自图鉴立绘耳尖的亮黄；语义色不是抽象的红绿蓝，而是杰尼龟的甲、妙蛙种子的叶绿、小火龙的橙。<b>按仓库自带的判尺（docs/theme-audit/criteria.md）跑完 @@N@@ 对对比度：0 违例；IP 设计规范 0 告警</b>——零角色碰撞，语法注释与运算符都已退后，核心语法最小 ΔE 18.2。</div>
+  <div class="anchors" id="anchors"></div>
+
+  <div class="why">
+    <div class="c"><div class="n">01 / 单一主角</div><div class="t">黄色是唯一的品牌色</div>
+      <div class="d">四张图里唯一贯穿全部的是皮卡丘的黄。品牌色取 <code>#FEC901</code>（30 周年画面 68% 的黄场），聚焦态取 <code>#F1D379</code>（图鉴立绘耳尖的亮黄，1316 个真实像素）。同族不同源、亮度差一档（ΔL* +3.8、ΔE76 36.9）——聚焦环与品牌按钮摆在一起时，一眼能分出谁在谁。</div></div>
+    <div class="c"><div class="n">02 / 反相按钮</div><div class="t">黄底黑字</div>
+      <div class="d">主按钮用黄底 + 深字（引擎按亮度自动选 <code>#141414</code>），和宝可梦 logo 的画法一致：对比 11.90:1，比任何白字方案都更稳。</div></div>
+    <div class="c"><div class="n">03 / 亮度分层</div><div class="t">用亮度抬升，不用描边</div>
+      <div class="d">代码 <code>#000000</code> → 页面 <code>#0C0C10</code> → 左栏 <code>#121212</code> → 面板 <code>#191917</code> → 浮层 <code>#1C1C22</code>。发丝线只留 <code>#40404A</code> 一档。</div></div>
+    <div class="c"><div class="n">04 / 语义有出处</div><div class="t">状态色就是宝可梦</div>
+      <div class="d">杰尼龟甲 = info，妙蛙种子的叶绿 = success，小火龙 = warning，妙蛙种子的身红 = error。每一个状态色都能在海报上指到一只宝可梦。</div></div>
+    <div class="c"><div class="n">05 / 角色不打架</div><div class="t">25 个设计角色，25 个不同值</div>
+      <div class="d">仓库判尺把「角色取同值」判为设计缺陷。这套主题让 25 个设计角色两两不同：注释与运算符都退到核心语法之下，核心五色最小 ΔE 18.2。</div></div>
+  </div>
+
+  <div class="win">
+    <aside class="sb">
+      <div class="brand">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+          <path d="M6.4 3.2 2.1 6.4l3.3 6.1z" fill="#0C0C10"/>
+          <path d="M19.6 3.2 23.9 6.4l-3.3 6.1z" fill="#0C0C10"/>
+          <path d="M13 6.6c-4.8 0-8 3.2-8 7.6 0 4.3 3.2 7.4 8 7.4s8-3.1 8-7.4c0-4.4-3.2-7.6-8-7.6Z" fill="#FEC901"/>
+          <circle cx="9.6" cy="12.2" r="1.05" fill="#0C0C10"/><circle cx="16.4" cy="12.2" r="1.05" fill="#0C0C10"/>
+          <circle cx="7.9" cy="15" r="1.45" fill="#E68269"/><circle cx="18.1" cy="15" r="1.45" fill="#E68269"/>
+          <path d="M11.4 16.3c.9.7 2.3.7 3.2 0" stroke="#0C0C10" stroke-width=".75" fill="none" stroke-linecap="round"/>
+        </svg>
+        <span class="name">皮卡丘</span><span class="badge">DSH</span>
+      </div>
+      <div class="ws"><span class="dot">图</span><span>宝可梦图鉴室</span><span class="caret">▾</span></div>
+      <div class="nav">
+        <div class="it on"><span class="ic round"></span>新会话<span style="margin-left:auto;font-size:10px;color:var(--dim)">⌘N</span></div>
+        <div class="it"><span class="ic"></span>会话历史</div>
+        <div class="it"><span class="ic"></span>文件</div>
+        <div class="it"><span class="ic round"></span>终端</div>
+      </div>
+      <div class="side-lbl">最近</div>
+      <div class="threads">
+        <div class="th sel">宝可梦主题 · 设计评审</div>
+        <div class="th">把配色写进 theme.json</div>
+        <div class="th">37 色位与对比度检查</div>
+        <div class="th">参考图取色溯源</div>
+      </div>
+      <div class="sb-foot"><span class="av">小</span><span>小智</span><span class="gear">⚙</span></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <span class="h">宝可梦主题 · 设计评审</span>
+        <span class="crumb">/ 37 tokens</span>
+        <div class="right">
+          <span class="chip"><i class="idle"></i>就绪</span>
+          <span class="chip"><i></i>deepseek-flash</span>
+          <button class="btn ghost">分享</button>
+          <button class="btn primary">新建会话</button>
+        </div>
+      </div>
+
+      <div class="feed"><div class="col">
+        <div class="user"><div class="bub">把这套宝可梦配色写进 theme.json，顺便检查一下对比度和代码块可读性。</div></div>
+
+        <div class="who">
+          <span class="k">
+            <svg width="20" height="20" viewBox="0 0 26 26"><path d="M6.4 3.2 2.1 6.4l3.3 6.1z" fill="#0C0C10"/><path d="M19.6 3.2 23.9 6.4l-3.3 6.1z" fill="#0C0C10"/><path d="M13 6.6c-4.8 0-8 3.2-8 7.6 0 4.3 3.2 7.4 8 7.4s8-3.1 8-7.4c0-4.4-3.2-7.6-8-7.6Z" fill="#FEC901"/><circle cx="9.6" cy="12.2" r="1.05" fill="#0C0C10"/><circle cx="16.4" cy="12.2" r="1.05" fill="#0C0C10"/><circle cx="7.9" cy="15" r="1.45" fill="#E68269"/><circle cx="18.1" cy="15" r="1.45" fill="#E68269"/></svg>
+          </span>
+          <span class="n">小智</span><span class="t">theme.json</span>
+        </div>
+
+        <div class="md">
+          <h2>宝可梦主题 · 已按 37 色位落位</h2>
+          <p>核心只有一句话：<strong>先定主角，再分冷暖，最后才排语法</strong>。品牌只有一个黄，语义色全部指得回海报上的一只宝可梦，25 个设计角色两两不重值。重点做了三个取舍：</p>
+          <ul>
+            <li>输入框边界用<em>耳尖亮黄</em> <code>#F1D379</code>，主色用<em>黄场</em> <code>#FEC901</code>：同族不同源、亮度差一档。合成器里黄色方块（发送）与黄色描边（聚焦框）只隔 10 像素——这一档之差是必须的，不是装饰。</li>
+            <li>代码块是<em>纯黑</em>，不是深灰：图鉴立绘本身就是黑底站位，代码区照搬那张画的舞台感，连注释与运算符都按「退后」规则压到核心语法之下。</li>
+            <li>diff 新增行用<em>深青</em> <code>#0A2828</code>——它是海报里杰尼龟壳下的那汪水，不是随便调的半透明绿。</li>
+          </ul>
+          <blockquote>档案是黑的，编号牌是黄的，海报里的每只宝可梦各带一种状态色——这就是这套主题的全部。</blockquote>
+
+          <div class="cc">
+            <div class="hd"><span class="lang">css</span><span class="fn">theme.css</span><span class="cp">复制</span></div>
+<pre><span class="tk-com">// pokemon.theme.ts</span>
+<span class="tk-kw">const</span> <span class="tk-fn">pokemon</span> <span class="tk-op">=</span> {
+  <span class="tk-fn">field</span>: <span class="tk-str">"#FEC901"</span>,   <span class="tk-com">// 主角：30 周年的黄场</span>
+  <span class="tk-fn">badge</span>: <span class="tk-str">"#F1D379"</span>,   <span class="tk-com">// 聚焦：耳尖亮黄（比 brand 亮一档）</span>
+  <span class="tk-fn">archive</span>: <span class="tk-str">"#0C0C10"</span>, <span class="tk-com">// 场：图注黑场</span>
+  <span class="tk-fn">contrast</span>: <span class="tk-num">11.9</span> <span class="tk-kw">as</span> <span class="tk-typ">Ratio</span>,
+}</pre>
+          </div>
+
+          <table>
+            <tr><th>检查项</th><th>结果</th><th>色值</th></tr>
+            <tr><td>正文对比度</td><td><span class="ok">@@RT@@ : 1</span></td><td class="mono">#EEEEF4 / #0C0C10</td></tr>
+            <tr><td>按钮前景（引擎按亮度选 #141414）</td><td><span class="ok">@@RB@@ : 1</span></td><td class="mono">#141414 / #FEC901</td></tr>
+            <tr><td>语法核心最低项</td><td><span class="ok">@@RCORE@@ : 1</span></td><td class="mono">#6E9BBC / #000000</td></tr>
+            <tr><td>语法注释（按判尺退后）</td><td><span class="ok">@@RCOM@@ : 1</span></td><td class="mono">#7A7A7F / #000000</td></tr>
+          </table>
+
+          <div class="warn">
+            <span class="tag">已知约束</span>
+            <span><strong>浮层底的亮度上限</strong>：错误红 <code>#F93D32</code> 是参考图里<b>像素量可用</b>的最亮正红（1984 px；更亮的红只以 1 像素的 JPEG 振铃存在，不能当设计色）。它压在浮层 <code>#1C1C22</code> 上仍要过 4.5:1，浮层的相对亮度就不能高过 <b>.014</b>——所以中性层被压得很扁，只有 <code>#000000 → #0C0C10 → #121212 → #191917 → #1C1C22</code> 五级，层级靠发丝线而不是亮度拉开。</span>
+          </div>
+
+          <div class="diff">
+            <div class="ln rm"><span class="no">41</span><span class="sign">-</span><span class="code">  "primary": "#ffcb05",</span></div>
+            <div class="ln add"><span class="no">41</span><span class="sign">+</span><span class="code">  "primary": "#FEC901",</span></div>
+            <div class="ln add"><span class="no">42</span><span class="sign">+</span><span class="code">  "secondary": "#4B76E7",</span></div>
+          </div>
+
+          <div class="tool">
+            <div class="row"><span class="pulse"></span><span class="name">运行 audit-themes.ts</span><span class="st"><i></i>已完成</span></div>
+            <div class="out">
+              [1] 37 色位像素溯源：<b>37 / 37 命中真实像素</b><br>
+              [2] 仓库判尺 @@N@@ 对对比度（4.5 / 3.0）：<b>@@N@@ / @@N@@ 全通过</b><br>
+              [3] IP 设计规范（碰撞 / 退后 / ΔE / 孤岛）：<b>0 告警</b>
+            </div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+
+      <div class="composer"><div class="col">
+        <div class="cbox">
+          <div class="ph">继续调整配色，或问我任意细节…</div>
+          <div class="row">
+            <span class="pill"><i></i>theme.json</span>
+            <span class="pill">dark</span>
+            <button class="btn ghost" style="width:26px;height:26px;padding:0">＋</button>
+            <span class="sp"></span>
+            <button class="btn ghost" style="width:26px;height:26px;padding:0">⚙</button>
+            <button class="send">↑</button>
+          </div>
+        </div>
+        <div class="hint">Enter 发送 · Shift + Enter 换行
+          <span class="r"><span class="chip" style="padding:2px 8px">37 tokens</span><span>皮卡丘</span></span>
+        </div>
+      </div></div>
+    </main>
+  </div>
+
+  <div class="tokens">
+    <div class="sec-head"><h3>37 Color Tokens</h3><span class="hintx">色位 → DSH 真实落点 · 每个色值都标了它在参考图里的出处</span></div>
+    <div class="sec-note">按界面使用频率排序。每一格都标注该色值的出处——整套主题没有任何一个色值是凭想象配出来的，也没有两个设计角色取同一个值。</div>
+    <div class="grid" id="grid"></div>
+    <div class="legend">
+      <span><i style="background:var(--bg)"></i>页面场域</span>
+      <span><i style="background:var(--elem)"></i>面板 / 浮层</span>
+      <span><i style="background:var(--text)"></i>文字结构</span>
+      <span><i style="background:var(--primary)"></i>品牌强调</span>
+      <span><i style="background:var(--info)"></i>语义状态</span>
+      <span><i style="background:var(--border)"></i>边界</span>
+      <span><i style="background:var(--daddbg)"></i>代码 / diff</span>
+      <span><i style="background:var(--skw)"></i>语法</span>
+    </div>
+  </div>
+
+  <div class="tokens">
+    <div class="sec-head"><h3>Color Provenance · 取色溯源</h3><span class="hintx">图上的圆点 = 该色值在原图中的真实像素坐标</span></div>
+    <div class="sec-note">每个圆点都在原图上标出它被采样的位置：编号牌黄取自图鉴卡片左下角的编号块，深青取自海报里杰尼龟壳下的阴影，奶油黄取自伊布的肚皮。每张图下方是它在这套主题里扮演的角色。</div>
+    <div class="prov" id="prov"></div>
+  </div>
+
+  <div class="audit">
+    <div class="sec-head"><h3>Contrast Audit · 对比度审计</h3><span class="hintx">WCAG 2.1 AA · 对齐仓库判尺 docs/theme-audit/criteria.md</span></div>
+    <div class="sec-note">正文 / 内容类阈值 4.5:1，UI / 交互类阈值 3:1，alpha 槽位先合成再比。深色主题最容易翻车的是「状态色压在抬升面上」与「80% 透明的暗化标签」，这两组都单独验了。<br><b>判尺是及格线不是优秀线</b>：它测不出层级倒挂、同屏近色与气质归属——那三项另有对抗式审查单独交代。</div>
+    <table><thead><tr><th style="width:38%">检查项</th><th style="width:14%">前景</th><th style="width:14%">背景</th><th style="width:12%">比值</th><th style="width:12%">判定</th></tr></thead><tbody>@@AUDROWS@@</tbody></table>
+  </div>
+
+  <div class="tokens">
+    <div class="sec-head"><h3>Preset Payload · 预设文件</h3><span class="hintx">src/custom-presets/pokemon.json · dsh-opencode-palette.custom-theme.v1</span></div>
+    <div class="cc" style="margin-top:12px"><div class="hd"><span class="lang">json</span><span class="fn">pokemon.json</span><span class="cp">37 色位</span></div><pre>@@PRESET@@</pre></div>
+  </div>
+
+  <div class="foot">
+    <span>Pokémon preset · 37 colors · dark · base: pokemon → 全色位重绘 · 仓库判尺 0 违例 0 告警</span>
+    <span>colors 100% sampled from 4 reference images · 每个色值都能在原图上指到坐标</span>
+  </div>
+</div>

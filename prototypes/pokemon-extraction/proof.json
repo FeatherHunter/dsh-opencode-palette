@@ -1,0 +1,187 @@
+[
+ {
+  "slot": "background",
+  "hex": "#1C1C22",
+  "px": 58800
+ },
+ {
+  "slot": "backgroundPanel",
+  "hex": "#37373B",
+  "px": 47
+ },
+ {
+  "slot": "backgroundElement",
+  "hex": "#40404A",
+  "px": 513
+ },
+ {
+  "slot": "sidebarBg",
+  "hex": "#060606",
+  "px": 700
+ },
+ {
+  "slot": "bubbleBg",
+  "hex": "#28282D",
+  "px": 31
+ },
+ {
+  "slot": "inputBg",
+  "hex": "#0C0C10",
+  "px": 27378
+ },
+ {
+  "slot": "codeBlockBg",
+  "hex": "#000000",
+  "px": 74560
+ },
+ {
+  "slot": "codeHeaderBg",
+  "hex": "#48484D",
+  "px": 37
+ },
+ {
+  "slot": "text",
+  "hex": "#EEEEF4",
+  "px": 2157
+ },
+ {
+  "slot": "textMuted",
+  "hex": "#D3D3D8",
+  "px": 41
+ },
+ {
+  "slot": "primary",
+  "hex": "#FFCB05",
+  "px": 3046
+ },
+ {
+  "slot": "secondary",
+  "hex": "#799DFE",
+  "px": 88538
+ },
+ {
+  "slot": "info",
+  "hex": "#289BCA",
+  "px": 2973
+ },
+ {
+  "slot": "success",
+  "hex": "#7AA85D",
+  "px": 1316
+ },
+ {
+  "slot": "warning",
+  "hex": "#FB8603",
+  "px": 4690
+ },
+ {
+  "slot": "error",
+  "hex": "#F93D32",
+  "px": 1984
+ },
+ {
+  "slot": "border",
+  "hex": "#58585A",
+  "px": 993
+ },
+ {
+  "slot": "borderActive",
+  "hex": "#F4D77C",
+  "px": 4673
+ },
+ {
+  "slot": "diffAdded",
+  "hex": "#7FC9AE",
+  "px": 4160
+ },
+ {
+  "slot": "diffAddedBg",
+  "hex": "#0A2828",
+  "px": 632
+ },
+ {
+  "slot": "diffAddedLineNumberBg",
+  "hex": "#111312",
+  "px": 56
+ },
+ {
+  "slot": "diffRemoved",
+  "hex": "#FE4C1C",
+  "px": 16
+ },
+ {
+  "slot": "diffRemovedBg",
+  "hex": "#0C0406",
+  "px": 192
+ },
+ {
+  "slot": "diffRemovedLineNumberBg",
+  "hex": "#060606",
+  "px": 700
+ },
+ {
+  "slot": "markdownHeading",
+  "hex": "#FAE721",
+  "px": 11187
+ },
+ {
+  "slot": "markdownLink",
+  "hex": "#95C7F8",
+  "px": 2317
+ },
+ {
+  "slot": "markdownCode",
+  "hex": "#FDE7B5",
+  "px": 2842
+ },
+ {
+  "slot": "markdownEmph",
+  "hex": "#F9B584",
+  "px": 173
+ },
+ {
+  "slot": "markdownStrong",
+  "hex": "#FFFFFF",
+  "px": 45033
+ },
+ {
+  "slot": "markdownBlockQuote",
+  "hex": "#BDBDC3",
+  "px": 18
+ },
+ {
+  "slot": "syntaxComment",
+  "hex": "#85858A",
+  "px": 19
+ },
+ {
+  "slot": "syntaxKeyword",
+  "hex": "#C790A3",
+  "px": 18
+ },
+ {
+  "slot": "syntaxFunction",
+  "hex": "#6E9BBC",
+  "px": 87
+ },
+ {
+  "slot": "syntaxType",
+  "hex": "#658F8B",
+  "px": 72
+ },
+ {
+  "slot": "syntaxNumber",
+  "hex": "#DFBF6F",
+  "px": 1001
+ },
+ {
+  "slot": "syntaxString",
+  "hex": "#80CAAF",
+  "px": 325
+ },
+ {
+  "slot": "syntaxOperator",
+  "hex": "#7A7A7F",
+  "px": 57
+ }
+]

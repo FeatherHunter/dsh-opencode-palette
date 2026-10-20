@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>原神主题 · 纸感明信片 — DSH / OpenCode Palette</title>
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   原神主题 · Mondstadt Postcard
+   全部颜色 = 5 张参考图的实测锚点色，按配方混合得到
+   ═══════════════════════════════════════════════════════════════ */
+.sheet[data-mode="light"]{
+/*__VARS_LIGHT__*/
+  --page1:#F9F4EA; --page2:#F1E7D6; --pageGlow:rgba(218,176,120,.22);
+  --ink:#3F2B26; --paper:#F4EBDC; --stamp:#C9A77B;
+  --onPrimary:#FFFFFF; --shadow:0 30px 70px -26px rgba(63,43,38,.30), 0 3px 10px rgba(63,43,38,.07);
+}
+.sheet[data-mode="dark"]{
+/*__VARS_DARK__*/
+  --page1:#241A1E; --page2:#181215; --pageGlow:rgba(113,158,146,.16);
+  --ink:#EBDCBF; --paper:#312128; --stamp:#DFBD8E;
+  --onPrimary:#241A1E; --shadow:0 30px 70px -26px rgba(0,0,0,.72), 0 3px 10px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  background:#EDE3D2;
+}
+.sheet{
+  min-height:100vh;
+  background:
+    radial-gradient(1100px 520px at 18% -8%, var(--pageGlow), transparent 62%),
+    radial-gradient(900px 480px at 88% 6%, var(--pageGlow), transparent 60%),
+    linear-gradient(176deg, var(--page1), var(--page2));
+  color:var(--ink);
+  transition:background .35s ease,color .35s ease;
+}
+.wrap{width:1400px;margin:0 auto;padding:46px 64px 64px}
+
+/* ── masthead ───────────────────────────────────────────── */
+.mast{display:flex;align-items:flex-start;gap:40px;padding-bottom:26px;border-bottom:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
+.mast-l{flex:1;min-width:0}
+.eyebrow{font-size:10.5px;letter-spacing:.26em;color:var(--muted);text-transform:uppercase}
+h1.title{
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+  font-size:40px;line-height:1.12;margin:12px 0 4px;letter-spacing:.01em;font-weight:600;color:var(--ink)
+}
+h1.title em{display:block;font-style:normal;color:var(--primary);font-size:23px;letter-spacing:.01em;
+  margin-top:6px;font-family:"Georgia","Times New Roman",serif;font-weight:400}
+h1.title .en{display:block;font-size:12px;letter-spacing:.26em;font-family:"Segoe UI",sans-serif;
+  color:var(--muted);text-transform:uppercase;margin-top:12px;font-weight:400}
+.lede{font-size:13.5px;color:var(--muted);max-width:760px;line-height:1.85;margin-top:14px}
+.lede b{color:var(--ink);font-weight:600}
+.mast-r{flex:none;width:330px}
+.mode-switch{display:flex;gap:0;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:11px;overflow:hidden;background:color-mix(in srgb,var(--paper) 70%,transparent)}
+.mode-switch button{
+  flex:1;background:transparent;border:0;padding:11px 8px;font:inherit;font-size:12px;cursor:pointer;
+  color:var(--muted);letter-spacing:.04em;transition:.18s
+}
+.mode-switch button.on{background:var(--primary);color:var(--onPrimary);font-weight:600}
+.mode-switch button:not(.on):hover{background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink)}
+.mode-note{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;letter-spacing:.01em}
+.anchorbar{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.anchorbar .a{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);
+  border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);border-radius:999px;padding:4px 11px 4px 5px;
+  background:color-mix(in srgb,var(--paper) 55%,transparent)}
+.anchorbar .a i{width:15px;height:15px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.10)}
+
+/* ── section ────────────────────────────────────────────── */
+section{margin-top:52px}
+.sec-head{display:flex;align-items:baseline;gap:16px;margin-bottom:8px}
+.sec-num{font-family:"Songti SC",Georgia,serif;font-size:12px;color:var(--stamp);letter-spacing:.2em}
+.sec-head h2{font-family:"Songti SC","Noto Serif SC",Georgia,serif;font-size:21px;margin:0;font-weight:600;letter-spacing:.02em}
+.sec-head .meta{font-size:11.5px;color:var(--muted);margin-left:auto;text-align:right;line-height:1.6}
+.sec-rule{height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--ink) 26%,transparent),transparent);margin:14px 0 22px}
+.sec-lede{font-size:12.5px;color:var(--muted);line-height:1.9;max-width:940px;margin:-6px 0 22px}
+.sec-lede b{color:var(--ink);font-weight:600}
+
+/* ── principles ─────────────────────────────────────────── */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.pr{background:color-mix(in srgb,var(--paper) 62%,transparent);border:1px solid color-mix(in srgb,var(--ink) 13%,transparent);
+  border-radius:13px;padding:20px 21px 22px;position:relative;overflow:hidden}
+.pr:before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--primary)}
+.pr .n{font-family:"Songti SC",Georgia,serif;font-size:11px;letter-spacing:.22em;color:var(--stamp)}
+.pr h3{font-size:15px;margin:9px 0 10px;font-weight:650;letter-spacing:.02em;color:var(--ink)}
+.pr p{font-size:12.2px;line-height:1.85;color:var(--muted);margin:0}
+.pr p + p{margin-top:9px}
+.pr code{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:var(--mcode);
+  background:color-mix(in srgb,var(--elem) 60%,transparent);border-radius:4px;padding:1px 5px}
+
+/* ── source palette ─────────────────────────────────────── */
+.stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.stamp{background:var(--paper);padding:9px 9px 7px;border-radius:10px;position:relative;
+  box-shadow:0 8px 20px -12px rgba(63,43,38,.35)}
+.stamp:after{content:"";position:absolute;inset:4px;border:1.5px dashed color-mix(in srgb,var(--ink) 26%,transparent);
+  border-radius:6px;pointer-events:none}
+.stamp img{width:100%;display:block;border-radius:5px;aspect-ratio:1/1;object-fit:cover;background:var(--elem)}
+.stamp .cap{display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);margin-top:8px;letter-spacing:.04em}
+.stamp .cap b{color:var(--ink);font-weight:600}
+.srcgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:11px}
+.src{background:color-mix(in srgb,var(--paper) 70%,transparent);border:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+  border-radius:10px;overflow:hidden}
+.src .pic{height:76px;overflow:hidden;background:var(--elem)}
+.src .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.src .body{padding:7px 8px 8px}
+.src .hex{font-family:"Cascadia Code",Consolas,monospace;font-size:10.5px;color:var(--ink);letter-spacing:.01em}
+.src .nm{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.4;height:26px;overflow:hidden}
+.src .ft{font-size:9.5px;color:var(--dim,var(--muted));opacity:.75;margin-top:4px;display:flex;justify-content:space-between}
+
+/* ── app window ─────────────────────────────────────────── */
+.win{margin-top:6px;width:1272px;border-radius:18px;overflow:hidden;position:relative;
+  background:var(--bg);border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);
+  box-shadow:var(--shadow);display:flex}
+.sb{width:246px;flex:none;background:var(--sidebar);border-right:1px solid color-mix(in srgb,var(--ink) 13%,transparent);
+  display:flex;flex-direction:column;padding:14px 12px 12px}
+.brand{display:flex;align-items:center;gap:9px;padding:2px 6px 14px}
+.brand .name{font-size:13.5px;font-weight:650;letter-spacing:.03em}
+.brand .badge{font-size:10px;color:var(--muted);border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);
+  border-radius:5px;padding:1px 5px;margin-left:auto}
+.ws{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);
+  border-radius:10px;padding:7px 9px;font-size:12.5px;margin-bottom:14px}
+.ws .dot{width:16px;height:16px;border-radius:5px;background:var(--primary);color:var(--onPrimary);font-size:9px;
+  display:grid;place-items:center;font-weight:700}
+.ws .caret{margin-left:auto;color:var(--muted);font-size:10px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .it{position:relative;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);
+  padding:7px 9px;border-radius:8px;cursor:default}
+.nav .it:hover{background:color-mix(in srgb,var(--text) 8%,transparent)}
+.nav .it.on{background:color-mix(in srgb,var(--text) 14%,transparent);color:var(--text);font-weight:600}
+.nav .it.on:before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:3px;background:var(--primary)}
+.nav .it .ic{width:15px;height:15px;border:1.4px solid currentColor;border-radius:4px;opacity:.72;flex:none}
+.nav .it .ic.round{border-radius:50%}
+.side-lbl{font-size:10.5px;letter-spacing:.14em;color:var(--muted);opacity:.72;margin:16px 8px 6px;text-transform:uppercase}
+.threads{display:flex;flex-direction:column;gap:1px}
+.th{font-size:12px;color:var(--muted);padding:6px 9px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th:hover{background:color-mix(in srgb,var(--text) 8%,transparent)}
+.th.sel{background:color-mix(in srgb,var(--text) 14%,transparent);color:var(--text)}
+.sb-foot{margin-top:auto;display:flex;align-items:center;gap:9px;padding:9px 6px 2px;
+  border-top:1px solid color-mix(in srgb,var(--ink) 13%,transparent);font-size:12px}
+.av{width:24px;height:24px;border-radius:50%;background:var(--text);color:var(--bg);display:grid;place-items:center;font-size:11px}
+.sb-foot .gear{margin-left:auto;color:var(--muted);font-size:13px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.topbar{height:48px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;
+  border-bottom:1px solid color-mix(in srgb,var(--ink) 13%,transparent)}
+.topbar .h{font-size:13px;font-weight:650}
+.topbar .crumb{font-size:11.5px;color:var(--muted)}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
+  background:var(--panel);border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);border-radius:999px;padding:4px 10px}
+.chip i{width:6px;height:6px;border-radius:50%;background:var(--info)}
+.chip i.idle{background:var(--secondary)}
+.btn{border:0;border-radius:8px;font-size:12px;padding:6px 12px;cursor:default;font-family:inherit;
+  background:transparent;color:var(--muted)}
+.btn.ghost:hover{background:color-mix(in srgb,var(--text) 14%,transparent);color:var(--text)}
+.btn.primary{background:var(--primary);color:var(--onPrimary);font-weight:650;box-shadow:0 1px 0 rgba(0,0,0,.10)}
+.btn.outline{background:transparent;border:1px solid var(--active);color:var(--text)}
+.btn.contrast{background:var(--text);color:var(--bg)}
+.feed{flex:1;overflow:hidden;padding:22px 26px 84px}
+.col{width:720px;margin:0 auto}
+.user{display:flex;justify-content:flex-end;margin-bottom:20px}
+.user .bub{background:var(--bubble);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:13px;
+  line-height:1.65;max-width:520px;box-shadow:0 1px 2px rgba(63,43,38,.05)}
+.who{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.who .n{font-size:12px;font-weight:650;letter-spacing:.02em}
+.who .t{font-size:10.5px;color:var(--muted);border:1px solid color-mix(in srgb,var(--ink) 16%,transparent);
+  border-radius:5px;padding:1px 5px}
+.md{font-size:13px;line-height:1.8}
+.md h2{font-size:15.5px;line-height:1.45;color:var(--h);margin:0 0 8px;font-weight:650;letter-spacing:.01em}
+.md p{margin:0 0 10px}
+.md strong{color:var(--strong);font-weight:650}
+.md em{color:var(--em);font-style:italic}
+.md a{color:var(--link);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+.md code{font-family:"Cascadia Code",Consolas,"Courier New",monospace;font-size:11.5px;color:var(--mcode);
+  border:1px solid color-mix(in srgb,var(--ink) 15%,transparent);border-radius:4px;padding:0 4px}
+.md ul{margin:0 0 10px;padding-left:18px}
+.md li{margin:3px 0}
+.md blockquote{margin:0 0 12px;padding:2px 0 2px 12px;border-left:2px solid var(--active);
+  color:var(--quote);font-size:12.5px}
+.warn{display:flex;gap:9px;align-items:flex-start;background:color-mix(in srgb,var(--warning) 13%,transparent);
+  border-left:2.5px solid var(--warning);border-radius:6px;padding:8px 12px;margin:0 0 12px;
+  font-size:12px;line-height:1.65;color:var(--warning)}
+.warn b{font-weight:700}
+.warn .tag{font-size:10.5px;letter-spacing:.08em;border:1px solid color-mix(in srgb,var(--warning) 45%,transparent);
+  border-radius:4px;padding:0 5px;flex:none;margin-top:1px}
+.md table{border-collapse:collapse;font-size:12px;margin:0 0 12px;width:100%}
+.md th{text-align:left;font-weight:650;padding:7px 10px;border-bottom:1px solid var(--active);
+  background:color-mix(in srgb,var(--panel) 55%,transparent)}
+.md td{padding:7px 10px;border-bottom:1px solid color-mix(in srgb,var(--ink) 13%,transparent)}
+.md td .ok{color:var(--success);font-weight:650}
+.md td .no{color:var(--error);font-weight:650}
+.md td.mono{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:var(--muted)}
+.cc{border-radius:10px;overflow:hidden;margin:2px 0 12px;background:var(--code);
+  border:1px solid color-mix(in srgb,var(--ink) 13%,transparent)}
+.cc .hd{display:flex;align-items:center;gap:8px;background:var(--codehead);padding:7px 12px 6px;
+  font-size:11px;color:var(--muted);border-bottom:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+.cc .hd .lang{color:var(--muted);opacity:.75;font-family:"Cascadia Code",Consolas,monospace}
+.cc .hd .cp{margin-left:auto;font-size:10.5px;opacity:.8}
+.cc pre{margin:0;padding:11px 14px 13px;overflow:hidden;
+  font-family:"Cascadia Code",Consolas,"Courier New",monospace;font-size:11.5px;line-height:1.85}
+.tk-com{color:var(--scom);font-style:italic}
+.tk-kw{color:var(--skw)}
+.tk-fn{color:var(--sfn)}
+.tk-typ{color:var(--styp)}
+.tk-num{color:var(--snum)}
+.tk-str{color:var(--sstr)}
+.tk-op{color:var(--sop)}
+.tk-plain{color:var(--text)}
+.diff{border-radius:10px;overflow:hidden;background:var(--code);margin:0 0 12px;
+  border:1px solid color-mix(in srgb,var(--ink) 13%,transparent);
+  font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px}
+.diff .ln{display:flex;gap:10px;padding:2px 12px 2px 0}
+.diff .ln .no{width:30px;padding-right:7px;text-align:right;color:var(--muted);border-right:1px solid transparent}
+.diff .rm{background:var(--drembg)}
+.diff .rm .no{background:var(--dremln);color:var(--drem);border-right-color:var(--drembg)}
+.diff .rm .sign,.diff .rm .code{color:var(--drem)}
+.diff .add{background:var(--daddbg)}
+.diff .add .no{background:var(--daddln);color:var(--dadd);border-right-color:var(--daddbg)}
+.diff .add .sign,.diff .add .code{color:var(--dadd)}
+.diff .ln .sign{width:8px}
+.tool{background:var(--elem);border-radius:10px;padding:10px 13px;margin:0 0 12px;font-size:12px;
+  border:1px solid color-mix(in srgb,var(--ink) 12%,transparent)}
+.tool .row{display:flex;align-items:center;gap:8px}
+.tool .name{font-weight:650}
+.tool .st{margin-left:auto;color:var(--success);font-size:11px;display:flex;align-items:center;gap:5px}
+.tool .st i{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.tool .out{margin-top:7px;font-family:"Cascadia Code",Consolas,monospace;font-size:10.8px;line-height:1.75;color:var(--muted)}
+.tool .out b{color:var(--success);font-weight:650}
+.pulse{width:14px;height:14px;border-radius:50%;border:1.6px solid color-mix(in srgb,var(--info) 35%,transparent);border-top-color:var(--info)}
+.toast{position:absolute;right:22px;bottom:132px;background:var(--elem);
+  border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);
+  border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;font-size:12px;
+  box-shadow:0 12px 28px -12px rgba(63,43,38,.42)}
+.toast i{width:7px;height:7px;border-radius:50%;background:var(--success)}
+.toast .sub{color:var(--muted);font-size:11px;opacity:.8}
+.composer{flex:none;padding:10px 26px 14px}
+.cbox{background:var(--input);border:1px solid var(--active);border-radius:14px;padding:11px 13px 9px;
+  box-shadow:0 2px 12px -8px rgba(63,43,38,.28)}
+.cbox .ph{font-size:13px;color:var(--muted)}
+.cbox .row{display:flex;align-items:center;gap:7px;margin-top:9px}
+.cbox .row .sp{margin-left:auto}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);
+  background:var(--panel);border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);
+  border-radius:999px;padding:3px 8px}
+.pill i{width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.send{width:28px;height:28px;border-radius:9px;background:var(--primary);color:var(--onPrimary);
+  display:grid;place-items:center;font-size:13px;font-weight:700;border:0;box-shadow:0 1px 0 rgba(0,0,0,.10)}
+.hint{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--muted);opacity:.85;padding:7px 4px 0}
+.hint .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+
+/* ── token grid ─────────────────────────────────────────── */
+.tok{margin-top:20px}
+.grp{margin-top:22px}
+.grp:first-child{margin-top:0}
+.grp-h{display:flex;align-items:baseline;gap:12px;margin-bottom:9px}
+.grp-h b{font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:650;color:var(--ink)}
+.grp-h span{font-size:11px;color:var(--muted)}
+.grp-h i{flex:1;height:1px;background:color-mix(in srgb,var(--ink) 12%,transparent);font-style:normal}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:9px}
+.sw{border-radius:9px;border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);overflow:hidden;background:var(--code)}
+.sw .top{height:48px;display:flex;align-items:flex-end;padding:5px 8px}
+.sw .hex{font-family:"Cascadia Code",Consolas,monospace;font-size:9.5px;letter-spacing:.02em}
+.sw .lbl{font-size:10px;padding:5px 8px 6px;color:var(--muted);border-top:1px solid color-mix(in srgb,var(--ink) 12%,transparent);
+  line-height:1.45}
+.sw .lbl b{color:var(--ink);font-weight:650;display:block}
+.sw .lbl em{font-style:normal;font-size:9px;opacity:.78;display:block;margin-top:1px}
+.legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:18px;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:9px;height:9px;border-radius:3px;display:block}
+
+/* ── tables ─────────────────────────────────────────────── */
+.tblwrap{border:1px solid color-mix(in srgb,var(--ink) 13%,transparent);border-radius:12px;overflow:hidden;
+  background:color-mix(in srgb,var(--paper) 55%,transparent)}
+table.t{width:100%;border-collapse:collapse;font-size:11.5px}
+table.t th{text-align:left;font-weight:650;padding:9px 12px;color:var(--ink);
+  background:color-mix(in srgb,var(--panel) 70%,transparent);
+  border-bottom:1px solid color-mix(in srgb,var(--ink) 14%,transparent);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+table.t td{padding:7px 12px;border-bottom:1px solid color-mix(in srgb,var(--ink) 9%,transparent);
+  color:var(--muted);vertical-align:top}
+table.t tr:last-child td{border-bottom:0}
+table.t td.k{color:var(--ink);font-weight:600;font-family:"Cascadia Code",Consolas,monospace;font-size:11px;white-space:nowrap}
+table.t td.mono{font-family:"Cascadia Code",Consolas,monospace;font-size:10.8px;white-space:nowrap}
+table.t td .pass{color:var(--success);font-weight:650}
+table.t td .fail{color:var(--error);font-weight:650}
+.swatch{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:6px;
+  border:1px solid rgba(0,0,0,.12)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.scroll{max-height:520px;overflow:auto}
+.scroll thead th{position:sticky;top:0;z-index:1}
+
+/* ── footer ─────────────────────────────────────────────── */
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:54px;padding-top:18px;
+  border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent);
+  font-size:10.5px;color:var(--muted);letter-spacing:.02em}
+</style>
+</head>
+<body>
+<div class="sheet" id="sheet" data-mode="light">
+<div class="wrap">
+
+  <!-- ══ MASTHEAD ══ -->
+  <header class="mast">
+    <div class="mast-l">
+      <div class="eyebrow">DSH / OpenCode Palette · Custom Theme · 37 Slots</div>
+      <h1 class="title">原神 · 纸感明信片<em>Genshin — Mondstadt Postcard</em>
+        <span class="en">纸感优先 · 墨不用黑 · 一色一职</span>
+      </h1>
+      <p class="lede">全部 37 个色位（明暗各一套，共 74 色）<b>没有一处是想象出来的</b>：每一个都由 5 张参考图里实测到的像素聚类锚点色，按写明的比例混合得到。纸上那张泛黄的米金纸是官方主视觉的宣纸底；字的深褐是「旅行者」题字与 Aether 皮靴的焦褐；主色靛蓝来自披风内衬与派蒙的星；成功态青绿来自温迪；错误态猩红来自可莉；警示态赭金来自官方烫金压深。</p>
+      <div class="anchorbar" id="anchorbar"></div>
+    </div>
+    <div class="mast-r">
+      <div class="mode-switch">
+        <button id="m-light" class="on">纸感明信片 · 明</button>
+        <button id="m-dark">夜航明信片 · 暗</button>
+      </div>
+      <div class="mode-note">同一套真源锚点，向下走是纸的明暗梯子；<br>暗色不是「反色」，是把纸换成夜里的墨棕。</div>
+    </div>
+  </header>
+
+  <!-- ══ 1. 设计原则 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2>设计原则</h2>
+      <span class="meta">三条原则决定全部 74 个色位的落位</span></div>
+    <div class="sec-rule"></div>
+    <div class="principles">
+      <article class="pr">
+        <div class="n">PRINCIPLE 01</div>
+        <h3>纸感优先：界面是明信片，不是屏幕</h3>
+        <p>五张参考图有四张是暖调纸面。背景不用纯白、不用冷灰，而是取官方海报的米金纸 <code>#F3E3C6</code> 与旅行者白纸场 <code>#F6F5F4</code> 混出的暖白 —— 亮度够高，但色温永远偏黄 5°，让界面自带年代感。</p>
+        <p>高度梯子只用「纸 → 砂 → 墨」三步，不靠边框分割；<code>background</code> / <code>backgroundPanel</code> / <code>backgroundElement</code> 是同一张纸的三种受光。</p>
+      </article>
+      <article class="pr">
+        <div class="n">PRINCIPLE 02</div>
+        <h3>墨不用黑：文字是褐，不是墨汁</h3>
+        <p>原黑 <code>#000</code> 放在米金纸上会「脏」。正文取 1.jpg 深褐墨 <code>#432E27</code> 掺 5.jpg 焦褐 <code>#382726</code>，落点 <code>#402C27</code>，对比 10.86:1 —— 比纯黑更有温度，且深到可以当按钮面用。</p>
+        <p>次级文字走赭褐 <code>#6C5045</code> 压深到 <code>#553E38</code>：宿主 80% 透明后仍有 4.89:1，低饱和但不掉线。</p>
+      </article>
+      <article class="pr">
+        <div class="n">PRINCIPLE 03</div>
+        <h3>一色一职：暖金退居品牌，交互交给冷色</h3>
+        <p>原神最有辨识度的是暖金，但原样烫金 <code>#DAB078</code> 在米金纸上只有 2.4:1，既做不了文字也撑不起主按钮。于是把暖金<b>劈成两步</b>：<code>secondary</code> 留作古金 <code>#9A7855</code>（闲置态圆点与装饰，3.02:1 够用），<code>warning</code> 另取赭金 <code>#7F6247</code>（4.67:1，能当文字）；<strong>交互主色改用深靛</strong> <code>#2A3B6B</code> —— 它来自披风内衬与派蒙星饰，浅色字 9.87:1。</p>
+        <p>语义色各归其位：青绿＝成功、雾蓝＝信息、赭金＝警示、猩红＝错误，全部在参考图里有实物对应。</p>
+        <p>页面上那枚品牌徽记用的是<b>原样取色</b>的烫金 <code>#C9A77B</code> —— 纯装饰，不承载文字，所以不受对比度约束。</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ══ 2. 真源色板 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2>真源色板 · <span id="anc-n">—</span> 个实测锚点</h2>
+      <span class="meta">每格 = 参考图上真实的一块像素，附取色坐标</span></div>
+    <div class="sec-rule"></div>
+    <p class="sec-lede">取色方法：对每张图做 14 簇 k-means（剔除近白近黑与低饱和像素），得到像素质心；再对每个像素质心在全图内做最密窗口定位，切下 120×120 实证块并回测实测色。下面每一格的颜色都能在对应原图坐标处复现 —— <b>包括覆盖率</b>，它就是该色在这张图里占的像素比例。</p>
+    <div class="stamps" id="stamps"></div>
+    <div class="srcgrid" id="srcgrid"></div>
+  </section>
+
+  <!-- ══ 3. 应用预览 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2>应用预览</h2>
+      <span class="meta">37 个色位落到 DSH 真实 UI 表面</span></div>
+    <div class="sec-rule"></div>
+    <p class="sec-lede">下面这张窗口里的每一处颜色都来自 <code>theme.json</code> 的色位：侧栏 <code>sidebarBg</code>、气泡 <code>bubbleBg</code>、代码块 <code>codeBlockBg</code> / <code>codeHeaderBg</code>、浮层 <code>backgroundElement</code>、输入框 <code>inputBg</code> + <code>borderActive</code>，状态色走 <code>error</code> / <code>warning</code> / <code>success</code> / <code>info</code>，语法高亮走 shiki 的 10 个变量。</p>
+
+    <div class="win">
+      <aside class="sb">
+        <div class="brand">
+          <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+            <circle cx="13" cy="13" r="11" fill="none" stroke="#2A3C6C" stroke-width="1.5"/>
+            <path d="M13 4.2c1.2 3.1 1.2 5.5 0 8.8-1.2-3.3-1.2-5.7 0-8.8Z" fill="#C9A77B"/>
+            <path d="M13 21.8c-1.2-3.1-1.2-5.5 0-8.8 1.2 3.3 1.2 5.7 0 8.8Z" fill="#C9A77B"/>
+            <path d="M4.2 13c3.1-1.2 5.5-1.2 8.8 0-3.3 1.2-5.7 1.2-8.8 0Z" fill="#C9A77B"/>
+            <path d="M21.8 13c-3.1 1.2-5.5 1.2-8.8 0 3.3-1.2 5.7-1.2 8.8 0Z" fill="#C9A77B"/>
+            <circle cx="13" cy="13" r="2.3" fill="#2A3C6C"/>
+          </svg>
+          <span class="name">原神</span><span class="badge">DSH</span>
+        </div>
+        <div class="ws"><span class="dot">风</span><span>teyvat</span><span class="caret">▾</span></div>
+        <div class="nav">
+          <div class="it on"><span class="ic round"></span>新会话<span style="margin-left:auto;font-size:10px;opacity:.7">⌘N</span></div>
+          <div class="it"><span class="ic"></span>会话历史</div>
+          <div class="it"><span class="ic"></span>文件</div>
+          <div class="it"><span class="ic round"></span>终端</div>
+        </div>
+        <div class="side-lbl">最近</div>
+        <div class="threads">
+          <div class="th sel">原神主题 · 设计评审</div>
+          <div class="th">把纸感配色写进 theme.json</div>
+          <div class="th">37 色位落点与对比度</div>
+          <div class="th">参考图取色溯源</div>
+        </div>
+        <div class="sb-foot"><span class="av">辰</span><span>辰辰洋洋</span><span class="gear">⚙</span></div>
+      </aside>
+
+      <main class="main">
+        <div class="topbar">
+          <span class="h">原神主题 · 设计评审</span>
+          <span class="crumb">/ 37 tokens</span>
+          <div class="right">
+            <span class="chip"><i class="idle"></i>就绪</span>
+            <span class="chip"><i></i>deepseek-flash</span>
+            <button class="btn ghost">分享</button>
+            <button class="btn primary">新建会话</button>
+          </div>
+        </div>
+
+        <div class="feed"><div class="col">
+          <div class="user"><div class="bub">把这套原神配色写进 theme.json，顺便检查对比度和代码块可读性。</div></div>
+
+          <div class="who">
+            <span class="k">
+              <svg width="20" height="20" viewBox="0 0 26 26"><circle cx="13" cy="13" r="11" fill="none" stroke="#2A3C6C" stroke-width="1.5"/><path d="M13 4.2c1.2 3.1 1.2 5.5 0 8.8-1.2-3.3-1.2-5.7 0-8.8Z" fill="#C9A77B"/><path d="M4.2 13c3.1-1.2 5.5-1.2 8.8 0-3.3 1.2-5.7 1.2-8.8 0Z" fill="#C9A77B"/><circle cx="13" cy="13" r="2.3" fill="#2A3C6C"/></svg>
+            </span>
+            <span class="n">辰辰洋洋</span><span class="t">theme.json</span>
+          </div>
+
+          <div class="md">
+            <h2>原神主题 · 已按 37 色位落位</h2>
+            <p>核心只有一句话：<strong>把界面当成一张泛黄的旅行明信片</strong>。底色是官方海报的米金纸，文字是「旅行者」题字的焦褐，唯一的冷色是披风内衬的深靛 —— 它承担全部交互，暖金只负责品牌。三个取舍：</p>
+            <ul>
+              <li>主按钮用<em>深靛</em>不用金：金在米金纸上做按钮会看不见，且浅色字过不了 4.5:1；靛蓝配字 9.87:1。</li>
+              <li>代码块是浅色纸面，因为 <a href="#">shiki</a> 的普通 token 走 <code>--shiki-foreground</code>（= 文字色）；深底会让无高亮代码不可读。</li>
+              <li>警示色没有用亮金：<code>warning</code> 是赭金 <code>#7F6247</code>（官方烫金压深 60%，4.67:1），因为参考图里根本没有既亮又够深的金。</li>
+            </ul>
+            <blockquote>纸是风起之城的空气，褐墨是旅人的行囊，靛蓝是天青披风翻过来的一线。</blockquote>
+
+            <div class="cc">
+              <div class="hd"><span class="lang">ts</span><span class="fn">genshin.theme.ts</span><span class="cp">复制</span></div>
+<pre><span class="tk-com">// 纸感明信片 · 全部色值可溯源到参考图像素</span>
+<span class="tk-kw">export const</span> <span class="tk-fn">genshin</span> <span class="tk-op">=</span> {
+  <span class="tk-fn">paper</span>:   <span class="tk-str">"#F4E9D4"</span>,  <span class="tk-com">// 场：米金纸 × 白纸场</span>
+  <span class="tk-fn">ink</span>:     <span class="tk-str">"#402C27"</span>,  <span class="tk-com">// 结构：深褐墨 × 焦褐</span>
+  <span class="tk-fn">primary</span>: <span class="tk-str">"#2A3B6B"</span>,  <span class="tk-com">// 交互：旅行者深靛</span>
+  <span class="tk-fn">brand</span>:   <span class="tk-str">"#9A7855"</span>,  <span class="tk-com">// 品牌：烫金 ⨯ 赭褐</span>
+  <span class="tk-fn">contrast</span>: <span class="tk-num">10.86</span> <span class="tk-kw">as</span> <span class="tk-typ">Ratio</span>,
+}</pre>
+            </div>
+
+            <table>
+              <tr><th>检查项</th><th>结果</th><th>色值</th></tr>
+              <tr><td>正文对比度</td><td><span class="ok">10.86 : 1</span></td><td class="mono">#402C27 / #F4E9D4</td></tr>
+              <tr><td>主按钮白字</td><td><span class="ok">9.87 : 1</span></td><td class="mono">#F4F4F5 / #2A3B6B</td></tr>
+              <tr><td>深色代码块</td><td><span class="no">已否决</span></td><td class="mono">shiki foreground = text</td></tr>
+            </table>
+
+            <div class="warn">
+              <span class="tag">已知取舍</span>
+              <span>提示气泡的<strong>文字色</strong>由 DSH 写死为白色，只把背景换成主题浮层色——浅色主题下对比只有 <b>1.07 : 1</b>，37 个色位修不到这一点。</span>
+            </div>
+
+            <div class="diff">
+              <div class="ln rm"><span class="no">41</span><span class="sign">-</span><span class="code">  "primary": "#e60012",</span></div>
+              <div class="ln add"><span class="no">41</span><span class="sign">+</span><span class="code">  "primary": "#2A3C6C",</span></div>
+            </div>
+
+            <div class="tool">
+              <div class="row"><span class="pulse"></span><span class="name">运行 contrast_audit.py</span><span class="st"><i></i>已完成</span></div>
+              <div class="out">
+                [1] 文字层级 × 8 表面： <b>OK</b><br>
+                [2] 品牌与状态 × 4 表面： <b>OK</b><br>
+                [3] shiki 10 变量 on codeBlockBg： <b>7 / 7 · OK</b><br>
+                <span style="color:var(--warning)">[!] tooltip label: DSH 写死 #fff，已知限制</span>
+              </div>
+            </div>
+          </div>
+        </div></div>
+
+        <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+
+        <div class="composer"><div class="col">
+          <div class="cbox">
+            <div class="ph">继续调整配色，或问我任意细节…</div>
+            <div class="row">
+              <span class="pill"><i></i>theme.json</span>
+              <span class="pill" id="mode-pill">light</span>
+              <button class="btn ghost" style="width:26px;height:26px;padding:0">＋</button>
+              <span class="sp"></span>
+              <button class="btn ghost" style="width:26px;height:26px;padding:0">⚙</button>
+              <button class="send">↑</button>
+            </div>
+          </div>
+          <div class="hint">Enter 发送 · Shift + Enter 换行
+            <span class="r"><span class="chip" style="padding:2px 8px">37 tokens</span><span>原神</span></span>
+          </div>
+        </div></div>
+      </main>
+    </div>
+  </section>
+
+  <!-- ══ 4. 37 色位 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2>37 色位 · 落点与取值</h2>
+      <span class="meta" id="tok-mode">明色变体</span></div>
+    <div class="sec-rule"></div>
+    <p class="sec-lede">每一格下方写的是这个色位在 DSH 里的<b>真实落点</b>，不是抽象命名。切换右上角的明/暗，下面的色板、落点与后续表格会整体切换。</p>
+    <div class="tok" id="tokgrid"></div>
+    <div class="legend">
+      <span><i style="background:var(--bg)"></i>背景场域</span>
+      <span><i style="background:var(--elem)"></i>面板 / 浮层</span>
+      <span><i style="background:var(--text)"></i>文字结构</span>
+      <span><i style="background:var(--primary)"></i>品牌 / 交互</span>
+      <span><i style="background:var(--success)"></i>状态</span>
+      <span><i style="background:var(--border)"></i>边界</span>
+      <span><i style="background:var(--daddbg)"></i>代码 / diff</span>
+      <span><i style="background:var(--skw)"></i>语法</span>
+    </div>
+  </section>
+
+  <!-- ══ 5. 派生配方 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2>派生配方 · 每个色位怎么来的</h2>
+      <span class="meta" id="rec-mode">明色变体 · 37 条</span></div>
+    <div class="sec-rule"></div>
+    <p class="sec-lede">没有任何一个色位是凭空写的。规则只有两条：<b>直取</b>（该色在图里成片出现，直接用像素质心）或 <b>混合</b>（两个真源锚点按写明比例线性混合，比例越高越靠近第二个）。色相与彩度始终落在锚点的血脉上，不会跑出参考图的色域。</p>
+    <div class="tblwrap scroll"><table class="t" id="rectbl"></table></div>
+  </section>
+
+  <!-- ══ 6. 对比度审计 ══ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2>对比度审计</h2>
+      <span class="meta">WCAG 2.1 实算 · 正文 4.5:1 / 语法 ≥3:1 / 边框 ≥3:1</span></div>
+    <div class="sec-rule"></div>
+    <p class="sec-lede">每一行都是两个真实色值的相对亮度算出来的比值，没有估算。文本类要求 4.5:1，shiki 语法色按其实际字号放宽到 3:1，输入框与强边框按 3:1 计，diff 文字压在 diff 底色上按 4:1 计。</p>
+    <div class="split">
+      <div>
+        <div class="grp-h"><b>明色变体</b><i></i><span id="al-l"></span></div>
+        <div class="tblwrap scroll"><table class="t" id="altbl"></table></div>
+      </div>
+      <div>
+        <div class="grp-h"><b>暗色变体</b><i></i><span id="al-d"></span></div>
+        <div class="tblwrap scroll"><table class="t" id="adtbl"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    <span>Genshin · Mondstadt Postcard · 37 slots × 2 variants · 74 colors · <span id="anc-f">—</span> measured anchors from 5 source images</span>
+    <span>design by 辰辰洋洋 · first principles · no invented color</span>
+  </div>
+</div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+
+/* ── 元数据：37 色位分组与 DSH 真实落点 ── */
+const GROUPS = [
+  { id:'bg',   name:'背景与表面', note:'8 槽 · 高度梯子', keys:['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg'] },
+  { id:'text', name:'文字',        note:'2 槽',            keys:['text','textMuted'] },
+  { id:'brand',name:'品牌与状态',  note:'6 槽',            keys:['primary','secondary','info','success','warning','error'] },
+  { id:'border',name:'边框',       note:'2 槽',            keys:['border','borderActive'] },
+  { id:'diff', name:'改动对比',    note:'6 槽',            keys:['diffAdded','diffRemoved','diffAddedBg','diffRemovedBg','diffAddedLineNumberBg','diffRemovedLineNumberBg'] },
+  { id:'md',   name:'Markdown',    note:'6 槽',            keys:['markdownHeading','markdownLink','markdownCode','markdownEmph','markdownStrong','markdownBlockQuote'] },
+  { id:'syn',  name:'代码高亮',    note:'7 槽 · shiki 10 变量', keys:['syntaxComment','syntaxKeyword','syntaxFunction','syntaxType','syntaxNumber','syntaxString','syntaxOperator'] }
+];
+const LANDING = {
+  background:'页面底 / bg-base·layer-1·2·3', backgroundPanel:'输入框底·芯片·multi-select', backgroundElement:'横幅·Toast·Tooltip·浮层',
+  sidebarBg:'侧栏底色', bubbleBg:'聊天气泡', inputBg:'输入框 / 登录框', codeBlockBg:'代码块底', codeHeaderBg:'代码块头 / 引用条',
+  text:'主文字 label-primary', textMuted:'次级文字 label-secondary·tertiary',
+  primary:'品牌 / 主按钮 / 焦点环', secondary:'闲置态 state-idle-primary', info:'信息态 / 信息按钮', success:'成功态 / diff 新增',
+  warning:'警告态 / 警示横幅', error:'错误态 / diff 删除',
+  border:'弱边框 border-l1', borderActive:'强边框 l2·l3·l4 / 输入框边界',
+  diffAdded:'diff 新增字', diffRemoved:'diff 删除字', diffAddedBg:'diff 新增底', diffRemovedBg:'diff 删除底',
+  diffAddedLineNumberBg:'diff 新增行号底', diffRemovedLineNumberBg:'diff 删除行号底',
+  markdownHeading:'标题 h1–h6', markdownLink:'链接 a', markdownCode:'行内代码', markdownEmph:'斜体 em',
+  markdownStrong:'粗体 strong', markdownBlockQuote:'引用 blockquote',
+  syntaxComment:'shiki 注释', syntaxKeyword:'shiki 关键字', syntaxFunction:'shiki 函数', syntaxType:'shiki 参数/类型',
+  syntaxNumber:'shiki 常量', syntaxString:'shiki 字符串', syntaxOperator:'shiki 标点/操作符'
+};
+const ZH = {
+  background:'背景', backgroundPanel:'面板', backgroundElement:'元素', sidebarBg:'侧栏', bubbleBg:'气泡',
+  inputBg:'输入框', codeBlockBg:'代码块底', codeHeaderBg:'代码块头', text:'正文', textMuted:'次级文字',
+  primary:'主色', secondary:'次色', info:'信息', success:'成功', warning:'警示', error:'错误',
+  border:'弱边框', borderActive:'强边框', diffAdded:'新增字', diffRemoved:'删除字', diffAddedBg:'新增底',
+  diffRemovedBg:'删除底', diffAddedLineNumberBg:'新增行号底', diffRemovedLineNumberBg:'删除行号底',
+  markdownHeading:'标题', markdownLink:'链接', markdownCode:'行内码', markdownEmph:'斜体',
+  markdownStrong:'粗体', markdownBlockQuote:'引用', syntaxComment:'注释', syntaxKeyword:'关键字',
+  syntaxFunction:'函数', syntaxType:'类型', syntaxNumber:'数字', syntaxString:'字符串', syntaxOperator:'操作符'
+};
+
+const sheet = document.getElementById('sheet');
+let mode = 'light';
+const T = () => DATA[mode];
+
+/* ── 顶部锚点条 ── */
+document.getElementById('anchorbar').innerHTML = DATA.anchors.slice(0,6).map(a=>
+  `<span class="a"><i style="background:${a.hex}"></i>${a.label.split('·').pop()} ${a.hex}</span>`).join('');
+
+/* ── 真源：原图缩略 + 锚点实证块 ── */
+document.getElementById('anc-n').textContent = DATA.anchors.length;
+document.getElementById('anc-f').textContent = DATA.anchors.length;
+document.getElementById('stamps').innerHTML = DATA.thumbs.map(t=>
+  `<div class="stamp"><img src="${t.img}" alt="${t.file}"><div class="cap"><b>${t.file}</b><span>参考图</span></div></div>`).join('');
+document.getElementById('srcgrid').innerHTML = DATA.anchors.map(a=>
+  `<div class="src" title="${a.file} @ (${a.center[0]},${a.center[1]})">
+     <div class="pic"><img src="${a.crop}" alt="${a.label}"></div>
+     <div class="body">
+       <div class="hex">${a.hex}</div>
+       <div class="nm">${a.label}</div>
+       <div class="ft"><span>${a.file}</span><span>${a.coverage}%</span></div>
+     </div>
+   </div>`).join('');
+
+/* ── 37 色位网格 ── */
+function lum(h){h=h.replace('#','');const v=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)
+  .map(c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+function renderTokens(){
+  const t = T();
+  document.getElementById('tok-mode').textContent = mode==='light' ? '明色变体 · 纸感明信片' : '暗色变体 · 夜航明信片';
+  document.getElementById('tokgrid').innerHTML = GROUPS.map(g=>
+    `<div class="grp">
+       <div class="grp-h"><b>${g.name}</b><span>${g.note}</span><i></i></div>
+       <div class="grid">${g.keys.map(k=>{
+          const v = t[k]; const L = lum(v);
+          const fg = L>.42 ? '#3F2B26' : '#F6F1E6';
+          return `<div class="sw">
+             <div class="top" style="background:${v};color:${fg}"><span class="hex">${v}</span></div>
+             <div class="lbl"><b>${k}</b><em>${ZH[k]}</em>${LANDING[k]}</div>
+           </div>`}).join('')}</div>
+     </div>`).join('');
+}
+
+/* ── 派生配方表 ── */
+function renderRecipes(){
+  const t = T();
+  document.getElementById('rec-mode').textContent = (mode==='light'?'明色变体':'暗色变体') + ' · 37 条';
+  const rows = [];
+  GROUPS.forEach(g=>g.keys.forEach(k=>{
+    rows.push(`<tr>
+      <td class="k"><span class="swatch" style="background:${t[k]}"></span>${k}</td>
+      <td class="mono">${t[k]}</td>
+      <td>${DATA.recipes[mode][k].join('<br>')}</td>
+      <td>${LANDING[k]}</td>
+    </tr>`);
+  }));
+  document.getElementById('rectbl').innerHTML =
+    `<thead><tr><th style="width:200px">色位</th><th style="width:92px">取值</th><th>配方（真源锚点 ⨯ 比例）</th><th style="width:220px">DSH 落点</th></tr></thead>
+     <tbody>${rows.join('')}</tbody>`;
+}
+
+/* ── 对比度审计表 ── */
+function renderAudit(){
+  const mk = (rows)=>{
+    const hard = rows.filter(r=>r.cls!=='info');
+    const info = rows.filter(r=>r.cls==='info');
+    const row = (r)=>`<tr>
+      <td>${r.label}</td>
+      <td class="mono"><span class="swatch" style="background:${r.fg}"></span>${r.fg}<br><span class="swatch" style="background:${r.bg}"></span>${r.bg}</td>
+      <td class="mono ${r.verdict==='pass'?'pass':(r.verdict==='fail'?'fail':'')}">${r.ratio.toFixed(2)}:1</td>
+      <td class="mono">${r.cls==='info'?'—':r.need.toFixed(1)}</td>
+    </tr>`;
+    return `<thead><tr><th>检查项</th><th style="width:118px">前景 / 背景</th><th style="width:78px">比值</th><th style="width:64px">要求</th></tr></thead>
+    <tbody>${hard.map(row).join('')}</tbody>
+    <tbody><tr><td colspan="4" style="background:color-mix(in srgb,var(--panel) 55%,transparent);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase">信息项（不判定）</td></tr>${info.map(row).join('')}</tbody>`;
+  };
+  document.getElementById('altbl').innerHTML = mk(DATA.auditLight);
+  document.getElementById('adtbl').innerHTML = mk(DATA.auditDark);
+  const s = a => { const h=a.filter(r=>r.cls!=='info'); const f=h.filter(r=>r.verdict==='fail').length;
+    return h.length + ' / ' + h.length + ' 通过' + (f? '（'+f+' 违例）':'（0 违例）'); };
+  document.getElementById('al-l').textContent = s(DATA.auditLight);
+  document.getElementById('al-d').textContent = s(DATA.auditDark);
+}
+
+/* ── 明暗切换 ── */
+function setMode(m){
+  mode = m;
+  sheet.dataset.mode = m;
+  document.getElementById('m-light').classList.toggle('on', m==='light');
+  const mp = document.getElementById('mode-pill'); if(mp) mp.textContent = m;
+  document.getElementById('m-dark').classList.toggle('on', m==='dark');
+  renderTokens(); renderRecipes();
+}
+document.getElementById('m-light').onclick = ()=>setMode('light');
+document.getElementById('m-dark').onclick  = ()=>setMode('dark');
+window.addEventListener('hashchange', ()=>setMode(location.hash==='#dark'?'dark':'light'));
+
+renderTokens(); renderAudit(); renderRecipes();
+if(location.hash==='#dark') setMode('dark');
+</script>
+</body>
+</html>

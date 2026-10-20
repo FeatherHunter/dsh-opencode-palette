@@ -1,0 +1,290 @@
+# -*- coding: utf-8 -*-
+"""Build the side-by-side mock (dark current vs light candidate) for the adversarial review.
+Reads the two palette JSONs as the single source of truth; writes adv3/mock.html.
+"""
+import json, io, os
+
+BASE = r'D:\Temp\pokemon-theme'
+ADV = os.path.join(BASE, 'adv3')
+
+dark = json.load(io.open(os.path.join(BASE, 'palette.json'), encoding='utf-8'))['colors']
+light = json.load(io.open(os.path.join(ADV, 'palette.light.json'), encoding='utf-8'))['colors']
+
+SLOTVAR = [
+    ('background', '--bg'), ('backgroundPanel', '--panel'), ('backgroundElement', '--elem'),
+    ('sidebarBg', '--sidebar'), ('bubbleBg', '--bubble'), ('inputBg', '--input'),
+    ('codeBlockBg', '--code'), ('codeHeaderBg', '--codehead'),
+    ('text', '--text'), ('textMuted', '--muted'),
+    ('primary', '--primary'), ('secondary', '--secondary'), ('info', '--info'),
+    ('success', '--success'), ('warning', '--warning'), ('error', '--error'),
+    ('border', '--border'), ('borderActive', '--active'),
+    ('diffAdded', '--dadd'), ('diffAddedBg', '--daddbg'), ('diffAddedLineNumberBg', '--daddln'),
+    ('diffRemoved', '--drem'), ('diffRemovedBg', '--drembg'), ('diffRemovedLineNumberBg', '--dremln'),
+    ('markdownHeading', '--h'), ('markdownLink', '--link'), ('markdownCode', '--mcode'),
+    ('markdownEmph', '--em'), ('markdownStrong', '--strong'), ('markdownBlockQuote', '--quote'),
+    ('syntaxComment', '--scom'), ('syntaxKeyword', '--skw'), ('syntaxFunction', '--sfn'),
+    ('syntaxType', '--styp'), ('syntaxNumber', '--snum'), ('syntaxString', '--sstr'),
+    ('syntaxOperator', '--sop'),
+]
+
+
+def lum(hexv):
+    r, g, b = int(hexv[1:3], 16), int(hexv[3:5], 16), int(hexv[5:7], 16)
+    def f(c):
+        c = c / 255.0
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
+
+def contrast_text(hexv):
+    """mirrors src/engine/resolve.ts contrastText(): luma>0.6 -> #141414 else #F4F4F5"""
+    return '#141414' if lum(hexv) > 0.6 else '#F4F4F5'
+
+
+def vars_for(pal):
+    out = []
+    for slot, var in SLOTVAR:
+        out.append('  %s:%s;' % (var, pal[slot]))
+    out.append('  --onprimary:%s;' % contrast_text(pal['primary']))
+    return '\n'.join(out)
+
+
+CSS = """
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#8a8a8a}
+body{font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.strip{display:flex;gap:26px;padding:22px 22px 26px;align-items:flex-start}
+.pane{flex:1 1 0;min-width:0}
+.lab{display:flex;align-items:baseline;gap:10px;margin:0 0 10px;font-family:"Cascadia Code",Consolas,monospace}
+.lab .t{font-size:15px;font-weight:700;color:#111}
+.lab .s{font-size:11.5px;color:#3a3a3a}
+.lab .h{font-size:10.5px;color:#2a2a2a;background:rgba(255,255,255,.55);border-radius:5px;padding:2px 7px}
+.win{width:100%;border-radius:16px;overflow:hidden;position:relative;background:var(--bg);
+  border:.5px solid var(--border);
+  box-shadow:0 26px 60px -20px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.18);
+  display:flex}
+.sb{width:210px;flex:none;background:var(--sidebar);border-right:.5px solid var(--border);
+  display:flex;flex-direction:column;padding:13px 11px 11px}
+.brand{display:flex;align-items:center;gap:8px;padding:2px 5px 13px}
+.brand .nm{font-size:12.5px;font-weight:650;letter-spacing:.02em;color:var(--text)}
+.brand .bg{font-size:9.5px;color:var(--muted);border:.5px solid var(--border);border-radius:5px;padding:1px 4px;margin-left:auto}
+.ws{display:flex;align-items:center;gap:7px;background:var(--panel);border:.5px solid var(--border);
+  border-radius:9px;padding:6px 8px;font-size:11.5px;color:var(--text);margin-bottom:13px}
+.ws .dot{width:15px;height:15px;border-radius:5px;background:var(--primary);color:var(--onprimary);font-size:8.5px;
+  display:grid;place-items:center;font-weight:700}
+.ws .c{margin-left:auto;color:var(--muted);font-size:9.5px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav .it{position:relative;display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);
+  padding:6px 8px;border-radius:7px}
+.nav .it.on{background:color-mix(in srgb,var(--text) 12%,transparent);color:var(--text);font-weight:600}
+.nav .it.on:before{content:"";position:absolute;left:0;top:6px;bottom:6px;width:3px;border-radius:3px;background:var(--primary)}
+.nav .ic{width:13px;height:13px;border:1.3px solid currentColor;border-radius:4px;opacity:.7;flex:none}
+.nav .ic.rnd{border-radius:50%}
+.side-lbl{font-size:9.5px;letter-spacing:.12em;color:var(--muted);margin:14px 7px 5px;text-transform:uppercase;opacity:.8}
+.th{font-size:11px;color:var(--muted);padding:5px 8px;border-radius:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.th.sel{background:color-mix(in srgb,var(--text) 10%,transparent);color:var(--text)}
+.sb-foot{margin-top:auto;display:flex;align-items:center;gap:8px;padding:8px 5px 1px;border-top:.5px solid var(--border);font-size:11px;color:var(--muted)}
+.av{width:22px;height:22px;border-radius:50%;background:var(--text);color:var(--bg);display:grid;place-items:center;font-size:10px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.topbar{height:42px;flex:none;display:flex;align-items:center;gap:9px;padding:0 14px;border-bottom:.5px solid var(--border)}
+.topbar .h{font-size:12px;font-weight:650;color:var(--text)}
+.topbar .r{margin-left:auto;display:flex;align-items:center;gap:7px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);
+  background:var(--panel);border:.5px solid var(--border);border-radius:999px;padding:3px 9px}
+.chip i{width:6px;height:6px;border-radius:50%;background:var(--info)}
+.chip i.idle{background:var(--secondary)}
+.btn{border:0;border-radius:7px;font-size:11px;padding:5px 11px;cursor:default;font-family:inherit}
+.btn.primary{background:var(--primary);color:var(--onprimary);font-weight:650}
+.btn.ghost{background:transparent;color:var(--muted);border:.5px solid transparent}
+.btn.outline{background:transparent;border:.5px solid var(--active);color:var(--text)}
+.feed{flex:1;overflow:hidden;padding:16px 18px 70px}
+.col{width:100%;max-width:560px;margin:0 auto}
+.user{display:flex;justify-content:flex-end;margin-bottom:16px}
+.user .bub{background:var(--bubble);border:.5px solid var(--border);border-radius:13px 13px 4px 13px;padding:9px 12px;
+  font-size:12px;line-height:1.6;max-width:440px;color:var(--text)}
+.who{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.who .n{font-size:11px;font-weight:650;color:var(--text)}
+.who .t{font-size:9.5px;color:var(--muted);border:.5px solid var(--border);border-radius:5px;padding:1px 5px}
+.md{font-size:12.5px;line-height:1.75;color:var(--text)}
+.md h2{font-size:14px;line-height:1.4;color:var(--h);margin:0 0 7px;font-weight:650}
+.md p{margin:0 0 9px}
+.md strong{color:var(--strong);font-weight:650}
+.md em{color:var(--em);font-style:italic}
+.md a{color:var(--link);text-decoration:underline;text-underline-offset:2px;text-decoration-thickness:.5px}
+.md code{font-size:11px;color:var(--mcode);border:.5px solid var(--border);border-radius:4px;padding:0 4px;background:var(--code)}
+.md ul{margin:0 0 9px;padding-left:17px}
+.md li{margin:2px 0}
+.md blockquote{margin:0 0 10px;padding:1px 0 1px 10px;border-left:2px solid var(--active);color:var(--quote);font-size:11.5px}
+.cc{border-radius:9px;overflow:hidden;margin:2px 0 11px;background:var(--code);border:.5px solid var(--border)}
+.cc .hd{display:flex;align-items:center;gap:7px;background:var(--codehead);padding:6px 11px 5px;font-size:10.5px;color:var(--text)}
+.cc .hd .lang{font-weight:700}
+.cc .hd .cp{margin-left:auto;font-size:10px;opacity:.75}
+.cc pre{margin:0;padding:10px 12px 12px;overflow:hidden;
+  font-family:"Cascadia Code",Consolas,"Courier New",monospace;font-size:11px;line-height:1.8;color:var(--text)}
+.tk-com{color:var(--scom);font-style:italic}
+.tk-kw{color:var(--skw)}
+.tk-fn{color:var(--sfn)}
+.tk-typ{color:var(--styp)}
+.tk-num{color:var(--snum)}
+.tk-str{color:var(--sstr)}
+.tk-op{color:var(--sop)}
+.diff{border-radius:9px;overflow:hidden;background:var(--code);margin:0 0 11px;border:.5px solid var(--border);
+  font-family:"Cascadia Code",Consolas,monospace;font-size:11px}
+.diff .ln{display:flex;gap:9px;padding:2px 11px 2px 0}
+.diff .ln .no{width:28px;padding-right:6px;text-align:right;color:var(--muted);border-right:.5px solid transparent}
+.diff .rm{background:var(--drembg)}
+.diff .rm .no{background:var(--dremln);color:var(--drem);border-right-color:var(--drembg)}
+.diff .rm .sg,.diff .rm .cd{color:var(--drem)}
+.diff .add{background:var(--daddbg)}
+.diff .add .no{background:var(--daddln);color:var(--dadd);border-right-color:var(--daddbg)}
+.diff .add .sg,.diff .add .cd{color:var(--dadd)}
+.diff .ln .sg{width:8px}
+.tool{background:var(--elem);border-radius:9px;padding:9px 12px;margin:0 0 11px;font-size:11.5px;color:var(--text)}
+.tool .row{display:flex;align-items:center;gap:7px}
+.tool .st{margin-left:auto;color:var(--success);font-size:10.5px;display:flex;align-items:center;gap:5px}
+.tool .st i{width:6px;height:6px;border-radius:50%;background:var(--success)}
+.composer{flex:none;padding:9px 18px 12px}
+.cbox{background:var(--input);border:.5px solid var(--active);border-radius:12px;padding:9px 11px 8px;
+  box-shadow:0 2px 10px -6px rgba(0,0,0,.5)}
+.cbox .ph{font-size:12px;color:var(--muted)}
+.cbox .row{display:flex;align-items:center;gap:6px;margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);
+  background:var(--panel);border:.5px solid var(--border);border-radius:999px;padding:3px 7px}
+.pill i{width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.send{width:26px;height:26px;border-radius:8px;background:var(--primary);color:var(--onprimary);display:grid;place-items:center;
+  font-size:12px;font-weight:700;border:0;margin-left:auto}
+.hint{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--muted);padding:6px 3px 0}
+.sw{display:inline-block;width:9px;height:9px;border-radius:3px;border:.5px solid rgba(0,0,0,.25);vertical-align:-1px;margin-right:5px}
+"""
+
+BODY_PANE = """
+<div class="pane" id="pane-@@KEY@@">
+  <div class="lab"><span class="t">@@TITLE@@</span><span class="s">@@SUB@@</span><span class="h">@@HUE@@</span></div>
+  <div class="win" style="@@VARS@@">
+    <aside class="sb">
+      <div class="brand"><span class="nm">宝可梦图鉴</span><span class="bg">DSH</span></div>
+      <div class="ws"><span class="dot">小</span><span>xiaowan</span><span class="c">▾</span></div>
+      <div class="nav">
+        <div class="it on"><span class="ic rnd"></span>新会话</div>
+        <div class="it"><span class="ic"></span>会话历史</div>
+        <div class="it"><span class="ic rnd"></span>图鉴</div>
+        <div class="it"><span class="ic"></span>终端</div>
+      </div>
+      <div class="side-lbl">最近</div>
+      <div class="th sel">宝可梦主题 · 设计评审</div>
+      <div class="th">37 色位逐像素取证</div>
+      <div class="th">对比度审计与几何检查</div>
+      <div class="th">四张参考图取色笔记</div>
+      <div class="sb-foot"><span class="av">婉</span><span>小婉</span><span style="margin-left:auto">⚙</span></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <span class="h">宝可梦主题 · 设计评审</span>
+        <span class="chip"><i class="idle"></i>就绪</span>
+        <div class="r">
+          <span class="chip"><i></i>deepseek-flash</span>
+          <button class="btn ghost">分享</button>
+          <button class="btn primary">新建会话</button>
+        </div>
+      </div>
+      <div class="feed"><div class="col">
+        <div class="user"><div class="bub">把这套宝可梦配色写进 theme.json，顺便把 37 个色位逐像素验一遍，我要看到真实命中数。</div></div>
+        <div class="who"><span class="n">小婉</span><span class="t">theme.json</span></div>
+        <div class="md">
+          <h2>37 个色位，全部来自四张参考图</h2>
+          <p>正文 <strong>逐像素取证</strong>，<em>不近似匹配</em>，见 <a href="#">出处对照表</a>；行内代码 <code>#FFCB05</code> 就是 01 号图的编号徽章。</p>
+          <ul><li>硬性 4.5:1 正文对 38 组</li><li>UI 3:1 对 15 组</li></ul>
+          <blockquote>命中＝像素 RGB 与色位 HEX 完全相等，不做抗锯齿容差。</blockquote>
+        </div>
+        <div class="cc">
+          <div class="hd"><span class="lang">js</span><span>pokemon.theme.js</span><span class="cp">复制</span></div>
+          <pre><span class="tk-com">// 每个色位都是参考图里的真实像素</span>
+<span class="tk-kw">const</span> <span class="tk-fn">pokemon</span> <span class="tk-op">=</span> {
+  <span class="tk-fn">cardBase</span>: <span class="tk-str">"#1C1C22"</span>,   <span class="tk-com">// 01 卡面页底</span>
+  <span class="tk-fn">badge</span>: <span class="tk-str">"#FFCB05"</span>,     <span class="tk-com">// 01 编号徽章</span>
+  <span class="tk-fn">onBadge</span>: <span class="tk-str">"#141414"</span>,   <span class="tk-com">// 派生：12.10:1</span>
+  <span class="tk-fn">squirtle</span>: <span class="tk-str">"#289BCA"</span>,  <span class="tk-com">// 04 杰尼龟蓝</span>
+  <span class="tk-fn">contrast</span>: <span class="tk-num">14.67</span> <span class="tk-kw">as</span> <span class="tk-typ">Ratio</span>,
+}</pre>
+        </div>
+        <div class="diff">
+          <div class="ln rm"><span class="no">41</span><span class="sg">-</span><span class="cd">  "primary": "#FAE721",</span></div>
+          <div class="ln add"><span class="no">41</span><span class="sg">+</span><span class="cd">  "primary": "#FFCB05",</span></div>
+          <div class="ln add"><span class="no">42</span><span class="sg">+</span><span class="cd">  "codeHeaderBg": "#FFCB05",</span></div>
+        </div>
+        <div class="tool">
+          <div class="row"><span class="name">运行 verify_palette.py</span><span class="st"><i></i>已完成</span></div>
+        </div>
+      </div></div>
+      <div class="composer"><div class="col">
+        <div class="cbox">
+          <div class="ph">继续调整配色，或问我任意细节…</div>
+          <div class="row">
+            <span class="pill"><i></i>theme.json</span>
+            <button class="send">↑</button>
+          </div>
+        </div>
+        <div class="hint"><span>Enter 发送 · Shift + Enter 换行</span>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <span class="chip">37 tokens</span>
+            <span class="sw" style="background:@@P_PRIMARY@@"></span><span>primary</span>
+            <span class="sw" style="background:@@P_SECONDARY@@"></span><span>secondary</span>
+          </span>
+        </div>
+      </div></div>
+    </main>
+  </div>
+</div>
+"""
+
+
+def pane(key, pal, title, sub, hue):
+    s = BODY_PANE
+    s = s.replace('@@KEY@@', key).replace('@@TITLE@@', title).replace('@@SUB@@', sub)
+    s = s.replace('@@HUE@@', hue).replace('@@VARS@@', vars_for(pal))
+    s = s.replace('@@P_PRIMARY@@', pal['primary']).replace('@@P_SECONDARY@@', pal['secondary'])
+    return s
+
+
+html = """<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>宝可梦主题 · 暗场 vs 浅场 并排评审</title>
+<style>@@CSS@@</style></head>
+<body>
+<div class="strip">
+@@DARK@@
+@@LIGHT@@
+</div>
+</body></html>
+"""
+html = html.replace('@@CSS@@', CSS)
+html = html.replace('@@DARK@@', pane('dark', dark, 'A · 暗场（现方案）',
+                                     'primary #FFCB05 on #1C1C22 · 37/37 直采', 'base #1C1C22'))
+html = html.replace('@@LIGHT@@', pane('light', light, 'B · 浅场（替代方案）',
+                                       'primary #84633C on #FFFAF0 · 金色徽章留在代码头带', 'base #FFFAF0'))
+
+out = os.path.join(ADV, 'mock.html')
+io.open(out, 'w', encoding='utf-8').write(html)
+print('wrote', out, len(html))
+
+# single-pane renders (for close-up designer judgement)
+SINGLE = """<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>@@TITLE@@</title>
+<style>@@CSS@@</style></head>
+<body style="background:#8a8a8a">
+<div class="strip" style="padding:20px">
+@@PANE@@
+</div>
+</body></html>
+"""
+for key, pal, title, sub, hue, fname in [
+        ('dark', dark, 'A · 暗场（现方案）', 'primary #FFCB05 on #1C1C22 · 37/37 直采', 'base #1C1C22', 'mock-dark.html'),
+        ('light', light, 'B · 浅场（替代方案）', 'primary #84633C on #FFFAF0 · 金色徽章留在代码头带', 'base #FFFAF0', 'mock-light.html')]:
+    s = SINGLE.replace('@@CSS@@', CSS).replace('@@TITLE@@', title)
+    s = s.replace('@@PANE@@', pane(key, pal, title, sub, hue))
+    p = os.path.join(ADV, fname)
+    io.open(p, 'w', encoding='utf-8').write(s)
+    print('wrote', p)
+print('dark  onprimary', contrast_text(dark['primary']))
+print('light onprimary', contrast_text(light['primary']))

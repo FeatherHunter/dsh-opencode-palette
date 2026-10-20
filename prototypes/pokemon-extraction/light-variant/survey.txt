@@ -1,0 +1,676 @@
+grand total colors: 900  min n: 30  n>=40 count: 663
+
+===== gold  (418 colors, n>=40) =====
+  #010100  n=    340  L=0.0003  H=  60.0 S=1.00  vs#FFF=20.88  vs#FDFBF6=20.19
+  #020201  n=    222  L=0.0006  H=  60.0 S=0.50  vs#FFF=20.76  vs#FDFBF6=20.07
+  #030201  n=     86  L=0.0006  H=  30.0 S=0.67  vs#FFF=20.73  vs#FDFBF6=20.05
+  #030302  n=    106  L=0.0009  H=  60.0 S=0.33  vs#FFF=20.63  vs#FDFBF6=19.95
+  #040302  n=     51  L=0.0010  H=  30.0 S=0.50  vs#FFF=20.61  vs#FDFBF6=19.93
+  #040402  n=     78  L=0.0012  H=  60.0 S=0.50  vs#FFF=20.52  vs#FDFBF6=19.84
+  #080604  n=     59  L=0.0019  H=  30.0 S=0.50  vs#FFF=20.23  vs#FDFBF6=19.56
+  #141000  n=     80  L=0.0052  H=  48.0 S=1.00  vs#FFF=19.02  vs#FDFBF6=18.40
+  #84633C  n=    107  L=0.1416  H=  32.5 S=0.55  vs#FFF= 5.48  vs#FDFBF6= 5.30
+  #84643C  n=     77  L=0.1435  H=  33.3 S=0.55  vs#FFF= 5.43  vs#FDFBF6= 5.25
+  #86653D  n=     44  L=0.1471  H=  32.9 S=0.54  vs#FFF= 5.33  vs#FDFBF6= 5.15
+  #B2965F  n=    148  L=0.3210  H=  39.8 S=0.47  vs#FFF= 2.83  vs#FDFBF6= 2.74
+  #B2975F  n=     70  L=0.3242  H=  40.5 S=0.47  vs#FFF= 2.81  vs#FDFBF6= 2.71
+  #B49960  n=     48  L=0.3333  H=  40.7 S=0.47  vs#FFF= 2.74  vs#FDFBF6= 2.65
+  #B59960  n=    159  L=0.3345  H=  40.2 S=0.47  vs#FFF= 2.73  vs#FDFBF6= 2.64
+  #FA8501  n=     51  L=0.3710  H=  31.8 S=1.00  vs#FFF= 2.49  vs#FDFBF6= 2.41
+  #FA8502  n=     57  L=0.3710  H=  31.7 S=0.99  vs#FFF= 2.49  vs#FDFBF6= 2.41
+  #F88703  n=     68  L=0.3729  H=  32.3 S=0.99  vs#FFF= 2.48  vs#FDFBF6= 2.40
+  #FB8507  n=     61  L=0.3730  H=  31.0 S=0.97  vs#FFF= 2.48  vs#FDFBF6= 2.40
+  #FB8509  n=     44  L=0.3730  H=  30.7 S=0.96  vs#FFF= 2.48  vs#FDFBF6= 2.40
+  #F98703  n=     70  L=0.3747  H=  32.2 S=0.99  vs#FFF= 2.47  vs#FDFBF6= 2.39
+  #FC8503  n=    106  L=0.3748  H=  31.3 S=0.99  vs#FFF= 2.47  vs#FDFBF6= 2.39
+  #FB8602  n=     65  L=0.3756  H=  31.8 S=0.99  vs#FFF= 2.47  vs#FDFBF6= 2.39
+  #FB8603  n=   4690  L=0.3757  H=  31.7 S=0.99  vs#FFF= 2.47  vs#FDFBF6= 2.39
+  #FB8605  n=    181  L=0.3757  H=  31.5 S=0.98  vs#FFF= 2.47  vs#FDFBF6= 2.39
+  #E29C2A  n=    320  L=0.4011  H=  37.2 S=0.81  vs#FFF= 2.33  vs#FDFBF6= 2.25
+  #C5A761  n=     45  L=0.4037  H=  42.0 S=0.51  vs#FFF= 2.31  vs#FDFBF6= 2.24
+  #C5A762  n=    277  L=0.4039  H=  41.8 S=0.50  vs#FFF= 2.31  vs#FDFBF6= 2.24
+  #C5A763  n=    122  L=0.4041  H=  41.6 S=0.50  vs#FFF= 2.31  vs#FDFBF6= 2.24
+  #C6A762  n=     44  L=0.4053  H=  41.4 S=0.51  vs#FFF= 2.31  vs#FDFBF6= 2.23
+  #C5A862  n=    150  L=0.4076  H=  42.4 S=0.50  vs#FFF= 2.29  vs#FDFBF6= 2.22
+  #C5A863  n=    698  L=0.4078  H=  42.2 S=0.50  vs#FFF= 2.29  vs#FDFBF6= 2.22
+  #C6A862  n=     89  L=0.4089  H=  42.0 S=0.51  vs#FFF= 2.29  vs#FDFBF6= 2.21
+  #C6A863  n=    350  L=0.4091  H=  41.8 S=0.50  vs#FFF= 2.29  vs#FDFBF6= 2.21
+  #C6A963  n=     60  L=0.4128  H=  42.4 S=0.50  vs#FFF= 2.27  vs#FDFBF6= 2.19
+  #C7A963  n=     80  L=0.4142  H=  42.0 S=0.50  vs#FFF= 2.26  vs#FDFBF6= 2.19
+  #C8AA63  n=    242  L=0.4193  H=  42.2 S=0.51  vs#FFF= 2.24  vs#FDFBF6= 2.16
+  #C8AA64  n=    186  L=0.4195  H=  42.0 S=0.50  vs#FFF= 2.24  vs#FDFBF6= 2.16
+  #C9AA64  n=     40  L=0.4209  H=  41.6 S=0.50  vs#FFF= 2.23  vs#FDFBF6= 2.16
+  #C8AB63  n=     92  L=0.4231  H=  42.8 S=0.51  vs#FFF= 2.22  vs#FDFBF6= 2.15
+  #C8AB64  n=     90  L=0.4233  H=  42.6 S=0.50  vs#FFF= 2.22  vs#FDFBF6= 2.15
+  #C9AB63  n=     41  L=0.4244  H=  42.4 S=0.51  vs#FFF= 2.21  vs#FDFBF6= 2.14
+  #C9AB64  n=     88  L=0.4246  H=  42.2 S=0.50  vs#FFF= 2.21  vs#FDFBF6= 2.14
+  #CFB067  n=     89  L=0.4530  H=  42.1 S=0.50  vs#FFF= 2.09  vs#FDFBF6= 2.02
+  #FAB148  n=    103  L=0.5224  H=  35.4 S=0.71  vs#FFF= 1.83  vs#FDFBF6= 1.77
+  #FBB146  n=     85  L=0.5240  H=  35.5 S=0.72  vs#FFF= 1.83  vs#FDFBF6= 1.77
+  #FBB148  n=    144  L=0.5242  H=  35.2 S=0.71  vs#FFF= 1.83  vs#FDFBF6= 1.77
+  #DEBE6E  n=     44  L=0.5348  H=  42.9 S=0.50  vs#FFF= 1.80  vs#FDFBF6= 1.74
+  #DFBE6E  n=    137  L=0.5364  H=  42.5 S=0.51  vs#FFF= 1.79  vs#FDFBF6= 1.73
+  #DFBE6F  n=     98  L=0.5366  H=  42.3 S=0.50  vs#FFF= 1.79  vs#FDFBF6= 1.73
+  #DFBF6E  n=    504  L=0.5408  H=  43.0 S=0.51  vs#FFF= 1.78  vs#FDFBF6= 1.72
+  #DFBF6F  n=   1001  L=0.5410  H=  42.9 S=0.50  vs#FFF= 1.78  vs#FDFBF6= 1.72
+  #E0BF6E  n=    117  L=0.5423  H=  42.6 S=0.51  vs#FFF= 1.77  vs#FDFBF6= 1.71
+  #F8B483  n=     77  L=0.5424  H=  25.1 S=0.47  vs#FFF= 1.77  vs#FDFBF6= 1.71
+  #E0BF6F  n=    269  L=0.5426  H=  42.5 S=0.50  vs#FFF= 1.77  vs#FDFBF6= 1.71
+  #DFC06F  n=     51  L=0.5453  H=  43.4 S=0.50  vs#FFF= 1.76  vs#FDFBF6= 1.71
+  #E0C06F  n=    334  L=0.5469  H=  43.0 S=0.50  vs#FFF= 1.76  vs#FDFBF6= 1.70
+  #E0C070  n=     63  L=0.5472  H=  42.9 S=0.50  vs#FFF= 1.76  vs#FDFBF6= 1.70
+  #F9B584  n=    173  L=0.5485  H=  25.1 S=0.47  vs#FFF= 1.75  vs#FDFBF6= 1.70
+  #E1C06F  n=    105  L=0.5485  H=  42.6 S=0.51  vs#FFF= 1.75  vs#FDFBF6= 1.70
+  #E0C16F  n=     97  L=0.5513  H=  43.5 S=0.50  vs#FFF= 1.75  vs#FDFBF6= 1.69
+  #E0C170  n=     51  L=0.5516  H=  43.4 S=0.50  vs#FFF= 1.75  vs#FDFBF6= 1.69
+  #E1C16F  n=    146  L=0.5530  H=  43.2 S=0.51  vs#FFF= 1.74  vs#FDFBF6= 1.68
+  #E1C170  n=    276  L=0.5532  H=  43.0 S=0.50  vs#FFF= 1.74  vs#FDFBF6= 1.68
+  #FAB685  n=   1009  L=0.5547  H=  25.1 S=0.47  vs#FFF= 1.74  vs#FDFBF6= 1.68
+  #E2C170  n=    100  L=0.5548  H=  42.6 S=0.50  vs#FFF= 1.74  vs#FDFBF6= 1.68
+  #E1C270  n=    118  L=0.5576  H=  43.5 S=0.50  vs#FFF= 1.73  vs#FDFBF6= 1.67
+  #E2C270  n=    524  L=0.5592  H=  43.2 S=0.50  vs#FFF= 1.72  vs#FDFBF6= 1.67
+  #E2C271  n=     76  L=0.5594  H=  43.0 S=0.50  vs#FFF= 1.72  vs#FDFBF6= 1.67
+  #E3C270  n=    106  L=0.5608  H=  42.8 S=0.51  vs#FFF= 1.72  vs#FDFBF6= 1.66
+  #FBB786  n=    119  L=0.5610  H=  25.1 S=0.47  vs#FFF= 1.72  vs#FDFBF6= 1.66
+  #E3C271  n=     77  L=0.5611  H=  42.6 S=0.50  vs#FFF= 1.72  vs#FDFBF6= 1.66
+  #E2C370  n=     73  L=0.5637  H=  43.7 S=0.50  vs#FFF= 1.71  vs#FDFBF6= 1.65
+  #E2C371  n=    126  L=0.5639  H=  43.5 S=0.50  vs#FFF= 1.71  vs#FDFBF6= 1.65
+  #E3C370  n=     85  L=0.5653  H=  43.3 S=0.51  vs#FFF= 1.71  vs#FDFBF6= 1.65
+  #E3C371  n=   3755  L=0.5655  H=  43.2 S=0.50  vs#FFF= 1.71  vs#FDFBF6= 1.65
+  #E4C371  n=    216  L=0.5672  H=  42.8 S=0.50  vs#FFF= 1.70  vs#FDFBF6= 1.65
+  #FCB887  n=     61  L=0.5673  H=  25.1 S=0.46  vs#FFF= 1.70  vs#FDFBF6= 1.64
+  #E3C471  n=   1334  L=0.5700  H=  43.7 S=0.50  vs#FFF= 1.69  vs#FDFBF6= 1.64
+  #E3C472  n=     52  L=0.5703  H=  43.5 S=0.50  vs#FFF= 1.69  vs#FDFBF6= 1.64
+  #E4C471  n=    353  L=0.5717  H=  43.3 S=0.50  vs#FFF= 1.69  vs#FDFBF6= 1.63
+  #E4C472  n=     59  L=0.5719  H=  43.2 S=0.50  vs#FFF= 1.69  vs#FDFBF6= 1.63
+  #E4C571  n=     58  L=0.5762  H=  43.8 S=0.50  vs#FFF= 1.68  vs#FDFBF6= 1.62
+  #E4C572  n=    107  L=0.5764  H=  43.7 S=0.50  vs#FFF= 1.68  vs#FDFBF6= 1.62
+  #E5C572  n=     76  L=0.5781  H=  43.3 S=0.50  vs#FFF= 1.67  vs#FDFBF6= 1.62
+  #E5C672  n=     80  L=0.5826  H=  43.8 S=0.50  vs#FFF= 1.66  vs#FDFBF6= 1.60
+  #E6C672  n=     57  L=0.5843  H=  43.4 S=0.50  vs#FFF= 1.66  vs#FDFBF6= 1.60
+  #E6C773  n=     59  L=0.5891  H=  43.8 S=0.50  vs#FFF= 1.64  vs#FDFBF6= 1.59
+  #E7C773  n=     64  L=0.5907  H=  43.4 S=0.50  vs#FFF= 1.64  vs#FDFBF6= 1.58
+  #E7C873  n=     60  L=0.5954  H=  44.0 S=0.50  vs#FFF= 1.63  vs#FDFBF6= 1.57
+  #E8C974  n=    106  L=0.6019  H=  44.0 S=0.50  vs#FFF= 1.61  vs#FDFBF6= 1.56
+  #E9C974  n=     52  L=0.6036  H=  43.6 S=0.50  vs#FFF= 1.61  vs#FDFBF6= 1.55
+  #E9CA74  n=     69  L=0.6083  H=  44.1 S=0.50  vs#FFF= 1.60  vs#FDFBF6= 1.54
+  #E9CA75  n=     43  L=0.6085  H=  44.0 S=0.50  vs#FFF= 1.59  vs#FDFBF6= 1.54
+  #FAC700  n=     43  L=0.6117  H=  47.8 S=1.00  vs#FFF= 1.59  vs#FDFBF6= 1.53
+  #FEC600  n=     40  L=0.6146  H=  46.8 S=1.00  vs#FFF= 1.58  vs#FDFBF6= 1.53
+  #EACB75  n=     65  L=0.6149  H=  44.1 S=0.50  vs#FFF= 1.58  vs#FDFBF6= 1.53
+  #FCC700  n=     96  L=0.6154  H=  47.4 S=1.00  vs#FFF= 1.58  vs#FDFBF6= 1.53
+  #FAC805  n=     51  L=0.6164  H=  47.8 S=0.98  vs#FFF= 1.58  vs#FDFBF6= 1.52
+  #FFC600  n=     71  L=0.6165  H=  46.6 S=1.00  vs#FFF= 1.58  vs#FDFBF6= 1.52
+  #FFC603  n=     81  L=0.6165  H=  46.4 S=0.99  vs#FFF= 1.58  vs#FDFBF6= 1.52
+  #FDC702  n=    145  L=0.6173  H=  47.1 S=0.99  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FDC703  n=    108  L=0.6174  H=  47.0 S=0.99  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FDC705  n=     83  L=0.6174  H=  46.9 S=0.98  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FBC800  n=     67  L=0.6182  H=  47.8 S=1.00  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FEC708  n=     66  L=0.6194  H=  46.6 S=0.97  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #EACC75  n=     44  L=0.6196  H=  44.6 S=0.50  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FCC802  n=     47  L=0.6201  H=  47.5 S=0.99  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FCC803  n=     75  L=0.6201  H=  47.5 S=0.99  vs#FFF= 1.57  vs#FDFBF6= 1.52
+  #FFC700  n=    180  L=0.6211  H=  46.8 S=1.00  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FFC702  n=     46  L=0.6211  H=  46.7 S=0.99  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FFC704  n=     83  L=0.6212  H=  46.6 S=0.98  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FAC90A  n=     57  L=0.6212  H=  47.8 S=0.96  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FAC90D  n=     48  L=0.6213  H=  47.6 S=0.95  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #EBCC75  n=     62  L=0.6213  H=  44.2 S=0.50  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #EBCC76  n=     41  L=0.6216  H=  44.1 S=0.50  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FDC800  n=    550  L=0.6219  H=  47.4 S=1.00  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FBC906  n=    154  L=0.6230  H=  47.8 S=0.98  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FBC908  n=     59  L=0.6230  H=  47.7 S=0.97  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FEC803  n=    598  L=0.6239  H=  47.1 S=0.99  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FEC804  n=    636  L=0.6239  H=  47.0 S=0.98  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FEC806  n=    141  L=0.6239  H=  46.9 S=0.98  vs#FFF= 1.56  vs#FDFBF6= 1.51
+  #FCC900  n=     78  L=0.6247  H=  47.9 S=1.00  vs#FFF= 1.56  vs#FDFBF6= 1.50
+  #FFC800  n=    198  L=0.6257  H=  47.1 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FFC801  n=    401  L=0.6257  H=  47.0 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FACA04  n=     67  L=0.6257  H=  48.3 S=0.98  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FFC803  n=     66  L=0.6258  H=  46.9 S=0.99  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FACA06  n=    101  L=0.6258  H=  48.2 S=0.98  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FACA08  n=    133  L=0.6258  H=  48.1 S=0.97  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #EBCD76  n=     66  L=0.6263  H=  44.6 S=0.50  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FDC903  n=    193  L=0.6266  H=  47.5 S=0.99  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FDC904  n=    160  L=0.6266  H=  47.5 S=0.98  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FBCA01  n=     76  L=0.6275  H=  48.2 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FBCA03  n=     50  L=0.6276  H=  48.1 S=0.99  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FBCA04  n=    128  L=0.6276  H=  48.1 S=0.98  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #ECCD76  n=     49  L=0.6280  H=  44.2 S=0.50  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FEC900  n=    606  L=0.6284  H=  47.5 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FEC901  n= 135911  L=0.6285  H=  47.4 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.50
+  #FCCA00  n=     45  L=0.6294  H=  48.1 S=1.00  vs#FFF= 1.55  vs#FDFBF6= 1.49
+  #FCCA07  n=     48  L=0.6295  H=  47.8 S=0.97  vs#FFF= 1.55  vs#FDFBF6= 1.49
+  #FCCA09  n=     44  L=0.6296  H=  47.7 S=0.96  vs#FFF= 1.55  vs#FDFBF6= 1.49
+  #FFC900  n=    133  L=0.6303  H=  47.3 S=1.00  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FFC902  n=     49  L=0.6304  H=  47.2 S=0.99  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FFC904  n=    100  L=0.6304  H=  47.1 S=0.98  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FFC906  n=     40  L=0.6305  H=  47.0 S=0.98  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FDCA00  n=     56  L=0.6312  H=  47.9 S=1.00  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FDCA01  n=    129  L=0.6313  H=  47.9 S=1.00  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #ECCE76  n=     68  L=0.6328  H=  44.7 S=0.50  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FECA04  n=     50  L=0.6332  H=  47.5 S=0.98  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #FECA05  n=     51  L=0.6332  H=  47.5 S=0.98  vs#FFF= 1.54  vs#FDFBF6= 1.49
+  #EDCE76  n=     40  L=0.6346  H=  44.4 S=0.50  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FFCA00  n=    149  L=0.6350  H=  47.5 S=1.00  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FFCA02  n=     68  L=0.6351  H=  47.4 S=0.99  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FFCA05  n=     42  L=0.6351  H=  47.3 S=0.98  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FFCA08  n=     48  L=0.6352  H=  47.1 S=0.97  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FDCB08  n=    138  L=0.6361  H=  47.8 S=0.97  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FDCB0A  n=    132  L=0.6362  H=  47.7 S=0.96  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FECB00  n=     49  L=0.6378  H=  48.0 S=1.00  vs#FFF= 1.53  vs#FDFBF6= 1.48
+  #FCCC0A  n=     68  L=0.6390  H=  48.1 S=0.96  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #EDCF77  n=     85  L=0.6396  H=  44.7 S=0.50  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #FFCB00  n=    103  L=0.6397  H=  47.8 S=1.00  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #FFCB05  n=   3046  L=0.6398  H=  47.5 S=0.98  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #FFCB06  n=     69  L=0.6399  H=  47.5 S=0.98  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #EECF77  n=     53  L=0.6413  H=  44.4 S=0.50  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #ECCF89  n=     46  L=0.6426  H=  42.4 S=0.42  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #FFCC00  n=     81  L=0.6445  H=  48.0 S=1.00  vs#FFF= 1.51  vs#FDFBF6= 1.46
+  #FDCD09  n=     85  L=0.6457  H=  48.2 S=0.96  vs#FFF= 1.51  vs#FDFBF6= 1.46
+  #EED077  n=    101  L=0.6462  H=  44.9 S=0.50  vs#FFF= 1.51  vs#FDFBF6= 1.46
+  #EED078  n=     56  L=0.6464  H=  44.7 S=0.50  vs#FFF= 1.51  vs#FDFBF6= 1.46
+  #EFD078  n=     69  L=0.6482  H=  44.4 S=0.50  vs#FFF= 1.50  vs#FDFBF6= 1.45
+  #FFCD00  n=     69  L=0.6492  H=  48.2 S=1.00  vs#FFF= 1.50  vs#FDFBF6= 1.45
+  #EDD08A  n=    757  L=0.6495  H=  42.4 S=0.42  vs#FFF= 1.50  vs#FDFBF6= 1.45
+  #EED178  n=     54  L=0.6513  H=  45.3 S=0.50  vs#FFF= 1.50  vs#FDFBF6= 1.45
+  #EFD178  n=     92  L=0.6531  H=  44.9 S=0.50  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #EFD179  n=     41  L=0.6533  H=  44.7 S=0.49  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #EDD188  n=    111  L=0.6538  H=  43.4 S=0.43  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #FFCE00  n=     53  L=0.6540  H=  48.5 S=1.00  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #F0D178  n=     52  L=0.6548  H=  44.5 S=0.50  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #F0D179  n=     40  L=0.6551  H=  44.4 S=0.50  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #EED18B  n=     56  L=0.6564  H=  42.4 S=0.42  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #EFD278  n=    113  L=0.6580  H=  45.4 S=0.50  vs#FFF= 1.48  vs#FDFBF6= 1.43
+  #F0D278  n=    172  L=0.6597  H=  45.0 S=0.50  vs#FFF= 1.48  vs#FDFBF6= 1.43
+  #F0D279  n=    640  L=0.6600  H=  44.9 S=0.50  vs#FFF= 1.48  vs#FDFBF6= 1.43
+  #F0D27A  n=    133  L=0.6602  H=  44.7 S=0.49  vs#FFF= 1.48  vs#FDFBF6= 1.43
+  #F1D279  n=    970  L=0.6617  H=  44.5 S=0.50  vs#FFF= 1.48  vs#FDFBF6= 1.43
+  #F1D27A  n=    272  L=0.6620  H=  44.4 S=0.49  vs#FFF= 1.47  vs#FDFBF6= 1.43
+  #FFD000  n=     42  L=0.6637  H=  48.9 S=1.00  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F0D378  n=    248  L=0.6647  H=  45.5 S=0.50  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F0D379  n=    532  L=0.6649  H=  45.4 S=0.50  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F0D37A  n=    173  L=0.6652  H=  45.3 S=0.49  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F1D378  n=    402  L=0.6665  H=  45.1 S=0.50  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F1D379  n=   1316  L=0.6667  H=  45.0 S=0.50  vs#FFF= 1.47  vs#FDFBF6= 1.42
+  #F1D37A  n=    433  L=0.6669  H=  44.9 S=0.49  vs#FFF= 1.46  vs#FDFBF6= 1.42
+  #F2D379  n=     89  L=0.6685  H=  44.6 S=0.50  vs#FFF= 1.46  vs#FDFBF6= 1.41
+  #F0D479  n=     44  L=0.6699  H=  45.9 S=0.50  vs#FFF= 1.46  vs#FDFBF6= 1.41
+  #F1D479  n=    387  L=0.6717  H=  45.5 S=0.50  vs#FFF= 1.45  vs#FDFBF6= 1.41
+  #F1D47A  n=    163  L=0.6719  H=  45.4 S=0.49  vs#FFF= 1.45  vs#FDFBF6= 1.41
+  #F2D479  n=    392  L=0.6734  H=  45.1 S=0.50  vs#FFF= 1.45  vs#FDFBF6= 1.40
+  #F2D47A  n=    282  L=0.6737  H=  45.0 S=0.50  vs#FFF= 1.45  vs#FDFBF6= 1.40
+  #F1D579  n=     42  L=0.6767  H=  46.0 S=0.50  vs#FFF= 1.44  vs#FDFBF6= 1.40
+  #F1D57A  n=     47  L=0.6769  H=  45.9 S=0.49  vs#FFF= 1.44  vs#FDFBF6= 1.40
+  #F1D57B  n=     42  L=0.6772  H=  45.8 S=0.49  vs#FFF= 1.44  vs#FDFBF6= 1.40
+  #F2D579  n=    108  L=0.6785  H=  45.6 S=0.50  vs#FFF= 1.44  vs#FDFBF6= 1.39
+  #F2D57A  n=    455  L=0.6787  H=  45.5 S=0.50  vs#FFF= 1.44  vs#FDFBF6= 1.39
+  #F2D57B  n=    182  L=0.6790  H=  45.4 S=0.49  vs#FFF= 1.44  vs#FDFBF6= 1.39
+  #F3D57A  n=    239  L=0.6805  H=  45.1 S=0.50  vs#FFF= 1.44  vs#FDFBF6= 1.39
+  #F3D57B  n=    205  L=0.6807  H=  45.0 S=0.49  vs#FFF= 1.44  vs#FDFBF6= 1.39
+  #F2D67A  n=    110  L=0.6838  H=  46.0 S=0.50  vs#FFF= 1.43  vs#FDFBF6= 1.38
+  #F2D67B  n=    161  L=0.6840  H=  45.9 S=0.49  vs#FFF= 1.43  vs#FDFBF6= 1.38
+  #F3D67A  n=    214  L=0.6855  H=  45.6 S=0.50  vs#FFF= 1.43  vs#FDFBF6= 1.38
+  #F3D67B  n=    557  L=0.6858  H=  45.5 S=0.49  vs#FFF= 1.43  vs#FDFBF6= 1.38
+  #F3D67C  n=    112  L=0.6860  H=  45.4 S=0.49  vs#FFF= 1.43  vs#FDFBF6= 1.38
+  #F4D67A  n=     45  L=0.6873  H=  45.2 S=0.50  vs#FFF= 1.42  vs#FDFBF6= 1.38
+  #F4D67B  n=    164  L=0.6876  H=  45.1 S=0.50  vs#FFF= 1.42  vs#FDFBF6= 1.38
+  #F4D67C  n=     77  L=0.6878  H=  45.0 S=0.49  vs#FFF= 1.42  vs#FDFBF6= 1.38
+  #F3D77A  n=     55  L=0.6906  H=  46.1 S=0.50  vs#FFF= 1.42  vs#FDFBF6= 1.37
+  #F3D77B  n=   1924  L=0.6909  H=  46.0 S=0.49  vs#FFF= 1.42  vs#FDFBF6= 1.37
+  #F3D77C  n=   2909  L=0.6911  H=  45.9 S=0.49  vs#FFF= 1.42  vs#FDFBF6= 1.37
+  #F3D77D  n=     40  L=0.6914  H=  45.8 S=0.49  vs#FFF= 1.42  vs#FDFBF6= 1.37
+  #F4D77A  n=     42  L=0.6924  H=  45.7 S=0.50  vs#FFF= 1.41  vs#FDFBF6= 1.37
+  #F4D77B  n=   2216  L=0.6926  H=  45.6 S=0.50  vs#FFF= 1.41  vs#FDFBF6= 1.37
+  #F4D77C  n=   4673  L=0.6929  H=  45.5 S=0.49  vs#FFF= 1.41  vs#FDFBF6= 1.37
+  #F4D77D  n=     56  L=0.6931  H=  45.4 S=0.49  vs#FFF= 1.41  vs#FDFBF6= 1.37
+  #F3D87B  n=     54  L=0.6960  H=  46.5 S=0.49  vs#FFF= 1.41  vs#FDFBF6= 1.36
+  #F3D87C  n=    136  L=0.6962  H=  46.4 S=0.49  vs#FFF= 1.41  vs#FDFBF6= 1.36
+  #F4D87B  n=    122  L=0.6977  H=  46.1 S=0.50  vs#FFF= 1.40  vs#FDFBF6= 1.36
+  #F4D87C  n=    470  L=0.6980  H=  46.0 S=0.49  vs#FFF= 1.40  vs#FDFBF6= 1.36
+  #F4D87D  n=     50  L=0.6983  H=  45.9 S=0.49  vs#FFF= 1.40  vs#FDFBF6= 1.36
+  #F6D69B  n=     97  L=0.7005  H=  38.9 S=0.37  vs#FFF= 1.40  vs#FDFBF6= 1.35
+  #FDD825  n=    256  L=0.7013  H=  49.7 S=0.85  vs#FFF= 1.40  vs#FDFBF6= 1.35
+  #FDD923  n=    435  L=0.7063  H=  50.1 S=0.86  vs#FFF= 1.39  vs#FDFBF6= 1.34
+  #FCDC00  n=     47  L=0.7188  H=  52.4 S=1.00  vs#FFF= 1.37  vs#FDFBF6= 1.32
+  #FDDD00  n=     73  L=0.7260  H=  52.4 S=1.00  vs#FFF= 1.35  vs#FDFBF6= 1.31
+  #FEDD02  n=    671  L=0.7279  H=  52.1 S=0.99  vs#FFF= 1.35  vs#FDFBF6= 1.31
+  #FEDD04  n=    155  L=0.7279  H=  52.1 S=0.98  vs#FFF= 1.35  vs#FDFBF6= 1.31
+  #FEDD06  n=     82  L=0.7280  H=  52.0 S=0.98  vs#FFF= 1.35  vs#FDFBF6= 1.31
+  #FCDE00  n=     43  L=0.7294  H=  52.9 S=1.00  vs#FFF= 1.35  vs#FDFBF6= 1.30
+  #FFDD00  n=    112  L=0.7297  H=  52.0 S=1.00  vs#FFF= 1.35  vs#FDFBF6= 1.30
+  #F5DD90  n=     78  L=0.7314  H=  45.7 S=0.41  vs#FFF= 1.34  vs#FDFBF6= 1.30
+  #FBDF00  n=     51  L=0.7328  H=  53.3 S=1.00  vs#FFF= 1.34  vs#FDFBF6= 1.30
+  #FEDE00  n=   5075  L=0.7331  H=  52.4 S=1.00  vs#FFF= 1.34  vs#FDFBF6= 1.30
+  #FFDE00  n=     47  L=0.7350  H=  52.2 S=1.00  vs#FFF= 1.34  vs#FDFBF6= 1.29
+  #FFDE03  n=     81  L=0.7351  H=  52.1 S=0.99  vs#FFF= 1.34  vs#FDFBF6= 1.29
+  #FFDE05  n=     66  L=0.7351  H=  52.1 S=0.98  vs#FFF= 1.34  vs#FDFBF6= 1.29
+  #FFDF00  n=     85  L=0.7404  H=  52.5 S=1.00  vs#FFF= 1.33  vs#FDFBF6= 1.28
+  #FFDF01  n=    165  L=0.7404  H=  52.4 S=1.00  vs#FFF= 1.33  vs#FDFBF6= 1.28
+  #FFE000  n=     40  L=0.7457  H=  52.7 S=1.00  vs#FFF= 1.32  vs#FDFBF6= 1.28
+  #FBE321  n=     41  L=0.7556  H=  53.4 S=0.87  vs#FFF= 1.30  vs#FDFBF6= 1.26
+  #FFE204  n=     42  L=0.7566  H=  53.1 S=0.98  vs#FFF= 1.30  vs#FDFBF6= 1.26
+  #FAE42C  n=     51  L=0.7599  H=  53.6 S=0.82  vs#FFF= 1.30  vs#FDFBF6= 1.25
+  #FBE422  n=     42  L=0.7611  H=  53.6 S=0.86  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #FDE425  n=    114  L=0.7650  H=  53.1 S=0.85  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #FAE528  n=    135  L=0.7652  H=  54.0 S=0.84  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #FDE427  n=     62  L=0.7652  H=  53.0 S=0.85  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #FAE52A  n=     62  L=0.7653  H=  53.9 S=0.83  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #F4E2AD  n=     84  L=0.7664  H=  44.8 S=0.29  vs#FFF= 1.29  vs#FDFBF6= 1.24
+  #F8E620  n=     40  L=0.7665  H=  55.0 S=0.87  vs#FFF= 1.29  vs#FDFBF6= 1.24
+  #F4E2AE  n=     49  L=0.7668  H=  44.6 S=0.29  vs#FFF= 1.29  vs#FDFBF6= 1.24
+  #F9E620  n=     54  L=0.7684  H=  54.7 S=0.87  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FCE523  n=    125  L=0.7686  H=  53.6 S=0.86  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FFE421  n=     52  L=0.7686  H=  52.7 S=0.87  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FCE525  n=     94  L=0.7687  H=  53.6 S=0.85  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #F9E627  n=    130  L=0.7688  H=  54.6 S=0.84  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FCE527  n=     60  L=0.7688  H=  53.5 S=0.85  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #F9E628  n=     64  L=0.7689  H=  54.5 S=0.84  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FDE51F  n=     91  L=0.7702  H=  53.5 S=0.88  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FDE521  n=    196  L=0.7703  H=  53.5 S=0.87  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FAE623  n=   1552  L=0.7704  H=  54.4 S=0.86  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FDE523  n=    128  L=0.7704  H=  53.4 S=0.86  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FAE625  n=    386  L=0.7705  H=  54.4 S=0.85  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #FAE627  n=    221  L=0.7706  H=  54.3 S=0.84  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #F8E71D  n=     40  L=0.7720  H=  55.3 S=0.88  vs#FFF= 1.28  vs#FDFBF6= 1.24
+  #F8E725  n=     49  L=0.7724  H=  55.2 S=0.85  vs#FFF= 1.28  vs#FDFBF6= 1.23
+  #F8E727  n=     47  L=0.7725  H=  55.1 S=0.84  vs#FFF= 1.28  vs#FDFBF6= 1.23
+  #FCE386  n=    391  L=0.7735  H=  47.3 S=0.47  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FCE61F  n=    111  L=0.7739  H=  54.0 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FCE621  n=    225  L=0.7740  H=  54.0 S=0.87  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F9E721  n=    724  L=0.7740  H=  55.0 S=0.87  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F9E723  n=    320  L=0.7741  H=  55.0 S=0.86  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F9E725  n=    144  L=0.7743  H=  54.9 S=0.85  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F6E823  n=     58  L=0.7743  H=  56.0 S=0.86  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F6E825  n=     48  L=0.7744  H=  56.0 S=0.85  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FDE386  n=    212  L=0.7754  H=  46.9 S=0.47  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FAE71E  n=    467  L=0.7757  H=  54.8 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FDE61E  n=     63  L=0.7757  H=  53.8 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FAE71F  n=    587  L=0.7757  H=  54.8 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FAE721  n=  11187  L=0.7759  H=  54.7 S=0.87  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F8E81F  n=     97  L=0.7777  H=  55.6 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F8E821  n=     91  L=0.7778  H=  55.5 S=0.87  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FBE724  n=    228  L=0.7779  H=  54.4 S=0.86  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #F8E823  n=     81  L=0.7779  H=  55.5 S=0.86  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FBE726  n=     41  L=0.7780  H=  54.4 S=0.85  vs#FFF= 1.27  vs#FDFBF6= 1.23
+  #FCE71A  n=     40  L=0.7792  H=  54.4 S=0.90  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #FCE71C  n=     64  L=0.7793  H=  54.4 S=0.89  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #F9E81C  n=     92  L=0.7794  H=  55.4 S=0.89  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #FCE71E  n=     97  L=0.7794  H=  54.3 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #F9E81E  n=    119  L=0.7795  H=  55.3 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #F9E81F  n=    216  L=0.7795  H=  55.3 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #F6E91E  n=     43  L=0.7796  H=  56.4 S=0.88  vs#FFF= 1.27  vs#FDFBF6= 1.22
+  #FEE392  n=     40  L=0.7808  H=  45.0 S=0.43  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE818  n=     74  L=0.7810  H=  55.2 S=0.90  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE81A  n=     90  L=0.7811  H=  55.2 S=0.90  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE81C  n=    208  L=0.7812  H=  55.1 S=0.89  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FDE722  n=     81  L=0.7815  H=  54.0 S=0.87  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE822  n=    117  L=0.7815  H=  55.0 S=0.86  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE824  n=     76  L=0.7816  H=  55.0 S=0.86  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FAE826  n=     91  L=0.7818  H=  54.9 S=0.85  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FBE81F  n=     69  L=0.7832  H=  54.8 S=0.88  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FBE820  n=    105  L=0.7833  H=  54.8 S=0.87  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #F8E91E  n=     95  L=0.7833  H=  55.9 S=0.88  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FBE822  n=    700  L=0.7834  H=  54.7 S=0.86  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #F9E91A  n=     44  L=0.7849  H=  55.7 S=0.90  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #F9E920  n=     48  L=0.7852  H=  55.6 S=0.87  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #F9E922  n=     75  L=0.7853  H=  55.5 S=0.86  vs#FFF= 1.26  vs#FDFBF6= 1.22
+  #FEE490  n=    574  L=0.7857  H=  45.8 S=0.43  vs#FFF= 1.26  vs#FDFBF6= 1.21
+  #FAE917  n=     58  L=0.7866  H=  55.5 S=0.91  vs#FFF= 1.26  vs#FDFBF6= 1.21
+  #FAE91D  n=     42  L=0.7869  H=  55.4 S=0.88  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #FAE91F  n=     77  L=0.7870  H=  55.3 S=0.88  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #FAE920  n=    112  L=0.7871  H=  55.3 S=0.87  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #F6E5AF  n=     52  L=0.7873  H=  45.6 S=0.29  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #F7EA22  n=     41  L=0.7874  H=  56.3 S=0.86  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #FAE4B2  n=     46  L=0.7903  H=  41.7 S=0.29  vs#FFF= 1.25  vs#FDFBF6= 1.21
+  #FFE591  n=     74  L=0.7934  H=  45.8 S=0.43  vs#FFF= 1.24  vs#FDFBF6= 1.20
+  #F7E6B0  n=     76  L=0.7950  H=  45.6 S=0.29  vs#FFF= 1.24  vs#FDFBF6= 1.20
+  #FBE5B3  n=     92  L=0.7980  H=  41.7 S=0.29  vs#FFF= 1.24  vs#FDFBF6= 1.20
+  #F7E7B0  n=     83  L=0.8006  H=  46.5 S=0.29  vs#FFF= 1.23  vs#FDFBF6= 1.19
+  #F7E7B1  n=    303  L=0.8010  H=  46.3 S=0.28  vs#FFF= 1.23  vs#FDFBF6= 1.19
+  #FCE6B4  n=    138  L=0.8058  H=  41.7 S=0.29  vs#FFF= 1.23  vs#FDFBF6= 1.19
+  #FCE6B7  n=     44  L=0.8071  H=  40.9 S=0.27  vs#FFF= 1.23  vs#FDFBF6= 1.18
+  #FEEA77  n=     68  L=0.8125  H=  51.1 S=0.53  vs#FFF= 1.22  vs#FDFBF6= 1.18
+  #FDE7B5  n=   2842  L=0.8137  H=  41.7 S=0.28  vs#FFF= 1.22  vs#FDFBF6= 1.18
+  #FDE7B6  n=     79  L=0.8141  H=  41.4 S=0.28  vs#FFF= 1.22  vs#FDFBF6= 1.17
+  #FDE7B8  n=    521  L=0.8150  H=  40.9 S=0.27  vs#FFF= 1.21  vs#FDFBF6= 1.17
+  #FDE8B3  n=     99  L=0.8185  H=  43.0 S=0.29  vs#FFF= 1.21  vs#FDFBF6= 1.17
+  #FFEB78  n=    664  L=0.8203  H=  51.1 S=0.53  vs#FFF= 1.21  vs#FDFBF6= 1.17
+  #FEE8B6  n=    157  L=0.8216  H=  41.7 S=0.28  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FDEC78  n=    925  L=0.8223  H=  52.3 S=0.53  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FDEC7A  n=    259  L=0.8228  H=  52.2 S=0.52  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FEE8B9  n=     94  L=0.8229  H=  40.9 S=0.27  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FEEC7C  n=    193  L=0.8252  H=  51.7 S=0.51  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FEEC7E  n=     62  L=0.8257  H=  51.6 S=0.50  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FFEC79  n=    324  L=0.8263  H=  51.5 S=0.53  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FFEC7B  n=    242  L=0.8268  H=  51.4 S=0.52  vs#FFF= 1.20  vs#FDFBF6= 1.16
+  #FEED77  n=     65  L=0.8297  H=  52.4 S=0.53  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FEED79  n=   1516  L=0.8302  H=  52.3 S=0.52  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FEED7B  n=    694  L=0.8307  H=  52.2 S=0.52  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FFED7D  n=    134  L=0.8331  H=  51.7 S=0.51  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FFED7F  n=     57  L=0.8336  H=  51.6 S=0.50  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FFED81  n=     54  L=0.8341  H=  51.4 S=0.49  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FFED84  n=     40  L=0.8349  H=  51.2 S=0.48  vs#FFF= 1.19  vs#FDFBF6= 1.15
+  #FEEE7D  n=     49  L=0.8370  H=  52.6 S=0.51  vs#FFF= 1.18  vs#FDFBF6= 1.14
+  #FFEE7C  n=    112  L=0.8386  H=  52.2 S=0.51  vs#FFF= 1.18  vs#FDFBF6= 1.14
+  #FFEE82  n=     48  L=0.8402  H=  51.8 S=0.49  vs#FFF= 1.18  vs#FDFBF6= 1.14
+  #FDEF82  n=     49  L=0.8423  H=  53.2 S=0.49  vs#FFF= 1.18  vs#FDFBF6= 1.14
+  #FDEF84  n=     46  L=0.8428  H=  53.1 S=0.48  vs#FFF= 1.18  vs#FDFBF6= 1.14
+  #FDEF8C  n=     42  L=0.8451  H=  52.6 S=0.45  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FEEF88  n=     55  L=0.8458  H=  52.4 S=0.46  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FFEF85  n=     48  L=0.8469  H=  52.1 S=0.48  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FEEF90  n=     43  L=0.8482  H=  51.8 S=0.43  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FDF088  n=     58  L=0.8498  H=  53.3 S=0.46  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FDF08A  n=     50  L=0.8504  H=  53.2 S=0.45  vs#FFF= 1.17  vs#FDFBF6= 1.13
+  #FEF08D  n=     75  L=0.8531  H=  52.6 S=0.44  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FEF08F  n=     58  L=0.8537  H=  52.4 S=0.44  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FFF091  n=    168  L=0.8562  H=  51.8 S=0.43  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FFF093  n=    117  L=0.8569  H=  51.7 S=0.42  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FFF095  n=     55  L=0.8575  H=  51.5 S=0.42  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FEF188  n=     43  L=0.8576  H=  53.4 S=0.46  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FDF18F  n=     46  L=0.8578  H=  53.5 S=0.43  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #FFF188  n=     83  L=0.8595  H=  52.9 S=0.47  vs#FFF= 1.15  vs#FDFBF6= 1.12
+  #FEF191  n=     84  L=0.8603  H=  52.8 S=0.43  vs#FFF= 1.15  vs#FDFBF6= 1.12
+  #FEF193  n=     47  L=0.8609  H=  52.7 S=0.42  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FFF190  n=     81  L=0.8618  H=  52.4 S=0.44  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FFF198  n=     51  L=0.8644  H=  51.8 S=0.40  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FEF290  n=     47  L=0.8659  H=  53.5 S=0.43  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FDF296  n=     48  L=0.8659  H=  53.6 S=0.41  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FDF298  n=     57  L=0.8665  H=  53.5 S=0.40  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FDF299  n=     70  L=0.8669  H=  53.4 S=0.40  vs#FFF= 1.15  vs#FDFBF6= 1.11
+  #FFF292  n=    236  L=0.8684  H=  52.8 S=0.43  vs#FFF= 1.14  vs#FDFBF6= 1.11
+  #FFF294  n=     63  L=0.8690  H=  52.7 S=0.42  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FEF29C  n=    103  L=0.8698  H=  52.7 S=0.39  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FFF299  n=     54  L=0.8706  H=  52.4 S=0.40  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FFF391  n=     46  L=0.8741  H=  53.5 S=0.43  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FEF397  n=     74  L=0.8741  H=  53.6 S=0.41  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FFF2A4  n=     72  L=0.8744  H=  51.4 S=0.36  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FEF399  n=    109  L=0.8747  H=  53.5 S=0.40  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FEF39A  n=     93  L=0.8751  H=  53.4 S=0.39  vs#FFF= 1.14  vs#FDFBF6= 1.10
+  #FFF397  n=     55  L=0.8760  H=  53.1 S=0.41  vs#FFF= 1.13  vs#FDFBF6= 1.10
+  #FEF3A1  n=     48  L=0.8775  H=  52.9 S=0.37  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF39D  n=     58  L=0.8780  H=  52.7 S=0.38  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF39F  n=     60  L=0.8786  H=  52.5 S=0.38  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF3A1  n=     42  L=0.8793  H=  52.3 S=0.37  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FEF49D  n=     42  L=0.8821  H=  53.8 S=0.38  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF49A  n=     44  L=0.8829  H=  53.5 S=0.40  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF49B  n=     55  L=0.8833  H=  53.4 S=0.39  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #FFF4A2  n=     48  L=0.8857  H=  52.9 S=0.36  vs#FFF= 1.12  vs#FDFBF6= 1.09
+  #FFF4A4  n=     57  L=0.8864  H=  52.7 S=0.36  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #FFF4A5  n=     42  L=0.8868  H=  52.7 S=0.35  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #FDF5AA  n=    115  L=0.8909  H=  54.2 S=0.33  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #FEF5A6  n=     46  L=0.8913  H=  53.9 S=0.35  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #FDF5AC  n=     89  L=0.8917  H=  54.1 S=0.32  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #FFF5AD  n=     42  L=0.8958  H=  52.7 S=0.32  vs#FFF= 1.11  vs#FDFBF6= 1.07
+  #FDF6A8  n=     79  L=0.8962  H=  55.1 S=0.34  vs#FFF= 1.11  vs#FDFBF6= 1.07
+  #FEF6A5  n=     41  L=0.8970  H=  54.6 S=0.35  vs#FFF= 1.11  vs#FDFBF6= 1.07
+  #FEF6B5  n=     40  L=0.9032  H=  53.4 S=0.29  vs#FFF= 1.10  vs#FDFBF6= 1.07
+  #FDF7BD  n=     42  L=0.9108  H=  54.4 S=0.25  vs#FFF= 1.09  vs#FDFBF6= 1.06
+  #FFF7B6  n=     68  L=0.9116  H=  53.4 S=0.29  vs#FFF= 1.09  vs#FDFBF6= 1.06
+  #FFF7B8  n=     46  L=0.9124  H=  53.2 S=0.28  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #FFF7B9  n=     65  L=0.9128  H=  53.1 S=0.27  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #FEF7C0  n=     46  L=0.9140  H=  53.2 S=0.24  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #FFF8B4  n=     48  L=0.9169  H=  54.4 S=0.29  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #FFF9B5  n=     47  L=0.9235  H=  55.1 S=0.29  vs#FFF= 1.08  vs#FDFBF6= 1.04
+  #FFF8C4  n=     40  L=0.9238  H=  52.9 S=0.23  vs#FFF= 1.08  vs#FDFBF6= 1.04
+  #FFF8CA  n=     47  L=0.9266  H=  52.1 S=0.21  vs#FFF= 1.08  vs#FDFBF6= 1.04
+  #FDF9C9  n=     42  L=0.9285  H=  55.4 S=0.21  vs#FFF= 1.07  vs#FDFBF6= 1.04
+  #FEFAD5  n=     48  L=0.9425  H=  54.1 S=0.16  vs#FFF= 1.06  vs#FDFBF6= 1.02
+  #FFFBD6  n=     42  L=0.9511  H=  54.1 S=0.16  vs#FFF= 1.05  vs#FDFBF6= 1.01
+  #FEFBDA  n=    104  L=0.9513  H=  55.0 S=0.14  vs#FFF= 1.05  vs#FDFBF6= 1.01
+  #FFFDDE  n=     71  L=0.9678  H=  56.4 S=0.13  vs#FFF= 1.03  vs#FDFBF6= 1.00
+
+===== blue  (73 colors, n>=40) =====
+  #000002  n=     46  L=0.0000  H= 240.0 S=1.00  vs#FFF=20.98  vs#FDFBF6=20.29
+  #000004  n=     40  L=0.0001  H= 240.0 S=1.00  vs#FFF=20.96  vs#FDFBF6=20.27
+  #000009  n=     51  L=0.0002  H= 240.0 S=1.00  vs#FFF=20.92  vs#FDFBF6=20.23
+  #00000C  n=     58  L=0.0003  H= 240.0 S=1.00  vs#FFF=20.89  vs#FDFBF6=20.20
+  #0C0C10  n=  27378  L=0.0038  H= 240.0 S=0.25  vs#FFF=19.52  vs#FDFBF6=18.88
+  #0E0E12  n=     55  L=0.0045  H= 240.0 S=0.22  vs#FFF=19.26  vs#FDFBF6=18.63
+  #111115  n=     72  L=0.0057  H= 240.0 S=0.19  vs#FFF=18.84  vs#FDFBF6=18.21
+  #131317  n=     79  L=0.0067  H= 240.0 S=0.17  vs#FFF=18.53  vs#FDFBF6=17.92
+  #1C1C22  n=  58800  L=0.0119  H= 240.0 S=0.18  vs#FFF=16.95  vs#FDFBF6=16.39
+  #40404A  n=    513  L=0.0525  H= 240.0 S=0.14  vs#FFF=10.24  vs#FDFBF6= 9.90
+  #125C9B  n=     59  L=0.1015  H= 207.6 S=0.88  vs#FFF= 6.93  vs#FDFBF6= 6.70
+  #135D9C  n=    115  L=0.1037  H= 207.6 S=0.88  vs#FFF= 6.83  vs#FDFBF6= 6.61
+  #145E9D  n=   1257  L=0.1059  H= 207.6 S=0.87  vs#FFF= 6.74  vs#FDFBF6= 6.51
+  #145E9F  n=     99  L=0.1066  H= 208.1 S=0.87  vs#FFF= 6.71  vs#FDFBF6= 6.48
+  #155F9E  n=     80  L=0.1081  H= 207.6 S=0.87  vs#FFF= 6.64  vs#FDFBF6= 6.42
+  #207BC2  n=    150  L=0.1837  H= 206.3 S=0.84  vs#FFF= 4.49  vs#FDFBF6= 4.34
+  #257BC8  n=    133  L=0.1873  H= 208.3 S=0.81  vs#FFF= 4.42  vs#FDFBF6= 4.28
+  #257CC9  n=     66  L=0.1903  H= 208.2 S=0.82  vs#FFF= 4.37  vs#FDFBF6= 4.23
+  #4C75E7  n=     64  L=0.2003  H= 224.1 S=0.67  vs#FFF= 4.20  vs#FDFBF6= 4.06
+  #4C76E4  n=     43  L=0.2009  H= 223.4 S=0.67  vs#FFF= 4.18  vs#FDFBF6= 4.05
+  #4C75E9  n=     64  L=0.2014  H= 224.3 S=0.67  vs#FFF= 4.18  vs#FDFBF6= 4.04
+  #4B76E6  n=    130  L=0.2017  H= 223.4 S=0.67  vs#FFF= 4.17  vs#FDFBF6= 4.03
+  #4C76E6  n=     55  L=0.2021  H= 223.6 S=0.67  vs#FFF= 4.17  vs#FDFBF6= 4.03
+  #4B76E7  n=    711  L=0.2022  H= 223.5 S=0.68  vs#FFF= 4.16  vs#FDFBF6= 4.03
+  #4B77E4  n=    116  L=0.2029  H= 222.7 S=0.67  vs#FFF= 4.15  vs#FDFBF6= 4.01
+  #4B76E9  n=    291  L=0.2034  H= 223.7 S=0.68  vs#FFF= 4.14  vs#FDFBF6= 4.01
+  #279AC9  n=     99  L=0.2776  H= 197.4 S=0.81  vs#FFF= 3.21  vs#FDFBF6= 3.10
+  #289ACC  n=     98  L=0.2792  H= 198.3 S=0.80  vs#FFF= 3.19  vs#FDFBF6= 3.08
+  #289BCA  n=   2973  L=0.2816  H= 197.4 S=0.80  vs#FFF= 3.17  vs#FDFBF6= 3.06
+  #299CCB  n=     69  L=0.2856  H= 197.4 S=0.80  vs#FFF= 3.13  vs#FDFBF6= 3.03
+  #6E9BBC  n=     87  L=0.3039  H= 205.4 S=0.41  vs#FFF= 2.97  vs#FDFBF6= 2.87
+  #7D9AFE  n=     52  L=0.3463  H= 226.5 S=0.51  vs#FFF= 2.65  vs#FDFBF6= 2.56
+  #7A9BFF  n=     49  L=0.3480  H= 225.1 S=0.52  vs#FFF= 2.64  vs#FDFBF6= 2.55
+  #7B9BFE  n=     76  L=0.3481  H= 225.3 S=0.52  vs#FFF= 2.64  vs#FDFBF6= 2.55
+  #7B9CF9  n=     51  L=0.3483  H= 224.3 S=0.51  vs#FFF= 2.64  vs#FDFBF6= 2.55
+  #789CFD  n=     40  L=0.3486  H= 223.8 S=0.53  vs#FFF= 2.63  vs#FDFBF6= 2.55
+  #7B9BFF  n=     53  L=0.3487  H= 225.5 S=0.52  vs#FFF= 2.63  vs#FDFBF6= 2.55
+  #7D9BFD  n=     48  L=0.3489  H= 225.9 S=0.51  vs#FFF= 2.63  vs#FDFBF6= 2.54
+  #7B9CFB  n=     45  L=0.3495  H= 224.5 S=0.51  vs#FFF= 2.63  vs#FDFBF6= 2.54
+  #7A9DF7  n=     61  L=0.3497  H= 223.2 S=0.51  vs#FFF= 2.63  vs#FDFBF6= 2.54
+  #7A9CFD  n=    305  L=0.3501  H= 224.4 S=0.52  vs#FFF= 2.62  vs#FDFBF6= 2.54
+  #799CFF  n=    149  L=0.3506  H= 224.3 S=0.53  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #7A9CFE  n=    312  L=0.3507  H= 224.5 S=0.52  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #7B9CFD  n=     52  L=0.3508  H= 224.8 S=0.51  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #7A9DF9  n=    201  L=0.3509  H= 223.5 S=0.51  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #7A9EF4  n=     43  L=0.3512  H= 222.3 S=0.50  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #7A9CFF  n=    157  L=0.3513  H= 224.7 S=0.52  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #799DFB  n=    305  L=0.3514  H= 223.4 S=0.52  vs#FFF= 2.62  vs#FDFBF6= 2.53
+  #779DFE  n=    210  L=0.3519  H= 223.1 S=0.53  vs#FFF= 2.61  vs#FDFBF6= 2.53
+  #779EF9  n=     84  L=0.3522  H= 222.0 S=0.52  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #7A9DFB  n=    225  L=0.3522  H= 223.7 S=0.51  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #799EF7  n=     61  L=0.3523  H= 222.4 S=0.51  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #7A9EF6  n=     54  L=0.3525  H= 222.6 S=0.50  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #779DFF  n=     51  L=0.3526  H= 223.2 S=0.53  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #799DFD  n=    854  L=0.3527  H= 223.6 S=0.52  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #799DFE  n=  88538  L=0.3533  H= 223.8 S=0.52  vs#FFF= 2.60  vs#FDFBF6= 2.52
+  #779EFB  n=    121  L=0.3534  H= 222.3 S=0.53  vs#FFF= 2.60  vs#FDFBF6= 2.52
+  #799EF9  n=    267  L=0.3536  H= 222.7 S=0.51  vs#FFF= 2.60  vs#FDFBF6= 2.52
+  #769EFD  n=    142  L=0.3540  H= 222.2 S=0.53  vs#FFF= 2.60  vs#FDFBF6= 2.51
+  #779FF7  n=     43  L=0.3543  H= 221.2 S=0.52  vs#FFF= 2.60  vs#FDFBF6= 2.51
+  #769EFE  n=    102  L=0.3546  H= 222.4 S=0.54  vs#FFF= 2.60  vs#FDFBF6= 2.51
+  #779EFD  n=    226  L=0.3547  H= 222.5 S=0.53  vs#FFF= 2.59  vs#FDFBF6= 2.51
+  #769FF9  n=     59  L=0.3549  H= 221.2 S=0.53  vs#FFF= 2.59  vs#FDFBF6= 2.51
+  #7B9DFF  n=     52  L=0.3554  H= 224.5 S=0.52  vs#FFF= 2.59  vs#FDFBF6= 2.50
+  #769FFB  n=     76  L=0.3561  H= 221.5 S=0.53  vs#FFF= 2.59  vs#FDFBF6= 2.50
+  #A5B7CB  n=     67  L=0.4618  H= 211.6 S=0.19  vs#FFF= 2.05  vs#FDFBF6= 1.98
+  #94C6F7  n=    206  L=0.5340  H= 209.7 S=0.40  vs#FFF= 1.80  vs#FDFBF6= 1.74
+  #95C7F8  n=   2317  L=0.5401  H= 209.7 S=0.40  vs#FFF= 1.78  vs#FDFBF6= 1.72
+  #95C7FA  n=    135  L=0.5414  H= 210.3 S=0.40  vs#FFF= 1.78  vs#FDFBF6= 1.72
+  #94C8F8  n=    132  L=0.5438  H= 208.8 S=0.40  vs#FFF= 1.77  vs#FDFBF6= 1.71
+  #96C8F9  n=     81  L=0.5463  H= 209.7 S=0.40  vs#FFF= 1.76  vs#FDFBF6= 1.70
+  #B0D6FB  n=     40  L=0.6429  H= 209.6 S=0.30  vs#FFF= 1.52  vs#FDFBF6= 1.47
+  #A4E0FA  n=     76  L=0.6811  H= 198.1 S=0.34  vs#FFF= 1.44  vs#FDFBF6= 1.39
+
+===== neutral  (88 colors, n>=40) =====
+  #000000  n=  74560  L=0.0000  H=   0.0 S=0.00  vs#FFF=21.00  vs#FDFBF6=20.31
+  #010101  n=    435  L=0.0003  H=   0.0 S=0.00  vs#FFF=20.87  vs#FDFBF6=20.18
+  #020202  n=     75  L=0.0006  H=   0.0 S=0.00  vs#FFF=20.75  vs#FDFBF6=20.06
+  #030303  n=     50  L=0.0009  H=   0.0 S=0.00  vs#FFF=20.62  vs#FDFBF6=19.94
+  #060606  n=    700  L=0.0018  H=   0.0 S=0.00  vs#FFF=20.26  vs#FDFBF6=19.59
+  #0F0F0F  n=     44  L=0.0048  H=   0.0 S=0.00  vs#FFF=19.17  vs#FDFBF6=18.54
+  #101010  n=     54  L=0.0052  H=   0.0 S=0.00  vs#FFF=19.03  vs#FDFBF6=18.40
+  #111111  n=    102  L=0.0056  H=   0.0 S=0.00  vs#FFF=18.88  vs#FDFBF6=18.26
+  #121212  n=     91  L=0.0060  H=   0.0 S=0.00  vs#FFF=18.73  vs#FDFBF6=18.11
+  #131313  n=     81  L=0.0065  H=   0.0 S=0.00  vs#FFF=18.58  vs#FDFBF6=17.97
+  #161616  n=     53  L=0.0080  H=   0.0 S=0.00  vs#FFF=18.10  vs#FDFBF6=17.50
+  #171715  n=     44  L=0.0085  H=  60.0 S=0.09  vs#FFF=17.95  vs#FDFBF6=17.36
+  #171717  n=     47  L=0.0086  H=   0.0 S=0.00  vs#FFF=17.93  vs#FDFBF6=17.34
+  #181816  n=     69  L=0.0091  H=  60.0 S=0.08  vs#FFF=17.78  vs#FDFBF6=17.19
+  #181818  n=     46  L=0.0091  H=   0.0 S=0.00  vs#FFF=17.76  vs#FDFBF6=17.17
+  #191917  n=   1613  L=0.0096  H=  60.0 S=0.08  vs#FFF=17.61  vs#FDFBF6=17.02
+  #191919  n=     40  L=0.0097  H=   0.0 S=0.00  vs#FFF=17.58  vs#FDFBF6=17.00
+  #1A1A18  n=    125  L=0.0102  H=  60.0 S=0.08  vs#FFF=17.43  vs#FDFBF6=16.85
+  #1A1A1A  n=     47  L=0.0103  H=   0.0 S=0.00  vs#FFF=17.40  vs#FDFBF6=16.83
+  #333337  n=     53  L=0.0335  H= 240.0 S=0.07  vs#FFF=12.58  vs#FDFBF6=12.16
+  #37373B  n=     47  L=0.0386  H= 240.0 S=0.07  vs#FFF=11.85  vs#FDFBF6=11.46
+  #535355  n=     52  L=0.0868  H= 240.0 S=0.02  vs#FFF= 7.67  vs#FDFBF6= 7.42
+  #545456  n=     74  L=0.0890  H= 240.0 S=0.02  vs#FFF= 7.56  vs#FDFBF6= 7.31
+  #555557  n=    103  L=0.0912  H= 240.0 S=0.02  vs#FFF= 7.44  vs#FDFBF6= 7.19
+  #565658  n=    169  L=0.0934  H= 240.0 S=0.02  vs#FFF= 7.32  vs#FDFBF6= 7.08
+  #575759  n=    221  L=0.0956  H= 240.0 S=0.02  vs#FFF= 7.21  vs#FDFBF6= 6.97
+  #58585A  n=    993  L=0.0979  H= 240.0 S=0.02  vs#FFF= 7.10  vs#FDFBF6= 6.86
+  #59595B  n=    165  L=0.1002  H= 240.0 S=0.02  vs#FFF= 6.99  vs#FDFBF6= 6.76
+  #5A5A5C  n=     86  L=0.1026  H= 240.0 S=0.02  vs#FFF= 6.88  vs#FDFBF6= 6.65
+  #5B5B5D  n=     65  L=0.1050  H= 240.0 S=0.02  vs#FFF= 6.78  vs#FDFBF6= 6.55
+  #5C5C5E  n=     44  L=0.1074  H= 240.0 S=0.02  vs#FFF= 6.67  vs#FDFBF6= 6.45
+  #727272  n=    701  L=0.1683  H=   0.0 S=0.00  vs#FFF= 4.81  vs#FDFBF6= 4.65
+  #737378  n=     53  L=0.1726  H= 240.0 S=0.04  vs#FFF= 4.72  vs#FDFBF6= 4.56
+  #7A7A7F  n=     57  L=0.1959  H= 240.0 S=0.04  vs#FFF= 4.27  vs#FDFBF6= 4.13
+  #9799A3  n=     71  L=0.3201  H= 230.0 S=0.07  vs#FFF= 2.84  vs#FDFBF6= 2.74
+  #A39D9D  n=     45  L=0.3433  H=   0.0 S=0.04  vs#FFF= 2.67  vs#FDFBF6= 2.58
+  #A49E9E  n=    807  L=0.3481  H=   0.0 S=0.04  vs#FFF= 2.64  vs#FDFBF6= 2.55
+  #A59F9F  n=    224  L=0.3530  H=   0.0 S=0.04  vs#FFF= 2.61  vs#FDFBF6= 2.52
+  #9EA0AA  n=     55  L=0.3531  H= 230.0 S=0.07  vs#FFF= 2.60  vs#FDFBF6= 2.52
+  #A1A1A6  n=     58  L=0.3582  H= 240.0 S=0.03  vs#FFF= 2.57  vs#FDFBF6= 2.49
+  #A0A2AC  n=    218  L=0.3629  H= 230.0 S=0.07  vs#FFF= 2.54  vs#FDFBF6= 2.46
+  #D3D3D8  n=     41  L=0.6540  H= 240.0 S=0.02  vs#FFF= 1.49  vs#FDFBF6= 1.44
+  #DFDCEF  n=     42  L=0.7311  H= 249.5 S=0.08  vs#FFF= 1.34  vs#FDFBF6= 1.30
+  #E0DDF0  n=     58  L=0.7385  H= 249.5 S=0.08  vs#FFF= 1.33  vs#FDFBF6= 1.29
+  #E1DEF1  n=     78  L=0.7460  H= 249.5 S=0.08  vs#FFF= 1.32  vs#FDFBF6= 1.28
+  #E2DFF2  n=     54  L=0.7535  H= 249.5 S=0.08  vs#FFF= 1.31  vs#FDFBF6= 1.26
+  #E3E0F3  n=     46  L=0.7611  H= 249.5 S=0.08  vs#FFF= 1.29  vs#FDFBF6= 1.25
+  #E8E8EE  n=     54  L=0.8104  H= 240.0 S=0.03  vs#FFF= 1.22  vs#FDFBF6= 1.18
+  #EEEEF4  n=   2157  L=0.8586  H= 240.0 S=0.02  vs#FFF= 1.16  vs#FDFBF6= 1.12
+  #EEF1F6  n=     80  L=0.8774  H= 217.5 S=0.03  vs#FFF= 1.13  vs#FDFBF6= 1.09
+  #EFF2F7  n=    214  L=0.8857  H= 217.5 S=0.03  vs#FFF= 1.12  vs#FDFBF6= 1.09
+  #F2F2F2  n=    786  L=0.8879  H=   0.0 S=0.00  vs#FFF= 1.12  vs#FDFBF6= 1.08
+  #F0F3F8  n=    135  L=0.8940  H= 217.5 S=0.03  vs#FFF= 1.11  vs#FDFBF6= 1.08
+  #F3F3F3  n=     47  L=0.8963  H=   0.0 S=0.00  vs#FFF= 1.11  vs#FDFBF6= 1.07
+  #F1F4F9  n=     40  L=0.9024  H= 217.5 S=0.03  vs#FFF= 1.10  vs#FDFBF6= 1.07
+  #F4F4F4  n=     56  L=0.9047  H=   0.0 S=0.00  vs#FFF= 1.10  vs#FDFBF6= 1.06
+  #F5F5F5  n=     46  L=0.9131  H=   0.0 S=0.00  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #F4F5FA  n=     47  L=0.9144  H= 230.0 S=0.02  vs#FFF= 1.09  vs#FDFBF6= 1.05
+  #F6F6F6  n=     47  L=0.9216  H=   0.0 S=0.00  vs#FFF= 1.08  vs#FDFBF6= 1.05
+  #F5F6FB  n=     86  L=0.9229  H= 230.0 S=0.02  vs#FFF= 1.08  vs#FDFBF6= 1.04
+  #F7F7F7  n=     67  L=0.9301  H=   0.0 S=0.00  vs#FFF= 1.07  vs#FDFBF6= 1.04
+  #F0FAF9  n=     82  L=0.9374  H= 174.0 S=0.04  vs#FFF= 1.06  vs#FDFBF6= 1.03
+  #F8F8F8  n=    799  L=0.9387  H=   0.0 S=0.00  vs#FFF= 1.06  vs#FDFBF6= 1.03
+  #EFFBF9  n=     84  L=0.9418  H= 170.0 S=0.05  vs#FFF= 1.06  vs#FDFBF6= 1.02
+  #F1FBFA  n=    118  L=0.9460  H= 174.0 S=0.04  vs#FFF= 1.05  vs#FDFBF6= 1.02
+  #F9F9F9  n=    103  L=0.9473  H=   0.0 S=0.00  vs#FFF= 1.05  vs#FDFBF6= 1.02
+  #F0FCFA  n=   1263  L=0.9505  H= 170.0 S=0.05  vs#FFF= 1.05  vs#FDFBF6= 1.01
+  #FAFAFA  n=    129  L=0.9560  H=   0.0 S=0.00  vs#FFF= 1.04  vs#FDFBF6= 1.01
+  #FBFBFB  n=    184  L=0.9647  H=   0.0 S=0.00  vs#FFF= 1.03  vs#FDFBF6= 1.00
+  #FCFCFC  n=    199  L=0.9734  H=   0.0 S=0.00  vs#FFF= 1.03  vs#FDFBF6= 1.01
+  #FDFDFD  n=    458  L=0.9823  H=   0.0 S=0.00  vs#FFF= 1.02  vs#FDFBF6= 1.02
+  #FEFEF4  n=     86  L=0.9849  H=  60.0 S=0.04  vs#FFF= 1.01  vs#FDFBF6= 1.02
+  #FDFEF9  n=     42  L=0.9861  H=  72.0 S=0.02  vs#FFF= 1.01  vs#FDFBF6= 1.02
+  #FEFEF6  n=     41  L=0.9861  H=  60.0 S=0.03  vs#FFF= 1.01  vs#FDFBF6= 1.02
+  #FFFDFF  n=     76  L=0.9873  H= 300.0 S=0.01  vs#FFF= 1.01  vs#FDFBF6= 1.02
+  #FEFEFC  n=    109  L=0.9898  H=  60.0 S=0.01  vs#FFF= 1.01  vs#FDFBF6= 1.02
+  #FEFEFE  n=    495  L=0.9911  H=   0.0 S=0.00  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FBFFFF  n=     47  L=0.9925  H= 180.0 S=0.02  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FEFFF7  n=     71  L=0.9931  H=  67.5 S=0.03  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FFFEFF  n=    121  L=0.9936  H= 300.0 S=0.00  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FFFFF6  n=     43  L=0.9943  H=  60.0 S=0.04  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FCFFFF  n=     67  L=0.9944  H= 180.0 S=0.01  vs#FFF= 1.01  vs#FDFBF6= 1.03
+  #FEFFFA  n=     60  L=0.9949  H=  72.0 S=0.02  vs#FFF= 1.00  vs#FDFBF6= 1.03
+  #FFFFFA  n=     48  L=0.9968  H=  60.0 S=0.02  vs#FFF= 1.00  vs#FDFBF6= 1.03
+  #FFFFFB  n=     88  L=0.9975  H=  60.0 S=0.02  vs#FFF= 1.00  vs#FDFBF6= 1.03
+  #FEFFFF  n=    117  L=0.9981  H= 180.0 S=0.00  vs#FFF= 1.00  vs#FDFBF6= 1.03
+  #FFFFFD  n=     99  L=0.9987  H=  60.0 S=0.01  vs#FFF= 1.00  vs#FDFBF6= 1.03
+  #FFFFFF  n=  45033  L=1.0000  H=   0.0 S=0.00  vs#FFF= 1.00  vs#FDFBF6= 1.03
+
+===== green  (32 colors, n>=40) =====
+  #000100  n=    112  L=0.0002  H= 120.0 S=1.00  vs#FFF=20.91  vs#FDFBF6=20.22
+  #000200  n=     89  L=0.0004  H= 120.0 S=1.00  vs#FFF=20.82  vs#FDFBF6=20.13
+  #000300  n=     75  L=0.0007  H= 120.0 S=1.00  vs#FFF=20.73  vs#FDFBF6=20.05
+  #000400  n=     65  L=0.0009  H= 120.0 S=1.00  vs#FFF=20.64  vs#FDFBF6=19.96
+  #111312  n=     56  L=0.0063  H= 150.0 S=0.11  vs#FFF=18.65  vs#FDFBF6=18.04
+  #121413  n=     50  L=0.0068  H= 150.0 S=0.10  vs#FFF=18.50  vs#FDFBF6=17.89
+  #2E514D  n=    138  L=0.0700  H= 173.1 S=0.43  vs#FFF= 8.75  vs#FDFBF6= 8.46
+  #3E5452  n=     75  L=0.0797  H= 174.5 S=0.26  vs#FFF= 8.09  vs#FDFBF6= 7.83
+  #3C5552  n=     67  L=0.0807  H= 172.8 S=0.29  vs#FFF= 8.04  vs#FDFBF6= 7.77
+  #3E756F  n=     73  L=0.1489  H= 173.5 S=0.47  vs#FFF= 5.28  vs#FDFBF6= 5.10
+  #4D7D43  n=     52  L=0.1665  H= 109.7 S=0.46  vs#FFF= 4.85  vs#FDFBF6= 4.69
+  #4E7E42  n=     50  L=0.1693  H= 108.0 S=0.48  vs#FFF= 4.79  vs#FDFBF6= 4.63
+  #4E7E44  n=     71  L=0.1696  H= 109.7 S=0.46  vs#FFF= 4.78  vs#FDFBF6= 4.62
+  #4F7F43  n=    349  L=0.1725  H= 108.0 S=0.47  vs#FFF= 4.72  vs#FDFBF6= 4.56
+  #4F7F45  n=    220  L=0.1727  H= 109.7 S=0.46  vs#FFF= 4.71  vs#FDFBF6= 4.56
+  #508044  n=     95  L=0.1756  H= 108.0 S=0.47  vs#FFF= 4.65  vs#FDFBF6= 4.50
+  #508046  n=     61  L=0.1759  H= 109.7 S=0.45  vs#FFF= 4.65  vs#FDFBF6= 4.50
+  #658F8B  n=     72  L=0.2428  H= 174.3 S=0.29  vs#FFF= 3.59  vs#FDFBF6= 3.47
+  #63908B  n=    101  L=0.2446  H= 173.3 S=0.31  vs#FFF= 3.56  vs#FDFBF6= 3.45
+  #8DB09C  n=     44  L=0.3911  H= 145.7 S=0.20  vs#FFF= 2.38  vs#FDFBF6= 2.30
+  #8BB19C  n=     41  L=0.3933  H= 146.8 S=0.21  vs#FFF= 2.37  vs#FDFBF6= 2.29
+  #7AC4A9  n=     42  L=0.4648  H= 158.1 S=0.38  vs#FFF= 2.04  vs#FDFBF6= 1.97
+  #7CC6AB  n=     94  L=0.4761  H= 158.1 S=0.37  vs#FFF= 2.00  vs#FDFBF6= 1.93
+  #7DC7AC  n=    180  L=0.4819  H= 158.1 S=0.37  vs#FFF= 1.97  vs#FDFBF6= 1.91
+  #7CC8AC  n=     41  L=0.4857  H= 157.9 S=0.38  vs#FFF= 1.96  vs#FDFBF6= 1.90
+  #7EC8AD  n=    496  L=0.4876  H= 158.1 S=0.37  vs#FFF= 1.95  vs#FDFBF6= 1.89
+  #7FC9AE  n=   4160  L=0.4934  H= 158.1 S=0.37  vs#FFF= 1.93  vs#FDFBF6= 1.87
+  #80CAAF  n=    325  L=0.4993  H= 158.1 S=0.37  vs#FFF= 1.91  vs#FDFBF6= 1.85
+  #7FCBAF  n=     55  L=0.5032  H= 157.9 S=0.37  vs#FFF= 1.90  vs#FDFBF6= 1.84
+  #81CBB0  n=    146  L=0.5051  H= 158.1 S=0.36  vs#FFF= 1.89  vs#FDFBF6= 1.83
+  #82CCB1  n=     86  L=0.5111  H= 158.1 S=0.36  vs#FFF= 1.87  vs#FDFBF6= 1.81
+  #83CDB2  n=     57  L=0.5170  H= 158.1 S=0.36  vs#FFF= 1.85  vs#FDFBF6= 1.79
+
+===== other  (46 colors, n>=40) =====
+  #010000  n=    424  L=0.0001  H=   0.0 S=1.00  vs#FFF=20.97  vs#FDFBF6=20.28
+  #030000  n=     85  L=0.0002  H=   0.0 S=1.00  vs#FFF=20.92  vs#FDFBF6=20.23
+  #040000  n=     86  L=0.0003  H=   0.0 S=1.00  vs#FFF=20.89  vs#FDFBF6=20.20
+  #020101  n=    122  L=0.0004  H=   0.0 S=0.50  vs#FFF=20.85  vs#FDFBF6=20.16
+  #060000  n=     65  L=0.0004  H=   0.0 S=1.00  vs#FFF=20.84  vs#FDFBF6=20.15
+  #070000  n=     75  L=0.0005  H=   0.0 S=1.00  vs#FFF=20.81  vs#FDFBF6=20.12
+  #080000  n=     71  L=0.0005  H=   0.0 S=1.00  vs#FFF=20.79  vs#FDFBF6=20.10
+  #0A0000  n=     68  L=0.0006  H=   0.0 S=1.00  vs#FFF=20.73  vs#FDFBF6=20.05
+  #0B0000  n=     58  L=0.0007  H=   0.0 S=1.00  vs#FFF=20.71  vs#FDFBF6=20.02
+  #0D0000  n=     46  L=0.0009  H=   0.0 S=1.00  vs#FFF=20.65  vs#FDFBF6=19.96
+  #0C0406  n=    192  L=0.0018  H= 345.0 S=0.67  vs#FFF=20.28  vs#FDFBF6=19.61
+  #0C0506  n=     49  L=0.0020  H= 351.4 S=0.58  vs#FFF=20.19  vs#FDFBF6=19.53
+  #0D0506  n=     44  L=0.0021  H= 352.5 S=0.62  vs#FFF=20.16  vs#FDFBF6=19.50
+  #0D0507  n=     66  L=0.0021  H= 345.0 S=0.62  vs#FFF=20.16  vs#FDFBF6=19.49
+  #140D0E  n=     82  L=0.0047  H= 351.4 S=0.35  vs#FFF=19.20  vs#FDFBF6=18.57
+  #0A2828  n=    632  L=0.0174  H= 180.0 S=0.75  vs#FFF=15.59  vs#FDFBF6=15.07
+  #0B2929  n=     46  L=0.0182  H= 180.0 S=0.73  vs#FFF=15.40  vs#FDFBF6=14.89
+  #8F161D  n=    194  L=0.0650  H= 356.5 S=0.85  vs#FFF= 9.13  vs#FDFBF6= 8.83
+  #8F161F  n=     64  L=0.0651  H= 355.5 S=0.85  vs#FFF= 9.12  vs#FDFBF6= 8.82
+  #3D5253  n=     40  L=0.0765  H= 182.7 S=0.27  vs#FFF= 8.30  vs#FDFBF6= 8.03
+  #82575F  n=     53  L=0.1239  H= 348.8 S=0.33  vs#FFF= 6.04  vs#FDFBF6= 5.84
+  #83575F  n=    105  L=0.1247  H= 349.1 S=0.34  vs#FFF= 6.01  vs#FDFBF6= 5.81
+  #835760  n=     99  L=0.1249  H= 347.7 S=0.34  vs#FFF= 6.00  vs#FDFBF6= 5.81
+  #1A7273  n=    193  L=0.1349  H= 180.7 S=0.77  vs#FFF= 5.68  vs#FDFBF6= 5.49
+  #197373  n=     67  L=0.1371  H= 180.0 S=0.78  vs#FFF= 5.61  vs#FDFBF6= 5.43
+  #407472  n=    150  L=0.1480  H= 177.7 S=0.45  vs#FFF= 5.30  vs#FDFBF6= 5.13
+  #3E7572  n=    213  L=0.1496  H= 176.7 S=0.47  vs#FFF= 5.26  vs#FDFBF6= 5.09
+  #E60106  n=    514  L=0.1686  H= 358.7 S=1.00  vs#FFF= 4.80  vs#FDFBF6= 4.65
+  #E70006  n=     91  L=0.1700  H= 358.4 S=1.00  vs#FFF= 4.77  vs#FDFBF6= 4.61
+  #E70207  n=    184  L=0.1705  H= 358.7 S=0.99  vs#FFF= 4.76  vs#FDFBF6= 4.61
+  #ED3F26  n=    112  L=0.2170  H=   7.5 S=0.84  vs#FFF= 3.93  vs#FDFBF6= 3.80
+  #EE4027  n=   1164  L=0.2199  H=   7.5 S=0.84  vs#FFF= 3.89  vs#FDFBF6= 3.76
+  #F73221  n=     64  L=0.2217  H=   4.8 S=0.87  vs#FFF= 3.87  vs#FDFBF6= 3.74
+  #F73222  n=     73  L=0.2217  H=   4.5 S=0.86  vs#FFF= 3.86  vs#FDFBF6= 3.74
+  #EF4128  n=     66  L=0.2228  H=   7.5 S=0.83  vs#FFF= 3.85  vs#FDFBF6= 3.72
+  #CE6350  n=     46  L=0.2262  H=   9.0 S=0.61  vs#FFF= 3.80  vs#FDFBF6= 3.68
+  #CF6350  n=    240  L=0.2277  H=   9.0 S=0.61  vs#FFF= 3.78  vs#FDFBF6= 3.66
+  #F93D32  n=   1984  L=0.2371  H=   3.3 S=0.80  vs#FFF= 3.66  vs#FDFBF6= 3.54
+  #F93D34  n=    513  L=0.2373  H=   2.7 S=0.79  vs#FFF= 3.66  vs#FDFBF6= 3.53
+  #FA3E33  n=    100  L=0.2401  H=   3.3 S=0.80  vs#FFF= 3.62  vs#FDFBF6= 3.50
+  #7BA75C  n=     44  L=0.3262  H=  95.2 S=0.45  vs#FFF= 2.79  vs#FDFBF6= 2.70
+  #7AA85D  n=   1316  L=0.3293  H=  96.8 S=0.45  vs#FFF= 2.77  vs#FDFBF6= 2.68
+  #7CA85D  n=    250  L=0.3308  H=  95.2 S=0.45  vs#FFF= 2.76  vs#FDFBF6= 2.67
+  #7DA95E  n=     46  L=0.3354  H=  95.2 S=0.44  vs#FFF= 2.72  vs#FDFBF6= 2.63
+  #8EAA77  n=     64  L=0.3583  H=  92.9 S=0.30  vs#FFF= 2.57  vs#FDFBF6= 2.49
+  #8EAB75  n=    426  L=0.3616  H=  92.2 S=0.32  vs#FFF= 2.55  vs#FDFBF6= 2.47
+
+===== orange/red  (6 colors, n>=40) =====
+  #040100  n=     43  L=0.0005  H=  15.0 S=1.00  vs#FFF=20.80  vs#FDFBF6=20.11
+  #E68269  n=     64  L=0.3381  H=  12.0 S=0.54  vs#FFF= 2.71  vs#FDFBF6= 2.62
+  #CF9067  n=    165  L=0.3419  H=  23.7 S=0.50  vs#FFF= 2.68  vs#FDFBF6= 2.59
+  #D09168  n=     66  L=0.3466  H=  23.7 S=0.50  vs#FFF= 2.65  vs#FDFBF6= 2.56
+  #FAB687  n=    141  L=0.5553  H=  24.5 S=0.46  vs#FFF= 1.73  vs#FDFBF6= 1.68
+  #FCB685  n=    587  L=0.5584  H=  24.7 S=0.47  vs#FFF= 1.73  vs#FDFBF6= 1.67

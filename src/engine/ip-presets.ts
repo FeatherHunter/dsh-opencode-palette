@@ -1,5 +1,5 @@
-// ip-presets.ts — IP 预置主题第二来源：src/custom-presets/ 21 套（含库洛米）。
-// 双来源口径：内置 38（registry，不动）+ IP 21（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
+// ip-presets.ts — IP 预置主题第二来源：src/custom-presets/ 24 套（含库洛米、原神、马里奥、火影忍者的明暗双册）。
+// 双来源口径：内置 38（registry，不动）+ IP 23（编辑器「选基底」+ 外层自定义区胶囊，不进 themeNames/countStatic）。
 // 构建器把 JSON 内联进 bundle（build-client.ts CUSTOM_PRESETS_DIR），本文件只做字段收敛：
 // 每套对外 { name: id, title, appearance, colors }（presetToSeed 取 name/appearance/colors 同形；
 // name 用 ascii id，保证与内置名不撞、存盘 basePreset 合法；title 是中文展示名，外层胶囊按语言选用）。
@@ -10,13 +10,16 @@ import doraemon from '../custom-presets/doraemon.json' with { type: 'json' }
 import dragon_ball from '../custom-presets/dragon-ball.json' with { type: 'json' }
 import evangelion from '../custom-presets/evangelion.json' with { type: 'json' }
 import genshin from '../custom-presets/genshin.json' with { type: 'json' }
+import genshin_night from '../custom-presets/genshin-night.json' with { type: 'json' }
 import harry_potter from '../custom-presets/harry-potter.json' with { type: 'json' }
 import hello_kitty from '../custom-presets/hello-kitty.json' with { type: 'json' }
 import kuromi from '../custom-presets/kuromi.json' with { type: 'json' }
 import lego from '../custom-presets/lego.json' with { type: 'json' }
 import mario from '../custom-presets/mario.json' with { type: 'json' }
+import mario_night from '../custom-presets/mario-night.json' with { type: 'json' }
 import marvel from '../custom-presets/marvel.json' with { type: 'json' }
 import naruto from '../custom-presets/naruto.json' with { type: 'json' }
+import naruto_night from '../custom-presets/naruto-night.json' with { type: 'json' }
 import one_piece from '../custom-presets/one-piece.json' with { type: 'json' }
 import pokemon from '../custom-presets/pokemon.json' with { type: 'json' }
 import sailor_moon from '../custom-presets/sailor-moon.json' with { type: 'json' }
@@ -25,7 +28,7 @@ import transformers from '../custom-presets/transformers.json' with { type: 'jso
 import ultraman from '../custom-presets/ultraman.json' with { type: 'json' }
 import zelda from '../custom-presets/zelda.json' with { type: 'json' }
 
-// 21 套 JSON 同形：name 是中文展示名、appearance 为 dark/light、colors 为 37 色 hex 表
+// 24 套 JSON 同形：name 是中文展示名、appearance 为 dark/light、colors 为 37 色 hex 表
 interface IpPresetRaw {
   name: string
   appearance: string
@@ -35,8 +38,10 @@ interface IpPresetRaw {
 const IP_PRESETS_RAW: Record<string, IpPresetRaw> = {
   'cyberpunk-2077': cyberpunk_2077, 'dc-comics': dc_comics, 'disney': disney,
   'doraemon': doraemon, 'dragon-ball': dragon_ball, 'evangelion': evangelion, 'genshin': genshin,
+  'genshin-night': genshin_night,
   'harry-potter': harry_potter, 'hello-kitty': hello_kitty, 'kuromi': kuromi, 'lego': lego,
-  'mario': mario, 'marvel': marvel, 'naruto': naruto, 'one-piece': one_piece,
+  'mario': mario, 'mario-night': mario_night, 'marvel': marvel, 'naruto': naruto,
+  'naruto-night': naruto_night, 'one-piece': one_piece,
   'pokemon': pokemon, 'sailor-moon': sailor_moon, 'star-wars': star_wars,
   'transformers': transformers, 'ultraman': ultraman, 'zelda': zelda,
 }

@@ -1,11 +1,11 @@
-# 主题审计判尺（37-token / 58 套）
+# 主题审计判尺（37-token / 61 套）
 
 > 本文件是 [map #115](https://github.com/FeatherHunter/dsh-opencode-palette/issues/115) 判尺的**唯一文字权威**；`scripts/audit-themes.ts` 注释只放常量，基线见同目录 `baseline.md` / `baseline.json`。判尺改动必须同时改本文件与脚本，并重跑基线。
 
 ## 1. 审计对象与口径
 
-- 对象：`src/themes/*.json` 的 **37 套预置主题**（33 套 TUI + 4 套 desktop-2.0）与 `src/custom-presets/*.json` 的 **21 套 IP 主题**，共 58 套。
-- 评估色板：**59 个**。自持画布**预置主题**（36 套）虽有两套色板但非委托画布：引擎按 issue #45 把 dark 有效色板写进 light/dark 两半，按一套色板评一次；委托画布主题（`lucent-orng`）light 色板叠白底、dark 色板叠黑底，各评一次；**IP / 自定义单套色主题**（21 套）在 #120 修复后两半各自修复（light 半用 `ensureDiffContrast(..., false)`、dark 半用 `ensureDiffContrast(..., true)`），按主题 `appearance` 取宿主实际生效的那半评一次。
+- 对象：`src/themes/*.json` 的 **37 套预置主题**（33 套 TUI + 4 套 desktop-2.0）与 `src/custom-presets/*.json` 的 **24 套 IP 主题**，共 61 套。
+- 评估色板：**62 个**。自持画布**预置主题**（36 套）虽有两套色板但非委托画布：引擎按 issue #45 把 dark 有效色板写进 light/dark 两半，按一套色板评一次；委托画布主题（`lucent-orng`）light 色板叠白底、dark 色板叠黑底，各评一次；**IP / 自定义单套色主题**（24 套）在 #120 修复后两半各自修复（light 半用 `ensureDiffContrast(..., false)`、dark 半用 `ensureDiffContrast(..., true)`），按主题 `appearance` 取宿主实际生效的那半评一次。
 - 有效渲染层（与引擎同源）：
   1. `resolveThemeColors(json, mode)` 解析引用链得到原始槽位；
   2. `normalizeThemeColors(raw)` 补齐缺省槽：`sidebarBg ← background`、`bubbleBg / inputBg / codeBlockBg ← backgroundPanel`、`codeHeaderBg ← backgroundElement`；
@@ -62,7 +62,7 @@
 
 ## 4. IP 主题设计规范（仅 IP，预置不套用）
 
-硬性对比度对 IP 同样适用；以下设计规范只对 21 套 IP 主题产出 **warning**（不直接计入硬性条数），用于避免“对得上对比度但设计上失真”：
+硬性对比度对 IP 同样适用；以下设计规范只对 24 套 IP 主题产出 **warning**（不直接计入硬性条数），用于避免“对得上对比度但设计上失真”：
 
 1. **背景家族纯净**：彩度（RGB 通道差）≥ 8 的背景槽按色相聚类；相对底色的基色相偏差 **> 60°** 记「色相孤岛」。孤岛要么修正，要么在 `exceptions.json` 用 `allowedBackgroundIslands: true` 记档并说明理由。
 2. **角色碰撞（精确同值）**：除 8 个背景槽与 4 个 diff 背景槽外的 25 个设计角色，任意两角色取同一 hex 即告警（`crossGroup` 标记是否跨组）。碰撞是「角色语义被抹平」的信号；**默认必须修**。只有 v3 终审 `docs/ip-presets-v3-notes.md` 明确写下、且已登记进 `exceptions.json.allowedCollisions` 的才可保留（按角色集合匹配，与顺序无关）。

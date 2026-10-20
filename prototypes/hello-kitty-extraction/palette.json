@@ -1,0 +1,373 @@
+{
+ "source": "C:\\Users\\辰辰洋洋\\Pictures\\HelloKitty",
+ "references": [
+  "01-hello-kitty-classic-red-bow-art.png",
+  "2.png",
+  "3.jpg",
+  "4.jpg",
+  "5.jpg",
+  "6.jpg"
+ ],
+ "total_px": 1362967,
+ "colors": {
+  "background": "#FFFFFF",
+  "backgroundPanel": "#FBE6EF",
+  "backgroundElement": "#FAD8E3",
+  "sidebarBg": "#EEA9BC",
+  "bubbleBg": "#EE86A7",
+  "inputBg": "#FBE6EF",
+  "codeBlockBg": "#FFFFFF",
+  "codeHeaderBg": "#F4B4D0",
+  "text": "#231815",
+  "textMuted": "#40404A",
+  "primary": "#C8152D",
+  "secondary": "#0E52A5",
+  "info": "#4F86C5",
+  "success": "#1B6A42",
+  "warning": "#91720D",
+  "error": "#B00C3F",
+  "border": "#F4B4D0",
+  "borderActive": "#C8152D",
+  "diffAdded": "#1E452E",
+  "diffRemoved": "#9F1627",
+  "diffAddedBg": "#DEF4EA",
+  "diffRemovedBg": "#F8CEDD",
+  "diffAddedLineNumberBg": "#CBEDDE",
+  "diffRemovedLineNumberBg": "#F4B4D0",
+  "markdownHeading": "#9D274C",
+  "markdownLink": "#2663AE",
+  "markdownCode": "#7F5D3B",
+  "markdownEmph": "#596E72",
+  "markdownStrong": "#000000",
+  "markdownBlockQuote": "#565656",
+  "syntaxComment": "#737378",
+  "syntaxKeyword": "#D12E63",
+  "syntaxFunction": "#446A99",
+  "syntaxType": "#14417A",
+  "syntaxNumber": "#705235",
+  "syntaxString": "#1A7548",
+  "syntaxOperator": "#966E45"
+ },
+ "provenance": {
+  "background": {
+   "value": "#FFFFFF",
+   "kind": "exact",
+   "anchor": "paper",
+   "note": "画布 = Kitty 的白脸，全库占比 29.68% 的「纸」"
+  },
+  "backgroundPanel": {
+   "value": "#FBE6EF",
+   "kind": "exact",
+   "anchor": "veil",
+   "note": "淡粉纱：芯片 / 代码头 / 提示条 / 占位符"
+  },
+  "backgroundElement": {
+   "value": "#FAD8E3",
+   "kind": "derived",
+   "formula": "blend(#EE86A7 主视觉粉 32%, #FFFFFF 纸白)",
+   "note": "浮层粉（派生）：选择器 / 提示 / 引用块 / 浮起面"
+  },
+  "sidebarBg": {
+   "value": "#EEA9BC",
+   "kind": "exact",
+   "anchor": "rose",
+   "note": "侧栏 = 海报粉墙（图4/5/6 玫瑰粉）"
+  },
+  "bubbleBg": {
+   "value": "#EE86A7",
+   "kind": "exact",
+   "anchor": "hero",
+   "note": "用户气泡 = 全库占比最大的主视觉粉「唯一主角」"
+  },
+  "inputBg": {
+   "value": "#FBE6EF",
+   "kind": "exact",
+   "anchor": "veil",
+   "note": "输入框 = 淡粉纱，浮在白画布上更脆"
+  },
+  "codeBlockBg": {
+   "value": "#FFFFFF",
+   "kind": "exact",
+   "anchor": "paper",
+   "note": "代码块 = 纸白：shiki 前景=文字色，必须浅"
+  },
+  "codeHeaderBg": {
+   "value": "#F4B4D0",
+   "kind": "exact",
+   "anchor": "orchid",
+   "note": "代码头 = 浅粉带"
+  },
+  "text": {
+   "value": "#231815",
+   "kind": "exact",
+   "anchor": "ink",
+   "note": "正文 = 暖墨勾线（图2 描边），非冷黑"
+  },
+  "textMuted": {
+   "value": "#40404A",
+   "kind": "exact",
+   "anchor": "slate",
+   "note": "次级文字 = 灰墨（图1 字幕条）"
+  },
+  "primary": {
+   "value": "#C8152D",
+   "kind": "exact",
+   "anchor": "crimson",
+   "note": "主色 = 蝴蝶结深红，全场唯一「心跳」"
+  },
+  "secondary": {
+   "value": "#0E52A5",
+   "kind": "exact",
+   "anchor": "navy",
+   "note": "次级 = 背带裤深蓝（与主色成三角关系）"
+  },
+  "info": {
+   "value": "#4F86C5",
+   "kind": "exact",
+   "anchor": "midblue",
+   "note": "信息 = 背带裤中蓝"
+  },
+  "success": {
+   "value": "#1B6A42",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 45%, #14AE67 苹果叶绿)",
+   "note": "成功 = 苹果叶绿压深（原图 2.92:1 不足字对比）"
+  },
+  "warning": {
+   "value": "#91720D",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 50%, #FFCB05 鼻子黄)",
+   "note": "警告 = 鼻子黄压深（原图 1.51:1 不可用）"
+  },
+  "error": {
+   "value": "#B00C3F",
+   "kind": "exact",
+   "anchor": "rasp",
+   "note": "错误 = 深覆盆红（图4）"
+  },
+  "border": {
+   "value": "#F4B4D0",
+   "kind": "exact",
+   "anchor": "orchid",
+   "note": "细线 = 浅粉 1.71:1，安静不抢戏"
+  },
+  "borderActive": {
+   "value": "#C8152D",
+   "kind": "exact",
+   "anchor": "crimson",
+   "note": "焦点环 = 品牌红（仓库 v3 已记档的并岗）"
+  },
+  "diffAdded": {
+   "value": "#1E452E",
+   "kind": "derived",
+   "formula": "blend(#14AE67 苹果叶绿 30%, #231815 暖墨)",
+   "note": "新增 = 叶绿 30% 压深"
+  },
+  "diffRemoved": {
+   "value": "#9F1627",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 25%, #C8152D 蝴蝶结红)",
+   "note": "删除 = 蝴蝶结红压深"
+  },
+  "diffAddedBg": {
+   "value": "#DEF4EA",
+   "kind": "derived",
+   "formula": "blend(#14AE67 苹果叶绿 14%, #FFFFFF 纸白)",
+   "note": "新增底 = 叶绿 14% 淡色"
+  },
+  "diffRemovedBg": {
+   "value": "#F8CEDD",
+   "kind": "derived",
+   "formula": "blend(#EE86A7 主视觉粉 25%, #FBE6EF 淡粉纱)",
+   "note": "删除底 = 主视觉粉 25% 淡色"
+  },
+  "diffAddedLineNumberBg": {
+   "value": "#CBEDDE",
+   "kind": "derived",
+   "formula": "blend(#14AE67 苹果叶绿 22%, #FFFFFF 纸白)",
+   "note": "新增行号槽 = 叶绿 22% 淡色"
+  },
+  "diffRemovedLineNumberBg": {
+   "value": "#F4B4D0",
+   "kind": "exact",
+   "anchor": "orchid",
+   "note": "删除行号槽 = 浅粉"
+  },
+  "markdownHeading": {
+   "value": "#9D274C",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 30%, #D12E63 深玫红)",
+   "note": "标题 = 深玫红压深"
+  },
+  "markdownLink": {
+   "value": "#2663AE",
+   "kind": "derived",
+   "formula": "blend(#0E52A5 背带裤蓝 90%, #FFFFFF 纸白)",
+   "note": "链接 = 背带裤蓝提亮 10%"
+  },
+  "markdownCode": {
+   "value": "#7F5D3B",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 40%, #BD8B55 小熊棕)",
+   "note": "行内代码 = 小熊棕压深"
+  },
+  "markdownEmph": {
+   "value": "#596E72",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 55%, #9AD8E3 天空青)",
+   "note": "斜体 = 天空青压深"
+  },
+  "markdownStrong": {
+   "value": "#000000",
+   "kind": "exact",
+   "anchor": "black",
+   "note": "加粗 = 纯黑（图2/3/4 描边）"
+  },
+  "markdownBlockQuote": {
+   "value": "#565656",
+   "kind": "exact",
+   "anchor": "gray",
+   "note": "引用 = 中灰"
+  },
+  "syntaxComment": {
+   "value": "#737378",
+   "kind": "exact",
+   "anchor": "ltgray",
+   "note": "注释 = 浅冷灰（对比度最低，退后）"
+  },
+  "syntaxKeyword": {
+   "value": "#D12E63",
+   "kind": "exact",
+   "anchor": "deeprose",
+   "note": "关键字 = 深玫红"
+  },
+  "syntaxFunction": {
+   "value": "#446A99",
+   "kind": "derived",
+   "formula": "blend(#4F86C5 背带裤中蓝 75%, #231815 暖墨)",
+   "note": "函数 = 背带裤中蓝压深"
+  },
+  "syntaxType": {
+   "value": "#14417A",
+   "kind": "derived",
+   "formula": "blend(#0E52A5 背带裤蓝 70%, #231815 暖墨)",
+   "note": "类型 = 背带裤深蓝压深"
+  },
+  "syntaxNumber": {
+   "value": "#705235",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 50%, #BD8B55 小熊棕)",
+   "note": "数字 = 小熊棕 50% 压深"
+  },
+  "syntaxString": {
+   "value": "#1A7548",
+   "kind": "derived",
+   "formula": "blend(#14AE67 苹果叶绿 62%, #231815 暖墨)",
+   "note": "字符串 = 苹果叶绿 62%"
+  },
+  "syntaxOperator": {
+   "value": "#966E45",
+   "kind": "derived",
+   "formula": "blend(#231815 暖墨 25%, #BD8B55 小熊棕)",
+   "note": "操作符 = 小熊棕 25% 压深"
+  }
+ },
+ "anchors": {
+  "paper": "#FFFFFF",
+  "veil": "#FBE6EF",
+  "orchid": "#F4B4D0",
+  "rose": "#EEA9BC",
+  "hero": "#EE86A7",
+  "ink": "#231815",
+  "slate": "#40404A",
+  "gray": "#565656",
+  "ltgray": "#737378",
+  "black": "#000000",
+  "crimson": "#C8152D",
+  "rasp": "#B00C3F",
+  "deeprose": "#D12E63",
+  "navy": "#0E52A5",
+  "midblue": "#4F86C5",
+  "leaf": "#14AE67",
+  "nose": "#FFCB05",
+  "bear": "#BD8B55",
+  "sky": "#9AD8E3"
+ },
+ "derived": {
+  "pinkLift": {
+   "value": "#FAD8E3",
+   "formula": "blend(#EE86A7 主视觉粉 32%, #FFFFFF 纸白)"
+  },
+  "pinkDeep": {
+   "value": "#F8CEDD",
+   "formula": "blend(#EE86A7 主视觉粉 25%, #FBE6EF 淡粉纱)"
+  },
+  "leafDeep": {
+   "value": "#1B6A42",
+   "formula": "blend(#231815 暖墨 45%, #14AE67 苹果叶绿)"
+  },
+  "leafMid": {
+   "value": "#1A7548",
+   "formula": "blend(#14AE67 苹果叶绿 62%, #231815 暖墨)"
+  },
+  "leafDark": {
+   "value": "#1E452E",
+   "formula": "blend(#14AE67 苹果叶绿 30%, #231815 暖墨)"
+  },
+  "noseDeep": {
+   "value": "#91720D",
+   "formula": "blend(#231815 暖墨 50%, #FFCB05 鼻子黄)"
+  },
+  "bearDeep": {
+   "value": "#7F5D3B",
+   "formula": "blend(#231815 暖墨 40%, #BD8B55 小熊棕)"
+  },
+  "bearDark": {
+   "value": "#705235",
+   "formula": "blend(#231815 暖墨 50%, #BD8B55 小熊棕)"
+  },
+  "bearTan": {
+   "value": "#966E45",
+   "formula": "blend(#231815 暖墨 25%, #BD8B55 小熊棕)"
+  },
+  "skyDeep": {
+   "value": "#596E72",
+   "formula": "blend(#231815 暖墨 55%, #9AD8E3 天空青)"
+  },
+  "inkDeep": {
+   "value": "#9F1627",
+   "formula": "blend(#231815 暖墨 25%, #C8152D 蝴蝶结红)"
+  },
+  "roseDeep": {
+   "value": "#9D274C",
+   "formula": "blend(#231815 暖墨 30%, #D12E63 深玫红)"
+  },
+  "cobalt": {
+   "value": "#2663AE",
+   "formula": "blend(#0E52A5 背带裤蓝 90%, #FFFFFF 纸白)"
+  },
+  "slateblue": {
+   "value": "#446A99",
+   "formula": "blend(#4F86C5 背带裤中蓝 75%, #231815 暖墨)"
+  },
+  "navyDeep": {
+   "value": "#14417A",
+   "formula": "blend(#0E52A5 背带裤蓝 70%, #231815 暖墨)"
+  },
+  "mint": {
+   "value": "#DEF4EA",
+   "formula": "blend(#14AE67 苹果叶绿 14%, #FFFFFF 纸白)"
+  },
+  "mintGut": {
+   "value": "#CBEDDE",
+   "formula": "blend(#14AE67 苹果叶绿 22%, #FFFFFF 纸白)"
+  }
+ },
+ "criteria": {
+  "hard_violations": 0,
+  "ui_violations": 0,
+  "design_warnings": [
+   "roleCollision"
+  ]
+ }
+}

@@ -1,78 +1,11 @@
 {
   "$comment": "IP 主题设计例外记档（判尺见 docs/theme-audit/criteria.md 与 map #115 Notes）。只记录 docs/ip-presets-v3-notes.md 明确写下的有意并岗/几何，行号引用该文件；对 notes 未点名的同值角色不记档，留给策展修复或另案决定。字段与 scripts/audit-themes.ts 的 Exceptions 接口一致；已记档告警从 baseline.md 的待处理数中扣除。",
   "themes": {
-    "pokemon": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:7）：error·keyword·diffRemoved 同火红；success·string·diffAdded 同草绿；number·warning 同火橙；info·link 合并信息青；secondary 提亮水蓝兼 syntaxType；blockquote 并入 muted。",
-      "allowedCollisions": [
-        [
-          "error",
-          "diffRemoved",
-          "syntaxKeyword"
-        ],
-        [
-          "success",
-          "diffAdded",
-          "syntaxString"
-        ],
-        [
-          "warning",
-          "syntaxNumber"
-        ],
-        [
-          "info",
-          "markdownLink"
-        ],
-        [
-          "secondary",
-          "syntaxType"
-        ],
-        [
-          "textMuted",
-          "markdownBlockQuote"
-        ]
-      ]
-    },
     "dc-comics": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:15）：borderActive·function 并入 secondary 英雄金；heading 搬出改白并入 strong；link·info 并入 primary 可操作蓝。",
-      "allowedCollisions": [
-        [
-          "primary",
-          "info",
-          "markdownLink"
-        ],
-        [
-          "secondary",
-          "borderActive",
-          "syntaxFunction"
-        ],
-        [
-          "markdownHeading",
-          "markdownStrong"
-        ]
-      ],
-      "allowedMarkdownDuplicates": [
-        [
-          "markdownHeading",
-          "markdownStrong"
-        ]
-      ]
+      "notes": "v3.7（2026-10-20）逐像素取色重绘 + 对抗式审查（三张参考图 37 色位落在 36 个不同色值上、全部直采真实像素、0 想象）：原 v3 终审记档的三处并岗**已全部主动解除**——primary 取 2.jpg 徽章圆盘本体蓝 #0373B3、info 取 1.jpg 速度力水蓝 #91C1CF、link 取 2.jpg 徽章上缘亮青 #0392CE，三个岗各取所需互不同值；secondary 取 3.jpg 神奇女侠金冠 #E4BA56、borderActive 取 2.jpg 徽章白星冷光 #D6F0FF、function 取 2.jpg 徽章圆盘上缘 #008AC9，亦互不同值；heading 取 1.jpg 速度力冷白 #B8D8ED、strong 取 2.jpg 徽章白底与白星 #FFFFFF，不再同值。故本主题 0 同值碰撞、0 markdown 同值，不再需要 allowedCollisions / allowedMarkdownDuplicates 记档（详见 docs/ip-presets-v3-notes.md 的「v3.7 DC 逐像素取色重绘」段）。"
     },
     "doraemon": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:51）：heading·emph 并入 strong 墨色强调岗；link 与 primary 同一可交互蓝的明暗分档。",
-      "allowedCollisions": [
-        [
-          "markdownHeading",
-          "markdownEmph",
-          "markdownStrong"
-        ]
-      ],
-      "allowedMarkdownDuplicates": [
-        [
-          "markdownHeading",
-          "markdownEmph",
-          "markdownStrong"
-        ]
-      ]
+      "notes": "v3.6（2026-10-20）逐像素取色重绘（六张参考图 18 源色、0 想象）：原 v3 终审记档的「heading·emph 并入 strong 墨色强调岗」并岗**已主动解除**——三个角色各取所需：heading 取 3.png 招牌青蓝压深 #056D96、emph 取 6.jpg 字标粉点压深 #843F59、strong 取纯墨黑 #0C0C10，ΔE76 互不相同。同理「link 与 primary 同一可交互蓝的明暗分档」的并岗事实也不复存在：link 取 3.png 字标深蓝压深 #063F6B、primary 取 1.png 身体青蓝压深 #135F7B，同族不同值、以明度分档。故本主题 0 同值碰撞、0 markdown 同值，不再需要 allowedCollisions / allowedMarkdownDuplicates 记档。"
     },
     "dragon-ball": {
       "notes": "v3 终审（docs/ip-presets-v3-notes.md:39）：borderActive 并入 primary。",
@@ -105,17 +38,7 @@
       "notes": "v3.3（2026-10-20）对抗式审查后重绘：判尺从「直采/阶梯/混色」改成四级（A1 实涂 9 / A2 边阶 11 / B 簇采 15 / C 阶梯 2），推翻先前「37/37 直采」的说法——按图里真实体量只有 9 条是字面像素。原 v3 终审记档的「borderActive 并入 primary」并岗**已主动解除**：焦点环用最亮的标志红 #F11E22，主按钮用能承载反白的铁人战甲红 #D32B28（标志红反白仅 3.83:1，撑不起按钮）。两个岗各取所需，primary 与 borderActive 不再同值，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
     },
     "transformers": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:59）：info 并入 secondary（火种蓝同一故事）、审慎保留 link/borderActive 同值（可交互同一事）；原「heading 并入 primary」已在 v3.1 整改中拆分——标题独立为深底 5.9:1 的珊瑚朱，primary 压暗保反白 4.6:1，故移除该并岗（见 docs/ip-presets-v3-notes.md:85）。",
-      "allowedCollisions": [
-        [
-          "secondary",
-          "info"
-        ],
-        [
-          "borderActive",
-          "markdownLink"
-        ]
-      ]
+      "notes": "v5 逐像素取证重绘（2026-10-20，docs/ip-presets-notes.md「变形金刚（dark，v5 逐像素取证重绘）」）：37 个色位全部改为从五张参考图直接取证——直采色要求 hex 是原图真实像素且 49×49 邻域人口 ≥ 24 px（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素），背景 8 槽改为 5.jpg 夜空真实像素排成的明度阶，4 个 diff 底色改为固定比例混色。v3 终审记档的两处并岗（secondary=info、borderActive=markdownLink）在本版**全部拆开**：secondary #3366A8 与 info #0A6999 分属能量电蓝与塞伯坦全息青两个物，borderActive #F4C803 让给大黄蜂车漆黄做焦点环、markdownLink #0B8FBF 归能量电弧，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
     },
     "star-wars": {
       "notes": "v3 终审（docs/ip-presets-v3-notes.md:19）：link 故意保留与 secondary 同蓝（可交互同一岗）；borderActive 属同一交互/焦点家族，按该理由随附记录（notes 只点名 link=secondary，属推断记档）。",
@@ -128,7 +51,7 @@
       ]
     },
     "cyberpunk-2077": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:79）：error·diffRemoved 统一正红；secondary 改霓虹品红，notes 明言「黄-品红分裂互补」，故 94.2° 判为有意几何而非串戏（分类器四档：近似/三角/互补之外的分裂互补，记为 unclassified 例外）。",
+      "notes": "v3 终审（docs/ip-presets-v3-notes.md:79）：error·diffRemoved 统一正红；secondary 改霓虹品红，notes 明言「黄-品红分裂互补」，判为有意几何而非串戏（分类器四档：近似/三角/互补之外的分裂互补，记为 unclassified 例外）。2026-10-20 按五张参考图重绘（见 v3.6 赛博朋克 2077 逐像素取色重绘段）：primary #FBF405（H 58.5°）× secondary #D51666（H 334.9°）夹角 83.4°，仍为同一「黄-品红分裂互补」几何，故沿用 unclassified 记档；error·diffRemoved 并岗（#FF1932，图 4 热红场 #E0162C 的同色相最高阶）不变。28 个直采槽已全部吸附为图内字面像素；syntaxType #7A9E92、markdownEmph #E1BF9A、syntaxOperator #7876A5 由语料约束搜索在「字面像素 + 判尺对比度带 + 与可共存角色 ΔE76 ≥ 10」的交集中选出，40/40 张来源裁切经逐像素核验均含完全同值像素。",
       "allowedCollisions": [
         [
           "error",

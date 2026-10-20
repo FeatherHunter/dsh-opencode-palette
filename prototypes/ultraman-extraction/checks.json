@@ -1,0 +1,997 @@
+{
+ "alphas": {
+  "background": 0.0,
+  "codeBlockBg": 0.1268,
+  "sidebarBg": 0.2237,
+  "inputBg": 0.3026,
+  "bubbleBg": 0.3667,
+  "backgroundPanel": 0.4342,
+  "backgroundElement": 0.4964,
+  "codeHeaderBg": 0.5658
+ },
+ "house": [
+  [
+   "text@background",
+   "#DEEFF6",
+   "#000600",
+   17.33,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@codeBlockBg",
+   "#DEEFF6",
+   "#060B11",
+   16.72,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@sidebarBg",
+   "#DEEFF6",
+   "#0A0F1F",
+   16.15,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@inputBg",
+   "#DEEFF6",
+   "#0E112A",
+   15.71,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@bubbleBg",
+   "#DEEFF6",
+   "#111433",
+   15.18,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@backgroundPanel",
+   "#DEEFF6",
+   "#14163C",
+   14.7,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@backgroundElement",
+   "#DEEFF6",
+   "#161945",
+   14.12,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "text@codeHeaderBg",
+   "#DEEFF6",
+   "#191C4E",
+   13.5,
+   4.5,
+   "hard",
+   "正文 8 表面"
+  ],
+  [
+   "textMuted@background",
+   "#AFB9BB",
+   "#000600",
+   10.21,
+   4.5,
+   "hard",
+   "次级文字"
+  ],
+  [
+   "labelDimmed@background",
+   "#8C9596",
+   "#000600",
+   6.68,
+   4.5,
+   "hard",
+   "弱化文字 80%"
+  ],
+  [
+   "textMuted@backgroundPanel",
+   "#AFB9BB",
+   "#14163C",
+   8.66,
+   4.5,
+   "hard",
+   "次级文字"
+  ],
+  [
+   "labelDimmed@backgroundPanel",
+   "#9098A2",
+   "#14163C",
+   5.95,
+   4.5,
+   "hard",
+   "弱化文字 80%"
+  ],
+  [
+   "textMuted@backgroundElement",
+   "#AFB9BB",
+   "#161945",
+   8.32,
+   4.5,
+   "hard",
+   "次级文字"
+  ],
+  [
+   "labelDimmed@backgroundElement",
+   "#9099A3",
+   "#161945",
+   5.77,
+   4.5,
+   "hard",
+   "弱化文字 80%"
+  ],
+  [
+   "markdownHeading@background",
+   "#C0ECFF",
+   "#000600",
+   16.26,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownHeading@backgroundPanel",
+   "#C0ECFF",
+   "#14163C",
+   13.79,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownLink@background",
+   "#51AEB5",
+   "#000600",
+   7.87,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownLink@backgroundPanel",
+   "#51AEB5",
+   "#14163C",
+   6.67,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownCode@background",
+   "#D0B26C",
+   "#000600",
+   10.01,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownCode@backgroundPanel",
+   "#D0B26C",
+   "#14163C",
+   8.49,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownEmph@background",
+   "#B6A8CB",
+   "#000600",
+   9.21,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownEmph@backgroundPanel",
+   "#B6A8CB",
+   "#14163C",
+   7.81,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownStrong@background",
+   "#F8FBE6",
+   "#000600",
+   19.43,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownStrong@backgroundPanel",
+   "#F8FBE6",
+   "#14163C",
+   16.48,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownBlockQuote@background",
+   "#91B2B7",
+   "#000600",
+   9.02,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "markdownBlockQuote@backgroundPanel",
+   "#91B2B7",
+   "#14163C",
+   7.65,
+   4.5,
+   "hard",
+   "markdown 正文"
+  ],
+  [
+   "syntaxComment@codeBlockBg",
+   "#747D86",
+   "#060B11",
+   4.72,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxKeyword@codeBlockBg",
+   "#D95638",
+   "#060B11",
+   5.02,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxFunction@codeBlockBg",
+   "#3A80FA",
+   "#060B11",
+   5.31,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxType@codeBlockBg",
+   "#8CCDE9",
+   "#060B11",
+   11.3,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxNumber@codeBlockBg",
+   "#F4C738",
+   "#060B11",
+   12.29,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxString@codeBlockBg",
+   "#67CDA6",
+   "#060B11",
+   10.21,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "syntaxOperator@codeBlockBg",
+   "#8774A2",
+   "#060B11",
+   4.75,
+   4.5,
+   "hard",
+   "语法高亮"
+  ],
+  [
+   "diffAdded@diffAddedBg",
+   "#3C9B6F",
+   "#08190E",
+   5.29,
+   4.5,
+   "hard",
+   "新增行"
+  ],
+  [
+   "diffRemoved@diffRemovedBg",
+   "#C9667B",
+   "#1A1210",
+   4.98,
+   4.5,
+   "hard",
+   "删除行"
+  ],
+  [
+   "text@diffAddedBg",
+   "#DEEFF6",
+   "#08190E",
+   15.39,
+   4.5,
+   "hard",
+   "diff 底上的正文"
+  ],
+  [
+   "text@diffRemovedBg",
+   "#DEEFF6",
+   "#1A1210",
+   15.63,
+   4.5,
+   "hard",
+   "diff 底上的正文"
+  ],
+  [
+   "contrastText(primary)@primary",
+   "#F4F4F5",
+   "#D52518",
+   4.65,
+   4.5,
+   "hard",
+   "主按钮反白"
+  ],
+  [
+   "borderActive@background",
+   "#87C3F5",
+   "#000600",
+   10.87,
+   3.0,
+   "ui",
+   "描边/焦点"
+  ],
+  [
+   "borderActive@backgroundPanel",
+   "#87C3F5",
+   "#14163C",
+   9.22,
+   3.0,
+   "ui",
+   "描边/焦点"
+  ],
+  [
+   "borderActive@backgroundElement",
+   "#87C3F5",
+   "#161945",
+   8.86,
+   3.0,
+   "ui",
+   "描边/焦点"
+  ],
+  [
+   "primary@background",
+   "#D52518",
+   "#000600",
+   4.0,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "primary@backgroundPanel",
+   "#D52518",
+   "#14163C",
+   3.39,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "secondary@background",
+   "#EFCB5D",
+   "#000600",
+   13.03,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "secondary@backgroundPanel",
+   "#EFCB5D",
+   "#14163C",
+   11.05,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "info@background",
+   "#2AA1B7",
+   "#000600",
+   6.71,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "info@backgroundPanel",
+   "#2AA1B7",
+   "#14163C",
+   5.69,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "success@background",
+   "#2F9877",
+   "#000600",
+   5.73,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "success@backgroundPanel",
+   "#2F9877",
+   "#14163C",
+   4.86,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "warning@background",
+   "#BD8E36",
+   "#000600",
+   6.91,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "warning@backgroundPanel",
+   "#BD8E36",
+   "#14163C",
+   5.86,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "error@background",
+   "#F05F4E",
+   "#000600",
+   6.29,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ],
+  [
+   "error@backgroundPanel",
+   "#F05F4E",
+   "#14163C",
+   5.33,
+   3.0,
+   "ui",
+   "品牌/状态色"
+  ]
+ ],
+ "host": [
+  {
+   "name": "error@background",
+   "fg": "#F05F4E",
+   "bg": "#000600",
+   "ratio": 6.29,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@sidebarBg",
+   "fg": "#F05F4E",
+   "bg": "#0A0F1F",
+   "ratio": 5.86,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@inputBg",
+   "fg": "#F05F4E",
+   "bg": "#0E112A",
+   "ratio": 5.7,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@bubbleBg",
+   "fg": "#F05F4E",
+   "bg": "#111433",
+   "ratio": 5.51,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@backgroundPanel",
+   "fg": "#F05F4E",
+   "bg": "#14163C",
+   "ratio": 5.33,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@backgroundElement",
+   "fg": "#F05F4E",
+   "bg": "#161945",
+   "ratio": 5.12,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "error@codeBlockBg",
+   "fg": "#F05F4E",
+   "bg": "#060B11",
+   "ratio": 6.07,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_error · 12px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@自染底14%",
+   "fg": "#BD8E36",
+   "bg": "#1A1908",
+   "ratio": 5.97,
+   "need": 4.5,
+   "ok": true,
+   "note": "state-*-tertiary · 13px",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@background",
+   "fg": "#BD8E36",
+   "bg": "#000600",
+   "ratio": 6.91,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@sidebarBg",
+   "fg": "#BD8E36",
+   "bg": "#0A0F1F",
+   "ratio": 6.44,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@bubbleBg",
+   "fg": "#BD8E36",
+   "bg": "#111433",
+   "ratio": 6.05,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@backgroundPanel",
+   "fg": "#BD8E36",
+   "bg": "#14163C",
+   "ratio": 5.86,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "success@自染底14%",
+   "fg": "#2F9877",
+   "bg": "#071A11",
+   "ratio": 5.05,
+   "need": 4.5,
+   "ok": true,
+   "note": "state-*-tertiary · 13px",
+   "kind": "hard"
+  },
+  {
+   "name": "success@background",
+   "fg": "#2F9877",
+   "bg": "#000600",
+   "ratio": 5.73,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "success@sidebarBg",
+   "fg": "#2F9877",
+   "bg": "#0A0F1F",
+   "ratio": 5.34,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "success@bubbleBg",
+   "fg": "#2F9877",
+   "bg": "#111433",
+   "ratio": 5.02,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "success@backgroundPanel",
+   "fg": "#2F9877",
+   "bg": "#14163C",
+   "ratio": 4.86,
+   "need": 4.5,
+   "ok": true,
+   "note": "13px 文字",
+   "kind": "hard"
+  },
+  {
+   "name": "info@inputBg",
+   "fg": "#2AA1B7",
+   "bg": "#0E112A",
+   "ratio": 6.08,
+   "need": 4.5,
+   "ok": true,
+   "note": ".mAtvLq_badge · 11px",
+   "kind": "hard"
+  },
+  {
+   "name": "info@sidebarBg",
+   "fg": "#2AA1B7",
+   "bg": "#0A0F1F",
+   "ratio": 6.25,
+   "need": 4.5,
+   "ok": true,
+   "note": ".mAtvLq_badge · 11px",
+   "kind": "hard"
+  },
+  {
+   "name": "info@background",
+   "fg": "#2AA1B7",
+   "bg": "#000600",
+   "ratio": 6.71,
+   "need": 4.5,
+   "ok": true,
+   "note": ".mAtvLq_badge · 11px",
+   "kind": "hard"
+  },
+  {
+   "name": "info@backgroundPanel",
+   "fg": "#2AA1B7",
+   "bg": "#14163C",
+   "ratio": 5.69,
+   "need": 4.5,
+   "ok": true,
+   "note": ".mAtvLq_badge · 11px",
+   "kind": "hard"
+  },
+  {
+   "name": "info 填充 + #fff",
+   "fg": "#FFFFFF",
+   "bg": "#2AA1B7",
+   "ratio": 3.05,
+   "need": 3.0,
+   "ok": true,
+   "note": ".RlGAzG_primary · 34px 图标钮",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@background",
+   "fg": "#D52518",
+   "bg": "#000600",
+   "ratio": 4.0,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@background",
+   "fg": "#EFCB5D",
+   "bg": "#000600",
+   "ratio": 13.03,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@codeBlockBg",
+   "fg": "#D52518",
+   "bg": "#060B11",
+   "ratio": 3.86,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@codeBlockBg",
+   "fg": "#EFCB5D",
+   "bg": "#060B11",
+   "ratio": 12.57,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@sidebarBg",
+   "fg": "#D52518",
+   "bg": "#0A0F1F",
+   "ratio": 3.73,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@sidebarBg",
+   "fg": "#EFCB5D",
+   "bg": "#0A0F1F",
+   "ratio": 12.14,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@inputBg",
+   "fg": "#D52518",
+   "bg": "#0E112A",
+   "ratio": 3.63,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@inputBg",
+   "fg": "#EFCB5D",
+   "bg": "#0E112A",
+   "ratio": 11.81,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@bubbleBg",
+   "fg": "#D52518",
+   "bg": "#111433",
+   "ratio": 3.51,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@bubbleBg",
+   "fg": "#EFCB5D",
+   "bg": "#111433",
+   "ratio": 11.41,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@backgroundPanel",
+   "fg": "#D52518",
+   "bg": "#14163C",
+   "ratio": 3.39,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@backgroundPanel",
+   "fg": "#EFCB5D",
+   "bg": "#14163C",
+   "ratio": 11.05,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@backgroundElement",
+   "fg": "#D52518",
+   "bg": "#161945",
+   "ratio": 3.26,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@backgroundElement",
+   "fg": "#EFCB5D",
+   "bg": "#161945",
+   "ratio": 10.62,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@codeHeaderBg",
+   "fg": "#D52518",
+   "bg": "#191C4E",
+   "ratio": 3.12,
+   "need": 3.0,
+   "ok": true,
+   "note": "2px 焦点环",
+   "kind": "hard"
+  },
+  {
+   "name": "secondary@codeHeaderBg",
+   "fg": "#EFCB5D",
+   "bg": "#191C4E",
+   "ratio": 10.15,
+   "need": 3.0,
+   "ok": true,
+   "note": "8px 空闲圆点",
+   "kind": "hard"
+  },
+  {
+   "name": "error brokenBadge 底",
+   "fg": "#000600",
+   "bg": "#F05F4E",
+   "ratio": 6.29,
+   "need": 4.5,
+   "ok": true,
+   "note": ".KZf9OG_brokenBadge · 底色反白",
+   "kind": "hard"
+  },
+  {
+   "name": "error@danger-hover 底",
+   "fg": "#F05F4E",
+   "bg": "#24130C",
+   "ratio": 5.5,
+   "need": 4.5,
+   "ok": true,
+   "note": "interactive-bg-hover-danger",
+   "kind": "hard"
+  },
+  {
+   "name": "warning@warn-label",
+   "fg": "#BD8E36",
+   "bg": "#000600",
+   "ratio": 6.91,
+   "need": 4.5,
+   "ok": true,
+   "note": "state-warn-label",
+   "kind": "hard"
+  },
+  {
+   "name": "text@侧栏选中底",
+   "fg": "#DEEFF6",
+   "bg": "#51171D",
+   "ratio": 11.93,
+   "need": 4.5,
+   "ok": true,
+   "note": "sidebar-nav-item-active-accent",
+   "kind": "hard"
+  },
+  {
+   "name": "info@侧栏选中底",
+   "fg": "#2AA1B7",
+   "bg": "#51171D",
+   "ratio": 4.62,
+   "need": 4.5,
+   "ok": true,
+   "note": ".mAtvLq_badge 底 = 选中强调色",
+   "kind": "hard"
+  },
+  {
+   "name": "labelDimmed@background",
+   "fg": "#8C9596",
+   "bg": "#000600",
+   "ratio": 6.68,
+   "need": 4.5,
+   "ok": true,
+   "note": "withAlpha(textMuted,0.8)",
+   "kind": "hard"
+  },
+  {
+   "name": "labelDimmed@backgroundPanel",
+   "fg": "#9098A2",
+   "bg": "#14163C",
+   "ratio": 5.95,
+   "need": 4.5,
+   "ok": true,
+   "note": "withAlpha(textMuted,0.8)",
+   "kind": "hard"
+  },
+  {
+   "name": "labelDimmed@backgroundElement",
+   "fg": "#9099A3",
+   "bg": "#161945",
+   "ratio": 5.77,
+   "need": 4.5,
+   "ok": true,
+   "note": "withAlpha(textMuted,0.8)",
+   "kind": "hard"
+  },
+  {
+   "name": "primary@business-tertiary 芯片(13px)",
+   "fg": "#D52518",
+   "bg": "#1A0A03",
+   "ratio": 3.77,
+   "need": 4.5,
+   "ok": false,
+   "note": "._0D_3ea_chip · 12% 主色底",
+   "kind": "limit"
+  },
+  {
+   "name": "primary@交互悬停强调底(20%)",
+   "fg": "#D52518",
+   "bg": "#2B0C05",
+   "ratio": 3.55,
+   "need": 4.5,
+   "ok": false,
+   "note": "interactive-bg-hover-accent",
+   "kind": "limit"
+  },
+  {
+   "name": "primary@页面底(12px 文字)",
+   "fg": "#D52518",
+   "bg": "#000600",
+   "ratio": 4.0,
+   "need": 4.5,
+   "ok": false,
+   "note": "state-business-primary 当文字色",
+   "kind": "limit"
+  }
+ ],
+ "states": {
+  "normal": [
+   23.5,
+   "secondary↔warning"
+  ],
+  "deutan": [
+   18.6,
+   "secondary↔error"
+  ],
+  "protan": [
+   14.5,
+   "secondary↔error"
+  ]
+ }
+}

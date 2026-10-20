@@ -1,0 +1,56 @@
+########## family: gold  (1576 steps) ##########
+  #86653D n=    44 L=0.1471 H=  32.9 S=0.37  vsPaper= 5.08  vsInk= 3.18
+  #86643D n=    15 L=0.1452 H=  32.1 S=0.37  vsPaper= 5.13  vsInk= 3.15
+  #85643D n=    30 L=0.1444 H=  32.5 S=0.37  vsPaper= 5.15  vsInk= 3.14
+  #85643C n=    14 L=0.1443 H=  32.9 S=0.38  vsPaper= 5.16  vsInk= 3.14
+  #84643D n=    29 L=0.1436 H=  33.0 S=0.37  vsPaper= 5.18  vsInk= 3.13
+  #84643C n=    77 L=0.1435 H=  33.3 S=0.38  vsPaper= 5.18  vsInk= 3.12
+  #84633D n=    21 L=0.1417 H=  32.1 S=0.37  vsPaper= 5.23  vsInk= 3.09
+  #84633C n=   107 L=0.1416 H=  32.5 S=0.38  vsPaper= 5.23  vsInk= 3.09
+  #83633C n=    24 L=0.1407 H=  33.0 S=0.37  vsPaper= 5.25  vsInk= 3.08
+
+########## family: orange/red  (44 steps) ##########
+  #FE4C1C n=    16 L=0.2632 H=  12.7 S=0.99  vsPaper= 3.20  vsInk= 5.06
+  #FE4B23 n=    28 L=0.2622 H=  11.0 S=0.99  vsPaper= 3.21  vsInk= 5.04
+  #FE4B22 n=    21 L=0.2622 H=  11.2 S=0.99  vsPaper= 3.21  vsInk= 5.04
+  #FE4A25 n=    19 L=0.2610 H=  10.2 S=0.99  vsPaper= 3.22  vsInk= 5.02
+
+########## family: green  (126 steps) ##########
+  #65928D n=    18 L=0.2525 H= 173.3 S=0.18  vsPaper= 3.31  vsInk= 4.88
+  #63928C n=    13 L=0.2510 H= 172.3 S=0.19  vsPaper= 3.33  vsInk= 4.86
+  #64918C n=    28 L=0.2485 H= 173.3 S=0.18  vsPaper= 3.36  vsInk= 4.82
+  #62918B n=    13 L=0.2471 H= 172.3 S=0.19  vsPaper= 3.37  vsInk= 4.80
+  #63908B n=   101 L=0.2446 H= 173.3 S=0.19  vsPaper= 3.40  vsInk= 4.76
+  #658F8B n=    72 L=0.2428 H= 174.3 S=0.17  vsPaper= 3.42  vsInk= 4.73
+  #628F8A n=    18 L=0.2408 H= 173.3 S=0.19  vsPaper= 3.45  vsInk= 4.70
+  #608F89 n=    12 L=0.2394 H= 172.3 S=0.20  vsPaper= 3.46  vsInk= 4.67
+  #618E89 n=    15 L=0.2369 H= 173.3 S=0.19  vsPaper= 3.49  vsInk= 4.63
+  #518145 n=    18 L=0.1788 H= 108.0 S=0.30  vsPaper= 4.38  vsInk= 3.69
+  #508046 n=    61 L=0.1759 H= 109.7 S=0.29  vsPaper= 4.44  vsInk= 3.65
+  #508044 n=    95 L=0.1756 H= 108.0 S=0.31  vsPaper= 4.44  vsInk= 3.64
+  #508042 n=    17 L=0.1754 H= 106.5 S=0.32  vsPaper= 4.44  vsInk= 3.64
+  #4F7F45 n=   220 L=0.1727 H= 109.7 S=0.30  vsPaper= 4.50  vsInk= 3.60
+  #4F7F43 n=   349 L=0.1725 H= 108.0 S=0.31  vsPaper= 4.50  vsInk= 3.59
+  #4E7E44 n=    71 L=0.1696 H= 109.7 S=0.30  vsPaper= 4.56  vsInk= 3.55
+  #4E7E42 n=    50 L=0.1694 H= 108.0 S=0.31  vsPaper= 4.57  vsInk= 3.54
+  #4D7D43 n=    52 L=0.1665 H= 109.7 S=0.30  vsPaper= 4.63  vsInk= 3.50
+  #4D7D41 n=    20 L=0.1663 H= 108.0 S=0.32  vsPaper= 4.63  vsInk= 3.49
+  #4C7C40 n=    21 L=0.1632 H= 108.0 S=0.32  vsPaper= 4.70  vsInk= 3.44
+  #41766E n=    13 L=0.1521 H= 170.9 S=0.29  vsPaper= 4.96  vsInk= 3.26
+  #3F7670 n=    14 L=0.1518 H= 173.5 S=0.30  vsPaper= 4.96  vsInk= 3.26
+  #40756F n=    20 L=0.1496 H= 173.2 S=0.29  vsPaper= 5.02  vsInk= 3.22
+  #3E756F n=    73 L=0.1489 H= 173.5 S=0.31  vsPaper= 5.04  vsInk= 3.21
+  #3D746F n=    26 L=0.1463 H= 174.5 S=0.31  vsPaper= 5.10  vsInk= 3.17
+  #405654 n=    14 L=0.0839 H= 174.5 S=0.15  vsPaper= 7.48  vsInk= 2.16
+  #3C5552 n=    67 L=0.0807 H= 172.8 S=0.17  vsPaper= 7.67  vsInk= 2.11
+  #3E5452 n=    75 L=0.0797 H= 174.5 S=0.15  vsPaper= 7.72  vsInk= 2.09
+  #2E564E n=    18 L=0.0779 H= 168.0 S=0.30  vsPaper= 7.83  vsInk= 2.06
+  #3D5351 n=    13 L=0.0777 H= 174.5 S=0.15  vsPaper= 7.84  vsInk= 2.06
+  #2C544C n=    18 L=0.0740 H= 168.0 S=0.31  vsPaper= 8.08  vsInk= 2.00
+  #2B534B n=    38 L=0.0721 H= 168.0 S=0.32  vsPaper= 8.21  vsInk= 1.97
+  #2D524B n=    23 L=0.0710 H= 168.6 S=0.29  vsPaper= 8.28  vsInk= 1.95
+  #2A524A n=    18 L=0.0702 H= 168.0 S=0.32  vsPaper= 8.33  vsInk= 1.94
+  #2E514D n=   138 L=0.0700 H= 173.1 S=0.28  vsPaper= 8.35  vsInk= 1.94
+  #2E514B n=    20 L=0.0697 H= 169.7 S=0.28  vsPaper= 8.37  vsInk= 1.93
+  #30504B n=    16 L=0.0687 H= 170.6 S=0.25  vsPaper= 8.44  vsInk= 1.92
+

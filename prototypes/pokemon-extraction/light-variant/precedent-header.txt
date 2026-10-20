@@ -1,0 +1,18 @@
+=== shipped LIGHT IP presets: primary (brand) + codeHeaderBg (the band) ===
+preset         primary   L(prim) prim@bg   codeHead  S      codeBlock text@head head L*
+mario          #C7280E   0.137   5.32      #EDF3FF   1.00   #F8FAFF   16.68   95.7
+naruto         #C8386C   0.162   4.52      #FFAFBE   1.00   #FFDAE8   9.67    79.4
+sailor-moon    #c51e56   0.135   5.09      #fedaea   0.95   #ffe1ee   13.82   90.4
+one-piece      #C32635   0.132   5.06      #95D2F9   0.89   #B4DFF9   9.02    81.5
+dragon-ball    #BD3C03   0.141   4.94      #F0C59B   0.74   #F7DEC0   10.76   82.3
+hello-kitty    #C8152D   0.130   5.83      #F4B4D0   0.74   #FFFFFF   10.13   79.9
+doraemon       #0072a8   0.149   4.45      #b8dbf2   0.69   #cbe7f8   10.12   85.6
+zelda          #204A5D   0.060   8.98      #D4ECAB   0.63   #F7F4EB   10.12   90.3
+genshin        #2A3B6B   0.047   9.01      #E5CFAC   0.52   #F3ECE0   8.62    84.1
+kuromi         #BD3064   0.139   4.83      #EEE2F5   0.49   #FBF7FD   13.37   91.3
+disney         #903B5C   0.098   5.78      #D0DBE3   0.25   #F4F4F9   11.91   86.8
+lego           #d01012   0.138   4.80      #d9dce2   0.13   #e3e5e9   12.66   87.7
+
+=== the same table for the two pokemon candidates ===
+pokemon CURRENT (dark)     primary #FFCB05   L 0.640  prim@bg 11.14 | codeHeaderBg #48484D   S 0.03  text@head 7.87  head L* 30.8
+pokemon CANDIDATE (light)  primary #84633C   L 0.142  prim@bg 5.27 | codeHeaderBg #FFCB05   S 1.00  text@head 11.14  head L* 84.0

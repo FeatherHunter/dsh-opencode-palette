@@ -1,0 +1,979 @@
+{
+ "id": "transformers",
+ "name": "变形金刚",
+ "appearance": "dark",
+ "basePreset": "transformers",
+ "schema": "dsh-opencode-palette.custom-theme.v1",
+ "colors": {
+  "codeBlockBg": "#020B1C",
+  "sidebarBg": "#021128",
+  "background": "#08122B",
+  "backgroundPanel": "#04133A",
+  "inputBg": "#022447",
+  "codeHeaderBg": "#0A2250",
+  "backgroundElement": "#0D2354",
+  "bubbleBg": "#241340",
+  "primary": "#D70A2B",
+  "secondary": "#3366A8",
+  "info": "#0A6999",
+  "success": "#A7ABAA",
+  "warning": "#B07400",
+  "error": "#FF5B02",
+  "borderActive": "#F4C803",
+  "border": "#4D5A60",
+  "diffAdded": "#8F8C7D",
+  "diffRemoved": "#BC9D80",
+  "markdownHeading": "#FBF377",
+  "markdownLink": "#0B8FBF",
+  "markdownCode": "#AD7FB0",
+  "markdownEmph": "#FB9A7A",
+  "markdownStrong": "#FFFFFF",
+  "markdownBlockQuote": "#907E68",
+  "syntaxComment": "#767C72",
+  "syntaxKeyword": "#FF0044",
+  "syntaxFunction": "#E1AA00",
+  "syntaxType": "#F68C8E",
+  "syntaxNumber": "#D9B9A0",
+  "syntaxString": "#8E979C",
+  "syntaxOperator": "#727A85",
+  "text": "#CFE2E8",
+  "textMuted": "#BDC1C2",
+  "diffAddedBg": "#182135",
+  "diffRemovedBg": "#1E2335",
+  "diffAddedLineNumberBg": "#232A3B",
+  "diffRemovedLineNumberBg": "#30313E"
+ },
+ "tokens": [
+  {
+   "token": "codeBlockBg",
+   "hex": "#020B1C",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#020B1C 是原图里的真实像素（邻域人口 2764 px，精确 81 px），H219°，L6%",
+   "intent": "地核停机坪：全场最深的舞台，代码像停在地核里",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 81 px / 邻域 2764 px），族锚点 #030C1B 208 px（族内明度阶 L6%）"
+  },
+  {
+   "token": "sidebarBg",
+   "hex": "#021128",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#021128 是原图里的真实像素（邻域人口 1046 px，精确 14 px），H216°，L8%",
+   "intent": "侧舱走道：比主场再沉半档，视线先落在正文",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 14 px / 邻域 1046 px），族锚点 #030C1B 208 px（族内明度阶 L8%）"
+  },
+  {
+   "token": "background",
+   "hex": "#08122B",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#08122B 是原图里的真实像素（邻域人口 777 px，精确 22 px），H223°，L10%",
+   "intent": "赛博坦午夜天台：整块界面的「场」",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 22 px / 邻域 777 px），族锚点 #030C1B 208 px（族内明度阶 L10%）"
+  },
+  {
+   "token": "backgroundPanel",
+   "hex": "#04133A",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#04133A 是原图里的真实像素（邻域人口 308 px，精确 3 px），H223°，L12%",
+   "intent": "舱室面板：浮起一层，承接卡片",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 3 px / 邻域 308 px），族锚点 #030C1B 208 px（族内明度阶 L12%）"
+  },
+  {
+   "token": "inputBg",
+   "hex": "#022447",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#022447 是原图里的真实像素（邻域人口 312 px，精确 8 px），H210°，L14%",
+   "intent": "输入甲板：比气泡再凹一点，一浮一沉不靠边框分层",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 8 px / 邻域 312 px），族锚点 #030C1B 208 px（族内明度阶 L14%）"
+  },
+  {
+   "token": "codeHeaderBg",
+   "hex": "#0A2250",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#0A2250 是原图里的真实像素（邻域人口 360 px，精确 4 px），H219°，L18%",
+   "intent": "代码盖板：卡片的顶灯，比代码区亮一整档",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 4 px / 邻域 360 px），族锚点 #030C1B 208 px（族内明度阶 L18%）"
+  },
+  {
+   "token": "backgroundElement",
+   "hex": "#0D2354",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空",
+   "recipe": "夜空蓝族明度阶：#0D2354 是原图里的真实像素（邻域人口 329 px，精确 3 px），H221°，L19%",
+   "intent": "悬浮钢层：浮层 / 悬浮卡的落点，阶梯顶端",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 3 px / 邻域 329 px），族锚点 #030C1B 208 px（族内明度阶 L19%）"
+  },
+  {
+   "token": "bubbleBg",
+   "hex": "#241340",
+   "kind": "阶梯",
+   "anchor": "5.jpg 夜空 星云洋红",
+   "recipe": "星云紫族明度阶：#241340 是原图里的真实像素（邻域人口 148 px，精确 17 px），H263°，L16%",
+   "intent": "Arcee 紫气室：唯一离开蓝家族的表面（5.jpg 星云洋红）",
+   "recipeOk": true,
+   "recipeNote": "真实像素（精确 17 px / 邻域 148 px），族锚点 #241340 17 px"
+  },
+  {
+   "token": "primary",
+   "hex": "#D70A2B",
+   "kind": "直采",
+   "anchor": "擎天柱胸甲红｜2.jpg (491,249) 邻域 21 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 33 px",
+   "intent": "汽车人徽章红：品牌心跳，主按钮 / 激活态 / 品牌字",
+   "recipeOk": true,
+   "recipeNote": "精确 3 px / 邻域 33 px"
+  },
+  {
+   "token": "secondary",
+   "hex": "#3366A8",
+   "kind": "直采",
+   "anchor": "能量晶体蓝｜5.jpg (34,230) 邻域 82 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 114 px",
+   "intent": "能量电蓝：晶体蓝里点亮的那一档，走次级交互与信息",
+   "recipeOk": true,
+   "recipeNote": "精确 4 px / 邻域 114 px"
+  },
+  {
+   "token": "info",
+   "hex": "#0A6999",
+   "kind": "直采",
+   "anchor": "塞伯坦全息青｜5.jpg (357,236) 邻域 16 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 26 px",
+   "intent": "塞伯坦全息青：能量晶体的冷光，信息 / 提示",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 26 px"
+  },
+  {
+   "token": "success",
+   "hex": "#A7ABAA",
+   "kind": "直采",
+   "anchor": "山林苔色｜3.jpg (298,243) 邻域 74 px",
+   "recipe": "像素原样取用：3.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 387 px",
+   "intent": "山林苔色：素材里没有鲜绿，完成态只能是 3.jpg 那片苔",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 387 px"
+  },
+  {
+   "token": "warning",
+   "hex": "#B07400",
+   "kind": "直采",
+   "anchor": "车漆阴影琥珀｜1.jpg (277,177) 邻域 29 px",
+   "recipe": "像素原样取用：1.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 112 px",
+   "intent": "炮口琥珀：车漆的暗部，压暗一档不与焦点环撞衫",
+   "recipeOk": true,
+   "recipeNote": "精确 3 px / 邻域 112 px"
+  },
+  {
+   "token": "error",
+   "hex": "#FF5B02",
+   "kind": "直采",
+   "anchor": "肩炮熔炉橙｜4.jpg (58,0) 邻域 74 px",
+   "recipe": "像素原样取用：4.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 93 px",
+   "intent": "熔炉橙红：过热告急，与徽章红分家",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 93 px"
+  },
+  {
+   "token": "borderActive",
+   "hex": "#F4C803",
+   "kind": "直采",
+   "anchor": "大黄蜂车漆黄｜1.jpg (244,79) 邻域 256 px",
+   "recipe": "像素原样取用：1.jpg 原图中精确命中 7 px，邻域（ΔRGB≤6）人口 606 px",
+   "intent": "焦点环＝大黄蜂的车漆黄：全界面最醒目的一个点",
+   "recipeOk": true,
+   "recipeNote": "精确 7 px / 邻域 606 px"
+  },
+  {
+   "token": "border",
+   "hex": "#4D5A60",
+   "kind": "直采",
+   "anchor": "雾都钢蓝｜2.jpg (37,327) 邻域 525 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 16 px，邻域（ΔRGB≤6）人口 3040 px",
+   "intent": "钢板接缝：分割线是金属缝，不是描边",
+   "recipeOk": true,
+   "recipeNote": "精确 17 px / 邻域 3040 px"
+  },
+  {
+   "token": "diffAdded",
+   "hex": "#8F8C7D",
+   "kind": "直采",
+   "anchor": "战场草坡｜2.jpg (113,178) 邻域 289 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 587 px",
+   "intent": "新增＝战场上重新长出的草坡",
+   "recipeOk": true,
+   "recipeNote": "精确 3 px / 邻域 587 px"
+  },
+  {
+   "token": "diffRemoved",
+   "hex": "#BC9D80",
+   "kind": "直采",
+   "anchor": "战损锈铜｜2.jpg (506,48) 邻域 314 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 552 px",
+   "intent": "删除＝被击穿的旧装甲铜：不冒充报错红",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 552 px"
+  },
+  {
+   "token": "markdownHeading",
+   "hex": "#FBF377",
+   "kind": "直采",
+   "anchor": "海报日轮｜5.jpg (212,326) 邻域 95 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 154 px",
+   "intent": "标题＝海报上那轮太阳：主题的签名色",
+   "recipeOk": true,
+   "recipeNote": "精确 3 px / 邻域 154 px"
+  },
+  {
+   "token": "markdownLink",
+   "hex": "#0B8FBF",
+   "kind": "直采",
+   "anchor": "电光蓝｜5.jpg (354,303) 邻域 71 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 6 px，邻域（ΔRGB≤6）人口 72 px",
+   "intent": "链接＝能量电弧",
+   "recipeOk": true,
+   "recipeNote": "精确 6 px / 邻域 72 px"
+  },
+  {
+   "token": "markdownCode",
+   "hex": "#AD7FB0",
+   "kind": "直采",
+   "anchor": "霸天虎紫｜5.jpg (158,127) 邻域 50 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 52 px",
+   "intent": "行内码＝霸天虎紫：全片唯一的紫",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 52 px"
+  },
+  {
+   "token": "markdownEmph",
+   "hex": "#FB9A7A",
+   "kind": "直采",
+   "anchor": "火焰霞光｜5.jpg (228,366) 邻域 62 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 117 px",
+   "intent": "强调＝肩炮喷出的火",
+   "recipeOk": true,
+   "recipeNote": "精确 4 px / 邻域 117 px"
+  },
+  {
+   "token": "markdownStrong",
+   "hex": "#FFFFFF",
+   "kind": "直采",
+   "anchor": "影棚装甲白｜1.jpg (24,24) 邻域 2401 px",
+   "recipe": "像素原样取用：1.jpg 原图中精确命中 115301 px，邻域（ΔRGB≤6）人口 130346 px",
+   "intent": "粗体＝装甲上最亮的那块高光",
+   "recipeOk": true,
+   "recipeNote": "精确 120940 px / 邻域 130346 px"
+  },
+  {
+   "token": "markdownBlockQuote",
+   "hex": "#907E68",
+   "kind": "直采",
+   "anchor": "雾都尘霾｜2.jpg (519,82) 邻域 230 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 22 px，邻域（ΔRGB≤6）人口 677 px",
+   "intent": "引用＝雾都飘着的尘，退到文末",
+   "recipeOk": true,
+   "recipeNote": "精确 22 px / 邻域 677 px"
+  },
+  {
+   "token": "syntaxComment",
+   "hex": "#767C72",
+   "kind": "直采",
+   "anchor": "战场烟灰｜2.jpg (70,179) 邻域 150 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 5 px，邻域（ΔRGB≤6）人口 876 px",
+   "intent": "注释＝战场烟灰（退后）",
+   "recipeOk": true,
+   "recipeNote": "精确 8 px / 邻域 876 px"
+  },
+  {
+   "token": "syntaxKeyword",
+   "hex": "#FF0044",
+   "kind": "直采",
+   "anchor": "胸窗辉光红｜5.jpg (297,112) 邻域 28 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 32 px",
+   "intent": "关键字＝擎天柱胸窗的辉光红",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 32 px"
+  },
+  {
+   "token": "syntaxFunction",
+   "hex": "#E1AA00",
+   "kind": "直采",
+   "anchor": "车漆深金｜1.jpg (153,377) 邻域 73 px",
+   "recipe": "像素原样取用：1.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 475 px",
+   "intent": "函数＝大黄蜂的车漆深金",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 475 px"
+  },
+  {
+   "token": "syntaxType",
+   "hex": "#F68C8E",
+   "kind": "直采",
+   "anchor": "Arcee 玫瑰粉｜5.jpg (94,292) 邻域 29 px",
+   "recipe": "像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 48 px",
+   "intent": "类型＝Arcee 的玫瑰粉",
+   "recipeOk": true,
+   "recipeNote": "精确 2 px / 邻域 48 px"
+  },
+  {
+   "token": "syntaxNumber",
+   "hex": "#D9B9A0",
+   "kind": "直采",
+   "anchor": "引擎盖暖砂｜2.jpg (455,4) 邻域 134 px",
+   "recipe": "像素原样取用：2.jpg 原图中精确命中 5 px，邻域（ΔRGB≤6）人口 396 px",
+   "intent": "数字＝引擎盖的暖砂橙",
+   "recipeOk": true,
+   "recipeNote": "精确 5 px / 邻域 396 px"
+  },
+  {
+   "token": "syntaxString",
+   "hex": "#8E979C",
+   "kind": "直采",
+   "anchor": "钢灰蓝｜3.jpg (315,298) 邻域 92 px",
+   "recipe": "像素原样取用：3.jpg 原图中精确命中 11 px，邻域（ΔRGB≤6）人口 584 px",
+   "intent": "字符串＝没上漆的钢灰蓝",
+   "recipeOk": true,
+   "recipeNote": "精确 13 px / 邻域 584 px"
+  },
+  {
+   "token": "syntaxOperator",
+   "hex": "#727A85",
+   "kind": "直采",
+   "anchor": "远景雾蓝｜3.jpg (350,310) 邻域 89 px",
+   "recipe": "像素原样取用：3.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 567 px",
+   "intent": "运算符＝远景雾蓝（退后）",
+   "recipeOk": true,
+   "recipeNote": "精确 4 px / 邻域 567 px"
+  },
+  {
+   "token": "text",
+   "hex": "#CFE2E8",
+   "kind": "直采",
+   "anchor": "装甲钢白反光｜3.jpg (225,31) 邻域 80 px",
+   "recipe": "像素原样取用：3.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 326 px",
+   "intent": "钢白正文：被夜光照过的装甲反光",
+   "recipeOk": true,
+   "recipeNote": "精确 3 px / 邻域 326 px"
+  },
+  {
+   "token": "textMuted",
+   "hex": "#BDC1C2",
+   "kind": "直采",
+   "anchor": "装甲蓝灰｜3.jpg (326,238) 邻域 39 px",
+   "recipe": "像素原样取用：3.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 389 px",
+   "intent": "次级文字：钢灰蓝，退到正文之后但不消失",
+   "recipeOk": true,
+   "recipeNote": "精确 5 px / 邻域 389 px"
+  },
+  {
+   "token": "diffAddedBg",
+   "hex": "#182135",
+   "kind": "混色",
+   "anchor": "#8F8C7D（战场草坡）按固定比例压到 background 上",
+   "recipe": "#8F8C7D × 12% + #08122B × 88%",
+   "intent": "新增行底：草色薄雾",
+   "recipeOk": true,
+   "recipeNote": "混色复算一致"
+  },
+  {
+   "token": "diffRemovedBg",
+   "hex": "#1E2335",
+   "kind": "混色",
+   "anchor": "#BC9D80（战损锈铜）按固定比例压到 background 上",
+   "recipe": "#BC9D80 × 12% + #08122B × 88%",
+   "intent": "删除行底：铜锈薄雾",
+   "recipeOk": true,
+   "recipeNote": "混色复算一致"
+  },
+  {
+   "token": "diffAddedLineNumberBg",
+   "hex": "#232A3B",
+   "kind": "混色",
+   "anchor": "#8F8C7D（战场草坡）按固定比例压到 background 上",
+   "recipe": "#8F8C7D × 20% + #08122B × 80%",
+   "intent": "新增行号底：草色加重",
+   "recipeOk": true,
+   "recipeNote": "混色复算一致"
+  },
+  {
+   "token": "diffRemovedLineNumberBg",
+   "hex": "#30313E",
+   "kind": "混色",
+   "anchor": "#BC9D80（战损锈铜）按固定比例压到 background 上",
+   "recipe": "#BC9D80 × 22% + #08122B × 78%",
+   "intent": "删除行号底：铜锈加重",
+   "recipeOk": true,
+   "recipeNote": "混色复算一致"
+  }
+ ],
+ "images": [
+  {
+   "file": "1.jpg",
+   "title": "大黄蜂 · 白棚定妆",
+   "desc": "纯白影棚里的大黄蜂，车漆黄与机械黑，胸口徽章是汽车人红"
+  },
+  {
+   "file": "2.jpg",
+   "title": "擎天柱 · 雾都",
+   "desc": "雨雾都市里的擎天柱，红蓝钢甲被霾水洗成低饱和的城市色"
+  },
+  {
+   "file": "3.jpg",
+   "title": "擎天柱持剑 · 山林",
+   "desc": "擎天柱与长剑，钢甲高光是冷白，背景是被雾滤过的山林"
+  },
+  {
+   "file": "4.jpg",
+   "title": "电影海报 · 三角色",
+   "desc": "大黄蜂／擎天柱／猩猩将军，草坡与远山，唯一有明确绿地的一张"
+  },
+  {
+   "file": "5.jpg",
+   "title": "《变形金刚 One》海报",
+   "desc": "深靛夜空、巨大的黄太阳、擎天柱红、Arcee 粉、霸天虎紫——全片最具决定性的一帧"
+  }
+ ],
+ "audit": {
+  "hardTotal": 38,
+  "hardFails": 0,
+  "uiTotal": 15,
+  "uiFails": 0,
+  "rows": [
+   {
+    "code": "text@background",
+    "fg": "#CFE2E8",
+    "bg": "#08122B",
+    "ratio": 13.87,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@backgroundPanel",
+    "fg": "#CFE2E8",
+    "bg": "#04133A",
+    "ratio": 13.539,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@backgroundElement",
+    "fg": "#CFE2E8",
+    "bg": "#0D2354",
+    "ratio": 11.329,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@sidebarBg",
+    "fg": "#CFE2E8",
+    "bg": "#021128",
+    "ratio": 14.098,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@bubbleBg",
+    "fg": "#CFE2E8",
+    "bg": "#241340",
+    "ratio": 12.636,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@inputBg",
+    "fg": "#CFE2E8",
+    "bg": "#022447",
+    "ratio": 11.663,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@codeBlockBg",
+    "fg": "#CFE2E8",
+    "bg": "#020B1C",
+    "ratio": 14.708,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@codeHeaderBg",
+    "fg": "#CFE2E8",
+    "bg": "#0A2250",
+    "ratio": 11.563,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "textMuted@background",
+    "fg": "#BDC1C2",
+    "bg": "#08122B",
+    "ratio": 10.224,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "labelDimmed@background",
+    "fg": "#999EA4",
+    "bg": "#08122B",
+    "ratio": 6.876,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "textMuted@backgroundPanel",
+    "fg": "#BDC1C2",
+    "bg": "#04133A",
+    "ratio": 9.98,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "labelDimmed@backgroundPanel",
+    "fg": "#989EA7",
+    "bg": "#04133A",
+    "ratio": 6.714,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "textMuted@backgroundElement",
+    "fg": "#BDC1C2",
+    "bg": "#0D2354",
+    "ratio": 8.351,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "labelDimmed@backgroundElement",
+    "fg": "#9AA1AC",
+    "bg": "#0D2354",
+    "ratio": 5.823,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownHeading@background",
+    "fg": "#FBF377",
+    "bg": "#08122B",
+    "ratio": 16.071,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownHeading@backgroundPanel",
+    "fg": "#FBF377",
+    "bg": "#04133A",
+    "ratio": 15.688,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownLink@background",
+    "fg": "#0B8FBF",
+    "bg": "#08122B",
+    "ratio": 5.033,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownLink@backgroundPanel",
+    "fg": "#0B8FBF",
+    "bg": "#04133A",
+    "ratio": 4.912,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownStrong@background",
+    "fg": "#FFFFFF",
+    "bg": "#08122B",
+    "ratio": 18.556,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownStrong@backgroundPanel",
+    "fg": "#FFFFFF",
+    "bg": "#04133A",
+    "ratio": 18.113,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownEmph@background",
+    "fg": "#FB9A7A",
+    "bg": "#08122B",
+    "ratio": 8.841,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownEmph@backgroundPanel",
+    "fg": "#FB9A7A",
+    "bg": "#04133A",
+    "ratio": 8.629,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownBlockQuote@background",
+    "fg": "#907E68",
+    "bg": "#08122B",
+    "ratio": 4.745,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownBlockQuote@backgroundPanel",
+    "fg": "#907E68",
+    "bg": "#04133A",
+    "ratio": 4.632,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownCode@background",
+    "fg": "#AD7FB0",
+    "bg": "#08122B",
+    "ratio": 5.69,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "markdownCode@backgroundPanel",
+    "fg": "#AD7FB0",
+    "bg": "#04133A",
+    "ratio": 5.554,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxComment@codeBlockBg",
+    "fg": "#767C72",
+    "bg": "#020B1C",
+    "ratio": 4.588,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxKeyword@codeBlockBg",
+    "fg": "#FF0044",
+    "bg": "#020B1C",
+    "ratio": 4.999,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxFunction@codeBlockBg",
+    "fg": "#E1AA00",
+    "bg": "#020B1C",
+    "ratio": 9.325,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxType@codeBlockBg",
+    "fg": "#F68C8E",
+    "bg": "#020B1C",
+    "ratio": 8.49,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxNumber@codeBlockBg",
+    "fg": "#D9B9A0",
+    "bg": "#020B1C",
+    "ratio": 10.68,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxString@codeBlockBg",
+    "fg": "#8E979C",
+    "bg": "#020B1C",
+    "ratio": 6.612,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "syntaxOperator@codeBlockBg",
+    "fg": "#727A85",
+    "bg": "#020B1C",
+    "ratio": 4.533,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "diffAdded@diffAddedBg",
+    "fg": "#8F8C7D",
+    "bg": "#182135",
+    "ratio": 4.753,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "diffRemoved@diffRemovedBg",
+    "fg": "#BC9D80",
+    "bg": "#1E2335",
+    "ratio": 6.142,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@diffAddedBg",
+    "fg": "#CFE2E8",
+    "bg": "#182135",
+    "ratio": 12.003,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "text@diffRemovedBg",
+    "fg": "#CFE2E8",
+    "bg": "#1E2335",
+    "ratio": 11.653,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "contrastText(primary)@primary",
+    "fg": "#F4F4F5",
+    "bg": "#D70A2B",
+    "ratio": 4.815,
+    "t": 4.5,
+    "ok": true
+   },
+   {
+    "code": "borderActive@background",
+    "fg": "#F4C803",
+    "bg": "#08122B",
+    "ratio": 11.584,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "borderActive@backgroundPanel",
+    "fg": "#F4C803",
+    "bg": "#04133A",
+    "ratio": 11.307,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "borderActive@backgroundElement",
+    "fg": "#F4C803",
+    "bg": "#0D2354",
+    "ratio": 9.462,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "primary@background",
+    "fg": "#D70A2B",
+    "bg": "#08122B",
+    "ratio": 3.506,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "primary@backgroundPanel",
+    "fg": "#D70A2B",
+    "bg": "#04133A",
+    "ratio": 3.422,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "secondary@background",
+    "fg": "#3366A8",
+    "bg": "#08122B",
+    "ratio": 3.187,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "secondary@backgroundPanel",
+    "fg": "#3366A8",
+    "bg": "#04133A",
+    "ratio": 3.111,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "info@background",
+    "fg": "#0A6999",
+    "bg": "#08122B",
+    "ratio": 3.087,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "info@backgroundPanel",
+    "fg": "#0A6999",
+    "bg": "#04133A",
+    "ratio": 3.013,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "success@background",
+    "fg": "#A7ABAA",
+    "bg": "#08122B",
+    "ratio": 7.995,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "success@backgroundPanel",
+    "fg": "#A7ABAA",
+    "bg": "#04133A",
+    "ratio": 7.805,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "warning@background",
+    "fg": "#B07400",
+    "bg": "#08122B",
+    "ratio": 4.722,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "warning@backgroundPanel",
+    "fg": "#B07400",
+    "bg": "#04133A",
+    "ratio": 4.609,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "error@background",
+    "fg": "#FF5B02",
+    "bg": "#08122B",
+    "ratio": 5.964,
+    "t": 3.0,
+    "ok": true
+   },
+   {
+    "code": "error@backgroundPanel",
+    "fg": "#FF5B02",
+    "bg": "#04133A",
+    "ratio": 5.821,
+    "t": 3.0,
+    "ok": true
+   }
+  ],
+  "collisions": [],
+  "islands": [],
+  "brandHue": 136.5,
+  "brandCat": "triadic 三角",
+  "coreMinDeltaE": 27.6,
+  "coreMinPair": "syntaxNumber×syntaxString",
+  "commentContrast": 4.59,
+  "operatorContrast": 4.53,
+  "coreMinContrast": 5.0,
+  "markdownDup": [],
+  "designWarnings": 0,
+  "baseHue": 222.9,
+  "recipeFails": 0,
+  "worstPairs": [
+   {
+    "de": 8.2,
+    "a": "textMuted",
+    "b": "success"
+   },
+   {
+    "de": 8.2,
+    "a": "diffAdded",
+    "b": "syntaxComment"
+   },
+   {
+    "de": 8.6,
+    "a": "success",
+    "b": "syntaxString"
+   },
+   {
+    "de": 8.9,
+    "a": "diffAdded",
+    "b": "markdownBlockQuote"
+   },
+   {
+    "de": 10.8,
+    "a": "diffRemoved",
+    "b": "syntaxNumber"
+   },
+   {
+    "de": 11.6,
+    "a": "syntaxString",
+    "b": "syntaxOperator"
+   },
+   {
+    "de": 12.3,
+    "a": "syntaxComment",
+    "b": "syntaxOperator"
+   },
+   {
+    "de": 12.3,
+    "a": "text",
+    "b": "textMuted"
+   }
+  ],
+  "adjacentMin": {
+   "de": 11.6,
+   "a": "syntaxString",
+   "b": "syntaxOperator"
+  },
+  "adjacentPairs": [
+   {
+    "de": 11.6,
+    "a": "syntaxString",
+    "b": "syntaxOperator"
+   },
+   {
+    "de": 12.3,
+    "a": "syntaxComment",
+    "b": "syntaxOperator"
+   },
+   {
+    "de": 12.3,
+    "a": "syntaxOperator",
+    "b": "syntaxComment"
+   },
+   {
+    "de": 12.3,
+    "a": "text",
+    "b": "textMuted"
+   },
+   {
+    "de": 12.7,
+    "a": "markdownBlockQuote",
+    "b": "syntaxComment"
+   },
+   {
+    "de": 12.7,
+    "a": "diffAdded",
+    "b": "syntaxString"
+   },
+   {
+    "de": 13.4,
+    "a": "markdownStrong",
+    "b": "text"
+   },
+   {
+    "de": 13.9,
+    "a": "syntaxFunction",
+    "b": "borderActive"
+   }
+  ]
+ }
+}

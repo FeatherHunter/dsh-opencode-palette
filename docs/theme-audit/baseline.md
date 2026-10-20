@@ -103,7 +103,7 @@
 | --- | --- |
 | 背景家族色相孤岛 | 0 个主题有孤岛 |
 | 明暗 straddle（仅记录） | 0 个主题 |
-| 角色碰撞 / markdown 同值 | 5 条告警：记档 5 / 待处理 0 |
+| 角色碰撞 / markdown 同值 | 3 条告警：记档 3 / 待处理 0 |
 | markdown 层级同值主题 | 0 个 |
 | 语法核心 ΔE<10 | 0 个主题 |
 | comment/operator 未退后（待处理） | 0 条 |
@@ -116,8 +116,6 @@
 | cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff1932） |
 | cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 83.4 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
 | hello-kitty | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#c8152d） |
-| transformers | roleCollision | ✓ 记档 | 同组角色取同值：secondary = info（#38a1ff） |
-| transformers | roleCollision | ✓ 记档 | 跨组角色取同值：borderActive = markdownLink（#4db2ff） |
 
 ## 与历史 scratch 审计的方向性对账
 

@@ -1,0 +1,85 @@
+── palette.light.json  (light) ──
+表面：{"background":"#FFFAF0","backgroundPanel":"#FEF8EA","backgroundElement":"#FEF4DD","sidebarBg":"#FEF6E4","bubbleBg":"#FFFFFF","inputBg":"#FFFCF6","codeBlockBg":"#FFFFFF","codeHeaderBg":"#FFCB05"}
+硬性对 38 条，违例 0
+UI 对 15 条，违例 0
+最紧 6 对：
+  secondary@backgroundPanel = 3.931 (阈值 3)
+  secondary@background = 4.001 (阈值 3)
+  borderActive@backgroundElement = 4.108 (阈值 3)
+  borderActive@backgroundPanel = 4.243 (阈值 3)
+  borderActive@background = 4.319 (阈值 3)
+  warning@backgroundPanel = 4.435 (阈值 3)
+角色同值碰撞：无
+背景色相孤岛(>60°)：无  基准色相 40.0°
+品牌几何：primary 32.5° × secondary 223.5° = 169° → complementary 互补
+语法核心最小 ΔE76 = 21.9 (syntaxType×syntaxString)  门槛 10 → PASS
+退后检查：comment 4.81 / operator 4.72 vs 核心最低 5.28 → PASS
+markdown 同值：无
+── 语法核心两两 ΔE76 ──
+   syntaxKeyword×syntaxFunction = 34.9 ✓
+   syntaxKeyword×syntaxType = 35.3 ✓
+   syntaxKeyword×syntaxNumber = 49.8 ✓
+   syntaxKeyword×syntaxString = 39.2 ✓
+   syntaxFunction×syntaxType = 23.3 ✓
+   syntaxFunction×syntaxNumber = 78.8 ✓
+   syntaxFunction×syntaxString = 43.5 ✓
+   syntaxType×syntaxNumber = 64.9 ✓
+   syntaxType×syntaxString = 21.9 ✓
+   syntaxNumber×syntaxString = 48.4 ✓
+
+── 全部色位对比度 ──
+  ✓ text@background                     16.30  (≥4.5)
+  ✓ text@backgroundPanel                16.01  (≥4.5)
+  ✓ text@backgroundElement              15.50  (≥4.5)
+  ✓ text@sidebarBg                      15.76  (≥4.5)
+  ✓ text@bubbleBg                       16.95  (≥4.5)
+  ✓ text@inputBg                        16.56  (≥4.5)
+  ✓ text@codeBlockBg                    16.95  (≥4.5)
+  ✓ text@codeHeaderBg                   11.14  (≥4.5)
+  ✓ textMuted@background                 8.74  (≥4.5)
+  ✓ labelDimmed@background               5.02  (≥4.5)
+  ✓ textMuted@backgroundPanel            8.59  (≥4.5)
+  ✓ labelDimmed@backgroundPanel          5.01  (≥4.5)
+  ✓ textMuted@backgroundElement          8.31  (≥4.5)
+  ✓ labelDimmed@backgroundElement        4.91  (≥4.5)
+  ✓ markdownHeading@background           4.97  (≥4.5)
+  ✓ markdownHeading@backgroundPanel      4.88  (≥4.5)
+  ✓ markdownLink@background              5.09  (≥4.5)
+  ✓ markdownLink@backgroundPanel         5.00  (≥4.5)
+  ✓ markdownStrong@background           18.76  (≥4.5)
+  ✓ markdownStrong@backgroundPanel      18.43  (≥4.5)
+  ✓ markdownEmph@background              9.04  (≥4.5)
+  ✓ markdownEmph@backgroundPanel         8.88  (≥4.5)
+  ✓ markdownBlockQuote@background        5.49  (≥4.5)
+  ✓ markdownBlockQuote@backgroundPanel   5.39  (≥4.5)
+  ✓ markdownCode@background              9.00  (≥4.5)
+  ✓ markdownCode@backgroundPanel         8.84  (≥4.5)
+  ✓ syntaxComment@codeBlockBg            4.81  (≥4.5)
+  ✓ syntaxKeyword@codeBlockBg            5.33  (≥4.5)
+  ✓ syntaxFunction@codeBlockBg           5.61  (≥4.5)
+  ✓ syntaxType@codeBlockBg               5.28  (≥4.5)
+  ✓ syntaxNumber@codeBlockBg             5.75  (≥4.5)
+  ✓ syntaxString@codeBlockBg             6.10  (≥4.5)
+  ✓ syntaxOperator@codeBlockBg           4.72  (≥4.5)
+  ✓ diffAdded@diffAddedBg                8.25  (≥4.5)
+  ✓ diffRemoved@diffRemovedBg            7.63  (≥4.5)
+  ✓ text@diffAddedBg                    15.98  (≥4.5)
+  ✓ text@diffRemovedBg                  14.17  (≥4.5)
+  ✓ contrastText(primary)@primary        4.99  (≥4.5)
+  ✓ borderActive@background              4.32  (≥3)
+  ✓ borderActive@backgroundPanel         4.24  (≥3)
+  ✓ borderActive@backgroundElement       4.11  (≥3)
+  ✓ primary@background                   5.27  (≥3)
+  ✓ primary@backgroundPanel              5.18  (≥3)
+  ✓ secondary@background                 4.00  (≥3)
+  ✓ secondary@backgroundPanel            3.93  (≥3)
+  ✓ info@background                      6.47  (≥3)
+  ✓ info@backgroundPanel                 6.36  (≥3)
+  ✓ success@background                   4.54  (≥3)
+  ✓ success@backgroundPanel              4.46  (≥3)
+  ✓ warning@background                   4.51  (≥3)
+  ✓ warning@backgroundPanel              4.43  (≥3)
+  ✓ error@background                     4.62  (≥3)
+  ✓ error@backgroundPanel                4.54  (≥3)
+
+退出码：0

@@ -1,0 +1,136 @@
+====================================================================================================
+变形金刚 IP 预设 · 37 色位取色报告
+====================================================================================================
+  codeBlockBg                #020B1C   H219 S 87 L  6  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#020B1C 是原图里的真实像素（邻域人口 2764 px，精确 81 px），H219°，L6%   [真实像素（精确 81 px / 邻域 2764 px），族锚点 #030C1B 208 px（族内明度阶 L6%）]
+  sidebarBg                  #021128   H216 S 90 L  8  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#021128 是原图里的真实像素（邻域人口 1046 px，精确 14 px），H216°，L8%   [真实像素（精确 14 px / 邻域 1046 px），族锚点 #030C1B 208 px（族内明度阶 L8%）]
+  background                 #08122B   H223 S 69 L 10  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#08122B 是原图里的真实像素（邻域人口 777 px，精确 22 px），H223°，L10%   [真实像素（精确 22 px / 邻域 777 px），族锚点 #030C1B 208 px（族内明度阶 L10%）]
+  backgroundPanel            #04133A   H223 S 87 L 12  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#04133A 是原图里的真实像素（邻域人口 308 px，精确 3 px），H223°，L12%   [真实像素（精确 3 px / 邻域 308 px），族锚点 #030C1B 208 px（族内明度阶 L12%）]
+  inputBg                    #022447   H210 S 95 L 14  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#022447 是原图里的真实像素（邻域人口 312 px，精确 8 px），H210°，L14%   [真实像素（精确 8 px / 邻域 312 px），族锚点 #030C1B 208 px（族内明度阶 L14%）]
+  codeHeaderBg               #0A2250   H219 S 78 L 18  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#0A2250 是原图里的真实像素（邻域人口 360 px，精确 4 px），H219°，L18%   [真实像素（精确 4 px / 邻域 360 px），族锚点 #030C1B 208 px（族内明度阶 L18%）]
+  backgroundElement          #0D2354   H221 S 73 L 19  <- 5.jpg 夜空
+                             夜空蓝族明度阶：#0D2354 是原图里的真实像素（邻域人口 329 px，精确 3 px），H221°，L19%   [真实像素（精确 3 px / 邻域 329 px），族锚点 #030C1B 208 px（族内明度阶 L19%）]
+  bubbleBg                   #241340   H263 S 54 L 16  <- 5.jpg 夜空 星云洋红
+                             星云紫族明度阶：#241340 是原图里的真实像素（邻域人口 148 px，精确 17 px），H263°，L16%   [真实像素（精确 17 px / 邻域 148 px），族锚点 #241340 17 px]
+  primary                    #D70A2B   H350 S 91 L 44  <- 擎天柱胸甲红｜2.jpg (491,249) 邻域 21 px
+                             像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 33 px   [精确 3 px / 邻域 33 px]
+  secondary                  #3366A8   H214 S 53 L 43  <- 能量晶体蓝｜5.jpg (34,230) 邻域 82 px
+                             像素原样取用：5.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 114 px   [精确 4 px / 邻域 114 px]
+  info                       #0A6999   H200 S 88 L 32  <- 塞伯坦全息青｜5.jpg (357,236) 邻域 16 px
+                             像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 26 px   [精确 2 px / 邻域 26 px]
+  success                    #A7ABAA   H105 S  2 L 66  <- 山林苔色｜3.jpg (298,243) 邻域 74 px
+                             像素原样取用：3.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 387 px   [精确 2 px / 邻域 387 px]
+  warning                    #B07400   H 40 S100 L 35  <- 车漆阴影琥珀｜1.jpg (277,177) 邻域 29 px
+                             像素原样取用：1.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 112 px   [精确 3 px / 邻域 112 px]
+  error                      #FF5B02   H 21 S100 L 50  <- 肩炮熔炉橙｜4.jpg (58,0) 邻域 74 px
+                             像素原样取用：4.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 93 px   [精确 2 px / 邻域 93 px]
+  borderActive               #F4C803   H 49 S 98 L 48  <- 大黄蜂车漆黄｜1.jpg (244,79) 邻域 256 px
+                             像素原样取用：1.jpg 原图中精确命中 7 px，邻域（ΔRGB≤6）人口 606 px   [精确 7 px / 邻域 606 px]
+  border                     #4D5A60   H199 S 11 L 34  <- 雾都钢蓝｜2.jpg (37,327) 邻域 525 px
+                             像素原样取用：2.jpg 原图中精确命中 16 px，邻域（ΔRGB≤6）人口 3040 px   [精确 17 px / 邻域 3040 px]
+  diffAdded                  #8F8C7D   H 50 S  7 L 53  <- 战场草坡｜2.jpg (113,178) 邻域 289 px
+                             像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 587 px   [精确 3 px / 邻域 587 px]
+  diffRemoved                #BC9D80   H 29 S 31 L 62  <- 战损锈铜｜2.jpg (506,48) 邻域 314 px
+                             像素原样取用：2.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 552 px   [精确 2 px / 邻域 552 px]
+  markdownHeading            #FBF377   H 56 S 94 L 73  <- 海报日轮｜5.jpg (212,326) 邻域 95 px
+                             像素原样取用：5.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 154 px   [精确 3 px / 邻域 154 px]
+  markdownLink               #0B8FBF   H196 S 89 L 40  <- 电光蓝｜5.jpg (354,303) 邻域 71 px
+                             像素原样取用：5.jpg 原图中精确命中 6 px，邻域（ΔRGB≤6）人口 72 px   [精确 6 px / 邻域 72 px]
+  markdownCode               #AD7FB0   H296 S 24 L 59  <- 霸天虎紫｜5.jpg (158,127) 邻域 50 px
+                             像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 52 px   [精确 2 px / 邻域 52 px]
+  markdownEmph               #FB9A7A   H 15 S 94 L 73  <- 火焰霞光｜5.jpg (228,366) 邻域 62 px
+                             像素原样取用：5.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 117 px   [精确 4 px / 邻域 117 px]
+  markdownStrong             #FFFFFF   H  0 S  0 L100  <- 影棚装甲白｜1.jpg (24,24) 邻域 2401 px
+                             像素原样取用：1.jpg 原图中精确命中 115301 px，邻域（ΔRGB≤6）人口 130346 px   [精确 120940 px / 邻域 130346 px]
+  markdownBlockQuote         #907E68   H 33 S 16 L 49  <- 雾都尘霾｜2.jpg (519,82) 邻域 230 px
+                             像素原样取用：2.jpg 原图中精确命中 22 px，邻域（ΔRGB≤6）人口 677 px   [精确 22 px / 邻域 677 px]
+  syntaxComment              #767C72   H 60 S  4 L 47  <- 战场烟灰｜2.jpg (70,179) 邻域 150 px
+                             像素原样取用：2.jpg 原图中精确命中 5 px，邻域（ΔRGB≤6）人口 876 px   [精确 8 px / 邻域 876 px]
+  syntaxKeyword              #FF0044   H344 S100 L 50  <- 胸窗辉光红｜5.jpg (297,112) 邻域 28 px
+                             像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 32 px   [精确 2 px / 邻域 32 px]
+  syntaxFunction             #E1AA00   H 45 S100 L 44  <- 车漆深金｜1.jpg (153,377) 邻域 73 px
+                             像素原样取用：1.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 475 px   [精确 2 px / 邻域 475 px]
+  syntaxType                 #F68C8E   H359 S 85 L 76  <- Arcee 玫瑰粉｜5.jpg (94,292) 邻域 29 px
+                             像素原样取用：5.jpg 原图中精确命中 2 px，邻域（ΔRGB≤6）人口 48 px   [精确 2 px / 邻域 48 px]
+  syntaxNumber               #D9B9A0   H 26 S 43 L 74  <- 引擎盖暖砂｜2.jpg (455,4) 邻域 134 px
+                             像素原样取用：2.jpg 原图中精确命中 5 px，邻域（ΔRGB≤6）人口 396 px   [精确 5 px / 邻域 396 px]
+  syntaxString               #8E979C   H201 S  7 L 58  <- 钢灰蓝｜3.jpg (315,298) 邻域 92 px
+                             像素原样取用：3.jpg 原图中精确命中 11 px，邻域（ΔRGB≤6）人口 584 px   [精确 13 px / 邻域 584 px]
+  syntaxOperator             #727A85   H215 S  8 L 48  <- 远景雾蓝｜3.jpg (350,310) 邻域 89 px
+                             像素原样取用：3.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 567 px   [精确 4 px / 邻域 567 px]
+  text                       #CFE2E8   H194 S 35 L 86  <- 装甲钢白反光｜3.jpg (225,31) 邻域 80 px
+                             像素原样取用：3.jpg 原图中精确命中 3 px，邻域（ΔRGB≤6）人口 326 px   [精确 3 px / 邻域 326 px]
+  textMuted                  #BDC1C2   H192 S  4 L 75  <- 装甲蓝灰｜3.jpg (326,238) 邻域 39 px
+                             像素原样取用：3.jpg 原图中精确命中 4 px，邻域（ΔRGB≤6）人口 389 px   [精确 5 px / 邻域 389 px]
+  diffAddedBg                #182135   H221 S 38 L 15  <- #8F8C7D（战场草坡）按固定比例压到 background 上
+                             #8F8C7D × 12% + #08122B × 88%   [混色复算一致]
+  diffRemovedBg              #1E2335   H227 S 28 L 16  <- #BC9D80（战损锈铜）按固定比例压到 background 上
+                             #BC9D80 × 12% + #08122B × 88%   [混色复算一致]
+  diffAddedLineNumberBg      #232A3B   H222 S 26 L 18  <- #8F8C7D（战场草坡）按固定比例压到 background 上
+                             #8F8C7D × 20% + #08122B × 80%   [混色复算一致]
+  diffRemovedLineNumberBg    #30313E   H236 S 13 L 22  <- #BC9D80（战损锈铜）按固定比例压到 background 上
+                             #BC9D80 × 22% + #08122B × 78%   [混色复算一致]
+
+--- 硬性对 38 条（正文 4.5:1）· 违例 0 ---
+    syntaxOperator@codeBlockBg           4.53 / 4.5  PASS
+    syntaxComment@codeBlockBg            4.59 / 4.5  PASS
+    markdownBlockQuote@backgroundPanel   4.63 / 4.5  PASS
+    markdownBlockQuote@background        4.75 / 4.5  PASS
+    diffAdded@diffAddedBg                4.75 / 4.5  PASS
+    contrastText(primary)@primary        4.82 / 4.5  PASS
+    markdownLink@backgroundPanel         4.91 / 4.5  PASS
+    syntaxKeyword@codeBlockBg            5.00 / 4.5  PASS
+    markdownLink@background              5.03 / 4.5  PASS
+    markdownCode@backgroundPanel         5.55 / 4.5  PASS
+--- UI 对 15 条（非文本 3.0:1）· 违例 0 ---
+    info@backgroundPanel                 3.01 / 3.0  PASS
+    info@background                      3.09 / 3.0  PASS
+    secondary@backgroundPanel            3.11 / 3.0  PASS
+    secondary@background                 3.19 / 3.0  PASS
+    primary@backgroundPanel              3.42 / 3.0  PASS
+    primary@background                   3.51 / 3.0  PASS
+
+--- 设计规范告警 0 条 ---
+    角色同值碰撞：无
+    背景色相孤岛(>60°)：无  基准色相 222.9°
+    品牌几何：primary 350.3° × secondary 213.8° = 136.5° → triadic 三角
+    语法核心最小 ΔE76 = 27.6 (syntaxNumber×syntaxString)  门槛 10 → PASS
+    退后梯队：comment 4.59 / operator 4.53  vs 核心最低 5.00 → PASS
+    markdown 同值：无
+
+--- 25 岗位两两 ΔE76 最紧的 8 对（审计脚本不查，但串戏是真问题）---
+    textMuted            × success                8.2
+    diffAdded            × syntaxComment          8.2
+    success              × syntaxString           8.6
+    diffAdded            × markdownBlockQuote     8.9
+    diffRemoved          × syntaxNumber          10.8
+    syntaxString         × syntaxOperator        11.6
+    syntaxComment        × syntaxOperator        12.3
+    text                 × textMuted             12.3
+
+--- 色相家族分布（37 色位）---
+    色相   0°   2 个  markdownStrong syntaxType
+    色相  10°   1 个  markdownEmph
+    色相  20°   1 个  error
+    色相  30°   3 个  diffRemoved markdownBlockQuote syntaxNumber
+    色相  40°   1 个  warning
+    色相  50°   3 个  borderActive diffAdded syntaxFunction
+    色相  60°   2 个  markdownHeading syntaxComment
+    色相 100°   1 个  success
+    色相 190°   2 个  text textMuted
+    色相 200°   4 个  info border markdownLink syntaxString
+    色相 210°   3 个  inputBg secondary syntaxOperator
+    色相 220°   8 个  codeBlockBg sidebarBg background backgroundPanel codeHeaderBg backgroundElement diffAddedBg diffAddedLineNumberBg
+    色相 230°   1 个  diffRemovedBg
+    色相 240°   1 个  diffRemovedLineNumberBg
+    色相 260°   1 个  bubbleBg
+    色相 300°   1 个  markdownCode
+    色相 340°   1 个  syntaxKeyword
+    色相 350°   1 个  primary
+
+written: D:\dsh-plugin\dsh-opencode-palette\prototypes\transformers-extraction\palette.json

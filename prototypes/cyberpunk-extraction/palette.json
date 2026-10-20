@@ -1,0 +1,347 @@
+{
+ "colors": {
+  "background": "#151112",
+  "backgroundPanel": "#231B19",
+  "backgroundElement": "#2C2829",
+  "sidebarBg": "#1C1616",
+  "bubbleBg": "#2A231D",
+  "inputBg": "#261F1B",
+  "codeBlockBg": "#0E0A0B",
+  "codeHeaderBg": "#100B08",
+  "text": "#C2BFB0",
+  "textMuted": "#A7B4BC",
+  "primary": "#FBF405",
+  "secondary": "#D51666",
+  "info": "#4A96B8",
+  "success": "#CDED66",
+  "warning": "#E7A257",
+  "error": "#FF1932",
+  "border": "#625B51",
+  "borderActive": "#FFF847",
+  "diffAdded": "#91A657",
+  "diffRemoved": "#FF1932",
+  "diffAddedBg": "#14170C",
+  "diffRemovedBg": "#240407",
+  "diffAddedLineNumberBg": "#1D2111",
+  "diffRemovedLineNumberBg": "#36050B",
+  "markdownHeading": "#E8DF04",
+  "markdownLink": "#84CFEF",
+  "markdownCode": "#B7D072",
+  "markdownEmph": "#E1BF9A",
+  "markdownStrong": "#E6D7BA",
+  "markdownBlockQuote": "#89929E",
+  "syntaxComment": "#847C6A",
+  "syntaxKeyword": "#C3B50C",
+  "syntaxFunction": "#B8ECFA",
+  "syntaxType": "#7A9E92",
+  "syntaxNumber": "#AD7B3E",
+  "syntaxString": "#A2B772",
+  "syntaxOperator": "#7876A5"
+ },
+ "provenance": {
+  "background": {
+   "rule": "直采",
+   "anchors": [
+    "#151112"
+   ],
+   "note": "图 2 皮衣暗部（字面像素 92 px）——全套最底的一层",
+   "name": "页面底"
+  },
+  "backgroundPanel": {
+   "rule": "直采",
+   "anchors": [
+    "#231B19"
+   ],
+   "note": "图 1 皮衣褶皱中调",
+   "name": "浮起面"
+  },
+  "backgroundElement": {
+   "rule": "直采",
+   "anchors": [
+    "#2C2829"
+   ],
+   "note": "图 3 金属件反光灰面",
+   "name": "浮层"
+  },
+  "sidebarBg": {
+   "rule": "直采",
+   "anchors": [
+    "#1C1616"
+   ],
+   "note": "图 1 领口阴影",
+   "name": "侧边栏"
+  },
+  "bubbleBg": {
+   "rule": "直采",
+   "anchors": [
+    "#2A231D"
+   ],
+   "note": "图 5 皮衣暖面",
+   "name": "气泡"
+  },
+  "inputBg": {
+   "rule": "混色",
+   "anchors": [
+    "#231B19",
+    "#2A231D"
+   ],
+   "note": "皮衣中调 × 皮衣暖面 各半",
+   "name": "输入框"
+  },
+  "codeBlockBg": {
+   "rule": "直采",
+   "anchors": [
+    "#0E0A0B"
+   ],
+   "note": "图 2 主体深影——代码舞台压到最暗",
+   "name": "代码块"
+  },
+  "codeHeaderBg": {
+   "rule": "直采",
+   "anchors": [
+    "#100B08"
+   ],
+   "note": "图 1 皮革最深色",
+   "name": "代码块顶栏"
+  },
+  "text": {
+   "rule": "直采",
+   "anchors": [
+    "#C2BFB0"
+   ],
+   "note": "图 4「PHANTOM LIBERTY」副标题灰白",
+   "name": "主要文字"
+  },
+  "textMuted": {
+   "rule": "直采",
+   "anchors": [
+    "#A7B4BC"
+   ],
+   "note": "图 4 同处那行冷调字幕灰",
+   "name": "次要文字"
+  },
+  "primary": {
+   "rule": "直采",
+   "anchors": [
+    "#FBF405"
+   ],
+   "note": "图 1/3/5 招牌黄场主色——全局唯一的高声位",
+   "name": "品牌主色"
+  },
+  "secondary": {
+   "rule": "直采",
+   "anchors": [
+    "#D51666"
+   ],
+   "note": "图 2 霓虹粉墙",
+   "name": "空闲"
+  },
+  "info": {
+   "rule": "直采",
+   "anchors": [
+    "#4A96B8"
+   ],
+   "note": "图 1/3/5 领口科技青",
+   "name": "信息"
+  },
+  "success": {
+   "rule": "直采",
+   "anchors": [
+    "#CDED66"
+   ],
+   "note": "图 3 绿光反光",
+   "name": "成功"
+  },
+  "warning": {
+   "rule": "直采",
+   "anchors": [
+    "#E7A257"
+   ],
+   "note": "图 5 皮革高光琥珀",
+   "name": "警告"
+  },
+  "error": {
+   "rule": "阶梯",
+   "anchors": [
+    "#E0162C"
+   ],
+   "note": "图 4 热红场 #E0162C 提亮到 V=1.0（同色相最高阶）",
+   "name": "错误"
+  },
+  "border": {
+   "rule": "直采",
+   "anchors": [
+    "#625B51"
+   ],
+   "note": "图 5 金属暖灰",
+   "name": "边框"
+  },
+  "borderActive": {
+   "rule": "直采",
+   "anchors": [
+    "#FFF847"
+   ],
+   "note": "图 2/3 黄场最亮一档——焦点环取全场最亮",
+   "name": "强边框"
+  },
+  "diffAdded": {
+   "rule": "直采",
+   "anchors": [
+    "#91A657"
+   ],
+   "note": "图 3 苔绿反光",
+   "name": "新增文字"
+  },
+  "diffRemoved": {
+   "rule": "阶梯",
+   "anchors": [
+    "#E0162C"
+   ],
+   "note": "与 error 同一色相阶梯（v3 终审已记档并岗）",
+   "name": "删除文字"
+  },
+  "diffAddedBg": {
+   "rule": "阶梯",
+   "anchors": [
+    "#91A657"
+   ],
+   "note": "#91A657 同色相压暗到 V=0.09",
+   "name": "新增行底"
+  },
+  "diffRemovedBg": {
+   "rule": "阶梯",
+   "anchors": [
+    "#E0162C"
+   ],
+   "note": "#E0162C 同色相压暗到 V=0.14",
+   "name": "删除行底"
+  },
+  "diffAddedLineNumberBg": {
+   "rule": "阶梯",
+   "anchors": [
+    "#91A657"
+   ],
+   "note": "#91A657 同色相压暗到 V=0.13",
+   "name": "新增行号底"
+  },
+  "diffRemovedLineNumberBg": {
+   "rule": "阶梯",
+   "anchors": [
+    "#E0162C"
+   ],
+   "note": "#E0162C 同色相压暗到 V=0.21",
+   "name": "删除行号底"
+  },
+  "markdownHeading": {
+   "rule": "直采",
+   "anchors": [
+    "#E8DF04"
+   ],
+   "note": "图 1/3 饱和深黄——标题唯一的高声位",
+   "name": "标题"
+  },
+  "markdownLink": {
+   "rule": "直采",
+   "anchors": [
+    "#84CFEF"
+   ],
+   "note": "图 1/3 领口青亮档",
+   "name": "链接"
+  },
+  "markdownCode": {
+   "rule": "直采",
+   "anchors": [
+    "#B7D072"
+   ],
+   "note": "图 3 浅酸绿",
+   "name": "行内代码"
+  },
+  "markdownEmph": {
+   "rule": "直采",
+   "anchors": [
+    "#E1BF9A"
+   ],
+   "note": "图 3 人物脸上被光照亮的一档——斜体用「人」的颜色，且必须比正文亮（语料约束搜索：字面像素 + 判尺约束下的唯一解）",
+   "name": "斜体"
+  },
+  "markdownStrong": {
+   "rule": "直采",
+   "anchors": [
+    "#E6D7BA"
+   ],
+   "note": "图 1 旧纸羊皮色",
+   "name": "粗体"
+  },
+  "markdownBlockQuote": {
+   "rule": "混色",
+   "anchors": [
+    "#6B717F",
+    "#A7B4BC"
+   ],
+   "note": "夜蓝灰 × 冷亮灰 各半——引用是「冷」的旁声",
+   "name": "引用"
+  },
+  "syntaxComment": {
+   "rule": "混色",
+   "anchors": [
+    "#78705D",
+    "#8F8876"
+   ],
+   "note": "皮料暖灰 × 金属暖灰 各半——注释退到最底",
+   "name": "注释"
+  },
+  "syntaxKeyword": {
+   "rule": "直采",
+   "anchors": [
+    "#C3B50C"
+   ],
+   "note": "图 3 橄榄黄",
+   "name": "关键字"
+  },
+  "syntaxFunction": {
+   "rule": "直采",
+   "anchors": [
+    "#B8ECFA"
+   ],
+   "note": "图 1/2 领口冰白",
+   "name": "函数"
+  },
+  "syntaxType": {
+   "rule": "直采",
+   "anchors": [
+    "#7A9E92"
+   ],
+   "note": "图 1 领口青暗面（语料搜索：既字面存在又满足判尺）（语料约束搜索：字面像素 + 判尺约束下的唯一解）",
+   "name": "参数"
+  },
+  "syntaxNumber": {
+   "rule": "直采",
+   "anchors": [
+    "#AD7B3E"
+   ],
+   "note": "图 5 皮革琥珀深阶",
+   "name": "数字"
+  },
+  "syntaxString": {
+   "rule": "直采",
+   "anchors": [
+    "#A2B772"
+   ],
+   "note": "图 3 苔绿亮档",
+   "name": "字符串"
+  },
+  "syntaxOperator": {
+   "rule": "直采",
+   "anchors": [
+    "#7876A5"
+   ],
+   "note": "图 5 夜景冷紫——运算符取冷端，与暖灰注释/钢蓝引用全部拉开（语料约束搜索：字面像素 + 判尺约束下的唯一解）",
+   "name": "运算符"
+  }
+ },
+ "judge": {
+  "hardFails": 0,
+  "warnings": [],
+  "coreMin": 31.6
+ }
+}

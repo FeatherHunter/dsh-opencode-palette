@@ -1,0 +1,1340 @@
+{
+  "light": {
+    "background": "#F4EBDC",
+    "backgroundPanel": "#EFDEBF",
+    "backgroundElement": "#E6D3B3",
+    "sidebarBg": "#DCC6A3",
+    "bubbleBg": "#F5E3D8",
+    "inputBg": "#F5F2EB",
+    "codeBlockBg": "#F1E5D2",
+    "codeHeaderBg": "#E4D0AF",
+    "text": "#3F2B26",
+    "textMuted": "#6D564A",
+    "primary": "#2A3C6C",
+    "secondary": "#A17E5D",
+    "info": "#4E658C",
+    "success": "#475C53",
+    "warning": "#7F6247",
+    "error": "#9B3620",
+    "border": "#EAD7B6",
+    "borderActive": "#8F6F55",
+    "diffAdded": "#475C53",
+    "diffRemoved": "#9B3620",
+    "diffAddedBg": "#E9DDC1",
+    "diffRemovedBg": "#EFD9BC",
+    "diffAddedLineNumberBg": "#D0CEB4",
+    "diffRemovedLineNumberBg": "#EAC9AC",
+    "markdownHeading": "#2A3C6C",
+    "markdownLink": "#4E658C",
+    "markdownCode": "#694D45",
+    "markdownEmph": "#475C53",
+    "markdownStrong": "#442921",
+    "markdownBlockQuote": "#6D564A",
+    "syntaxComment": "#6D564A",
+    "syntaxKeyword": "#2A3C6C",
+    "syntaxFunction": "#475C53",
+    "syntaxType": "#4E658C",
+    "syntaxNumber": "#7F6247",
+    "syntaxString": "#464772",
+    "syntaxOperator": "#595745"
+  },
+  "dark": {
+    "background": "#312128",
+    "backgroundPanel": "#352427",
+    "backgroundElement": "#312A27",
+    "sidebarBg": "#312028",
+    "bubbleBg": "#3C3C38",
+    "inputBg": "#352427",
+    "codeBlockBg": "#302B27",
+    "codeHeaderBg": "#342927",
+    "text": "#EBDCBF",
+    "textMuted": "#B8AD93",
+    "primary": "#719E92",
+    "secondary": "#DCB581",
+    "info": "#9ABBCC",
+    "success": "#77A398",
+    "warning": "#DDAA77",
+    "error": "#D28B7C",
+    "border": "#7A6C5C",
+    "borderActive": "#DFBD8E",
+    "diffAdded": "#79A59A",
+    "diffRemoved": "#D28B7C",
+    "diffAddedBg": "#2E2E2A",
+    "diffRemovedBg": "#302C28",
+    "diffAddedLineNumberBg": "#313630",
+    "diffRemovedLineNumberBg": "#472F27",
+    "markdownHeading": "#B4D1E1",
+    "markdownLink": "#9ABBCC",
+    "markdownCode": "#B4936F",
+    "markdownEmph": "#68978A",
+    "markdownStrong": "#E8DCC1",
+    "markdownBlockQuote": "#B8AD93",
+    "syntaxComment": "#8B7D6A",
+    "syntaxKeyword": "#B4D1E1",
+    "syntaxFunction": "#68978A",
+    "syntaxType": "#8C9BC8",
+    "syntaxNumber": "#DCB581",
+    "syntaxString": "#8591C3",
+    "syntaxOperator": "#938B75"
+  },
+  "auditLight": [
+    {
+      "label": "正文 text / background",
+      "fg": "#3F2B26",
+      "bg": "#F4EBDC",
+      "ratio": 11.21,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / panel",
+      "fg": "#3F2B26",
+      "bg": "#EFDEBF",
+      "ratio": 10.01,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / element",
+      "fg": "#3F2B26",
+      "bg": "#E6D3B3",
+      "ratio": 9.04,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / bubbleBg",
+      "fg": "#3F2B26",
+      "bg": "#F5E3D8",
+      "ratio": 10.64,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / codeHeaderBg",
+      "fg": "#3F2B26",
+      "bg": "#E4D0AF",
+      "ratio": 8.8,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / sidebarBg",
+      "fg": "#3F2B26",
+      "bg": "#DCC6A3",
+      "ratio": 7.98,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / codeBlockBg",
+      "fg": "#3F2B26",
+      "bg": "#F1E5D2",
+      "ratio": 10.65,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / background",
+      "fg": "#6D564A",
+      "bg": "#F4EBDC",
+      "ratio": 5.77,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / panel",
+      "fg": "#6D564A",
+      "bg": "#EFDEBF",
+      "ratio": 5.15,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / element",
+      "fg": "#6D564A",
+      "bg": "#E6D3B3",
+      "ratio": 4.65,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / background",
+      "fg": "#2A3C6C",
+      "bg": "#F4EBDC",
+      "ratio": 9.06,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / panel",
+      "fg": "#2A3C6C",
+      "bg": "#EFDEBF",
+      "ratio": 8.09,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / element",
+      "fg": "#2A3C6C",
+      "bg": "#E6D3B3",
+      "ratio": 7.31,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色按钮白字 / primary",
+      "fg": "#FFFFFF",
+      "bg": "#2A3C6C",
+      "ratio": 10.71,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "info / background",
+      "fg": "#4E658C",
+      "bg": "#F4EBDC",
+      "ratio": 4.98,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "success / background",
+      "fg": "#475C53",
+      "bg": "#F4EBDC",
+      "ratio": 6.08,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "warning / background",
+      "fg": "#7F6247",
+      "bg": "#F4EBDC",
+      "ratio": 4.75,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "error / background",
+      "fg": "#9B3620",
+      "bg": "#F4EBDC",
+      "ratio": 6.04,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "secondary / background",
+      "fg": "#A17E5D",
+      "bg": "#F4EBDC",
+      "ratio": 3.14,
+      "need": 3.0,
+      "pass": true,
+      "note": "(装饰/圆点，非文本)"
+    },
+    {
+      "label": "md 标题 / background",
+      "fg": "#2A3C6C",
+      "bg": "#F4EBDC",
+      "ratio": 9.06,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 链接 / background",
+      "fg": "#4E658C",
+      "bg": "#F4EBDC",
+      "ratio": 4.98,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 行内码 / background",
+      "fg": "#694D45",
+      "bg": "#F4EBDC",
+      "ratio": 6.46,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 行内码 / panel",
+      "fg": "#694D45",
+      "bg": "#EFDEBF",
+      "ratio": 5.78,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 强调 / background",
+      "fg": "#475C53",
+      "bg": "#F4EBDC",
+      "ratio": 6.08,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 粗体 / background",
+      "fg": "#442921",
+      "bg": "#F4EBDC",
+      "ratio": 11.21,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 粗体 / codeBlockBg",
+      "fg": "#442921",
+      "bg": "#F1E5D2",
+      "ratio": 10.65,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 引用 / background",
+      "fg": "#6D564A",
+      "bg": "#F4EBDC",
+      "ratio": 5.77,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 链接 / codeBlockBg",
+      "fg": "#4E658C",
+      "bg": "#F1E5D2",
+      "ratio": 4.74,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 标题 / codeBlockBg",
+      "fg": "#2A3C6C",
+      "bg": "#F1E5D2",
+      "ratio": 8.61,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "边框 border / background",
+      "fg": "#EAD7B6",
+      "bg": "#F4EBDC",
+      "ratio": 1.19,
+      "need": 1.0,
+      "pass": true,
+      "note": "(非文本，仅可见)"
+    },
+    {
+      "label": "输入框 borderActive / inputBg",
+      "fg": "#8F6F55",
+      "bg": "#F5F2EB",
+      "ratio": 4.11,
+      "need": 3.0,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "强边框 borderActive / background",
+      "fg": "#8F6F55",
+      "bg": "#F4EBDC",
+      "ratio": 3.88,
+      "need": 3.0,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "syntaxComment / codeBlockBg",
+      "fg": "#6D564A",
+      "bg": "#F1E5D2",
+      "ratio": 5.48,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxKeyword / codeBlockBg",
+      "fg": "#2A3C6C",
+      "bg": "#F1E5D2",
+      "ratio": 8.61,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxFunction / codeBlockBg",
+      "fg": "#475C53",
+      "bg": "#F1E5D2",
+      "ratio": 5.77,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxType / codeBlockBg",
+      "fg": "#4E658C",
+      "bg": "#F1E5D2",
+      "ratio": 4.74,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxNumber / codeBlockBg",
+      "fg": "#7F6247",
+      "bg": "#F1E5D2",
+      "ratio": 4.51,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxString / codeBlockBg",
+      "fg": "#464772",
+      "bg": "#F1E5D2",
+      "ratio": 7.02,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxOperator / codeBlockBg",
+      "fg": "#595745",
+      "bg": "#F1E5D2",
+      "ratio": 5.87,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "diffAdded / diffAddedBg",
+      "fg": "#475C53",
+      "bg": "#E9DDC1",
+      "ratio": 5.33,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffRemoved / diffRemovedBg",
+      "fg": "#9B3620",
+      "bg": "#EFD9BC",
+      "ratio": 5.21,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffAdded / codeBlockBg",
+      "fg": "#475C53",
+      "bg": "#F1E5D2",
+      "ratio": 5.77,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "diffRemoved / codeBlockBg",
+      "fg": "#9B3620",
+      "bg": "#F1E5D2",
+      "ratio": 5.74,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "diffAdded / diffAddedLineNumberBg",
+      "fg": "#475C53",
+      "bg": "#D0CEB4",
+      "ratio": 4.5,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffRemoved / diffRemovedLineNumberBg",
+      "fg": "#9B3620",
+      "bg": "#EAC9AC",
+      "ratio": 4.57,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    }
+  ],
+  "auditDark": [
+    {
+      "label": "正文 text / background",
+      "fg": "#EBDCBF",
+      "bg": "#312128",
+      "ratio": 11.26,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / panel",
+      "fg": "#EBDCBF",
+      "bg": "#352427",
+      "ratio": 10.83,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / element",
+      "fg": "#EBDCBF",
+      "bg": "#312A27",
+      "ratio": 10.41,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / bubbleBg",
+      "fg": "#EBDCBF",
+      "bg": "#3C3C38",
+      "ratio": 8.19,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / codeHeaderBg",
+      "fg": "#EBDCBF",
+      "bg": "#342927",
+      "ratio": 10.4,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / sidebarBg",
+      "fg": "#EBDCBF",
+      "bg": "#312028",
+      "ratio": 11.35,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "正文 text / codeBlockBg",
+      "fg": "#EBDCBF",
+      "bg": "#302B27",
+      "ratio": 10.34,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / background",
+      "fg": "#B8AD93",
+      "bg": "#312128",
+      "ratio": 6.84,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / panel",
+      "fg": "#B8AD93",
+      "bg": "#352427",
+      "ratio": 6.59,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "次级 textMuted / element",
+      "fg": "#B8AD93",
+      "bg": "#312A27",
+      "ratio": 6.33,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / background",
+      "fg": "#719E92",
+      "bg": "#312128",
+      "ratio": 5.08,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / panel",
+      "fg": "#719E92",
+      "bg": "#352427",
+      "ratio": 4.89,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色 primary / element",
+      "fg": "#719E92",
+      "bg": "#312A27",
+      "ratio": 4.7,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "主色按钮墨字 / primary",
+      "fg": "#312128",
+      "bg": "#719E92",
+      "ratio": 5.08,
+      "need": 4.5,
+      "pass": true,
+      "note": "(深色下自动取对比色)"
+    },
+    {
+      "label": "info / background",
+      "fg": "#9ABBCC",
+      "bg": "#312128",
+      "ratio": 7.51,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "success / background",
+      "fg": "#77A398",
+      "bg": "#312128",
+      "ratio": 5.42,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "warning / background",
+      "fg": "#DDAA77",
+      "bg": "#312128",
+      "ratio": 7.32,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "error / background",
+      "fg": "#D28B7C",
+      "bg": "#312128",
+      "ratio": 5.6,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "secondary / background",
+      "fg": "#DCB581",
+      "bg": "#312128",
+      "ratio": 7.96,
+      "need": 3.0,
+      "pass": true,
+      "note": "(装饰/圆点，非文本)"
+    },
+    {
+      "label": "md 标题 / background",
+      "fg": "#B4D1E1",
+      "bg": "#312128",
+      "ratio": 9.54,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 链接 / background",
+      "fg": "#9ABBCC",
+      "bg": "#312128",
+      "ratio": 7.51,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 行内码 / background",
+      "fg": "#B4936F",
+      "bg": "#312128",
+      "ratio": 5.33,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 行内码 / panel",
+      "fg": "#B4936F",
+      "bg": "#352427",
+      "ratio": 5.12,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 强调 / background",
+      "fg": "#68978A",
+      "bg": "#312128",
+      "ratio": 4.63,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 粗体 / background",
+      "fg": "#E8DCC1",
+      "bg": "#312128",
+      "ratio": 11.2,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 粗体 / codeBlockBg",
+      "fg": "#E8DCC1",
+      "bg": "#302B27",
+      "ratio": 10.29,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 引用 / background",
+      "fg": "#B8AD93",
+      "bg": "#312128",
+      "ratio": 6.84,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 链接 / codeBlockBg",
+      "fg": "#9ABBCC",
+      "bg": "#302B27",
+      "ratio": 6.9,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "md 标题 / codeBlockBg",
+      "fg": "#B4D1E1",
+      "bg": "#302B27",
+      "ratio": 8.76,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "边框 border / background",
+      "fg": "#7A6C5C",
+      "bg": "#312128",
+      "ratio": 2.99,
+      "need": 1.0,
+      "pass": true,
+      "note": "(非文本，仅可见)"
+    },
+    {
+      "label": "输入框 borderActive / inputBg",
+      "fg": "#DFBD8E",
+      "bg": "#352427",
+      "ratio": 8.24,
+      "need": 3.0,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "强边框 borderActive / background",
+      "fg": "#DFBD8E",
+      "bg": "#312128",
+      "ratio": 8.56,
+      "need": 3.0,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "syntaxComment / codeBlockBg",
+      "fg": "#8B7D6A",
+      "bg": "#302B27",
+      "ratio": 3.49,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxKeyword / codeBlockBg",
+      "fg": "#B4D1E1",
+      "bg": "#302B27",
+      "ratio": 8.76,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxFunction / codeBlockBg",
+      "fg": "#68978A",
+      "bg": "#302B27",
+      "ratio": 4.25,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxType / codeBlockBg",
+      "fg": "#8C9BC8",
+      "bg": "#302B27",
+      "ratio": 5.09,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxNumber / codeBlockBg",
+      "fg": "#DCB581",
+      "bg": "#302B27",
+      "ratio": 7.31,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxString / codeBlockBg",
+      "fg": "#8591C3",
+      "bg": "#302B27",
+      "ratio": 4.56,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "syntaxOperator / codeBlockBg",
+      "fg": "#938B75",
+      "bg": "#302B27",
+      "ratio": 4.13,
+      "need": 3.0,
+      "pass": true,
+      "note": "(语法≥3)"
+    },
+    {
+      "label": "diffAdded / diffAddedBg",
+      "fg": "#79A59A",
+      "bg": "#2E2E2A",
+      "ratio": 4.97,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffRemoved / diffRemovedBg",
+      "fg": "#D28B7C",
+      "bg": "#302C28",
+      "ratio": 5.09,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffAdded / codeBlockBg",
+      "fg": "#79A59A",
+      "bg": "#302B27",
+      "ratio": 5.11,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "diffRemoved / codeBlockBg",
+      "fg": "#D28B7C",
+      "bg": "#302B27",
+      "ratio": 5.15,
+      "need": 4.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "label": "diffAdded / diffAddedLineNumberBg",
+      "fg": "#79A59A",
+      "bg": "#313630",
+      "ratio": 4.5,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    },
+    {
+      "label": "diffRemoved / diffRemovedLineNumberBg",
+      "fg": "#D28B7C",
+      "bg": "#472F27",
+      "ratio": 4.53,
+      "need": 4.5,
+      "pass": true,
+      "note": "(引擎不改动门槛)"
+    }
+  ],
+  "recipes": {
+    "light": {
+      "background": [
+        "1.jpg #F3E3C6 ⨯0.68  5.jpg #F6F5F4",
+        "5.jpg #EEDCBE ⨯0.30  1.jpg #F3E3C6"
+      ],
+      "backgroundPanel": [
+        "1.jpg #E6D0AD ⨯0.50  1.jpg #F3E3C6",
+        "4.jpg #E6DCC2 ⨯0.40  1.jpg #F3E3C6"
+      ],
+      "backgroundElement": [
+        "1.jpg #D5BF9D ⨯0.55  1.jpg #E6D0AD",
+        "1.jpg #E6D0AD ⨯0.40  1.jpg #F3E3C6"
+      ],
+      "sidebarBg": [
+        "1.jpg #D5BF9D ⨯0.40  1.jpg #E6D0AD"
+      ],
+      "bubbleBg": [
+        "3.jpg #F4DACB ⨯0.45  5.jpg #F6F5F4",
+        "3.jpg #E6C3B2 ⨯0.25  3.jpg #F4DACB"
+      ],
+      "inputBg": [
+        "5.jpg #F6F5F4 ⨯0.30  1.jpg #F3E3C6",
+        "4.jpg #E6DCC2 ⨯0.35  5.jpg #F6F5F4"
+      ],
+      "codeBlockBg": [
+        "5.jpg #EEDCBE ⨯0.55  5.jpg #F6F5F4",
+        "1.jpg #F3E3C6 ⨯0.35  5.jpg #EEDCBE"
+      ],
+      "codeHeaderBg": [
+        "1.jpg #E6D0AD ⨯0.40  1.jpg #D5BF9D",
+        "1.jpg #D5BF9D ⨯0.25  1.jpg #F3E3C6"
+      ],
+      "text": [
+        "1.jpg #432E27 ⨯0.50  5.jpg #382726",
+        "5.jpg #513A36 ⨯0.25  1.jpg #432E27"
+      ],
+      "textMuted": [
+        "1.jpg #8D7661 ⨯0.53  5.jpg #513A36"
+      ],
+      "primary": [
+        "直取 5.jpg #2A3C6C · 旅行者·深靛 0.9%"
+      ],
+      "secondary": [
+        "1.jpg #DAB078 ⨯0.52  1.jpg #6C5045"
+      ],
+      "info": [
+        "5.jpg #8DAEC4 ⨯0.64  5.jpg #2A3C6C"
+      ],
+      "success": [
+        "4.jpg #528374 ⨯0.42  5.jpg #382726"
+      ],
+      "warning": [
+        "1.jpg #DAB078 ⨯0.60  1.jpg #432E27"
+      ],
+      "error": [
+        "3.jpg #B83E25 ⨯0.26  3.jpg #471F13"
+      ],
+      "border": [
+        "1.jpg #E6D0AD ⨯0.50  1.jpg #F3E3C6",
+        "1.jpg #D5BF9D ⨯0.30  1.jpg #E6D0AD"
+      ],
+      "borderActive": [
+        "1.jpg #DAB078 ⨯0.68  1.jpg #6C5045"
+      ],
+      "diffAdded": [
+        "4.jpg #528374 ⨯0.42  5.jpg #382726"
+      ],
+      "diffRemoved": [
+        "3.jpg #B83E25 ⨯0.25  3.jpg #471F13"
+      ],
+      "diffAddedBg": [
+        "1.jpg #F3E3C6 ⨯0.06  4.jpg #528374"
+      ],
+      "diffRemovedBg": [
+        "1.jpg #F3E3C6 ⨯0.06  3.jpg #B83E25"
+      ],
+      "diffAddedLineNumberBg": [
+        "1.jpg #F3E3C6 ⨯0.21  4.jpg #528374"
+      ],
+      "diffRemovedLineNumberBg": [
+        "1.jpg #F3E3C6 ⨯0.16  3.jpg #B83E25"
+      ],
+      "markdownHeading": [
+        "直取 5.jpg #2A3C6C · 旅行者·深靛 0.9%"
+      ],
+      "markdownLink": [
+        "5.jpg #8DAEC4 ⨯0.64  5.jpg #2A3C6C"
+      ],
+      "markdownCode": [
+        "5.jpg #74564B ⨯0.45  5.jpg #513A36",
+        "1.jpg #6C5045 ⨯0.30  5.jpg #74564B"
+      ],
+      "markdownEmph": [
+        "4.jpg #528374 ⨯0.42  5.jpg #382726"
+      ],
+      "markdownStrong": [
+        "1.jpg #432E27 ⨯0.45  3.jpg #471F13",
+        "5.jpg #382726 ⨯0.35  1.jpg #432E27"
+      ],
+      "markdownBlockQuote": [
+        "1.jpg #8D7661 ⨯0.53  5.jpg #513A36"
+      ],
+      "syntaxComment": [
+        "1.jpg #8D7661 ⨯0.53  5.jpg #513A36"
+      ],
+      "syntaxKeyword": [
+        "直取 5.jpg #2A3C6C · 旅行者·深靛 0.9%"
+      ],
+      "syntaxFunction": [
+        "4.jpg #528374 ⨯0.42  5.jpg #382726"
+      ],
+      "syntaxType": [
+        "5.jpg #8DAEC4 ⨯0.64  5.jpg #2A3C6C"
+      ],
+      "syntaxNumber": [
+        "1.jpg #DAB078 ⨯0.60  1.jpg #432E27"
+      ],
+      "syntaxString": [
+        "2.jpg #312D53 ⨯0.45  2.jpg #7B85BE",
+        "5.jpg #2A3C6C ⨯0.35  2.jpg #312D53"
+      ],
+      "syntaxOperator": [
+        "4.jpg #66644D ⨯0.30  4.jpg #2D2C28",
+        "4.jpg #3E4541 ⨯0.25  4.jpg #66644D"
+      ]
+    },
+    "dark": {
+      "background": [
+        "2.jpg #2E1E29 ⨯0.50  5.jpg #382726",
+        "4.jpg #2D2C28 ⨯0.35  2.jpg #2E1E29"
+      ],
+      "backgroundPanel": [
+        "5.jpg #382726 ⨯0.45  2.jpg #2E1E29",
+        "4.jpg #3E4541 ⨯0.30  5.jpg #382726"
+      ],
+      "backgroundElement": [
+        "4.jpg #2D2C28 ⨯0.55  5.jpg #382726",
+        "4.jpg #3E4541 ⨯0.30  4.jpg #2D2C28"
+      ],
+      "sidebarBg": [
+        "2.jpg #2E1E29 ⨯0.35  5.jpg #382726",
+        "5.jpg #382726 ⨯0.25  2.jpg #2E1E29"
+      ],
+      "bubbleBg": [
+        "4.jpg #3E4541 ⨯0.40  5.jpg #382726",
+        "4.jpg #528374 ⨯0.22  4.jpg #3E4541"
+      ],
+      "inputBg": [
+        "5.jpg #382726 ⨯0.40  2.jpg #2E1E29",
+        "4.jpg #2D2C28 ⨯0.30  5.jpg #382726"
+      ],
+      "codeBlockBg": [
+        "4.jpg #2D2C28 ⨯0.50  5.jpg #382726",
+        "2.jpg #2E1E29 ⨯0.30  4.jpg #2D2C28"
+      ],
+      "codeHeaderBg": [
+        "5.jpg #382726 ⨯0.45  4.jpg #2D2C28",
+        "4.jpg #3E4541 ⨯0.22  5.jpg #382726"
+      ],
+      "text": [
+        "5.jpg #EEDCBE ⨯0.45  4.jpg #E6DCC2",
+        "5.jpg #F6F5F4 ⨯0.35  5.jpg #EEDCBE"
+      ],
+      "textMuted": [
+        "4.jpg #A89C82 ⨯0.40  4.jpg #E6DCC2",
+        "2.jpg #876D67 ⨯0.35  4.jpg #A89C82"
+      ],
+      "primary": [
+        "4.jpg #528374 ⨯0.34  4.jpg #CCEDEB",
+        "4.jpg #3E4541 ⨯0.25  4.jpg #528374"
+      ],
+      "secondary": [
+        "1.jpg #DAB078 ⨯0.12  5.jpg #F6F5F4",
+        "5.jpg #C9A77B ⨯0.40  1.jpg #DAB078"
+      ],
+      "info": [
+        "5.jpg #8DAEC4 ⨯0.30  4.jpg #CCEDEB",
+        "5.jpg #B0CCDF ⨯0.30  5.jpg #8DAEC4"
+      ],
+      "success": [
+        "4.jpg #528374 ⨯0.30  4.jpg #CCEDEB"
+      ],
+      "warning": [
+        "1.jpg #DAB078 ⨯0.32  3.jpg #E49C75"
+      ],
+      "error": [
+        "3.jpg #B83E25 ⨯0.42  5.jpg #F6F5F4"
+      ],
+      "border": [
+        "4.jpg #A89C82 ⨯0.55  5.jpg #382726",
+        "1.jpg #8D7661 ⨯0.25  4.jpg #A89C82"
+      ],
+      "borderActive": [
+        "1.jpg #DAB078 ⨯0.30  5.jpg #F6F5F4",
+        "5.jpg #C9A77B ⨯0.40  1.jpg #DAB078"
+      ],
+      "diffAdded": [
+        "4.jpg #528374 ⨯0.32  4.jpg #CCEDEB"
+      ],
+      "diffRemoved": [
+        "3.jpg #B83E25 ⨯0.42  5.jpg #F6F5F4"
+      ],
+      "diffAddedBg": [
+        "4.jpg #2D2C28 ⨯0.02  4.jpg #528374"
+      ],
+      "diffRemovedBg": [
+        "4.jpg #2D2C28 ⨯0.02  3.jpg #B83E25"
+      ],
+      "diffAddedLineNumberBg": [
+        "4.jpg #2D2C28 ⨯0.11  4.jpg #528374"
+      ],
+      "diffRemovedLineNumberBg": [
+        "4.jpg #2D2C28 ⨯0.18  3.jpg #B83E25"
+      ],
+      "markdownHeading": [
+        "5.jpg #B0CCDF ⨯0.25  4.jpg #CCEDEB",
+        "5.jpg #8DAEC4 ⨯0.40  5.jpg #B0CCDF"
+      ],
+      "markdownLink": [
+        "5.jpg #8DAEC4 ⨯0.30  4.jpg #CCEDEB",
+        "5.jpg #B0CCDF ⨯0.30  5.jpg #8DAEC4"
+      ],
+      "markdownCode": [
+        "5.jpg #C9A77B ⨯0.35  5.jpg #74564B",
+        "1.jpg #8D7661 ⨯0.30  5.jpg #C9A77B"
+      ],
+      "markdownEmph": [
+        "4.jpg #528374 ⨯0.25  4.jpg #CCEDEB",
+        "4.jpg #3E4541 ⨯0.25  4.jpg #528374"
+      ],
+      "markdownStrong": [
+        "4.jpg #E6DCC2 ⨯0.35  5.jpg #EEDCBE",
+        "5.jpg #F6F5F4 ⨯0.40  4.jpg #E6DCC2"
+      ],
+      "markdownBlockQuote": [
+        "4.jpg #A89C82 ⨯0.40  4.jpg #E6DCC2",
+        "2.jpg #876D67 ⨯0.35  4.jpg #A89C82"
+      ],
+      "syntaxComment": [
+        "4.jpg #A89C82 ⨯0.40  5.jpg #382726",
+        "2.jpg #876D67 ⨯0.35  4.jpg #A89C82"
+      ],
+      "syntaxKeyword": [
+        "5.jpg #B0CCDF ⨯0.25  4.jpg #CCEDEB",
+        "5.jpg #8DAEC4 ⨯0.40  5.jpg #B0CCDF"
+      ],
+      "syntaxFunction": [
+        "4.jpg #528374 ⨯0.25  4.jpg #CCEDEB",
+        "4.jpg #3E4541 ⨯0.25  4.jpg #528374"
+      ],
+      "syntaxType": [
+        "2.jpg #7B85BE ⨯0.30  4.jpg #CCEDEB",
+        "2.jpg #312D53 ⨯0.30  2.jpg #7B85BE"
+      ],
+      "syntaxNumber": [
+        "1.jpg #DAB078 ⨯0.12  5.jpg #F6F5F4",
+        "5.jpg #C9A77B ⨯0.40  1.jpg #DAB078"
+      ],
+      "syntaxString": [
+        "2.jpg #7B85BE ⨯0.18  4.jpg #CCEDEB",
+        "2.jpg #312D53 ⨯0.35  2.jpg #7B85BE"
+      ],
+      "syntaxOperator": [
+        "4.jpg #A89C82 ⨯0.30  4.jpg #3E4541",
+        "2.jpg #876D67 ⨯0.35  4.jpg #A89C82"
+      ]
+    }
+  },
+  "src": {
+    "sand": {
+      "file": "1.jpg",
+      "hex": "#D5BF9D",
+      "note": "官方主视觉·暖砂底 16.6%"
+    },
+    "sandLite": {
+      "file": "1.jpg",
+      "hex": "#E6D0AD",
+      "note": "官方主视觉·浅砂"
+    },
+    "paper": {
+      "file": "1.jpg",
+      "hex": "#F3E3C6",
+      "note": "官方主视觉·米金纸"
+    },
+    "gold": {
+      "file": "1.jpg",
+      "hex": "#DAB078",
+      "note": "官方主视觉·烫金 2.4%"
+    },
+    "warmBrown": {
+      "file": "1.jpg",
+      "hex": "#8D7661",
+      "note": "官方主视觉·暖褐 2.2%"
+    },
+    "umber": {
+      "file": "1.jpg",
+      "hex": "#6C5045",
+      "note": "官方主视觉·赭褐"
+    },
+    "ink": {
+      "file": "1.jpg",
+      "hex": "#432E27",
+      "note": "官方主视觉·深褐墨 2.4%"
+    },
+    "sky1": {
+      "file": "1.jpg",
+      "hex": "#A0B9CA",
+      "note": "官方主视觉·天青 2.5%"
+    },
+    "indigo": {
+      "file": "2.jpg",
+      "hex": "#312D53",
+      "note": "派蒙·靛蓝 3.8%"
+    },
+    "plum": {
+      "file": "2.jpg",
+      "hex": "#2E1E29",
+      "note": "派蒙·墨紫"
+    },
+    "starBlue": {
+      "file": "2.jpg",
+      "hex": "#7B85BE",
+      "note": "派蒙·星蓝 1.1%"
+    },
+    "taupe": {
+      "file": "2.jpg",
+      "hex": "#876D67",
+      "note": "派蒙·灰褐"
+    },
+    "cream2": {
+      "file": "2.jpg",
+      "hex": "#F5E4CE",
+      "note": "派蒙·奶金"
+    },
+    "scarlet": {
+      "file": "3.jpg",
+      "hex": "#B83E25",
+      "note": "可莉·亮红 2.5%"
+    },
+    "scarletD": {
+      "file": "3.jpg",
+      "hex": "#972B17",
+      "note": "可莉·猩红 4.8%"
+    },
+    "blush": {
+      "file": "3.jpg",
+      "hex": "#F4DACB",
+      "note": "可莉·奶油粉 9.6%"
+    },
+    "rose": {
+      "file": "3.jpg",
+      "hex": "#E6C3B2",
+      "note": "可莉·柔粉 6.4%"
+    },
+    "cocoa": {
+      "file": "3.jpg",
+      "hex": "#471F13",
+      "note": "可莉·深褐 5.2%"
+    },
+    "orange": {
+      "file": "3.jpg",
+      "hex": "#E49C75",
+      "note": "可莉·橘调 2.6%"
+    },
+    "teal": {
+      "file": "4.jpg",
+      "hex": "#528374",
+      "note": "温迪·青绿 3.1%"
+    },
+    "tealDark": {
+      "file": "4.jpg",
+      "hex": "#3E4541",
+      "note": "温迪·暗青灰 7.3%"
+    },
+    "skyPale": {
+      "file": "4.jpg",
+      "hex": "#CCEDEB",
+      "note": "温迪·天青 34.8%"
+    },
+    "inkCool": {
+      "file": "4.jpg",
+      "hex": "#2D2C28",
+      "note": "温迪·墨黑 9.9%"
+    },
+    "stone": {
+      "file": "4.jpg",
+      "hex": "#A89C82",
+      "note": "温迪·岩灰 7.9%"
+    },
+    "cream": {
+      "file": "4.jpg",
+      "hex": "#E6DCC2",
+      "note": "温迪·奶白 13.3%"
+    },
+    "olive": {
+      "file": "4.jpg",
+      "hex": "#66644D",
+      "note": "温迪·橄榄 4.2%"
+    },
+    "sky2": {
+      "file": "5.jpg",
+      "hex": "#B0CCDF",
+      "note": "旅行者·天青披风 8.2%"
+    },
+    "mistBlue": {
+      "file": "5.jpg",
+      "hex": "#8DAEC4",
+      "note": "旅行者·雾蓝 4.1%"
+    },
+    "deepIndigo": {
+      "file": "5.jpg",
+      "hex": "#2A3C6C",
+      "note": "旅行者·深靛 0.9%"
+    },
+    "gold2": {
+      "file": "5.jpg",
+      "hex": "#C9A77B",
+      "note": "旅行者·金 4.0%"
+    },
+    "warmWhite": {
+      "file": "5.jpg",
+      "hex": "#EEDCBE",
+      "note": "旅行者·暖白 3.8%"
+    },
+    "char": {
+      "file": "5.jpg",
+      "hex": "#382726",
+      "note": "旅行者·焦褐 3.6%"
+    },
+    "chestnut": {
+      "file": "5.jpg",
+      "hex": "#513A36",
+      "note": "旅行者·栗褐 2.9%"
+    },
+    "ochre": {
+      "file": "5.jpg",
+      "hex": "#74564B",
+      "note": "旅行者·赭褐 2.1%"
+    },
+    "white": {
+      "file": "5.jpg",
+      "hex": "#F6F5F4",
+      "note": "旅行者·白纸场"
+    }
+  }
+}

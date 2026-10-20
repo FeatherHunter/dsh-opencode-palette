@@ -1,0 +1,2894 @@
+{
+ "1.png": [
+  {
+   "hex": "#1C1C22",
+   "px": 111542,
+   "pct": 40.984,
+   "hue": 240.0,
+   "chroma": 6,
+   "Lstar": 10.5
+  },
+  {
+   "hex": "#FFFFFF",
+   "px": 36354,
+   "pct": 13.358,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 100.0
+  },
+  {
+   "hex": "#0C0C10",
+   "px": 26676,
+   "pct": 9.802,
+   "hue": 240.0,
+   "chroma": 4,
+   "Lstar": 3.4
+  },
+  {
+   "hex": "#F9F9F9",
+   "px": 12006,
+   "pct": 4.411,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.9
+  },
+  {
+   "hex": "#F8F8F8",
+   "px": 9808,
+   "pct": 3.604,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#189BC8",
+   "px": 5749,
+   "pct": 2.112,
+   "hue": 195.3,
+   "chroma": 176,
+   "Lstar": 59.7
+  },
+  {
+   "hex": "#F8FAF9",
+   "px": 5554,
+   "pct": 2.041,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 98.1
+  },
+  {
+   "hex": "#F6F8FA",
+   "px": 5099,
+   "pct": 1.874,
+   "hue": 210.0,
+   "chroma": 4,
+   "Lstar": 97.5
+  },
+  {
+   "hex": "#199BC8",
+   "px": 3151,
+   "pct": 1.158,
+   "hue": 195.4,
+   "chroma": 175,
+   "Lstar": 59.7
+  },
+  {
+   "hex": "#FFCB05",
+   "px": 3014,
+   "pct": 1.107,
+   "hue": 47.5,
+   "chroma": 250,
+   "Lstar": 84.0
+  },
+  {
+   "hex": "#F6F9F8",
+   "px": 2510,
+   "pct": 0.922,
+   "hue": 160.0,
+   "chroma": 3,
+   "Lstar": 97.7
+  },
+  {
+   "hex": "#F8F9F9",
+   "px": 1546,
+   "pct": 0.568,
+   "hue": 180.0,
+   "chroma": 1,
+   "Lstar": 97.9
+  },
+  {
+   "hex": "#F7F9F8",
+   "px": 1323,
+   "pct": 0.486,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 97.8
+  },
+  {
+   "hex": "#EEEEF4",
+   "px": 1290,
+   "pct": 0.474,
+   "hue": 240.0,
+   "chroma": 6,
+   "Lstar": 94.3
+  },
+  {
+   "hex": "#F8FAFB",
+   "px": 1090,
+   "pct": 0.4,
+   "hue": 200.0,
+   "chroma": 3,
+   "Lstar": 98.2
+  },
+  {
+   "hex": "#199DC9",
+   "px": 1083,
+   "pct": 0.398,
+   "hue": 195.0,
+   "chroma": 176,
+   "Lstar": 60.4
+  },
+  {
+   "hex": "#F7F8F8",
+   "px": 1010,
+   "pct": 0.371,
+   "hue": 180.0,
+   "chroma": 1,
+   "Lstar": 97.5
+  },
+  {
+   "hex": "#FEFEFE",
+   "px": 889,
+   "pct": 0.327,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.7
+  },
+  {
+   "hex": "#F8FAFA",
+   "px": 807,
+   "pct": 0.297,
+   "hue": 180.0,
+   "chroma": 2,
+   "Lstar": 98.1
+  },
+  {
+   "hex": "#F6F8F9",
+   "px": 741,
+   "pct": 0.272,
+   "hue": 200.0,
+   "chroma": 3,
+   "Lstar": 97.5
+  },
+  {
+   "hex": "#F8F9F8",
+   "px": 712,
+   "pct": 0.262,
+   "hue": 120.0,
+   "chroma": 1,
+   "Lstar": 97.8
+  },
+  {
+   "hex": "#179AC7",
+   "px": 668,
+   "pct": 0.245,
+   "hue": 195.3,
+   "chroma": 176,
+   "Lstar": 59.4
+  },
+  {
+   "hex": "#F9FBFA",
+   "px": 567,
+   "pct": 0.208,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 98.4
+  },
+  {
+   "hex": "#FDFDFD",
+   "px": 548,
+   "pct": 0.201,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#F9FAF9",
+   "px": 547,
+   "pct": 0.201,
+   "hue": 120.0,
+   "chroma": 1,
+   "Lstar": 98.2
+  },
+  {
+   "hex": "#F9FAFA",
+   "px": 539,
+   "pct": 0.198,
+   "hue": 180.0,
+   "chroma": 1,
+   "Lstar": 98.2
+  },
+  {
+   "hex": "#189BCA",
+   "px": 497,
+   "pct": 0.183,
+   "hue": 195.8,
+   "chroma": 178,
+   "Lstar": 59.8
+  },
+  {
+   "hex": "#E22233",
+   "px": 448,
+   "pct": 0.165,
+   "hue": 354.7,
+   "chroma": 192,
+   "Lstar": 49.0
+  },
+  {
+   "hex": "#F6F6F6",
+   "px": 447,
+   "pct": 0.164,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 96.9
+  },
+  {
+   "hex": "#F7F7F7",
+   "px": 437,
+   "pct": 0.161,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.2
+  },
+  {
+   "hex": "#FAFAFA",
+   "px": 412,
+   "pct": 0.151,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 98.3
+  },
+  {
+   "hex": "#F6F8F8",
+   "px": 393,
+   "pct": 0.144,
+   "hue": 180.0,
+   "chroma": 2,
+   "Lstar": 97.4
+  },
+  {
+   "hex": "#199BC7",
+   "px": 340,
+   "pct": 0.125,
+   "hue": 195.2,
+   "chroma": 174,
+   "Lstar": 59.7
+  },
+  {
+   "hex": "#F7F8F9",
+   "px": 339,
+   "pct": 0.125,
+   "hue": 210.0,
+   "chroma": 2,
+   "Lstar": 97.5
+  },
+  {
+   "hex": "#F8F8F9",
+   "px": 322,
+   "pct": 0.118,
+   "hue": 240.0,
+   "chroma": 1,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#F8F8FA",
+   "px": 320,
+   "pct": 0.118,
+   "hue": 240.0,
+   "chroma": 2,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#F7F8FA",
+   "px": 319,
+   "pct": 0.117,
+   "hue": 220.0,
+   "chroma": 3,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#40404A",
+   "px": 313,
+   "pct": 0.115,
+   "hue": 240.0,
+   "chroma": 10,
+   "Lstar": 27.4
+  },
+  {
+   "hex": "#189BC7",
+   "px": 296,
+   "pct": 0.109,
+   "hue": 195.1,
+   "chroma": 175,
+   "Lstar": 59.7
+  },
+  {
+   "hex": "#F6F9F9",
+   "px": 267,
+   "pct": 0.098,
+   "hue": 180.0,
+   "chroma": 3,
+   "Lstar": 97.7
+  },
+  {
+   "hex": "#E02333",
+   "px": 260,
+   "pct": 0.096,
+   "hue": 354.9,
+   "chroma": 189,
+   "Lstar": 48.6
+  },
+  {
+   "hex": "#F5F5F5",
+   "px": 255,
+   "pct": 0.094,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 96.5
+  },
+  {
+   "hex": "#189CC8",
+   "px": 252,
+   "pct": 0.093,
+   "hue": 195.0,
+   "chroma": 176,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#F9F9FB",
+   "px": 239,
+   "pct": 0.088,
+   "hue": 240.0,
+   "chroma": 2,
+   "Lstar": 98.0
+  },
+  {
+   "hex": "#199CC8",
+   "px": 225,
+   "pct": 0.083,
+   "hue": 195.1,
+   "chroma": 175,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#F8FAF8",
+   "px": 215,
+   "pct": 0.079,
+   "hue": 120.0,
+   "chroma": 2,
+   "Lstar": 98.1
+  },
+  {
+   "hex": "#F6F8F7",
+   "px": 179,
+   "pct": 0.066,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 97.4
+  },
+  {
+   "hex": "#199DC8",
+   "px": 172,
+   "pct": 0.063,
+   "hue": 194.7,
+   "chroma": 175,
+   "Lstar": 60.3
+  },
+  {
+   "hex": "#199BC6",
+   "px": 166,
+   "pct": 0.061,
+   "hue": 194.9,
+   "chroma": 173,
+   "Lstar": 59.6
+  },
+  {
+   "hex": "#F7FAF9",
+   "px": 166,
+   "pct": 0.061,
+   "hue": 160.0,
+   "chroma": 3,
+   "Lstar": 98.0
+  },
+  {
+   "hex": "#199CC9",
+   "px": 162,
+   "pct": 0.06,
+   "hue": 195.3,
+   "chroma": 176,
+   "Lstar": 60.1
+  },
+  {
+   "hex": "#199DC7",
+   "px": 153,
+   "pct": 0.056,
+   "hue": 194.5,
+   "chroma": 174,
+   "Lstar": 60.3
+  },
+  {
+   "hex": "#199CC7",
+   "px": 152,
+   "pct": 0.056,
+   "hue": 194.8,
+   "chroma": 174,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#189BC9",
+   "px": 149,
+   "pct": 0.055,
+   "hue": 195.6,
+   "chroma": 177,
+   "Lstar": 59.8
+  },
+  {
+   "hex": "#189CC7",
+   "px": 135,
+   "pct": 0.05,
+   "hue": 194.7,
+   "chroma": 175,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#F5F7F6",
+   "px": 133,
+   "pct": 0.049,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 97.1
+  },
+  {
+   "hex": "#111115",
+   "px": 127,
+   "pct": 0.047,
+   "hue": 240.0,
+   "chroma": 4,
+   "Lstar": 5.2
+  },
+  {
+   "hex": "#179CC8",
+   "px": 117,
+   "pct": 0.043,
+   "hue": 194.9,
+   "chroma": 177,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#F9F9F8",
+   "px": 116,
+   "pct": 0.043,
+   "hue": 60.0,
+   "chroma": 1,
+   "Lstar": 97.9
+  },
+  {
+   "hex": "#179BC8",
+   "px": 113,
+   "pct": 0.042,
+   "hue": 195.3,
+   "chroma": 177,
+   "Lstar": 59.7
+  }
+ ],
+ "2.jpg": [
+  {
+   "hex": "#F1F4F9",
+   "px": 2631,
+   "pct": 2.685,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 96.1
+  },
+  {
+   "hex": "#F0F3F8",
+   "px": 1856,
+   "pct": 1.894,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 95.7
+  },
+  {
+   "hex": "#EFF2F7",
+   "px": 1719,
+   "pct": 1.754,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 95.4
+  },
+  {
+   "hex": "#EEF1F6",
+   "px": 1440,
+   "pct": 1.469,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 95.1
+  },
+  {
+   "hex": "#F2F5FA",
+   "px": 1177,
+   "pct": 1.201,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 96.4
+  },
+  {
+   "hex": "#ECEFF4",
+   "px": 790,
+   "pct": 0.806,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 94.4
+  },
+  {
+   "hex": "#EDF0F5",
+   "px": 765,
+   "pct": 0.781,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 94.7
+  },
+  {
+   "hex": "#EBEEF3",
+   "px": 613,
+   "pct": 0.626,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 94.0
+  },
+  {
+   "hex": "#F3F6FB",
+   "px": 435,
+   "pct": 0.444,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 96.8
+  },
+  {
+   "hex": "#EBEEF5",
+   "px": 406,
+   "pct": 0.414,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 94.1
+  },
+  {
+   "hex": "#E7EAF1",
+   "px": 405,
+   "pct": 0.413,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 92.7
+  },
+  {
+   "hex": "#E6E9F0",
+   "px": 392,
+   "pct": 0.4,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 92.3
+  },
+  {
+   "hex": "#E8EBF2",
+   "px": 368,
+   "pct": 0.376,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 93.0
+  },
+  {
+   "hex": "#E6E9EE",
+   "px": 362,
+   "pct": 0.369,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 92.3
+  },
+  {
+   "hex": "#E9ECF3",
+   "px": 356,
+   "pct": 0.363,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 93.4
+  },
+  {
+   "hex": "#3C8DCE",
+   "px": 288,
+   "pct": 0.294,
+   "hue": 206.7,
+   "chroma": 146,
+   "Lstar": 56.5
+  },
+  {
+   "hex": "#EAEDF2",
+   "px": 250,
+   "pct": 0.255,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 93.7
+  },
+  {
+   "hex": "#E5E8EF",
+   "px": 241,
+   "pct": 0.246,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 92.0
+  },
+  {
+   "hex": "#3A8ECE",
+   "px": 240,
+   "pct": 0.245,
+   "hue": 205.9,
+   "chroma": 148,
+   "Lstar": 56.8
+  },
+  {
+   "hex": "#ECEFF6",
+   "px": 239,
+   "pct": 0.244,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 94.4
+  },
+  {
+   "hex": "#E4E7EC",
+   "px": 223,
+   "pct": 0.228,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 91.6
+  },
+  {
+   "hex": "#378FCE",
+   "px": 208,
+   "pct": 0.212,
+   "hue": 205.0,
+   "chroma": 151,
+   "Lstar": 57.0
+  },
+  {
+   "hex": "#EBF3F6",
+   "px": 200,
+   "pct": 0.204,
+   "hue": 196.4,
+   "chroma": 11,
+   "Lstar": 95.3
+  },
+  {
+   "hex": "#E5E8ED",
+   "px": 198,
+   "pct": 0.202,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 91.9
+  },
+  {
+   "hex": "#F0F1F6",
+   "px": 193,
+   "pct": 0.197,
+   "hue": 230.0,
+   "chroma": 6,
+   "Lstar": 95.2
+  },
+  {
+   "hex": "#E7EAEF",
+   "px": 187,
+   "pct": 0.191,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 92.6
+  },
+  {
+   "hex": "#EDF0F7",
+   "px": 182,
+   "pct": 0.186,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 94.8
+  },
+  {
+   "hex": "#F19331",
+   "px": 182,
+   "pct": 0.186,
+   "hue": 30.6,
+   "chroma": 192,
+   "Lstar": 69.3
+  },
+  {
+   "hex": "#EFF2F9",
+   "px": 176,
+   "pct": 0.18,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 95.5
+  },
+  {
+   "hex": "#E8EBF0",
+   "px": 170,
+   "pct": 0.173,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 93.0
+  },
+  {
+   "hex": "#E59DC2",
+   "px": 166,
+   "pct": 0.169,
+   "hue": 329.2,
+   "chroma": 72,
+   "Lstar": 72.7
+  },
+  {
+   "hex": "#EDEEF0",
+   "px": 163,
+   "pct": 0.166,
+   "hue": 220.0,
+   "chroma": 3,
+   "Lstar": 94.1
+  },
+  {
+   "hex": "#F1F2F7",
+   "px": 161,
+   "pct": 0.164,
+   "hue": 230.0,
+   "chroma": 6,
+   "Lstar": 95.5
+  },
+  {
+   "hex": "#E1E4E9",
+   "px": 152,
+   "pct": 0.155,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 90.5
+  },
+  {
+   "hex": "#EAEDF4",
+   "px": 151,
+   "pct": 0.154,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 93.7
+  },
+  {
+   "hex": "#EEF1F8",
+   "px": 150,
+   "pct": 0.153,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 95.1
+  },
+  {
+   "hex": "#F2F3F8",
+   "px": 149,
+   "pct": 0.152,
+   "hue": 230.0,
+   "chroma": 6,
+   "Lstar": 95.9
+  },
+  {
+   "hex": "#E99DC3",
+   "px": 146,
+   "pct": 0.149,
+   "hue": 330.0,
+   "chroma": 76,
+   "Lstar": 73.1
+  },
+  {
+   "hex": "#E9ECF1",
+   "px": 144,
+   "pct": 0.147,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 93.3
+  },
+  {
+   "hex": "#E2E5EA",
+   "px": 140,
+   "pct": 0.143,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 90.8
+  },
+  {
+   "hex": "#EDEFEE",
+   "px": 139,
+   "pct": 0.142,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 94.3
+  },
+  {
+   "hex": "#E3E6EB",
+   "px": 137,
+   "pct": 0.14,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 91.2
+  },
+  {
+   "hex": "#3991D0",
+   "px": 137,
+   "pct": 0.14,
+   "hue": 205.0,
+   "chroma": 151,
+   "Lstar": 57.7
+  },
+  {
+   "hex": "#EEF0EF",
+   "px": 133,
+   "pct": 0.136,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 94.6
+  },
+  {
+   "hex": "#3C90D0",
+   "px": 133,
+   "pct": 0.136,
+   "hue": 205.9,
+   "chroma": 148,
+   "Lstar": 57.5
+  },
+  {
+   "hex": "#EAEBED",
+   "px": 130,
+   "pct": 0.133,
+   "hue": 220.0,
+   "chroma": 3,
+   "Lstar": 93.0
+  },
+  {
+   "hex": "#ECEDF2",
+   "px": 125,
+   "pct": 0.128,
+   "hue": 230.0,
+   "chroma": 6,
+   "Lstar": 93.8
+  },
+  {
+   "hex": "#F0F3FA",
+   "px": 123,
+   "pct": 0.126,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 95.8
+  },
+  {
+   "hex": "#EBECE7",
+   "px": 120,
+   "pct": 0.122,
+   "hue": 72.0,
+   "chroma": 5,
+   "Lstar": 93.2
+  },
+  {
+   "hex": "#3D8ECF",
+   "px": 114,
+   "pct": 0.116,
+   "hue": 206.7,
+   "chroma": 146,
+   "Lstar": 56.9
+  },
+  {
+   "hex": "#ECECF6",
+   "px": 111,
+   "pct": 0.113,
+   "hue": 240.0,
+   "chroma": 10,
+   "Lstar": 93.7
+  },
+  {
+   "hex": "#EDF2F6",
+   "px": 108,
+   "pct": 0.11,
+   "hue": 206.7,
+   "chroma": 9,
+   "Lstar": 95.2
+  },
+  {
+   "hex": "#EDEEF2",
+   "px": 107,
+   "pct": 0.109,
+   "hue": 228.0,
+   "chroma": 5,
+   "Lstar": 94.1
+  },
+  {
+   "hex": "#EEF2F3",
+   "px": 107,
+   "pct": 0.109,
+   "hue": 192.0,
+   "chroma": 5,
+   "Lstar": 95.2
+  },
+  {
+   "hex": "#E8EAE9",
+   "px": 105,
+   "pct": 0.107,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 92.5
+  },
+  {
+   "hex": "#EDEEF3",
+   "px": 102,
+   "pct": 0.104,
+   "hue": 230.0,
+   "chroma": 6,
+   "Lstar": 94.2
+  },
+  {
+   "hex": "#ECEEED",
+   "px": 99,
+   "pct": 0.101,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 93.9
+  },
+  {
+   "hex": "#E0E3E8",
+   "px": 99,
+   "pct": 0.101,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 90.1
+  },
+  {
+   "hex": "#DFE7EA",
+   "px": 98,
+   "pct": 0.1,
+   "hue": 196.4,
+   "chroma": 11,
+   "Lstar": 91.1
+  },
+  {
+   "hex": "#EBE9F4",
+   "px": 96,
+   "pct": 0.098,
+   "hue": 250.9,
+   "chroma": 11,
+   "Lstar": 92.8
+  }
+ ],
+ "3.png": [
+  {
+   "hex": "#FEF200",
+   "px": 114875,
+   "pct": 57.492,
+   "hue": 57.2,
+   "chroma": 254,
+   "Lstar": 93.7
+  },
+  {
+   "hex": "#FFFFFF",
+   "px": 40387,
+   "pct": 20.213,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 100.0
+  },
+  {
+   "hex": "#1A1617",
+   "px": 5743,
+   "pct": 2.874,
+   "hue": 345.0,
+   "chroma": 4,
+   "Lstar": 7.7
+  },
+  {
+   "hex": "#00ADEF",
+   "px": 5724,
+   "pct": 2.865,
+   "hue": 196.6,
+   "chroma": 239,
+   "Lstar": 66.6
+  },
+  {
+   "hex": "#AAE0FA",
+   "px": 4163,
+   "pct": 2.083,
+   "hue": 199.5,
+   "chroma": 80,
+   "Lstar": 86.4
+  },
+  {
+   "hex": "#0168B5",
+   "px": 2982,
+   "pct": 1.492,
+   "hue": 205.7,
+   "chroma": 180,
+   "Lstar": 43.1
+  },
+  {
+   "hex": "#EE1C25",
+   "px": 1100,
+   "pct": 0.551,
+   "hue": 357.4,
+   "chroma": 210,
+   "Lstar": 50.9
+  },
+  {
+   "hex": "#1A1615",
+   "px": 809,
+   "pct": 0.405,
+   "hue": 12.0,
+   "chroma": 5,
+   "Lstar": 7.7
+  },
+  {
+   "hex": "#FFCB05",
+   "px": 807,
+   "pct": 0.404,
+   "hue": 47.5,
+   "chroma": 250,
+   "Lstar": 84.0
+  },
+  {
+   "hex": "#F6F6F6",
+   "px": 503,
+   "pct": 0.252,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 96.9
+  },
+  {
+   "hex": "#1A1517",
+   "px": 498,
+   "pct": 0.249,
+   "hue": 336.0,
+   "chroma": 5,
+   "Lstar": 7.4
+  },
+  {
+   "hex": "#0169B5",
+   "px": 493,
+   "pct": 0.247,
+   "hue": 205.3,
+   "chroma": 180,
+   "Lstar": 43.4
+  },
+  {
+   "hex": "#1B1517",
+   "px": 489,
+   "pct": 0.245,
+   "hue": 340.0,
+   "chroma": 6,
+   "Lstar": 7.5
+  },
+  {
+   "hex": "#E9E9E9",
+   "px": 473,
+   "pct": 0.237,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 92.3
+  },
+  {
+   "hex": "#E4EFF3",
+   "px": 470,
+   "pct": 0.235,
+   "hue": 196.0,
+   "chroma": 15,
+   "Lstar": 93.8
+  },
+  {
+   "hex": "#B4B2B3",
+   "px": 468,
+   "pct": 0.234,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 72.8
+  },
+  {
+   "hex": "#FBF22A",
+   "px": 447,
+   "pct": 0.224,
+   "hue": 57.4,
+   "chroma": 209,
+   "Lstar": 93.5
+  },
+  {
+   "hex": "#FBFA87",
+   "px": 447,
+   "pct": 0.224,
+   "hue": 59.5,
+   "chroma": 116,
+   "Lstar": 96.3
+  },
+  {
+   "hex": "#131615",
+   "px": 435,
+   "pct": 0.218,
+   "hue": 160.0,
+   "chroma": 3,
+   "Lstar": 6.9
+  },
+  {
+   "hex": "#FFDF00",
+   "px": 424,
+   "pct": 0.212,
+   "hue": 52.5,
+   "chroma": 255,
+   "Lstar": 88.9
+  },
+  {
+   "hex": "#D6D5D6",
+   "px": 399,
+   "pct": 0.2,
+   "hue": 300.0,
+   "chroma": 1,
+   "Lstar": 85.4
+  },
+  {
+   "hex": "#CAE1F0",
+   "px": 384,
+   "pct": 0.192,
+   "hue": 203.7,
+   "chroma": 38,
+   "Lstar": 88.3
+  },
+  {
+   "hex": "#CBCACB",
+   "px": 371,
+   "pct": 0.186,
+   "hue": 300.0,
+   "chroma": 1,
+   "Lstar": 81.4
+  },
+  {
+   "hex": "#0069B3",
+   "px": 359,
+   "pct": 0.18,
+   "hue": 204.8,
+   "chroma": 179,
+   "Lstar": 43.3
+  },
+  {
+   "hex": "#130E0F",
+   "px": 357,
+   "pct": 0.179,
+   "hue": 348.0,
+   "chroma": 5,
+   "Lstar": 4.4
+  },
+  {
+   "hex": "#9D9C9C",
+   "px": 354,
+   "pct": 0.177,
+   "hue": 0.0,
+   "chroma": 1,
+   "Lstar": 64.4
+  },
+  {
+   "hex": "#F5FFFF",
+   "px": 337,
+   "pct": 0.169,
+   "hue": 180.0,
+   "chroma": 10,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#1B1617",
+   "px": 331,
+   "pct": 0.166,
+   "hue": 348.0,
+   "chroma": 5,
+   "Lstar": 7.8
+  },
+  {
+   "hex": "#10ADE8",
+   "px": 303,
+   "pct": 0.152,
+   "hue": 196.4,
+   "chroma": 216,
+   "Lstar": 66.4
+  },
+  {
+   "hex": "#FDF223",
+   "px": 297,
+   "pct": 0.149,
+   "hue": 57.0,
+   "chroma": 218,
+   "Lstar": 93.7
+  },
+  {
+   "hex": "#343233",
+   "px": 283,
+   "pct": 0.142,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 21.0
+  },
+  {
+   "hex": "#3C3B3C",
+   "px": 280,
+   "pct": 0.14,
+   "hue": 300.0,
+   "chroma": 1,
+   "Lstar": 25.0
+  },
+  {
+   "hex": "#131617",
+   "px": 277,
+   "pct": 0.139,
+   "hue": 195.0,
+   "chroma": 4,
+   "Lstar": 7.0
+  },
+  {
+   "hex": "#80C4EA",
+   "px": 274,
+   "pct": 0.137,
+   "hue": 201.5,
+   "chroma": 106,
+   "Lstar": 76.1
+  },
+  {
+   "hex": "#7D7B7C",
+   "px": 264,
+   "pct": 0.132,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 51.8
+  },
+  {
+   "hex": "#0068B3",
+   "px": 260,
+   "pct": 0.13,
+   "hue": 205.1,
+   "chroma": 179,
+   "Lstar": 43.0
+  },
+  {
+   "hex": "#97D7F5",
+   "px": 259,
+   "pct": 0.13,
+   "hue": 199.1,
+   "chroma": 94,
+   "Lstar": 82.8
+  },
+  {
+   "hex": "#E9FFFF",
+   "px": 229,
+   "pct": 0.115,
+   "hue": 180.0,
+   "chroma": 22,
+   "Lstar": 98.5
+  },
+  {
+   "hex": "#2078B8",
+   "px": 228,
+   "pct": 0.114,
+   "hue": 205.3,
+   "chroma": 152,
+   "Lstar": 48.5
+  },
+  {
+   "hex": "#222222",
+   "px": 222,
+   "pct": 0.111,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 13.2
+  },
+  {
+   "hex": "#6D6B6C",
+   "px": 210,
+   "pct": 0.105,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 45.4
+  },
+  {
+   "hex": "#929091",
+   "px": 205,
+   "pct": 0.103,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 60.0
+  },
+  {
+   "hex": "#69621D",
+   "px": 193,
+   "pct": 0.097,
+   "hue": 54.5,
+   "chroma": 76,
+   "Lstar": 40.9
+  },
+  {
+   "hex": "#545253",
+   "px": 190,
+   "pct": 0.095,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 35.1
+  },
+  {
+   "hex": "#615F60",
+   "px": 190,
+   "pct": 0.095,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 40.5
+  },
+  {
+   "hex": "#132530",
+   "px": 185,
+   "pct": 0.093,
+   "hue": 202.8,
+   "chroma": 29,
+   "Lstar": 13.7
+  },
+  {
+   "hex": "#494748",
+   "px": 183,
+   "pct": 0.092,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 30.4
+  },
+  {
+   "hex": "#10A1D2",
+   "px": 180,
+   "pct": 0.09,
+   "hue": 195.2,
+   "chroma": 194,
+   "Lstar": 61.9
+  },
+  {
+   "hex": "#2C292A",
+   "px": 180,
+   "pct": 0.09,
+   "hue": 340.0,
+   "chroma": 3,
+   "Lstar": 16.9
+  },
+  {
+   "hex": "#408CC7",
+   "px": 165,
+   "pct": 0.083,
+   "hue": 206.2,
+   "chroma": 135,
+   "Lstar": 56.1
+  },
+  {
+   "hex": "#13171F",
+   "px": 157,
+   "pct": 0.079,
+   "hue": 220.0,
+   "chroma": 12,
+   "Lstar": 7.7
+  },
+  {
+   "hex": "#E42229",
+   "px": 157,
+   "pct": 0.079,
+   "hue": 357.8,
+   "chroma": 194,
+   "Lstar": 49.3
+  },
+  {
+   "hex": "#13607E",
+   "px": 147,
+   "pct": 0.074,
+   "hue": 196.8,
+   "chroma": 107,
+   "Lstar": 37.9
+  },
+  {
+   "hex": "#F5EB1D",
+   "px": 141,
+   "pct": 0.071,
+   "hue": 57.2,
+   "chroma": 216,
+   "Lstar": 91.2
+  },
+  {
+   "hex": "#134257",
+   "px": 141,
+   "pct": 0.071,
+   "hue": 198.5,
+   "chroma": 68,
+   "Lstar": 25.9
+  },
+  {
+   "hex": "#93BDDA",
+   "px": 139,
+   "pct": 0.07,
+   "hue": 204.5,
+   "chroma": 71,
+   "Lstar": 74.6
+  },
+  {
+   "hex": "#B62229",
+   "px": 139,
+   "pct": 0.07,
+   "hue": 357.2,
+   "chroma": 148,
+   "Lstar": 40.0
+  },
+  {
+   "hex": "#561D1E",
+   "px": 136,
+   "pct": 0.068,
+   "hue": 358.9,
+   "chroma": 57,
+   "Lstar": 19.8
+  },
+  {
+   "hex": "#1095C0",
+   "px": 126,
+   "pct": 0.063,
+   "hue": 194.7,
+   "chroma": 176,
+   "Lstar": 57.5
+  },
+  {
+   "hex": "#7DA7CB",
+   "px": 125,
+   "pct": 0.063,
+   "hue": 207.7,
+   "chroma": 78,
+   "Lstar": 66.8
+  }
+ ],
+ "4.jpg": [
+  {
+   "hex": "#FFFFFF",
+   "px": 43494,
+   "pct": 14.171,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 100.0
+  },
+  {
+   "hex": "#2193D2",
+   "px": 12575,
+   "pct": 4.097,
+   "hue": 201.4,
+   "chroma": 177,
+   "Lstar": 57.9
+  },
+  {
+   "hex": "#ED1B24",
+   "px": 12009,
+   "pct": 3.913,
+   "hue": 357.4,
+   "chroma": 210,
+   "Lstar": 50.6
+  },
+  {
+   "hex": "#F07A22",
+   "px": 6739,
+   "pct": 2.196,
+   "hue": 25.6,
+   "chroma": 206,
+   "Lstar": 63.8
+  },
+  {
+   "hex": "#21A3DD",
+   "px": 5111,
+   "pct": 1.665,
+   "hue": 198.5,
+   "chroma": 188,
+   "Lstar": 63.1
+  },
+  {
+   "hex": "#FEFEFE",
+   "px": 4834,
+   "pct": 1.575,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.7
+  },
+  {
+   "hex": "#FDFDFD",
+   "px": 3746,
+   "pct": 1.221,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#1E201F",
+   "px": 3505,
+   "pct": 1.142,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 12.0
+  },
+  {
+   "hex": "#1A1C1B",
+   "px": 3413,
+   "pct": 1.112,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 10.0
+  },
+  {
+   "hex": "#191B1A",
+   "px": 3302,
+   "pct": 1.076,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 9.5
+  },
+  {
+   "hex": "#1B1D1C",
+   "px": 3266,
+   "pct": 1.064,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 10.5
+  },
+  {
+   "hex": "#1F2120",
+   "px": 3158,
+   "pct": 1.029,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 12.5
+  },
+  {
+   "hex": "#1D1F1E",
+   "px": 3151,
+   "pct": 1.027,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 11.5
+  },
+  {
+   "hex": "#151716",
+   "px": 3089,
+   "pct": 1.006,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 7.5
+  },
+  {
+   "hex": "#1C1E1D",
+   "px": 2840,
+   "pct": 0.925,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 11.0
+  },
+  {
+   "hex": "#131514",
+   "px": 2742,
+   "pct": 0.893,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 6.6
+  },
+  {
+   "hex": "#222423",
+   "px": 2547,
+   "pct": 0.83,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 14.0
+  },
+  {
+   "hex": "#232524",
+   "px": 2545,
+   "pct": 0.829,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 14.4
+  },
+  {
+   "hex": "#181A19",
+   "px": 2484,
+   "pct": 0.809,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 9.0
+  },
+  {
+   "hex": "#111312",
+   "px": 2444,
+   "pct": 0.796,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 5.7
+  },
+  {
+   "hex": "#121413",
+   "px": 2334,
+   "pct": 0.76,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 6.1
+  },
+  {
+   "hex": "#161817",
+   "px": 2283,
+   "pct": 0.744,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 8.0
+  },
+  {
+   "hex": "#101211",
+   "px": 2220,
+   "pct": 0.723,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 5.3
+  },
+  {
+   "hex": "#141615",
+   "px": 2216,
+   "pct": 0.722,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 7.0
+  },
+  {
+   "hex": "#212322",
+   "px": 2191,
+   "pct": 0.714,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 13.5
+  },
+  {
+   "hex": "#515151",
+   "px": 2168,
+   "pct": 0.706,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 34.5
+  },
+  {
+   "hex": "#252726",
+   "px": 2047,
+   "pct": 0.667,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 15.4
+  },
+  {
+   "hex": "#555555",
+   "px": 1995,
+   "pct": 0.65,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 36.1
+  },
+  {
+   "hex": "#272928",
+   "px": 1921,
+   "pct": 0.626,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 16.4
+  },
+  {
+   "hex": "#535353",
+   "px": 1903,
+   "pct": 0.62,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 35.3
+  },
+  {
+   "hex": "#5E5E5E",
+   "px": 1878,
+   "pct": 0.612,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 39.9
+  },
+  {
+   "hex": "#5A5A5A",
+   "px": 1849,
+   "pct": 0.602,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 38.2
+  },
+  {
+   "hex": "#242625",
+   "px": 1849,
+   "pct": 0.602,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 14.9
+  },
+  {
+   "hex": "#494949",
+   "px": 1817,
+   "pct": 0.592,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 31.0
+  },
+  {
+   "hex": "#FCFCFC",
+   "px": 1814,
+   "pct": 0.591,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.0
+  },
+  {
+   "hex": "#4C4C4C",
+   "px": 1808,
+   "pct": 0.589,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 32.3
+  },
+  {
+   "hex": "#5C5C5C",
+   "px": 1801,
+   "pct": 0.587,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 39.1
+  },
+  {
+   "hex": "#525252",
+   "px": 1795,
+   "pct": 0.585,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 34.9
+  },
+  {
+   "hex": "#262827",
+   "px": 1786,
+   "pct": 0.582,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 15.9
+  },
+  {
+   "hex": "#474747",
+   "px": 1736,
+   "pct": 0.566,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 30.2
+  },
+  {
+   "hex": "#353535",
+   "px": 1736,
+   "pct": 0.566,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 22.2
+  },
+  {
+   "hex": "#323232",
+   "px": 1707,
+   "pct": 0.556,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 20.8
+  },
+  {
+   "hex": "#363636",
+   "px": 1679,
+   "pct": 0.547,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 22.6
+  },
+  {
+   "hex": "#585858",
+   "px": 1676,
+   "pct": 0.546,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 37.4
+  },
+  {
+   "hex": "#0D0F0E",
+   "px": 1661,
+   "pct": 0.541,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 4.1
+  },
+  {
+   "hex": "#4B4B4B",
+   "px": 1635,
+   "pct": 0.533,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 31.9
+  },
+  {
+   "hex": "#2B2D2C",
+   "px": 1599,
+   "pct": 0.521,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 18.2
+  },
+  {
+   "hex": "#2C2E2D",
+   "px": 1596,
+   "pct": 0.52,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 18.7
+  },
+  {
+   "hex": "#545454",
+   "px": 1586,
+   "pct": 0.517,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 35.7
+  },
+  {
+   "hex": "#2A2C2B",
+   "px": 1586,
+   "pct": 0.517,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 17.8
+  },
+  {
+   "hex": "#505050",
+   "px": 1570,
+   "pct": 0.512,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 34.0
+  },
+  {
+   "hex": "#565656",
+   "px": 1563,
+   "pct": 0.509,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 36.6
+  },
+  {
+   "hex": "#282A29",
+   "px": 1562,
+   "pct": 0.509,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 16.8
+  },
+  {
+   "hex": "#595959",
+   "px": 1547,
+   "pct": 0.504,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 37.8
+  },
+  {
+   "hex": "#656565",
+   "px": 1543,
+   "pct": 0.503,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 42.8
+  },
+  {
+   "hex": "#373737",
+   "px": 1538,
+   "pct": 0.501,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 23.1
+  },
+  {
+   "hex": "#444444",
+   "px": 1533,
+   "pct": 0.499,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 28.9
+  },
+  {
+   "hex": "#616161",
+   "px": 1517,
+   "pct": 0.494,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 41.1
+  },
+  {
+   "hex": "#313131",
+   "px": 1514,
+   "pct": 0.493,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 20.3
+  },
+  {
+   "hex": "#5F5F5F",
+   "px": 1506,
+   "pct": 0.491,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 40.3
+  }
+ ],
+ "5.jpg": [
+  {
+   "hex": "#FDFDFD",
+   "px": 84117,
+   "pct": 42.099,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#7FD2FE",
+   "px": 9458,
+   "pct": 4.734,
+   "hue": 200.8,
+   "chroma": 127,
+   "Lstar": 80.6
+  },
+  {
+   "hex": "#FCFCFC",
+   "px": 5067,
+   "pct": 2.536,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.0
+  },
+  {
+   "hex": "#FBFBFB",
+   "px": 4413,
+   "pct": 2.209,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#FCFAFB",
+   "px": 2181,
+   "pct": 1.092,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 98.4
+  },
+  {
+   "hex": "#7FD2FC",
+   "px": 1992,
+   "pct": 0.997,
+   "hue": 200.2,
+   "chroma": 125,
+   "Lstar": 80.5
+  },
+  {
+   "hex": "#AF6E5A",
+   "px": 1856,
+   "pct": 0.929,
+   "hue": 14.1,
+   "chroma": 85,
+   "Lstar": 53.0
+  },
+  {
+   "hex": "#FEFEFE",
+   "px": 1203,
+   "pct": 0.602,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.7
+  },
+  {
+   "hex": "#FDFDFF",
+   "px": 834,
+   "pct": 0.417,
+   "hue": 240.0,
+   "chroma": 2,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#FEFCFD",
+   "px": 818,
+   "pct": 0.409,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 99.1
+  },
+  {
+   "hex": "#FDFBFC",
+   "px": 781,
+   "pct": 0.391,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 98.8
+  },
+  {
+   "hex": "#FDFDFB",
+   "px": 759,
+   "pct": 0.38,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#FAFAFA",
+   "px": 731,
+   "pct": 0.366,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 98.3
+  },
+  {
+   "hex": "#FEFDFB",
+   "px": 648,
+   "pct": 0.324,
+   "hue": 40.0,
+   "chroma": 3,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#FCFDFF",
+   "px": 597,
+   "pct": 0.299,
+   "hue": 220.0,
+   "chroma": 3,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#FBFBF9",
+   "px": 496,
+   "pct": 0.248,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#F9F9F9",
+   "px": 462,
+   "pct": 0.231,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.9
+  },
+  {
+   "hex": "#7ED2FF",
+   "px": 431,
+   "pct": 0.216,
+   "hue": 200.9,
+   "chroma": 129,
+   "Lstar": 80.6
+  },
+  {
+   "hex": "#80D1FE",
+   "px": 410,
+   "pct": 0.205,
+   "hue": 201.4,
+   "chroma": 126,
+   "Lstar": 80.4
+  },
+  {
+   "hex": "#7ED2FE",
+   "px": 403,
+   "pct": 0.202,
+   "hue": 200.6,
+   "chroma": 128,
+   "Lstar": 80.6
+  },
+  {
+   "hex": "#FCFEFD",
+   "px": 385,
+   "pct": 0.193,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#80D1FC",
+   "px": 349,
+   "pct": 0.175,
+   "hue": 200.8,
+   "chroma": 124,
+   "Lstar": 80.3
+  },
+  {
+   "hex": "#B06D5A",
+   "px": 313,
+   "pct": 0.157,
+   "hue": 13.3,
+   "chroma": 86,
+   "Lstar": 52.8
+  },
+  {
+   "hex": "#7FD1FF",
+   "px": 308,
+   "pct": 0.154,
+   "hue": 201.6,
+   "chroma": 128,
+   "Lstar": 80.4
+  },
+  {
+   "hex": "#FBF9FA",
+   "px": 295,
+   "pct": 0.148,
+   "hue": 330.0,
+   "chroma": 2,
+   "Lstar": 98.1
+  },
+  {
+   "hex": "#FCFDFD",
+   "px": 289,
+   "pct": 0.145,
+   "hue": 180.0,
+   "chroma": 1,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#F8F8F8",
+   "px": 287,
+   "pct": 0.144,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#FDFCFF",
+   "px": 276,
+   "pct": 0.138,
+   "hue": 260.0,
+   "chroma": 3,
+   "Lstar": 99.1
+  },
+  {
+   "hex": "#80D1FF",
+   "px": 255,
+   "pct": 0.128,
+   "hue": 201.7,
+   "chroma": 127,
+   "Lstar": 80.4
+  },
+  {
+   "hex": "#FCFCFA",
+   "px": 246,
+   "pct": 0.123,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 98.9
+  },
+  {
+   "hex": "#FEFCFF",
+   "px": 244,
+   "pct": 0.122,
+   "hue": 280.0,
+   "chroma": 3,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#FCFAFD",
+   "px": 240,
+   "pct": 0.12,
+   "hue": 280.0,
+   "chroma": 3,
+   "Lstar": 98.5
+  },
+  {
+   "hex": "#7ED3FC",
+   "px": 237,
+   "pct": 0.119,
+   "hue": 199.5,
+   "chroma": 126,
+   "Lstar": 80.8
+  },
+  {
+   "hex": "#FEFAFB",
+   "px": 232,
+   "pct": 0.116,
+   "hue": 345.0,
+   "chroma": 4,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#FEFDFD",
+   "px": 226,
+   "pct": 0.113,
+   "hue": 0.0,
+   "chroma": 1,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#82D1FC",
+   "px": 207,
+   "pct": 0.104,
+   "hue": 201.1,
+   "chroma": 122,
+   "Lstar": 80.4
+  },
+  {
+   "hex": "#82D0FE",
+   "px": 204,
+   "pct": 0.102,
+   "hue": 202.3,
+   "chroma": 124,
+   "Lstar": 80.2
+  },
+  {
+   "hex": "#FFFCFD",
+   "px": 200,
+   "pct": 0.1,
+   "hue": 340.0,
+   "chroma": 3,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#F7F7F7",
+   "px": 195,
+   "pct": 0.098,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.2
+  },
+  {
+   "hex": "#FCFBF9",
+   "px": 191,
+   "pct": 0.096,
+   "hue": 40.0,
+   "chroma": 3,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#FCFEFB",
+   "px": 190,
+   "pct": 0.095,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#7CD3FF",
+   "px": 171,
+   "pct": 0.086,
+   "hue": 200.2,
+   "chroma": 131,
+   "Lstar": 80.8
+  },
+  {
+   "hex": "#F6F6F6",
+   "px": 167,
+   "pct": 0.084,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 96.9
+  },
+  {
+   "hex": "#7FD2FF",
+   "px": 166,
+   "pct": 0.083,
+   "hue": 201.1,
+   "chroma": 128,
+   "Lstar": 80.6
+  },
+  {
+   "hex": "#FFFBFF",
+   "px": 161,
+   "pct": 0.081,
+   "hue": 300.0,
+   "chroma": 4,
+   "Lstar": 99.0
+  },
+  {
+   "hex": "#7CD3FE",
+   "px": 157,
+   "pct": 0.079,
+   "hue": 199.8,
+   "chroma": 130,
+   "Lstar": 80.8
+  },
+  {
+   "hex": "#82D0FF",
+   "px": 156,
+   "pct": 0.078,
+   "hue": 202.6,
+   "chroma": 125,
+   "Lstar": 80.2
+  },
+  {
+   "hex": "#FEFAF9",
+   "px": 155,
+   "pct": 0.078,
+   "hue": 12.0,
+   "chroma": 5,
+   "Lstar": 98.5
+  },
+  {
+   "hex": "#FAFEFD",
+   "px": 152,
+   "pct": 0.076,
+   "hue": 165.0,
+   "chroma": 4,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#FDFEF9",
+   "px": 151,
+   "pct": 0.076,
+   "hue": 72.0,
+   "chroma": 5,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#7FD2FA",
+   "px": 150,
+   "pct": 0.075,
+   "hue": 199.5,
+   "chroma": 123,
+   "Lstar": 80.5
+  },
+  {
+   "hex": "#82D1FA",
+   "px": 149,
+   "pct": 0.075,
+   "hue": 200.5,
+   "chroma": 120,
+   "Lstar": 80.3
+  },
+  {
+   "hex": "#7CD2FF",
+   "px": 144,
+   "pct": 0.072,
+   "hue": 200.6,
+   "chroma": 131,
+   "Lstar": 80.5
+  },
+  {
+   "hex": "#FCFCFD",
+   "px": 143,
+   "pct": 0.072,
+   "hue": 240.0,
+   "chroma": 1,
+   "Lstar": 99.0
+  },
+  {
+   "hex": "#FBFBFD",
+   "px": 143,
+   "pct": 0.072,
+   "hue": 240.0,
+   "chroma": 2,
+   "Lstar": 98.7
+  },
+  {
+   "hex": "#FAFEFF",
+   "px": 142,
+   "pct": 0.071,
+   "hue": 192.0,
+   "chroma": 5,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#FFFCFB",
+   "px": 140,
+   "pct": 0.07,
+   "hue": 15.0,
+   "chroma": 4,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#FCFEFF",
+   "px": 139,
+   "pct": 0.07,
+   "hue": 200.0,
+   "chroma": 3,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#FFFCF9",
+   "px": 136,
+   "pct": 0.068,
+   "hue": 30.0,
+   "chroma": 6,
+   "Lstar": 99.1
+  },
+  {
+   "hex": "#FCF8F9",
+   "px": 135,
+   "pct": 0.068,
+   "hue": 345.0,
+   "chroma": 4,
+   "Lstar": 97.9
+  }
+ ],
+ "6.jpg": [
+  {
+   "hex": "#FFFFFF",
+   "px": 65641,
+   "pct": 32.879,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 100.0
+  },
+  {
+   "hex": "#FCFEFB",
+   "px": 25566,
+   "pct": 12.806,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#FEFEFE",
+   "px": 4004,
+   "pct": 2.006,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.7
+  },
+  {
+   "hex": "#316AB1",
+   "px": 2523,
+   "pct": 1.264,
+   "hue": 213.3,
+   "chroma": 128,
+   "Lstar": 44.4
+  },
+  {
+   "hex": "#FDFDFD",
+   "px": 2300,
+   "pct": 1.152,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#326BB2",
+   "px": 1803,
+   "pct": 0.903,
+   "hue": 213.3,
+   "chroma": 128,
+   "Lstar": 44.8
+  },
+  {
+   "hex": "#FBFDFA",
+   "px": 831,
+   "pct": 0.416,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 99.1
+  },
+  {
+   "hex": "#FDFDFB",
+   "px": 765,
+   "pct": 0.383,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 99.3
+  },
+  {
+   "hex": "#FDFFFC",
+   "px": 712,
+   "pct": 0.357,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 99.8
+  },
+  {
+   "hex": "#E60213",
+   "px": 672,
+   "pct": 0.337,
+   "hue": 355.5,
+   "chroma": 228,
+   "Lstar": 48.2
+  },
+  {
+   "hex": "#FCFCFC",
+   "px": 632,
+   "pct": 0.317,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 99.0
+  },
+  {
+   "hex": "#FCCA5B",
+   "px": 502,
+   "pct": 0.251,
+   "hue": 41.4,
+   "chroma": 161,
+   "Lstar": 83.8
+  },
+  {
+   "hex": "#047DC2",
+   "px": 449,
+   "pct": 0.225,
+   "hue": 201.8,
+   "chroma": 190,
+   "Lstar": 50.2
+  },
+  {
+   "hex": "#FDCB5C",
+   "px": 405,
+   "pct": 0.203,
+   "hue": 41.4,
+   "chroma": 161,
+   "Lstar": 84.2
+  },
+  {
+   "hex": "#FCFCFA",
+   "px": 402,
+   "pct": 0.201,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 98.9
+  },
+  {
+   "hex": "#FCFDFC",
+   "px": 361,
+   "pct": 0.181,
+   "hue": 120.0,
+   "chroma": 1,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#F36E9D",
+   "px": 346,
+   "pct": 0.173,
+   "hue": 338.8,
+   "chroma": 133,
+   "Lstar": 63.9
+  },
+  {
+   "hex": "#FBFBFB",
+   "px": 340,
+   "pct": 0.17,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#FAFCF9",
+   "px": 310,
+   "pct": 0.155,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 98.7
+  },
+  {
+   "hex": "#FAFAFA",
+   "px": 309,
+   "pct": 0.155,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 98.3
+  },
+  {
+   "hex": "#039FE9",
+   "px": 289,
+   "pct": 0.145,
+   "hue": 199.3,
+   "chroma": 230,
+   "Lstar": 62.2
+  },
+  {
+   "hex": "#DC4556",
+   "px": 275,
+   "pct": 0.138,
+   "hue": 353.2,
+   "chroma": 151,
+   "Lstar": 52.0
+  },
+  {
+   "hex": "#306BB1",
+   "px": 259,
+   "pct": 0.13,
+   "hue": 212.6,
+   "chroma": 129,
+   "Lstar": 44.7
+  },
+  {
+   "hex": "#F49EC5",
+   "px": 242,
+   "pct": 0.121,
+   "hue": 332.8,
+   "chroma": 86,
+   "Lstar": 74.6
+  },
+  {
+   "hex": "#FCFEFD",
+   "px": 241,
+   "pct": 0.121,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#FCFDFB",
+   "px": 232,
+   "pct": 0.116,
+   "hue": 90.0,
+   "chroma": 2,
+   "Lstar": 99.2
+  },
+  {
+   "hex": "#FBC95A",
+   "px": 231,
+   "pct": 0.116,
+   "hue": 41.4,
+   "chroma": 161,
+   "Lstar": 83.5
+  },
+  {
+   "hex": "#FDCA5F",
+   "px": 209,
+   "pct": 0.105,
+   "hue": 40.6,
+   "chroma": 158,
+   "Lstar": 83.9
+  },
+  {
+   "hex": "#FBFDFC",
+   "px": 205,
+   "pct": 0.103,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 99.1
+  },
+  {
+   "hex": "#FBFBF9",
+   "px": 203,
+   "pct": 0.102,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 98.6
+  },
+  {
+   "hex": "#FBC85D",
+   "px": 202,
+   "pct": 0.101,
+   "hue": 40.6,
+   "chroma": 158,
+   "Lstar": 83.2
+  },
+  {
+   "hex": "#FEFEFC",
+   "px": 192,
+   "pct": 0.096,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 99.6
+  },
+  {
+   "hex": "#056DA2",
+   "px": 184,
+   "pct": 0.092,
+   "hue": 200.3,
+   "chroma": 157,
+   "Lstar": 43.6
+  },
+  {
+   "hex": "#293134",
+   "px": 180,
+   "pct": 0.09,
+   "hue": 196.4,
+   "chroma": 11,
+   "Lstar": 19.7
+  },
+  {
+   "hex": "#FCFEFC",
+   "px": 176,
+   "pct": 0.088,
+   "hue": 120.0,
+   "chroma": 2,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#F3A479",
+   "px": 176,
+   "pct": 0.088,
+   "hue": 21.1,
+   "chroma": 122,
+   "Lstar": 74.2
+  },
+  {
+   "hex": "#2C2F34",
+   "px": 162,
+   "pct": 0.081,
+   "hue": 217.5,
+   "chroma": 8,
+   "Lstar": 19.3
+  },
+  {
+   "hex": "#057EC3",
+   "px": 150,
+   "pct": 0.075,
+   "hue": 201.8,
+   "chroma": 190,
+   "Lstar": 50.6
+  },
+  {
+   "hex": "#FCDBBC",
+   "px": 149,
+   "pct": 0.075,
+   "hue": 29.1,
+   "chroma": 64,
+   "Lstar": 89.4
+  },
+  {
+   "hex": "#FBFEFB",
+   "px": 145,
+   "pct": 0.073,
+   "hue": 120.0,
+   "chroma": 3,
+   "Lstar": 99.4
+  },
+  {
+   "hex": "#F9F9F9",
+   "px": 144,
+   "pct": 0.072,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.9
+  },
+  {
+   "hex": "#3069B0",
+   "px": 132,
+   "pct": 0.066,
+   "hue": 213.3,
+   "chroma": 128,
+   "Lstar": 44.0
+  },
+  {
+   "hex": "#FAFAF8",
+   "px": 129,
+   "pct": 0.065,
+   "hue": 60.0,
+   "chroma": 2,
+   "Lstar": 98.2
+  },
+  {
+   "hex": "#316CB2",
+   "px": 125,
+   "pct": 0.063,
+   "hue": 212.6,
+   "chroma": 129,
+   "Lstar": 45.1
+  },
+  {
+   "hex": "#FAFCFB",
+   "px": 123,
+   "pct": 0.062,
+   "hue": 150.0,
+   "chroma": 2,
+   "Lstar": 98.8
+  },
+  {
+   "hex": "#FCFCFB",
+   "px": 120,
+   "pct": 0.06,
+   "hue": 60.0,
+   "chroma": 1,
+   "Lstar": 98.9
+  },
+  {
+   "hex": "#F9FBF8",
+   "px": 117,
+   "pct": 0.059,
+   "hue": 100.0,
+   "chroma": 3,
+   "Lstar": 98.4
+  },
+  {
+   "hex": "#F8F8F8",
+   "px": 116,
+   "pct": 0.058,
+   "hue": null,
+   "chroma": 0,
+   "Lstar": 97.6
+  },
+  {
+   "hex": "#FAC859",
+   "px": 115,
+   "pct": 0.058,
+   "hue": 41.4,
+   "chroma": 161,
+   "Lstar": 83.1
+  },
+  {
+   "hex": "#FECC5D",
+   "px": 111,
+   "pct": 0.056,
+   "hue": 41.4,
+   "chroma": 161,
+   "Lstar": 84.5
+  },
+  {
+   "hex": "#FCC95E",
+   "px": 108,
+   "pct": 0.054,
+   "hue": 40.6,
+   "chroma": 158,
+   "Lstar": 83.6
+  },
+  {
+   "hex": "#336CB3",
+   "px": 104,
+   "pct": 0.052,
+   "hue": 213.3,
+   "chroma": 128,
+   "Lstar": 45.2
+  },
+  {
+   "hex": "#F59FC6",
+   "px": 103,
+   "pct": 0.052,
+   "hue": 332.8,
+   "chroma": 86,
+   "Lstar": 75.0
+  },
+  {
+   "hex": "#FDFEFC",
+   "px": 102,
+   "pct": 0.051,
+   "hue": 90.0,
+   "chroma": 2,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#F9CDA6",
+   "px": 102,
+   "pct": 0.051,
+   "hue": 28.2,
+   "chroma": 83,
+   "Lstar": 85.3
+  },
+  {
+   "hex": "#FDFEFD",
+   "px": 100,
+   "pct": 0.05,
+   "hue": 120.0,
+   "chroma": 1,
+   "Lstar": 99.6
+  },
+  {
+   "hex": "#FBFCFA",
+   "px": 99,
+   "pct": 0.05,
+   "hue": 90.0,
+   "chroma": 2,
+   "Lstar": 98.8
+  },
+  {
+   "hex": "#2C2F36",
+   "px": 97,
+   "pct": 0.049,
+   "hue": 222.0,
+   "chroma": 10,
+   "Lstar": 19.4
+  },
+  {
+   "hex": "#FDFEFB",
+   "px": 95,
+   "pct": 0.048,
+   "hue": 80.0,
+   "chroma": 3,
+   "Lstar": 99.5
+  },
+  {
+   "hex": "#316BB1",
+   "px": 93,
+   "pct": 0.047,
+   "hue": 212.8,
+   "chroma": 128,
+   "Lstar": 44.7
+  }
+ ]
+}

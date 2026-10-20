@@ -1,0 +1,51 @@
+Hello Kitty 主题 · 37 色位报告
+==============================================================================
+源图      : C:\Users\辰辰洋洋\Pictures\HelloKitty
+参考图    : 6 张
+扫描像素  : 1362967（去重后 97,120 个精确色）
+
+溯源      : 20 精确像素槽 + 17 派生槽；去重后独立色值 32 个
+判尺      : 硬性 4.5:1 违例 0 · UI 3:1 违例 0 · 设计告警 1
+  [roleCollision] 跨组 primary = borderActive #c8152d
+
+37 色位终值与来源
+------------------------------------------------------------------------------
+  background               #FFFFFF   直采 paper
+  backgroundPanel          #FBE6EF   直采 veil
+  backgroundElement        #FAD8E3   blend(#EE86A7 主视觉粉 32%, #FFFFFF 纸白)
+  sidebarBg                #EEA9BC   直采 rose
+  bubbleBg                 #EE86A7   直采 hero
+  inputBg                  #FBE6EF   直采 veil
+  codeBlockBg              #FFFFFF   直采 paper
+  codeHeaderBg             #F4B4D0   直采 orchid
+  text                     #231815   直采 ink
+  textMuted                #40404A   直采 slate
+  primary                  #C8152D   直采 crimson
+  secondary                #0E52A5   直采 navy
+  info                     #4F86C5   直采 midblue
+  success                  #1B6A42   blend(#231815 暖墨 45%, #14AE67 苹果叶绿)
+  warning                  #91720D   blend(#231815 暖墨 50%, #FFCB05 鼻子黄)
+  error                    #B00C3F   直采 rasp
+  border                   #F4B4D0   直采 orchid
+  borderActive             #C8152D   直采 crimson
+  diffAdded                #1E452E   blend(#14AE67 苹果叶绿 30%, #231815 暖墨)
+  diffRemoved              #9F1627   blend(#231815 暖墨 25%, #C8152D 蝴蝶结红)
+  diffAddedBg              #DEF4EA   blend(#14AE67 苹果叶绿 14%, #FFFFFF 纸白)
+  diffRemovedBg            #F8CEDD   blend(#EE86A7 主视觉粉 25%, #FBE6EF 淡粉纱)
+  diffAddedLineNumberBg    #CBEDDE   blend(#14AE67 苹果叶绿 22%, #FFFFFF 纸白)
+  diffRemovedLineNumberBg  #F4B4D0   直采 orchid
+  markdownHeading          #9D274C   blend(#231815 暖墨 30%, #D12E63 深玫红)
+  markdownLink             #2663AE   blend(#0E52A5 背带裤蓝 90%, #FFFFFF 纸白)
+  markdownCode             #7F5D3B   blend(#231815 暖墨 40%, #BD8B55 小熊棕)
+  markdownEmph             #596E72   blend(#231815 暖墨 55%, #9AD8E3 天空青)
+  markdownStrong           #000000   直采 black
+  markdownBlockQuote       #565656   直采 gray
+  syntaxComment            #737378   直采 ltgray
+  syntaxKeyword            #D12E63   直采 deeprose
+  syntaxFunction           #446A99   blend(#4F86C5 背带裤中蓝 75%, #231815 暖墨)
+  syntaxType               #14417A   blend(#0E52A5 背带裤蓝 70%, #231815 暖墨)
+  syntaxNumber             #705235   blend(#231815 暖墨 50%, #BD8B55 小熊棕)
+  syntaxString             #1A7548   blend(#14AE67 苹果叶绿 62%, #231815 暖墨)
+  syntaxOperator           #966E45   blend(#231815 暖墨 25%, #BD8B55 小熊棕)
+
+判据口径：docs/theme-audit/criteria.md（与 scripts/audit-themes.ts 同源）

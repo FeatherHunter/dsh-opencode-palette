@@ -1,0 +1,328 @@
+{
+ "background": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   12,
+   224
+  ],
+  "hex": "#000600",
+  "note": "森林最深处的阴影（画布）"
+ },
+ "text": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   206,
+   27
+  ],
+  "hex": "#DEEFF6",
+  "note": "战甲银白高光（头冠尖脊）"
+ },
+ "textMuted": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   148,
+   111
+  ],
+  "hex": "#AFB9BB",
+  "note": "战甲银灰暗面（向左伸出的手臂）"
+ },
+ "primary": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   199,
+   249
+  ],
+  "hex": "#D52518",
+  "note": "战甲受光正红（胸腹甲片）"
+ },
+ "secondary": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   317,
+   214
+  ],
+  "hex": "#EFCB5D",
+  "note": "角色立绘金瞳的边缘高光（第二声部）"
+ },
+ "info": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   380,
+   241
+  ],
+  "hex": "#2AA1B7",
+  "note": "战甲之外的天空（森林树梢上方）"
+ },
+ "success": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   211,
+   237
+  ],
+  "hex": "#2F9877",
+  "note": "角色胸前绿色计时器的核心"
+ },
+ "warning": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   139,
+   457
+  ],
+  "hex": "#BD8E36",
+  "note": "角色立绘金色头冠的暗面（琥珀）"
+ },
+ "error": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   266,
+   216
+  ],
+  "hex": "#F05F4E",
+  "note": "战甲受光朱红（侧腹甲片）"
+ },
+ "border": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   31,
+   633
+  ],
+  "hex": "#2F3D6A",
+  "note": "海报画框的深靛"
+ },
+ "borderActive": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   145,
+   118
+  ],
+  "hex": "#87C3F5",
+  "note": "战甲肩后的天空（焦点环）"
+ },
+ "diffAdded": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   39,
+   209
+  ],
+  "hex": "#3C9B6F",
+  "note": "森林树冠的翠绿"
+ },
+ "diffRemoved": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   154,
+   340
+  ],
+  "hex": "#C9667B",
+  "note": "角色立绘的玫瑰红"
+ },
+ "markdownHeading": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   328,
+   324
+  ],
+  "hex": "#C0ECFF",
+  "note": "角色立绘冰蓝装甲的高光"
+ },
+ "markdownLink": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   327,
+   224
+  ],
+  "hex": "#51AEB5",
+  "note": "天海交界的青"
+ },
+ "markdownCode": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   393,
+   393
+  ],
+  "hex": "#D0B26C",
+  "note": "山坡的赭金"
+ },
+ "markdownEmph": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   258,
+   637
+  ],
+  "hex": "#B6A8CB",
+  "note": "海报下缘的淡紫"
+ },
+ "markdownStrong": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   223,
+   51
+  ],
+  "hex": "#F8FBE6",
+  "note": "战甲近白高光（额侧）"
+ },
+ "markdownBlockQuote": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   37,
+   576
+  ],
+  "hex": "#91B2B7",
+  "note": "角色立绘的银白甲片"
+ },
+ "syntaxComment": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   443,
+   372
+  ],
+  "hex": "#747D86",
+  "note": "角色立绘的紫灰（战甲暗部）"
+ },
+ "syntaxKeyword": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   268,
+   219
+  ],
+  "hex": "#D95638",
+  "note": "战甲受光红·亮档"
+ },
+ "syntaxFunction": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   472,
+   16
+  ],
+  "hex": "#3A80FA",
+  "note": "海报画框的能量蓝"
+ },
+ "syntaxType": {
+  "kind": "direct",
+  "image": "2.jpg",
+  "xy": [
+   314,
+   0
+  ],
+  "hex": "#8CCDE9",
+  "note": "天顶的淡蓝"
+ },
+ "syntaxNumber": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   318,
+   214
+  ],
+  "hex": "#F4C738",
+  "note": "角色立绘金瞳的核心（与次色相邻 1 px）"
+ },
+ "syntaxString": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   212,
+   235
+  ],
+  "hex": "#67CDA6",
+  "note": "角色胸前绿色计时器的外缘"
+ },
+ "syntaxOperator": {
+  "kind": "direct",
+  "image": "images.jpg",
+  "xy": [
+   458,
+   627
+  ],
+  "hex": "#8774A2",
+  "note": "海报下缘的紫灰"
+ },
+ "codeBlockBg": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.1268",
+  "hex": "#060B11",
+  "note": "画布染海报标题靛，L* 2.88"
+ },
+ "sidebarBg": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.2237",
+  "hex": "#0A0F1F",
+  "note": "画布染海报标题靛，L* 4.56"
+ },
+ "inputBg": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.3026",
+  "hex": "#0E112A",
+  "note": "画布染海报标题靛，L* 5.97"
+ },
+ "bubbleBg": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.3667",
+  "hex": "#111433",
+  "note": "画布染海报标题靛，L* 7.75"
+ },
+ "backgroundPanel": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.4342",
+  "hex": "#14163C",
+  "note": "画布染海报标题靛，L* 9.39"
+ },
+ "backgroundElement": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.4964",
+  "hex": "#161945",
+  "note": "画布染海报标题靛，L* 11.24"
+ },
+ "codeHeaderBg": {
+  "kind": "mix",
+  "recipe": "#000600 + #2D2C8A @ α=0.5658",
+  "hex": "#191C4E",
+  "note": "画布染海报标题靛，L* 13.15"
+ },
+ "diffAddedBg": {
+  "kind": "mix",
+  "recipe": "#3C9B6F @ α=0.13 over #000600",
+  "hex": "#08190E",
+  "note": "直采色染在画布上"
+ },
+ "diffRemovedBg": {
+  "kind": "mix",
+  "recipe": "#C9667B @ α=0.13 over #000600",
+  "hex": "#1A1210",
+  "note": "直采色染在画布上"
+ },
+ "diffAddedLineNumberBg": {
+  "kind": "mix",
+  "recipe": "#3C9B6F @ α=0.20 over #000600",
+  "hex": "#0C2416",
+  "note": "直采色染在画布上"
+ },
+ "diffRemovedLineNumberBg": {
+  "kind": "mix",
+  "recipe": "#C9667B @ α=0.20 over #000600",
+  "hex": "#281919",
+  "note": "直采色染在画布上"
+ }
+}

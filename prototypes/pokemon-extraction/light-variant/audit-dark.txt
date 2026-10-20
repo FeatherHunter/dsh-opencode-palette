@@ -1,0 +1,85 @@
+── palette.dark.json  (dark) ──
+表面：{"background":"#1C1C22","backgroundPanel":"#37373B","backgroundElement":"#40404A","sidebarBg":"#060606","bubbleBg":"#28282D","inputBg":"#0C0C10","codeBlockBg":"#000000","codeHeaderBg":"#48484D"}
+硬性对 38 条，违例 0
+UI 对 15 条，违例 0
+最紧 6 对：
+  error@backgroundPanel = 3.24 (阈值 3)
+  info@backgroundPanel = 3.742 (阈值 3)
+  success@backgroundPanel = 4.281 (阈值 3)
+  secondary@backgroundPanel = 4.552 (阈值 3)
+  error@background = 4.636 (阈值 3)
+  warning@backgroundPanel = 4.804 (阈值 3)
+角色同值碰撞：无
+背景色相孤岛(>60°)：无  基准色相 240.0°
+品牌几何：primary 47.5° × secondary 223.8° = 176.2° → complementary 互补
+语法核心最小 ΔE76 = 22.0 (syntaxFunction×syntaxType)  门槛 10 → PASS
+退后检查：comment 5.72 / operator 4.92 vs 核心最低 5.86 → PASS
+markdown 同值：无
+── 语法核心两两 ΔE76 ──
+   syntaxKeyword×syntaxFunction = 36.5 ✓
+   syntaxKeyword×syntaxType = 40.0 ✓
+   syntaxKeyword×syntaxNumber = 52.8 ✓
+   syntaxKeyword×syntaxString = 54.4 ✓
+   syntaxFunction×syntaxType = 22.0 ✓
+   syntaxFunction×syntaxNumber = 68.7 ✓
+   syntaxFunction×syntaxString = 38.7 ✓
+   syntaxType×syntaxNumber = 54.4 ✓
+   syntaxType×syntaxString = 25.6 ✓
+   syntaxNumber×syntaxString = 48.8 ✓
+
+── 全部色位对比度 ──
+  ✓ text@background                     14.67  (≥4.5)
+  ✓ text@backgroundPanel                10.25  (≥4.5)
+  ✓ text@backgroundElement               8.86  (≥4.5)
+  ✓ text@sidebarBg                      17.53  (≥4.5)
+  ✓ text@bubbleBg                       12.69  (≥4.5)
+  ✓ text@inputBg                        16.89  (≥4.5)
+  ✓ text@codeBlockBg                    18.17  (≥4.5)
+  ✓ text@codeHeaderBg                    7.87  (≥4.5)
+  ✓ textMuted@background                11.37  (≥4.5)
+  ✓ labelDimmed@background               7.68  (≥4.5)
+  ✓ textMuted@backgroundPanel            7.95  (≥4.5)
+  ✓ labelDimmed@backgroundPanel          5.74  (≥4.5)
+  ✓ textMuted@backgroundElement          6.87  (≥4.5)
+  ✓ labelDimmed@backgroundElement        5.08  (≥4.5)
+  ✓ markdownHeading@background          13.34  (≥4.5)
+  ✓ markdownHeading@backgroundPanel      9.32  (≥4.5)
+  ✓ markdownLink@background              9.53  (≥4.5)
+  ✓ markdownLink@backgroundPanel         6.66  (≥4.5)
+  ✓ markdownStrong@background           16.95  (≥4.5)
+  ✓ markdownStrong@backgroundPanel      11.85  (≥4.5)
+  ✓ markdownEmph@background              9.66  (≥4.5)
+  ✓ markdownEmph@backgroundPanel         6.75  (≥4.5)
+  ✓ markdownBlockQuote@background        9.07  (≥4.5)
+  ✓ markdownBlockQuote@backgroundPanel   6.34  (≥4.5)
+  ✓ markdownCode@background             13.95  (≥4.5)
+  ✓ markdownCode@backgroundPanel         9.75  (≥4.5)
+  ✓ syntaxComment@codeBlockBg            5.72  (≥4.5)
+  ✓ syntaxKeyword@codeBlockBg            7.95  (≥4.5)
+  ✓ syntaxFunction@codeBlockBg           7.08  (≥4.5)
+  ✓ syntaxType@codeBlockBg               5.86  (≥4.5)
+  ✓ syntaxNumber@codeBlockBg            11.82  (≥4.5)
+  ✓ syntaxString@codeBlockBg            10.98  (≥4.5)
+  ✓ syntaxOperator@codeBlockBg           4.92  (≥4.5)
+  ✓ diffAdded@diffAddedBg                8.07  (≥4.5)
+  ✓ diffRemoved@diffRemovedBg            6.05  (≥4.5)
+  ✓ text@diffAddedBg                    13.49  (≥4.5)
+  ✓ text@diffRemovedBg                  17.55  (≥4.5)
+  ✓ contrastText(primary)@primary       12.10  (≥4.5)
+  ✓ borderActive@background             12.00  (≥3)
+  ✓ borderActive@backgroundPanel         8.38  (≥3)
+  ✓ borderActive@backgroundElement       7.25  (≥3)
+  ✓ primary@background                  11.14  (≥3)
+  ✓ primary@backgroundPanel              7.79  (≥3)
+  ✓ secondary@background                 6.51  (≥3)
+  ✓ secondary@backgroundPanel            4.55  (≥3)
+  ✓ info@background                      5.35  (≥3)
+  ✓ info@backgroundPanel                 3.74  (≥3)
+  ✓ success@background                   6.13  (≥3)
+  ✓ success@backgroundPanel              4.28  (≥3)
+  ✓ warning@background                   6.87  (≥3)
+  ✓ warning@backgroundPanel              4.80  (≥3)
+  ✓ error@background                     4.64  (≥3)
+  ✓ error@backgroundPanel                3.24  (≥3)
+
+退出码：0

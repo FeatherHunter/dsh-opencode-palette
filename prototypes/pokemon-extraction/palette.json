@@ -1,0 +1,1059 @@
+{
+ "colors": {
+  "background": "#1C1C22",
+  "backgroundPanel": "#37373B",
+  "backgroundElement": "#48484D",
+  "sidebarBg": "#060606",
+  "bubbleBg": "#28282D",
+  "inputBg": "#000000",
+  "codeBlockBg": "#0C0C10",
+  "codeHeaderBg": "#58585A",
+  "text": "#EEEEF4",
+  "textMuted": "#D3D3D8",
+  "primary": "#FFCB05",
+  "secondary": "#799DFE",
+  "info": "#289BCA",
+  "success": "#7AA85D",
+  "warning": "#FB8603",
+  "error": "#F93D32",
+  "border": "#40404A",
+  "borderActive": "#FEED79",
+  "diffAdded": "#7FC9AE",
+  "diffAddedBg": "#0A2828",
+  "diffAddedLineNumberBg": "#191917",
+  "diffRemoved": "#FE4C1C",
+  "diffRemovedBg": "#0C0406",
+  "diffRemovedLineNumberBg": "#141000",
+  "markdownHeading": "#E3C371",
+  "markdownLink": "#95C7F8",
+  "markdownCode": "#FDE7B5",
+  "markdownEmph": "#F9B584",
+  "markdownStrong": "#FFFFFF",
+  "markdownBlockQuote": "#BDBDC3",
+  "syntaxComment": "#85858A",
+  "syntaxKeyword": "#C790A3",
+  "syntaxFunction": "#6E9BBC",
+  "syntaxType": "#658F8B",
+  "syntaxNumber": "#C5A863",
+  "syntaxString": "#80CAAF",
+  "syntaxOperator": "#7A7A7F"
+ },
+ "labels": {
+  "#1C1C22": "卡面页底",
+  "#37373B": "卡片暗阶",
+  "#48484D": "卡片暗阶",
+  "#060606": "画框墨阶",
+  "#28282D": "画面暗部",
+  "#000000": "画框黑",
+  "#0C0C10": "页脚栏",
+  "#40404A": "卡边长线",
+  "#EEEEF4": "页脚白字",
+  "#D3D3D8": "图注灰",
+  "#FFCB05": "图鉴编号徽章",
+  "#799DFE": "wikiHow 蓝底",
+  "#289BCA": "杰尼龟蓝",
+  "#7AA85D": "妙蛙种子绿",
+  "#FB8603": "小火龙橙",
+  "#F93D32": "精灵球红",
+  "#FEED79": "周年海报高光黄",
+  "#7FC9AE": "妙蛙种子浅绿",
+  "#0A2828": "深青",
+  "#141000": "画框暖黑",
+  "#FE4C1C": "脸颊红",
+  "#0C0406": "暗红阶",
+  "#191917": "精灵球黑面",
+  "#E3C371": "皮卡丘中金",
+  "#95C7F8": "天空蓝",
+  "#FDE7B5": "奶黄",
+  "#F9B584": "暖杏",
+  "#FFFFFF": "卡纸白",
+  "#BDBDC3": "图注灰阶",
+  "#85858A": "图注灰",
+  "#C790A3": "嘴部藕粉",
+  "#6E9BBC": "蓝暗面",
+  "#658F8B": "青灰",
+  "#C5A863": "皮卡丘中金阶",
+  "#80CAAF": "浅青绿",
+  "#7A7A7F": "图注灰阶"
+ },
+ "provenance": {
+  "#1C1C22": {
+   "slot": "background",
+   "hex": "#1C1C22",
+   "label": "卡面页底",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 58800,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 58800,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 29400,
+    "box": [
+     0,
+     0,
+     69,
+     419
+    ],
+    "shape": "70x420"
+   }
+  },
+  "#37373B": {
+   "slot": "backgroundPanel",
+   "hex": "#37373B",
+   "label": "卡片暗阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 47,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 47,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 12,
+    "box": [
+     351,
+     443,
+     362,
+     443
+    ],
+    "shape": "12x1"
+   }
+  },
+  "#48484D": {
+   "slot": "backgroundElement",
+   "hex": "#48484D",
+   "label": "卡片暗阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 37,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 37,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 17,
+    "box": [
+     61,
+     457,
+     77,
+     457
+    ],
+    "shape": "17x1"
+   }
+  },
+  "#060606": {
+   "slot": "sidebarBg",
+   "hex": "#060606",
+   "label": "画框墨阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 700,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 675,
+    "2.jpg": 1,
+    "3.jpg": 5,
+    "4.jpg": 19
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 233,
+    "box": [
+     468,
+     155,
+     468,
+     387
+    ],
+    "shape": "1x233"
+   }
+  },
+  "#28282D": {
+   "slot": "bubbleBg",
+   "hex": "#28282D",
+   "label": "画面暗部",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 31,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 31,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 5,
+    "box": [
+     166,
+     453,
+     166,
+     457
+    ],
+    "shape": "1x5"
+   }
+  },
+  "#000000": {
+   "slot": "inputBg",
+   "hex": "#000000",
+   "label": "画框黑",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 74560,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 74363,
+    "2.jpg": 13,
+    "3.jpg": 31,
+    "4.jpg": 153
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 35346,
+    "box": [
+     92,
+     31,
+     467,
+     286
+    ],
+    "shape": "376x256"
+   }
+  },
+  "#0C0C10": {
+   "slot": "codeBlockBg",
+   "hex": "#0C0C10",
+   "label": "页脚栏",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 27378,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 27378,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 26667,
+    "box": [
+     47,
+     421,
+     559,
+     485
+    ],
+    "shape": "513x65"
+   }
+  },
+  "#58585A": {
+   "slot": "codeHeaderBg",
+   "hex": "#58585A",
+   "label": "",
+   "source": "4.jpg",
+   "px": 993,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 993
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 491,
+    "box": [
+     351,
+     256,
+     407,
+     272
+    ],
+    "shape": "57x17"
+   }
+  },
+  "#EEEEF4": {
+   "slot": "text",
+   "hex": "#EEEEF4",
+   "label": "页脚白字",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 2157,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 2157,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 142,
+    "box": [
+     61,
+     440,
+     77,
+     456
+    ],
+    "shape": "17x17"
+   }
+  },
+  "#D3D3D8": {
+   "slot": "textMuted",
+   "hex": "#D3D3D8",
+   "label": "图注灰",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 41,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 41,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 18,
+    "box": [
+     249,
+     440,
+     249,
+     457
+    ],
+    "shape": "1x18"
+   }
+  },
+  "#FFCB05": {
+   "slot": "primary",
+   "hex": "#FFCB05",
+   "label": "图鉴编号徽章",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 3046,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 3012,
+    "2.jpg": 0,
+    "3.jpg": 28,
+    "4.jpg": 6
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 3012,
+    "box": [
+     0,
+     420,
+     46,
+     485
+    ],
+    "shape": "47x66"
+   }
+  },
+  "#799DFE": {
+   "slot": "secondary",
+   "hex": "#799DFE",
+   "label": "wikiHow 蓝底",
+   "source": "2.jpg",
+   "px": 88538,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 88538,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "2.jpg",
+    "px": 88167,
+    "box": [
+     0,
+     0,
+     458,
+     344
+    ],
+    "shape": "459x345"
+   }
+  },
+  "#289BCA": {
+   "slot": "info",
+   "hex": "#289BCA",
+   "label": "杰尼龟蓝",
+   "source": "4.jpg",
+   "px": 2973,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 2973
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "4.jpg",
+    "px": 2792,
+    "box": [
+     440,
+     232,
+     511,
+     311
+    ],
+    "shape": "72x80"
+   }
+  },
+  "#7AA85D": {
+   "slot": "success",
+   "hex": "#7AA85D",
+   "label": "妙蛙种子绿",
+   "source": "4.jpg",
+   "px": 1316,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 1316
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 1245,
+    "box": [
+     120,
+     168,
+     160,
+     223
+    ],
+    "shape": "41x56"
+   }
+  },
+  "#FB8603": {
+   "slot": "warning",
+   "hex": "#FB8603",
+   "label": "小火龙橙",
+   "source": "4.jpg",
+   "px": 4690,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 4690
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "4.jpg",
+    "px": 4196,
+    "box": [
+     112,
+     24,
+     199,
+     119
+    ],
+    "shape": "88x96"
+   }
+  },
+  "#F93D32": {
+   "slot": "error",
+   "hex": "#F93D32",
+   "label": "精灵球红",
+   "source": "4.jpg",
+   "px": 1984,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 1984
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 850,
+    "box": [
+     264,
+     216,
+     319,
+     255
+    ],
+    "shape": "56x40"
+   }
+  },
+  "#40404A": {
+   "slot": "border",
+   "hex": "#40404A",
+   "label": "卡边长线",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 513,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 513,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 513,
+    "box": [
+     47,
+     420,
+     559,
+     420
+    ],
+    "shape": "513x1"
+   }
+  },
+  "#FEED79": {
+   "slot": "borderActive",
+   "hex": "#FEED79",
+   "label": "周年海报高光黄",
+   "source": "3.jpg",
+   "px": 1516,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 1516,
+    "4.jpg": 0
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "3.jpg",
+    "px": 742,
+    "box": [
+     112,
+     280,
+     153,
+     319
+    ],
+    "shape": "42x40"
+   }
+  },
+  "#7FC9AE": {
+   "slot": "diffAdded",
+   "hex": "#7FC9AE",
+   "label": "妙蛙种子浅绿",
+   "source": "4.jpg",
+   "px": 4160,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 4160
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "4.jpg",
+    "px": 2122,
+    "box": [
+     64,
+     208,
+     159,
+     311
+    ],
+    "shape": "96x104"
+   }
+  },
+  "#0A2828": {
+   "slot": "diffAddedBg",
+   "hex": "#0A2828",
+   "label": "深青",
+   "source": "4.jpg",
+   "px": 632,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 632
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 539,
+    "box": [
+     232,
+     80,
+     263,
+     119
+    ],
+    "shape": "32x40"
+   }
+  },
+  "#191917": {
+   "slot": "diffAddedLineNumberBg",
+   "hex": "#191917",
+   "label": "精灵球黑面",
+   "source": "4.jpg",
+   "px": 1613,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 3,
+    "4.jpg": 1610
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 1576,
+    "box": [
+     184,
+     256,
+     232,
+     311
+    ],
+    "shape": "49x56"
+   }
+  },
+  "#FE4C1C": {
+   "slot": "diffRemoved",
+   "hex": "#FE4C1C",
+   "label": "脸颊红",
+   "source": "2.jpg",
+   "px": 16,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 16,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "2.jpg",
+    "px": 10,
+    "box": [
+     171,
+     168,
+     172,
+     175
+    ],
+    "shape": "2x8"
+   }
+  },
+  "#0C0406": {
+   "slot": "diffRemovedBg",
+   "hex": "#0C0406",
+   "label": "暗红阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 192,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 192,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 23,
+    "box": [
+     329,
+     90,
+     334,
+     97
+    ],
+    "shape": "6x8"
+   }
+  },
+  "#141000": {
+   "slot": "diffRemovedLineNumberBg",
+   "hex": "#141000",
+   "label": "画框暖黑",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 80,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 79,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 1
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 79,
+    "box": [
+     17,
+     445,
+     24,
+     462
+    ],
+    "shape": "8x18"
+   }
+  },
+  "#E3C371": {
+   "slot": "markdownHeading",
+   "hex": "#E3C371",
+   "label": "皮卡丘中金",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 3755,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 3755,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 1358,
+    "box": [
+     342,
+     147,
+     426,
+     188
+    ],
+    "shape": "85x42"
+   }
+  },
+  "#95C7F8": {
+   "slot": "markdownLink",
+   "hex": "#95C7F8",
+   "label": "天空蓝",
+   "source": "4.jpg",
+   "px": 2317,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 2317
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 976,
+    "box": [
+     104,
+     0,
+     159,
+     23
+    ],
+    "shape": "56x24"
+   }
+  },
+  "#FDE7B5": {
+   "slot": "markdownCode",
+   "hex": "#FDE7B5",
+   "label": "奶黄",
+   "source": "4.jpg",
+   "px": 2842,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 2842
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 1907,
+    "box": [
+     528,
+     48,
+     596,
+     119
+    ],
+    "shape": "69x72"
+   }
+  },
+  "#F9B584": {
+   "slot": "markdownEmph",
+   "hex": "#F9B584",
+   "label": "暖杏",
+   "source": "4.jpg",
+   "px": 173,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 173
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 32,
+    "box": [
+     354,
+     120,
+     357,
+     127
+    ],
+    "shape": "4x8"
+   }
+  },
+  "#FFFFFF": {
+   "slot": "markdownStrong",
+   "hex": "#FFFFFF",
+   "label": "卡纸白",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 45033,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 38229,
+    "2.jpg": 2,
+    "3.jpg": 985,
+    "4.jpg": 5817
+   },
+   "kind": "实心块",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 38164,
+    "box": [
+     70,
+     0,
+     489,
+     419
+    ],
+    "shape": "420x420"
+   }
+  },
+  "#BDBDC3": {
+   "slot": "markdownBlockQuote",
+   "hex": "#BDBDC3",
+   "label": "图注灰阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 18,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 18,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 6,
+    "box": [
+     254,
+     440,
+     254,
+     445
+    ],
+    "shape": "1x6"
+   }
+  },
+  "#85858A": {
+   "slot": "syntaxComment",
+   "hex": "#85858A",
+   "label": "图注灰",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 19,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 19,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "抗锯齿残影",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 2,
+    "box": [
+     79,
+     440,
+     79,
+     441
+    ],
+    "shape": "1x2"
+   }
+  },
+  "#C790A3": {
+   "slot": "syntaxKeyword",
+   "hex": "#C790A3",
+   "label": "嘴部藕粉",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 18,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 18,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 9,
+    "box": [
+     180,
+     203,
+     183,
+     206
+    ],
+    "shape": "4x4"
+   }
+  },
+  "#6E9BBC": {
+   "slot": "syntaxFunction",
+   "hex": "#6E9BBC",
+   "label": "蓝暗面",
+   "source": "4.jpg",
+   "px": 87,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 87
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 65,
+    "box": [
+     23,
+     72,
+     31,
+     79
+    ],
+    "shape": "9x8"
+   }
+  },
+  "#658F8B": {
+   "slot": "syntaxType",
+   "hex": "#658F8B",
+   "label": "青灰",
+   "source": "4.jpg",
+   "px": 72,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 72
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 64,
+    "box": [
+     88,
+     320,
+     95,
+     327
+    ],
+    "shape": "8x8"
+   }
+  },
+  "#C5A863": {
+   "slot": "syntaxNumber",
+   "hex": "#C5A863",
+   "label": "皮卡丘中金阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 698,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 698,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "实心形",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 133,
+    "box": [
+     283,
+     340,
+     308,
+     353
+    ],
+    "shape": "26x14"
+   }
+  },
+  "#80CAAF": {
+   "slot": "syntaxString",
+   "hex": "#80CAAF",
+   "label": "浅青绿",
+   "source": "4.jpg",
+   "px": 325,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 0,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 325
+   },
+   "kind": "小实心形",
+   "region": {
+    "image": "4.jpg",
+    "px": 22,
+    "box": [
+     116,
+     286,
+     119,
+     295
+    ],
+    "shape": "4x10"
+   }
+  },
+  "#7A7A7F": {
+   "slot": "syntaxOperator",
+   "hex": "#7A7A7F",
+   "label": "图注灰阶",
+   "source": "01-pikachu-official-pokedex-art.png",
+   "px": 57,
+   "perImage": {
+    "01-pikachu-official-pokedex-art.png": 57,
+    "2.jpg": 0,
+    "3.jpg": 0,
+    "4.jpg": 0
+   },
+   "kind": "发丝线",
+   "region": {
+    "image": "01-pikachu-official-pokedex-art.png",
+    "px": 17,
+    "box": [
+     271,
+     457,
+     287,
+     457
+    ],
+    "shape": "17x1"
+   }
+  }
+ },
+ "metrics": {
+  "text@background": 14.67134948528906,
+  "text@backgroundPanel": 10.254411854355384,
+  "text@backgroundElement": 7.8676611609387646,
+  "text@sidebarBg": 17.532966171992268,
+  "text@bubbleBg": 12.69290572302138,
+  "text@inputBg": 18.171573572174104,
+  "text@codeBlockBg": 16.892736333860157,
+  "text@codeHeaderBg": 6.142224398887464,
+  "textMuted@background": 11.367136641657641,
+  "labelDimmed@background": 7.680769269610786,
+  "textMuted@backgroundPanel": 7.944961085220511,
+  "labelDimmed@backgroundPanel": 5.7388806405538775,
+  "textMuted@backgroundElement": 6.095743241364937,
+  "labelDimmed@backgroundElement": 4.55177241052521,
+  "markdownHeading@background": 9.939380012583907,
+  "markdownHeading@backgroundPanel": 6.947043032965776,
+  "markdownLink@background": 9.529289300614925,
+  "markdownLink@backgroundPanel": 6.660413703987391,
+  "markdownCode@background": 13.9467755675638,
+  "markdownCode@backgroundPanel": 9.747977229597193,
+  "markdownEmph@background": 9.664881733276777,
+  "markdownEmph@backgroundPanel": 6.755184853038319,
+  "markdownStrong@background": 16.954961988699605,
+  "markdownStrong@backgroundPanel": 11.850522910751904,
+  "markdownBlockQuote@background": 9.06753620712535,
+  "markdownBlockQuote@backgroundPanel": 6.337675403709523,
+  "syntaxComment@codeBlockBg": 5.316815334976424,
+  "syntaxKeyword@codeBlockBg": 7.387347864920036,
+  "syntaxFunction@codeBlockBg": 6.5796068090190785,
+  "syntaxType@codeBlockBg": 5.44308098213066,
+  "syntaxNumber@codeBlockBg": 8.510976848299482,
+  "syntaxString@codeBlockBg": 10.211997124958414,
+  "syntaxOperator@codeBlockBg": 4.571696776925354,
+  "contrastText(primary)@primary": 12.103225330115347,
+  "borderActive@background": 14.213050789748586,
+  "borderActive@backgroundPanel": 9.934087975417176,
+  "borderActive@backgroundElement": 7.621893799822587,
+  "primary@background": 11.139059499349557,
+  "primary@backgroundPanel": 7.785548554414355,
+  "secondary@background": 6.513070485943025,
+  "secondary@backgroundPanel": 4.552253851377085,
+  "info@background": 5.354227431473065,
+  "info@backgroundPanel": 3.7422905983709804,
+  "success@background": 6.125287183498064,
+  "success@backgroundPanel": 4.281216091864921,
+  "warning@background": 6.873379872782732,
+  "warning@backgroundPanel": 4.804088957026319,
+  "error@background": 4.635569493987718,
+  "error@backgroundPanel": 3.2399908964406547
+ },
+ "fails": [],
+ "warns": []
+}

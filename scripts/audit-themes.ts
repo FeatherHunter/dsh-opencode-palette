@@ -1,4 +1,4 @@
-// scripts/audit-themes.ts — 58 套主题（37 预置 + 21 IP）对比度与设计规范基线审计（票 #116 / map #115）
+// scripts/audit-themes.ts — 全部主题（预置 37 + 全部 IP 预置，数量以运行时统计为准）对比度与设计规范基线审计（票 #116 / map #115）
 //
 // 只读脚本：读取 src/themes/*.json 与 src/custom-presets/*.json（经引擎同一解析管线），
 // 计算「有效渲染层」颜色，按 map #115 的判尺评估硬性对比度、信息项与 IP 设计规范，
@@ -1038,7 +1038,7 @@ function mdTable(records: ThemeRecord[]): string[] {
 function renderMarkdown(root: Record<string, unknown>, themes: ThemeRecord[], designWarnings: DesignWarning[], presetSummary: AuditSummary, ipSummary: AuditSummary, designSummary: DesignSummary): string {
   const lines: string[] = []
   const scope = root.scope as { presets: number; ipThemes: number; palettes: number }
-  lines.push('# 主题审计基线（58 套）')
+  lines.push('# 主题审计基线（' + (scope.presets + scope.ipThemes) + ' 套）')
   lines.push('')
   lines.push('> 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。')
   lines.push('')
@@ -1058,11 +1058,11 @@ function renderMarkdown(root: Record<string, unknown>, themes: ThemeRecord[], de
   const groups = Object.keys(presetSummary.byGroup).concat(Object.keys(ipSummary.byGroup).filter(function (g: string): boolean { return !(g in presetSummary.byGroup) })).sort()
   for (const g of groups) lines.push('| ' + g + ' | ' + (presetSummary.byGroup[g] || 0) + ' | ' + (ipSummary.byGroup[g] || 0) + ' |')
   lines.push('')
-  lines.push('## 预置主题（37）')
+  lines.push('## 预置主题（' + scope.presets + '）')
   lines.push('')
   lines.push(...mdTable(themes.filter(function (t: ThemeRecord): boolean { return t.kind === 'preset' })))
   lines.push('')
-  lines.push('## IP 主题（21）')
+  lines.push('## IP 主题（' + scope.ipThemes + '）')
   lines.push('')
   lines.push(...mdTable(themes.filter(function (t: ThemeRecord): boolean { return t.kind === 'ip' })))
   lines.push('')

@@ -1,0 +1,30 @@
+preset                             L* range  runway   min adjacent contrast (worst pair)
+disney (light)                     84.9–96.3 11.4     1.035  background/inputBg
+doraemon (light)                   85.6–97.9 12.3     1.072  background/inputBg
+dragon-ball (light)                82.3–100.0 17.7     1.068  backgroundPanel/backgroundElement
+genshin (light)                    79.1–95.9 16.8     1.007  backgroundPanel/backgroundElement
+hello-kitty (light)                68.0–100.0 32.0     1.000  background/codeBlockBg
+kuromi (light)                     86.2–98.3 12.1     1.080  background/bubbleBg
+lego (light)                       86.4–100.0 13.6     1.075  background/backgroundPanel
+mario (light)                      94.1–98.9 4.7      1.012  background/codeBlockBg
+naruto (light)                     70.2–96.4 26.2     1.016  backgroundPanel/backgroundElement
+one-piece (light)                  81.5–96.7 15.2     1.006  background/bubbleBg
+sailor-moon (light)                88.1–97.7 9.5      1.033  background/inputBg
+zelda (light)                      90.3–99.4 9.1      1.001  backgroundPanel/backgroundElement
+>>> CANDIDATE light                84.0–100.0 16.0     1.016  background/inputBg
+>>> CURRENT pokemon (dark)         0.0–30.8  30.8     1.151  background/inputBg
+
+disney (light)                     {'background': 92.0, 'backgroundPanel': 88.7, 'backgroundElement': 84.9, 'sidebarBg': 90.4, 'bubbleBg': 95.3, 'inputBg': 93.3, 'codeBlockBg': 96.3, 'codeHeaderBg': 86.8}
+doraemon (light)                   {'background': 93.2, 'backgroundPanel': 97.1, 'backgroundElement': 89.6, 'sidebarBg': 88.0, 'bubbleBg': 97.9, 'inputBg': 95.9, 'codeBlockBg': 90.1, 'codeHeaderBg': 85.6}
+dragon-ball (light)                {'background': 95.7, 'backgroundPanel': 91.0, 'backgroundElement': 93.5, 'sidebarBg': 82.7, 'bubbleBg': 100.0, 'inputBg': 99.3, 'codeBlockBg': 89.8, 'codeHeaderBg': 82.3}
+genshin (light)                    {'background': 92.7, 'backgroundPanel': 88.7, 'backgroundElement': 88.4, 'sidebarBg': 79.1, 'bubbleBg': 91.1, 'inputBg': 95.9, 'codeBlockBg': 93.6, 'codeHeaderBg': 84.1}
+hello-kitty (light)                {'background': 100.0, 'backgroundPanel': 93.2, 'backgroundElement': 89.4, 'sidebarBg': 76.2, 'bubbleBg': 68.0, 'inputBg': 93.2, 'codeBlockBg': 100.0, 'codeHeaderBg': 79.9}
+kuromi (light)                     {'background': 94.4, 'backgroundPanel': 90.7, 'backgroundElement': 86.2, 'sidebarBg': 90.1, 'bubbleBg': 91.4, 'inputBg': 98.3, 'codeBlockBg': 97.7, 'codeHeaderBg': 91.3}
+lego (light)                       {'background': 94.1, 'backgroundPanel': 96.9, 'backgroundElement': 86.4, 'sidebarBg': 90.3, 'bubbleBg': 100.0, 'inputBg': 98.6, 'codeBlockBg': 90.9, 'codeHeaderBg': 87.7}
+mario (light)                      {'background': 97.8, 'backgroundPanel': 96.4, 'backgroundElement': 95.3, 'sidebarBg': 97.1, 'bubbleBg': 94.1, 'inputBg': 98.9, 'codeBlockBg': 98.3, 'codeHeaderBg': 95.7}
+naruto (light)                     {'background': 96.4, 'backgroundPanel': 95.1, 'backgroundElement': 94.5, 'sidebarBg': 70.2, 'bubbleBg': 84.7, 'inputBg': 73.0, 'codeBlockBg': 90.4, 'codeHeaderBg': 79.4}
+one-piece (light)                  {'background': 94.9, 'backgroundPanel': 91.4, 'backgroundElement': 83.1, 'sidebarBg': 89.4, 'bubbleBg': 95.1, 'inputBg': 96.7, 'codeBlockBg': 86.7, 'codeHeaderBg': 81.5}
+sailor-moon (light)                {'background': 95.6, 'backgroundPanel': 89.7, 'backgroundElement': 88.1, 'sidebarBg': 91.5, 'bubbleBg': 97.7, 'inputBg': 94.3, 'codeBlockBg': 92.3, 'codeHeaderBg': 90.4}
+zelda (light)                      {'background': 97.5, 'backgroundPanel': 93.8, 'backgroundElement': 93.7, 'sidebarBg': 95.5, 'bubbleBg': 98.8, 'inputBg': 99.4, 'codeBlockBg': 96.2, 'codeHeaderBg': 90.3}
+>>> CANDIDATE light                {'background': 98.4, 'backgroundPanel': 97.7, 'backgroundElement': 96.4, 'sidebarBg': 97.1, 'bubbleBg': 100.0, 'inputBg': 99.0, 'codeBlockBg': 100.0, 'codeHeaderBg': 84.0}
+>>> CURRENT pokemon (dark)         {'background': 10.5, 'backgroundPanel': 23.2, 'backgroundElement': 27.4, 'sidebarBg': 1.6, 'bubbleBg': 16.3, 'inputBg': 3.4, 'codeBlockBg': 0.0, 'codeHeaderBg': 30.8}

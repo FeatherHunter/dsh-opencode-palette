@@ -1614,7 +1614,7 @@ export function createClient(slotTarget: string) {
           try {
             const hm = hostDark ? 'dark' : 'light'
             const builtins = themeNames().map(function (n) { return props.presetPalette(n, hm) }).filter(Boolean)
-            // 双来源：内置 38 + IP 预置 21（IP 只进「选基底」，不进 themeNames，见 ip-presets.ts）。
+            // 双来源：内置 38 + IP 预置 23（IP 只进「选基底」，不进 themeNames，见 ip-presets.ts）。
             return builtins.concat(safeIpPresets())
           } catch (e) { return [] }
         }
