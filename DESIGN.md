@@ -161,7 +161,7 @@ state = { enabled: bool, theme: string, mode: 'mono'|'tui', size: 12|13|14, font
   `package/lib/index.js`（S2：用 tsc 转译输出替代早年的「源码原样复制」，另带 `channel.js`、
   `event-list.json` 两个随包文件）。宿主半是真插件：接日志落盘与更新三电话，并把电话经精确路由
   `/api/opencode-palette` 分发给浏览器半。宿主侧依赖由 `package/package.json` 的 `dependencies` 声明，
-  两个都是**精确钉版**（`dsh-log@0.3.4` + `dsh-plugin-update@0.18.33`）——上游一发新版就得改声明重发，
+  两个都是**精确钉版**（`dsh-log@0.3.4` + `dsh-plugin-update@0.18.37`）——上游一发新版就得改声明重发，
   用户才拿得到。
 - **npm 包客户端入口内联**：`dsh-log/client` 与 `dsh-plugin-update/entry`（入口件闭包）在构建期从 npm 包读入、
   转成 bundle 模块内联（转换器支持多行 `import`/`export` 与 `as` 别名）。所以面板里的电话名与轮询间隔

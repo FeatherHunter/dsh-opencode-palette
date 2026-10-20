@@ -14,12 +14,13 @@
 //            `rewriteRelativeImportExtensions` 改写成 `.js`）；bundler 自身仍保持零依赖、逐行文本转换。
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.33`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.37`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
 //     只有它的**入口件闭包**仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //     0.18.33 起上游把 src/ 拆成 core|panel|host|shared（公开面零变，运行时行为同 0.18.32），
 //     dist 里的扁平路径（dist/config.js、dist/service.js、dist/panel.js …）大多搬进子目录；
 //     闭包随之重推为 36 件（entry → panel/entry → panel → {shared|core|panel|log} 实现件），见下面 INLINE_PACKAGES。
+//     0.18.34～0.18.37 目录布局未变，只新增 dist/shared/version.js（0.18.36 #241 占位运行版归一），闭包 36 → 37 件。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
@@ -132,7 +133,8 @@ const INLINE_PACKAGES: InlinePackage[] = [
   //   dist/log/panel-client.js → dist/log/panel-client.js     （路径不变，→ client-queue + hash）
   //   dist/panel.js            → dist/panel.js（现在只是再导出壳）→ dist/panel/{theme,skip-store,view-model,render,archive-theme,failure-latch,mount,client}.js
   //   dist/entry.js            → dist/entry.js（壳）→ dist/panel/entry.js
-  // 闭包共 36 件，全部零 Node 依赖（无 node: 内建、无 require、无动态 import；只用到 globalThis.TextEncoder/AbortSignal/document），
+  // 0.18.34～0.18.37 目录布局未变，只新增 dist/shared/version.js（0.18.36 #241 占位运行版 0.0.0 归一，service → version），
+  // 闭包 36 → 37 件，全部零 Node 依赖（无 node: 内建、无 require、无动态 import；只用到 globalThis.TextEncoder/AbortSignal/document），
   // 浏览器可跑；host 侧那棵树（dist/host/**、dist/core/{disk,executor,gate,reader,store-base,install-button}/**、dist/panel/batch/**）
   // 不在闭包内 —— 那是宿主半的真依赖（runtime/host.ts import 'dsh-plugin-update'，运行时从 node_modules 解析）。
   {
@@ -152,9 +154,11 @@ const INLINE_PACKAGES: InlinePackage[] = [
       { key: 'upd-core-judgment', file: 'dist/core/judgment.js', deps: {} },
       { key: 'upd-core-conclusion', file: 'dist/core/conclusion.js', deps: {} },
       { key: 'upd-shared-hash', file: 'dist/shared/hash.js', deps: {} },
+      // 0.18.36 #241：占位运行版 0.0.0 归一为「未知」的共享叶子件（service 用它去掉恢复死锁）。
+      { key: 'upd-shared-version', file: 'dist/shared/version.js', deps: {} },
       { key: 'upd-core-failure', file: 'dist/core/failure.js', deps: { '../shared/codes.js': 'upd-shared-codes', '../shared/hash.js': 'upd-shared-hash' } },
       { key: 'upd-core-fetch', file: 'dist/core/fetch.js', deps: { './conclusion.js': 'upd-core-conclusion', './judgment.js': 'upd-core-judgment' } },
-      { key: 'upd-core-service', file: 'dist/core/service.js', deps: { './conclusion.js': 'upd-core-conclusion', './failure.js': 'upd-core-failure', './fetch.js': 'upd-core-fetch', './judgment.js': 'upd-core-judgment', '../shared/codes.js': 'upd-shared-codes', '../shared/hash.js': 'upd-shared-hash' } },
+      { key: 'upd-core-service', file: 'dist/core/service.js', deps: { './conclusion.js': 'upd-core-conclusion', './failure.js': 'upd-core-failure', './fetch.js': 'upd-core-fetch', './judgment.js': 'upd-core-judgment', '../shared/codes.js': 'upd-shared-codes', '../shared/hash.js': 'upd-shared-hash', '../shared/version.js': 'upd-shared-version' } },
       { key: 'upd-panel-skip-store', file: 'dist/panel/skip-store.js', deps: { '../core/service.js': 'upd-core-service' } },
       { key: 'upd-panel-view-model', file: 'dist/panel/view-model.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/i18n/text.js': 'upd-core-i18n-text', '../core/service.js': 'upd-core-service', '../shared/copy.js': 'upd-shared-copy', '../shared/codes.js': 'upd-shared-codes', '../shared/lang.js': 'upd-shared-lang' } },
       { key: 'upd-core-changelog-parse', file: 'dist/core/changelog/parse.js', deps: { '../service.js': 'upd-core-service', '../../shared/lang.js': 'upd-shared-lang' } },
@@ -194,7 +198,7 @@ function inlineModuleFor(key: string): InlineModuleRef | null {
 const MODULE_ORDER: string[] = [
   'upd-shared-config', 'upd-shared-codes', 'upd-shared-lang', 'upd-core-i18n-dictionary', 'upd-core-i18n-text',
   'upd-core-cause', 'upd-shared-redaction', 'upd-shared-copy', 'upd-panel-theme', 'upd-core-judgment',
-  'upd-core-conclusion', 'upd-shared-hash', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service',
+  'upd-core-conclusion', 'upd-shared-hash', 'upd-shared-version', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service',
   'upd-panel-skip-store', 'upd-panel-view-model', 'upd-core-changelog-parse', 'upd-core-changelog-render-model',
   'upd-shared-last-resort', 'upd-shared-log-events', 'upd-shared-commands', 'upd-shared-manual-absent',
   'upd-panel-archive-theme', 'upd-panel-failure-latch', 'upd-panel-render', 'upd-log-client-queue',
@@ -446,11 +450,11 @@ async function main(): Promise<void> {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
-    // 两处都用精确钉版（0.3.4 / 0.18.33）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
+    // 两处都用精确钉版（0.3.4 / 0.18.37）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.ts` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.33' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.37' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

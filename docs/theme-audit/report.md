@@ -146,7 +146,7 @@
 | `node scripts/audit-themes.ts --check` | exit 0（任何硬性/UI 违例或未记档设计告警都会 exit 1） |
 | `node scripts/audit-themes.ts --out <dir>` | 定向输出，不污染 docs 基线；确定性已用连跑两次 SHA256 相同验证 |
 | `npm run typecheck` | exit 0 |
-| `npm run build` | exit 0（typecheck → check-deps 0.18.33/0.3.4 全绿 → fonts → tsc emit → build-client） |
+| `npm run build` | exit 0（typecheck → check-deps 0.18.37/0.3.4 全绿 → fonts → tsc emit → build-client） |
 | `npm test` | **283 pass / 0 fail** |
 | `npm run verify:artifacts` | 全部通过（字体一致、两次构建逐字节一致、八件非空/LF、package/lib 恰 4 文件、派生物未被跟踪、font-face 仍跟踪、.gitattributes eol=lf） |
 | `npm run sync` | exit 0（33 套中 31 套声明漂移，需处理 0；verify 只报告不写盘） |
