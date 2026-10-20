@@ -33,3 +33,6 @@ NOTES.md
 
 # 发布/令牌通道临时件（scripts/publish-token.ps1 缺省日志 `.tmp-publish-token.log` 等，不进仓）
 .tmp-*
+
+# Python 字节码缓存（extraction 取色流水线的编译副产物；按解释器版本分文件、可再生，不入仓）
+__pycache__/
