@@ -1,4 +1,4 @@
-# 主题审计基线（58 套）
+# 主题审计基线（61 套）
 
 > 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。
 
@@ -9,7 +9,7 @@
 | 层 | 主题 | 硬性 4.5:1 违例 | UI 3:1 违例 | 有硬性违例主题 | border<3 表面累计 | tooltip 文字<4.5 评估 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 预置 | 37 | 0 | 0 | 0 | 224 | 0 |
-| IP | 24 | 0 | 0 | 0 | 187 | 0 |
+| IP | 24 | 0 | 0 | 0 | 180 | 0 |
 
 硬性分组（预置 / IP）：
 
@@ -58,12 +58,12 @@
 | vesper | preset | 0 | 0 | 8 | 1 | — |
 | zenburn | preset | 0 | 0 | 8 | 3 | — |
 
-## IP 主题（21）
+## IP 主题（24）
 
 | 主题 | kind | 硬性违例 | UI 违例 | border<3 | 表面数 | 最差硬性对 |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
 | cyberpunk-2077 | ip | 0 | 0 | 8 | 8 | — |
-| dc-comics | ip | 0 | 0 | 8 | 8 | — |
+| dc-comics | ip | 0 | 0 | 1 | 8 | — |
 | disney | ip | 0 | 0 | 8 | 8 | — |
 | doraemon | ip | 0 | 0 | 8 | 8 | — |
 | dragon-ball | ip | 0 | 0 | 4 | 8 | — |
@@ -80,7 +80,7 @@
 | naruto | ip | 0 | 0 | 8 | 8 | — |
 | naruto-night | ip | 0 | 0 | 8 | 8 | — |
 | one-piece | ip | 0 | 0 | 8 | 8 | — |
-| pokemon | ip | 0 | 0 | 8 | 5 | — |
+| pokemon | ip | 0 | 0 | 8 | 8 | — |
 | sailor-moon | ip | 0 | 0 | 8 | 8 | — |
 | star-wars | ip | 0 | 0 | 8 | 8 | — |
 | transformers | ip | 0 | 0 | 8 | 8 | — |
@@ -103,8 +103,8 @@
 | --- | --- |
 | 背景家族色相孤岛 | 0 个主题有孤岛 |
 | 明暗 straddle（仅记录） | 0 个主题 |
-| 角色碰撞 / markdown 同值 | 11 条告警：记档 11 / 待处理 0 |
-| markdown 层级同值主题 | 2 个 |
+| 角色碰撞 / markdown 同值 | 5 条告警：记档 5 / 待处理 0 |
+| markdown 层级同值主题 | 0 个 |
 | 语法核心 ΔE<10 | 0 个主题 |
 | comment/operator 未退后（待处理） | 0 条 |
 | 品牌第二色几何未归类 | 1 个主题 |
@@ -115,12 +115,6 @@
 | --- | --- | --- | --- |
 | cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff1932） |
 | cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 83.4 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
-| dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：primary = info = markdownLink（#64a2ff） |
-| dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = borderActive = syntaxFunction（#ffcf40） |
-| dc-comics | roleCollision | ✓ 记档 | 同组角色取同值：markdownHeading = markdownStrong（#ffffff） |
-| dc-comics | markdownDuplicate | ✓ 记档 | markdown 角色同值，层级被抹平：markdownHeading = markdownStrong |
-| doraemon | roleCollision | ✓ 记档 | 同组角色取同值：markdownHeading = markdownEmph = markdownStrong（#0b2e4a） |
-| doraemon | markdownDuplicate | ✓ 记档 | markdown 角色同值，层级被抹平：markdownHeading = markdownEmph = markdownStrong |
 | hello-kitty | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#c8152d） |
 | transformers | roleCollision | ✓ 记档 | 同组角色取同值：secondary = info（#38a1ff） |
 | transformers | roleCollision | ✓ 记档 | 跨组角色取同值：borderActive = markdownLink（#4db2ff） |
