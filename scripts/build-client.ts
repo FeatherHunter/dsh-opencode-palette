@@ -14,13 +14,14 @@
 //            `rewriteRelativeImportExtensions` 改写成 `.js`）；bundler 自身仍保持零依赖、逐行文本转换。
 //
 // 依赖形态（2026-09-30 起）：
-//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.37`）。
+//   dsh-plugin-update —— **运行时依赖**，随包发出、用户装包时从 npm 取（精确钉版 `0.18.38`）。
 //     0.1.x 曾把它的 dist 复制进本包（vendor）来绕开自锚定缺陷；0.2.0 起改为按包名解析，不再需要。
 //     只有它的**入口件闭包**仍在构建期被内联进浏览器 bundle —— 浏览器里没有 node_modules。
 //     0.18.33 起上游把 src/ 拆成 core|panel|host|shared（公开面零变，运行时行为同 0.18.32），
 //     dist 里的扁平路径（dist/config.js、dist/service.js、dist/panel.js …）大多搬进子目录；
 //     闭包随之重推为 36 件（entry → panel/entry → panel → {shared|core|panel|log} 实现件），见下面 INLINE_PACKAGES。
 //     0.18.34～0.18.37 目录布局未变，只新增 dist/shared/version.js（0.18.36 #241 占位运行版归一），闭包 36 → 37 件。
+//     0.18.38 无模块增删（#243 自动续跑可见化、#244「已装好待重启」行对账，均只改 panel/batch 与 host/batch），闭包仍 37 件。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
@@ -137,6 +138,7 @@ const INLINE_PACKAGES: InlinePackage[] = [
   // 闭包 36 → 37 件，全部零 Node 依赖（无 node: 内建、无 require、无动态 import；只用到 globalThis.TextEncoder/AbortSignal/document），
   // 浏览器可跑；host 侧那棵树（dist/host/**、dist/core/{disk,executor,gate,reader,store-base,install-button}/**、dist/panel/batch/**）
   // 不在闭包内 —— 那是宿主半的真依赖（runtime/host.ts import 'dsh-plugin-update'，运行时从 node_modules 解析）。
+  // 0.18.38 无模块增删（#243 自动续跑可见化、#244「已装好待重启」行对账，只改 panel/batch 与 host/batch，不进浏览器闭包），闭包仍 37 件。
   {
     spec: 'dsh-plugin-update/entry',
     pkg: 'dsh-plugin-update',
@@ -450,11 +452,11 @@ async function main(): Promise<void> {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
-    // 两处都用精确钉版（0.3.4 / 0.18.37）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
+    // 两处都用精确钉版（0.3.4 / 0.18.38）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.ts` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.37' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.38' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。

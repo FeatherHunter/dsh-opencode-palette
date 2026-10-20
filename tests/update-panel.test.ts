@@ -249,7 +249,7 @@ test('接线：包版产物声明两个运行时依赖与 node >=22.18.0', () =>
     files?: string[]
   }
   // 更新包与日志包都以依赖形态随包发出：精确钉版，上游再发新版必须改声明重发
-  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.37' })
+  assert.deepEqual(pkg.dependencies, { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.38' })
   assert.equal(pkg.engines?.node, '>=22.18.0', '更新包 0.18.x 要求 node >=22.18.0')
   assert.deepEqual(pkg.files, ['lib', 'cordis.patch.yml'])
   const bundle = read('package/lib/client.js')
@@ -263,6 +263,7 @@ test('接线：新闭包模块全进包，无嵌套双拷贝', () => {
   // 0.18.33 起上游把 src/ 拆成 core|panel|host|shared（公开面零变）：客户端内联闭包按新布局重推为 36 件，
   // 键名随新路径走（upd-shared-* / upd-core-* / upd-panel-* / upd-log-* / upd-entry）。
   // 0.18.36 起新增 shared/version（#241 占位运行版归一，service → version），闭包 36 → 37 件。
+  // 0.18.38 无模块增删（#243/#244 只改 panel/batch 与 host/batch），闭包仍 37 件。
   for (const key of ['upd-shared-codes', 'upd-shared-last-resort', 'upd-shared-manual-absent', 'upd-shared-commands', 'upd-shared-config', 'upd-shared-copy', 'upd-shared-hash', 'upd-shared-version', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service', 'upd-core-i18n-text', 'upd-core-changelog-parse', 'upd-core-changelog-render-model', 'upd-log-client-queue', 'upd-log-panel-client', 'upd-panel-render', 'upd-panel-mount', 'upd-panel-client', 'upd-panel', 'upd-panel-entry', 'upd-entry', 'log-config', 'log-client', 'log-core-level', 'log-config-resolve', 'log-client-write']) {
     assert.ok(bundle.indexOf('__mods["' + key + '"]') >= 0, '包版应内联 ' + key)
   }
