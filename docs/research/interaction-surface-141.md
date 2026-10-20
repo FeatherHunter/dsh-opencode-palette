@@ -84,6 +84,8 @@
 
 本仓浮层定位基础设施：`src/engine/float-geometry.ts:43` 的 `computeMenuGeometry`（`runtime/client.ts:10` 引入），用法见 `runtime/client.ts:1333-1362` 的字体选择器。
 
+**我们的面板确实落在那个滚动容器里（事实，链路已逐环核对）**：`runtime/client.ts:2021` `slots!.register({name:'settings.plugins.tab', …})` → 宿主 `packages/client/ui-settings-plugins/src/client/PluginsSettingsSection.tsx:58` `<div className={css.panel}>{renderSlot('settings.plugins.tab', {}, { only: single.id })}</div>`（多标签时走 `:111`）→ 宿主设置页外壳 `packages/client/ui-settings-general/src/client/SettingsRoot.module.css:228-233` `.options{…overflow-y:auto}`；slot 契约见 `packages/client/ui-settings/src/client/contract/slots.ts:66`（`'settings.plugins.tab': { kind: 'list'; scope: 'root' }`），目录条目见 `packages/extensions/cordis-client-runner/src/client/slot-catalog.ts:3145`。⇒ **列表内 popconfirm 若用 `position:absolute` 会被设置页滚动容器裁剪**，必须走 `position:fixed` + 锚点矩形（本仓字体菜单先例）或 body 级 portal（宿主菜单 portal 参考值 z-index 1100）。
+
 ### 1.5 宿主 ui-primitives 到底能不能用（事实 + 推断）
 
 - **宿主把它暴露给插件**：`packages/client/web/src/platform.ts:8-15` 的 `PLATFORM_MODULES` 含 `@deepseek-ai/dsh-client-ui-primitives`；`packages/client/modules/src/client/system.ts:325-348` 的 `makeRequire` 先查 seed 表 → 已物化模块 → 已注册 factory，都没有才抛错。
