@@ -1,0 +1,1301 @@
+{
+ "colors": {
+  "background": "#0C0C10",
+  "sidebarBg": "#121216",
+  "inputBg": "#18181C",
+  "bubbleBg": "#1C1C22",
+  "backgroundPanel": "#252529",
+  "backgroundElement": "#2D2D32",
+  "codeHeaderBg": "#333337",
+  "codeBlockBg": "#000000",
+  "text": "#EEEEF4",
+  "textMuted": "#BDBDC3",
+  "primary": "#D32B28",
+  "secondary": "#EAC38D",
+  "info": "#81B0DE",
+  "success": "#62B59C",
+  "warning": "#DB7930",
+  "error": "#F77B7E",
+  "border": "#40404A",
+  "borderActive": "#F11E22",
+  "diffAdded": "#40947D",
+  "diffAddedBg": "#171D14",
+  "diffAddedLineNumberBg": "#0D0D0F",
+  "diffRemoved": "#F56568",
+  "diffRemovedBg": "#4E1C26",
+  "diffRemovedLineNumberBg": "#331310",
+  "markdownHeading": "#F7E4AB",
+  "markdownLink": "#D4C794",
+  "markdownCode": "#C8AB7C",
+  "markdownEmph": "#F9A7A9",
+  "markdownStrong": "#FFFFFF",
+  "markdownBlockQuote": "#B4B29F",
+  "syntaxComment": "#7A7A7F",
+  "syntaxKeyword": "#F44A4D",
+  "syntaxFunction": "#E4A05A",
+  "syntaxType": "#FFCB05",
+  "syntaxNumber": "#A0A2AC",
+  "syntaxString": "#F0E5D8",
+  "syntaxOperator": "#9D7A72"
+ },
+ "provenance": {
+  "background": {
+   "value": "#0C0C10",
+   "poster": "三图",
+   "note": "主画布：幻灯片底部的深墨横条（全图 9.9%）",
+   "exact": 81125,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 81125
+  },
+  "sidebarBg": {
+   "value": "#121216",
+   "poster": "三图",
+   "note": "侧栏：深墨条与正文白相接处的抗锯齿台阶（2.6% 白）",
+   "exact": 50,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 50,
+   "blend": {
+    "a": "#0C0C10",
+    "b": "#EEEEF4",
+    "mix": 0.026,
+    "err": 0.04
+   }
+  },
+  "inputBg": {
+   "value": "#18181C",
+   "poster": "三图",
+   "note": "输入框：深墨条上的白字边缘台阶（5.3% 白）",
+   "exact": 69,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 69,
+   "blend": {
+    "a": "#0C0C10",
+    "b": "#EEEEF4",
+    "mix": 0.053,
+    "err": 0.07
+   }
+  },
+  "bubbleBg": {
+   "value": "#1C1C22",
+   "poster": "三图",
+   "note": "气泡：三张幻灯片共同的版面底色（全图 38.1%）",
+   "exact": 310800,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 310800
+  },
+  "backgroundPanel": {
+   "value": "#252529",
+   "poster": "三图",
+   "note": "卡片：深墨条上排版元素的浅一档台阶（11.0% 白）",
+   "exact": 121,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 121,
+   "blend": {
+    "a": "#0C0C10",
+    "b": "#EEEEF4",
+    "mix": 0.11,
+    "err": 0.15
+   }
+  },
+  "backgroundElement": {
+   "value": "#2D2D32",
+   "poster": "三图",
+   "note": "浮层：版面底色上文字边缘的白台阶（7.4% 白）",
+   "exact": 67,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 67,
+   "blend": {
+    "a": "#1C1C22",
+    "b": "#FFFFFF",
+    "mix": 0.074,
+    "err": 0.37
+   }
+  },
+  "codeHeaderBg": {
+   "value": "#333337",
+   "poster": "三图",
+   "note": "代码卡头：深墨条上最亮的一档排版台阶（17.2% 白）",
+   "exact": 83,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 83,
+   "blend": {
+    "a": "#0C0C10",
+    "b": "#EEEEF4",
+    "mix": 0.172,
+    "err": 0.23
+   }
+  },
+  "codeBlockBg": {
+   "value": "#000000",
+   "poster": "01-spiderman",
+   "note": "代码区：蜘蛛侠的纯墨线——漫画里最黑的一笔",
+   "exact": 20078,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman",
+   "measured_px": 20078
+  },
+  "text": {
+   "value": "#EEEEF4",
+   "poster": "三图",
+   "note": "正文：幻灯片正文的冷白（6,499 px）",
+   "exact": 6499,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 6499
+  },
+  "textMuted": {
+   "value": "#BDBDC3",
+   "poster": "三图",
+   "note": "次级文字：正文白落在版面底色上的抗锯齿边（76.7% 白）",
+   "exact": 87,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 87,
+   "blend": {
+    "a": "#1C1C22",
+    "b": "#EEEEF4",
+    "mix": 0.767,
+    "err": 0.0
+   }
+  },
+  "primary": {
+   "value": "#D32B28",
+   "poster": "02-ironman",
+   "note": "主品牌：铁人战甲红——画面里最大的一片红",
+   "exact": 2,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 21526,
+   "regionByPoster": {
+    "01-spiderman": 684,
+    "02-ironman": 21526,
+    "03-logo": 374
+   }
+  },
+  "secondary": {
+   "value": "#EAC38D",
+   "poster": "01-spiderman+02-ironman",
+   "note": "第二品牌：窗光与盔甲的熔金",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 961,
+   "regionByPoster": {
+    "01-spiderman": 961,
+    "02-ironman": 837,
+    "03-logo": 0
+   }
+  },
+  "info": {
+   "value": "#81B0DE",
+   "poster": "01-spiderman",
+   "note": "信息色：蜘蛛侠夜空里透出的钢蓝",
+   "exact": 22,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 915,
+   "regionByPoster": {
+    "01-spiderman": 915,
+    "02-ironman": 12,
+    "03-logo": 0
+   }
+  },
+  "success": {
+   "value": "#62B59C",
+   "poster": "01-spiderman",
+   "note": "成功色：全图唯一的有彩绿提亮一档",
+   "exact": 0,
+   "tier": "C",
+   "tierName": "阶梯派生",
+   "measured_as": "阶梯派生",
+   "measured_in": "01-spiderman",
+   "measured_px": 22,
+   "stepFrom": "#006752",
+   "stepToL": 68.0
+  },
+  "warning": {
+   "value": "#DB7930",
+   "poster": "02-ironman",
+   "note": "警示色：铁人背后的火焰橙",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 3780,
+   "regionByPoster": {
+    "01-spiderman": 0,
+    "02-ironman": 3780,
+    "03-logo": 0
+   }
+  },
+  "error": {
+   "value": "#F77B7E",
+   "poster": "03-logo",
+   "note": "错误色：漫威标志红被白光冲淡后的浅红",
+   "exact": 321,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "03-logo",
+   "measured_px": 321,
+   "blend": {
+    "a": "#FFFFFF",
+    "b": "#F11E22",
+    "mix": 0.585,
+    "err": 0.33
+   }
+  },
+  "border": {
+   "value": "#40404A",
+   "poster": "三图",
+   "note": "边界：三张幻灯片本身的版式发丝线",
+   "exact": 1540,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 1540
+  },
+  "borderActive": {
+   "value": "#F11E22",
+   "poster": "03-logo",
+   "note": "焦点环：漫威标志红——全图最饱和的一档红",
+   "exact": 60287,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "03-logo",
+   "measured_px": 60287
+  },
+  "diffAdded": {
+   "value": "#40947D",
+   "poster": "01-spiderman",
+   "note": "新增：全图唯一的绿提亮到 L*56",
+   "exact": 0,
+   "tier": "C",
+   "tierName": "阶梯派生",
+   "measured_as": "阶梯派生",
+   "measured_in": "01-spiderman",
+   "measured_px": 22,
+   "stepFrom": "#006752",
+   "stepToL": 56.0
+  },
+  "diffAddedBg": {
+   "value": "#171D14",
+   "poster": "02-ironman",
+   "note": "新增底：铁人装甲缝隙里的墨绿",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 7666,
+   "regionByPoster": {
+    "01-spiderman": 1309,
+    "02-ironman": 7666,
+    "03-logo": 88
+   }
+  },
+  "diffAddedLineNumberBg": {
+   "value": "#0D0D0F",
+   "poster": "01-spiderman",
+   "note": "新增行号底：面积最大的近黑墨区",
+   "exact": 2,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 187069,
+   "regionByPoster": {
+    "01-spiderman": 187069,
+    "02-ironman": 125890,
+    "03-logo": 121601
+   }
+  },
+  "diffRemoved": {
+   "value": "#F56568",
+   "poster": "03-logo",
+   "note": "删除：标志红与白字相接的浅红边",
+   "exact": 162,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "03-logo",
+   "measured_px": 162,
+   "blend": {
+    "a": "#FFFFFF",
+    "b": "#F11E22",
+    "mix": 0.684,
+    "err": 0.43
+   }
+  },
+  "diffRemovedBg": {
+   "value": "#4E1C26",
+   "poster": "02-ironman",
+   "note": "删除底：铁人战甲暗部的深酒红",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 4177,
+   "regionByPoster": {
+    "01-spiderman": 3233,
+    "02-ironman": 4177,
+    "03-logo": 0
+   }
+  },
+  "diffRemovedLineNumberBg": {
+   "value": "#331310",
+   "poster": "02-ironman",
+   "note": "删除行号底：战甲缝隙的深棕红",
+   "exact": 5,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 16275,
+   "regionByPoster": {
+    "01-spiderman": 1545,
+    "02-ironman": 16275,
+    "03-logo": 0
+   }
+  },
+  "markdownHeading": {
+   "value": "#F7E4AB",
+   "poster": "01-spiderman",
+   "note": "标题：蜘蛛侠窗光的暖金高光",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 1956,
+   "regionByPoster": {
+    "01-spiderman": 1956,
+    "02-ironman": 468,
+    "03-logo": 0
+   }
+  },
+  "markdownLink": {
+   "value": "#D4C794",
+   "poster": "01-spiderman",
+   "note": "链接：漫画里窗户透出的奶油光",
+   "exact": 1,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 2862,
+   "regionByPoster": {
+    "01-spiderman": 2862,
+    "02-ironman": 86,
+    "03-logo": 0
+   }
+  },
+  "markdownCode": {
+   "value": "#C8AB7C",
+   "poster": "01-spiderman",
+   "note": "行内码：漫画里的沙金",
+   "exact": 1,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 2824,
+   "regionByPoster": {
+    "01-spiderman": 2824,
+    "02-ironman": 133,
+    "03-logo": 0
+   }
+  },
+  "markdownEmph": {
+   "value": "#F9A7A9",
+   "poster": "03-logo",
+   "note": "强调：标志红与白字相接的浅粉边",
+   "exact": 52,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "03-logo",
+   "measured_px": 52,
+   "blend": {
+    "a": "#FFFFFF",
+    "b": "#F11E22",
+    "mix": 0.39,
+    "err": 0.54
+   }
+  },
+  "markdownStrong": {
+   "value": "#FFFFFF",
+   "poster": "03-logo",
+   "note": "强强调：漫威标志的纯白",
+   "exact": 65255,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 65255
+  },
+  "markdownBlockQuote": {
+   "value": "#B4B29F",
+   "poster": "01-spiderman",
+   "note": "引用：漫画里的水泥米灰",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "01-spiderman",
+   "measured_px": 1392,
+   "regionByPoster": {
+    "01-spiderman": 1392,
+    "02-ironman": 112,
+    "03-logo": 0
+   }
+  },
+  "syntaxComment": {
+   "value": "#7A7A7F",
+   "poster": "三图",
+   "note": "注释：深墨条上排版文字的半调灰（退后档）",
+   "exact": 153,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 153,
+   "blend": {
+    "a": "#0C0C10",
+    "b": "#EEEEF4",
+    "mix": 0.487,
+    "err": 0.02
+   }
+  },
+  "syntaxKeyword": {
+   "value": "#F44A4D",
+   "poster": "03-logo",
+   "note": "关键字：标志红被白光冲开的第一档",
+   "exact": 154,
+   "tier": "A2",
+   "tierName": "边阶直采",
+   "measured_as": "抗锯齿台阶",
+   "measured_in": "03-logo",
+   "measured_px": 154,
+   "blend": {
+    "a": "#FFFFFF",
+    "b": "#F11E22",
+    "mix": 0.805,
+    "err": 0.27
+   }
+  },
+  "syntaxFunction": {
+   "value": "#E4A05A",
+   "poster": "02-ironman",
+   "note": "函数：战甲金与火焰橙之间的暖铜",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 1742,
+   "regionByPoster": {
+    "01-spiderman": 247,
+    "02-ironman": 1742,
+    "03-logo": 0
+   }
+  },
+  "syntaxType": {
+   "value": "#FFCB05",
+   "poster": "三图",
+   "note": "类型：幻灯片页脚编号的那个黄",
+   "exact": 8917,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 8917
+  },
+  "syntaxNumber": {
+   "value": "#A0A2AC",
+   "poster": "三图",
+   "note": "数字：幻灯片的次级冷灰",
+   "exact": 509,
+   "tier": "A1",
+   "tierName": "实涂直采",
+   "measured_as": "实涂像素",
+   "measured_in": "01-spiderman+02-ironman+03-logo",
+   "measured_px": 509
+  },
+  "syntaxString": {
+   "value": "#F0E5D8",
+   "poster": "02-ironman",
+   "note": "字符串：盔甲高光洗白后的暖白",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 2529,
+   "regionByPoster": {
+    "01-spiderman": 610,
+    "02-ironman": 2529,
+    "03-logo": 1190
+   }
+  },
+  "syntaxOperator": {
+   "value": "#9D7A72",
+   "poster": "02-ironman",
+   "note": "运算符：铁人战甲的暖褐（退后档）",
+   "exact": 0,
+   "tier": "B",
+   "tierName": "簇采·区域代表色",
+   "measured_as": "区域代表色（簇心）",
+   "measured_in": "02-ironman",
+   "measured_px": 188,
+   "regionByPoster": {
+    "01-spiderman": 48,
+    "02-ironman": 188,
+    "03-logo": 0
+   }
+  }
+ },
+ "tiers": {
+  "A1": 9,
+  "A2": 11,
+  "B": 15,
+  "C": 2
+ },
+ "pairs": [
+  {
+   "code": "text@background",
+   "fg": "#EEEEF4",
+   "bg": "#0C0C10",
+   "ratio": 16.893,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@backgroundPanel",
+   "fg": "#EEEEF4",
+   "bg": "#252529",
+   "ratio": 13.213,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@backgroundElement",
+   "fg": "#EEEEF4",
+   "bg": "#2D2D32",
+   "ratio": 11.854,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@sidebarBg",
+   "fg": "#EEEEF4",
+   "bg": "#121216",
+   "ratio": 16.169,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@bubbleBg",
+   "fg": "#EEEEF4",
+   "bg": "#1C1C22",
+   "ratio": 14.671,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@inputBg",
+   "fg": "#EEEEF4",
+   "bg": "#18181C",
+   "ratio": 15.318,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@codeBlockBg",
+   "fg": "#EEEEF4",
+   "bg": "#000000",
+   "ratio": 18.172,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@codeHeaderBg",
+   "fg": "#EEEEF4",
+   "bg": "#333337",
+   "ratio": 10.885,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@background",
+   "fg": "#BDBDC3",
+   "bg": "#0C0C10",
+   "ratio": 10.44,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@backgroundPanel",
+   "fg": "#BDBDC3",
+   "bg": "#252529",
+   "ratio": 8.166,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@backgroundElement",
+   "fg": "#BDBDC3",
+   "bg": "#2D2D32",
+   "ratio": 7.326,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@background",
+   "fg": "#9A9A9F",
+   "bg": "#0C0C10",
+   "ratio": 6.969,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@backgroundPanel",
+   "fg": "#9F9FA4",
+   "bg": "#252529",
+   "ratio": 5.795,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@backgroundElement",
+   "fg": "#A0A0A6",
+   "bg": "#2D2D32",
+   "ratio": 5.267,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownHeading@background",
+   "fg": "#F7E4AB",
+   "bg": "#0C0C10",
+   "ratio": 15.47,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownHeading@backgroundPanel",
+   "fg": "#F7E4AB",
+   "bg": "#252529",
+   "ratio": 12.1,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownLink@background",
+   "fg": "#D4C794",
+   "bg": "#0C0C10",
+   "ratio": 11.524,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownLink@backgroundPanel",
+   "fg": "#D4C794",
+   "bg": "#252529",
+   "ratio": 9.014,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownStrong@background",
+   "fg": "#FFFFFF",
+   "bg": "#0C0C10",
+   "ratio": 19.522,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownStrong@backgroundPanel",
+   "fg": "#FFFFFF",
+   "bg": "#252529",
+   "ratio": 15.269,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownEmph@background",
+   "fg": "#F9A7A9",
+   "bg": "#0C0C10",
+   "ratio": 10.346,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownEmph@backgroundPanel",
+   "fg": "#F9A7A9",
+   "bg": "#252529",
+   "ratio": 8.092,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownBlockQuote@background",
+   "fg": "#B4B29F",
+   "bg": "#0C0C10",
+   "ratio": 9.119,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownBlockQuote@backgroundPanel",
+   "fg": "#B4B29F",
+   "bg": "#252529",
+   "ratio": 7.133,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownCode@background",
+   "fg": "#C8AB7C",
+   "bg": "#0C0C10",
+   "ratio": 8.899,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownCode@backgroundPanel",
+   "fg": "#C8AB7C",
+   "bg": "#252529",
+   "ratio": 6.96,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxComment@codeBlockBg",
+   "fg": "#7A7A7F",
+   "bg": "#000000",
+   "ratio": 4.918,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxKeyword@codeBlockBg",
+   "fg": "#F44A4D",
+   "bg": "#000000",
+   "ratio": 5.935,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxFunction@codeBlockBg",
+   "fg": "#E4A05A",
+   "bg": "#000000",
+   "ratio": 9.475,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxType@codeBlockBg",
+   "fg": "#FFCB05",
+   "bg": "#000000",
+   "ratio": 13.797,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxNumber@codeBlockBg",
+   "fg": "#A0A2AC",
+   "bg": "#000000",
+   "ratio": 8.259,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxString@codeBlockBg",
+   "fg": "#F0E5D8",
+   "bg": "#000000",
+   "ratio": 16.905,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxOperator@codeBlockBg",
+   "fg": "#9D7A72",
+   "bg": "#000000",
+   "ratio": 5.461,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "diffAdded@diffAddedBg",
+   "fg": "#40947D",
+   "bg": "#171D14",
+   "ratio": 4.704,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "diffRemoved@diffRemovedBg",
+   "fg": "#F56568",
+   "bg": "#4E1C26",
+   "ratio": 4.575,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@diffAddedBg",
+   "fg": "#EEEEF4",
+   "bg": "#171D14",
+   "ratio": 14.867,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@diffRemovedBg",
+   "fg": "#EEEEF4",
+   "bg": "#4E1C26",
+   "ratio": 11.97,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "contrastText(primary)@primary",
+   "fg": "#F4F4F5",
+   "bg": "#D32B28",
+   "ratio": 4.607,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "onPrimary",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@background",
+   "fg": "#F11E22",
+   "bg": "#0C0C10",
+   "ratio": 4.602,
+   "threshold": 3,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@backgroundPanel",
+   "fg": "#F11E22",
+   "bg": "#252529",
+   "ratio": 3.599,
+   "threshold": 3,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@backgroundElement",
+   "fg": "#F11E22",
+   "bg": "#2D2D32",
+   "ratio": 3.229,
+   "threshold": 3,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "primary@background",
+   "fg": "#D32B28",
+   "bg": "#0C0C10",
+   "ratio": 3.855,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "primary@backgroundPanel",
+   "fg": "#D32B28",
+   "bg": "#252529",
+   "ratio": 3.015,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "secondary@background",
+   "fg": "#EAC38D",
+   "bg": "#0C0C10",
+   "ratio": 11.797,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "secondary@backgroundPanel",
+   "fg": "#EAC38D",
+   "bg": "#252529",
+   "ratio": 9.227,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "info@background",
+   "fg": "#81B0DE",
+   "bg": "#0C0C10",
+   "ratio": 8.551,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "info@backgroundPanel",
+   "fg": "#81B0DE",
+   "bg": "#252529",
+   "ratio": 6.688,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "success@background",
+   "fg": "#62B59C",
+   "bg": "#0C0C10",
+   "ratio": 8.003,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "success@backgroundPanel",
+   "fg": "#62B59C",
+   "bg": "#252529",
+   "ratio": 6.259,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "warning@background",
+   "fg": "#DB7930",
+   "bg": "#0C0C10",
+   "ratio": 6.313,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "warning@backgroundPanel",
+   "fg": "#DB7930",
+   "bg": "#252529",
+   "ratio": 4.937,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "error@background",
+   "fg": "#F77B7E",
+   "bg": "#0C0C10",
+   "ratio": 7.521,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "error@backgroundPanel",
+   "fg": "#F77B7E",
+   "bg": "#252529",
+   "ratio": 5.883,
+   "threshold": 3,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  }
+ ],
+ "warnings": [],
+ "brandGeometry": {
+  "deg": 33.8,
+  "type": "类比"
+ },
+ "syntax": {
+  "core": [
+   "syntaxKeyword",
+   "syntaxFunction",
+   "syntaxType",
+   "syntaxNumber",
+   "syntaxString"
+  ],
+  "corePairs": [
+   {
+    "roles": [
+     "syntaxKeyword",
+     "syntaxFunction"
+    ],
+    "deltaE": 49.5
+   },
+   {
+    "roles": [
+     "syntaxKeyword",
+     "syntaxType"
+    ],
+    "deltaE": 81.8
+   },
+   {
+    "roles": [
+     "syntaxKeyword",
+     "syntaxNumber"
+    ],
+    "deltaE": 76.5
+   },
+   {
+    "roles": [
+     "syntaxKeyword",
+     "syntaxString"
+    ],
+    "deltaE": 77.4
+   },
+   {
+    "roles": [
+     "syntaxFunction",
+     "syntaxType"
+    ],
+    "deltaE": 43.0
+   },
+   {
+    "roles": [
+     "syntaxFunction",
+     "syntaxNumber"
+    ],
+    "deltaE": 54.3
+   },
+   {
+    "roles": [
+     "syntaxFunction",
+     "syntaxString"
+    ],
+    "deltaE": 46.5
+   },
+   {
+    "roles": [
+     "syntaxType",
+     "syntaxNumber"
+    ],
+    "deltaE": 91.7
+   },
+   {
+    "roles": [
+     "syntaxType",
+     "syntaxString"
+    ],
+    "deltaE": 77.3
+   },
+   {
+    "roles": [
+     "syntaxNumber",
+     "syntaxString"
+    ],
+    "deltaE": 28.0
+   }
+  ],
+  "coreMin": {
+   "roles": [
+    "syntaxNumber",
+    "syntaxString"
+   ],
+   "deltaE": 28.0
+  },
+  "recede": {
+   "syntaxComment": {
+    "contrast": 4.918,
+    "outranks": 0
+   },
+   "syntaxOperator": {
+    "contrast": 5.461,
+    "outranks": 0
+   }
+  },
+  "coreContrast": {
+   "syntaxKeyword": 5.935,
+   "syntaxFunction": 9.475,
+   "syntaxType": 13.797,
+   "syntaxNumber": 8.259,
+   "syntaxString": 16.905
+  }
+ },
+ "surfaces": {
+  "background": {
+   "hex": "#0C0C10",
+   "L": 3.4
+  },
+  "backgroundPanel": {
+   "hex": "#252529",
+   "L": 14.8
+  },
+  "backgroundElement": {
+   "hex": "#2D2D32",
+   "L": 18.6
+  },
+  "sidebarBg": {
+   "hex": "#121216",
+   "L": 5.6
+  },
+  "bubbleBg": {
+   "hex": "#1C1C22",
+   "L": 10.5
+  },
+  "inputBg": {
+   "hex": "#18181C",
+   "L": 8.4
+  },
+  "codeBlockBg": {
+   "hex": "#000000",
+   "L": 0.0
+  },
+  "codeHeaderBg": {
+   "hex": "#333337",
+   "L": 21.4
+  }
+ },
+ "ladder": {
+  "order": [
+   "codeBlockBg",
+   "background",
+   "sidebarBg",
+   "inputBg",
+   "bubbleBg",
+   "backgroundPanel",
+   "backgroundElement",
+   "codeHeaderBg"
+  ],
+  "steps": [
+   3.42,
+   2.17,
+   2.81,
+   2.1,
+   4.32,
+   3.82,
+   2.74
+  ],
+  "min": 2.1,
+  "max": 4.32,
+  "span": 21.38
+ }
+}

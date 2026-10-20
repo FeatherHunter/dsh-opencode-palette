@@ -1,0 +1,148 @@
+漫威主题 · 逐像素取色判据报告
+==============================================================================
+源图：01-spiderman（蜘蛛侠漫画主视觉） / 02-ironman（钢铁侠主视觉） / 03-logo（漫威红色标志）
+
+【一】37 色位溯源（四级判尺：A1 实涂 / A2 边阶 / B 簇采 / C 阶梯）
+------------------------------------------------------------------------------
+A1 实涂直采 = 该 hex 在图中逐像素出现 >=500 次（被设计者真正平涂过的色）
+A2 边阶直采 = 出现 50..499 次，且能被证明是两个平涂色的渲染器抗锯齿混合
+B  簇采     = 中位切分簇心，图里无此字面值，代表一片 ΔE76<=10 的实际区域
+C  阶梯派生 = 以源色 a*/b* 为基准，只把 L* 走到目标明度
+
+色位                         终值        级    判据                     来源                 像素/体量
+background                 #0C0C10   A1   实涂像素                   01-spiderman+02-ironman+03-logo     81125
+sidebarBg                  #121216   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo        50
+inputBg                    #18181C   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo        69
+bubbleBg                   #1C1C22   A1   实涂像素                   01-spiderman+02-ironman+03-logo    310800
+backgroundPanel            #252529   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo       121
+backgroundElement          #2D2D32   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo        67
+codeHeaderBg               #333337   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo        83
+codeBlockBg                #000000   A1   实涂像素                   01-spiderman+02-ironman     20078
+text                       #EEEEF4   A1   实涂像素                   01-spiderman+02-ironman+03-logo      6499
+textMuted                  #BDBDC3   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo        87
+primary                    #D32B28   B    区域代表色（簇心）              02-ironman         21526
+secondary                  #EAC38D   B    区域代表色（簇心）              01-spiderman         961
+info                       #81B0DE   B    区域代表色（簇心）              01-spiderman         915
+success                    #62B59C   C    阶梯派生                   01-spiderman          22
+warning                    #DB7930   B    区域代表色（簇心）              02-ironman          3780
+error                      #F77B7E   A2   抗锯齿台阶                  03-logo              321
+border                     #40404A   A1   实涂像素                   01-spiderman+02-ironman+03-logo      1540
+borderActive               #F11E22   A1   实涂像素                   03-logo            60287
+diffAdded                  #40947D   C    阶梯派生                   01-spiderman          22
+diffAddedBg                #171D14   B    区域代表色（簇心）              02-ironman          7666
+diffAddedLineNumberBg      #0D0D0F   B    区域代表色（簇心）              01-spiderman      187069
+diffRemoved                #F56568   A2   抗锯齿台阶                  03-logo              162
+diffRemovedBg              #4E1C26   B    区域代表色（簇心）              02-ironman          4177
+diffRemovedLineNumberBg    #331310   B    区域代表色（簇心）              02-ironman         16275
+markdownHeading            #F7E4AB   B    区域代表色（簇心）              01-spiderman        1956
+markdownLink               #D4C794   B    区域代表色（簇心）              01-spiderman        2862
+markdownCode               #C8AB7C   B    区域代表色（簇心）              01-spiderman        2824
+markdownEmph               #F9A7A9   A2   抗锯齿台阶                  03-logo               52
+markdownStrong             #FFFFFF   A1   实涂像素                   01-spiderman+02-ironman+03-logo     65255
+markdownBlockQuote         #B4B29F   B    区域代表色（簇心）              01-spiderman        1392
+syntaxComment              #7A7A7F   A2   抗锯齿台阶                  01-spiderman+02-ironman+03-logo       153
+syntaxKeyword              #F44A4D   A2   抗锯齿台阶                  03-logo              154
+syntaxFunction             #E4A05A   B    区域代表色（簇心）              02-ironman          1742
+syntaxType                 #FFCB05   A1   实涂像素                   01-spiderman+02-ironman+03-logo      8917
+syntaxNumber               #A0A2AC   A1   实涂像素                   01-spiderman+02-ironman+03-logo       509
+syntaxString               #F0E5D8   B    区域代表色（簇心）              02-ironman          2529
+syntaxOperator             #9D7A72   B    区域代表色（簇心）              02-ironman           188
+
+  分级统计：A1 实涂直采 9 条 · A2 边阶直采 11 条 · B 簇采·区域代表色 15 条 · C 阶梯派生 2 条
+    sidebarBg                #121216 = #0C0C10 + #EEEEF4 @   2.6%  （误差 0.04/255）
+    inputBg                  #18181C = #0C0C10 + #EEEEF4 @   5.3%  （误差 0.07/255）
+    backgroundPanel          #252529 = #0C0C10 + #EEEEF4 @  11.0%  （误差 0.15/255）
+    backgroundElement        #2D2D32 = #1C1C22 + #FFFFFF @   7.4%  （误差 0.37/255）
+    codeHeaderBg             #333337 = #0C0C10 + #EEEEF4 @  17.2%  （误差 0.23/255）
+    textMuted                #BDBDC3 = #1C1C22 + #EEEEF4 @  76.7%  （误差 0.00/255）
+    success                  #62B59C = #006752 提亮到 L*68
+    error                    #F77B7E = #FFFFFF + #F11E22 @  58.5%  （误差 0.33/255）
+    diffAdded                #40947D = #006752 提亮到 L*56
+    diffRemoved              #F56568 = #FFFFFF + #F11E22 @  68.4%  （误差 0.43/255）
+    markdownEmph             #F9A7A9 = #FFFFFF + #F11E22 @  39.0%  （误差 0.54/255）
+    syntaxComment            #7A7A7F = #0C0C10 + #EEEEF4 @  48.7%  （误差 0.02/255）
+    syntaxKeyword            #F44A4D = #FFFFFF + #F11E22 @  80.5%  （误差 0.27/255）
+
+【二】38 条硬性 4.5:1 对
+------------------------------------------------------------------------------
+  text@background                        #EEEEF4   @ #0C0C10    16.89 / 4.5  PASS
+  text@backgroundPanel                   #EEEEF4   @ #252529    13.21 / 4.5  PASS
+  text@backgroundElement                 #EEEEF4   @ #2D2D32    11.85 / 4.5  PASS
+  text@sidebarBg                         #EEEEF4   @ #121216    16.17 / 4.5  PASS
+  text@bubbleBg                          #EEEEF4   @ #1C1C22    14.67 / 4.5  PASS
+  text@inputBg                           #EEEEF4   @ #18181C    15.32 / 4.5  PASS
+  text@codeBlockBg                       #EEEEF4   @ #000000    18.17 / 4.5  PASS
+  text@codeHeaderBg                      #EEEEF4   @ #333337    10.88 / 4.5  PASS
+  textMuted@background                   #BDBDC3   @ #0C0C10    10.44 / 4.5  PASS
+  textMuted@backgroundPanel              #BDBDC3   @ #252529     8.17 / 4.5  PASS
+  textMuted@backgroundElement            #BDBDC3   @ #2D2D32     7.33 / 4.5  PASS
+  labelDimmed@background                 #9A9A9F   @ #0C0C10     6.97 / 4.5  PASS
+  labelDimmed@backgroundPanel            #9F9FA4   @ #252529     5.79 / 4.5  PASS
+  labelDimmed@backgroundElement          #A0A0A6   @ #2D2D32     5.27 / 4.5  PASS
+  markdownHeading@background             #F7E4AB   @ #0C0C10    15.47 / 4.5  PASS
+  markdownHeading@backgroundPanel        #F7E4AB   @ #252529    12.10 / 4.5  PASS
+  markdownLink@background                #D4C794   @ #0C0C10    11.52 / 4.5  PASS
+  markdownLink@backgroundPanel           #D4C794   @ #252529     9.01 / 4.5  PASS
+  markdownStrong@background              #FFFFFF   @ #0C0C10    19.52 / 4.5  PASS
+  markdownStrong@backgroundPanel         #FFFFFF   @ #252529    15.27 / 4.5  PASS
+  markdownEmph@background                #F9A7A9   @ #0C0C10    10.35 / 4.5  PASS
+  markdownEmph@backgroundPanel           #F9A7A9   @ #252529     8.09 / 4.5  PASS
+  markdownBlockQuote@background          #B4B29F   @ #0C0C10     9.12 / 4.5  PASS
+  markdownBlockQuote@backgroundPanel     #B4B29F   @ #252529     7.13 / 4.5  PASS
+  markdownCode@background                #C8AB7C   @ #0C0C10     8.90 / 4.5  PASS
+  markdownCode@backgroundPanel           #C8AB7C   @ #252529     6.96 / 4.5  PASS
+  syntaxComment@codeBlockBg              #7A7A7F   @ #000000     4.92 / 4.5  PASS
+  syntaxKeyword@codeBlockBg              #F44A4D   @ #000000     5.93 / 4.5  PASS
+  syntaxFunction@codeBlockBg             #E4A05A   @ #000000     9.47 / 4.5  PASS
+  syntaxType@codeBlockBg                 #FFCB05   @ #000000    13.80 / 4.5  PASS
+  syntaxNumber@codeBlockBg               #A0A2AC   @ #000000     8.26 / 4.5  PASS
+  syntaxString@codeBlockBg               #F0E5D8   @ #000000    16.91 / 4.5  PASS
+  syntaxOperator@codeBlockBg             #9D7A72   @ #000000     5.46 / 4.5  PASS
+  diffAdded@diffAddedBg                  #40947D   @ #171D14     4.70 / 4.5  PASS
+  diffRemoved@diffRemovedBg              #F56568   @ #4E1C26     4.58 / 4.5  PASS
+  text@diffAddedBg                       #EEEEF4   @ #171D14    14.87 / 4.5  PASS
+  text@diffRemovedBg                     #EEEEF4   @ #4E1C26    11.97 / 4.5  PASS
+  contrastText(primary)@primary          #F4F4F5   @ #D32B28     4.61 / 4.5  PASS
+
+【三】15 条 UI 3:1 对
+------------------------------------------------------------------------------
+  borderActive@background                #F11E22   @ #0C0C10     4.60 / 3.0  PASS
+  borderActive@backgroundPanel           #F11E22   @ #252529     3.60 / 3.0  PASS
+  borderActive@backgroundElement         #F11E22   @ #2D2D32     3.23 / 3.0  PASS
+  primary@background                     #D32B28   @ #0C0C10     3.85 / 3.0  PASS
+  primary@backgroundPanel                #D32B28   @ #252529     3.02 / 3.0  PASS
+  secondary@background                   #EAC38D   @ #0C0C10    11.80 / 3.0  PASS
+  secondary@backgroundPanel              #EAC38D   @ #252529     9.23 / 3.0  PASS
+  info@background                        #81B0DE   @ #0C0C10     8.55 / 3.0  PASS
+  info@backgroundPanel                   #81B0DE   @ #252529     6.69 / 3.0  PASS
+  success@background                     #62B59C   @ #0C0C10     8.00 / 3.0  PASS
+  success@backgroundPanel                #62B59C   @ #252529     6.26 / 3.0  PASS
+  warning@background                     #DB7930   @ #0C0C10     6.31 / 3.0  PASS
+  warning@backgroundPanel                #DB7930   @ #252529     4.94 / 3.0  PASS
+  error@background                       #F77B7E   @ #0C0C10     7.52 / 3.0  PASS
+  error@backgroundPanel                  #F77B7E   @ #252529     5.88 / 3.0  PASS
+
+【四】IP 设计规范
+------------------------------------------------------------------------------
+  语法核心五角色最小 ΔE76 = 28.0（syntaxNumber ↔ syntaxString，门槛 10）
+  comment/operator 退后：comment 4.918、operator 5.461，核心最低 5.935 → outranks 0 / 0
+  背景色相孤岛：0 个（无）
+  岗位串戏（同值不同岗）：0 处（无）
+  品牌几何：primary #D32B28 ↔ secondary #EAC38D = 33.8° → 类比
+
+【五】表面阶梯（8 级，只靠明度分层）
+------------------------------------------------------------------------------
+  codeBlockBg        #000000  L*  0.00  
+  background         #0C0C10  L*  3.42  台阶 3.42
+  sidebarBg          #121216  L*  5.59  台阶 2.17
+  inputBg            #18181C  L*  8.41  台阶 2.81
+  bubbleBg           #1C1C22  L* 10.50  台阶 2.10
+  backgroundPanel    #252529  L* 14.83  台阶 4.32
+  backgroundElement  #2D2D32  L* 18.65  台阶 3.82
+  codeHeaderBg       #333337  L* 21.38  台阶 2.74
+  台阶 min 2.10 / max 4.32 / 跨度 21.38
+
+【六】结论
+------------------------------------------------------------------------------
+  硬性 4.5:1 违例 0 条 · UI 3:1 违例 0 条 · 设计告警 0 条
+  状态：全绿
