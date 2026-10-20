@@ -12,6 +12,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { inflateSync } from 'node:zlib'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const ZH = readFileSync(join(ROOT, 'README.md'), 'utf8')
@@ -75,6 +76,11 @@ test('assets/ 与 README 引用一一对应：没有引用到已删的图，也�
   const generated = ['theme-stories-en.svg', 'theme-stories-zh.svg']
   assert.deepEqual(svgs.sort(), generated.slice().sort(), 'assets/ 里的 SVG 应只剩重做后的 theme-stories 两张')
   for (const g of generated) assert.ok(refs.has(g), `生成的图没有被 README 引用：${g}`)
+  // 2026-10-21：assets/ 里的每一张 PNG 都必须被 README 引到（新增十张真机截图全部进了 showcase 网格）。
+  // 以前只断言了 SVG 那一半，多出来的 PNG 会静静躺在仓库里没人看见 —— 这里补齐另一半。
+  const pngs = onDisk.filter((f) => f.endsWith('.png')).sort()
+  const unused = pngs.filter((p) => !refs.has(p))
+  assert.deepEqual(unused, [], 'assets/ 里的 PNG 没有被任何 README 引用（白生成的图）：')
 })
 
 // ── 4 · 正文结构定稿：#30 的四个小标题与「新旧标题退役」 ──
@@ -207,7 +213,7 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   assert.deepEqual(zh, en, '中英主体结构应逐块同形，一侧多一句就红')
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
   assert.equal(zh.filter((x) => x === 'IMG').length, 0, 'showcase 截图必须走 markdown 语法：市场详情页的渲染器把原始 HTML 整段丢弃，<img> 在那边一张都不显示')
-  assert.equal(zh.filter((x) => x === 'FIG').length, 4, 'showcase 应恰好三张真机截图 + THEMES 一张色带图')
+  assert.equal(zh.filter((x) => x === 'FIG').length, 1, '只剩 THEMES 那一行色带图：2026-10-21 起 showcase 截图走两栏 markdown 表格，图片行以 `|` 开头不再是 FIG，网格本身由下面的 showcase 网格门禁盯着')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
   assert.equal(zh.filter((x) => x === 'BULLET').length, 0, 'EXTENSIONS 与 UPGRADE 都已不用 bullet（2026-09-18 起主体内应无 `- ` 列表项）')
   assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
@@ -225,34 +231,201 @@ test('EXTENSIONS 与 THEMES：两段都居左（不再包 align="center" 的 div
   }
 })
 
-// 2026-09-18 修正：第 3 张原引 `overview-tokyonight-zh.png` —— 该文件从未存在过（裂图），
-// 且原 caption 自称「浅色主题」而现有两张同位置截图实测主色都是深色（#081010 / #181820）。
-// 现在改引真实存在的中文 GitHub 图，caption 去掉不成立的「浅色」claim。
-test('showcase：中英各三张且都真实存在，第 3 张不再自称浅色概览', () => {
-  const zhImgs = [...ZH.matchAll(/!\[[^\]]*\]\((showcase\/[^)]+)\)/g)].map((m) => m[1])
-  const enImgs = [...EN.matchAll(/!\[[^\]]*\]\(\.\.\/(showcase\/[^)]+)\)/g)].map((m) => m[1])
-  assert.equal(zhImgs.length, 3, '中文页 showcase 应三张')
-  assert.equal(enImgs.length, 3, '英文页 showcase 应三张')
-  // 第 1 张主界面：中英分别为对应版本的截图
-  assert.ok(zhImgs[0].includes('overview-opencode-zh') && enImgs[0].includes('主页面-en'),
-    '第 1 张应各是主界面截图')
-  // 第 3 张：各自语言侧的截图，且必须真在 showcase/ 里（防复现裂图）
-  assert.equal(zhImgs[2], 'showcase/overview-github-light-zh.png', '中文第 3 张应为存在的那张中文图')
-  assert.equal(enImgs[2], 'showcase/overview-tokyonight-en.png', '英文第 3 张应为存在的那张英文图')
-  assert.equal(ZH.includes('浅色主题同样完整覆盖'), false, '中文页不应再自称浅色概览（现有截图是深色）')
-  assert.equal(EN.includes('full light coverage included'), false, '英文页不应再自称 full light coverage')
-  // 2026-10-19：第 3 张的 caption 改回中性表述（「另一款主题的观感。」/ "How another theme feels."）。
-  // 实测两张第 3 图的平均亮度 18.6 / 32.7、暗像素 98% / 96%（.scratch/check-shots.py），
-  // 所以 showcase 段里任何「浅色 / light theme」的说法都不成立 —— 这条守住它不许回来。
+// ── 6b · showcase 网格（2026-10-21 定稿）：两栏平分，一行两张 ──
+// 布局定案的来由：GitHub 经典做法是 HTML <table>+width="50%"，但市场详情页的渲染器
+// 整段丢弃原始 HTML（那边一张图都不显示）。纯 markdown 的两栏表格两边都活着，
+// 且实测两边都是精确 50/50（GitHub 430/860，市场 496/992），图各自缩进自己那一半。
+interface GridCell { label: string; image: string; file: string }
+
+function showcaseGrid(docPath: string, doc: string): GridCell[][] {
+  const block = doc.slice(doc.indexOf('<!-- showcase:start -->'), doc.indexOf('<!-- showcase:end -->'))
+  const dir = dirname(join(ROOT, docPath))
+  const tables: GridCell[][] = []
+  let header: string[] | null = null
+  for (const raw of block.split(/\r?\n/)) {
+    const line = raw.trim()
+    if (!line.startsWith('|')) { header = null; continue }
+    const cells = line.replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim())
+    if (cells.every((c) => /^:?-{2,}:?$/.test(c))) continue // 分隔行
+    const imgs = cells.map((c) => {
+      const m = /!\[[^\]]*\]\(([^)\s]+)\)/.exec(c)
+      return m ? m[1] : null
+    })
+    if (imgs.every((i) => i === null)) { header = cells; continue } // 表头（标签行）
+    tables.push(cells.map((label, i) => {
+      const image = imgs[i] as string
+      return { label: header ? (header[i] ?? '') : '', image, file: resolve(dir, image) }
+    }))
+  }
+  return tables
+}
+
+const ZH_GRID_EXPECTED = [
+  'assets/opencode.png', 'assets/设置页面.png', 'assets/自定义编辑器.png', 'assets/原神.png', 'assets/库洛米.png',
+  'assets/哆啦A梦.png', 'assets/哈利波特.png', 'assets/赛博朋克2077.png', 'assets/德古拉.png', 'assets/龙珠.png',
+]
+const EN_GRID_EXPECTED = [
+  '../showcase/opencode调色板opencode风格主页面-en.png', '../showcase/settings-opencode-en.png',
+  '../assets/自定义编辑器.png', '../assets/原神.png', '../assets/库洛米.png', '../assets/哆啦A梦.png',
+  '../assets/哈利波特.png', '../assets/赛博朋克2077.png', '../assets/德古拉.png', '../assets/龙珠.png',
+]
+
+test('showcase 网格：中英各五张表、一行两张，图片全部落到真实文件', () => {
+  for (const [docPath, doc, expected] of [
+    ['README.md', ZH, ZH_GRID_EXPECTED],
+    ['docs/README.en.md', EN, EN_GRID_EXPECTED],
+  ] as const) {
+    const tables = showcaseGrid(docPath, doc)
+    assert.equal(tables.length, 5, `${docPath} 的 showcase 应恰好五张两栏表`)
+    const imgs = tables.flat()
+    assert.equal(imgs.length, 10, `${docPath} 的 showcase 应恰好十张图`)
+    for (const row of tables) {
+      assert.equal(row.length, 2, `${docPath} 每行应恰好两张图（左右平分）`)
+      for (const cell of row) {
+        assert.ok(cell.image, `${docPath} 网格里有一格没有图片`)
+        assert.ok(existsSync(cell.file), `${docPath} 网格里的图不存在：${cell.image}`)
+        assert.ok(cell.label.trim(), `${docPath} 网格里有一格没有标签（表头必须给每列起名）`)
+      }
+    }
+    assert.deepEqual(imgs.map((c) => c.image), expected, `${docPath} 网格的图片清单与定稿不一致`)
+  }
+})
+
+// 浅色 / 深色标注必须与图的实测亮度相符 —— 这条门禁替掉了旧版「showcase 段不许出现浅色」的
+// 一刀切禁令（那时三张图实测全是深色，一刀切成立）。现在图里有真有浅色，禁令就变成了说谎；
+// 所以改成真解码 PNG 量一遍平均亮度：标浅色的必须真的亮，标深色的必须真的暗。
+// 判尺：亮度 0–255（Rec.709 加权），实测浅色四张 220.8 / 225.2 / 230.4 / 234.5，
+// 深色三张 19.6 / 25.2 / 33.6 / 46.7，中间空档很大，阈值取 120 两边都不挨边。
+const LUMA_THRESHOLD = 120
+const lumaCache = new Map<string, number>()
+
+function meanLuma(file: string): number {
+  const cached = lumaCache.get(file)
+  if (cached !== undefined) return cached
+  const value = pngMeanLuma(file)
+  lumaCache.set(file, value)
+  return value
+}
+
+test('showcase：浅色 / 深色标注与图的实测亮度相符（真解码 PNG 量，不靠人眼）', () => {
+  const zh = showcaseGrid('README.md', ZH).flat()
+  const en = showcaseGrid('docs/README.en.md', EN).flat()
+  let labeled = 0
+  for (const [side, cells] of [['中文页', zh], ['英文页', en]] as const) {
+    for (const cell of cells) {
+      const light = /浅色|\(light\)|\blight\b/i.test(cell.label)
+      const dark = /深色|\(dark\)|\bdark\b/i.test(cell.label)
+      if (!light && !dark) continue
+      assert.ok(!(light && dark), `${side} 同一格里既说浅色又说深色：${cell.label}`)
+      labeled++
+      const luma = meanLuma(cell.file)
+      if (light) assert.ok(luma > LUMA_THRESHOLD, `${side} 标了浅色但图实测偏暗（luma=${luma.toFixed(1)}）：${cell.image}`)
+      else assert.ok(luma < LUMA_THRESHOLD, `${side} 标了深色但图实测偏亮（luma=${luma.toFixed(1)}）：${cell.image}`)
+    }
+  }
+  assert.equal(labeled, 14, '七款 IP 预置 × 中英两页 = 十四条明暗标注')
+  // 七款 IP 预置每款都要标明明暗，否则读者分不出哪张是浅色底
+  for (const [side, cells] of [['中文页', zh], ['英文页', en]] as const) {
+    const ip = cells.filter((c) => /IP (预置|preset)/.test(c.label))
+    assert.equal(ip.length, 7, `${side} 应恰好七款 IP 预置各占一格`)
+    for (const cell of ip) {
+      assert.ok(/浅色|深色|\(light\)|\(dark\)/i.test(cell.label), `${side} 的 IP 预置没标明明暗：${cell.label}`)
+    }
+  }
+})
+
+test('showcase 段不再有过期口径（34 themes / full light coverage / 浅色主题同样完整覆盖）', () => {
   const zhShow = ZH.slice(ZH.indexOf('<!-- showcase:start -->'), ZH.indexOf('<!-- showcase:end -->'))
   const enShow = EN.slice(EN.indexOf('<!-- showcase:start -->'), EN.indexOf('<!-- showcase:end -->'))
-  assert.equal(/浅色/.test(zhShow), false, '中文页 showcase 段不应出现「浅色」说法（截图实测是深色）')
-  assert.equal(/light theme/i.test(enShow), false, '英文页 showcase 段不应出现 "light theme" 说法（截图实测是深色）')
   assert.equal(/34 themes/.test(EN), false, '英文页不应再出现过期的 34 themes')
   assert.equal(/38 款同款|38 themes\)/.test(ZH), false, '中文页不应再有冗余的「38 款同款」')
+  assert.equal(zhShow.includes('浅色主题同样完整覆盖'), false, '中文页不应再自称浅色主题完整覆盖')
+  assert.equal(enShow.includes('full light coverage'), false, '英文页不应再自称 full light coverage')
+  // 2026-10-21：新图里有真的浅色截图，所以「浅色」这个说法本身不再是禁令 ——
+  // 它的真假由上面那条实测亮度门禁逐格判。
+  assert.equal(/浅色/.test(zhShow) && !/IP 预置/.test(zhShow), false, '中文页的浅色说法只应出现在 IP 预置的明暗标注上')
 })
 
 // ── 工具 ──
 function count(t: string, needle: string): number {
   return t.split(needle).length - 1
+}
+
+/**
+ * 极简 PNG 解码 + 平均亮度：只为量一件事 —— 这张图到底亮还是暗。
+ *
+ * 只支持 8bit RGBA、非隔行：assets/ 里十张新截图实测全是这个形态
+ * （depth=8 / ctype=6 / interlace=0），别的形态直接报错，不猜。
+ * 解完全图后按网格抽样，算 Rec.709 加权亮度（0–255）。
+ */
+function pngMeanLuma(file: string): number {
+  const buf = readFileSync(file)
+  assert.equal(buf.subarray(0, 8).toString('hex'), '89504e470d0a1a0a', `不是 PNG：${file}`)
+  let off = 8
+  let width = 0
+  let height = 0
+  let bitDepth = 0
+  let colorType = 0
+  let interlace = 0
+  const idat: Buffer[] = []
+  while (off + 8 <= buf.length) {
+    const len = buf.readUInt32BE(off)
+    const type = buf.toString('ascii', off + 4, off + 8)
+    const data = buf.subarray(off + 8, off + 8 + len)
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0)
+      height = data.readUInt32BE(4)
+      bitDepth = data[8]
+      colorType = data[9]
+      interlace = data[12]
+    } else if (type === 'IDAT') idat.push(data)
+    else if (type === 'IEND') break
+    off += 12 + len
+  }
+  assert.equal(bitDepth, 8, `只支持 8bit 位深：${file}`)
+  assert.equal(colorType, 6, `只支持 RGBA（ctype=6）：${file}`)
+  assert.equal(interlace, 0, `不支持隔行 PNG：${file}`)
+  const raw = inflateSync(Buffer.concat(idat))
+  const bpp = 4
+  const stride = width * bpp
+  const out = Buffer.alloc(height * stride)
+  let pos = 0
+  for (let y = 0; y < height; y++) {
+    const filter = raw[pos++]
+    const line = raw.subarray(pos, pos + stride)
+    pos += stride
+    const cur = out.subarray(y * stride, (y + 1) * stride)
+    const prev = y > 0 ? out.subarray((y - 1) * stride, y * stride) : null
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? cur[x - bpp] : 0
+      const b = prev ? prev[x] : 0
+      const c = prev && x >= bpp ? prev[x - bpp] : 0
+      let v = line[x]
+      if (filter === 1) v += a
+      else if (filter === 2) v += b
+      else if (filter === 3) v += (a + b) >> 1
+      else if (filter === 4) {
+        const p = a + b - c
+        const pa = Math.abs(p - a)
+        const pb = Math.abs(p - b)
+        const pc = Math.abs(p - c)
+        v += pa <= pb && pa <= pc ? a : pb <= pc ? b : c
+      } else if (filter !== 0) {
+        throw new Error(`未知的 PNG filter：${filter}`)
+      }
+      cur[x] = v & 255
+    }
+  }
+  const stepX = Math.max(1, Math.floor(width / 200))
+  const stepY = Math.max(1, Math.floor(height / 120))
+  let sum = 0
+  let n = 0
+  for (let y = 0; y < height; y += stepY) {
+    for (let x = 0; x < width; x += stepX) {
+      const i = y * stride + x * bpp
+      sum += 0.2126 * out[i] + 0.7152 * out[i + 1] + 0.0722 * out[i + 2]
+      n++
+    }
+  }
+  return sum / n
 }

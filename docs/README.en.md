@@ -27,17 +27,25 @@ Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler pale
 
 Of the 38 themes, 37 are OpenCode's classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.
 
-**👇 After install and restart, the main screen looks like this (opencode theme).**
+| Main screen (opencode theme) | Settings panel (38 themes by color family) |
+|---|---|
+| ![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png) | ![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png) |
 
-![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png)
+| Custom editor (37 slots) | IP preset: 原神 Genshin (light) |
+|---|---|
+| ![OpenCode Palette — custom editor (37 slots)](../assets/自定义编辑器.png) | ![OpenCode Palette — IP preset: 原神 Genshin](../assets/原神.png) |
 
-**👇 Settings panel: 38 themes lined up by color family — search by name and switch.**
+| IP preset: 库洛米 Kuromi (light) | IP preset: 哆啦A梦 Doraemon (light) |
+|---|---|
+| ![OpenCode Palette — IP preset: 库洛米 Kuromi](../assets/库洛米.png) | ![OpenCode Palette — IP preset: 哆啦A梦 Doraemon](../assets/哆啦A梦.png) |
 
-![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png)
+| IP preset: 哈利波特 Harry Potter (dark) | IP preset: 赛博朋克2077 Cyberpunk 2077 (dark) |
+|---|---|
+| ![OpenCode Palette — IP preset: 哈利波特 Harry Potter](../assets/哈利波特.png) | ![OpenCode Palette — IP preset: 赛博朋克2077 Cyberpunk 2077](../assets/赛博朋克2077.png) |
 
-**👇 How another theme feels.**
-
-![OpenCode Palette — overview (Tokyo Night theme)](../showcase/overview-tokyonight-en.png)
+| IP preset: 德古拉 Dracula (dark) | IP preset: 龙珠 Dragon Ball (light) |
+|---|---|
+| ![OpenCode Palette — IP preset: 德古拉 Dracula](../assets/德古拉.png) | ![OpenCode Palette — IP preset: 龙珠 Dragon Ball](../assets/龙珠.png) |
 
 </div>
 

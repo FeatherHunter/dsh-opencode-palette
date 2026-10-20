@@ -27,17 +27,25 @@
 
 38 款主题里，37 款是 OpenCode 那套经典配色；剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。
 
-**👇 装完重启，主界面长这样（opencode 主题）。**
+| 主界面（opencode 主题） | 设置面板（38 款按色系分组） |
+|---|---|
+| ![OpenCode调色板 — 主界面（opencode 主题）](assets/opencode.png) | ![OpenCode调色板 — 设置面板（按色系分组）](assets/设置页面.png) |
 
-![OpenCode调色板 — 主界面概览（opencode 主题）](showcase/overview-opencode-zh.png)
+| 自定义编辑器（37 个色位） | IP 预置：原神（浅色） |
+|---|---|
+| ![OpenCode调色板 — 自定义编辑器（37 个色位）](assets/自定义编辑器.png) | ![OpenCode调色板 — IP 预置色板：原神](assets/原神.png) |
 
-**👇 设置面板：38 款按色系排好，搜名字就能切。**
+| IP 预置：库洛米（浅色） | IP 预置：哆啦A梦（浅色） |
+|---|---|
+| ![OpenCode调色板 — IP 预置色板：库洛米](assets/库洛米.png) | ![OpenCode调色板 — IP 预置色板：哆啦A梦](assets/哆啦A梦.png) |
 
-![OpenCode调色板 — 设置面板（按色系分组）](showcase/opencode调色板设置页面-zh.png)
+| IP 预置：哈利波特（深色） | IP 预置：赛博朋克2077（深色） |
+|---|---|
+| ![OpenCode调色板 — IP 预置色板：哈利波特](assets/哈利波特.png) | ![OpenCode调色板 — IP 预置色板：赛博朋克2077](assets/赛博朋克2077.png) |
 
-**👇 另一款主题的观感。**
-
-![OpenCode调色板 — 主界面概览（GitHub 主题）](showcase/overview-github-light-zh.png)
+| IP 预置：德古拉（深色） | IP 预置：龙珠（浅色） |
+|---|---|
+| ![OpenCode调色板 — IP 预置色板：德古拉](assets/德古拉.png) | ![OpenCode调色板 — IP 预置色板：龙珠](assets/龙珠.png) |
 
 </div>
 
