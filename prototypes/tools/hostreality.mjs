@@ -1,6 +1,6 @@
 // 「宿主现实」核验：house 判尺没覆盖、但 doraemon 对抗式审查点名的真实宿主契约
 import { readFileSync } from 'node:fs'
-import { contrastRatio, mixHex, relativeLuminance } from './src/engine/resolve.ts'
+import { contrastRatio, mixHex, relativeLuminance } from '../../src/engine/resolve.ts'
 
 const P = JSON.parse(readFileSync('D:/Temp/v2_palette.json', 'utf8'))
 
