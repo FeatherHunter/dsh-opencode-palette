@@ -1,0 +1,202 @@
+# =============================================================================
+# palette/tokens.yaml —— 宿主 token 事实表
+# role: 宿主事实（token 全集 / 活死状态 / 声明位置 / 消费方）
+# generated: true
+# command: npm run palette:scan-tokens
+# validate: npm run palette:gate
+#
+# ⚠️ 本文件由扫描器生成，禁止手改。手改会在 CI 被覆盖并报错。
+# 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
+# 当前版本是「骨架 + 已核实样本」；完整 425 名由扫描器批量填充。
+# =============================================================================
+api: 1
+
+host:
+  version: 0.2.1-rc.2
+  commit: 687f282
+  source: 'D:\Temp\dsh-src'
+  runtime_scan: playwright-headless-chromium   # 首屏实测
+
+# -----------------------------------------------------------------------------
+# 1. 口径与计数（三个集合，不是加法）
+# -----------------------------------------------------------------------------
+namespaces:                    # 源码里主题命名空间（styles/*.css 声明）
+  dsw: 403
+  shiki: 11
+  dsh: 11
+  total: 425
+
+color_axis:                    # 颜色轴（222 名）
+  total: 222
+  live: 184
+  dead: 38
+  breakdown:
+    alias: 107
+    specific: 11
+    shiki: 11
+    static: 77
+    focus: 1
+    menu: 1
+    shadow: 4
+    elevation: 5
+    gradient: 3
+    linear: 2
+
+runtime_scan:                  # 首屏 Playwright 实测
+  total_variable_names: 573    # ⊃ 425，0 缺失
+  extra: 148
+  extra_breakdown:
+    dsh: 60
+    dsl: 20
+    dsw_local: 12              # 其他包局部定义的 --dsw-*
+    component_local: 56
+  dom_elements: 897
+  css_rules: 4342
+  hashed_classes: 156
+  data_attributes: 51
+  data_slots: 40
+  inline_elements: 74          # 只统计元素级 inline style
+  roles: 6                     # 首屏出现
+
+# -----------------------------------------------------------------------------
+# 2. 状态枚举
+# -----------------------------------------------------------------------------
+status_values:
+  live:             有消费方，写它生效
+  dead:             宿主声明了但没有任何 var() 消费方
+  pinned:           宿主用 !important 规则钉住，普通规则压不过
+  gated:            由运行时消费（JS 读取），不是 CSS var() 能判断
+  declared_invalid: 声明了但消费方式特殊（如依赖 fallback / 由 JS 注入）
+
+# -----------------------------------------------------------------------------
+# 3. token 明细
+#    当前为「已核实样本」；完整 425 名由扫描器填充（同结构）。
+# -----------------------------------------------------------------------------
+tokens:
+
+  # —— 五种状态各一条示例 ——
+  - name: --dsw-static-blue-50
+    namespace: dsw
+    family: static
+    status: dead
+    declared: ['src/styles/design-platform.css:15']
+    consumed: []
+    in_repo: false
+    note: 死 static 之一（17 个死 static 见 color-axis-token-inventory.md §3）
+
+  - name: --dsh-content-font-size
+    namespace: dsh
+    family: typography
+    status: live
+    declared: ['ui-layout/src/client/theme-presenter.ts:78']
+    consumed: ['body inline style（宿主自己写）']
+    in_repo: false
+    note: 由 ThemePresenter.apply() 写到 body inline，属 A 通道落点
+
+  - name: --shiki-token-string
+    namespace: shiki
+    family: shiki
+    status: gated
+    declared: ['src/styles/']
+    consumed: ['shiki 运行时（JS 读 token 名）']
+    in_repo: true
+    note: 6 个 shiki token 由运行时消费，活名
+
+  - name: --dsw-focus-ring-color
+    namespace: dsw
+    family: focus
+    status: live
+    declared: ['src/styles/focus.css:19']
+    consumed: ['focus.css / 组件 fallback']
+    in_repo: false
+    note: 宿主有默认值声明（此前「宿主不声明默认值」的说法已作废）
+
+  # —— 能力条目引用到的 token（全部已核实声明位置）——
+  - name: --dsw-alias-bg-base
+    namespace: dsw
+    family: alias
+    status: live
+    declared: ['src/styles/design-platform.css:167', 'src/styles/design-platform.css:285']
+    consumed: ['ui-conversation / ui-layout 等组件的 var(--dsw-alias-bg-base)']
+    in_repo: true
+
+  - name: --dsw-alias-label-primary
+    namespace: dsw
+    family: alias
+    status: live
+    declared: ['src/styles/design-platform.css:222', 'src/styles/design-platform.css:340']
+    consumed: ['组件文字色']
+    in_repo: true
+
+  - name: --dsw-alias-link
+    namespace: dsw
+    family: alias
+    status: live
+    declared: ['src/styles/design-platform.css:227', 'src/styles/design-platform.css:345']
+    consumed: ['ui-primitives/src/markdown/MarkdownText.module.css:63/80 等']
+    in_repo: true
+
+  - name: --dsw-alias-bg-layer-2
+    namespace: dsw
+    family: alias
+    status: live
+    declared: ['src/styles/design-platform.css:172', 'src/styles/design-platform.css:290']
+    consumed: ['列表项 / 层叠背景']
+    in_repo: false
+
+  - name: --dsw-alias-markdown-code-block
+    namespace: dsw
+    family: alias
+    status: live
+    declared: ['src/styles/design-platform.css:230', 'src/styles/design-platform.css:348']
+    consumed: ['CodeCard.module.css:16（作为 --dsl-code-block-background 的 fallback）']
+    in_repo: true
+
+  - name: --dsw-specific-sidebar-fill
+    namespace: dsw
+    family: specific
+    status: live
+    declared: ['src/styles/design-platform.css:275', 'src/styles/design-platform.css:393']
+    consumed: ['侧栏背景 / 桌面标题栏探针（preload-windows.ts:21-23）']
+    in_repo: true
+
+  - name: --dsw-menu-surface-fill
+    namespace: dsw
+    family: menu
+    status: live
+    declared: ['src/styles/design-platform.css:271', 'src/styles/design-platform.css:389']
+    consumed: ['菜单面板背景']
+    in_repo: false
+
+  - name: --dsw-font-family
+    namespace: dsw
+    family: typography
+    status: live
+    declared: ['src/styles/base.css:9', 'src/styles/base.css:30']
+    consumed: ['--dsw-font-markdown-* 复合 token 与全局字体']
+    in_repo: false
+
+  - name: --dsw-font-markdown-base-font-size
+    namespace: dsw
+    family: typography
+    status: live
+    declared: ['src/styles/gradient-shadow-text.css:97']
+    consumed: ['--dsw-font-markdown-base 复合 token']
+    in_repo: false
+
+  - name: --dsw-font-markdown-base-line-height
+    namespace: dsw
+    family: typography
+    status: live
+    declared: ['src/styles/gradient-shadow-text.css:96']
+    consumed: ['--dsw-font-markdown-base 复合 token']
+    in_repo: false
+
+# -----------------------------------------------------------------------------
+# 4. 待确认（扫描器补齐时处理）
+# -----------------------------------------------------------------------------
+todo:
+  - 完整填充 425 个主题 token 的 declared/consumed/in_repo
+  - 标出 2 个 declared_invalid 的具体名字
+  - pinned 清单（22 行 !important 中影响外观的 6 行/7 条）
+  - 宿主升级时重新扫描并生成 diff 报告

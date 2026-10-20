@@ -1,0 +1,85 @@
+# =============================================================================
+# palette/assets.yaml —— 资源类型与安全策略
+# role: 资源（图片 / 动态图 / 视频 / 字体 / 图标）
+# generated: false
+# validate: npm run palette:gate
+#
+# 主题包结构：<任意主题目录>/theme.yaml + assets/…
+# 所有资源只允许主题包内相对路径；构建/导入时校验体积、格式、数量。
+# =============================================================================
+api: 3
+
+# -----------------------------------------------------------------------------
+# 1. 全局策略
+# -----------------------------------------------------------------------------
+policy:
+  uri: relative_only            # 只允许主题包内相对路径，例如 assets/bg.mp4
+  external: forbidden           # 禁止 http(s) 外链（隐私 / SSRF / 版权 / 离线）
+  data_url: forbidden           # 禁止把 base64 塞进 theme.yaml
+  max_total_bytes: 33554432     # 单套主题资源总量上限 32 MiB
+  max_files: 64
+  path_rules:
+    - 禁止 '..' 越界
+    - 禁止绝对路径与盘符
+    - 扩展名白名单见 kinds
+
+# -----------------------------------------------------------------------------
+# 2. 资源类型
+#    animated：是否可能是动态图；diurnal：是否允许 light/dark 各一份
+# -----------------------------------------------------------------------------
+kinds:
+
+  wallpaper:                    # 背景：静态图 + 动态图
+    media: [jpg, jpeg, png, webp, avif, gif]
+    animated_media: [gif, webp, avif, apng]
+    max_bytes: 8388608          # 单文件 8 MiB
+    diurnal: true
+    description: 背景图；动态图（GIF/WebP/AVIF/APNG）可直接当 CSS 背景，浏览器自动播放。
+
+  icon:                         # 图标 / 头像
+    media: [svg, png, webp]
+    max_bytes: 262144           # 256 KiB
+    diurnal: false
+    recommended: [svg]          # SVG 可保色，PNG 适合头像
+    description: 按钮图标、头像；用 mask 时实际取形状，颜色仍由 token 决定。
+
+  font:                         # 字体
+    media: [woff2, woff, ttf, otf]
+    max_bytes: 5242880          # 单文件 5 MiB
+    diurnal: false
+    families_max: 4
+    description: |
+      字体文件通过 @font-face 注册；配合 values.yaml 的 scripts 表生成 unicode-range，
+      可实现同一段里英文/中文各用各的字体（第 1 条需求）。
+
+  video:                        # 视频背景
+    media: [mp4, webm]
+    max_bytes: 67108864         # 单文件 64 MiB
+    diurnal: true
+    codecs: [h264, vp9]
+    muted_required: true        # 只允许静音播放（无音频权限问题）
+    autoplay: true
+    loop: true
+    poster: optional            # 封面帧：可用主题包内图片，取视频首帧兜底
+    reduced_motion: static_poster  # 用户开启「减弱动效」时显示静态封面
+    description: |
+      视频不能当 CSS 背景，必须由 primitives.yaml 的 insert-media-layer 插入 <video>。
+      体积/分辨率建议：1080p、≤30 s、≤32 MiB；导出前压缩。
+
+# -----------------------------------------------------------------------------
+# 3. 资源引用格式（theme.yaml 里怎么写）
+# -----------------------------------------------------------------------------
+reference:
+  syntax: 'assets/<相对路径>'
+  light_dark: '{ light: assets/bg-light.jpg, dark: assets/bg-dark.jpg }'
+  poster: '{ video: assets/bg.mp4, poster: assets/bg-poster.jpg }'
+  font_set: '{ latin: assets/Font-Latin.woff2, han: assets/Font-CJK.woff2 }'
+
+# -----------------------------------------------------------------------------
+# 4. 未确证（做之前必须验证）
+# -----------------------------------------------------------------------------
+open_questions:
+  - 主题包资源如何送到浏览器：插件客户端是浏览器代码，读不到本地文件；
+    需要宿主的文件读取接口或可访问的 URL 方案。
+  - 视频解码性能/功耗上限：桌面端与低配机器需要降级策略。
+  - 动态图是否会被宿主现有规则覆盖（需实测）。

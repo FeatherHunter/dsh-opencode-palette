@@ -1,0 +1,241 @@
+# =============================================================================
+# palette/anchors.yaml —— 锚点与控件清单
+# role: 宿主事实（DOM 锚点候选 + 控件清单）
+# generated: partial（候选由扫描器产出，置信度与控件清单经人工确认）
+# command: npm run palette:scan-anchors
+# validate: npm run palette:gate
+#
+# 所有「宿主私有名字」（data-slot、role、类名）只准出现在本文件。
+# 宿主升级时，只改这里，不改能力条目。
+#
+# 置信度：
+#   documented = 有源码证据，属公开契约（role/aria/data-slot/全局类）
+#   inferred   = 由首屏扫描推断，未在源码里确认（可能随渲染变化）
+#   fragile    = 只能靠哈希类名或结构关系，宿主一升级就可能失效
+# =============================================================================
+api: 3
+
+# -----------------------------------------------------------------------------
+# 1. 锚点
+#    candidates：候选选择器，按顺序尝试，第一个命中的生效
+#    scope：document = 全局选择器；element = 相对锚点元素
+# -----------------------------------------------------------------------------
+anchors:
+
+  global.root:
+    candidates: ['body']
+    scope: document
+    confidence: documented
+
+  window.titleBar:
+    candidates: []                # 窗口外壳没有 DOM 锚点
+    scope: element
+    confidence: documented
+    note: |
+      宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
+      再调 setTitleBarOverlay；所以能力写 token 即可，不需要选择器。
+
+  sidebar.root:
+    candidates: ['[data-slot="conversation.session"]', '[data-sidebar]']
+    scope: element
+    confidence: inferred
+
+  sidebar.item:
+    candidates: ['[data-slot="conversation.session"] [data-nav-item]', '[data-slot="conversation.session"] a[href]']
+    scope: element
+    confidence: inferred
+
+  conversation.main:
+    candidates: ['[data-slot="conversation.chat.flow"]']
+    scope: element
+    confidence: documented        # data-slot 来自源码硬编码
+
+  conversation.node:
+    candidates: ['[data-slot="conversation.chat.node"]']
+    scope: element
+    confidence: documented
+
+  composer.root:
+    candidates: ['[data-slot="conversation.composer"]', 'form[data-testid="composer"]']
+    scope: element
+    confidence: inferred
+
+  composer.input:
+    candidates: ['[data-slot="conversation.composer"] textarea', '[data-slot="conversation.composer"] [contenteditable="true"]']
+    scope: element
+    confidence: inferred
+
+  composer.sendButton:
+    candidates: ['[data-composer-send]', 'button[data-role="send"]', '[aria-label="Send"]']
+    scope: element
+    confidence: inferred
+
+  menu.surface:
+    candidates: ['[role="menu"]']
+    scope: element
+    confidence: documented
+
+  menu.item:
+    candidates: ['[role="menuitem"]', '[role="menuitemradio"]']
+    scope: element
+    confidence: documented
+
+  tooltip.root:
+    candidates: ['[role="tooltip"]']
+    scope: element
+    confidence: documented
+
+  code.block:
+    candidates: ['.md-code-block']            # 宿主独立注入的全局类，非哈希
+    scope: element
+    confidence: documented
+
+  code.inline:
+    candidates: ['code:not(pre code)']
+    scope: element
+    confidence: documented
+
+  markdown.paragraph:
+    candidates: ['p']
+    scope: document
+    confidence: documented        # 元素级选择器，不依赖类名
+
+  markdown.heading:
+    candidates: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']
+    scope: document
+    confidence: documented
+
+  markdown.list:
+    candidates: ['ul', 'ol', 'li']
+    scope: document
+    confidence: documented
+
+  markdown.blockquote:
+    candidates: ['blockquote']
+    scope: document
+    confidence: documented
+
+  tool.card:
+    candidates: ['[data-slot="conversation.chat.node"] [data-block-type]', '[data-code-block]']
+    scope: element
+    confidence: inferred
+
+  terminal.root:
+    candidates: ['[role="log"]', '[data-terminal]']
+    scope: element
+    confidence: inferred
+
+  deliverable.card:
+    candidates: ['[data-slot="conversation.chat.node"] [data-deliverable]']
+    scope: element
+    confidence: fragile
+
+  scrollbar.root:
+    candidates: ['body']
+    scope: document
+    confidence: documented        # 用 ::-webkit-scrollbar 伪元素
+
+  selection.text:
+    candidates: ['body']
+    scope: document
+    confidence: documented        # 用 ::selection 伪元素
+
+# -----------------------------------------------------------------------------
+# 2. 控件清单
+#    template：套用 palette.yaml 的 control_templates，构建期展开成能力 id
+#    例：composer.sendButton + button 模板 → button.send.icon / button.send.background ...
+# -----------------------------------------------------------------------------
+controls:
+
+  composer.sendButton:
+    region: composer
+    role: button
+    template: button
+    anchors: ['[data-composer-send]', 'button[data-role="send"]']
+    confidence: inferred
+
+  composer.attachButton:
+    region: composer
+    role: button
+    template: button
+    anchors: ['[aria-label*="attach" i]', 'button[data-role="attach"]']
+    confidence: inferred
+
+  conversation.copyButton:
+    region: conversation
+    role: button
+    template: button
+    anchors: ['[data-slot="conversation.chat.node"] button[aria-label*="copy" i]']
+    confidence: inferred
+
+  conversation.retryButton:
+    region: conversation
+    role: button
+    template: button
+    anchors: ['button[aria-label*="retry" i]']
+    confidence: inferred
+
+  menu.item:
+    region: menu
+    role: menuitem
+    template: item
+    anchors: ['[role="menuitem"]', '[role="menuitemradio"]']
+    confidence: documented
+
+  tab.item:
+    region: settings
+    role: tab
+    template: item
+    anchors: ['[role="tab"]']
+    confidence: documented
+
+  sidebar.item:
+    region: sidebar
+    role: item
+    template: item
+    anchors: ['[data-slot="conversation.session"] [data-nav-item]']
+    confidence: inferred
+
+  markdown.link:
+    region: markdown
+    role: link
+    template: text
+    anchors: ['a']
+    confidence: documented
+
+  tooltip.root:
+    region: global
+    role: tooltip
+    template: text
+    anchors: ['[role="tooltip"]']
+    confidence: documented
+
+  switch.control:
+    region: settings
+    role: button
+    template: button
+    anchors: ['[role="switch"]']
+    confidence: documented
+
+  dialog.root:
+    region: global
+    role: overlay
+    template: surface
+    anchors: ['[role="dialog"]']
+    confidence: documented
+
+  code.block:
+    region: code
+    role: panel
+    template: surface
+    anchors: ['.md-code-block']
+    confidence: documented
+
+# -----------------------------------------------------------------------------
+# 3. 覆盖率统计（门禁重算）
+# -----------------------------------------------------------------------------
+coverage:
+  documented: 6
+  inferred: 12
+  fragile: 2
+  template_expandable: 12

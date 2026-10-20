@@ -1,0 +1,161 @@
+# =============================================================================
+# palette/primitives.yaml —— 写原语
+# role: 写原语（能力怎么落到宿主）
+# generated: false
+# validate: npm run palette:gate
+#
+# 这是「技术域」的核心文件：每种落到宿主的手段，在这里定义字段与约束。
+# 未来出现全新手段（宿主开放样式 API、窗口控件 API……）：
+#   1) 新建一个模块文件并在 _index.yaml 注册；
+#   2) 或在本文件新增一个 write_kind；
+#   3) 能力条目里就能写 use: <新原语>。palette.yaml 的结构不用改。
+# =============================================================================
+api: 3
+
+# -----------------------------------------------------------------------------
+# 1. 写原语清单
+# -----------------------------------------------------------------------------
+write_kinds:
+
+  # —— 手段一：token —— 注入/覆盖宿主 CSS 变量（最稳，优先用）
+  token:
+    label: 变量注入
+    status: stable
+    description: |
+      通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
+      只允许写 tokens.yaml 里 status=live 的活名；写死名必须显式 allow_status + 原因。
+    fields:
+      name:            { required: true,  type: token_name, pattern: '^--(dsw|shiki|dsh)-' }
+      state:           { required: false, type: enum, values: [hover, active, focus, disabled, selected] }
+      value:           { required: false, type: any }         # 缺省取能力值
+      value_template:  { required: false, type: string }      # 例：'$value'
+      allow_status:    { required: false, type: list, values: [live, dead, pinned, gated, declared_invalid] }
+      allow_reason:    { required: false, type: string }      # allow_status 非 live 时必填
+    validates:
+      - name 必须在 tokens.yaml 存在
+      - allow_status 缺省时 status 必须为 live
+
+  # —— 手段二：rule —— 注入 CSS 规则（选择器 / @font-face / @keyframes）
+  rule:
+    label: 样式规则
+    status: stable
+    description: |
+      按锚点写一条 CSS 规则。锚点来自 anchors.yaml；层叠层级用 layers 枚举；
+      状态自动拼选择器后缀；语言自动包 :lang()；与宿主 inline style 冲突时才允许 !important。
+    fields:
+      anchor:    { required: false, type: anchor_ref }        # 二选一（与 at）
+      at:        { required: false, type: enum, values: ['@font-face', '@keyframes', '@property'] }
+      layer:     { required: true,  type: enum, ref: layers }
+      state:     { required: false, type: enum, ref: states }
+      lang:      { required: false, type: language_tag }
+      decl:      { required: true,  type: map, key: css_property, value: string }
+      important: { required: false, type: enum, values: [never, when_inline_conflict, always], default: never }
+      media:     { required: false, type: string }            # 例：'(prefers-reduced-motion: reduce)'
+    validates:
+      - anchor 与 at 必须且只能给一个
+      - decl 的值必须经过 parse → serialize，禁止原文拼接
+      - important=always 需要 allow_reason
+    policies:
+      important_default: never
+      important_when_inline_conflict: true
+      allowed_css_properties: # 属性白名单（不在名单里的禁止写）
+        [background, background-color, background-image, background-size, background-position,
+         color, font-family, font-size, line-height, font-weight, letter-spacing,
+         border-color, border-width, border-style, border-radius,
+         box-shadow, opacity, filter, backdrop-filter, -webkit-backdrop-filter,
+         mask-image, mask-size, mask-repeat, mask-position,
+         outline-color, outline-width, outline-style, text-decoration-color,
+         caret-color, scrollbar-color, scrollbar-width, transition, transform]
+
+  # —— 手段三：dom —— 命令式 DOM 操作（最强，也最需要撤销与守卫）
+  dom:
+    label: DOM 操作
+    status: stable
+    description: |
+      CSS 表达不了的效果（视频背景、换图标、插图层）用 DOM 操作。
+      每个写必须有稳定 id 和 teardown（切主题/关插件时精确撤销），
+      对 React 渲染的节点必须配 guard: observer（重渲染后幂等重放）。
+    fields:
+      anchor:    { required: true,  type: anchor_ref }
+      op:        { required: true,  type: enum, ref: dom_ops }
+      payload:   { required: false, type: any }               # 缺省取能力值
+      params:    { required: false, type: map }
+      teardown:  { required: true,  type: enum, ref: teardowns }
+      guard:     { required: false, type: enum, values: [none, observer], default: none }
+    dom_ops:
+      insert-layer:
+        description: 在锚点内插入纯样式层（图/渐变/颜色），不接收事件
+        payload: [paint, image, animated_image]
+        params:
+          position:        { type: enum, values: [fixed, absolute], default: fixed }
+          inset:           { type: string,  default: '0' }
+          z:               { type: number,  default: -1 }
+          fit:             { type: enum, values: [cover, contain, repeat], default: cover }
+          pointer_events:  { type: enum, values: [none], default: none }
+      insert-media-layer:
+        description: 在锚点内插入媒体层（图 / 动态图 / 视频），视频需 <video>
+        payload: [image, animated_image, video]
+        params:
+          position:        { type: enum, values: [fixed, absolute], default: absolute }
+          inset:           { type: string,  default: '0' }
+          z:               { type: number,  default: 0 }
+          fit:             { type: enum, values: [cover, contain, repeat], default: cover }
+          loop:            { type: boolean, default: true }
+          muted:           { type: boolean, default: true }    # 强制 true：不开音频
+          autoplay:        { type: boolean, default: true }
+          poster:          { type: boolean, default: true }    # 视频首帧/封面
+          playback_rate:   { type: number,  default: 1 }
+          reduced_motion:  { type: enum, values: [pause, static_poster], default: static_poster }
+          pointer_events:  { type: enum, values: [none], default: none }
+      replace-children:
+        description: 替换锚点子节点（换图标/头像）；必须能恢复原节点
+        payload: [icon, image, svg]
+        params:
+          keep_size:       { type: boolean, default: true }
+          keep_color:      { type: boolean, default: false }   # true 用 mask 保色
+      set-attribute:
+        description: 改锚点属性（aria-label 等）；谨慎，仅白名单属性
+        payload: [string]
+        params:
+          attribute:       { type: enum, values: [aria-label, title] }
+    teardowns: [remove-node, restore-children, restore-attribute]
+    guards: [none, observer]
+    policies:
+      write_modes:
+        mask:        # 保留原色：mask-image 盖在按钮上（图标首选，不碰 DOM 结构）
+        replace:     # 换 DOM 子节点（需要恢复原节点）
+        overlay:     # 叠加层（视频/图片背景）
+      dom_write_order: [insert-layer, insert-media-layer, replace-children, set-attribute]
+
+  # —— 手段四：host_api（预留）—— 宿主运行时接口，例如窗口外壳
+  host_api:
+    label: 宿主接口
+    status: reserved          # 预留：当前没有需要它的能力，出现时再启用
+    description: |
+      未来宿主开放「样式插件 API / 窗口控件 API」时使用。
+      注意：桌面标题栏当前走 token（宿主探针读 --dsw-specific-sidebar-fill 与
+      --dsw-alias-label-primary 后调 setTitleBarOverlay），不需要 host_api。
+    fields:
+      api:     { required: true, type: string }
+      params:  { required: false, type: map }
+      teardown: { required: true, type: enum, ref: teardowns }
+
+# -----------------------------------------------------------------------------
+# 2. 全局策略
+# -----------------------------------------------------------------------------
+policies:
+  layers: [tokens, base, component, state, override]      # 规则层叠层级（枚举）
+  layer_order_statement: |
+    tokens   = 变量层（最先写）
+    base     = 元素基础样式
+    component= 组件级覆盖
+    state    = 状态规则（hover/active/focus/disabled/selected）
+    override = 需要压过宿主时的最后一层
+  write_order: [token, rule, dom]      # 先变量、再规则、最后 DOM
+  atomic: |
+    一个效果的多个写要么全部成功，要么全部回滚；
+    recipe 的各 aspect 互相独立，单 aspect 失败只降级该 aspect。
+  idempotent: 同一能力重复应用结果一致；切换主题按写 id 求差集撤销。
+  diagnostics: |
+    每个写最终状态必须是：applied / degraded / suppressed / failed 之一，
+    并带原因（如「锚点不存在」「token 为死名」「被宿主 !important 压制」）。
