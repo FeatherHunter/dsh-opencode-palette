@@ -1,4 +1,4 @@
-// ip-presets.test.ts — IP 预置主题第二来源（src/custom-presets/20 套）接线测试
+// ip-presets.test.ts — IP 预置主题第二来源（src/custom-presets/21 套）接线测试
 // 双来源：内置 38（37+system，冻结不动）+ IP 21（只进自定义编辑器「选基底」，不进 themeNames）。
 import test from 'node:test'
 import assert from 'node:assert/strict'
@@ -49,8 +49,8 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
       assert.ok(HEX_RE.test(v), p.name + '.' + slot.key + '=' + v + ' 是 hex')
     }
   }
-  assert.equal(dark, 14, '深色 14')
-  assert.equal(light, 7, '浅色 7（含库洛米）')
+  assert.equal(dark, 13, '深色 13')
+  assert.equal(light, 8, '浅色 8（含库洛米、塞尔达传说）')
 })
 
 test('getIpPreset 按 id 取，miss 回 null', function () {

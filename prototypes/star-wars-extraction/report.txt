@@ -1,0 +1,74 @@
+====================================================================================================
+�����ս IP ���� �� 37 ɫλ����ɫ��
+====================================================================================================
+  background               #05091C  H230 S 70 L  6  <- #091031  ê�� H/S ���䣬���Ƚ� 6.5%
+  sidebarBg                #070D27  H229 S 70 L  9  <- #091031  ê�� H/S ���䣬���Ƚ� 9.0%
+  codeHeaderBg             #080F2D  H229 S 70 L 10  <- #091031  ê�� H/S ���䣬���Ƚ� 10.5%
+  backgroundPanel          #0A1236  H229 S 69 L 13  <- #091031  ê�� H/S ���䣬���Ƚ� 12.5%
+  inputBg                  #0C1541  H230 S 69 L 15  <- #091031  ê�� H/S ���䣬���Ƚ� 15.0%
+  backgroundElement        #1B253B  H221 S 37 L 17  <- #273554  ê�� H/S ���䣬���Ƚ� 17.0%
+  bubbleBg                 #202C46  H221 S 37 L 20  <- #273554  ê�� H/S ���䣬���Ƚ� 20.0%
+  codeBlockBg              #030314  H240 S 74 L  5  <- #030318  ê�� H/S ���䣬���Ƚ� 4.5%
+  text                     #E8E3DB  H 37 S 22 L 88  <- #E8E3DB  ԭ��ȡ��
+  textMuted                #9AA4D1  H229 S 37 L 71  <- #8793CA  �� #F5FAFB ���Ի�� 12%���Զ������ȫ����꡹��
+  primary                  #FCE39F  H 44 S 94 L 81  <- #FCE39F  ԭ��ȡ��
+  secondary                #30B4EC  H198 S 83 L 56  <- #30B4EC  ԭ��ȡ��
+  info                     #97A5FE  H232 S 98 L 79  <- #97A5FE  ԭ��ȡ��
+  success                  #6EC3AE  H165 S 41 L 60  <- #6EC3AE  ԭ��ȡ��
+  warning                  #E28950  H 23 S 72 L 60  <- #E28950  ԭ��ȡ��
+  error                    #E02A34  H357 S 75 L 52  <- #AA1921  ê�� H/S ���䣬���Ƚ� 52.0%
+  border                   #273554  H221 S 37 L 24  <- #273554  ԭ��ȡ��
+  borderActive             #7AD2FF  H200 S100 L 74  <- #7AD2FF  ԭ��ȡ��
+  diffAdded                #7DD2B5  H160 S 49 L 66  <- #7DD2B5  ԭ��ȡ��
+  diffRemoved              #D65166  H351 S 62 L 58  <- #D65166  ԭ��ȡ��
+  diffAddedBg              #102822  H165 S 43 L 11  <- #6EC3AE  ê�� H/S ���䣬���Ƚ� 11.0%
+  diffRemovedBg            #2A0B11  H348 S 58 L 10  <- #501521  ê�� H/S ���䣬���Ƚ� 10.5%
+  diffAddedLineNumberBg    #183A31  H164 S 41 L 16  <- #6EC3AE  ê�� H/S ���䣬���Ƚ� 16.0%
+  diffRemovedLineNumberBg  #400709  H358 S 80 L 14  <- #560A0C  ê�� H/S ���䣬���Ƚ� 14.0%
+  markdownHeading          #F9C843  H 44 S 94 L 62  <- #FCE39F  ê�� H/S ���䣬���Ƚ� 62.0%
+  markdownLink             #78C1E9  H201 S 72 L 69  <- #78C1E9  ԭ��ȡ��
+  markdownCode             #FAEAD3  H 35 S 80 L 90  <- #FAEAD3  ԭ��ȡ��
+  markdownEmph             #D17380  H352 S 51 L 64  <- #D17380  ԭ��ȡ��
+  markdownStrong           #F5FAFB  H190 S 43 L 97  <- #F5FAFB  ԭ��ȡ��
+  markdownBlockQuote       #7986C4  H230 S 39 L 62  <- #8793CA  ê�� H/S ���䣬���Ƚ� 62.0%
+  syntaxComment            #827893  H262 S 11 L 52  <- #716882  ê�� H/S ���䣬���Ƚ� 52.5%���˺� 4.92:1��
+  syntaxKeyword            #CBA8EC  H271 S 64 L 79  <- #CBA8EC  ԭ��ȡ��
+  syntaxFunction           #A5E0FF  H201 S100 L 82  <- #A5E0FF  ԭ��ȡ��
+  syntaxType               #D09A90  H  9 S 41 L 69  <- #C25E3E  �� starwhite ���Ի�� 25%
+  syntaxNumber             #D09A06  H 44 S 94 L 42  <- #FCE39F  ê�� H/S ���䣬���Ƚ� 42.0%
+  syntaxString             #8ADCD0  H171 S 54 L 70  <- #8ADCD0  ԭ��ȡ��
+  syntaxOperator           #7C738F  H259 S 11 L 51  <- #716882  ê�� H/S ���䣬���Ƚ� 50.5%���˺� 4.58:1��
+
+--- �о� 53 �ԣ�Ӳ�� 4.5 / UI 3.0���� ʧ�� 0 ---
+  ��� 10 �ԣ�
+    error@backgroundPanel                    3.95 / 3.0  PASS
+    error@background                         4.28 / 3.0  PASS
+    diffRemoved@diffRemovedBg                4.53 / 4.5  PASS
+    labelDimmed@backgroundElement            4.57 / 4.5  PASS
+    syntaxOperator@codeBlockBg               4.58 / 4.5  PASS
+    syntaxComment@codeBlockBg                4.92 / 4.5  PASS
+    labelDimmed@backgroundPanel              5.19 / 4.5  PASS
+    markdownBlockQuote@backgroundPanel       5.22 / 4.5  PASS
+    labelDimmed@background                   5.47 / 4.5  PASS
+    markdownEmph@backgroundPanel             5.62 / 4.5  PASS
+
+--- ��Ƹ澯��0 ---
+  Ʒ�Ƽ��Σ�primary/secondary �н� 154.0�� = ����
+
+--- ɫ�����ֲ���37 ɫλ��---
+    �� 230      8 ����background sidebarBg codeHeaderBg backgroundPanel inputBg textMuted info markdownBlockQuote
+    �� 40       5 ����text primary markdownHeading markdownCode syntaxNumber
+    �� 200      4 ����secondary borderActive markdownLink syntaxFunction
+    �� 220      3 ����backgroundElement bubbleBg border
+    ���� 160     3 ����diffAdded diffAddedBg diffAddedLineNumberBg
+    õ 350      3 ����diffRemoved diffRemovedBg markdownEmph
+    ���� 170     2 ����success syntaxString
+    õ 360      2 ����error diffRemovedLineNumberBg
+    �޲�/��       2 ����syntaxComment syntaxOperator
+    �� 240      1 ����codeBlockBg
+    �� 20       1 ����warning
+    �� 190      1 ����markdownStrong
+    �� 270      1 ����syntaxKeyword
+    �� 10       1 ����syntaxType
+
+written: D:\dsh-plugin\dsh-opencode-palette\prototypes\star-wars-extraction\palette.json

@@ -1,0 +1,1025 @@
+{
+ "colors": {
+  "background": "#05091C",
+  "sidebarBg": "#070D27",
+  "codeHeaderBg": "#080F2D",
+  "backgroundPanel": "#0A1236",
+  "inputBg": "#0C1541",
+  "backgroundElement": "#1B253B",
+  "bubbleBg": "#202C46",
+  "codeBlockBg": "#030314",
+  "text": "#E8E3DB",
+  "primary": "#FCE39F",
+  "secondary": "#30B4EC",
+  "info": "#97A5FE",
+  "success": "#6EC3AE",
+  "warning": "#E28950",
+  "error": "#E02A34",
+  "border": "#273554",
+  "borderActive": "#7AD2FF",
+  "diffAdded": "#7DD2B5",
+  "diffRemoved": "#D65166",
+  "diffAddedBg": "#102822",
+  "diffRemovedBg": "#2A0B11",
+  "diffAddedLineNumberBg": "#183A31",
+  "diffRemovedLineNumberBg": "#400709",
+  "markdownHeading": "#F9C843",
+  "markdownLink": "#78C1E9",
+  "markdownCode": "#FAEAD3",
+  "markdownEmph": "#D17380",
+  "markdownStrong": "#F5FAFB",
+  "markdownBlockQuote": "#7986C4",
+  "syntaxKeyword": "#CBA8EC",
+  "syntaxFunction": "#A5E0FF",
+  "syntaxType": "#D09A90",
+  "syntaxNumber": "#D09A06",
+  "syntaxString": "#8ADCD0",
+  "textMuted": "#9AA4D1",
+  "syntaxComment": "#827893",
+  "syntaxOperator": "#7C738F"
+ },
+ "provenance": {
+  "background": {
+   "anchor": "#091031",
+   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 6.5%",
+   "value": "#05091C",
+   "note": "主画布：星海最底"
+  },
+  "sidebarBg": {
+   "anchor": "#091031",
+   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 9.0%",
+   "value": "#070D27",
+   "note": "侧栏：比主画布抬一档"
+  },
+  "codeHeaderBg": {
+   "anchor": "#091031",
+   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 10.5%",
+   "value": "#080F2D",
+   "note": "代码卡头：比侧栏再抬半档"
+  },
+  "backgroundPanel": {
+   "anchor": "#091031",
+   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 12.5%",
+   "value": "#0A1236",
+   "note": "面板：卡片底"
+  },
+  "inputBg": {
+   "anchor": "#091031",
+   "anchorNote": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 15.0%",
+   "value": "#0C1541",
+   "note": "输入框：可编辑面"
+  },
+  "backgroundElement": {
+   "anchor": "#273554",
+   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 17.0%",
+   "value": "#1B253B",
+   "note": "浮层：下拉/提示/工具条"
+  },
+  "bubbleBg": {
+   "anchor": "#273554",
+   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 20.0%",
+   "value": "#202C46",
+   "note": "气泡：对话主体"
+  },
+  "codeBlockBg": {
+   "anchor": "#030318",
+   "anchorNote": "1.jpg 夜空最深处 · 天行者崛起 边框",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 4.5%",
+   "value": "#030314",
+   "note": "代码台：全屏最深处"
+  },
+  "text": {
+   "anchor": "#E8E3DB",
+   "anchorNote": "1.jpg 纸白 · 天行者崛起 海报纸面",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#E8E3DB",
+   "note": "正文：海报纸白"
+  },
+  "primary": {
+   "anchor": "#FCE39F",
+   "anchorNote": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#FCE39F",
+   "note": "品牌：STAR WARS 字标的招牌金"
+  },
+  "secondary": {
+   "anchor": "#30B4EC",
+   "anchorNote": "2.jpg 蓝色光剑核心 · 天行者的崛起 中央斜剑",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#30B4EC",
+   "note": "第二品牌色：光剑蓝"
+  },
+  "info": {
+   "anchor": "#97A5FE",
+   "anchorNote": "1.jpg 蓝紫 · 天行者崛起 蓝色剑晕",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#97A5FE",
+   "note": "信息：蓝紫剑晕"
+  },
+  "success": {
+   "anchor": "#6EC3AE",
+   "anchorNote": "1.jpg 绿光剑辉 · 天行者崛起 右下绿剑",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#6EC3AE",
+   "note": "成功：绿光剑辉"
+  },
+  "warning": {
+   "anchor": "#E28950",
+   "anchorNote": "1.jpg 琥珀暖光 · 天行者崛起 剑与人物之间的热核",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#E28950",
+   "note": "警告：剑与人物之间的热核"
+  },
+  "error": {
+   "anchor": "#AA1921",
+   "anchorNote": "3.jpg 红色光剑亮部 · 最后的绝地武士 剑身",
+   "poster": "3.jpg",
+   "op": "锚点 H/S 不变，明度阶 52.0%",
+   "value": "#E02A34",
+   "note": "错误：红剑纯色阶"
+  },
+  "border": {
+   "anchor": "#273554",
+   "anchorNote": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#273554",
+   "note": "装饰边框：海报海军蓝"
+  },
+  "borderActive": {
+   "anchor": "#7AD2FF",
+   "anchorNote": "1.jpg 剑光炽白 · 天行者崛起 剑光最亮处",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#7AD2FF",
+   "note": "焦点环：剑光炽白"
+  },
+  "diffAdded": {
+   "anchor": "#7DD2B5",
+   "anchorNote": "1.jpg 绿剑亮部 · 天行者崛起 绿剑过曝",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#7DD2B5",
+   "note": "新增行：绿剑亮部"
+  },
+  "diffRemoved": {
+   "anchor": "#D65166",
+   "anchorNote": "2.jpg 红剑余晖 · 天行者的崛起 右侧剑光",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#D65166",
+   "note": "删除行：红剑余晖"
+  },
+  "diffAddedBg": {
+   "anchor": "#6EC3AE",
+   "anchorNote": "1.jpg 绿光剑辉 · 天行者崛起 右下绿剑",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 11.0%",
+   "value": "#102822",
+   "note": "新增行底"
+  },
+  "diffRemovedBg": {
+   "anchor": "#501521",
+   "anchorNote": "2.jpg 酒红 · 天行者的崛起 暗部红",
+   "poster": "2.jpg",
+   "op": "锚点 H/S 不变，明度阶 10.5%",
+   "value": "#2A0B11",
+   "note": "删除行底"
+  },
+  "diffAddedLineNumberBg": {
+   "anchor": "#6EC3AE",
+   "anchorNote": "1.jpg 绿光剑辉 · 天行者崛起 右下绿剑",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 16.0%",
+   "value": "#183A31",
+   "note": "新增行号槽"
+  },
+  "diffRemovedLineNumberBg": {
+   "anchor": "#560A0C",
+   "anchorNote": "3.jpg 血色深部 · 最后的绝地武士 背景红雾",
+   "poster": "3.jpg",
+   "op": "锚点 H/S 不变，明度阶 14.0%",
+   "value": "#400709",
+   "note": "删除行号槽"
+  },
+  "markdownHeading": {
+   "anchor": "#FCE39F",
+   "anchorNote": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 62.0%",
+   "value": "#F9C843",
+   "note": "标题：招牌金的暗一档"
+  },
+  "markdownLink": {
+   "anchor": "#78C1E9",
+   "anchorNote": "2.jpg 天蓝 · 天行者的崛起 剑光散射",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#78C1E9",
+   "note": "链接：天蓝"
+  },
+  "markdownCode": {
+   "anchor": "#FAEAD3",
+   "anchorNote": "1.jpg 奶油白 · 天行者崛起 剑光溢出",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#FAEAD3",
+   "note": "行内码：奶油白"
+  },
+  "markdownEmph": {
+   "anchor": "#D17380",
+   "anchorNote": "2.jpg 塔图因落日玫瑰 · 天行者的崛起 地平线",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#D17380",
+   "note": "强调：塔图因落日玫瑰"
+  },
+  "markdownStrong": {
+   "anchor": "#F5FAFB",
+   "anchorNote": "1.jpg 星尘白 · 天行者崛起 冷调高光",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#F5FAFB",
+   "note": "强调正文：星尘白"
+  },
+  "markdownBlockQuote": {
+   "anchor": "#8793CA",
+   "anchorNote": "1.jpg 长春花蓝 · 天行者崛起 冷调剑晕",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 62.0%",
+   "value": "#7986C4",
+   "note": "引用：长春花蓝的暗一档"
+  },
+  "syntaxKeyword": {
+   "anchor": "#CBA8EC",
+   "anchorNote": "2.jpg 紫水晶 · 天行者的崛起 星云紫",
+   "poster": "2.jpg",
+   "op": "原样取用",
+   "value": "#CBA8EC",
+   "note": "关键字：星云紫"
+  },
+  "syntaxFunction": {
+   "anchor": "#A5E0FF",
+   "anchorNote": "1.jpg 冰蓝 · 天行者崛起 蓝色剑光高光",
+   "poster": "1.jpg",
+   "op": "原样取用",
+   "value": "#A5E0FF",
+   "note": "函数：冰蓝"
+  },
+  "syntaxType": {
+   "anchor": "#C25E3E",
+   "anchorNote": "1.jpg 锈橙 · 天行者崛起 人物逆光",
+   "poster": "1.jpg",
+   "op": "与 starwhite 线性混合 25%",
+   "value": "#D09A90",
+   "note": "类型：锈橙提亮"
+  },
+  "syntaxNumber": {
+   "anchor": "#FCE39F",
+   "anchorNote": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
+   "poster": "1.jpg",
+   "op": "锚点 H/S 不变，明度阶 42.0%",
+   "value": "#D09A06",
+   "note": "数字：招牌金的鎏金档"
+  },
+  "syntaxString": {
+   "anchor": "#8ADCD0",
+   "anchorNote": "3.jpg 绿剑冷调 · 最后的绝地武士 Luke 绿剑",
+   "poster": "3.jpg",
+   "op": "原样取用",
+   "value": "#8ADCD0",
+   "note": "字符串：Luke 绿剑冷调"
+  },
+  "textMuted": {
+   "anchor": "#8793CA",
+   "anchorNote": "1.jpg 长春花蓝 · 天行者崛起 冷调剑晕",
+   "op": "与 #F5FAFB 线性混合 12%（自动求「最暗且全档达标」）",
+   "value": "#9AA4D1",
+   "note": "次级正文：长春花蓝提亮阶"
+  },
+  "syntaxComment": {
+   "anchor": "#716882",
+   "anchorNote": "2.jpg 灰紫 · 天行者的崛起 阴影面",
+   "op": "锚点 H/S 不变，明度阶 52.5%（退后档 4.92:1）",
+   "value": "#827893",
+   "note": "注释：退后梯队的浅档"
+  },
+  "syntaxOperator": {
+   "anchor": "#716882",
+   "anchorNote": "2.jpg 灰紫 · 天行者的崛起 阴影面",
+   "op": "锚点 H/S 不变，明度阶 50.5%（退后档 4.58:1）",
+   "value": "#7C738F",
+   "note": "运算符：退后梯队的深档"
+  }
+ },
+ "anchors": {
+  "void": {
+   "hex": "#091031",
+   "note": "2.jpg 深空底 · 天行者的崛起 星空",
+   "poster": "2.jpg"
+  },
+  "void2": {
+   "hex": "#030318",
+   "note": "1.jpg 夜空最深处 · 天行者崛起 边框",
+   "poster": "1.jpg"
+  },
+  "indigo": {
+   "hex": "#252645",
+   "note": "1.jpg 远景靛蓝 · 天行者崛起 人物背后的夜",
+   "poster": "1.jpg"
+  },
+  "navy": {
+   "hex": "#273554",
+   "note": "2.jpg 海军蓝 · 天行者的崛起 主色场",
+   "poster": "2.jpg"
+  },
+  "saber": {
+   "hex": "#30B4EC",
+   "note": "2.jpg 蓝色光剑核心 · 天行者的崛起 中央斜剑",
+   "poster": "2.jpg"
+  },
+  "sky": {
+   "hex": "#78C1E9",
+   "note": "2.jpg 天蓝 · 天行者的崛起 剑光散射",
+   "poster": "2.jpg"
+  },
+  "ice": {
+   "hex": "#A5E0FF",
+   "note": "1.jpg 冰蓝 · 天行者崛起 蓝色剑光高光",
+   "poster": "1.jpg"
+  },
+  "icehot": {
+   "hex": "#7AD2FF",
+   "note": "1.jpg 剑光炽白 · 天行者崛起 剑光最亮处",
+   "poster": "1.jpg"
+  },
+  "peri": {
+   "hex": "#97A5FE",
+   "note": "1.jpg 蓝紫 · 天行者崛起 蓝色剑晕",
+   "poster": "1.jpg"
+  },
+  "blade": {
+   "hex": "#B4131D",
+   "note": "3.jpg 红色光剑 · 最后的绝地武士 左剑",
+   "poster": "3.jpg"
+  },
+  "blade2": {
+   "hex": "#AA1921",
+   "note": "3.jpg 红色光剑亮部 · 最后的绝地武士 剑身",
+   "poster": "3.jpg"
+  },
+  "ember": {
+   "hex": "#D65166",
+   "note": "2.jpg 红剑余晖 · 天行者的崛起 右侧剑光",
+   "poster": "2.jpg"
+  },
+  "blood": {
+   "hex": "#560A0C",
+   "note": "3.jpg 血色深部 · 最后的绝地武士 背景红雾",
+   "poster": "3.jpg"
+  },
+  "maroon": {
+   "hex": "#501521",
+   "note": "2.jpg 酒红 · 天行者的崛起 暗部红",
+   "poster": "2.jpg"
+  },
+  "rust": {
+   "hex": "#C25E3E",
+   "note": "1.jpg 锈橙 · 天行者崛起 人物逆光",
+   "poster": "1.jpg"
+  },
+  "amber": {
+   "hex": "#E28950",
+   "note": "1.jpg 琥珀暖光 · 天行者崛起 剑与人物之间的热核",
+   "poster": "1.jpg"
+  },
+  "sand": {
+   "hex": "#DFA47B",
+   "note": "1.jpg 暖沙 · 天行者崛起 人物肤色受光",
+   "poster": "1.jpg"
+  },
+  "ochre": {
+   "hex": "#3C110F",
+   "note": "1.jpg 焦褐 · 天行者崛起 暗部棕红",
+   "poster": "1.jpg"
+  },
+  "gold": {
+   "hex": "#FCE39F",
+   "note": "1.jpg 招牌金 · 天行者崛起 STAR WARS 字标辉光",
+   "poster": "1.jpg"
+  },
+  "cream": {
+   "hex": "#FAEAD3",
+   "note": "1.jpg 奶油白 · 天行者崛起 剑光溢出",
+   "poster": "1.jpg"
+  },
+  "parchment": {
+   "hex": "#E8E3DB",
+   "note": "1.jpg 纸白 · 天行者崛起 海报纸面",
+   "poster": "1.jpg"
+  },
+  "starwhite": {
+   "hex": "#F5FAFB",
+   "note": "1.jpg 星尘白 · 天行者崛起 冷调高光",
+   "poster": "1.jpg"
+  },
+  "rose": {
+   "hex": "#D17380",
+   "note": "2.jpg 塔图因落日玫瑰 · 天行者的崛起 地平线",
+   "poster": "2.jpg"
+  },
+  "violet": {
+   "hex": "#CBA8EC",
+   "note": "2.jpg 紫水晶 · 天行者的崛起 星云紫",
+   "poster": "2.jpg"
+  },
+  "grayviolet": {
+   "hex": "#716882",
+   "note": "2.jpg 灰紫 · 天行者的崛起 阴影面",
+   "poster": "2.jpg"
+  },
+  "warmgray": {
+   "hex": "#605057",
+   "note": "1.jpg 暖灰 · 天行者崛起 雾霾面",
+   "poster": "1.jpg"
+  },
+  "periwinkle": {
+   "hex": "#8793CA",
+   "note": "1.jpg 长春花蓝 · 天行者崛起 冷调剑晕",
+   "poster": "1.jpg"
+  },
+  "mint": {
+   "hex": "#6EC3AE",
+   "note": "1.jpg 绿光剑辉 · 天行者崛起 右下绿剑",
+   "poster": "1.jpg"
+  },
+  "mint2": {
+   "hex": "#7DD2B5",
+   "note": "1.jpg 绿剑亮部 · 天行者崛起 绿剑过曝",
+   "poster": "1.jpg"
+  },
+  "mint3": {
+   "hex": "#8ADCD0",
+   "note": "3.jpg 绿剑冷调 · 最后的绝地武士 Luke 绿剑",
+   "poster": "3.jpg"
+  }
+ },
+ "pairs": [
+  {
+   "code": "text@background",
+   "fg": "#E8E3DB",
+   "bg": "#05091C",
+   "ratio": 15.478,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@backgroundPanel",
+   "fg": "#E8E3DB",
+   "bg": "#0A1236",
+   "ratio": 14.264,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@backgroundElement",
+   "fg": "#E8E3DB",
+   "bg": "#1B253B",
+   "ratio": 11.963,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@sidebarBg",
+   "fg": "#E8E3DB",
+   "bg": "#070D27",
+   "ratio": 15.003,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@bubbleBg",
+   "fg": "#E8E3DB",
+   "bg": "#202C46",
+   "ratio": 10.888,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@inputBg",
+   "fg": "#E8E3DB",
+   "bg": "#0C1541",
+   "ratio": 13.71,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@codeBlockBg",
+   "fg": "#E8E3DB",
+   "bg": "#030314",
+   "ratio": 16.009,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@codeHeaderBg",
+   "fg": "#E8E3DB",
+   "bg": "#080F2D",
+   "ratio": 14.725,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "text",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@background",
+   "fg": "#9AA4D1",
+   "bg": "#05091C",
+   "ratio": 8.1,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@background",
+   "fg": "#7C85AD",
+   "bg": "#05091C",
+   "ratio": 5.474,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@backgroundPanel",
+   "fg": "#9AA4D1",
+   "bg": "#0A1236",
+   "ratio": 7.465,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@backgroundPanel",
+   "fg": "#7D87B2",
+   "bg": "#0A1236",
+   "ratio": 5.188,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "textMuted@backgroundElement",
+   "fg": "#9AA4D1",
+   "bg": "#1B253B",
+   "ratio": 6.261,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "muted",
+   "verdict": "PASS"
+  },
+  {
+   "code": "labelDimmed@backgroundElement",
+   "fg": "#818BB3",
+   "bg": "#1B253B",
+   "ratio": 4.567,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "dimmed",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownHeading@background",
+   "fg": "#F9C843",
+   "bg": "#05091C",
+   "ratio": 12.587,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownHeading@backgroundPanel",
+   "fg": "#F9C843",
+   "bg": "#0A1236",
+   "ratio": 11.6,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownLink@background",
+   "fg": "#78C1E9",
+   "bg": "#05091C",
+   "ratio": 9.981,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownLink@backgroundPanel",
+   "fg": "#78C1E9",
+   "bg": "#0A1236",
+   "ratio": 9.199,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownStrong@background",
+   "fg": "#F5FAFB",
+   "bg": "#05091C",
+   "ratio": 18.78,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownStrong@backgroundPanel",
+   "fg": "#F5FAFB",
+   "bg": "#0A1236",
+   "ratio": 17.307,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownEmph@background",
+   "fg": "#D17380",
+   "bg": "#05091C",
+   "ratio": 6.095,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownEmph@backgroundPanel",
+   "fg": "#D17380",
+   "bg": "#0A1236",
+   "ratio": 5.617,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownBlockQuote@background",
+   "fg": "#7986C4",
+   "bg": "#05091C",
+   "ratio": 5.667,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownBlockQuote@backgroundPanel",
+   "fg": "#7986C4",
+   "bg": "#0A1236",
+   "ratio": 5.223,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownCode@background",
+   "fg": "#FAEAD3",
+   "bg": "#05091C",
+   "ratio": 16.732,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "markdownCode@backgroundPanel",
+   "fg": "#FAEAD3",
+   "bg": "#0A1236",
+   "ratio": 15.42,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "markdown",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxComment@codeBlockBg",
+   "fg": "#827893",
+   "bg": "#030314",
+   "ratio": 4.924,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxKeyword@codeBlockBg",
+   "fg": "#CBA8EC",
+   "bg": "#030314",
+   "ratio": 10.079,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxFunction@codeBlockBg",
+   "fg": "#A5E0FF",
+   "bg": "#030314",
+   "ratio": 14.32,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxType@codeBlockBg",
+   "fg": "#D09A90",
+   "bg": "#030314",
+   "ratio": 8.478,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxNumber@codeBlockBg",
+   "fg": "#D09A06",
+   "bg": "#030314",
+   "ratio": 8.088,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxString@codeBlockBg",
+   "fg": "#8ADCD0",
+   "bg": "#030314",
+   "ratio": 12.881,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "syntaxOperator@codeBlockBg",
+   "fg": "#7C738F",
+   "bg": "#030314",
+   "ratio": 4.582,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "syntax",
+   "verdict": "PASS"
+  },
+  {
+   "code": "diffAdded@diffAddedBg",
+   "fg": "#7DD2B5",
+   "bg": "#102822",
+   "ratio": 8.718,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "diffRemoved@diffRemovedBg",
+   "fg": "#D65166",
+   "bg": "#2A0B11",
+   "ratio": 4.529,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@diffAddedBg",
+   "fg": "#E8E3DB",
+   "bg": "#102822",
+   "ratio": 12.191,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "text@diffRemovedBg",
+   "fg": "#E8E3DB",
+   "bg": "#2A0B11",
+   "ratio": 14.242,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "diff",
+   "verdict": "PASS"
+  },
+  {
+   "code": "contrastText(primary)@primary",
+   "fg": "#141414",
+   "bg": "#FCE39F",
+   "ratio": 14.587,
+   "threshold": 4.5,
+   "class": "hard",
+   "group": "onPrimary",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@background",
+   "fg": "#7AD2FF",
+   "bg": "#05091C",
+   "ratio": 11.758,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@backgroundPanel",
+   "fg": "#7AD2FF",
+   "bg": "#0A1236",
+   "ratio": 10.836,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "borderActive@backgroundElement",
+   "fg": "#7AD2FF",
+   "bg": "#1B253B",
+   "ratio": 9.088,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "borderActive",
+   "verdict": "PASS"
+  },
+  {
+   "code": "primary@background",
+   "fg": "#FCE39F",
+   "bg": "#05091C",
+   "ratio": 15.652,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "primary@backgroundPanel",
+   "fg": "#FCE39F",
+   "bg": "#0A1236",
+   "ratio": 14.425,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "secondary@background",
+   "fg": "#30B4EC",
+   "bg": "#05091C",
+   "ratio": 8.346,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "secondary@backgroundPanel",
+   "fg": "#30B4EC",
+   "bg": "#0A1236",
+   "ratio": 7.691,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "info@background",
+   "fg": "#97A5FE",
+   "bg": "#05091C",
+   "ratio": 8.594,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "info@backgroundPanel",
+   "fg": "#97A5FE",
+   "bg": "#0A1236",
+   "ratio": 7.92,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "success@background",
+   "fg": "#6EC3AE",
+   "bg": "#05091C",
+   "ratio": 9.489,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "success@backgroundPanel",
+   "fg": "#6EC3AE",
+   "bg": "#0A1236",
+   "ratio": 8.745,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "warning@background",
+   "fg": "#E28950",
+   "bg": "#05091C",
+   "ratio": 7.463,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "warning@backgroundPanel",
+   "fg": "#E28950",
+   "bg": "#0A1236",
+   "ratio": 6.878,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "error@background",
+   "fg": "#E02A34",
+   "bg": "#05091C",
+   "ratio": 4.283,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  },
+  {
+   "code": "error@backgroundPanel",
+   "fg": "#E02A34",
+   "bg": "#0A1236",
+   "ratio": 3.947,
+   "threshold": 3.0,
+   "class": "ui",
+   "group": "brand",
+   "verdict": "PASS"
+  }
+ ],
+ "warnings": [],
+ "brandGeometry": {
+  "deg": 154.0,
+  "type": "互补"
+ }
+}

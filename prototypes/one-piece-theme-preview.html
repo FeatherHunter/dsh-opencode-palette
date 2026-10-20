@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>海贼王 One Piece theme preview — 正午·海风</title>
+<style>
+  :root{
+    --bg:#E3F3FB;
+    --panel:#CEEBFA;
+    --elem:#9FD6F9;
+    --sidebar:#C3E6FA;
+    --bubble:#E6F3FC;
+    --input:#F2F6F9;
+    --code:#B4DFF9;
+    --codehead:#95D2F9;
+    --text:#0C203E;
+    --muted:#15355E;
+    --primary:#C32635;
+    --secondary:#91774D;
+    --info:#1B638A;
+    --success:#3B674E;
+    --warning:#934D20;
+    --error:#930B19;
+    --border:#C1E5FA;
+    --active:#866830;
+    --dadd:#315847;
+    --drem:#51192D;
+    --daddbg:#E0F5E1;
+    --drembg:#E6E1EB;
+    --daddln:#C6E9E6;
+    --dremln:#E5D7E1;
+    --h:#B21C2B;
+    --link:#144DA5;
+    --mcode:#105067;
+    --em:#703E22;
+    --strong:#242634;
+    --quote:#2B5E90;
+    --scom:#3C617F;
+    --skw:#A41523;
+    --sfn:#6C5733;
+    --styp:#0F4C64;
+    --snum:#894927;
+    --sstr:#284A41;
+    --sop:#3A6183;
+    --hover:color-mix(in srgb, var(--text) 6%, transparent);
+    --active08:color-mix(in srgb, var(--text) 11%, transparent);
+    --dim:color-mix(in srgb, var(--muted) 80%, transparent);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:#F2F8FD; color:var(--text);
+    font-family:"Segoe UI","Microsoft YaHei UI","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .sheet{width:1400px;padding:44px 64px 56px;margin:0 auto}
+  .eyebrow{font-size:11px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+  h1.title{font-size:34px;line-height:1.1;margin:10px 0 8px;letter-spacing:.01em;font-weight:600}
+  h1.title em{font-style:normal;color:var(--primary)}
+  .sub{font-size:13.5px;color:var(--muted);max-width:780px;line-height:1.8}
+  .sub b{color:var(--text);font-weight:600}
+  .anchors{display:flex;gap:10px;margin-top:18px;align-items:center;flex-wrap:wrap}
+  .anchor{display:flex;align-items:center;gap:8px;background:color-mix(in srgb,var(--panel) 60%,transparent);
+    border:.5px solid var(--border);border-radius:999px;padding:5px 12px 5px 6px;font-size:11.5px;color:var(--muted)}
+  .anchor i{width:18px;height:18px;border-radius:50%;display:block;border:.5px solid rgba(0,0,0,.06)}
+  .stats{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .stat{background:var(--code);border:.5px solid var(--border);border-radius:9px;padding:8px 12px;min-width:132px}
+  .stat .n{font-size:16px;font-weight:650;font-family:"Cascadia Code",Consolas,monospace}
+  .stat .t{font-size:10.5px;color:var(--muted);margin-top:2px}
+  /* ---------- app window ---------- */
+  .win{margin-top:26px;width:1272px;border-radius:18px;overflow:hidden;position:relative;
+    background:var(--bg);border:.5px solid var(--border);
+    box-shadow:0 26px 60px -18px color-mix(in srgb,var(--text) 20%,transparent), 0 2px 6px rgba(15,40,75,.06);
+    display:flex}
+  .sb{width:246px;flex:none;background:var(--sidebar);border-right:.5px solid var(--border);
+    display:flex;flex-direction:column;padding:14px 12px 12px}
+  .brand{display:flex;align-items:center;gap:9px;padding:2px 6px 14px}
+  .brand .name{font-size:13.5px;font-weight:600;letter-spacing:.02em}
+  .brand .badge{font-size:10px;color:var(--muted);border:.5px solid var(--border);border-radius:5px;padding:1px 4px;margin-left:auto}
+  .ws{display:flex;align-items:center;gap:8px;background:var(--panel);border:.5px solid var(--border);
+    border-radius:10px;padding:7px 9px;font-size:12.5px;margin-bottom:14px}
+  .ws .dot{width:16px;height:16px;border-radius:5px;background:var(--primary);color:#F4F4F5;font-size:9px;
+    display:grid;place-items:center;font-weight:600}
+  .ws .caret{margin-left:auto;color:var(--muted);font-size:10px}
+  .nav{display:flex;flex-direction:column;gap:2px}
+  .nav .it{position:relative;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--muted);
+    padding:7px 9px;border-radius:8px;cursor:default}
+  .nav .it:hover{background:var(--hover)}
+  .nav .it.on{background:var(--active08);color:var(--text);font-weight:600}
+  .nav .it.on:before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:3px;background:var(--primary)}
+  .nav .it .ic{width:15px;height:15px;border:1.4px solid currentColor;border-radius:4px;opacity:.75;flex:none}
+  .nav .it .ic.round{border-radius:50%}
+  .side-lbl{font-size:10.5px;letter-spacing:.12em;color:var(--dim);margin:16px 8px 6px;text-transform:uppercase}
+  .threads{display:flex;flex-direction:column;gap:1px;overflow:hidden}
+  .th{font-size:12px;color:var(--muted);padding:6px 9px;border-radius:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .th:hover{background:var(--hover)}
+  .th.sel{background:var(--active08);color:var(--text)}
+  .sb-foot{margin-top:auto;display:flex;align-items:center;gap:9px;padding:9px 6px 2px;border-top:.5px solid var(--border);font-size:12px}
+  .av{width:24px;height:24px;border-radius:50%;background:var(--text);color:#F4F4F5;display:grid;place-items:center;font-size:11px}
+  .sb-foot .gear{margin-left:auto;color:var(--muted);font-size:13px}
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+  .topbar{height:48px;flex:none;display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:.5px solid var(--border)}
+  .topbar .h{font-size:13px;font-weight:600}
+  .topbar .crumb{font-size:11.5px;color:var(--muted)}
+  .topbar .right{margin-left:auto;display:flex;align-items:center;gap:8px}
+  .chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);
+    background:var(--panel);border:.5px solid var(--border);border-radius:999px;padding:4px 10px}
+  .chip i{width:6px;height:6px;border-radius:50%;background:var(--info)}
+  .chip i.idle{background:var(--secondary)}
+  .btn{border:0;border-radius:8px;font-size:12px;padding:6px 12px;cursor:default;font-family:inherit}
+  .btn.primary{background:var(--primary);color:#F4F4F5;font-weight:600;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  .btn.ghost{background:transparent;color:var(--muted);border:.5px solid transparent}
+  .btn.ghost:hover{background:var(--active08);color:var(--text)}
+  .btn.outline{background:transparent;border:.5px solid var(--active);color:var(--text)}
+  .btn.contrast{background:var(--text);color:#F4F4F5}
+  .feed{flex:1;overflow:hidden;padding:22px 26px 84px}
+  .col{width:720px;margin:0 auto}
+  .user{display:flex;justify-content:flex-end;margin-bottom:20px}
+  .user .bub{background:var(--bubble);border-radius:14px 14px 4px 14px;padding:10px 14px;font-size:13px;
+    line-height:1.65;max-width:520px;box-shadow:0 1px 2px rgba(15,40,75,.04)}
+  .who{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+  .who .k{width:20px;height:20px;display:grid;place-items:center}
+  .who .n{font-size:12px;font-weight:600;letter-spacing:.02em}
+  .who .t{font-size:10.5px;color:var(--dim);border:.5px solid var(--border);border-radius:5px;padding:1px 5px}
+  .md{font-size:13px;line-height:1.78}
+  .md h2{font-size:15.5px;line-height:1.4;color:var(--h);margin:0 0 8px;font-weight:650;letter-spacing:.01em}
+  .md p{margin:0 0 10px}
+  .md strong{color:var(--strong);font-weight:650}
+  .md em{color:var(--em);font-style:italic}
+  .md a{color:var(--link);text-decoration:underline;text-decoration-underline-offset:2px;text-decoration-thickness:.5px}
+  .md code{font-family:"Cascadia Code",Consolas,"Courier New",monospace;font-size:11.5px;color:var(--mcode);
+    border:.5px solid var(--border);border-radius:4px;padding:0 4px;background:var(--code)}
+  .md ul{margin:0 0 10px;padding-left:18px}
+  .md li{margin:2px 0}
+  .md blockquote{margin:0 0 12px;padding:2px 0 2px 12px;border-left:2px solid var(--active);color:var(--quote);font-size:12.5px}
+  .warn{display:flex;gap:9px;align-items:flex-start;background:color-mix(in srgb,var(--warning) 12%,transparent);
+    border-left:2.5px solid var(--warning);border-radius:6px;padding:8px 12px;margin:0 0 12px;font-size:12px;line-height:1.65;color:var(--warning)}
+  .warn b{font-weight:650}
+  .warn .tag{font-size:10.5px;letter-spacing:.08em;border:.5px solid color-mix(in srgb,var(--warning) 45%,transparent);
+    border-radius:4px;padding:0 5px;flex:none;margin-top:1px}
+  .md table{border-collapse:collapse;font-size:12px;margin:0 0 12px;width:100%}
+  .md th{text-align:left;font-weight:600;padding:7px 10px;border-bottom:.5px solid var(--active);background:color-mix(in srgb,var(--panel) 55%,transparent)}
+  .md td{padding:7px 10px;border-bottom:.5px solid var(--active)}
+  .md td .ok{color:var(--success);font-weight:600}
+  .md td .no{color:var(--error);font-weight:600}
+  .md td.mono{font-family:"Cascadia Code",Consolas,monospace;font-size:11px;color:var(--muted)}
+  .cc{border-radius:10px;overflow:hidden;margin:2px 0 12px;background:var(--code)}
+  .cc .hd{display:flex;align-items:center;gap:8px;background:var(--codehead);padding:7px 12px 6px;font-size:11px;color:var(--muted)}
+  .cc .hd .lang{color:var(--dim);font-family:"Cascadia Code",Consolas,monospace}
+  .cc .hd .fn{color:var(--muted)}
+  .cc .hd .cp{margin-left:auto;font-size:10.5px;color:var(--dim)}
+  .cc pre{margin:0;padding:11px 14px 13px;overflow:hidden;
+    font-family:"Cascadia Code",Consolas,"Courier New",monospace;font-size:11.5px;line-height:1.85}
+  .tk-com{color:var(--scom);font-style:italic}
+  .tk-kw{color:var(--skw)}
+  .tk-fn{color:var(--sfn)}
+  .tk-typ{color:var(--styp)}
+  .tk-num{color:var(--snum)}
+  .tk-str{color:var(--sstr)}
+  .tk-op{color:var(--sop)}
+  .tk-plain{color:var(--text)}
+  .diff{border-radius:10px;overflow:hidden;background:var(--code);margin:0 0 12px;font-family:"Cascadia Code",Consolas,monospace;font-size:11.5px}
+  .diff .ln{display:flex;gap:10px;padding:2px 12px 2px 0}
+  .diff .ln .no{width:30px;padding-right:7px;text-align:right;color:var(--dim);border-right:.5px solid transparent}
+  .diff .rm{background:var(--drembg)}
+  .diff .rm .no{background:var(--dremln);color:var(--drem);border-right-color:var(--drembg)}
+  .diff .rm .sign,.diff .rm .code{color:var(--drem)}
+  .diff .add{background:var(--daddbg)}
+  .diff .add .no{background:var(--daddln);color:var(--dadd);border-right-color:var(--daddbg)}
+  .diff .add .sign,.diff .add .code{color:var(--dadd)}
+  .diff .ln .sign{width:8px}
+  .tool{background:var(--elem);border-radius:10px;padding:10px 13px;margin:0 0 12px;font-size:12px}
+  .tool .row{display:flex;align-items:center;gap:8px}
+  .tool .name{font-weight:600}
+  .tool .st{margin-left:auto;color:var(--success);font-size:11px;display:flex;align-items:center;gap:5px}
+  .tool .st i{width:6px;height:6px;border-radius:50%;background:var(--success)}
+  .tool .out{margin-top:7px;font-family:"Cascadia Code",Consolas,monospace;font-size:10.8px;line-height:1.75;color:var(--muted)}
+  .tool .out b{color:var(--success);font-weight:600}
+  .pulse{width:14px;height:14px;border-radius:50%;border:1.6px solid color-mix(in srgb,var(--info) 35%,transparent);border-top-color:var(--info)}
+  .toast{position:absolute;right:22px;bottom:132px;background:var(--elem);border:.5px solid var(--border);
+    border-radius:10px;padding:9px 13px;display:flex;align-items:center;gap:9px;font-size:12px;
+    box-shadow:0 10px 24px -10px rgba(15,40,75,.28)}
+  .toast i{width:7px;height:7px;border-radius:50%;background:var(--success)}
+  .toast .sub{color:var(--dim);font-size:11px}
+  .composer{flex:none;padding:10px 26px 14px}
+  .composer .col{width:720px}
+  .cbox{background:var(--input);border:.5px solid var(--active);border-radius:14px;padding:11px 13px 9px;
+    box-shadow:0 2px 10px -6px rgba(15,40,75,.16)}
+  .cbox .ph{font-size:13px;color:var(--muted)}
+  .cbox .row{display:flex;align-items:center;gap:7px;margin-top:9px}
+  .cbox .row .sp{margin-left:auto}
+  .pill{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);
+    background:var(--panel);border:.5px solid var(--border);border-radius:999px;padding:3px 8px}
+  .pill i{width:5px;height:5px;border-radius:50%;background:var(--primary)}
+  .send{width:28px;height:28px;border-radius:9px;background:var(--primary);color:#F4F4F5;display:grid;place-items:center;
+    font-size:13px;font-weight:700;border:0;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+  .hint{display:flex;align-items:center;gap:8px;font-size:10.5px;color:var(--dim);padding:7px 4px 0}
+  .hint .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+  /* ---------- sections ---------- */
+  .tokens{margin-top:40px}
+  .tokens .head{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .tokens h3{font-size:13px;letter-spacing:.18em;text-transform:uppercase;margin:0;font-weight:600}
+  .tokens .hintx{font-size:11.5px;color:var(--muted)}
+  .fam{margin-top:18px}
+  .fam .ft{font-size:11.5px;color:var(--muted);margin-bottom:7px;display:flex;align-items:center;gap:8px}
+  .fam .ft i{width:16px;height:2px;background:var(--borderActive);border-radius:2px;display:block}
+  .grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .sw{border-radius:9px;border:.5px solid var(--border);overflow:hidden;background:var(--code)}
+  .sw .top{height:44px;display:flex;align-items:flex-end;padding:5px 7px}
+  .sw .hex{font-size:9.5px;font-family:"Cascadia Code",Consolas,monospace;opacity:.95;letter-spacing:.02em}
+  .sw .lbl{font-size:10px;padding:4px 7px 5px;color:var(--muted);border-top:.5px solid var(--border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sw .lbl b{color:var(--text);font-weight:600}
+  .legend{display:flex;gap:16px;margin-top:16px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+  .legend span{display:flex;align-items:center;gap:6px}
+  .legend i{width:9px;height:9px;border-radius:3px}
+  /* ---------- report tables ---------- */
+  .report{margin-top:40px;background:var(--code);border:.5px solid var(--border);border-radius:12px;padding:18px 20px}
+  .report h3{font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 4px;font-weight:600}
+  .report .lead{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+  table.rt{border-collapse:collapse;width:100%;font-size:11.5px}
+  table.rt th{text-align:left;font-weight:600;color:var(--muted);padding:6px 8px;border-bottom:.5px solid var(--border);
+    font-size:10.5px;letter-spacing:.06em;text-transform:uppercase}
+  table.rt td{padding:5px 8px;border-bottom:.5px solid color-mix(in srgb,var(--border) 60%,transparent);vertical-align:middle}
+  .mono{font-family:"Cascadia Code",Consolas,monospace;font-size:11px}
+  table.rt td.b{width:26px;height:18px;border-radius:4px;border:.5px solid var(--border);padding:0}
+  table.rt td.v{font-family:"Cascadia Code",Consolas,monospace}
+  .ok{color:var(--success);font-weight:600}
+  .prov{margin-top:40px;background:var(--code);border:.5px solid var(--border);border-radius:12px;padding:18px 20px}
+  .prov h3{font-size:13px;letter-spacing:.16em;text-transform:uppercase;margin:0 0 4px;font-weight:600}
+  .prov .lead{font-size:11.5px;color:var(--muted);margin-bottom:12px}
+  .prov table{border-collapse:collapse;width:100%;font-size:11px}
+  .prov th{text-align:left;font-weight:600;color:var(--muted);padding:5px 7px;border-bottom:.5px solid var(--border);
+    font-size:10px;letter-spacing:.06em;text-transform:uppercase}
+  .prov td{padding:4px 7px;border-bottom:.5px solid color-mix(in srgb,var(--border) 55%,transparent)}
+  .prov td.k{width:172px;color:var(--text)}
+  .prov td.v{width:26px;height:16px;border-radius:3px;border:.5px solid var(--border);padding:0}
+  .prov td.h{width:70px;color:var(--text)}
+  .prov td.r{color:var(--muted);line-height:1.5}
+  .prov td.s{width:110px;color:var(--muted)}
+  .prov td.zh{width:190px;color:var(--muted)}
+  .foot{display:flex;justify-content:space-between;margin-top:22px;font-size:10.5px;color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="eyebrow">DSH / OpenCode Palette · IP 预置主题 · 37 色位</div>
+  <h1 class="title">海贼王 <em>ONE PIECE</em> — 正午·海风</h1>
+  <div class="sub">
+    场 = 正午的晴空，字 = 深海的墨蓝，心跳 = 草帽的红缎带。<b>没有一个颜色是想象出来的</b>：
+    37 个色位全部由三张参考图上的真实像素（草帽受光面、标志字内阴影、路飞背心红、潟湖青、麻绳棕、娜美橙……）
+    按界面真实落点重新配比而成，每一格都能在下方溯源表里查到配方与出处。
+  </div>
+  <div class="anchors"><span class="anchor"><i style="background:#1698E9"></i>晴空浓蓝 #1698E9</span><span class="anchor"><i style="background:#EAF4FD"></i>积云白 #EAF4FD</span><span class="anchor"><i style="background:#E5C016"></i>标志草帽金 #E5C016</span><span class="anchor"><i style="background:#C32635"></i>路飞背心红 #C32635</span><span class="anchor"><i style="background:#23C0D9"></i>潟湖青 #23C0D9</span><span class="anchor"><i style="background:#674717"></i>船锚棕 #674717</span></div>
+  <div class="stats">
+    <div class="stat"><div class="n">14.31:1</div><div class="t">正文 text @ 主场</div></div>
+    <div class="stat"><div class="n">5.24:1</div><div class="t">主按钮反白</div></div>
+    <div class="stat"><div class="n">4.58:1</div><div class="t">焦点环 UI 3:1</div></div>
+    <div class="stat"><div class="n">≥4.62:1</div><div class="t">语法七色 @ 代码底</div></div>
+    <div class="stat"><div class="n">38 + 15</div><div class="t">硬性 4.5 / UI 3.0 全通过</div></div>
+    <div class="stat"><div class="n">H200–206</div><div class="t">8 表面同一色相家族</div></div>
+    <div class="stat"><div class="n">42.8°</div><div class="t">主副色 类比几何</div></div>
+    <div class="stat"><div class="n">21.6</div><div class="t">核心语法最小 ΔE76</div></div>
+  </div>
+
+  <div class="win">
+    <aside class="sb">
+      <div class="brand">
+        <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+          <ellipse cx="13" cy="17.8" rx="11.4" ry="4.2" fill="#91774D"/>
+          <path d="M6.8 17.2c0-4.7 2.8-8.2 6.2-8.2s6.2 3.5 6.2 8.2z" fill="#91774D"/>
+          <path d="M7.7 13.7c1.3-1.4 3.2-2.1 5.3-2.1s4 .7 5.3 2.1l-1 2.6c-1.1-1-2.6-1.5-4.3-1.5s-3.2.5-4.3 1.5z" fill="#C32635"/>
+        </svg>
+        <span class="name">海贼王</span><span class="badge">IP</span>
+      </div>
+      <div class="ws"><span class="dot">草</span><span>straw-hat-crew</span><span class="caret">▾</span></div>
+      <div class="nav">
+        <div class="it on"><span class="ic round"></span>新会话<span style="margin-left:auto;font-size:10px;color:var(--dim)">⌘N</span></div>
+        <div class="it"><span class="ic"></span>会话历史</div>
+        <div class="it"><span class="ic"></span>文件</div>
+        <div class="it"><span class="ic round"></span>终端</div>
+      </div>
+      <div class="side-lbl">最近</div>
+      <div class="threads">
+        <div class="th sel">正午海风 · 配色评审</div>
+        <div class="th">37 色位落位与配方</div>
+        <div class="th">取色溯源 · 三图对照</div>
+        <div class="th">对比度与语法退后复核</div>
+      </div>
+      <div class="sb-foot"><span class="av">路</span><span>麦浪</span><span class="gear">⚙</span></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <span class="h">正午海风 · 配色评审</span>
+        <span class="crumb">/ 37 tokens</span>
+        <div class="right">
+          <span class="chip"><i class="idle"></i>就绪</span>
+          <span class="chip"><i></i>deepseek-flash</span>
+          <button class="btn ghost">分享</button>
+          <button class="btn primary">新建会话</button>
+        </div>
+      </div>
+
+      <div class="feed"><div class="col">
+        <div class="user"><div class="bub">这三张图里的颜色，一个都别自己编——全部从图上取。</div></div>
+
+        <div class="who">
+          <span class="k">
+            <svg width="20" height="20" viewBox="0 0 26 26"><ellipse cx="13" cy="17.8" rx="11.4" ry="4.2" fill="#91774D"/><path d="M6.8 17.2c0-4.7 2.8-8.2 6.2-8.2s6.2 3.5 6.2 8.2z" fill="#91774D"/><path d="M7.7 13.7c1.3-1.4 3.2-2.1 5.3-2.1s4 .7 5.3 2.1l-1 2.6c-1.1-1-2.6-1.5-4.3-1.5s-3.2.5-4.3 1.5z" fill="#C32635"/></svg>
+          </span>
+          <span class="n">麦浪</span><span class="t">recipe.ts</span>
+        </div>
+
+        <div class="md">
+          <h2>海贼王 · 正午海风 — 已按 37 色位落位</h2>
+          <p>整套配色只有一句话：<strong>把正午的天空当纸，把深海当墨，把草帽的红缎带当唯一的心跳</strong>。
+          三张参考图全是白天高调画面，所以底子必须是浅的；但草帽金在浅底上过不了 UI 3:1，
+          于是主色让位给<em>背心红</em>，麦秆金退到副色与焦点环，做成黄铜件而不是亮黄。三个关键取舍：</p>
+          <ul>
+            <li>8 个表面只走一条色相（H200–206），靠明度分层：越往里越深，像从天空一路潜进海里；代码区是<em>日光浅海纸面</em>，反差来自深墨语法而不是黑卡。</li>
+            <li>正文取标志字里的<em>海军蓝</em>做墨，浅底上对 <code>--dsw-alias-label-primary-inverted</code> 之类的反白文字一律走 <code>contrastText()</code>，主色按钮因此自动配浅字。</li>
+            <li>语义色从海贼王世界里借：潟湖海流蓝做 info、索隆三刀绿做 success、娜美蜜柑橙做 warning、赤犬岩浆红做 error——没有通用语义色板。</li>
+          </ul>
+          <blockquote>天空是纸，海是墨，草帽的红是心跳；其余三十四个色位都只负责安静。</blockquote>
+
+          <div class="cc">
+            <div class="hd"><span class="lang">ts</span><span class="fn">recipe.ts</span><span class="cp">复制</span></div>
+<pre><span class="tk-com">// 每个色位 = 参考图像素锚点的线性混合</span>
+<span class="tk-kw">const</span> <span class="tk-fn">onePiece</span> <span class="tk-op">=</span> {
+  <span class="tk-fn">field</span><span class="tk-op">:</span> <span class="tk-str">"#E3F3FB"</span>,   <span class="tk-com">// 云边淡蓝 · images.jpg</span>
+  <span class="tk-fn">ink</span><span class="tk-op">:</span>  <span class="tk-str">"#0C203E"</span>,       <span class="tk-com">// 标志字内阴影 · 2.jpg</span>
+  <span class="tk-fn">beat</span><span class="tk-op">:</span> <span class="tk-str">"#C32635"</span>,       <span class="tk-com">// 路飞背心红 · images.jpg</span>
+  <span class="tk-fn">brass</span><span class="tk-op">:</span><span class="tk-str">"#91774D"</span>,     <span class="tk-com">// 深麦秆金 · 草帽阴影</span>
+  <span class="tk-kw">const</span> <span class="tk-fn">contrast</span> <span class="tk-op">=</span> <span class="tk-num">14.31</span> <span class="tk-kw">as</span> <span class="tk-typ">Ratio</span>,
+}</pre>
+          </div>
+
+          <table>
+            <tr><th>检查项</th><th>结果</th><th>色值</th></tr>
+            <tr><td>正文对比度</td><td><span class="ok">14.31 : 1</span></td><td class="mono">#0C203E / #E3F3FB</td></tr>
+            <tr><td>主按钮反白</td><td><span class="ok">5.24 : 1</span></td><td class="mono">#F4F4F5 / #C32635</td></tr>
+            <tr><td>亮草帽金做浅底主色</td><td><span class="no">已否决</span></td><td class="mono">#E5C016 → 1.31 : 1</td></tr>
+          </table>
+
+          <div class="warn">
+            <span class="tag">已知限制</span>
+            <span>草帽金 <b>#E5C016</b> 在浅底上只有 <b>1.31 : 1</b>，过不了 UI 3:1，
+            所以品牌位改由背心红承担，麦秆金按图里「草帽阴影」压深成 <b>#91774D</b> 做副色；
+            提示气泡的文字色由 DSH 写死为白色，浅色主题下 37 个色位修不到这一点。</span>
+          </div>
+
+          <div class="diff">
+            <div class="ln rm"><span class="no">41</span><span class="sign">-</span><span class="code">  "appearance": "dark",</span></div>
+            <div class="ln add"><span class="no">41</span><span class="sign">+</span><span class="code">  "appearance": "light",</span></div>
+            <div class="ln rm"><span class="no">42</span><span class="sign">-</span><span class="code">  "primary": "#ffcc33",</span></div>
+            <div class="ln add"><span class="no">42</span><span class="sign">+</span><span class="code">  "primary": "#C32635",</span></div>
+          </div>
+
+          <div class="tool">
+            <div class="row"><span class="pulse"></span><span class="name">audit-themes --check</span><span class="st"><i></i>已完成</span></div>
+            <div class="out">
+              [1] text &amp; md tones on every surface: <b>38 / 38 · OK</b><br>
+              [2] syntax tokens on codeBlockBg: <b>7 / 7 · OK</b>（最低 4.62）<br>
+              [3] UI 3:1 品牌与语义色: <b>15 / 15 · OK</b><br>
+              [4] 背景色相家族 / 角色串戏 / 品牌几何 / 语法 ΔE76: <b>0 告警</b><br>
+              <span style="color:var(--success)">→ 进程退出码 0</span>
+            </div>
+          </div>
+        </div>
+      </div></div>
+
+      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+
+      <div class="composer"><div class="col">
+        <div class="cbox">
+          <div class="ph">继续调整配色，或问我任意细节…</div>
+          <div class="row">
+            <span class="pill"><i></i>recipe.ts</span>
+            <span class="pill">light</span>
+            <button class="btn ghost" style="width:26px;height:26px;padding:0">＋</button>
+            <span class="sp"></span>
+            <button class="btn ghost" style="width:26px;height:26px;padding:0">⚙</button>
+            <button class="send">↑</button>
+          </div>
+        </div>
+        <div class="hint">Enter 发送 · Shift + Enter 换行
+          <span class="r"><span class="chip" style="padding:2px 8px">37 tokens</span><span>海贼王</span></span>
+        </div>
+      </div></div>
+    </main>
+  </div>
+
+  <div class="tokens">
+    <div class="head"><h3>37 Color Tokens</h3><span class="hintx">色位 → DSH 真实落点 · 每格右上角的十六进制即最终值</span></div>
+    <div id="fams"></div>
+    <div class="legend">
+      <span><i style="background:var(--bg)"></i>背景场域</span>
+      <span><i style="background:var(--elem)"></i>面板 / 浮层</span>
+      <span><i style="background:var(--text)"></i>文字结构</span>
+      <span><i style="background:var(--primary)"></i>品牌强调</span>
+      <span><i style="background:var(--info)"></i>语义状态</span>
+      <span><i style="background:var(--border)"></i>边界</span>
+      <span><i style="background:var(--daddbg)"></i>代码 / diff</span>
+      <span><i style="background:var(--skw)"></i>语法</span>
+    </div>
+  </div>
+
+  <div class="report">
+    <h3>Contrast Report</h3>
+    <div class="lead">仓库自带的 <span class="mono">scripts/audit-themes.ts</span> 判尺：硬性 38 对（4.5:1）+ UI 15 对（3:1）全部通过；下表列出余量最紧的 14 条。</div>
+    <table class="rt">
+      <tr><th>检查对</th><th>底</th><th>比值</th><th>阈值</th><th>判定</th></tr>
+      <tr><td class="mono k">syntaxOperator@codeBlockBg</td><td class="mono b" style="background:#B4DFF9"></td><td class="mono v">4.62 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.12</span></td></tr>
+<tr><td class="mono k">syntaxComment@codeBlockBg</td><td class="mono b" style="background:#B4DFF9"></td><td class="mono v">4.63 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.13</span></td></tr>
+<tr><td class="mono k">borderActive@backgroundElement</td><td class="mono b" style="background:#9FD6F9"></td><td class="mono v">3.33 : 1</td><td class="mono t">3.0</td><td><span class="ok">通过 · 余量 +0.33</span></td></tr>
+<tr><td class="mono k">syntaxFunction@codeBlockBg</td><td class="mono b" style="background:#B4DFF9"></td><td class="mono v">4.88 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.38</span></td></tr>
+<tr><td class="mono k">syntaxNumber@codeBlockBg</td><td class="mono b" style="background:#B4DFF9"></td><td class="mono v">4.88 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.38</span></td></tr>
+<tr><td class="mono k">secondary@backgroundPanel</td><td class="mono b" style="background:#CEEBFA"></td><td class="mono v">3.41 : 1</td><td class="mono t">3.0</td><td><span class="ok">通过 · 余量 +0.41</span></td></tr>
+<tr><td class="mono k">labelDimmed@backgroundElement</td><td class="mono b" style="background:#9FD6F9"></td><td class="mono v">4.93 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.43</span></td></tr>
+<tr><td class="mono k">secondary@background</td><td class="mono b" style="background:#E3F3FB"></td><td class="mono v">3.73 : 1</td><td class="mono t">3.0</td><td><span class="ok">通过 · 余量 +0.73</span></td></tr>
+<tr><td class="mono k">contrastText(primary)@primary</td><td class="mono b" style="background:#C32635"></td><td class="mono v">5.24 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.74</span></td></tr>
+<tr><td class="mono k">markdownBlockQuote@backgroundPanel</td><td class="mono b" style="background:#CEEBFA"></td><td class="mono v">5.44 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.94</span></td></tr>
+<tr><td class="mono k">markdownHeading@backgroundPanel</td><td class="mono b" style="background:#CEEBFA"></td><td class="mono v">5.46 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.96</span></td></tr>
+<tr><td class="mono k">syntaxKeyword@codeBlockBg</td><td class="mono b" style="background:#B4DFF9"></td><td class="mono v">5.49 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +0.99</span></td></tr>
+<tr><td class="mono k">borderActive@backgroundPanel</td><td class="mono b" style="background:#CEEBFA"></td><td class="mono v">4.18 : 1</td><td class="mono t">3.0</td><td><span class="ok">通过 · 余量 +1.18</span></td></tr>
+<tr><td class="mono k">labelDimmed@backgroundPanel</td><td class="mono b" style="background:#CEEBFA"></td><td class="mono v">5.79 : 1</td><td class="mono t">4.5</td><td><span class="ok">通过 · 余量 +1.29</span></td></tr>
+    </table>
+  </div>
+
+  <div class="prov">
+    <h3>取色溯源 · Provenance</h3>
+    <div class="lead">每一行的配方都是参考图上真实像素的线性混合：<span class="mono">权重·锚点名(锚点 hex)</span>，出处列给出锚点所在的那张图。</div>
+    <table>
+      <tr><th>色位</th><th></th><th>终值</th><th>配方（锚点混合）</th><th>出处</th><th>角色</th></tr>
+      <tr><td class="mono k">background</td><td class="mono v" style="background:#E3F3FB"></td><td class="mono h">#E3F3FB</td><td class="mono r">56%·云边淡蓝(#DDF2FA) + 44%·积云白(#EAF4FD)</td><td class="mono s">images.jpg</td><td class="zh">主场 · 云边淡蓝</td></tr>
+<tr><td class="mono k">backgroundPanel</td><td class="mono v" style="background:#CEEBFA"></td><td class="mono h">#CEEBFA</td><td class="mono r">88%·云边淡蓝(#DDF2FA) + 12%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">面板 · 淡蓝</td></tr>
+<tr><td class="mono k">backgroundElement</td><td class="mono v" style="background:#9FD6F9"></td><td class="mono h">#9FD6F9</td><td class="mono r">52%·云边淡蓝(#DDF2FA) + 48%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">浮层 · 更深一档的海</td></tr>
+<tr><td class="mono k">sidebarBg</td><td class="mono v" style="background:#C3E6FA"></td><td class="mono h">#C3E6FA</td><td class="mono r">80%·云边淡蓝(#DDF2FA) + 20%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">侧栏 · 晴空蓝</td></tr>
+<tr><td class="mono k">bubbleBg</td><td class="mono v" style="background:#E6F3FC"></td><td class="mono h">#E6F3FC</td><td class="mono r">72%·积云白(#EAF4FD) + 28%·云边淡蓝(#DDF2FA)</td><td class="mono s">images.jpg</td><td class="zh">气泡 · 云与淡蓝之间</td></tr>
+<tr><td class="mono k">inputBg</td><td class="mono v" style="background:#F2F6F9"></td><td class="mono h">#F2F6F9</td><td class="mono r">62%·积云白(#EAF4FD) + 38%·牙齿白(#FFF9F2)</td><td class="mono s">images.jpg</td><td class="zh">输入框 · 云白天</td></tr>
+<tr><td class="mono k">codeBlockBg</td><td class="mono v" style="background:#B4DFF9"></td><td class="mono h">#B4DFF9</td><td class="mono r">68%·云边淡蓝(#DDF2FA) + 32%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">代码舞台 · 日光浅海纸面</td></tr>
+<tr><td class="mono k">codeHeaderBg</td><td class="mono v" style="background:#95D2F9"></td><td class="mono h">#95D2F9</td><td class="mono r">44%·云边淡蓝(#DDF2FA) + 56%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">舞台顶栏 · 压边盖板</td></tr>
+<tr><td class="mono k">text</td><td class="mono v" style="background:#0C203E"></td><td class="mono h">#0C203E</td><td class="mono r">35%·标志字内阴影·海军蓝(#183B68) + 65%·乌索普藏青(#051127)</td><td class="mono s">2.jpg、3.jpg</td><td class="zh">正文 · 深海墨蓝</td></tr>
+<tr><td class="mono k">textMuted</td><td class="mono v" style="background:#15355E"></td><td class="mono h">#15355E</td><td class="mono r">85%·标志字内阴影·海军蓝(#183B68) + 15%·乌索普藏青(#051127)</td><td class="mono s">2.jpg、3.jpg</td><td class="zh">次级文字 · 远海退色</td></tr>
+<tr><td class="mono k">primary</td><td class="mono v" style="background:#C32635"></td><td class="mono h">#C32635</td><td class="mono r">100%·路飞背心红(#C32635)</td><td class="mono s">images.jpg</td><td class="zh">主色 · 草帽红缎带</td></tr>
+<tr><td class="mono k">secondary</td><td class="mono v" style="background:#91774D"></td><td class="mono h">#91774D</td><td class="mono r">12%·标志草帽金(#E5C016) + 88%·草帽阴影(#866D54)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">副色 · 深麦秆金</td></tr>
+<tr><td class="mono k">info</td><td class="mono v" style="background:#1B638A"></td><td class="mono h">#1B638A</td><td class="mono r">30%·潟湖青(#23C0D9) + 70%·标志字内阴影·海军蓝(#183B68)</td><td class="mono s">2.jpg</td><td class="zh">提示 · 潟湖海流蓝</td></tr>
+<tr><td class="mono k">success</td><td class="mono v" style="background:#3B674E"></td><td class="mono h">#3B674E</td><td class="mono r">88%·索隆绿(#427353) + 12%·乌索普藏青(#051127)</td><td class="mono s">3.jpg</td><td class="zh">成功 · 索隆三刀绿</td></tr>
+<tr><td class="mono k">warning</td><td class="mono v" style="background:#934D20"></td><td class="mono h">#934D20</td><td class="mono r">80%·娜美橙(#B75C1E) + 20%·乌索普藏青(#051127)</td><td class="mono s">3.jpg</td><td class="zh">警告 · 娜美蜜柑橙</td></tr>
+<tr><td class="mono k">error</td><td class="mono v" style="background:#930B19"></td><td class="mono h">#930B19</td><td class="mono r">30%·路飞背心红(#C32635) + 70%·标志红人(#7F000D)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">错误 · 赤犬岩浆红</td></tr>
+<tr><td class="mono k">border</td><td class="mono v" style="background:#C1E5FA"></td><td class="mono h">#C1E5FA</td><td class="mono r">78%·云边淡蓝(#DDF2FA) + 22%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">分隔线 · 海图浅水色</td></tr>
+<tr><td class="mono k">borderActive</td><td class="mono v" style="background:#866830"></td><td class="mono h">#866830</td><td class="mono r">14%·标志草帽金(#E5C016) + 42%·草帽阴影(#866D54) + 44%·船锚棕(#674717)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">焦点环 · 麦秆暗档</td></tr>
+<tr><td class="mono k">diffAdded</td><td class="mono v" style="background:#315847"></td><td class="mono h">#315847</td><td class="mono r">72%·索隆绿(#427353) + 28%·乌索普藏青(#051127)</td><td class="mono s">3.jpg</td><td class="zh">新增 · 新世界草叶绿</td></tr>
+<tr><td class="mono k">diffRemoved</td><td class="mono v" style="background:#51192D"></td><td class="mono h">#51192D</td><td class="mono r">40%·路飞背心红(#C32635) + 60%·乌索普藏青(#051127)</td><td class="mono s">3.jpg、images.jpg</td><td class="zh">删除 · 沉船锈红</td></tr>
+<tr><td class="mono k">diffAddedBg</td><td class="mono v" style="background:#E0F5E1"></td><td class="mono h">#E0F5E1</td><td class="mono r">72%·天际浅绿(#DCF5D6) + 28%·积云白(#EAF4FD)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">新增底 · 浅海沫绿</td></tr>
+<tr><td class="mono k">diffRemovedBg</td><td class="mono v" style="background:#E6E1EB"></td><td class="mono h">#E6E1EB</td><td class="mono r">9%·路飞背心红(#C32635) + 91%·积云白(#EAF4FD)</td><td class="mono s">images.jpg</td><td class="zh">删除底 · 浅珊瑚</td></tr>
+<tr><td class="mono k">diffAddedLineNumberBg</td><td class="mono v" style="background:#C6E9E6"></td><td class="mono h">#C6E9E6</td><td class="mono r">56%·天际浅绿(#DCF5D6) + 20%·晴空薄蓝(#5CB8F8) + 24%·积云白(#EAF4FD)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">新增行号底 · 沫绿</td></tr>
+<tr><td class="mono k">diffRemovedLineNumberBg</td><td class="mono v" style="background:#E5D7E1"></td><td class="mono h">#E5D7E1</td><td class="mono r">14%·路飞背心红(#C32635) + 86%·积云白(#EAF4FD)</td><td class="mono s">images.jpg</td><td class="zh">删除行号底 · 珊瑚</td></tr>
+<tr><td class="mono k">markdownHeading</td><td class="mono v" style="background:#B21C2B"></td><td class="mono h">#B21C2B</td><td class="mono r">75%·路飞背心红(#C32635) + 25%·标志红人(#7F000D)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">标题 · 草帽红深一档</td></tr>
+<tr><td class="mono k">markdownLink</td><td class="mono v" style="background:#144DA5"></td><td class="mono h">#144DA5</td><td class="mono r">55%·深海海底(#105CD7) + 45%·标志字内阴影·海军蓝(#183B68)</td><td class="mono s">2.jpg</td><td class="zh">链接 · 航线蓝</td></tr>
+<tr><td class="mono k">markdownCode</td><td class="mono v" style="background:#105067"></td><td class="mono h">#105067</td><td class="mono r">36%·潟湖青(#23C0D9) + 64%·乌索普藏青(#051127)</td><td class="mono s">2.jpg、3.jpg</td><td class="zh">行内码 · 潟湖青</td></tr>
+<tr><td class="mono k">markdownEmph</td><td class="mono v" style="background:#703E22"></td><td class="mono h">#703E22</td><td class="mono r">60%·娜美橙(#B75C1E) + 40%·乌索普藏青(#051127)</td><td class="mono s">3.jpg</td><td class="zh">强调 · 蜜柑斜光</td></tr>
+<tr><td class="mono k">markdownStrong</td><td class="mono v" style="background:#242634"></td><td class="mono h">#242634</td><td class="mono r">30%·乌索普藏青(#051127) + 70%·黑发(#322F39)</td><td class="mono s">3.jpg、images.jpg</td><td class="zh">加重 · 墨线加粗</td></tr>
+<tr><td class="mono k">markdownBlockQuote</td><td class="mono v" style="background:#2B5E90"></td><td class="mono h">#2B5E90</td><td class="mono r">72%·标志字内阴影·海军蓝(#183B68) + 28%·晴空薄蓝(#5CB8F8)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">引用 · 海图边注</td></tr>
+<tr><td class="mono k">syntaxKeyword</td><td class="mono v" style="background:#A41523"></td><td class="mono h">#A41523</td><td class="mono r">55%·路飞背心红(#C32635) + 45%·标志红人(#7F000D)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">关键字 · 赤犬岩浆红</td></tr>
+<tr><td class="mono k">syntaxFunction</td><td class="mono v" style="background:#6C5733"></td><td class="mono h">#6C5733</td><td class="mono r">8%·标志草帽金(#E5C016) + 42%·草帽阴影(#866D54) + 32%·船锚棕(#674717) + 18%·乌索普藏青(#051127)</td><td class="mono s">2.jpg、3.jpg、images.jpg</td><td class="zh">函数 · 深麦秆金</td></tr>
+<tr><td class="mono k">syntaxType</td><td class="mono v" style="background:#0F4C64"></td><td class="mono h">#0F4C64</td><td class="mono r">34%·潟湖青(#23C0D9) + 66%·乌索普藏青(#051127)</td><td class="mono s">2.jpg、3.jpg</td><td class="zh">类型 · 潟湖深青</td></tr>
+<tr><td class="mono k">syntaxNumber</td><td class="mono v" style="background:#894927"></td><td class="mono h">#894927</td><td class="mono r">45%·娜美橙(#B75C1E) + 55%·BIG 红气球(#643A2E)</td><td class="mono s">3.jpg</td><td class="zh">数字 · 蜜柑焦橙</td></tr>
+<tr><td class="mono k">syntaxString</td><td class="mono v" style="background:#284A41"></td><td class="mono h">#284A41</td><td class="mono r">58%·索隆绿(#427353) + 42%·乌索普藏青(#051127)</td><td class="mono s">3.jpg</td><td class="zh">字符串 · 可可亚草叶绿</td></tr>
+<tr><td class="mono k">syntaxComment</td><td class="mono v" style="background:#3C617F"></td><td class="mono h">#3C617F</td><td class="mono r">50%·标志字内阴影·海军蓝(#183B68) + 28%·晴空薄蓝(#5CB8F8) + 22%·船锚棕(#674717)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">注释 · 海图雾灰</td></tr>
+<tr><td class="mono k">syntaxOperator</td><td class="mono v" style="background:#3A6183"></td><td class="mono h">#3A6183</td><td class="mono r">29%·晴空薄蓝(#5CB8F8) + 53%·标志字内阴影·海军蓝(#183B68) + 18%·船锚棕(#674717)</td><td class="mono s">2.jpg、images.jpg</td><td class="zh">运算符 · 船锚钢灰</td></tr>
+    </table>
+  </div>
+
+  <div class="foot"><span>One Piece · 正午海风 · 37 colors · light · 每个色位都来自三张参考图</span><span>design by 麦浪 · first principles</span></div>
+</div>
+<script>
+const C = {"inputBg": "#F2F6F9", "bubbleBg": "#E6F3FC", "background": "#E3F3FB", "backgroundPanel": "#CEEBFA", "sidebarBg": "#C3E6FA", "codeBlockBg": "#B4DFF9", "backgroundElement": "#9FD6F9", "codeHeaderBg": "#95D2F9", "text": "#0C203E", "textMuted": "#15355E", "primary": "#C32635", "secondary": "#91774D", "info": "#1B638A", "success": "#3B674E", "warning": "#934D20", "error": "#930B19", "border": "#C1E5FA", "borderActive": "#866830", "diffAdded": "#315847", "diffAddedBg": "#E0F5E1", "diffAddedLineNumberBg": "#C6E9E6", "diffRemoved": "#51192D", "diffRemovedBg": "#E6E1EB", "diffRemovedLineNumberBg": "#E5D7E1", "markdownHeading": "#B21C2B", "markdownLink": "#144DA5", "markdownCode": "#105067", "markdownEmph": "#703E22", "markdownStrong": "#242634", "markdownBlockQuote": "#2B5E90", "syntaxKeyword": "#A41523", "syntaxFunction": "#6C5733", "syntaxType": "#0F4C64", "syntaxNumber": "#894927", "syntaxString": "#284A41", "syntaxComment": "#3C617F", "syntaxOperator": "#3A6183"};
+const FAMS = [["场 · 8 表面（晴空蓝一条色相阶梯）", ["background", "backgroundPanel", "backgroundElement", "sidebarBg", "bubbleBg", "inputBg", "codeBlockBg", "codeHeaderBg"]], ["字 · 正文与次级文字", ["text", "textMuted"]], ["品牌与语义 · 6 角色", ["primary", "secondary", "info", "success", "warning", "error"]], ["描边 · 边界与焦点环", ["border", "borderActive"]], ["diff · 增删行", ["diffAdded", "diffRemoved", "diffAddedBg", "diffRemovedBg", "diffAddedLineNumberBg", "diffRemovedLineNumberBg"]], ["markdown · 排版六角色", ["markdownHeading", "markdownLink", "markdownCode", "markdownEmph", "markdownStrong", "markdownBlockQuote"]], ["syntax · 代码七色（浅纸深墨）", ["syntaxKeyword", "syntaxFunction", "syntaxType", "syntaxNumber", "syntaxString", "syntaxComment", "syntaxOperator"]]];
+const ZH = {"background": "主场背景", "backgroundPanel": "面板", "backgroundElement": "浮层/悬停", "sidebarBg": "侧栏", "bubbleBg": "对话气泡", "inputBg": "输入框", "codeBlockBg": "代码底", "codeHeaderBg": "代码头", "text": "正文", "textMuted": "次级文字", "primary": "主色（按钮/强调）", "secondary": "副色", "info": "信息", "success": "成功", "warning": "警告", "error": "错误", "border": "分隔线", "borderActive": "焦点环", "diffAdded": "新增行字", "diffRemoved": "删除行字", "diffAddedBg": "新增行底", "diffRemovedBg": "删除行底", "diffAddedLineNumberBg": "新增行号底", "diffRemovedLineNumberBg": "删除行号底", "markdownHeading": "标题", "markdownLink": "链接", "markdownCode": "行内码", "markdownEmph": "斜体强调", "markdownStrong": "加重", "markdownBlockQuote": "引用", "syntaxKeyword": "关键字", "syntaxFunction": "函数名", "syntaxType": "类型", "syntaxNumber": "数字", "syntaxString": "字符串", "syntaxComment": "注释", "syntaxOperator": "运算符"};
+function lum(h){h=h.replace('#','');const v=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)
+  .map(c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
+const host=document.getElementById('fams');
+for(const [fam,slots] of FAMS){
+  const f=document.createElement('div');f.className='fam';
+  f.innerHTML='<div class="ft"><i></i>'+fam+'</div>';
+  const g=document.createElement('div');g.className='grid';
+  for(const s of slots){
+    const v=C[s];const L=lum(v);
+    const fg=L>.42?'#0F284B':'#F4F4F5';
+    const d=document.createElement('div');d.className='sw';d.title=ZH[s]+' · '+s;
+    d.innerHTML='<div class="top" style="background:'+v+';color:'+fg+'"><span class="hex">'+v+'</span></div>'+
+      '<div class="lbl"><b>'+s+'</b></div>';
+    g.appendChild(d);
+  }
+  f.appendChild(g);host.appendChild(f);
+}
+</script>
+</body>
+</html>

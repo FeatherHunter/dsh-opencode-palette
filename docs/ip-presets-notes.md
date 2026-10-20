@@ -2,6 +2,10 @@
 
 > v3.1 可读性整改（2026-10-19）：21 套全部按 docs/theme-audit/criteria.md 机器判尺整改到位（硬对/UI 对 0 违例、设计告警 21 条全记档 / 0 待处理，--check 退出码 0）。设计意图、品牌色与气质保持原案；6 套浅色主题的代码区由深色舞台改为同色系浅色纸面舞台（syntax 七色转深墨），其余主题主要是 primary/borderActive/标题/弱文字等 token 的对比度与并岗几何微调——正文里少数未及更新的 hex 以 src/custom-presets/*.json 终值为准。
 
+> v3.2 逐像素取色（2026-10-20）：**哈利波特整版重绘**——所有颜色改由四张参考图逐像素取样，只允许「直采 / 明度阶梯 / 两色定比混色」三种来源，id / name / appearance 不变（仍是同名 `harry-potter` 胶囊）。取色台账与原图裁切见 `prototypes/harry-potter-theme-preview.html`；详见 docs/ip-presets-v3-notes.md 末节。其余 20 套不受影响。
+
+> v3.3 逐像素取色（2026-10-20）：**星球大战整版重绘**——37 槽全部改由三张星战海报（天行者崛起 / 天行者的崛起 / 最后的绝地武士）逐像素取样，只允许「直采 / 明度阶梯 / 两色定比混色」三种来源，id / name / appearance 不变（仍是同名 `star-wars` 胶囊，dark）。取色台账与原图裁切见 `prototypes/star-wars-theme-preview.html`；取色管线见 `prototypes/star-wars-extraction/`。硬对 38 / UI 15 全绿，设计告警 0 条。其余 20 套不受影响。
+
 ## 宝可梦（dark）
 
 ①基调：夜晚常磐森林深墨绿 background #0E1B13（原通用藏青判负）。8 背景槽同绿相家族阶梯：sidebarBg #070D0A、codeBlockBg #070E0B 最深 → background #0E1B13 → backgroundPanel #122418、codeHeaderBg #12271B → inputBg #14261B → bubbleBg #182F21 → backgroundElement #1E3A28 最亮。
@@ -11,10 +15,10 @@
 
 ## 漫威（dark）
 
-①基调：漫威漫画墨黑底 background #140C0E，带微暖红调（深夜曼哈顿+共生体暗面），告别通用藏青。8 槽红黑暖灰家族阶梯，codeBlockBg #0C0708 最深，backgroundElement #2D1C21 最亮，border 暖化 #38242C 收进家族。
-②组合：primary 漫威红 #ED1D24 × secondary 美队盾牌振金蓝 #2E8FFF，漫画经典红蓝互补对冲（蜘蛛侠战衣）；borderActive 标志红高亮变体 #FF2E35；红主政、蓝管科技、标题金 #FFD166 管招牌。 v3.1：primary·borderActive 收拢压到 #D51A20（白字反白 4.6:1，红仍是那抹红）；operator 提亮为 #757E8B，退后但仍可读。
-③借物：info 钢铁侠胸口反应堆蓝、success 绿巨人伽马绿、warning 雷神闪电+战甲金、error 屠杀共生体红、diffAdded 浩克绿亮变体、diffRemoved 屠杀红亮变体。syntax：comment 号角日报旧报纸灰、keyword 绯红女巫混沌魔法红、function 反应堆蓝、type 战甲金、number 奇异博士魔法品红、string 浩克绿、operator 振金盾银。
-④技巧：codeBlockBg 压到 #0C0708 成振金密室，header 上浮成盖板；markdownLink 与 syntaxFunction 同色（可点击的反应堆元件）；全套文字带纸墨暖调（暖白/暖灰/旧纸灰），不让冷灰蓝字破坏红黑宇宙。
+①基调：漫威漫画「墨夜」底 background #0C0E15——取自蜘蛛侠漫画主视觉的夜城海军墨（#06182E），不是通用藏青，是带一点紫的近黑。8 槽收进同一条色相族（227°–236°，彩度 6–15），只靠明度分层：codeBlockBg #08090E 最深（L*2.5，最纯的墨）→ background #0C0E15 → sidebarBg #101219 → inputBg #141520 → codeHeaderBg #161722 → bubbleBg #1A1B25 → backgroundPanel #1E1F2A → backgroundElement #212230 最亮（L*13.7）。0 个色相孤岛，border #2B2B39 收进同一族。
+②组合：primary 印刷红 #D81A21 × secondary 熔金 #D9A23C。红金 41.2° 类比（暖对暖）——参考图里铁人的盔甲本体是金不是红，所以第二品牌选金、撤掉旧版的通用蓝。标志红 #E62429 太亮撑不起反白（4.10:1），压到 #D81A21 才够 4.67:1，色相 358° 一帧未让。borderActive 与 primary 同值（红即品牌即焦点，沿用 v3.1 记档）。
+③借物：info 弧反应堆青 #35B5D8、success 浩克翠绿 #3FCF87、warning 熔炉橙 #FF7A1F、error 爆裂朱橙 #FF5A47、diffAdded 浩克绿亮变体 #6FD79A、diffRemoved 战火珊瑚 #FF9A8C。markdown：heading 标题浅金 #FFD98A、link 振金蓝 #6BA5FF、code 铁人铜橙 #E8834A、emph 格温粉 #F472B6、strong 聚光白 #FFFBF2、blockquote 旧纸暖灰 #A89C8A。
+④技巧：正文不用纯白，用漫画纸的暖象牙 #EDE8DE——冷底配暖字，纯白刺眼；textMuted 反其道取冷灰 #ADAAB0（chrome 退后、内容前进），弱文字 labelDimmed 在三个表面上仍 ≥4.92。syntax：keyword 宇宙紫 #B79BFF、function 弧光浅青 #7FD8FF、type 熔金 #F0C14E、number 铁人铜橙 #FF9E6B、string 浩克黄绿 #BCE06A、operator 暖岩灰 #8A8178、comment 冷岩灰 #7A8290；七色两两 ΔE76 最小 33.9（门槛 10），comment/operator 对比度 5.14/5.20 低于全部核心角色（最低 8.66），构成两级退后梯队。界面层只留红/金/青三个色相，七色相全放给代码区。 v3.2：全 37 槽按上述重排，硬对/UI 对 0 违例，审计器 --check 退出码 0。
 
 ## DC（dark）
 
@@ -25,24 +29,34 @@
 
 ## 星球大战（dark）
 
-①基调：外太空黑 background #080A12，8 槽收进 225~232 色相死星钢铁黑家族阶梯：codeBlockBg #03040A 虚空最深 → … → backgroundElement #263154 浮层最亮，死星舱壁纵深。
-②组合：primary 星战 Logo 爬字黄 #FFE81F × secondary 绝地蓝光剑 #4CC2FF，蓝黄互补对撞；borderActive 光剑辉光，选中态像点亮光剑。
-③借物：info R2-D2 全息投影蓝、success 尤达绿/卢克绿光剑、warning 塔图因双日落橙、error 维达红光剑、diffAdded 绿剑刃光+深绿底、diffRemoved 西斯红剑光+暗红底。syntax：keyword 维达红、function 绝地蓝、type C-3PO 金、number 塔图因橙、string 尤达绿、operator 温杜紫剑、comment 死星灰；标题招牌黄、链接蓝剑、行内码霍洛克隆金。
-④技巧：codeBlockBg #03040A 独立放映厅舞台，header 提亮冒充影院顶灯框；syntaxOperator 独占温杜紫剑，全套唯一紫色一眼定位；markdownHeading 与 primary 同取招牌黄（标题即 Logo），syntaxType 退用暗一档 C-3PO 金避正撞。
+> v3.3 整版重绘（2026-10-20，逐像素取色）：三张海报当唯一样本，37 槽每槽只允许三种来源——**直采**（hex 与海报某个像素完全一致）、**明度阶梯**（锚点 H/S 不变，只改 L）、**定比混色**（两个锚点的固定比例线性混合）。台账见 `prototypes/star-wars-extraction/palette.json`，原图裁切见 `prototypes/star-wars-theme-preview.html` 的「取色溯源」段。
+
+①基调：**深空靛** background #05091C——取自 2.jpg 天行者的崛起的星空底 #091031，只拉明度不换色相。8 槽收进同一支色相（基准 229.6°，偏差 ≤10°，0 个色相孤岛）：codeBlockBg #030314 最深（L4.5%，代码舞台）→ background #05091C（L6.5%）→ sidebarBg #070D27（L9%）→ codeHeaderBg #080F2D（L10.5%）→ backgroundPanel #0A1236（L12.5%）→ inputBg #0C1541（L15%）→ backgroundElement #1B253B（L17%）→ bubbleBg #202C46 最亮（L20%）。前六槽全部是 #091031 的明度阶（纯靛），后两槽换成 2.jpg 的海军蓝 #273554 的台阶（更冷的"实体物"层）。
+
+②组合：primary **招牌金** #FCE39F（1.jpg 天行者崛起 STAR WARS 字标的辉光，**直采**）× secondary **光剑蓝** #30B4EC（2.jpg 天行者的崛起中央斜剑的剑心，**直采**）。金 43.9° × 蓝 197.9° = **154.0° 互补**——两把刃的交叉就是三张海报共同的构图。金做主按钮（引擎按亮度选 #141414 作字，反白 14.59:1），蓝走链接与交互；borderActive 用剑光炽白 #7AD2FF（1.jpg 剑光最亮处，**直采**），焦点环比品牌亮一档，像点亮剑刃。
+
+③借物：info 蓝紫剑晕 #97A5FE、success 绿光剑辉 #6EC3AE、warning 琥珀暖光 #E28950（1.jpg 剑与人物之间的那点热核）、error 红剑纯色阶 #E02A34（3.jpg #AA1921 的 L52 阶）、diffAdded 绿剑亮部 #7DD2B5、diffRemoved 红剑余晖 #D65166。markdown：heading 招牌金的暗一档 #F9C843（同锚点 L62 阶，标题比品牌色更沉）、link 天蓝 #78C1E9、code 奶油白 #FAEAD3、emph **落日玫瑰** #D17380（2.jpg 塔图因地平线的落日，**直采**）、strong 星尘白 #F5FAFB、blockquote 长春花蓝暗一档 #7986C4。syntax：keyword 星云紫 #CBA8EC、function 冰蓝 #A5E0FF、type 锈橙提亮 #D09A90、number 招牌金的鎏金阶 #D09A06、string Luke 绿剑冷调 #8ADCD0、operator 与 comment 同取 2.jpg 灰紫 #716882 的退后梯队（4.58 / 4.92，低于五个核心色的最低 8.09）。
+
+④技巧：色相家族分布刻意做成"两把刃 + 招牌金 + 两个语义色"——靛 230°×8、金 44°×5、青 200°×4、蓝 220°×3、薄荷 160°×3、玫 350°×3，其余零星；没有哪一相淹掉全场。玫瑰只留给 markdown 强调（#D17380），删除行用更沉的余晖红 #D65166（ΔE76 45.7，互不串戏）；error 是纯红 #E02A34，与 diffRemoved 分家。text 取海报纸白 #E8E3DB（**直采**），不取纯白——冷底配暖字不刺眼；textMuted 用长春花蓝 #8793CA 与星尘白 12% 混色后自动求"最暗且全档达标"的 #9AA4D1（labelDimmed 在三层主表面仍 ≥4.57）。codeBlockBg #030314 独立放映厅舞台，header 提亮冒充影院顶灯框。判据：硬性 38 对 + UI 15 对 **0 违例**；语法核心两两 ΔE76 最小 25.4（门槛 10）；25 个设计角色 **0 处同值碰撞**；markdown 六角色 0 同值。
 
 ## 哈利波特（dark）
 
-①基调：霍格沃茨深夜烛光暖褐石墙 background #1A120B，告别藏青与暗紫。8 槽暖棕家族阶梯：codeBlockBg #100A06 最深 → … → codeHeaderBg #3E3220 最亮收顶，城堡回廊纵深。
-②组合：primary 霍格沃茨金 #E8B64C × secondary 格兰芬多猩红 #B52A3C，格兰芬多围巾式暖色类比 CP（非互补）；borderActive 标志金高亮变体 #F0C75E，石墙托金框发光感。 v3.1：secondary 压深为 #BA3E40（与 primary 夹角 41.7° 坐实类比 CP、UI 3.2:1）；markdownHeading 从 primary 金拆出提亮为 #FFD478（深底 5.9:1 的标题金）。
-③借物：info 守护神荧光银蓝、success 魁地奇草坪兼斯莱特林祖母绿、warning 金色飞贼闪光黄 #FFC93C、error 匈牙利树蜂龙息红、diffAdded 曼德拉草嫩绿、diffRemoved 龙息余烬。syntax：keyword 咒语紫、function 飞贼金、type 守护神蓝、number 黄油啤酒铜橙、string 禁林绿、operator 格兰芬多猩红、comment 城墙幽灵灰。
-④技巧：codeHeaderBg 故意做家族最亮，烛光盖板压住深舞台（大礼堂悬烛）；warning 比 primary 更亮一档（飞贼常亮 vs 闪光）；text 羊皮纸暖白、textMuted 烛灰褐、markdownStrong 录取通知书亮白，三档暖白各司其职。
+①基调：**禁林月夜** background #0B223B——取自 4.jpg 海报夜空的深蓝，不是通用藏青。8 槽全部收进同一支色相（H211°，基准 211.3°），只拉明度不换色相：codeBlockBg #050F1A 最深（L6.1%，代码舞台）→ sidebarBg #071523（L8.2%）→ background #0B223B（L13.7%，锚点）→ inputBg #0D2740（L15.1%）→ backgroundPanel #102A45（L16.7%）→ bubbleBg #133250（L19.4%）→ backgroundElement #16374F（L19.8%）→ codeHeaderBg #1B3F5E 最亮（L23.7%，舞台顶灯）。0 个色相孤岛。
 
-## 迪士尼（light）
+②组合：primary 霍格沃茨金 #CAA654（3.jpg 格兰芬多领带的金条纹）× secondary 车身猩红 #C56F72（4.jpg 霍格沃茨特快被灯照亮的车身）。金 41.7° × 红 357.9° = 43.8° 落在类比区间（暖对暖，格兰芬多围巾式配色），borderActive 用同一材质的高光档 #FCDB8C——焦点环比品牌亮一档，像被烛光点亮的金框。
 
-①基调：灰姑娘城堡白天象牙石墙+大街晨光，暖 champagne 色相（约 40°）阶梯：inputBg 最亮 → panel → bubble → background #FFF7E8 → sidebarBg → element → border 收底。代码舞台独立：白日暖纸 codeBlockBg #F3E6CE + header #EBD9B8（同色系浅卡舞台，syntax 七色转深墨在白纸上显影；浅底主题不再靠深卡压反差）。
-②组合：primary 米奇红/米妮蝴蝶结红 #D81E2C × secondary 南瓜马车金 #D9990B（暖组类比），borderActive 城堡穹顶蓝/史迪奇蓝 #1E90D6（冷暖互补）。红主政标题、金点缀、蓝管交互。 v3.1：borderActive 压深为 #1577B8（解除与 info 同值并达 UI 3:1）；secondary 南瓜金压深为 #A86F00（达 3:1，与 primary 夹角 44.2° 归类比）。
-③借物：info 城堡穹顶蓝、success 小叮当裙摆丛林绿、warning 南瓜马车烟花金、error 红皇后胡克船长红、diffAdded 小鹿斑比森林绿、diffRemoved 刀疤反派深红。syntax 落日光纸面：keyword #973644 深莓、function #295E73 深海冰蓝、string #32603A 深林绿、type #67551F 暗金、number #84492F 深珊瑚、operator #5E5A6C 暖灰紫、comment #645F85 马车灰紫（七色一律压成暖纸可读的深墨）。
-④技巧：operator 从撞色的浅蓝改为暖灰紫（深墨版），蓝紫分家；代码区由午夜靛紫改为暖纸舞台——浅底主题的正确反差来自深墨 syntax 而不是深色卡；六个浅底槽从最亮到最暗首尾相接，深浅字对比仍达标。v3.1 把 textMuted 压深为 #484034，弱文字在象牙底全部 ≥4.5。
+③借物：info 冰窟冷光 #3DD3FF（images.jpg 冰窟最亮的青蓝）、success 月色青 #91BEAE（4.jpg 邓布利多银须与月光）、warning 火光暖橙 #D4A681（2.jpg 壁炉打在皮肤上的暖调）、error 龙息朱砂 #E05A55（承自车身红，同明度 L61%、彩度 40%→71%、色相 +4.3° 的提纯步进）。diffAdded #A9CCC0 / diffRemoved #D9A1A3 各是月色青与车身红向白提亮的浅档，行底则用「夜空蓝 × 对应语义色」固定比例混色（82% / 34% 两档）。syntax：keyword 暮色丁香 #AC93AA（images.jpg 人像阴影）、function 雾蓝天光 #2E9FD0（4.jpg 片名后方）、type 冰窟冷光与月色青的 50/50 混色 #79C7D2、number 木墙铜镜 #BB8964（2.jpg）、string 冰面青提亮 15% #599CB6、operator 银白与夜空蓝 46/54 混色 #73818E、comment 银白压黑 46% #80807E（城墙石灰）。
+
+④技巧：**整套配色只允许三种来源**——直采（hex 与参考图某像素完全一致）、阶梯（采样色的明度/彩度台阶）、混色（两个采样色的固定比例），没有第四种；每个色位在 prototypes/harry-potter-theme-preview.html 的「取色台账」里都标着出处公式与原图裁切，15 个直采色位由脚本回原图逐个复核「该色确实存在」（#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个）。上一版的暖褐石墙与 #E8B64C 在四张参考图里一个像素都找不到，故整版退役。codeBlockBg 做全场最深舞台、codeHeaderBg 反跳家族最亮压住它（大礼堂悬烛）；七色语法两两 ΔE76 最小 13.8（function × string），comment/operator 对比度 4.87/4.83 一律退到核心语法最低 6.29 之下。**已知缺口**：四张图绿相像素不足 0.1%，success 与 diffAdded 只能共用月色青一族的两个明度台阶——这是全套唯一被素材逼出来的地方。
+
+　v3.2：全 37 槽按「逐像素取色」重绘，id / name / appearance 均未变（同名 harry-potter，仍进自定义主题胶囊）。硬性 38 对 4.5:1 违例 0（最紧 labelDimmed@backgroundElement 4.67:1，正文 text@background 13.84:1）、UI 15 对 3:1 违例 0（最紧 error@backgroundPanel 4.00:1）、设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值）、审计器 --check 退出码 0、token 对账 0 失配。
+
+## 迪士尼（light，v4 重绘：五图取色）
+
+①基调：晨曦城堡——夜幕藏蓝做墨、晨空冷蓝做场、樱花粉做唯一心跳。8 背景槽收进同一条冷蓝家族（206°–216°），只靠明度分层：codeBlockBg #F1F3F8 最浅纸面 → inputBg #EFF2F7 → background #E8EFF5 → sidebarBg #E5EDF4 → backgroundPanel #E3ECF3 → backgroundElement #DDE4EA 收底；codeHeaderBg #E5E9EF 压舞台沿。气泡只留樱花粉 5% 的暖意 bubbleBg #F4EFF4（彩度 5 < 8，判尺不算色相孤岛）——大面积用无彩、小面积用彩，粉色因此更贵。
+②组合：primary 樱华深玫 #903B5C（樱花粉3 × 深梅紫 55%）× secondary 黛青瓦 #3E7389（3.jpg 城堡屋顶原色，未作任何改动），两色相距 139.1° 归三角关系；borderActive 深黛青 #356682 收拢焦点。正文墨是夜空深蓝 × 米奇墨黑 25% 混出的 #071A49——迪士尼的黑从来带蓝，不是纯黑。
+③借物：info 烟花蓝 #257CC1（4.jpg 乐园夜空）、success 童话林绿 #3A5C3A、warning 鎏金压深 #7E5E41（3.jpg 金带 × 树皮棕）、error 米妮红 #B12C34（2.jpg 公主裙原色）、diffAdded 林绿 #3C623E、diffRemoved 深莓 #872F3A。syntax 落冷纸面：keyword #6E2645 深樱、function #2C597B 深海青、string #316057 深林绿、type #714F7C 暗兰紫、number #874B36 深陶土、operator #756361 暖石灰、comment #676890 冷灰紫（七色一律压成冷纸可读的深墨；comment/operator 对比 4.78/5.09 均低于全部核心角色，构成退后梯队）。
+④技巧：代码区由暖纸改冷纸——浅底主题的正确反差来自深墨 syntax 而不是深色卡，冷纸让七色 syntax 显影更干净；markdownHeading 独立为深梅紫 #301C4A 而不与 primary 并岗，标题与品牌各走各的家族；全 37 槽由 5 张参考图的实测像素按定比混合算出，零凭想象：38 条硬对 + 15 条 UI 对全绿，IP 设计规范零告警（色相孤岛 0 / 角色碰撞 0 / 语法核心 ΔE76 24.2）。
 
 ## 超级马里奥（light）
 
@@ -114,12 +128,12 @@
 ③借物：info 占星术水蓝、success 须弥草元素绿、warning 摩拉岩元素金、error 火元素爆炎红、diffAdded 草绿、diffRemoved 浅火红。syntax：keyword 无想之雷紫、function 水元素流光、type 原石星芒青、number 摩拉金、string 草甸嫩绿、comment 黯淡星尘灰紫、operator 星空连接线银蓝。
 ④技巧：codeBlockBg 比 background 压深两档+header 最亮封顶（星夜中更深的舞台卡片）；标题传说祈愿金、链接水元素蓝、行内码原石青浅变体（各有代表物）；text 压星夜底对比拉满，muted 灰紫正是星尘雾色。
 
-## 塞尔达传说（dark）
+## 塞尔达传说（light）
 
-①基调：海拉鲁午夜森林，8 槽全收绿相家族（原 header/ codeBlock 蓝色孤岛违反阶梯，已改）：codeBlockBg #070F0B 渊底最深 → sidebarBg → background #0D1B14 → panel/inputBg 中段 → element/bubbleBg 上浮 → header 舞台顶条收尾。
-②组合：primary 林克紧身衣耐力圈绿 #3FD669 × secondary 三角神力金 #FFD34D（林克胸前同框，类比邻近）；borderActive 三角金高亮（绿底金对焦环=神庙 glow，比绿对绿易辨）；大师剑蓝退居 info/链接，绿金蓝三角色。
-③借物：info 希卡石板娜薇妖精蓝、success 呀哈哈叶绿、warning 三角金黄色卢比、error 心之容器红、diffAdded 绿卢比+深绿底、diffRemoved 加侬瘴气粉红+暗红底。syntax：keyword 大师剑蓝、string 克洛格浅绿、function 三角金、type 佐纳乌青绿、number 炸弹爆裂橙、comment 迷雾森林雾绿、operator 海利亚钢。
-④技巧：codeBlockBg 比 background 压两档做渊底舞台，header 提亮勒出舞台沿；borderActive 用三角金不用主绿；secondary 让位三角金后，用链接+info 双槽保留大师剑蓝（保住盾剑记忆不抢主次）。
+①基调：高原因地正午，8 槽全收「阳光下的空气」家族（暖奶油→淡鼠尾草），只按亮度下潜、零描边分割：background #FAF8EF 天光最亮 → sidebarBg #F5F2E9 → codeBlockBg #F7F4EB 纸面舞台 → backgroundPanel #EEEEE0 → codeHeaderBg #E1E8D5 → backgroundElement #DFE7D3 最深；bubbleBg #FDFCF3 / inputBg #FEFEF5 浮到顶。整条阶梯 L* 97.5→90.6，彩度全部收在 h45–84，0 个色相孤岛。
+②组合：primary 忘忧花花心暗部 #204A5D × secondary 林克发色金 #827717，144.9° 三角（天蓝对日金）；info 远山蓝灰 #617488、success 草原绿 #466E12、warning HUD 血量橙 #77370C、error 同族陶土红 #9E5D4B。青蓝一族只留给「可交互」层（primary / borderActive #267593 / 链接 #225B73 / 关键字 #2C4245），四者靠亮度阶梯分开，不靠换色相。
+③借物：正文墨取图1/图3 草地背光处的森林阴影 #1E371D（纯黑会让 BOTW 变冷，也和"草丛遮住的地方不是黑，是另一种绿"这句题眼冲突）；secondary 取图3 角色发丝 #DAB314；warning/error 取图3 左上 HUD 血量的橙红 #EB6D30 及其暗部；success 取图3 体力环绿 #3B610C；borderActive 取图4 花心青 #12C1ED。syntax：keyword 忘忧花深青、function 林克发金、type 远山蓝灰、number 血量橙红、string 古代石碑青绿、comment 草丛雾绿、operator 暖岩灰。
+④技巧：主色取花瓣暗部而不是花心亮色——亮青 #12C1ED 在浅底上只有 2.00:1，压不住按钮白字，contrastText(primary)@primary 达不到 4.5；代码区改同族浅色纸面（shiki 前景 = 文字色，深卡会让无高亮代码不可读）；markdownHeading 用远堡雾紫灰 #605E63——这是四张图里唯一够深的紫，够艳的 #A494C6 对比只有 2.59:1，撑不起标题；error 只能是陶土红，因为全组最红的一批像素只是 HUD 血量的暗部，没有纯红可用。
 
 ## 新世纪福音战士（dark）
 

@@ -100,7 +100,7 @@
 | --- | --- |
 | 背景家族色相孤岛 | 0 个主题有孤岛 |
 | 明暗 straddle（仅记录） | 0 个主题 |
-| 角色碰撞 / markdown 同值 | 21 条告警：记档 21 / 待处理 0 |
+| 角色碰撞 / markdown 同值 | 20 条告警：记档 20 / 待处理 0 |
 | markdown 层级同值主题 | 2 个 |
 | 语法核心 ΔE<10 | 0 个主题 |
 | comment/operator 未退后（待处理） | 0 条 |
@@ -110,8 +110,8 @@
 
 | 主题 | code | 状态 | 说明 |
 | --- | --- | --- | --- |
-| cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff5858） |
-| cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 94.2 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
+| cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff3b4a） |
+| cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 83.5 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
 | dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：primary = info = markdownLink（#64a2ff） |
 | dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = borderActive = syntaxFunction（#ffcf40） |
 | dc-comics | roleCollision | ✓ 记档 | 同组角色取同值：markdownHeading = markdownStrong（#ffffff） |
@@ -121,14 +121,13 @@
 | dragon-ball | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#ff810d） |
 | genshin | roleCollision | ✓ 记档 | 跨组角色取同值：info = markdownLink（#7aa2f7） |
 | hello-kitty | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#db0011） |
-| marvel | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#d51a20） |
+| marvel | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#d81a21） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：info = markdownLink（#2dd4bf） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：success = diffAdded = syntaxString（#4ade80） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = syntaxType（#60a5fa） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：textMuted = markdownBlockQuote（#b1bfb3） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved = syntaxKeyword（#ff6b6b） |
 | pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：warning = syntaxNumber（#ff9f1c） |
-| star-wars | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = borderActive = markdownLink（#4cc2ff） |
 | transformers | roleCollision | ✓ 记档 | 同组角色取同值：secondary = info（#38a1ff） |
 | transformers | roleCollision | ✓ 记档 | 跨组角色取同值：borderActive = markdownLink（#4db2ff） |
 

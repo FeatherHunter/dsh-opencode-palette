@@ -26,6 +26,10 @@ function 改斯莱特林湖水青（格兰芬多对斯莱特林 duality 关键�
 
 codeBlock·header 由 navy 孤岛改为暖调深浓缩咖啡（与奶油同色相，L95%→L10% 下沉保留）；error·heading·code 改深莓/酒红/李子栗（三红解散，error 对比提到约 7:1）；warning 改深青铜·success 改深绿（对比提到约 5.5:1）；comment 压暗彻底退后·operator 提亮银薰衣草（退后分级）；type 改苍白柠檬黄·number 改珊瑚橙。
 
+## 迪士尼 v4（重绘：五张参考图逐像素取色）
+
+全部 37 槽改为「5 张图实测像素 + 定比混合」产出，不再凭品牌印象配色：夜幕藏蓝（1.jpg 夜空 / 4.jpg 海报）做正文墨 #071A49，晨空冷蓝（5.jpg 月白 × 2.jpg 云影蓝）做场域 #E8EFF5，樱花粉（3.jpg）做唯一心跳 primary #903B5C，黛青瓦（3.jpg 屋顶原色）做 secondary #3E7389（与 primary 相距 139.1°，归三角）。代码区由暖纸改冷纸 codeBlockBg #F1F3F8（浅底主题的正确反差来自深墨 syntax 而非深色卡），syntax 七色转冷纸可读的深墨，comment/operator 对比 4.78/5.09 退后于全部核心角色；heading 独立为深梅紫 #301C4A 与 primary 解耦，borderActive 改深黛青 #356685 与 info 解耦。判尺：38 硬对 + 15 UI 对全绿，IP 设计规范零告警（色相孤岛 0 / 角色碰撞 0 / 语法核心 ΔE76 24.2）。
+
 ## 马里奥（revise，9 条）
 
 success 加深管道阴影绿；blockquote 改水下关深青；code 改桃花公主品红紫；heading 改砖块橙红；muted 加深；keyword 偏玫瑰品红；number 加深火焰橙；operator 改雾灰蓝退后；type 推向真蓝（与 link 深浅分工跨台隔离）。
@@ -101,7 +105,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 - DC：primary·info·link 整组提亮 #64A2FF，comment 提亮。
 - 星球大战：弱文字/comment 提亮，退后层级重建。
 - 哈利波特：secondary #BA3E40（41.7° 类比）、heading 拆出 #FFD478、弱文字微提。
-- 迪士尼：代码区改暖纸 #F3E6CE/#EBD9B8 + 深墨 syntax；borderActive #1577B8、secondary #A86F00（44.2°）。
+- 迪士尼：代码区改暖纸 #F3E6CE/#EBD9B8 + 深墨 syntax；borderActive #1577B8、secondary #A86F00（44.2°）。（v4 已整体重绘，见上「迪士尼 v4」：冷纸 #F1F3F8、primary #903B5C、secondary #3E7389、139.1° 三角）
 - 马里奥：代码区改日光蓝 #D3E8F9/#C2DDF4 + 深墨 syntax；borderActive #C41E1A 解耦，heading/弱文字微调。
 - 乐高：代码区改浅灰底盘 #E3E5E9/#D9DCE2 + 深墨 syntax；borderActive #A80D0F 解耦、strong #141416 拆出、secondary 压深达 UI。
 - 龙珠：primary·borderActive 提亮 #FF810D（反白 4.6:1、几何 179.4° 互补），comment 提亮、warning/heading/function 解耦。
@@ -117,3 +121,21 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 - 赛博朋克 2077：borderActive/heading 拆 #FFF24A/#FFF7A8，弱文字提亮（与引用解耦），error=diffRemoved 并岗保留。
 - 美少女战士：代码区改月光灰紫纸 #F1ECF3/#E8E3EA + 深墨 syntax；primary 压深 #C42C6B（反白 4.6:1）、comment/operator 重建退后。
 - 库洛米（第 21 套，质量标杆）：secondary 提为 #A84AB2（43.6° 类比）、error/diffRemoved 拆分、弱文字提亮；浅色纸卡结构保持。
+
+## v3.2 哈利波特逐像素取色重绘（2026-10-20，1 套）
+
+起因：哈利波特是 21 套 IP 主题里唯一「没有参考图」的一套——上一版的暖褐石墙 + 霍格沃茨金 #E8B64C 是照着 IP 印象补出来的，与任何具体素材都对不上。既然是这个 IP，就得有一张能指得回像素的底片。取四张参考图（`C:\Users\辰辰洋洋\Pictures\哈利波特\` 下的 4.jpg 海报 / images.jpg 冰窟 / 2.jpg 肖像 / 3.jpg 商品图）逐像素取样后整版重绘。
+
+**判尺（比 v3 更严）**：每个色位只允许三种来源，第四种直接判负——
+
+1. **直采**：hex 与参考图某个像素完全一致。15 个色位走这条路，由脚本回原图逐个复核「该色确实存在」：#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个，#91BEAE 在 4.jpg 邓布利多银须上找到 4 个。
+2. **阶梯**：采样色的明度 / 彩度台阶，公式写在台账卡片上（如 8 个背景槽共用 H211° 一支色相，明度 L6.1%→L23.7%）。
+3. **混色**：两个采样色的固定比例（如代码行底 #233E50 = 夜空蓝 82% × 月色青 18%）。
+
+**结果**：场域从暖褐石墙换成**禁林月夜**——4.jpg 夜空的深蓝 #0B223B 做锚点，8 个背景槽收进同一支色相（H211°，基准 211.3°）只拉明度，0 个色相孤岛；codeBlockBg #050F1A 做全场最深舞台、codeHeaderBg #1B3F5E 反跳家族最亮压住它。primary 领带金 #CAA654 × secondary 车身猩红 #C56F72（4.jpg 霍格沃茨特快）= 43.8° 类比，落回 v3 认可的暖对暖几何；borderActive 用同材质高光档 #FCDB8C（焦点环比品牌亮一档）。语义色各领一桩实物：冰窟冷光 #3DD3FF 做 info、火光暖橙 #D4A681 做 warning、龙息朱砂 #E05A55 做 error（承自车身红：同明度 L61%、彩度 40%→71%、色相 +4.3° 的提纯步进）。语法七色两两 ΔE76 最小 13.8，comment/operator 对比度 4.87/4.83 退到核心语法最低 6.29 之下。
+
+**审计**：硬性 38 对 4.5:1 违例 0（最紧 labelDimmed@backgroundElement 4.67:1，正文 text@background 13.84:1）；UI 15 对 3:1 违例 0（最紧 error@backgroundPanel 4.00:1）；设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落在类比区 / 语法核心 ΔE ≥ 10 / comment·operator 退后成立）；`node scripts/audit-themes.ts --check` 退出码 0；token 对账 212 项 0 失配。id / name / appearance 全部不变，仍以同名 `harry-potter`（哈利波特）进自定义主题胶囊。
+
+**已知缺口（备案）**：四张图绿相像素合计不足 0.1%，绿色素材客观缺位，所以 success #91BEAE 与 diffAdded #A9CCC0 只能共用月色青一族的两个明度台阶——这是全套唯一被素材逼出来的地方，不做「想象一个绿」。
+
+**配套物**：`prototypes/harry-potter-theme-preview.html`（自包含，含 4 张参考图 + 22 块原图裁切 + 37 色位取色台账 + 实时对比度复核）；取色与复核管线在 `prototypes/harry-potter-extraction/`（extract / census / sample / provenance / validate / gen / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。
