@@ -31,6 +31,10 @@ python verify_sources.py
 
 # 6) 判尺（仓库口径：38 硬对 4.5:1 + 15 UI 对 3:1 + 6 项 IP 设计规范）
 npm run audit:themes -- --check
+
+# 6') 只判这一套（独立检查器，口径与 scripts/audit-themes.ts 逐位一致；
+#     拿仓库 docs/theme-audit/baseline.json 当数值参照，21 套 IP 预置 71 对逐位对账 0 差异）
+python check_palette.py palette.json --theme-name sailor-moon
 ```
 
 ## 文件
@@ -40,6 +44,7 @@ npm run audit:themes -- --check
 - `write_preset.py` —— 写 `src/custom-presets/sailor-moon.json`
 - `make_preview.py` —— 生成自包含预览页
 - `verify_sources.py` —— 18 个取色框的上下文联系表（人眼复核用）
+- `check_palette.py` —— 独立判尺检查器（只读、离线、确定性；硬性违例退出码 1）
 - `palette.json` / `ledger.json` —— 产物：色板与逐色位台账
 
 ## 关键结果
