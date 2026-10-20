@@ -25,7 +25,7 @@
 
 一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。
 
-38 款主题里，37 款是 OpenCode 那套经典配色；剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。
+38 个入口按色系排好，搜名字就能切 —— 37 款是 OpenCode 那套经典配色，剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。
 
 | 主界面（opencode 主题） | 设置面板（38 款按色系分组） |
 |---|---|
@@ -68,12 +68,6 @@ dsh plugin --profile web add dsh-opencode-palette
 **② 打开「OpenCode调色板」。** 设置 → 插件 → OpenCode调色板
 
 **③ 挑一个喜欢的主题。**
-
-<h2 align="center"><sub>THEMES</sub><br>主题</h2>
-
-38 个入口按色系排好，搜名字就能切。下面这张图，每一格都是一款配色。
-
-![theme stories](assets/theme-stories-zh.svg)
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 

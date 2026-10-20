@@ -25,7 +25,7 @@ Your ⭐ is the brightest star in my night sky.
 
 Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.
 
-Of the 38 themes, 37 are OpenCode's classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.
+38 entries lined up by color family — search by name and switch. 37 of them are OpenCode's classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.
 
 | Main screen (opencode theme) | Settings panel (38 themes by color family) |
 |---|---|
@@ -68,12 +68,6 @@ dsh plugin --profile web add dsh-opencode-palette
 **② Open “OpenCode Palette”.** Settings → Plugins → OpenCode Palette
 
 **③ Pick a theme you like.**
-
-<h2 align="center"><sub>THEMES</sub><br>Themes</h2>
-
-38 entries lined up by color family — search by name and switch. Every cell in the picture below is a palette.
-
-![theme stories](../assets/theme-stories-en.svg)
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 

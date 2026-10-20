@@ -220,12 +220,17 @@ test('包内副本：等于英文页去掉 showcase 块（行尾归一化后比�
   assert.equal(PKG.includes('showcase/'), false, '包内副本不引用 showcase 截图')
 })
 
-// ── 8 · 本轮不动主体：面板词条与主体段落原样 ──
+// ── 8 · 主体段落清单：面板词条与主体段落原样 ──
 test('面板词条与主体段落未被本轮改动（只动头尾）', () => {
   // 主体小标题仍在（改名/合并是 #30→#31 的事）
-  for (const marker of ['<sub>INSTALL</sub>', '<sub>THEMES</sub>', '<sub>EXTENSIONS</sub>', '<sub>UPGRADE</sub>', '<sub>CONNECT</sub>']) {
+  // 2026-10-21：THEMES（主题专区）随那张色带 SVG 一起退役，用户判定没必要 ——
+  // 这里跟着退役并钉死，别让人把它悄悄加回来。
+  for (const marker of ['<sub>INSTALL</sub>', '<sub>EXTENSIONS</sub>', '<sub>UPGRADE</sub>', '<sub>CONNECT</sub>']) {
     assert.ok(ZH.includes(marker), `中文页主体标记应在场：${marker}`)
     assert.ok(EN.includes(marker), `英文页主体标记应在场：${marker}`)
+  }
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
+    assert.equal(doc.includes('<sub>THEMES</sub>'), false, `${name} 不应再有 THEMES 标题（主题专区已退役）`)
   }
 })
 

@@ -75,7 +75,10 @@ test('assets/ 与 README 引用一一对应：没有引用到已删的图，也�
   const svgs = onDisk.filter((f) => f.endsWith('.svg'))
   const generated = ['theme-stories-en.svg', 'theme-stories-zh.svg']
   assert.deepEqual(svgs.sort(), generated.slice().sort(), 'assets/ 里的 SVG 应只剩重做后的 theme-stories 两张')
-  for (const g of generated) assert.ok(refs.has(g), `生成的图没有被 README 引用：${g}`)
+  for (const g of generated) assert.ok(existsSync(join(ROOT, 'assets', g)), `生成的图不在磁盘上：${g}`)
+  // 2026-10-21：用户判定「主题专区」没必要 → THEMES 段连那张色带 SVG 一起退役，图只留在 assets/ 当素材库。
+  // 所以这两张 SVG 不再要求被 README 引到（它们仍由 scripts/generate-assets.ts 生成、另有内容门禁钉着）；
+  // PNG 那一半不变：张张都要被引到，白生成的 PNG 一律要红。
   // 2026-10-21：assets/ 里的每一张 PNG 都必须被 README 引到（新增十张真机截图全部进了 showcase 网格）。
   // 以前只断言了 SVG 那一半，多出来的 PNG 会静静躺在仓库里没人看见 —— 这里补齐另一半。
   const pngs = onDisk.filter((f) => f.endsWith('.png')).sort()
@@ -88,9 +91,12 @@ test('主体小标题与定稿一致：GUIDE 退役，INSTALL 即三步', () => 
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     assert.equal(doc.includes('<sub>GUIDE</sub>'), false, `${name} 不应再有 GUIDE 标题（已并入 INSTALL 三步）`)
     assert.equal(doc.includes('一条命令完成安装'), false, `${name} 不应再有旧标签句`)
-    for (const marker of ['<sub>INSTALL</sub>', '<sub>THEMES</sub>', '<sub>EXTENSIONS</sub>', '<sub>UPGRADE</sub>']) {
+    for (const marker of ['<sub>INSTALL</sub>', '<sub>EXTENSIONS</sub>', '<sub>UPGRADE</sub>']) {
       assert.ok(doc.includes(marker), `${name} 缺主体标记：${marker}`)
     }
+    // 2026-10-21：THEMES 段退役（连主题专区那张色带 SVG 一起），「38 = 37 上游 + 跟随系统」的口径
+    // 改由 SHOWCASE 段首句承担。退役即钉死：谁把主题专区加回来，这条要红。
+    assert.equal(doc.includes('<sub>THEMES</sub>'), false, `${name} 不应再有 THEMES 标题（主题专区已退役）`)
   }
   assert.ok(ZH.includes('<sub>INSTALL</sub><br>三步上手'), '中文标题即三步')
   assert.ok(EN.includes('<sub>INSTALL</sub><br>Get started in three steps'), '英文标题即三步')
@@ -123,15 +129,17 @@ test('图片引用存在性：三份文档里的每个 <img src> / ![..]() 都�
   assert.deepEqual(missing, [], '以下图片引用指向不存在的文件（GitHub 上会裂图）：\n' + missing.join('\n'))
 })
 
-// ── 5 · 口径定稿：38 = 37 上游 + 原生外观由「图」承担；字体只讲一次 ──
+// ── 5 · 口径定稿：38 = 37 上游 + 原生外观；字体只讲一次 ──
 // 用户 2026-09-17 复稿：THEMES 首句精简成一句，不再在正文里铺 37/原生 的口径
-// （口径改由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
+// （口径原由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
 // 2026-10-19 全篇文案重写（用户逐段确认）：首句与 EXTENSIONS 三条的措辞随之改写，
 // 断言跟着新定稿走 —— 门禁盯的是「定稿那句不许被顺手改掉」，不是某几个旧字面量。
-test('口径：THEMES 正文只留一句，不再复述 37 上游 / 原生外观', () => {
-  assert.ok(ZH.includes('38 个入口按色系排好，搜名字就能切。下面这张图，每一格都是一款配色。'),
+// 2026-10-21 主题专区退役：THEMES 段与色带图一起删掉，这句口径并进 SHOWCASE 段首，
+// 断言跟着搬家（搬家后仍要钉死，别让「38 / 37 上游 / 跟随系统」在改写里悄悄变形）。
+test('口径：38 款 / 37 上游 + 跟随系统 这一句落在 SHOWCASE 段首（THEMES 段已退役）', () => {
+  assert.ok(ZH.includes('38 个入口按色系排好，搜名字就能切 —— 37 款是 OpenCode 那套经典配色，剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。'),
     '中文数据句应为定稿原文')
-  assert.ok(EN.includes('38 entries lined up by color family — search by name and switch. Every cell in the picture below is a palette.'),
+  assert.ok(EN.includes('38 entries lined up by color family — search by name and switch. 37 of them are OpenCode\'s classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.'),
     '英文数据句应为定稿原文')
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('（默认）'), false, `${name} 不应再给 system 标「默认」`)
@@ -213,21 +221,21 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   assert.deepEqual(zh, en, '中英主体结构应逐块同形，一侧多一句就红')
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
   assert.equal(zh.filter((x) => x === 'IMG').length, 0, 'showcase 截图必须走 markdown 语法：市场详情页的渲染器把原始 HTML 整段丢弃，<img> 在那边一张都不显示')
-  assert.equal(zh.filter((x) => x === 'FIG').length, 1, '只剩 THEMES 那一行色带图：2026-10-21 起 showcase 截图走两栏 markdown 表格，图片行以 `|` 开头不再是 FIG，网格本身由下面的 showcase 网格门禁盯着')
+  assert.equal(zh.filter((x) => x === 'FIG').length, 0, '正文不再有独立成行的图片：2026-10-21 起 showcase 截图走两栏 markdown 表格（图片行以 `|` 开头），THEMES 的色带图随主题专区一起退役')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
   assert.equal(zh.filter((x) => x === 'BULLET').length, 0, 'EXTENSIONS 与 UPGRADE 都已不用 bullet（2026-09-18 起主体内应无 `- ` 列表项）')
   assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
   assert.equal(count(EN, '<details>'), 0, '英文页同样没有 details')
 })
 
-test('EXTENSIONS 与 THEMES：两段都居左（不再包 align="center" 的 div）', () => {
+test('EXTENSIONS 段居左（不再包 align="center" 的 div），且排在 INSTALL 之后', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
-    const themes = doc.indexOf('<sub>THEMES</sub>')
+    const install = doc.indexOf('<sub>INSTALL</sub>')
     const ext = doc.indexOf('<sub>EXTENSIONS</sub>')
     const upgrade = doc.indexOf('<sub>UPGRADE</sub>')
-    assert.ok(themes > -1 && ext > themes && upgrade > ext, `${name} 段落顺序应为 THEMES → EXTENSIONS → UPGRADE`)
-    const block = doc.slice(themes, upgrade)
-    assert.equal(block.includes('<div'), false, `${name} 的 THEMES + EXTENSIONS 不应再包 div（要居左）`)
+    assert.ok(install > -1 && ext > install && upgrade > ext, `${name} 段落顺序应为 INSTALL → EXTENSIONS → UPGRADE`)
+    const block = doc.slice(ext, upgrade)
+    assert.equal(block.includes('<div'), false, `${name} 的 EXTENSIONS 不应再包 div（要居左）`)
   }
 })
 
