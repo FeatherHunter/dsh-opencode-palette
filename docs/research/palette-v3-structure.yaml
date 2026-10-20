@@ -1,0 +1,506 @@
+# =============================================================================
+# palette.yaml —— DSH 主题能力全集（V3 结构设计稿 v2 —— 历史版本）
+#
+# ⚠️ 已被 palette/ 目录（v3.0.0，按技术域拆分）取代；本文件仅保留作 v2 审查记录。
+#    v3 入口：palette/_index.yaml。本文件不再更新。
+#
+# 这份文件是「结构设计」，不是最终 200 条能力的成品；示例条目全部取自真实能力。
+# 设计原则（第一性原理）：
+#   1. 能力是语义（谁·哪个部件·哪个维度），三原语（token/rule/dom）只是落地手段。
+#   2. 一切宿主私有细节（token 名/选择器/类名）只出现在本文件，且集中在 anchors。
+#   3. 每个能力可带多条效果链，按「保真度 × 可用性」降级；字段级失败只降级该字段。
+#   4. 编译是纯函数：palette + theme + probe → plan；预览与运行时吃同一份 plan。
+#   5. 值必须按类型解析后由我们重新序列化，禁止原文拼进样式表（防 CSS 注入）。
+#   6. 没写 = 不注入；null = 清掉我这层；视觉默认值不属于本文件（在默认主题里）。
+#   7. 生成物（registry/schema/docs/AI prompt）全部由本文件派生，禁止手改。
+#
+# 文件格式约束（严格子集）：禁止 YAML 锚点/别名/自定义 tag/合并键；重复键报错。
+# 编辑器提示： yaml-language-server: $schema=./schema/palette-v3.schema.json
+# =============================================================================
+
+palette: 3.0.0            # 能力全集语义版本：新增能力 +0.1.0，破坏性变更 +1.0.0
+api: 3                    # theme.yaml 的 schema 版本；主题只认这个
+title: DSH 全量主题能力表
+description: |
+  本文件是插件的唯一能力真源：声明「可配置的外观维度、接受的值、如何落到宿主、如何降级」。
+  用户主题（theme.yaml）只能写这里登记过的能力 id；宿主改名时只改本文件。
+
+# -----------------------------------------------------------------------------
+# 1. 文法：id 怎么组成、怎么校验
+# -----------------------------------------------------------------------------
+grammar:
+  # 两种能力 id（由条目自身的 kind 决定用哪条）
+  property_id: '<region>.<role>.<property>'    # 单旋钮能力，值 = 标量/颜色/长度/资源
+  recipe_id:   '<region>.<recipe>'             # 复合能力，值 = 对象，多 aspect 独立降级
+  custom_prefix: custom                        # 扩展能力：custom.<名>.<名>，必须 custom: true
+  vocabulary_bound: true                       # 三段必须来自 vocabulary（custom 例外）
+  locked: true                                 # id 发布后不可改名，只能 deprecated + replaced_by
+
+# -----------------------------------------------------------------------------
+# 2. 不变量：CSS 层级、宿主环境、探测原语
+# -----------------------------------------------------------------------------
+layers: [tokens, base, component, state, override]   # 规则只能引用这些枚举，不能写数字
+
+envs: [web, desktop]         # web = 浏览器版；desktop = Electron 桌面版（含窗口外壳）
+
+probes:                      # when 里可用的探测原语（数据驱动，代码只实现这些）
+  selector_exists: { kind: dom,  eval: selector_match }
+  token_live:      { kind: host, eval: token_status_live }
+  token_declared:  { kind: host, eval: token_declared }
+
+# -----------------------------------------------------------------------------
+# 3. 词汇表：能力标签自动拼装、编辑器分组、AI 稳定输出
+# -----------------------------------------------------------------------------
+vocabulary:
+  regions:
+    - { id: global,      label: 全局 }
+    - { id: window,      label: 窗口外壳 }
+    - { id: sidebar,     label: 侧栏 }
+    - { id: conversation,label: 对话区 }
+    - { id: composer,    label: 输入区 }
+    - { id: detail,      label: 详情面板 }
+    - { id: settings,    label: 设置页 }
+    - { id: menu,        label: 菜单与弹层 }
+    - { id: code,        label: 代码与差异 }
+    - { id: markdown,    label: Markdown 排版 }
+    - { id: tool,        label: 工具调用卡片 }
+    - { id: terminal,    label: 终端 }
+    - { id: deliverable, label: 产物与文件 }
+    - { id: plugin,      label: 插件市场 }
+  roles:
+    - { id: page,      label: 页面 }
+    - { id: panel,     label: 面板 }
+    - { id: card,      label: 卡片 }
+    - { id: item,      label: 列表项 }
+    - { id: button,    label: 按钮 }
+    - { id: input,     label: 输入框 }
+    - { id: text,      label: 正文 }
+    - { id: heading,   label: 标题 }
+    - { id: link,      label: 链接 }
+    - { id: icon,      label: 图标 }
+    - { id: menu,      label: 菜单 }
+    - { id: tooltip,   label: 气泡提示 }
+    - { id: tab,       label: 标签页 }
+    - { id: badge,     label: 徽标 }
+    - { id: scrollbar, label: 滚动条 }
+    - { id: selection, label: 选区 }
+    - { id: titleBar,  label: 标题栏 }
+    - { id: table,     label: 表格 }
+    - { id: divider,   label: 分隔线 }
+    - { id: overlay,   label: 遮罩层 }
+  properties:
+    - { id: background,   label: 背景 }
+    - { id: foreground,   label: 前景色 }
+    - { id: border_color, label: 边框颜色 }
+    - { id: border_width, label: 边框粗细 }
+    - { id: radius,       label: 圆角 }
+    - { id: shadow,       label: 阴影 }
+    - { id: font_family,  label: 字体 }
+    - { id: font_size,    label: 字号 }
+    - { id: line_height,  label: 行高 }
+    - { id: font_weight,  label: 字重 }
+    - { id: letter_spacing, label: 字距 }
+    - { id: icon,         label: 图标 }
+    - { id: opacity,      label: 透明度 }
+    - { id: blur,         label: 模糊 }
+    - { id: transition,   label: 过渡 }
+    - { id: image,        label: 背景图 }
+  recipes:                    # recipe 能力的第二段（<region>.<recipe>）
+    - { id: glass,          label: 毛玻璃 }
+    - { id: wallpaper,      label: 壁纸 }
+    - { id: noise,          label: 噪点纹理 }
+    - { id: vignette,       label: 暗角 }
+    - { id: gradient_border,label: 渐变描边 }
+    - { id: scanline,       label: 扫描线 }
+    - { id: paper,          label: 纸张质感 }
+
+# -----------------------------------------------------------------------------
+# 4. 值类型：验证 + 归一化 + 序列化（防注入的关键）
+#   kind      结构化类型；diurnal=是否支持 {light,dark} 成对；ref=是否允许 $variable 引用
+#   parse/serialize 必须是代码里登记的实现名（枚举），不允许自由函数
+# -----------------------------------------------------------------------------
+value_types:
+  color:
+    kind: color
+    diurnal: true
+    ref: true
+    parse: css_color
+    serialize: css_color
+  paint:                     # 能当「绘制值」用的一切
+    kind: union
+    of: [color, gradient, image]
+    diurnal: true
+    ref: true
+    parse: css_paint
+    serialize: css_paint
+  length:
+    kind: length
+    units: [px, rem, em, %, vh, vw]
+    diurnal: false
+    ref: true
+    parse: css_length
+    serialize: css_length
+  number:
+    kind: number
+    min: 0
+    max: 10
+    ref: false
+  font_stack:
+    kind: font_stack
+    diurnal: false
+    ref: true
+    parse: font_stack
+  typeface:                  # 字体：可以是字体栈，也可以是字体资源
+    kind: union
+    of: [font_stack, asset]
+    asset_kind: font
+    diurnal: false
+    ref: true
+  weight:
+    kind: enum
+    values: [100, 200, 300, 400, 500, 600, 700, 800, 900]
+    diurnal: false
+  icon:
+    kind: asset
+    asset_kind: icon
+    diurnal: false
+    ref: false
+  image:
+    kind: asset
+    asset_kind: wallpaper
+    diurnal: true            # 允许 light/dark 两张壁纸
+    ref: false
+  shadow:
+    kind: shadow
+    diurnal: true
+    ref: true
+  duration:
+    kind: duration
+    units: [ms, s]
+    ref: false
+  easing:
+    kind: easing
+    ref: false
+
+# -----------------------------------------------------------------------------
+# 5. 资源：允许的资产种类与安全约束（默认主题、用户主题都受此约束）
+# -----------------------------------------------------------------------------
+assets:
+  policy:
+    uri: relative_only       # 只允许主题包内相对路径
+    external: forbidden      # 禁止 http(s) 外链（防隐私/SSRF/版权）
+    data_url: forbidden
+    max_total_bytes: 33554432
+  kinds:
+    wallpaper: { media: [jpg, jpeg, png, webp, avif], max_bytes: 8388608, diurnal: true }
+    icon:      { media: [svg, png],                  max_bytes: 262144,  diurnal: false }
+    font:      { media: [woff2, woff, ttf, otf],      max_bytes: 5242880, diurnal: false }
+
+# -----------------------------------------------------------------------------
+# 6. 用户变量层：theme.yaml 的 variables 命名约束
+#   变量编译为 --palette-var-<name>，能力值里写 $name 引用，改一次全局生效
+# -----------------------------------------------------------------------------
+variables:
+  pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
+  max: 64
+  reserved_prefix: palette
+
+# -----------------------------------------------------------------------------
+# 7. 状态：状态名 → 选择器后缀（rule 写入时用；token 写入也可声明 state）
+# -----------------------------------------------------------------------------
+states:
+  hover:    ':hover'
+  active:   ':active'
+  focus:    ':focus-visible'
+  disabled: '[disabled], [aria-disabled="true"]'
+  selected: '[aria-selected="true"]'
+
+# -----------------------------------------------------------------------------
+# 8. 宿主：token 登记表与可用状态（构建期由扫描器生成，palette 只引用）
+# -----------------------------------------------------------------------------
+host:
+  token_registry: schema/host-tokens.yaml   # 每个宿主 token 名/状态(live|dead|pinned)/声明行
+  token_status_allowed: [live]              # 默认禁止写 dead/pinned；特例走 allow_status + 原因
+
+# -----------------------------------------------------------------------------
+# 9. 锚点：宿主私有选择器集中地（候选列表 → 宿主改名只改这里）
+#    scope: document=全局选择器；element=相对元素（配合 dom 写入）
+#    probe 缺省 selector_exists；失败 → 该锚点相关写入降级并诊断
+# -----------------------------------------------------------------------------
+anchors:
+  global.root:
+    candidates: ['body']
+    scope: document
+  sidebar.root:
+    candidates: ['[data-slot="conversation.session"]', '[data-sidebar]']
+    scope: element
+    meta: { evidence: 'docs/research/moddable-surface-registry.md §2' }
+  sidebar.item:
+    candidates: ['[data-slot="conversation.session"] [data-nav-item]', '[data-slot="conversation.session"] a[href]']
+    scope: element
+  composer.root:
+    candidates: ['[data-slot="conversation.composer"]']
+    scope: element
+  composer.sendButton:
+    candidates: ['[data-composer-send]', 'button[data-role="send"]']
+    scope: element
+  code.block:
+    candidates: ['.md-code-block']
+    scope: element
+    meta: { evidence: 'docs/research/moddable-surface-registry.md §3（全局类）' }
+  menu.surface:
+    candidates: ['[role="menu"]']
+    scope: element
+  tooltip.root:
+    candidates: ['[role="tooltip"]']
+    scope: element
+  window.titleBar:
+    candidates: []            # 窗口外壳没有 DOM 锚点：宿主通过 token 探针读取后调 setTitleBarOverlay
+    scope: element
+    meta: { evidence: 'docs/research/theme-ceiling-absolute.md §2.4' }
+
+# -----------------------------------------------------------------------------
+# 10. 能力全集
+#   公共字段：kind / since / deprecated / replaced_by / tier(basic|advanced|expert)
+#             tags / docs / examples / envs / partial+gaps / meta
+#   效果链：realization（property）或 aspects（recipe）；效果按顺序尝试，先命中先落地
+#   效果字段：id / accepts / when(state, env, probe) / atomic(默认 true) / writes
+#   写原语：token | rule | dom；每个 write 有稳定 id（供切换主题时差量撤销）
+# -----------------------------------------------------------------------------
+capabilities:
+
+  # —— 全局：页面与文字 —————————————————————————————————————————————
+  global.page.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags: [surface, global]
+    value: paint
+    docs: |
+      页面整体背景。纯色走宿主 token；渐变/图片自动落规则；再不行插图层。
+    examples:
+      - { value: { light: '#f7f3ea', dark: '#12100c' }, note: 两套主题 }
+      - { value: 'linear-gradient(180deg, #fdf6e3, #f5e6c8)', note: 渐变自动走规则 }
+    realization:
+      - id: prefer-token
+        accepts: color
+        when: { probe: token_live }
+        writes:
+          - { id: token, use: token, name: --dsw-alias-bg-base }
+      - id: rule
+        writes:
+          - { id: bg, use: rule, anchor: global.root, layer: base, decl: { background: '$value' } }
+      - id: layer
+        writes:
+          - { id: layer, use: dom, anchor: global.root, op: insert-layer, payload: '$value',
+              params: { position: fixed, inset: 0, z: -1, fit: cover, pointer_events: none },
+              teardown: remove-node, guard: none }
+    meta:
+      evidence: ['packages/client/ui-theme/src/client/index.ts:369-378']
+
+  global.text.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags: [text, global]
+    value: color
+    docs: 全局正文颜色。做品牌主色时建议先用 variables 定义再引用。
+    examples:
+      - { value: { light: '#241d12', dark: '#f2ead9' } }
+      - { value: '$ink', note: 引用主题变量，改一处全局生效 }
+    realization:
+      - id: token
+        writes:
+          - { id: token, use: token, name: --dsw-alias-label-primary }
+
+  global.link.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags: [text, link, global]
+    value: color
+    realization:
+      - id: token
+        writes:
+          - { id: token, use: token, name: --dsw-alias-link }
+
+  global.text.font_family:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags: [typography, font]
+    value: typeface
+    docs: |
+      全局字体：可以直接给字体栈，也可以给字体资源（我们会注册 @font-face 再应用）。
+    examples:
+      - { value: '"LXGW WenKai", "Noto Sans SC", sans-serif' }
+      - { value: 'assets.main-font', note: 引用 assets 里的字体文件 }
+    realization:
+      - id: token-stack
+        accepts: font_stack
+        writes:
+          - { id: token, use: token, name: --dsw-font-base, value_template: '$value' }
+      - id: font-face
+        accepts: font_stack, asset
+        atomic: true
+        writes:
+          - { id: face, use: rule, at: '@font-face', layer: base,
+              decl: { 'font-family': 'Palette-User-Font', 'src': 'url($value) format("woff2")' } }
+          - { id: apply, use: rule, anchor: global.root, layer: base,
+              decl: { 'font-family': 'Palette-User-Font, var(--dsw-font-base, sans-serif)' } }
+
+  # —— 侧栏 ————————————————————————————————————————————————————————
+  sidebar.panel.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags: [sidebar, surface]
+    value: paint
+    docs: |
+      侧栏整体背景。可填纯色/渐变/图片；列表项背景单独用 sidebar.item.background。
+    examples:
+      - { value: { light: '#f9fafb', dark: '#111315' } }
+    realization:
+      - id: prefer-token
+        accepts: color
+        when: { probe: token_live }
+        writes:
+          - { id: token, use: token, name: --dsw-specific-sidebar-fill }
+      - id: rule
+        writes:
+          - { id: bg, use: rule, anchor: sidebar.root, layer: component,
+              decl: { background: '$value' }, important: when_inline_conflict }
+      - id: layer
+        writes:
+          - { id: layer, use: dom, anchor: sidebar.root, op: insert-layer, payload: '$value',
+              params: { position: absolute, inset: 0, z: 0, fit: cover, pointer_events: none },
+              teardown: remove-node, guard: none }
+
+  sidebar.item.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags: [sidebar, item, state]
+    value: paint
+    states: [hover, active, selected]
+    docs: 侧栏列表项背景，支持三种状态；没写的状态回落到默认值。
+    realization:
+      - id: token
+        writes:
+          - { id: token, use: token, name: --dsw-alias-bg-layer-2 }
+      - id: rules
+        writes:
+          - { id: bg,        use: rule, anchor: sidebar.item, layer: component, decl: { background: '$value' } }
+          - { id: bg-hover,   use: rule, anchor: sidebar.item, layer: state, state: hover,   decl: { background: '$value' } }
+          - { id: bg-active,  use: rule, anchor: sidebar.item, layer: state, state: active,  decl: { background: '$value' } }
+          - { id: bg-selected,use: rule, anchor: sidebar.item, layer: state, state: selected,decl: { background: '$value' } }
+
+  # —— 输入区 ————————————————————————————————————————————————————————
+  composer.sendButton.icon:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags: [icon, composer]
+    value: icon
+    states: [hover, active]
+    docs: 发送按钮图标；宿主用 React 渲染，运行时替换后需 MutationObserver 幂等重放。
+    realization:
+      - id: mask
+        accepts: icon
+        atomic: true
+        writes:
+          - { id: mask, use: rule, anchor: composer.sendButton, layer: component,
+              decl: { 'mask-image': 'url($value)', 'mask-size': 'contain', 'mask-repeat': 'no-repeat' } }
+      - id: replace-children
+        writes:
+          - { id: node, use: dom, anchor: composer.sendButton, op: replace-children, payload: '$value',
+              teardown: restore-children, guard: observer }
+
+  # —— 复合能力（recipe）：多 aspect 独立降级 ——————————————————————————
+  composer.glass:
+    kind: recipe
+    since: 3.0.0
+    tier: advanced
+    tags: [effect, glass]
+    docs: |
+      输入区毛玻璃：模糊 + 半透明底色两部分独立降级。
+      宿主不支持 backdrop-filter 时退化为半透明底色（仍可读）。
+    value:
+      type: object
+      fields:
+        blur:    { type: length, default: 12px }
+        opacity: { type: number, default: 0.6 }
+        tint:    { type: color,  default: 'var(--dsw-alias-bg-base)' }
+    aspects:
+      backdrop:
+        fields: [blur]
+        effects:
+          - id: rule-blur
+            writes:
+              - { id: blur, use: rule, anchor: composer.root, layer: component,
+                  decl: { 'backdrop-filter': 'blur($fields.blur)', '-webkit-backdrop-filter': 'blur($fields.blur)' } }
+      tint:
+        fields: [opacity, tint]
+        effects:
+          - id: rule-tint
+            writes:
+              - { id: tint, use: rule, anchor: composer.root, layer: component,
+                  decl: { 'background-color': 'color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)' } }
+
+  # —— 代码区 ————————————————————————————————————————————————————————
+  code.block.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags: [code, surface]
+    value: paint
+    realization:
+      - id: prefer-token
+        accepts: color
+        when: { probe: token_live }
+        writes:
+          - { id: token, use: token, name: --dsw-alias-markdown-code-block }
+      - id: rule
+        writes:
+          - { id: bg, use: rule, anchor: code.block, layer: component,
+              decl: { background: '$value' }, important: when_inline_conflict }
+
+  # —— 窗口外壳（桌面版）————————————————————————————————————————————
+  window.titleBar.background:
+    kind: property
+    since: 3.0.0
+    tier: expert
+    envs: [desktop]
+    tags: [window, chrome]
+    value: paint
+    partial: true
+    gaps:
+      - 标题栏高度、按钮形状/位置不可改（宿主硬编码）
+      - 渐变会让宿主探针取不到合法 background-color → 退化为透明 overlay，只保留文字色可配
+    docs: |
+      桌面窗口标题栏底色。宿主探针读取 --dsw-specific-sidebar-fill 与
+      --dsw-alias-label-primary，再调 setTitleBarOverlay；所以这里走 token 即可。
+    realization:
+      - id: token
+        accepts: color
+        when: { probe: token_live }
+        writes:
+          - { id: fill,   use: token, name: --dsw-specific-sidebar-fill }
+          - { id: symbol, use: token, name: --dsw-alias-label-primary }
+    meta:
+      evidence: ['apps/desktop/src/preload-windows.ts:21-23', 'apps/desktop/src/main.ts:1049-1059']
+
+# -----------------------------------------------------------------------------
+# 11. 目录：编辑器展示顺序与快速上手集合（纯展示，不参与编译）
+# -----------------------------------------------------------------------------
+catalog:
+  order: [global, window, sidebar, conversation, composer, menu, code, markdown, tool, terminal, deliverable, settings, plugin]
+  groups:
+    - { id: quickstart, label: 快速上手, members: ['global.page.background', 'global.text.foreground', 'global.link.foreground', 'sidebar.panel.background'] }
+    - { id: effects,    label: 视觉效果, members: ['*.glass', '*.wallpaper', '*.noise'] }
+    - { id: chrome,     label: 窗口外壳, members: ['window.*'] }
+
+# -----------------------------------------------------------------------------
+# 12. 扩展位：前向兼容（只允许 x-* 前缀；运行时忽略并给信息级诊断）
+# -----------------------------------------------------------------------------
+extensions: {}
