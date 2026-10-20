@@ -16,7 +16,7 @@
 4. **但「用宿主原语做破坏性确认」并非不可能**，宿主有两种现成范式：**Modal 确认框**（`apps/web/tests/models-settings.e2e.ts:181-190`「删除 minimax-cn？」；`ui-plugin-manager/src/client/PluginManagerPage.tsx:1476`+ConfirmDialog `:1803`；`ui-plugin-market/src/client/DiscoverSection.tsx:319,591`）与**原地 armed 二次点击**（`ui-jobs/src/client/JobListAction.module.css:185-224`：20px 方钮 → 变红 danger 药丸并把确认语显式写出来）。后者与「胶囊上长出删除按钮」的形态天然契合。
 5. **第 24 条的真实缺口不在覆盖率，在规范。** 可点元素 51 个里 48 个已带交互钩子（**94%**）；缺钩子的 3 个里有 2 个是弹窗遮罩/防护层这种**不该有几何反馈**的元素。真正缺的是：样式表**没有任何 `:disabled` 样式块**、6 档里 5 档缺 `:not(:disabled)` 守卫（只有 LEGACY 与 BUTTON 两档有）、**完全没有 loading/busy 态**。
 6. **浮层座位有硬约束**：宿主 `shell.overlay` 浮层层只有 `z-index:20`，低于设置页遮罩的 1000，**不能用作 popconfirm 载体**；设置页内容区 `.options` 是 `overflow-y:auto` 滚动容器 ⇒ 面板内 `position:absolute` 浮层会被裁剪。本仓已有正确姿势的先例：字体菜单用 `position:fixed` + 量矩形算视口坐标（`runtime/client.ts:1351-1360` + `src/engine/float-geometry.ts:43`），`runtime/client.ts:988` 的注释写明「fixed 逃的是祖先 overflow 裁剪（z-index 再高也逃不出去）」。
-7. **焦点有一个坑**：宿主 `focus.css:18-21` 在指针模态（`html[data-input-modality='pointer']`）下把非输入控件的 `:focus-visible` 焦点环**置为透明**。⇒ 本插件的「键盘可达可见」不能靠继承宿主的 outline 变量兜底，得自己给。
+7. **焦点有一个窄门（不是死结）**：宿主 `focus.css:18-21` 在指针模态（`html[data-input-modality='pointer']`）下把**非可编辑控件**的 `:focus-visible` 焦点环置为透明；但模态属性由 `packages/client/ui-primitives/src/input-modality.ts` 发布，**Tab/Home/End/PageUp/PageDown 会立刻把它翻回 `keyboard`**（`:47-50`），指针点击按钮本身也不会匹配 `:focus-visible`。⇒ 真正残留的窄门只有一个：**指针交互之后、按下导航键之前**这段窗口里，被脚本聚焦（或其它非键盘途径聚焦）的非可编辑控件会被强制透明；此时宿主规则的特异度 (0,3,2) 高于本插件的 `:focus-visible` 规则 (0,2,0)，**能把本插件自绘的品牌色焦点环一起打掉**。
 8. **可对齐的宿主动效轴**：`--ds-ease-in-out: cubic-bezier(0.4,0,0.2,1)`、`--ds-transition-duration: 0.2s`（fast 0.1s / slow 0.3s），见 `packages/client/ui-theme/src/styles/base.css:14-17`；宿主 `docs/web-styling.md:23` 明文要求「加过渡/hover 控件须保留键盘焦点可见与 reduced-motion」。本插件 `runtime/ui-fx.ts` 现有的 `160ms + cubic-bezier(0.22,1,0.36,1)` + reduced-motion 全量降级已是自洽的一套（见 `theme-ceiling-benchmark-151.md:590`）。
 
 ---
@@ -162,11 +162,13 @@
 ### 2.4 可对齐的宿主动效与焦点契约（事实）
 
 - 动效轴：`packages/client/ui-theme/src/styles/base.css:14-17` —— `--ds-ease-in-out: cubic-bezier(0.4,0,0.2,1)`、`--ds-transition-duration: 0.2s`、`--ds-transition-duration-fast: 0.1s`、`--ds-transition-duration-slow: 0.3s`。
-- 焦点环：`packages/client/ui-theme/src/styles/focus.css:1-21` —— `--dsw-focus-ring-width:2px`；`:focus-visible` 用 `outline-color: var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary))`；**`:18-21`** 在 `html[data-input-modality='pointer']` 下把 `body :focus-visible:not(:read-write)` 的环色置为透明（指针模态下非输入控件不显环）。
+- 焦点环：`packages/client/ui-theme/src/styles/focus.css:1-21` —— `--dsw-focus-ring-width:2px`；`:focus-visible` 用 `outline-color: var(--dsw-focus-ring-color, var(--dsw-alias-state-business-primary))`；**`:18-21`** 在 `html[data-input-modality='pointer']` 下把 `body :focus-visible:not(:read-write)` 的环色置为透明（指针模态下非可编辑控件不显环）。
+- 模态属性的发布者：`packages/client/ui-primitives/src/input-modality.ts:1-59` —— `pointerdown` ⇒ `pointer`（`:33-37`）；任意 `keydown` 先把 `pointer` 置 false，但**只有导航键**（`Tab/Home/End/PageUp/PageDown`，`:14`）与方向键才把 `pointerOwnsFocus` 置 false 并重新发布 `keyboard`（`:46-50`）；`focusin` 在焦点落到别处时也翻回 `keyboard`（`:51-57`）。
+- 本插件自绘的焦点环在 5 档里都有：LEGACY `:44`、CHIP `:50`、BUTTON `:56`、ROW `:61`、SWATCH `:67`、INPUT `:73`、SWITCH `:78`，写法统一是 `outline:2px solid var(--dsw-alias-brand-primary)`（不继承宿主 `--dsw-focus-ring-color`）。
 - 宿主书面纪律：`docs/web-styling.md` —— `:16` 复用 control 优先于重造；`:23` 加过渡/hover 控件须保留键盘焦点可见与 reduced-motion；`:25` 抬升面 `border:0` + `--dsw-elevation-*`；`:26` 菜单材质归 ui-theme；`:27` 模态遮罩不 blur；`:29` 中性边框 0.5px 发丝。
 - 危险色：`packages/client/ui-theme/src/styles/design-platform.css:211,250,329,368` —— `--dsw-alias-state-error-primary`、`--dsw-alias-interactive-bg-hover-danger`。
 
-⇒ **（推断）** 本插件的「键盘可达可见」必须自带反馈：宿主在指针模态下主动隐藏非输入控件的焦点环，我们若只靠继承 outline 变量，键盘用户切到指针模态后按 Tab 会看不到任何指示。
+⇒ **（推断）** 本插件的「键盘可达可见」是**自足的**（各档自带 `outline:2px solid var(--dsw-alias-brand-primary)`，不依赖宿主 `--dsw-focus-ring-color`）。残留风险只有一个窄窗口：指针交互之后、用户按下导航键之前，被脚本聚焦的非可编辑控件会被宿主 (0,3,2) 的规则强制透明，把本插件自绘的环一起打掉。**（实机待验）** 宿主设置页里若存在脚本聚焦宿主控件的路径，这条才会真的被触发；本插件自己的路径都是鼠标点击（不匹配 `:focus-visible`）或键盘 Tab（模态已翻回 `keyboard`）。
 
 ---
 
@@ -185,7 +187,7 @@
 ## 4. 实机验证清单（源码判不了的）
 
 1. 设置页内容区滚动时，胶囊列表底部弹出的 popconfirm 是否被 `.options` 的 `overflow-y:auto` 裁剪（若走 absolute）；走 fixed + 锚点坐标是否与宿主菜单层级打架。
-2. 宿主指针模态（`html[data-input-modality='pointer']`）下，键盘 Tab 走到本插件控件时是否真的没有任何可见焦点指示。
+2. 宿主指针模态（`html[data-input-modality='pointer']`）下，键盘 Tab 走到本插件控件时是否真的没有任何可见焦点指示。**（注：按 `input-modality.ts` 的发布逻辑，Tab 会立刻把模态翻回 `keyboard`，本条的怀疑应降级为「指针交互后、导航键之前，被脚本聚焦的非可编辑控件」这一窄窗口；本插件自绘焦点环，不依赖宿主 `--dsw-focus-ring-color`。）**
 3. 宿主设置页被其他插件/浮层覆盖时，本插件 popconfirm 的实际叠放次序。
 4. 删除正在生效的自定义主题后，回落到 `opencode` 是否在 UI 上可感知（现无任何提示通道）。
 5. `prefers-reduced-motion` 打开时，chip 上浮 / button 抬升 / switch 按压是否全部静止。
