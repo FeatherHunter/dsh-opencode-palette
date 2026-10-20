@@ -1,0 +1,652 @@
+[
+ {
+  "token": "background",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.24,
+  "cn": "页面底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 76% × 翅膀粉饰 24%",
+  "hex": "#FFEEF5"
+ },
+ {
+  "token": "backgroundPanel",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.56,
+  "cn": "面板底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 44% × 翅膀粉饰 56%",
+  "hex": "#FED7E9"
+ },
+ {
+  "token": "backgroundElement",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.64,
+  "cn": "浮层底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 36% × 翅膀粉饰 64%",
+  "hex": "#FED1E5"
+ },
+ {
+  "token": "sidebarBg",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.46,
+  "cn": "侧栏底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 54% × 翅膀粉饰 46%",
+  "hex": "#FFDEED"
+ },
+ {
+  "token": "bubbleBg",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.12,
+  "cn": "气泡底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 88% × 翅膀粉饰 12%",
+  "hex": "#FFF6FA"
+ },
+ {
+  "token": "inputBg",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.3,
+  "cn": "输入底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 70% × 翅膀粉饰 30%",
+  "hex": "#FFE9F3"
+ },
+ {
+  "token": "codeBlockBg",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.42,
+  "cn": "代码底",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 58% × 翅膀粉饰 42%",
+  "hex": "#FFE1EE"
+ },
+ {
+  "token": "codeHeaderBg",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.52,
+  "cn": "代码头",
+  "label": "樱纸",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 48% × 翅膀粉饰 52%",
+  "hex": "#FEDAEA"
+ },
+ {
+  "token": "text",
+  "rule": "direct",
+  "src": "night_ink",
+  "cn": "正文",
+  "label": "夜空暗部",
+  "file": "3.jpg",
+  "box": [
+   0,
+   0,
+   452,
+   46
+  ],
+  "formula": "直采 · 3.jpg 夜空暗部 #041541",
+  "hex": "#041541"
+ },
+ {
+  "token": "textMuted",
+  "rule": "mix",
+  "a": "city_grey",
+  "b": "night_ink",
+  "t": 0.5,
+  "cn": "次级文字",
+  "label": "夜雾蓝灰",
+  "file": "images (1).jpg",
+  "box": [
+   0,
+   150,
+   30,
+   250
+  ],
+  "formula": "混色 · 城市灰蓝 50% × 夜空暗部 50%",
+  "hex": "#2E4066"
+ },
+ {
+  "token": "primary",
+  "rule": "direct",
+  "src": "bow_rose",
+  "cn": "品牌主色",
+  "label": "深红蝴蝶结",
+  "file": "2.jpg",
+  "box": [
+   476,
+   364,
+   528,
+   412
+  ],
+  "formula": "直采 · 2.jpg 深红蝴蝶结 #C51E56",
+  "hex": "#C51E56"
+ },
+ {
+  "token": "secondary",
+  "rule": "direct",
+  "src": "navy_skirt",
+  "cn": "品牌第二色",
+  "label": "藏青短裙",
+  "file": "images (1).jpg",
+  "box": [
+   46,
+   116,
+   110,
+   164
+  ],
+  "formula": "直采 · images (1).jpg 藏青短裙 #133284",
+  "hex": "#133284"
+ },
+ {
+  "token": "info",
+  "rule": "direct",
+  "src": "nebula_blue",
+  "cn": "信息",
+  "label": "星云蓝",
+  "file": "2.jpg",
+  "box": [
+   0,
+   0,
+   100,
+   130
+  ],
+  "formula": "直采 · 2.jpg 星云蓝 #1659A7",
+  "hex": "#1659A7"
+ },
+ {
+  "token": "success",
+  "rule": "direct",
+  "src": "teal_ribbon",
+  "cn": "成功",
+  "label": "青绿飘带",
+  "file": "images (1).jpg",
+  "box": [
+   96,
+   190,
+   134,
+   237
+  ],
+  "formula": "直采 · images (1).jpg 青绿飘带 #006D72",
+  "hex": "#006D72"
+ },
+ {
+  "token": "warning",
+  "rule": "step",
+  "src": "gold_warm",
+  "L": 0.5,
+  "chroma": 0.1045,
+  "cn": "警告",
+  "label": "月牙金",
+  "file": "2.jpg",
+  "box": [
+   472,
+   14,
+   588,
+   106
+  ],
+  "formula": "阶梯 · 暖金长发 #EAA627 沿 OKLCH 明度轴取 L=0.50（h 77.2°）",
+  "hex": "#845A00"
+ },
+ {
+  "token": "error",
+  "rule": "direct",
+  "src": "red_sun",
+  "cn": "错误",
+  "label": "海报红日",
+  "file": "images (1).jpg",
+  "box": [
+   4,
+   4,
+   58,
+   54
+  ],
+  "formula": "直采 · images (1).jpg 海报红日 #AA171F",
+  "hex": "#AA171F"
+ },
+ {
+  "token": "border",
+  "rule": "mix",
+  "a": "white_wing",
+  "b": "pink_wing",
+  "t": 0.4,
+  "cn": "描边",
+  "label": "樱纸描边",
+  "file": "3.jpg",
+  "box": [
+   334,
+   500,
+   436,
+   598
+  ],
+  "formula": "混色 · 白色羽翼 60% × 翅膀粉饰 40%",
+  "hex": "#FFE2EF"
+ },
+ {
+  "token": "borderActive",
+  "rule": "mix",
+  "a": "bow_rose",
+  "b": "night_ink",
+  "t": 0.3,
+  "cn": "焦点环",
+  "label": "深玫焦点",
+  "file": "2.jpg",
+  "box": [
+   476,
+   364,
+   528,
+   412
+  ],
+  "formula": "混色 · 深红蝴蝶结 70% × 夜空暗部 30%",
+  "hex": "#8B1B50"
+ },
+ {
+  "token": "diffAdded",
+  "rule": "step",
+  "src": "teal_ribbon",
+  "L": 0.34,
+  "chroma": 0.058,
+  "cn": "新增行字",
+  "label": "深青",
+  "file": "images (1).jpg",
+  "box": [
+   96,
+   190,
+   134,
+   237
+  ],
+  "formula": "阶梯 · 青绿飘带 #006D72 沿 OKLCH 明度轴取 L=0.34（h 200.0°）",
+  "hex": "#004144"
+ },
+ {
+  "token": "diffRemoved",
+  "rule": "step",
+  "src": "red_sun",
+  "L": 0.36,
+  "chroma": 0.1465,
+  "cn": "删除行字",
+  "label": "深砖红",
+  "file": "images (1).jpg",
+  "box": [
+   4,
+   4,
+   58,
+   54
+  ],
+  "formula": "阶梯 · 海报红日 #AA171F 沿 OKLCH 明度轴取 L=0.36（h 25.8°）",
+  "hex": "#78000C"
+ },
+ {
+  "token": "diffAddedBg",
+  "rule": "mix",
+  "a": "mint_light",
+  "b": "white_wing",
+  "t": 0.08,
+  "cn": "新增行底",
+  "label": "薄荷纸",
+  "file": "images (1).jpg",
+  "box": [
+   118,
+   244,
+   162,
+   306
+  ],
+  "formula": "混色 · 薄荷飘带 92% × 白色羽翼 8%",
+  "hex": "#8DBABE"
+ },
+ {
+  "token": "diffRemovedBg",
+  "rule": "mix",
+  "a": "pink_skirt",
+  "b": "white_wing",
+  "t": 0.08,
+  "cn": "删除行底",
+  "label": "樱纸",
+  "file": "2.jpg",
+  "box": [
+   614,
+   304,
+   728,
+   402
+  ],
+  "formula": "混色 · 粉色短裙 92% × 白色羽翼 8%",
+  "hex": "#F9CBCF"
+ },
+ {
+  "token": "diffAddedLineNumberBg",
+  "rule": "mix",
+  "a": "mint_light",
+  "b": "white_wing",
+  "t": 0.2,
+  "cn": "新增行号底",
+  "label": "薄荷纸",
+  "file": "images (1).jpg",
+  "box": [
+   118,
+   244,
+   162,
+   306
+  ],
+  "formula": "混色 · 薄荷飘带 80% × 白色羽翼 20%",
+  "hex": "#9CC3C6"
+ },
+ {
+  "token": "diffRemovedLineNumberBg",
+  "rule": "mix",
+  "a": "pink_skirt",
+  "b": "white_wing",
+  "t": 0.22,
+  "cn": "删除行号底",
+  "label": "樱纸",
+  "file": "2.jpg",
+  "box": [
+   614,
+   304,
+   728,
+   402
+  ],
+  "formula": "混色 · 粉色短裙 78% × 白色羽翼 22%",
+  "hex": "#FAD3D6"
+ },
+ {
+  "token": "markdownHeading",
+  "rule": "step",
+  "src": "navy_skirt",
+  "L": 0.46,
+  "chroma": 0.1418,
+  "cn": "标题",
+  "label": "藏青亮阶",
+  "file": "images (1).jpg",
+  "box": [
+   46,
+   116,
+   110,
+   164
+  ],
+  "formula": "阶梯 · 藏青短裙 #133284 沿 OKLCH 明度轴取 L=0.46（h 264.1°）",
+  "hex": "#2E52A6"
+ },
+ {
+  "token": "markdownLink",
+  "rule": "direct",
+  "src": "star_blue",
+  "cn": "链接",
+  "label": "夜空星蓝",
+  "file": "3.jpg",
+  "box": [
+   0,
+   0,
+   80,
+   40
+  ],
+  "formula": "直采 · 3.jpg 夜空星蓝 #2449EF",
+  "hex": "#2449EF"
+ },
+ {
+  "token": "markdownCode",
+  "rule": "step",
+  "src": "navy_skirt",
+  "L": 0.34,
+  "chroma": 0.1428,
+  "cn": "行内码",
+  "label": "藏青深阶",
+  "file": "images (1).jpg",
+  "box": [
+   46,
+   116,
+   110,
+   164
+  ],
+  "formula": "阶梯 · 藏青短裙 #133284 沿 OKLCH 明度轴取 L=0.34（h 264.4°）",
+  "hex": "#102E80"
+ },
+ {
+  "token": "markdownEmph",
+  "rule": "direct",
+  "src": "bow_maroon",
+  "cn": "强调",
+  "label": "暗红蝴蝶结",
+  "file": "2.jpg",
+  "box": [
+   152,
+   252,
+   196,
+   286
+  ],
+  "formula": "直采 · 2.jpg 暗红蝴蝶结 #74284F",
+  "hex": "#74284F"
+ },
+ {
+  "token": "markdownStrong",
+  "rule": "mix",
+  "a": "night_ink",
+  "b": "pure_black",
+  "t": 0.5,
+  "cn": "加粗",
+  "label": "浓墨",
+  "file": "3.jpg",
+  "box": [
+   0,
+   0,
+   452,
+   46
+  ],
+  "formula": "混色 · 夜空暗部 50% × 海报纯黑 50%",
+  "hex": "#020A25"
+ },
+ {
+  "token": "markdownBlockQuote",
+  "rule": "mix",
+  "a": "night_ink",
+  "b": "pink_wing",
+  "t": 0.35,
+  "cn": "引用",
+  "label": "暗紫灰",
+  "file": "3.jpg",
+  "box": [
+   0,
+   0,
+   452,
+   46
+  ],
+  "formula": "混色 · 夜空暗部 65% × 翅膀粉饰 35%",
+  "hex": "#5B4E76"
+ },
+ {
+  "token": "syntaxComment",
+  "rule": "mix",
+  "a": "city_grey",
+  "b": "night_ink",
+  "t": 0.1,
+  "cn": "注释",
+  "label": "星尘灰",
+  "file": "images (1).jpg",
+  "box": [
+   0,
+   150,
+   30,
+   250
+  ],
+  "formula": "混色 · 城市灰蓝 90% × 夜空暗部 10%",
+  "hex": "#516384"
+ },
+ {
+  "token": "syntaxKeyword",
+  "rule": "step",
+  "src": "bow_rose",
+  "L": 0.44,
+  "chroma": 0.1765,
+  "cn": "关键字",
+  "label": "深玫",
+  "file": "2.jpg",
+  "box": [
+   476,
+   364,
+   528,
+   412
+  ],
+  "formula": "阶梯 · 深红蝴蝶结 #C51E56 沿 OKLCH 明度轴取 L=0.44（h 9.0°）",
+  "hex": "#9B003E"
+ },
+ {
+  "token": "syntaxFunction",
+  "rule": "step",
+  "src": "star_blue",
+  "L": 0.44,
+  "chroma": 0.2484,
+  "cn": "函数名",
+  "label": "星蓝",
+  "file": "3.jpg",
+  "box": [
+   0,
+   0,
+   80,
+   40
+  ],
+  "formula": "阶梯 · 夜空星蓝 #2449EF 沿 OKLCH 明度轴取 L=0.44（h 266.3°）",
+  "hex": "#1830D8"
+ },
+ {
+  "token": "syntaxType",
+  "rule": "step",
+  "src": "cyan_star",
+  "L": 0.44,
+  "chroma": 0.0893,
+  "cn": "类型",
+  "label": "海青",
+  "file": "2.jpg",
+  "box": [
+   100,
+   150,
+   165,
+   215
+  ],
+  "formula": "阶梯 · 星云亮青 #6FC2EC 沿 OKLCH 明度轴取 L=0.44（h 232.3°）",
+  "hex": "#025A7B"
+ },
+ {
+  "token": "syntaxNumber",
+  "rule": "step",
+  "src": "gold_warm",
+  "L": 0.44,
+  "chroma": 0.0923,
+  "cn": "数字",
+  "label": "赤铜",
+  "file": "2.jpg",
+  "box": [
+   472,
+   14,
+   588,
+   106
+  ],
+  "formula": "阶梯 · 暖金长发 #EAA627 沿 OKLCH 明度轴取 L=0.44（h 76.1°）",
+  "hex": "#6F4A00"
+ },
+ {
+  "token": "syntaxString",
+  "rule": "step",
+  "src": "pale_green",
+  "L": 0.44,
+  "chroma": 0.0727,
+  "cn": "字符串",
+  "label": "海绿",
+  "file": "2.jpg",
+  "box": [
+   150,
+   45,
+   215,
+   105
+  ],
+  "formula": "阶梯 · 浅绿前发 #7DA67E 沿 OKLCH 明度轴取 L=0.44（h 145.4°）",
+  "hex": "#375D39"
+ },
+ {
+  "token": "syntaxOperator",
+  "rule": "mix",
+  "a": "bow_maroon",
+  "b": "city_grey",
+  "t": 0.65,
+  "cn": "运算符",
+  "label": "藕紫灰",
+  "file": "2.jpg",
+  "box": [
+   152,
+   252,
+   196,
+   286
+  ],
+  "formula": "混色 · 暗红蝴蝶结 35% × 城市灰蓝 65%",
+  "hex": "#625477"
+ }
+]
