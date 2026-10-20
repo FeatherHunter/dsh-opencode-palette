@@ -1,0 +1,50 @@
+{
+  "id": "harry-potter",
+  "name": "哈利波特",
+  "appearance": "dark",
+  "colors": {
+    "background": "#0B223B",
+    "sidebarBg": "#071523",
+    "backgroundPanel": "#102A45",
+    "backgroundElement": "#16374F",
+    "bubbleBg": "#133250",
+    "inputBg": "#0D2740",
+    "codeBlockBg": "#050F1A",
+    "codeHeaderBg": "#1B3F5E",
+
+    "text": "#EEEEEC",
+    "textMuted": "#BABAB8",
+
+    "primary": "#CAA654",
+    "secondary": "#C56F72",
+    "info": "#3DD3FF",
+    "success": "#91BEAE",
+    "warning": "#D4A681",
+    "error": "#E05A55",
+
+    "border": "#415366",
+    "borderActive": "#FCDB8C",
+
+    "diffAdded": "#A9CCC0",
+    "diffAddedBg": "#233E50",
+    "diffAddedLineNumberBg": "#395762",
+    "diffRemoved": "#D9A1A3",
+    "diffRemovedBg": "#2C3045",
+    "diffRemovedLineNumberBg": "#4A3C4E",
+
+    "markdownHeading": "#FFDAB5",
+    "markdownLink": "#8BDBFE",
+    "markdownCode": "#E0BE5C",
+    "markdownEmph": "#C5B3C4",
+    "markdownStrong": "#FEFEFE",
+    "markdownBlockQuote": "#939CA5",
+
+    "syntaxComment": "#80807E",
+    "syntaxKeyword": "#AC93AA",
+    "syntaxFunction": "#2E9FD0",
+    "syntaxType": "#79C7D2",
+    "syntaxNumber": "#BB8964",
+    "syntaxString": "#599CB6",
+    "syntaxOperator": "#73818E"
+  }
+}
