@@ -2,14 +2,14 @@
 
 > 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。
 
-范围：预置 37 套 + IP 21 套；评估色板 59 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。
+范围：预置 37 套 + IP 24 套；评估色板 62 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。
 
 ## 汇总
 
 | 层 | 主题 | 硬性 4.5:1 违例 | UI 3:1 违例 | 有硬性违例主题 | border<3 表面累计 | tooltip 文字<4.5 评估 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 预置 | 37 | 0 | 0 | 0 | 224 | 0 |
-| IP | 21 | 0 | 0 | 0 | 168 | 0 |
+| IP | 24 | 0 | 0 | 0 | 187 | 0 |
 
 硬性分组（预置 / IP）：
 
@@ -66,18 +66,21 @@
 | dc-comics | ip | 0 | 0 | 8 | 8 | — |
 | disney | ip | 0 | 0 | 8 | 8 | — |
 | doraemon | ip | 0 | 0 | 8 | 8 | — |
-| dragon-ball | ip | 0 | 0 | 8 | 8 | — |
+| dragon-ball | ip | 0 | 0 | 4 | 8 | — |
 | evangelion | ip | 0 | 0 | 8 | 8 | — |
 | genshin | ip | 0 | 0 | 8 | 8 | — |
+| genshin-night | ip | 0 | 0 | 7 | 8 | — |
 | harry-potter | ip | 0 | 0 | 8 | 8 | — |
-| hello-kitty | ip | 0 | 0 | 8 | 8 | — |
+| hello-kitty | ip | 0 | 0 | 8 | 6 | — |
 | kuromi | ip | 0 | 0 | 8 | 8 | — |
 | lego | ip | 0 | 0 | 8 | 8 | — |
 | mario | ip | 0 | 0 | 8 | 8 | — |
+| mario-night | ip | 0 | 0 | 8 | 8 | — |
 | marvel | ip | 0 | 0 | 8 | 8 | — |
 | naruto | ip | 0 | 0 | 8 | 8 | — |
+| naruto-night | ip | 0 | 0 | 8 | 8 | — |
 | one-piece | ip | 0 | 0 | 8 | 8 | — |
-| pokemon | ip | 0 | 0 | 8 | 8 | — |
+| pokemon | ip | 0 | 0 | 8 | 5 | — |
 | sailor-moon | ip | 0 | 0 | 8 | 8 | — |
 | star-wars | ip | 0 | 0 | 8 | 8 | — |
 | transformers | ip | 0 | 0 | 8 | 8 | — |
@@ -100,7 +103,7 @@
 | --- | --- |
 | 背景家族色相孤岛 | 0 个主题有孤岛 |
 | 明暗 straddle（仅记录） | 0 个主题 |
-| 角色碰撞 / markdown 同值 | 20 条告警：记档 20 / 待处理 0 |
+| 角色碰撞 / markdown 同值 | 11 条告警：记档 11 / 待处理 0 |
 | markdown 层级同值主题 | 2 个 |
 | 语法核心 ΔE<10 | 0 个主题 |
 | comment/operator 未退后（待处理） | 0 条 |
@@ -110,24 +113,15 @@
 
 | 主题 | code | 状态 | 说明 |
 | --- | --- | --- | --- |
-| cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff3b4a） |
-| cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 83.5 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
+| cyberpunk-2077 | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved（#ff1932） |
+| cyberpunk-2077 | brandGeometry | ✓ 记档 | primary 与 secondary 色相差 83.4 度，既非近似(<=45)也非三角(95-145)或互补(>145) |
 | dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：primary = info = markdownLink（#64a2ff） |
 | dc-comics | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = borderActive = syntaxFunction（#ffcf40） |
 | dc-comics | roleCollision | ✓ 记档 | 同组角色取同值：markdownHeading = markdownStrong（#ffffff） |
 | dc-comics | markdownDuplicate | ✓ 记档 | markdown 角色同值，层级被抹平：markdownHeading = markdownStrong |
 | doraemon | roleCollision | ✓ 记档 | 同组角色取同值：markdownHeading = markdownEmph = markdownStrong（#0b2e4a） |
 | doraemon | markdownDuplicate | ✓ 记档 | markdown 角色同值，层级被抹平：markdownHeading = markdownEmph = markdownStrong |
-| dragon-ball | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#ff810d） |
-| genshin | roleCollision | ✓ 记档 | 跨组角色取同值：info = markdownLink（#7aa2f7） |
-| hello-kitty | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#db0011） |
-| marvel | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#d81a21） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：info = markdownLink（#2dd4bf） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：success = diffAdded = syntaxString（#4ade80） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：secondary = syntaxType（#60a5fa） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：textMuted = markdownBlockQuote（#b1bfb3） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：error = diffRemoved = syntaxKeyword（#ff6b6b） |
-| pokemon | roleCollision | ✓ 记档 | 跨组角色取同值：warning = syntaxNumber（#ff9f1c） |
+| hello-kitty | roleCollision | ✓ 记档 | 跨组角色取同值：primary = borderActive（#c8152d） |
 | transformers | roleCollision | ✓ 记档 | 同组角色取同值：secondary = info（#38a1ff） |
 | transformers | roleCollision | ✓ 记档 | 跨组角色取同值：borderActive = markdownLink（#4db2ff） |
 
@@ -138,7 +132,7 @@
 | 预置 text-ish 硬性违例（post-repair） | 0 | 311（42 对口径）；本基线 38 对口径 |
 | 预置 border→表面 <3 主题数 | 28 | 28（正文字面 border→background） |
 | IP 硬性违例（38 对口径） | 0 | 150（42 对口径） |
-| IP 浅色代码底最低 text→codeBlockBg | 11.15（hello-kitty） | ~1.01（sailor-moon） |
+| IP 浅色代码底最低 text→codeBlockBg | 10.43（one-piece） | ~1.01（sailor-moon） |
 
 口径差异：本基线按 map #115 判尺取 38 对硬性对（text×8、muted/dimmed×3、md6×2、syntax7×codeBlockBg、diff4、onPrimary），scratch 为 42 对（额外把 textMuted→diffBg、syntax→codeHeaderBg 等算作硬性）。差值即这些被本基线降级为信息项/诊断项的对。
 
