@@ -200,6 +200,8 @@ return () => {
 
 按职责分五族（`docs/HOW-IT-WORKS.md:116-117`）：**素材** · **转码** · **实时渲染** · **出图与抓帧** · **设置与系统**。
 
+> ℹ️ **43 这个数字怎么来的**：索引 `docs/ROUTE-INDEX.md` 共列 **43 条**路径；但在 `lib/` 里 grep `webServer.register(` 只有 **42 处调用点**——差额来自 `lib/routes/diag.js:142-143` **一处注册两条路径**（`/diag` 与 `${BASE}/diag`），而索引把两条都显示成 `/diag`（`docs/ROUTE-INDEX.md:40-41`）。索引有 `test/verify-route-index.mjs` 守着 ⇒ **43 是可信的口径**。
+
 > ⚠️ **文档↔源码不一致 ②**：实现侧 `lib/routes/` 实为 **21 个族文件**（`about-qr` / `avatar` / `cache-dir` / `diag` / `fontsets` / `github-stars` / `live-frame` / `mascot` / `media-bytes` / `media-derived` / `now-playing` / `occlusion` / `presets` / `props` / `scene-frame` / `scene-media` / `scene-serve` / `settings` / `system-fonts` / `upload` / `we-assets`），`docs/CODE-STRUCTURE.md:110` 的口径是"**一文件一族**"，`docs/ROUTE-INDEX.md:69-91` 也逐行列了 21 个模块。"五族"读起来像代码结构，实际是作者视角的功能分组——**同名异义**，读者容易误判粒度。
 
 ### 2.6 一条例外通道：独立 loopback 媒体源
@@ -3222,7 +3224,9 @@ try { mkdirSync(dir, { recursive: true }); } catch { /* ignore */ }
 setUploadDir(dir, migrate).then(…)
 ```
 
-`normalizeUserDir`（`lib/index.js:858-869`）只做「绝对路径 + 无控制字符 + 展开 `~`」，**没有根目录白名单**；`setUploadDir`（`lib/index.js:887-922`）还会把已有上传迁过去。`POST /wallpaper-engine/we-assets-dir` 同形（`lib/routes/we-assets.js:113-163`）。
+`normalizeUserDir`（`lib/index.js:858-869`）只做「绝对路径 + 无控制字符 + 展开 `~`」，**没有根目录白名单**；`setUploadDir`（`lib/index.js:887-922`）还会把已有上传迁过去。路由是 **`POST ${BASE}/upload-dir`**（`lib/routes/upload.js:275-281`，exact kind，**只接受 POST**，其余方法回 405）；`POST /wallpaper-engine/we-assets-dir` 同形（`lib/routes/we-assets.js:113-163`）。
+
+注意它**自己会兜一个坑**：路径已存在但是文件 ⇒ 回 400「无法在该路径创建目录」；`mkdirSync` 失败也不抛，只在后面 `statSync(...).isDirectory()` 复查时才判失败（`lib/routes/upload.js:325-333`）——**失败路径是安全的，问题在于"成功路径"允许任意绝对目录**。
 
 **事实**：全仓 `lib/` **没有**任何 `Origin` / `Referer` / CSRF token 校验；对 `lib/` grep `Origin|referer|csrf|CSRF` 的 90 处命中**全部是注释或 `postMessage` 的 `targetOrigin` 语义**。`lib/http-body.js:57-87` 的 `bodyReader` 只做「累计字节上限 + 一次解码」，**不看 `Content-Type`**。
 
@@ -3254,7 +3258,19 @@ setUploadDir(dir, migrate).then(…)
 
 - **转码产物没有体积上限**（`lib/transcode.js:440-508` 只有 `-t <duration>` 与码率 4–20Mbps，没有输出体积上限），而 4GB 缓存上限**只在启动后 3 秒查一次**（`lib/index.js:1160-1186` + `lib/cache-prune.js:97-122`）⇒ 一次会话内连续转码长视频（1h @20Mbps ≈ 9GB，**推断**）可把磁盘写满，**上限要等下次重启才生效**。`TRANSCODE_MAX_CONCURRENT = 2`（`lib/transcode.js:69`）限制并发，不限制总量。
 - **`mediaMap` 只在 dispose 时 `clear()`**（`lib/index.js:1126-1131`、`:1477`）⇒ 会话内无上限增长。
-- **媒体 token 就是绝对路径的 base64url**（`lib/index.js:1123-1131`）⇒ **可逆**。注释的前提是"客户端本来就能从 inventory 拿到这些路径"，但 inventory 给的是**壁纸名/相对路径**，token 却能一行 `atob()` 还原出 `C:\Users\<用户名>\…`。token 出现在 `/media`、`/preview`、`/live-frame`、`/scene-video`、`/scene-audio`、`/props` 等多个路由 ⇒ 诊断日志/截图/扩展读页面数据都可能带出**含用户名的本机绝对路径**。
+- **媒体 token 就是绝对路径的 base64url**（`lib/index.js:1123-1131`）⇒ **可逆**：
+
+  ```js
+  // lib/index.js:1126-1131（摘）
+  const mediaMap = new Map();
+  const tokenFor = (absPath) => {
+    const token = Buffer.from(absPath, 'utf8').toString('base64url');
+    mediaMap.set(token, absPath);
+    return token;
+  };
+  ```
+
+  它自己的注释写明理由（`:1123-1125`）："the route never exposes an arbitrary filesystem string the client could not otherwise obtain from the inventory"——**前提是"客户端本来就能从 inventory 拿到这些路径"**。但 inventory 给的是**壁纸名/相对路径**，而 token 一行 `atob()` 就能还原出 `C:\Users\<用户名>\…`。token 出现在 `/media`、`/preview`、`/live-frame`、`/scene-video`、`/scene-audio`、`/props` 等多个路由 ⇒ 诊断日志/截图/扩展读页面数据都可能带出**含用户名的本机绝对路径**。
 
 #### 13.2.3 自建 loopback 媒体源：无鉴权 + `Access-Control-Allow-Origin: *`
 
