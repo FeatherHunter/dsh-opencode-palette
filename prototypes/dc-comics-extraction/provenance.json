@@ -1,0 +1,372 @@
+[
+ {
+  "slot": "codeBlockBg",
+  "hex": "#000515",
+  "file": "1.jpg",
+  "x": 323,
+  "y": 250,
+  "near": 270,
+  "mass": 3599,
+  "note": "1.jpg 披风深处黑蓝 · 代码井底"
+ },
+ {
+  "slot": "sidebarBg",
+  "hex": "#0A0F12",
+  "file": "1.jpg",
+  "x": 376,
+  "y": 323,
+  "near": 14285,
+  "mass": 17499,
+  "note": "1.jpg/3.jpg 人物之间死黑 · 侧栏凹槽"
+ },
+ {
+  "slot": "background",
+  "hex": "#0C1326",
+  "file": "1.jpg",
+  "x": 320,
+  "y": 250,
+  "near": 1597,
+  "mass": 1729,
+  "note": "1.jpg 海报底部蓝黑 · 场"
+ },
+ {
+  "slot": "backgroundPanel",
+  "hex": "#09203F",
+  "file": "1.jpg",
+  "x": 100,
+  "y": 42,
+  "near": 1141,
+  "mass": 1202,
+  "note": "1.jpg 披风受光深蓝 · 卡片"
+ },
+ {
+  "slot": "inputBg",
+  "hex": "#192D52",
+  "file": "1.jpg",
+  "x": 9,
+  "y": 8,
+  "near": 1724,
+  "mass": 1943,
+  "note": "1.jpg 战衣受影的蓝 · 输入槽"
+ },
+ {
+  "slot": "codeHeaderBg",
+  "hex": "#122543",
+  "file": "1.jpg",
+  "x": 327,
+  "y": 70,
+  "near": 1602,
+  "mass": 1699,
+  "note": "1.jpg 超人披肩深蓝 · 代码头带"
+ },
+ {
+  "slot": "backgroundElement",
+  "hex": "#263356",
+  "file": "1.jpg",
+  "x": 10,
+  "y": 9,
+  "near": 2153,
+  "mass": 2452,
+  "note": "1.jpg 钢仔装甲的蓝 · 浮层"
+ },
+ {
+  "slot": "bubbleBg",
+  "hex": "#0F437D",
+  "file": "2.jpg",
+  "x": 402,
+  "y": 298,
+  "near": 12723,
+  "mass": 13770,
+  "note": "2.jpg 徽章圆盘深蓝 · 气泡"
+ },
+ {
+  "slot": "text",
+  "hex": "#FEFAD4",
+  "file": "3.jpg",
+  "x": 400,
+  "y": 90,
+  "near": 4117,
+  "mass": 5064,
+  "note": "3.jpg 百科封面旧纸"
+ },
+ {
+  "slot": "textMuted",
+  "hex": "#BDC0C5",
+  "file": "1.jpg",
+  "x": 270,
+  "y": 318,
+  "near": 1870,
+  "mass": 3481,
+  "note": "1.jpg 蓝雾天光"
+ },
+ {
+  "slot": "primary",
+  "hex": "#0373B3",
+  "file": "2.jpg",
+  "x": 272,
+  "y": 64,
+  "near": 48154,
+  "mass": 54861,
+  "note": "2.jpg 徽章圆盘本体"
+ },
+ {
+  "slot": "secondary",
+  "hex": "#E4BA56",
+  "file": "3.jpg",
+  "x": 83,
+  "y": 457,
+  "near": 376,
+  "mass": 382,
+  "note": "3.jpg 神奇女侠金冠"
+ },
+ {
+  "slot": "info",
+  "hex": "#91C1CF",
+  "file": "1.jpg",
+  "x": 169,
+  "y": 11,
+  "near": 481,
+  "mass": 865,
+  "note": "1.jpg 速度力水蓝"
+ },
+ {
+  "slot": "success",
+  "hex": "#64AB65",
+  "file": "1.jpg",
+  "x": 149,
+  "y": 137,
+  "near": 598,
+  "mass": 598,
+  "note": "1.jpg 绿灯侠战衣绿"
+ },
+ {
+  "slot": "warning",
+  "hex": "#C2A595",
+  "file": "3.jpg",
+  "x": 14,
+  "y": 61,
+  "near": 2559,
+  "mass": 3216,
+  "note": "3.jpg 封面天空陶土"
+ },
+ {
+  "slot": "error",
+  "hex": "#BE4B48",
+  "file": "3.jpg",
+  "x": 147,
+  "y": 34,
+  "near": 2228,
+  "mass": 2677,
+  "note": "3.jpg 红披风暗面"
+ },
+ {
+  "slot": "border",
+  "hex": "#7C7D7F",
+  "file": "1.jpg",
+  "x": 379,
+  "y": 171,
+  "near": 2367,
+  "mass": 2840,
+  "note": "1.jpg 钢仔装甲银灰"
+ },
+ {
+  "slot": "borderActive",
+  "hex": "#D6F0FF",
+  "file": "2.jpg",
+  "x": 189,
+  "y": 246,
+  "near": 1732,
+  "mass": 3472,
+  "note": "2.jpg 徽章白星冷光"
+ },
+ {
+  "slot": "diffAdded",
+  "hex": "#8BB551",
+  "file": "3.jpg",
+  "x": 317,
+  "y": 118,
+  "near": 236,
+  "mass": 259,
+  "note": "3.jpg 封面绿灯侠黄绿"
+ },
+ {
+  "slot": "diffRemoved",
+  "hex": "#D37B6D",
+  "file": "1.jpg",
+  "x": 582,
+  "y": 219,
+  "near": 832,
+  "mass": 901,
+  "note": "1.jpg 火焰旁披风暖红"
+ },
+ {
+  "slot": "diffAddedBg",
+  "hex": "#131B0E",
+  "file": "3.jpg",
+  "x": 241,
+  "y": 476,
+  "near": 1655,
+  "mass": 2837,
+  "note": "3.jpg 封面暗部绿黑"
+ },
+ {
+  "slot": "diffRemovedBg",
+  "hex": "#221A17",
+  "file": "3.jpg",
+  "x": 351,
+  "y": 428,
+  "near": 13294,
+  "mass": 16031,
+  "note": "3.jpg 封面纸面暖影"
+ },
+ {
+  "slot": "diffAddedLineNumberBg",
+  "hex": "#0A0F12",
+  "file": "1.jpg",
+  "x": 376,
+  "y": 323,
+  "near": 14285,
+  "mass": 17499,
+  "note": "1.jpg 人物之间死黑 · 行号底"
+ },
+ {
+  "slot": "diffRemovedLineNumberBg",
+  "hex": "#18100D",
+  "file": "3.jpg",
+  "x": 358,
+  "y": 430,
+  "near": 5511,
+  "mass": 16095,
+  "note": "3.jpg 封面阴影最深处"
+ },
+ {
+  "slot": "markdownHeading",
+  "hex": "#B8D8ED",
+  "file": "1.jpg",
+  "x": 39,
+  "y": 251,
+  "near": 1979,
+  "mass": 3570,
+  "note": "1.jpg 速度力冷白"
+ },
+ {
+  "slot": "markdownLink",
+  "hex": "#0392CE",
+  "file": "2.jpg",
+  "x": 168,
+  "y": 38,
+  "near": 12244,
+  "mass": 12918,
+  "note": "2.jpg 徽章上缘亮青"
+ },
+ {
+  "slot": "markdownCode",
+  "hex": "#ECD1B4",
+  "file": "3.jpg",
+  "x": 65,
+  "y": 403,
+  "near": 11273,
+  "mass": 12086,
+  "note": "3.jpg 女侠暖肤色"
+ },
+ {
+  "slot": "markdownEmph",
+  "hex": "#82BBE8",
+  "file": "1.jpg",
+  "x": 59,
+  "y": 227,
+  "near": 953,
+  "mass": 1542,
+  "note": "1.jpg 浅天光冷调"
+ },
+ {
+  "slot": "markdownStrong",
+  "hex": "#FFFFFF",
+  "file": "2.jpg",
+  "x": 12,
+  "y": 12,
+  "near": 70254,
+  "mass": 81305,
+  "note": "2.jpg 徽章白底与白星"
+ },
+ {
+  "slot": "markdownBlockQuote",
+  "hex": "#A3BDD6",
+  "file": "1.jpg",
+  "x": 250,
+  "y": 40,
+  "near": 2085,
+  "mass": 2802,
+  "note": "1.jpg 蓝雾天幕"
+ },
+ {
+  "slot": "syntaxComment",
+  "hex": "#717F8A",
+  "file": "1.jpg",
+  "x": 506,
+  "y": 143,
+  "near": 1184,
+  "mass": 1385,
+  "note": "1.jpg 钢仔钢灰"
+ },
+ {
+  "slot": "syntaxKeyword",
+  "hex": "#BDA3B0",
+  "file": "3.jpg",
+  "x": 143,
+  "y": 9,
+  "near": 1585,
+  "mass": 2188,
+  "note": "3.jpg 封面暗肤玫瑰灰"
+ },
+ {
+  "slot": "syntaxFunction",
+  "hex": "#008AC9",
+  "file": "2.jpg",
+  "x": 168,
+  "y": 38,
+  "near": 29061,
+  "mass": 30862,
+  "note": "2.jpg 徽章圆盘上缘"
+ },
+ {
+  "slot": "syntaxType",
+  "hex": "#BEDCDE",
+  "file": "1.jpg",
+  "x": 217,
+  "y": 11,
+  "near": 972,
+  "mass": 1383,
+  "note": "1.jpg 钢仔银青高光"
+ },
+ {
+  "slot": "syntaxNumber",
+  "hex": "#E6B189",
+  "file": "3.jpg",
+  "x": 349,
+  "y": 276,
+  "near": 2544,
+  "mass": 2659,
+  "note": "3.jpg 封面里那本旧漫画的纸"
+ },
+ {
+  "slot": "syntaxString",
+  "hex": "#89BF81",
+  "file": "1.jpg",
+  "x": 196,
+  "y": 325,
+  "near": 134,
+  "mass": 134,
+  "note": "1.jpg 绿灯侠战衣浅绿"
+ },
+ {
+  "slot": "syntaxOperator",
+  "hex": "#7D7875",
+  "file": "1.jpg",
+  "x": 377,
+  "y": 172,
+  "near": 2037,
+  "mass": 2951,
+  "note": "1.jpg 装甲与硝烟暖灰"
+ }
+]

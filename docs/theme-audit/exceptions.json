@@ -102,13 +102,7 @@
       ]
     },
     "marvel": {
-      "notes": "v3 终审（docs/ip-presets-v3-notes.md:11）：borderActive 并入 primary（红即品牌/焦点）。",
-      "allowedCollisions": [
-        [
-          "primary",
-          "borderActive"
-        ]
-      ]
+      "notes": "v3.3（2026-10-20）对抗式审查后重绘：判尺从「直采/阶梯/混色」改成四级（A1 实涂 9 / A2 边阶 11 / B 簇采 15 / C 阶梯 2），推翻先前「37/37 直采」的说法——按图里真实体量只有 9 条是字面像素。原 v3 终审记档的「borderActive 并入 primary」并岗**已主动解除**：焦点环用最亮的标志红 #F11E22，主按钮用能承载反白的铁人战甲红 #D32B28（标志红反白仅 3.83:1，撑不起按钮）。两个岗各取所需，primary 与 borderActive 不再同值，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
     },
     "transformers": {
       "notes": "v3 终审（docs/ip-presets-v3-notes.md:59）：info 并入 secondary（火种蓝同一故事）、审慎保留 link/borderActive 同值（可交互同一事）；原「heading 并入 primary」已在 v3.1 整改中拆分——标题独立为深底 5.9:1 的珊瑚朱，primary 压暗保反白 4.6:1，故移除该并岗（见 docs/ip-presets-v3-notes.md:85）。",
