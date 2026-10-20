@@ -1,4 +1,4 @@
-# IP 预置主题配色思路（对抗式重审版，21 套）
+# IP 预置主题配色思路（对抗式重审版，25 套）
 
 > v3.1 可读性整改（2026-10-19）：21 套全部按 docs/theme-audit/criteria.md 机器判尺整改到位（硬对/UI 对 0 违例、设计告警 21 条全记档 / 0 待处理，--check 退出码 0）。设计意图、品牌色与气质保持原案；6 套浅色主题的代码区由深色舞台改为同色系浅色纸面舞台（syntax 七色转深墨），其余主题主要是 primary/borderActive/标题/弱文字等 token 的对比度与并岗几何微调——正文里少数未及更新的 hex 以 src/custom-presets/*.json 终值为准。
 
@@ -13,6 +13,8 @@
 > v3.4 逐像素取色（2026-10-20）：**原神整版重绘 · 明暗两套**——五张参考图（官方主视觉 / 派蒙 / 可莉 / 温迪 / 旅行者）逐像素取样，只允许「直采 / 两色定比混色」两种来源。胶囊从一条变两条：`genshin`（原神，light，纸感明信片）与 `genshin-night`（原神 · 夜航，dark，夜航明信片）——自定义胶囊一条只装一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定宿主按哪种外观显示），所以「明暗一体」只能靠两条胶囊各自带自己的 appearance 实现。硬对 38 / UI 15 全绿，设计告警 0 条。其余 20 套不受影响。
 
 > v3.9 逐像素取证重绘（2026-10-20）：**奥特曼整版重绘**——37 槽全部改由两张参考图（`C:\Users\辰辰洋洋\Pictures\奥特曼\` 下的 `2.jpg` 奥特战士立绘 / `images.jpg`「奥特曼图鉴」海报）逐像素取证，只允许「直采 / 明度阶梯 / 定比混色」三种来源，id / name / appearance 不变（仍是同名 `ultraman` 胶囊，dark）。品牌重切成奥特曼的两个声部——**红冠 + 金眼**（primary 战甲受光正红 `#D52518` × secondary 金瞳边缘高光 `#EFCB5D`，色相差 41.1° 类比）；画布换成海报里最黑的那格 `#000600`，场域收进海报标题靛 `#2D2C8A` 染出来的 7 档明度阶。取色台账与原图裁切见 `prototypes/ultraman-theme-preview.html`；取色与自检管线见 `prototypes/ultraman-extraction/`。house 判尺 53/53 全过（硬性 38 + UI 15），宿主现实 49 对 0 硬违例，设计告警 0 条，引擎 `ensureDiffContrast` 对本套 37 槽 **no-op**（台账值＝出货值）。其余 23 套不受影响。
+
+> v3.10 逐像素平涂取色 + 对抗式审查（2026-10-20）：**新世纪福音战士整版重绘，并新增浅色册**。三张参考图（1.jpg 明日香装甲红与标题金 / 2.jpg Eva-01 机体紫与同步绿 / 3.jpg 天空云白与角色涂装）当唯一样本，37 槽每槽只允许两种来源——**直采**（平涂区域代表色：同色像素成片存在、3×3 邻域方差 0）与**定比混色**（两个采样色的固定比例，比例随值记账）。**第一条就推翻了上一版的做法**：上一版把「直采」定义成「离锚点最近的那个像素」，实测 44 个锚点里有 17 个整图只有 1 个同色像素（落在 JPEG 振铃与标题描边上），标签与像素对不上；本版把直采改成「成片平涂面的代表色」。另加一道**混色闸**：每个出货色到三张原图全部像素的最小 ΔE76 必须 ≤ 2.0，否则构建失败——因为定比混色本身「能造色」（44 锚点两两 × 3 配比 = 2,838 个混色里有 19 个 ΔE > 5，最大 15.85）。硬对 38 / UI 15 全绿、设计告警 0、引擎 `ensureDiffContrast` no-op；真实 widget 原型 42 个文本节点 0 个低于 4.5:1。落地形态：`evangelion`（dark，**原地替换**已发布的霓虹绿紫版）+ `evangelion-day`（light，新增）两条胶囊。取色管线见 `prototypes/evangelion-extraction/`，预览页见 `prototypes/evangelion-theme-preview.html`，对抗式审查原文见 `prototypes/evangelion-adversarial-review.md`。其余 24 套不受影响。
 
 ## 宝可梦（dark）
 
@@ -164,12 +166,27 @@
 ④技巧：主色取花瓣暗部而不是花心亮色——亮青 #12C1ED 在浅底上只有 2.00:1，压不住按钮白字，contrastText(primary)@primary 达不到 4.5；代码区改同族浅色纸面（shiki 前景 = 文字色，深卡会让无高亮代码不可读）；error 只能是陶土红，因为全组最红的一批像素只是 HUD 血量的暗部，没有纯红可用。
 ⑤v3 修订（对抗式审查后五处）：backgroundElement 改用实测淡草原像素 #DCF7AA——彩度 14→77 把草原第一次放进界面，**且相对亮度几乎不变，对比度预算零成本**（labelDimmed 余量从 4.78:1 放宽到 5.05:1）；codeHeaderBg 同步压深到 #D4ECAB；markdownHeading 从远堡雾紫灰 #605E63 改成那层古蓝 #28444A（正文之外终于有了音色，ΔE vs 正文 22.6、vs 主色 9.0 不撞品牌；实测：材料里没有任何「有色且比正文更深」的锚点，更深的标题物理上不存在）；syntaxOperator 从暖棕 #6D5B52 退成冷岩灰 #556966，把暖色系整族让给 warning/error；syntaxKeyword 让位深草绿 #163817，**语法核心最小 ΔE76 顺势从 12.8 提到 18.8**。关键教训：宿主的 0.8-dim 规则把「表面深度」和「弱文字层级」焊死在一起（元素面降到 L* 82，textMuted 就得压到 L* 24.5）——所以草原只能从**彩度**进场，不能从明度进场。
 
-## 新世纪福音战士（dark）
+## 新世纪福音战士（dark，v3.10 平涂取色重绘 · 明暗两册）
 
-①基调：NERV 暗紫黑 background #0D0A1C（原偏藏青中性黑改掉）。8 槽 255 色相紫家族阶梯：codeBlockBg #070512 AT 力场深渊最深 → background → sidebarBg → panel → inputBg → element → header → bubbleBg 指挥部走廊纵深。
-②组合：primary 初号机装甲荧光绿 #84FF00 × secondary 拘束器橙/明日香橙发 #FF7A1A，互补撞色；+暗紫背景构成紫绿橙三角色铁三角（初号机机身配色）；borderActive primary 高亮变体（同步率拉满辉光描边）。
-③借物：info 绫波丽发色零号机蓝、success 初号机同步达标绿、warning NERV 警报灯金黄、error 使徒血液红/电源耗尽红、diffAdded AT 力场绿、diffRemoved 使徒肉体粉红。syntax：comment MAGI 残影灰紫、keyword 初号机装甲紫、function 绫波蓝、type 拘束器橙、number S2 机关核心红粉、string AT 力场绿、operator 人类补完白光。
-④技巧：codeBlockBg 比 background 深两档沉成深渊，header 跳亮成顶灯盖；operator 不用纯灰白而用补完白光 #EFE6FF（六个高饱和 syntax 色间唯一消色分隔符，符号定位快一倍）；markdownCode 不用绿用警报橙 #FFB020，与绿标题撞色，行内代码长文一眼弹出。
+> v3.10 逐像素平涂取色 + 对抗式审查（2026-10-20）：整版重绘 + 新增浅色册「晴空」。本套是全 house 里第一条把「直采」定义成**平涂区域代表色**（同色像素成片 + 3×3 邻域方差 0）的预置——上一版按「离锚点最近的像素」取样，44 锚点里 17 个整图只有 1 个同色像素，标签与像素对不上（审查记录见 `prototypes/evangelion-adversarial-review.md`，17+ 处自己稿被推翻）。
+
+①基调：夜战黑紫。8 槽收进「海报黑 → 夜蓝 → 紫」三段（基准色相 226.7°，品牌几何 4.8° analogous）：最暗是海报黑 background #151419 与输入底 inputBg #141520；主体是夜蓝 backgroundPanel #111B3E 与冷灰石板 codeBlockBg #1F1D32；紫调一族给 sidebarBg #282242 / bubbleBg #212558 / backgroundElement #1E2B50；顶灯是 codeHeaderBg #2B334F。描边只留 border #382A5F 一档，靠亮度差分层不靠线框。
+
+②组合：primary 机体高光淡紫 #BB96F5 × secondary 灰紫 #BEAFCF——同一紫相家族的两级，brand 几何落在 4.8° 类比而不是硬凑互补（EVA 的紫本来就是一件事的两面）。info 天空蓝 #7DA0D8，success 同步绿 #DBFD68（酸绿；绿只占三张图 2.5% 面积，稀有色才配当主角），warning 装甲橙 #B2750A，error 装甲红受光面 #E3796A。三种性格色各占一条色相族，互不越界。
+
+③借物：正文 #D5D8DE、弱文字 #A8A8B6、标题海报金 #FAAB00、链接天蓝 #A1CCF6、行内码粉紫 #CAA0B3、斜体酸绿压暗 #97AD50、引用钢蓝 #BAC6DC；diff 新增 #AFC755 / 删除 #D78A90（行底与行号槽各按 12% / 6% 染色，引擎无需修复）。syntax 七色：keyword #B4B3D0、function #C2DEF4、type #DEBAC7、number #F9B219、string #89B872、comment #8B8996（退后）、operator #7D90AC（退后）。核心语法最小 ΔE76 16.3。
+
+④技巧与代价：**错误色不能是图里的纯红**——图中最纯的红 #DC4C2A 在浮层底上只有 3.37:1，改取「装甲红受光面 #D8402B × 云白 35%」得 #E3796A（页底 6.29:1）；**饱和红过不了引擎 pickText 的陷阱区**（luma601 落在 0.4–0.6 会挑到白字，而饱和红的 luma601 最高只有 0.299），所以错误色只作文字与圆点、不作填充按钮底（真机原型里填充按钮底只有 primary / info）；**焦点环 33% alpha 到不了 3:1**（白 @33% 压暗底上限 2.66:1，任何色板都救不了）——这是渲染属性，不是色板缺陷；**注释与运算符不要求互相可分**（都是低显著度记号，仓库判尺只要求它们退后到核心语法之下）。
+
+## 新世纪福音战士 · 晴空（light，新增）
+
+①基调：白天的天空。浅色半不是深色半反过来——底来自 3.jpg 的云层 #EFF2F7，文字用 2.jpg 的夜蓝 #181824（所以白天那套是天空，不是纸）。8 槽一条冷调亮度梯（基准色相 217.5°）：background #EFF2F7 → sidebarBg #CCD5E5 → bubbleBg #DDD3F6（紫调气泡）→ backgroundPanel #FEFEFE（纯白卡片）→ backgroundElement #E8E8F2 → inputBg #CAD0D8（中性钢灰）→ codeBlockBg #C9E1F4（浅蓝代码纸）→ codeHeaderBg #A9C3E0（更亮的顶灯带）。
+
+②组合：primary 深机体紫 #473D94（引擎配白字 8.09:1）、secondary 深灰紫 #3D3660、info 夜空蓝 #0F2242（pickText 给白字 14.39:1——浅色信息色必须离开 luma 0.4–0.6 陷阱区）、success 深林绿 #344D2C、warning 铜金 #785614、error 暗红墨 #422329。品牌几何 3.1° analogous。
+
+③借物：标题深墨棕 #5D4523、链接深蓝 #0044A0、行内码紫墨 #67575A、斜体橄榄 #525D38、引用钢蓝 #4A5164；diff 新增 #2B4429 / 删除 #4D2638（行底浅绿灰 #E5EBDD / 浅粉灰 #EDDEDE）。syntax 七色：keyword #564A77、function #414F63、type #4F3F47、number #604C29、string #243A2E、comment #2E5891（退后）、operator #4F4A9A（退后）。核心语法最小 ΔE76 14.9。
+
+④技巧与代价：**白底上 4.5:1 ⇒ 状态色只能用墨色**（L* ≤ 50），所以浅色半的 error / warning / success 都是深墨而不是鲜色——红绿状态色在红色盲下仍会互相靠拢，这是「白底 + 4.5:1」的客观结果，不粉饰；**浅色半的「退后」空间天生窄**：注释 5.33 / 运算符 5.60 已经贴着核心最低 5.89——曾尝试整体加深 5 个核心语法色来拉开空间，立刻换来 7 条硬违例（核心角色挤成同一片深色），已全部回滚。
 
 ## 赛博朋克 2077（dark）
 

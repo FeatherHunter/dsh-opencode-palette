@@ -1,5 +1,5 @@
-// ip-presets.test.ts — IP 预置主题第二来源（src/custom-presets/24 套）接线测试
-// 双来源：内置 38（37+system，冻结不动）+ IP 24（只进自定义编辑器「选基底」，不进 themeNames）。
+// ip-presets.test.ts — IP 预置主题第二来源（src/custom-presets/25 套）接线测试
+// 双来源：内置 38（37+system，冻结不动）+ IP 25（只进自定义编辑器「选基底」，不进 themeNames）。
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
@@ -13,6 +13,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 const EXPECTED_IDS = [
   'cyberpunk-2077', 'dc-comics', 'disney', 'doraemon', 'dragon-ball', 'evangelion',
+  'evangelion-day',
   'genshin', 'genshin-night', 'harry-potter', 'hello-kitty', 'kuromi', 'lego', 'mario', 'mario-night', 'marvel', 'naruto',
   'naruto-night',
   'one-piece', 'pokemon', 'sailor-moon', 'star-wars', 'transformers',
@@ -26,8 +27,8 @@ function preset(id: string) {
   return p
 }
 
-test('IP 预置 24 套，id 清单稳定（字母序）', function () {
-  assert.equal(countIpPresets(), 24)
+test('IP 预置 25 套，id 清单稳定（字母序）', function () {
+  assert.equal(countIpPresets(), 25)
   assert.deepEqual(IP_PRESET_IDS.slice().sort(), EXPECTED_IDS)
   assert.deepEqual(
     listIpPresets().map(function (p) { return p.name }),
@@ -51,7 +52,7 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
     }
   }
   assert.equal(dark, 12, '深色 12')
-  assert.equal(light, 12, '浅色 12（迪士尼、哆啦A梦、龙珠、原神、Hello Kitty、库洛米、乐高、马里奥、火影忍者、海贼王、美少女战士、塞尔达传说）')
+  assert.equal(light, 13, '浅色 13（迪士尼、哆啦A梦、龙珠、原神、Hello Kitty、库洛米、乐高、马里奥、火影忍者、海贼王、美少女战士、塞尔达传说、新世纪福音战士·晴空）')
 })
 
 test('getIpPreset 按 id 取，miss 回 null', function () {
@@ -71,7 +72,7 @@ test('内置清单冻结：IP 不进 themeNames（38 款口径不动）', functi
   }
 })
 
-test('产物同步：构建后的 client.js 内含 24 个 IP id', function () {
+test('产物同步：构建后的 client.js 内含 25 个 IP id', function () {
   const bundle = readFileSync(join(ROOT, 'package', 'lib', 'client.js'), 'utf8')
   for (const id of EXPECTED_IDS) {
     assert.ok(bundle.includes(id), 'bundle 含 ' + id)

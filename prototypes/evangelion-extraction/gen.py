@@ -121,6 +121,9 @@ h1.title .v{font-family:"Cascadia Code",Consolas,monospace;font-size:15px;color:
   border-radius:10px;padding:6px 12px 6px 7px;font-size:11.5px;color:var(--muted)}
 .chip img{width:26px;height:26px;border-radius:6px;display:block;border:.5px solid var(--border)}
 .chip b{color:var(--text);font-weight:600;font-family:"Cascadia Code",Consolas,monospace;font-size:11px}
+.chip i.lb-l{display:none;font-style:normal}
+html[data-mode="light"] .chip i.lb-d{display:none}
+html[data-mode="light"] .chip i.lb-l{display:inline}
 .ideas{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:26px}
 .idea{background:var(--panel);border:.5px solid var(--border);border-radius:12px;padding:14px 15px 15px}
 .idea .no{font-family:"Cascadia Code",Consolas,monospace;font-size:10px;color:var(--primary);letter-spacing:.2em}
@@ -301,6 +304,9 @@ h1.title .v{font-family:"Cascadia Code",Consolas,monospace;font-size:15px;color:
 .badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;border-radius:5px;padding:1px 7px}
 .badge.ok{color:var(--success);background:color-mix(in srgb,var(--success) 14%,transparent)}
 .badge.no{color:var(--error);background:color-mix(in srgb,var(--error) 14%,transparent)}
+.badge.info{color:var(--muted);background:color-mix(in srgb,var(--muted) 14%,transparent)}
+tr.grp td{font-weight:700;font-size:11px;letter-spacing:.08em;color:var(--muted);padding-top:12px;border-top:1px solid var(--border)}
+tr.grp:first-child td{border-top:0;padding-top:2px}
 details{margin-top:10px}
 details summary{cursor:pointer;font-size:11.5px;color:var(--muted);padding:6px 0}
 details summary:hover{color:var(--text)}
@@ -353,26 +359,48 @@ const an=document.getElementById('anchors');
 an.innerHTML=Object.entries(PAL.anchors).filter(([k])=>used.has(k)).map(([k,a])=>`
  <div class="anc">
    <img src="data:image/png;base64,${a.crop}" alt="${a.label}">
-   <div class="m"><b>${a.hex}</b><p>${a.label}</p><div class="f">${a.file} · ${a.support>0 ? '同色 '+a.support.toLocaleString()+' px · 邻域方差 '+a.flatness : '三张图里没有成片平涂面 · 保留声明值 '+a.declared}</div></div>
+   <div class="m"><b>${a.hex}</b><p>${a.label}</p><div class="f">${a.file} · ${a.support>0 ? '同色 '+a.support.toLocaleString()+' px · 邻域方差 '+a.flatness+(a.targetIsPixel?' · 目标值即原图像素':' · 目标值是设计意图，非原图像素') : '三张图里没有成片平涂面 · 目标值 '+a.target+'（非原图像素，声明值）'}</div></div>
  </div>`).join('');
 
-/* 审计 */
-const hard=PAL.checks.filter(r=>r.kind!=='matrix');
-const matrix=PAL.checks.filter(r=>r.kind==='matrix');
+/* 审计：三级口径 —— 判尺硬性 / 诊断级 / 记账 */
+const KIND_NAME={hard:'判尺硬性 · 正文与语义色 ≥ 4.5:1',ui:'UI / 交互对 ≥ 3:1',
+  diag:'诊断项 · 品牌色若当作填充底时的反白文字',matrix:'扩展矩阵 · 文字类角色 × 8 个渲染表面',
+  mix:'混色闸 · 出货色到最近真实像素的 ΔE76（不许造色）',surface:'表面分离 · 8 个表面两两 ΔE76',
+  cvd:'色觉分离 · 模拟 ΔE76（protan / deutan / tritan）',cvdA:'去色盲诊断 · 模拟 ΔE76（只记账，不设阈值）',
+  hier:'层级台阶 · ΔL*',recede:'退后记账 · 注释与运算符的对比度'};
+const KIND_METRIC={hard:'比值',ui:'比值',diag:'比值',matrix:'比值',mix:'ΔE76',surface:'ΔE76',
+  cvd:'模拟 ΔE76',cvdA:'模拟 ΔE76',hier:'ΔL*',recede:'对比度'};
+const KIND_LEVEL={hard:'hard',ui:'hard',mix:'hard',surface:'hard',cvd:'hard',hier:'hard',
+  diag:'diag',matrix:'diag',cvdA:'info',recede:'info'};
+function badge(r){
+  if(r.verdict==='pass')return '<span class="badge ok">通过</span>';
+  if(r.verdict==='info')return '<span class="badge info">记账</span>';
+  return '<span class="badge no">'+(KIND_LEVEL[r.kind]==='diag'?'诊断级未达标':'未过')+'</span>';
+}
 function rows(list){
   return list.map(r=>`<tr><td>${r.code}</td><td class="mono">${r.fg}</td><td class="mono">${r.bg}</td>
-   <td class="mono">${r.ratio.toFixed(2)} : 1</td><td class="mono">≥ ${r.threshold}</td>
-   <td><span class="badge ${r.verdict==='pass'?'ok':'no'}">${r.verdict==='pass'?'通过':'未过'}</span></td>
+   <td class="mono">${r.ratio.toFixed(2)}</td><td class="mono">${r.threshold?('≥ '+r.threshold):'—'}</td>
+   <td>${badge(r)}</td>
    <td class="mono">${r.mode==='dark'?'深色':'浅色'}</td></tr>`).join('')
 }
-document.getElementById('audit').innerHTML=rows(hard);
-document.getElementById('matrix').innerHTML=rows(matrix);
-const fails=PAL.checks.filter(r=>r.verdict!=='pass').length;
+function group(kind){
+  const list=PAL.checks.filter(r=>r.kind===kind);
+  return `<tr class="grp"><td colspan="7">${KIND_NAME[kind]} · ${list.length} 条 · 指标：${KIND_METRIC[kind]}</td></tr>`+rows(list);
+}
+document.getElementById('audit').innerHTML=['hard','ui','diag'].map(group).join('');
+document.getElementById('matrix').innerHTML=['matrix'].map(group).join('');
+document.getElementById('ledger').innerHTML=['mix','surface','cvd','cvdA','hier','recede'].map(group).join('');
+const hardFails=PAL.checks.filter(r=>r.verdict==='fail'&&KIND_LEVEL[r.kind]==='hard').length;
+const diagFails=PAL.checks.filter(r=>r.verdict==='fail'&&KIND_LEVEL[r.kind]==='diag').length;
+const infoRows=PAL.checks.filter(r=>r.verdict==='info').length;
 document.getElementById('st-checks').textContent=PAL.checks.length;
-document.getElementById('st-fails').textContent=fails;
+document.getElementById('st-fails').textContent=hardFails;
+document.getElementById('st-diag').textContent=diagFails;
+document.getElementById('st-info').textContent=infoRows;
 document.getElementById('st-slots').textContent=PAL.slots.length;
 document.getElementById('st-distinct').textContent=new Set(PAL.slots.map(s=>s.dark.hex)).size;
 document.getElementById('st-anchors').textContent=Object.keys(PAL.anchors).length;
+document.getElementById('st-declared').textContent=Object.values(PAL.anchors).filter(a=>!a.support).length;
 
 /* 模式切换 */
 function setMode(m){
@@ -380,18 +408,23 @@ function setMode(m){
   document.documentElement.dataset.mode=m;
   document.querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));
   document.querySelectorAll('[data-mode-label]').forEach(e=>e.textContent=m);
+  const C = m==='dark'?PAL.colors:PAL.colorsLight;
+  document.querySelectorAll('.chip[data-k]').forEach(e=>{e.querySelector('b').textContent=C[e.dataset.k];});
 }
 document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.m)));
 const mm=/[?&]mode=(light|dark)/.exec(location.href);
 setMode(mm?mm[1]:'dark');
 """
 
-HERO = [('success', '同步绿 · Eva-01 肩甲'), ('primary', '机体高光淡紫'), ('error', '装甲红受光面'),
-        ('info', '天空蓝 · 云'), ('warning', '装甲橙')]
+HERO = [('success', '同步绿 · Eva-01 肩甲', '深林绿 · 同步绿压暗'),
+        ('primary', '机体高光淡紫', '机体紫 · 暗调'),
+        ('error', '装甲红受光面', '暗红墨 · 装甲红压暗'),
+        ('info', '天空蓝 · 云', '夜空蓝 · 云影压暗'),
+        ('warning', '装甲橙', '铜金 · 装甲橙压暗')]
 
 def hero_chips():
     out = []
-    for key, label in HERO:
+    for key, label, label_light in HERO:
         meta = None
         for a in ANCHORS.values():
             if a['hex'].lower() == D[key].lower():
@@ -407,8 +440,9 @@ def hero_chips():
                     break
         if meta is None:
             continue
-        out.append('<span class="chip"><img src="data:image/png;base64,%s" alt=""><b>%s</b>%s</span>'
-                   % (meta['crop'], D[key], label))
+        out.append('<span class="chip" data-k="%s"><img src="data:image/png;base64,%s" alt="">'
+                   '<b></b><i class="lb-d">%s</i><i class="lb-l">%s</i></span>'
+                   % (key, meta['crop'], label, label_light))
     return ''.join(out)
 
 CSS = CSS.replace('__DARK__', var_block('dark')).replace('__LIGHT__', var_block('light'))
@@ -549,9 +583,10 @@ __CSS__
             <div class="out">
               [1] 硬性正文对 <b>38 × 2 套 · 0 违例</b><br>
               [2] UI / 交互对 <b>15 × 2 套 · 0 违例</b><br>
-              [3] IP 设计规范 <b>角色碰撞 0 · 语法 ΔE76 ≥ __DELTA__ · 退后通过</b><br>
-              [4] 扩展矩阵（文字类 × 8 表面）<b>__MATRIX_N__ 对 · 0 未过</b><br>
-              [5] 真机复核（行内码芯片 / 次按钮药丸 / 六品牌色 pickText）<b>__REALUI_N__ 对 · 0 未过</b>
+              [3] IP 设计规范 <b>角色碰撞 0 · 语法 ΔE76 ≥ __DELTA_D__（深）/ __DELTA_L__（浅） · 退后通过</b><br>
+              [4] 扩展矩阵（文字类 × 8 表面）<b>__MATRIX_N__ 对 · 判尺内 0 未过 · __MATRIX_FAIL__ 对诊断级未达标</b><br>
+              [5] 真机复核（行内码芯片 / 次按钮药丸 / 六品牌色 pickText）<b>__REALUI_N__ 对 · 判尺内 0 未过 · __REALUI_FAIL__ 对诊断级（error / warning 若作填充底，引擎反白文字偏弱）</b><br>
+              [6] 第四轮机器约束（混色闸 / 表面分离 / 色觉分离 / 余量账本）<b>__LEDGER_N__ 条 · 0 未过</b>
             </div>
           </div>
         </div>
@@ -592,8 +627,8 @@ __CSS__
     <div class="stat">
       <div><div class="v" id="st-slots2">37</div><div class="l"><b>色位</b> × 深浅两套 = 74 个色值</div></div>
       <div><div class="v" id="st-distinct">37</div><div class="l">深色套<b>去重后</b>色值数（37 槽零碰撞）</div></div>
-      <div><div class="v" id="st-checks">234</div><div class="l">条对比度实测，<b>未过 <span id="st-fails">0</span></b> 条</div></div>
-      <div><div class="v" id="st-anchors">44</div><div class="l">个取样锚点，全部取自三张图的<b>平涂区域</b></div></div>
+      <div><div class="v" id="st-checks">730</div><div class="l">条实测（对比度 / ΔE / 色觉），<b>判尺未过 <span id="st-fails">0</span></b> · 诊断级未达标 <span id="st-diag">6</span> · 记账 <span id="st-info">172</span></div></div>
+      <div><div class="v" id="st-anchors">44</div><div class="l">个取样锚点，取自三张图的<b>平涂区域</b>（<span id="st-declared">2</span> 个为声明值）</div></div>
     </div>
     <div class="anchors" id="anchors"></div>
   </div>
@@ -602,14 +637,21 @@ __CSS__
     <div class="head"><h3>对比度审计</h3><span class="hintx">WCAG 2.1 相对亮度比 · 正文/语义色 ≥ 4.5:1，非文本组件 ≥ 3:1</span></div>
     <p class="lede">口径与仓库 <code>docs/theme-audit/criteria.md</code> 一致：<code>label-dimmed</code> 按
       <code>withAlpha(textMuted, 0.8)</code> 在 gamma 编码的 sRGB 空间合成后再比。</p>
+    <p class="lede">表分三级口径：<b>判尺硬性</b>（仓库判尺 + 第四轮机器约束：混色闸 / 表面分离 / 色觉分离）必须全过；<b>诊断级</b>是判尺之外的自加项——本件 <b>__DIAG_N__</b> 条未达 4.5:1，都是「markdown 角色 × 代码头带 / 输入面」这类<b>不同屏</b>的组合（输入框里不出现 markdown，代码标题条上也不出现行内代码），已逐条列出而非藏起来；<b>记账</b>是只统计不判罚的诊断行（去色盲模拟、退后带）。</p>
     <table class="audit">
-      <thead><tr><th>检查项</th><th>前景</th><th>背景</th><th>比值</th><th>阈值</th><th>结果</th><th>模式</th></tr></thead>
+      <thead><tr><th>检查项</th><th>前景 / 对</th><th>背景 / 对</th><th>数值</th><th>阈值</th><th>结果</th><th>模式</th></tr></thead>
       <tbody id="audit"></tbody>
     </table>
-    <details><summary>展开扩展矩阵：文字类角色 × 8 个渲染表面（__MATRIX_N__ 对，全部 ≥ 4.5:1）</summary>
+    <details><summary>展开扩展矩阵：文字类角色 × 8 个渲染表面（__MATRIX_N__ 对；其中 __MATRIX_FAIL__ 对落在 4.5:1 以下，为不同屏的诊断级组合）</summary>
       <table class="audit">
-        <thead><tr><th>检查项</th><th>前景</th><th>背景</th><th>比值</th><th>阈值</th><th>结果</th><th>模式</th></tr></thead>
+        <thead><tr><th>检查项</th><th>前景 / 对</th><th>背景 / 对</th><th>数值</th><th>阈值</th><th>结果</th><th>模式</th></tr></thead>
         <tbody id="matrix"></tbody>
+      </table>
+    </details>
+    <details><summary>展开第四轮机器约束台账：混色闸 / 表面分离 / 色觉分离 / 层级台阶 / 退后带（__LEDGER_N__ 条）</summary>
+      <table class="audit">
+        <thead><tr><th>检查项</th><th>前景 / 对</th><th>背景 / 对</th><th>数值</th><th>阈值</th><th>结果</th><th>模式</th></tr></thead>
+        <tbody id="ledger"></tbody>
       </table>
     </details>
   </div>
@@ -673,6 +715,9 @@ def find_ratio(fg, bg):
     return round(ratio(fg, bg), 2)
 
 matrix_n = len([r for r in P['checks'] if r['kind'] == 'matrix'])
+matrix_fail_n = len([r for r in P['checks'] if r['kind'] == 'matrix' and r['verdict'] == 'fail'])
+diag_fail_n = len([r for r in P['checks'] if r['kind'] == 'diag' and r['verdict'] == 'fail'])
+ledger_n = len([r for r in P['checks'] if r['kind'] in ('mix', 'surface', 'cvd', 'cvdA', 'hier', 'recede')])
 
 html = TEMPLATE
 html = html.replace('__CSS__', CSS)
@@ -693,7 +738,12 @@ html = html.replace('__BG_E__', D['backgroundElement'])
 html = html.replace('__ERR_R__', str(find_ratio(D['error'], D['background'])))
 html = html.replace('__TXT_R__', str(find_ratio(D['text'], D['background'])))
 html = html.replace('__DELTA__', str(P['stats']['dark']['coreMin']))
+html = html.replace('__DELTA_D__', str(P['stats']['dark']['coreMin']))
+html = html.replace('__DELTA_L__', str(P['stats']['light']['coreMin']))
 html = html.replace('__MATRIX_N__', str(matrix_n))
+html = html.replace('__MATRIX_FAIL__', str(matrix_fail_n))
+html = html.replace('__DIAG_N__', str(diag_fail_n + matrix_fail_n))
+html = html.replace('__LEDGER_N__', str(ledger_n))
 
 # 真机复核三条的实测值（审计器原本测不到的三处）
 def check_ratio(mode, code):
@@ -704,6 +754,9 @@ def check_ratio(mode, code):
 realui_n = len([r for r in P['checks'] if r['code'] in ('markdownCode@inlineChip', 'secondary@secondaryPill')
                 or r['code'].startswith('contrastText(')])
 html = html.replace('__REALUI_N__', str(realui_n))
+realui_fail_n = len([r for r in P['checks'] if r['verdict'] == 'fail'
+                     and (r['code'].startswith('contrastText(') or r['code'] in ('markdownCode@inlineChip', 'secondary@secondaryPill'))])
+html = html.replace('__REALUI_FAIL__', str(realui_fail_n))
 html = html.replace('__CHIP_R__', str(check_ratio('dark', 'markdownCode@inlineChip')))
 html = html.replace('__PILL_R__', str(check_ratio('light', 'secondary@secondaryPill')))
 html = html.replace('__INFO_R__', str(check_ratio('light', 'contrastText(info)@info')))

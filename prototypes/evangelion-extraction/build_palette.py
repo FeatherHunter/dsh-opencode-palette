@@ -130,6 +130,71 @@ def hue_dist(a, b):
     d = abs(a - b) % 360
     return d if d <= 180 else 360 - d
 
+# ───────────────────────── 混色闸 + 色觉模拟 ─────────────────────────
+# 「不许造色」要能被机器验证，而不是靠声明：
+#   每个出货色必须落在三张原图的真实像素附近（ΔE76 ≤ 2.0），否则视为造色，构建失败。
+_MIX_CELL = 6
+_MIX_GRID = None
+
+def _mix_grid():
+    global _MIX_GRID
+    if _MIX_GRID is None:
+        g = collections.defaultdict(list)
+        for c in _UNIQ:
+            g[(c[0] // _MIX_CELL, c[1] // _MIX_CELL, c[2] // _MIX_CELL)].append(c)
+        _MIX_GRID = g
+    return _MIX_GRID
+
+def nearest_real_de(h, span=2):
+    """出货色到三张原图全部像素的最小 ΔE76"""
+    r, g, b = h2r(h)
+    gx, gy, gz = r // _MIX_CELL, g // _MIX_CELL, b // _MIX_CELL
+    grid = _mix_grid()
+    best = 1e9
+    for dx in range(-span, span + 1):
+        for dy in range(-span, span + 1):
+            for dz in range(-span, span + 1):
+                for o in grid.get((gx + dx, gy + dy, gz + dz), ()):
+                    d = deltaE(h, r2h(o))
+                    if d < best:
+                        best = d
+    return best
+
+# Machado 2009 色觉模拟矩阵（severity 1.0，线性 RGB）
+_CVD_M = {
+ 'protan': ((0.152286, 1.052583, -0.204868), (0.114503, 0.786281, 0.099216), (-0.003882, -0.048116, 1.051998)),
+ 'deutan': ((0.367322, 0.860646, -0.227968), (0.280085, 0.672501, 0.047413), (-0.011820, 0.042940, 0.968881)),
+ 'tritan': ((1.255528, -0.076749, -0.178779), (-0.078411, 0.930809, 0.147602), (0.004733, 0.691367, 0.303900)),
+}
+CVD_KINDS = ('protan', 'deutan', 'tritan', 'achroma')
+
+def _lin8(c):
+    c /= 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+def _srgb8(v):
+    v = max(0.0, min(1.0, v))
+    return 255.0 * (12.92 * v if v <= 0.0031308 else 1.055 * (v ** (1 / 2.4)) - 0.055)
+
+def sim_cvd(h, kind):
+    r, g, b = (_lin8(c) for c in h2r(h))
+    if kind == 'achroma':
+        y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+        v = _srgb8(y)
+        return r2h((v, v, v))
+    M = _CVD_M[kind]
+    out = []
+    for row in M:
+        out.append(_srgb8(row[0] * r + row[1] * g + row[2] * b))
+    return r2h(tuple(int(round(v)) for v in out))
+
+def min_cvd(a, b):
+    return min(deltaE(sim_cvd(a, k), sim_cvd(b, k)) for k in CVD_KINDS)
+
+def lstar(h):
+    y = lum(h)
+    return 116 * (y ** (1 / 3) - 0.16) if y > 0.008856 else 903.3 * y
+
 # ───────────────────────── 取样 + 吸附到真实像素 ─────────────────────────
 # 对抗式审查后的取样规则（第一性原理）：
 #   用户要的是「画面真的涂出来的颜色」，不是 JPEG 振铃或文字描边上的孤立像素。
@@ -141,6 +206,11 @@ _counts = collections.Counter()
 for _im in imgs.values():
     _counts.update(_im.get_flattened_data())
 _UNIQ = list(_counts.keys())
+_PIXSET = set(_UNIQ)
+
+def _all_pixels_set():
+    """三张原图出现过的全部像素（RGB 元组集合）"""
+    return _PIXSET
 
 def _build_support_table(tol=3):
     """给每种出现过的颜色算好「同色像素数」（Δ≤tol）——用 3D 空间哈希，O(27·n)"""
@@ -297,7 +367,11 @@ for name, (decl, label) in DECL.items():
     if not picked:
         picked = {'hex': decl, 'xy': near, 'support': 0, 'flatness': 0}
     A[name] = (picked['hex'], fn, label)
-    anchor_info[name] = {'hex': picked['hex'], 'file': fn, 'label': label, 'declared': decl,
+    # target = 我声明的目标色（设计意图），不保证是原图像素；
+    # targetIsPixel 记录它到底在不在三张图里（色觉审计 T5 的记账要求）
+    target_is_pixel = tuple(h2r(decl)) in _all_pixels_set()
+    anchor_info[name] = {'hex': picked['hex'], 'file': fn, 'label': label, 'target': decl,
+                         'targetIsPixel': target_is_pixel,
                          'support': picked['support'], 'flatness': picked['flatness'],
                          'xy': list(picked['xy'])}
     _picked.append(name)
@@ -321,79 +395,79 @@ def M(a, b, t): return ('M', a, b, t)
 
 SLOTS = [
   ('background', '背景与表面', '页面底 / 侧栏底 / 浮层底 / 代码段未选', '--dsw-alias-bg-base · bg-layer-1/2/3 · bg-overlay',
-   L('ink0'), M('cloud', 'pale', 0.22)),
+   L('codebg'), L('cloud')),
   ('backgroundPanel', '背景与表面', '中层浮起面 / 标签 / 芯片', '--dsw-alias-markdown-tag · bg-multi-select · button-elevated-fill',
    L('ink1'), L('paper')),
   ('backgroundElement', '背景与表面', '浮层 / 引用 / 提示 / 吐司', '--dsw-alias-markdown-citation · bg-module-platform · toast-bg · tooltip-bg',
-   M('ink1', 'sky', 0.10), M('paper', 'violetLit', 0.22)),
+   M('ink1', 'sky', 0.12), L('haze')),
   ('sidebarBg', '背景与表面', '侧边栏底', '--dsw-specific-sidebar-fill',
-   M('sidebar', 'ink3', 0.25), M('cloud', 'slate', 0.45)),
+   M('sidebar', 'ink3', 0.35), M('cloud', 'steel', 0.3)),
   ('bubbleBg', '背景与表面', '对话气泡底', '--dsw-specific-bubble',
-   M('ink1', 'violet', 0.26), M('cloud', 'violetLit', 0.34)),
+   M('ink1', 'violet', 0.3), M('cloud', 'violetLit', 0.34)),
   ('inputBg', '背景与表面', '输入框底', '--dsw-specific-input-major · login-input',
-   M('ink1', 'ink0', 0.35), M('cloud', 'slate', 0.22)),
+   M('codebg', 'ink1', 0.18), M('cloud', 'slate', 0.22)),
   ('codeBlockBg', '背景与表面', '代码块底', '--dsw-alias-markdown-code-block',
-   M('codebg', 'violetGray', 0.30), M('cloud', 'skyLight', 0.85)),
+   L('sidebar'), M('cloud', 'skyLight', 0.85)),
   ('codeHeaderBg', '背景与表面', '代码块标题条', '--dsw-alias-markdown-code-block-banner · --dsl-code-block-background',
-   M('violetGray', 'ink1', 0.55), M('skyLight', 'indigo', 0.55)),
+   M('violetGray', 'ink1', 0.55), M('skyLight', 'steel', 0.35)),
   ('text', '文字', '正文 / 标题 / 吐司文字', '--dsw-alias-label-primary · button-contrast-fill · toast-label',
-   M('cloud', 'ink0', 0.12), L('ink1')),
+   M('cloud', 'ink0', 0.12), L('ink0')),
   ('textMuted', '文字', '次级 / 三级 / 说明文字', '--dsw-alias-label-secondary · tertiary · caption · menu-icon',
-   M('mist', 'cloud', 0.25), M('slate', 'ink1', 0.45)),
+   M('paper', 'warmGray', 0.85), M('ink2', 'slate', 0.15)),
   ('primary', '品牌与状态', '品牌主色 / 主按钮 / 焦点 / 业务态', '--dsw-alias-brand-primary · button-primary-fill · state-business-primary',
    L('violetLit'), L('violet')),
   ('secondary', '品牌与状态', '次级 / 空闲态', '--dsw-alias-state-idle-primary',
-   M('mauve', 'violetLit', 0.35), M('violetGray', 'ink1', 0.30)),
+   M('mauve', 'violetLit', 0.25), M('violetGray', 'ink3', 0.7)),
   ('info', '品牌与状态', '信息态 / 信息按钮', '--dsw-alias-button-info-fill',
-   L('sky'), M('cyan', 'ink1', 0.55)),
+   L('sky'), M('blue', 'codebg', 0.7)),
   ('success', '品牌与状态', '成功态', '--dsw-alias-state-success-primary',
-   L('limeHi'), M('green2', 'ink1', 0.35)),
+   L('limeHi'), M('forest', 'limeHi', 0.05)),
   ('warning', '品牌与状态', '警告态 / 警告标签', '--dsw-alias-state-warn-primary · state-warn-label',
-   L('orange'), M('amberDeep', 'brown', 0.55)),
+   M('orange', 'ink0', 0.25), M('ink0', 'orangeHi', 0.45)),
   ('error', '品牌与状态', '错误态', '--dsw-alias-state-error-primary',
-   M('redHot', 'paper', 0.15), M('redDeep', 'plum', 0.10)),
+   M('paper', 'redHot', 0.7), M('redDeep', 'ink0', 0.7)),
   ('border', '边框', '常规分隔线', '--dsw-alias-border-l1 · border-inverted · hr',
    L('ink3'), L('pale')),
   ('borderActive', '边框', '激活 / 强边框 / 焦点环', '--dsw-alias-border-l2/l3/l4 · button-ghost-active-border',
-   L('steel'), M('steel', 'ink1', 0.15)),
+   L('steel'), L('ink3')),
   ('diffAdded', '改动对比', '新增行前景', '--dsw-alias-code-diff-added · file-diff-added-marker',
    L('lime'), L('forest')),
   ('diffRemoved', '改动对比', '删除行前景', '--dsw-alias-code-diff-deleted · file-diff-deleted-marker',
-   M('redHot', 'haze', 0.45), M('redDeep', 'ink1', 0.25)),
+   M('redHot', 'pink', 0.75), M('redHot', 'ink1', 0.7)),
   ('diffAddedBg', '改动对比', '新增行底', '--dsw-alias-file-diff-added-bg',
    M('ink0', 'lime', 0.12), M('cloud', 'lime', 0.16)),
   ('diffRemovedBg', '改动对比', '删除行底', '--dsw-alias-file-diff-deleted-bg',
    M('ink0', 'redHot', 0.12), M('cloud', 'red', 0.12)),
   ('diffAddedLineNumberBg', '改动对比', '新增行行号槽', '--dsw-alias-file-diff-added-gutter',
-   M('ink0', 'lime', 0.06), M('cloud', 'lime', 0.34)),
+   M('ink0', 'lime', 0.06), L('paperCool')),
   ('diffRemovedLineNumberBg', '改动对比', '删除行行号槽', '--dsw-alias-file-diff-removed-gutter',
    M('ink0', 'redHot', 0.06), M('cloud', 'red', 0.24)),
   ('markdownHeading', 'Markdown', '各级标题', 'body h1–h6',
-   L('gold'), M('violet', 'ink1', 0.55)),
+   L('gold'), M('orangeHi', 'sidebar', 0.7)),
   ('markdownLink', 'Markdown', '超链接文本（正文 / shiki 链接）', 'a · .markdown a · shiki-token-link',
    L('cyan'), L('blue')),
   ('markdownCode', 'Markdown', '行内代码', 'code:not(pre code)',
-   M('pink', 'ink1', 0.15), M('violetLit', 'ink1', 0.52)),
+   M('pink', 'grayBlue', 0.15), M('pink', 'plum', 0.85)),
   ('markdownEmph', 'Markdown', '斜体', 'em',
-   M('limeHi', 'ink0', 0.35), M('teal', 'ink1', 0.35)),
+   M('limeHi', 'ink0', 0.35), M('limeHi', 'ink0', 0.7)),
   ('markdownStrong', 'Markdown', '加粗', 'strong',
-   L('cloud'), L('ink0')),
+   L('paper'), L('ink1')),
   ('markdownBlockQuote', 'Markdown', '引用块', 'blockquote',
-   M('steel', 'cloud', 0.55), M('steel', 'ink1', 0.50)),
+   M('steel', 'cloud', 0.55), L('violetGray')),
   ('syntaxComment', '代码高亮', '注释', '--shiki-token-comment',
-   M('gray', 'cloud', 0.20), L('slate')),
+   M('gray', 'mist', 0.6), M('gray', 'blue', 0.6)),
   ('syntaxKeyword', '代码高亮', '关键字', '--shiki-token-keyword',
-   M('indigo', 'cloud', 0.55), M('violet', 'ink1', 0.62)),
+   M('indigo', 'cloud', 0.65), M('ink3', 'paper', 0.15)),
   ('syntaxFunction', '代码高亮', '函数', '--shiki-token-function',
-   L('skyLight'), M('indigo', 'ink1', 0.10)),
+   L('skyLight'), M('sidebar', 'slate', 0.85)),
   ('syntaxType', '代码高亮', '类型 / 参数', '--shiki-token-parameter',
-   L('mauve'), M('plum', 'ink1', 0.30)),
+   M('pink', 'cloud', 0.3), M('pink', 'codebg', 0.7)),
   ('syntaxNumber', '代码高亮', '数字 / 常量', '--shiki-token-constant',
-   M('gold', 'amberDeep', 0.35), M('gold', 'ink1', 0.35)),
+   M('gold', 'cloud', 0.1), M('gold', 'ink1', 0.66)),
   ('syntaxString', '代码高亮', '字符串', '--shiki-token-string',
-   M('green2', 'ink1', 0.12), M('forest', 'ink1', 0.25)),
+   M('green2', 'cloud', 0.15), M('forest', 'ink1', 0.25)),
   ('syntaxOperator', '代码高亮', '操作符 / 标点', '--shiki-token-punctuation',
-   L('limeDeep'), M('violetGray', 'cloud', 0.12)),
+   M('grayBlue', 'gray', 0.2), M('violet', 'steel', 0.15)),
 ]
 
 def resolve(spec):
@@ -417,6 +491,94 @@ MD_ROLES = ['markdownHeading', 'markdownLink', 'markdownStrong', 'markdownEmph',
 SYNTAX_ROLES = ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator']
 SYNTAX_CORE = ['syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString']
 BRAND_ROLES = ['primary', 'secondary', 'info', 'success', 'warning', 'error']
+# 真机里被当填充按钮底（配 pickText 反白）的角色：只有 primary 与 info
+# （prototypes/custom-editor-83.prototype.html:865/867）；secondary 是药丸文字，
+# success/warning/error 在真机里只做文字与圆点。
+FILLED_BUTTON_ROLES = ['primary', 'info']
+# 同屏共现分组：只有会同屏出现的角色才需要互相区分
+CVD_GROUPS = {
+  'PROSE':  ['text', 'textMuted', 'markdownHeading', 'markdownLink', 'markdownCode',
+             'markdownEmph', 'markdownStrong', 'markdownBlockQuote'],
+  'CODE':   ['text', 'markdownCode'] + ['syntaxComment', 'syntaxKeyword', 'syntaxFunction',
+             'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'],
+  'STATUS': BRAND_ROLES,
+  'DIFF':   ['text', 'textMuted', 'diffAdded', 'diffRemoved'],
+}
+# 色觉判据分三级（ΔE76 在红/绿/蓝盲模拟下；去色盲单列，只作诊断）：
+#   PURE  = 只靠颜色区分的配对（状态徽标、语法角色、diff 增删）→ 模拟下 ≥ 8
+#   DECOR = 还有别的通道（字号/粗细/下划线/斜体/芯片底）→ 模拟下 ≥ 5，常态 ΔE ≥ 8
+#   HIER  = 层级步进（正文 vs 次级 / 正文 vs 加粗）→ 常态 ΔE ≥ 8 且 ΔL* ≥ 6
+CVD_PURE = 8.0
+CVD_DECOR = 5.0
+CVD_HIER_L = 6.0
+SURFACE_MIN = 2.0
+MIX_GATE_DE = 2.0
+
+# ── 语义色族：每个角色必须留在自己的色相带里 ──────────────────────────────
+# 判尺只管「可辨性」，色族是「设计意图」：状态色得是红/琥珀/绿，
+# 链接得是蓝，注释得是中性灰。这条只记告警，不算硬失败。
+HUE_BAND = {
+ 'error': (330, 30), 'warning': (20, 75), 'success': (60, 170),
+ 'diffRemoved': (330, 30), 'diffAdded': (60, 170),
+ 'primary': (240, 300), 'info': (185, 235), 'secondary': (250, 320),
+ 'markdownLink': (185, 235), 'markdownHeading': (30, 70), 'markdownEmph': (60, 180),
+ 'markdownCode': (300, 360), 'markdownBlockQuote': (185, 260),
+ 'syntaxComment': (180, 260), 'syntaxOperator': (180, 300), 'syntaxKeyword': (240, 320),
+ 'syntaxFunction': (185, 235), 'syntaxType': (320, 360), 'syntaxString': (60, 170),
+ 'syntaxNumber': (20, 75),
+}
+CHROMA_MIN = {'error': 25, 'warning': 25, 'success': 25, 'diffRemoved': 25, 'diffAdded': 25,
+              'primary': 20, 'info': 20, 'secondary': 12, 'markdownLink': 20,
+              'markdownHeading': 20, 'markdownEmph': 15, 'markdownCode': 12,
+              'syntaxKeyword': 15, 'syntaxFunction': 15, 'syntaxType': 12,
+              'syntaxString': 15, 'syntaxNumber': 15}
+
+def _hue_of(h):
+    r, g, b = (v / 255 for v in h2r(h))
+    mx, mn = max(r, g, b), min(r, g, b)
+    d = mx - mn
+    if d == 0:
+        return None
+    if mx == r:
+        hh = ((g - b) / d) % 6
+    elif mx == g:
+        hh = ((b - r) / d) + 2
+    else:
+        hh = (r - g) / d + 4
+    return hh * 60
+
+def _chroma_of(h):
+    r, g, b = h2r(h)
+    return max(r, g, b) - min(r, g, b)
+
+def _in_band(role, h):
+    band = HUE_BAND.get(role)
+    if not band:
+        return True
+    # 无彩色（色度 < 6）没有可靠色相，不按色相判；彩色角色另有色度下限兜着
+    if _chroma_of(h) < 6:
+        return True
+    hu = _hue_of(h)
+    if hu is None:
+        return True
+    lo, hi = band
+    return (lo <= hu <= hi) if lo <= hi else (hu >= lo or hu <= hi)
+
+def _cvd_class(a, b):
+    key = (a, b) if (a, b) <= (b, a) else (b, a)
+    if key in (('text', 'textMuted'), ('text', 'markdownStrong')):
+        return 'hier'
+    # 注释 × 运算符：两个都是低显著度记号，混淆无害 → 只管「都退后」，不要求互相可分
+    if key == ('syntaxComment', 'syntaxOperator'):
+        return 'recede'
+    if a.startswith('syntax') and b.startswith('syntax'):
+        return 'pure'
+    if key in (('diffAdded', 'diffRemoved'),):
+        return 'pure'
+    if a in BRAND_ROLES and b in BRAND_ROLES:
+        return 'decor' if key == ('primary', 'secondary') else 'pure'
+    return 'decor'
+
 DESIGN_ROLES = ['text', 'textMuted', 'primary', 'secondary', 'info', 'success', 'warning', 'error', 'border',
                 'borderActive', 'diffAdded', 'diffRemoved', 'markdownHeading', 'markdownLink', 'markdownCode',
                 'markdownEmph', 'markdownStrong', 'markdownBlockQuote', 'syntaxComment', 'syntaxKeyword',
@@ -457,6 +619,16 @@ def evaluate(T, mode):
     hard('diffRemoved@diffRemovedLineNumberBg', T['diffRemoved'], T['diffRemovedLineNumberBg'])
     hard('text@diffAddedBg', T['text'], T['diffAddedBg'])
     hard('text@diffRemovedBg', T['text'], T['diffRemovedBg'])
+    # ── 语义色族（告警级）：角色是否还在自己的色相带里 ──
+    for r in HUE_BAND:
+        hu = _hue_of(T[r])
+        lo, hi = HUE_BAND[r]
+        if not _in_band(r, T[r]):
+            warns.append('%s  色族越界 %-32s hue=%.1f 不在 [%d,%d]' % (mode, r, hu if hu is not None else -1, lo, hi))
+    for r in CHROMA_MIN:
+        c = _chroma_of(T[r])
+        if c < CHROMA_MIN[r]:
+            warns.append('%s  色度过低 %-32s %d < %d' % (mode, r, c, CHROMA_MIN[r]))
     ct = '#141414' if luma601(T['primary']) > 0.6 else '#F4F4F5'
     hard('contrastText(primary)@primary', ct, T['primary'])
     # ── 真机真实用法（审计器原本测不到的三处，取自 prototypes/custom-editor-83.prototype.html）──
@@ -466,10 +638,14 @@ def evaluate(T, mode):
     # 次按钮药丸底 = secondary@33 叠页面底，文字就是 secondary 本身
     pill = mix(T['background'], T['secondary'], 0.20)
     hard('secondary@secondaryPill', T['secondary'], pill)
-    # 引擎 pickText 规则：六个品牌色都会被当填充色用，必须落在 luma 0.6 的同一侧
-    for r in BRAND_ROLES:
+    # 引擎 pickText 规则：真机里只有 primary / info 会被当填充按钮底
+    for r in FILLED_BUTTON_ROLES:
         c = '#141414' if luma601(T[r]) > 0.6 else '#F4F4F5'
         hard('contrastText(%s)@%s' % (r, r), c, T[r])
+    # 其余品牌色在真机里只做文字/图标/圆点 → 记录引擎反白结果作诊断，不作硬性
+    for r in ['secondary', 'success', 'warning', 'error']:
+        c = '#141414' if luma601(T[r]) > 0.6 else '#F4F4F5'
+        rec('contrastText(%s)@%s' % (r, r), c, T[r], 4.5, 'diag')
     # 行号槽里真正放的是次级文字（textMuted），不是 diff 前景
     hard('textMuted@diffAddedLineNumberBg', T['textMuted'], T['diffAddedLineNumberBg'])
     hard('textMuted@diffRemovedLineNumberBg', T['textMuted'], T['diffRemovedLineNumberBg'])
@@ -481,6 +657,64 @@ def evaluate(T, mode):
     for r in BRAND_ROLES:
         for s in ['background', 'backgroundPanel']:
             ui('%s@%s' % (r, s), T[r], T[s])
+    # ── 新增判据（色觉科学审计 T1–T5 引入）──
+    # ① 混色闸：出货色必须落在原图真实像素附近，否则算「造色」
+    for r, g, role, dsh, ds, ls in SLOTS:
+        d = nearest_real_de(T[r])
+        rows.append({'code': 'mixGate(%s)' % r, 'fg': T[r], 'bg': '-', 'ratio': round(d, 2),
+                     'threshold': MIX_GATE_DE, 'verdict': 'pass' if d <= MIX_GATE_DE else 'fail',
+                     'kind': 'mix', 'mode': mode})
+        if d > MIX_GATE_DE:
+            fails.append('%s  混色闸 %-24s 到最近真实像素 ΔE76 = %.2f (需 ≤ %.1f)'
+                         % (mode, r, d, MIX_GATE_DE))
+    # ② 表面分离：同屏结构面两两不能真的撞色
+    for i in range(len(BG)):
+        for j in range(i + 1, len(BG)):
+            d = deltaE(T[BG[i]], T[BG[j]])
+            rows.append({'code': 'surface(%s,%s)' % (BG[i], BG[j]), 'fg': T[BG[i]], 'bg': T[BG[j]],
+                         'ratio': round(d, 2), 'threshold': SURFACE_MIN,
+                         'verdict': 'pass' if d >= SURFACE_MIN else 'fail', 'kind': 'surface', 'mode': mode})
+            if d < SURFACE_MIN:
+                fails.append('%s  表面撞色 %-16s x %-16s ΔE76 = %.2f (需 ≥ %.1f)'
+                             % (mode, BG[i], BG[j], d, SURFACE_MIN))
+    # ③ 色觉分离：同屏分组内，模拟红/绿/蓝盲后仍要分得开（去色盲只作诊断）
+    for gname, members in CVD_GROUPS.items():
+        for i in range(len(members)):
+            for j in range(i + 1, len(members)):
+                a, b = members[i], members[j]
+                cls = _cvd_class(a, b)
+                dn = deltaE(T[a], T[b])
+                dl = abs(lstar(T[a]) - lstar(T[b]))
+                dm = min(deltaE(sim_cvd(T[a], k), sim_cvd(T[b], k))
+                         for k in ('protan', 'deutan', 'tritan'))
+                da = deltaE(sim_cvd(T[a], 'achroma'), sim_cvd(T[b], 'achroma'))
+                rows.append({'code': 'cvdA(%s,%s)' % (a, b), 'fg': T[a], 'bg': T[b], 'ratio': round(da, 2),
+                             'threshold': 0.0, 'verdict': 'info', 'kind': 'cvdA', 'mode': mode})
+                if cls == 'recede':
+                    # 只留一行记账：这一对靠「都退后」保证层级，不要求互相可分
+                    rows.append({'code': 'recede(%s,%s)' % (a, b), 'fg': T[a], 'bg': T[b],
+                                 'ratio': round(dn, 2), 'threshold': 0.0, 'verdict': 'info',
+                                 'kind': 'recede', 'mode': mode})
+                    continue
+                if cls == 'hier':
+                    rows.append({'code': 'hier(%s,%s)' % (a, b), 'fg': T[a], 'bg': T[b], 'ratio': round(dl, 2),
+                                 'threshold': CVD_HIER_L, 'verdict': 'pass' if dl >= CVD_HIER_L else 'fail',
+                                 'kind': 'hier', 'mode': mode})
+                    if dn < 8.0:
+                        fails.append('%s  层级近邻 %-12s x %-12s ΔE76 = %.2f (需 ≥ 8.0)' % (mode, a, b, dn))
+                    if dl < CVD_HIER_L:
+                        fails.append('%s  明度台阶不足 %s x %s ΔL* = %.1f (需 ≥ %.1f)'
+                                     % (mode, a, b, dl, CVD_HIER_L))
+                    continue
+                th = CVD_PURE if cls == 'pure' else CVD_DECOR
+                rows.append({'code': 'cvd(%s,%s)' % (a, b), 'fg': T[a], 'bg': T[b], 'ratio': round(dm, 2),
+                             'threshold': th, 'verdict': 'pass' if dm >= th else 'fail',
+                             'kind': 'cvd', 'mode': mode})
+                if dn < 8.0:
+                    fails.append('%s  常态近邻 %-12s x %-12s ΔE76 = %.2f (需 ≥ 8.0)' % (mode, a, b, dn))
+                if dm < th:
+                    fails.append('%s  色觉塌缩 %-12s x %-12s 模拟 ΔE76 = %.2f (需 ≥ %.1f)'
+                                 % (mode, a, b, dm, th))
     # 扩展矩阵（诊断）
     for r in TEXTISH:
         for s in BG:
@@ -570,11 +804,12 @@ for (k, g, role, dsh, ds, ls) in SLOTS:
     lines.append('%-26s %-9s %-9s %-32s %-22s %s' % (k, dark[k], light[k], rd['kind'] + ' ' + rd['formula'],
                                                        rl['kind'] + ' ' + rl['formula'], dsh))
 lines.append('')
-lines.append('锚点取样（声明色 → 原图平涂区代表色）')
-lines.append('  %-13s %-9s %-9s %-7s %-7s %-7s %s' % ('anchor', '声明色', '取样色', '支撑', '平坦度', '图', '描述'))
+lines.append('锚点取样（目标色 → 原图平涂区代表色）')
+lines.append('  %-13s %-9s %-9s %-7s %-7s %-7s %s' % ('anchor', '目标色', '取样色', '支撑', '平坦度', '图', '描述'))
 for name, a in anchor_info.items():
-    lines.append('  %-13s %-9s %-9s %-7d %-7.0f %-7s %s'
-                 % (name, a['declared'], a['hex'], a['support'], a['flatness'], a['file'], a['label']))
+    lines.append('  %-13s %-9s %-9s %-7d %-7.0f %-7s %s%s'
+                 % (name, a['target'], a['hex'], a['support'], a['flatness'], a['file'], a['label'],
+                    '' if a['targetIsPixel'] else '  [目标色非原图像素]'))
 lines.append('')
 lines.append('判尺自检')
 lines.append('  硬性违例：%d' % len(fails))

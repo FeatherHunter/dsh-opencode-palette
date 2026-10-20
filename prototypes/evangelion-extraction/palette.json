@@ -15,82 +15,82 @@
   "slotCount": 37
  },
  "colors": {
-  "background": "#181824",
+  "background": "#151419",
   "backgroundPanel": "#111B3E",
-  "backgroundElement": "#1C284D",
-  "sidebarBg": "#25203D",
-  "bubbleBg": "#1F2454",
-  "inputBg": "#131A35",
-  "codeBlockBg": "#252630",
+  "backgroundElement": "#1E2B50",
+  "sidebarBg": "#282242",
+  "bubbleBg": "#212558",
+  "inputBg": "#141520",
+  "codeBlockBg": "#1F1D32",
   "codeHeaderBg": "#2B334F",
   "text": "#D5D8DE",
-  "textMuted": "#AFAEBC",
+  "textMuted": "#CEBEBD",
   "primary": "#BB96F5",
-  "secondary": "#BEABD4",
+  "secondary": "#BEAFCF",
   "info": "#7DA0D8",
   "success": "#DBFD68",
-  "warning": "#E69402",
-  "error": "#DE5C4B",
+  "warning": "#B2750A",
+  "error": "#E3796A",
   "border": "#382A5F",
   "borderActive": "#7A91BA",
   "diffAdded": "#AFC755",
-  "diffRemoved": "#DF8C85",
+  "diffRemoved": "#D78A90",
   "diffAddedBg": "#2A2D2A",
   "diffRemovedBg": "#2F1D25",
   "diffAddedLineNumberBg": "#212227",
   "diffRemovedLineNumberBg": "#241A24",
   "markdownHeading": "#FAAB00",
   "markdownLink": "#A1CCF6",
-  "markdownCode": "#B98EA1",
+  "markdownCode": "#CAA0B3",
   "markdownEmph": "#97AD50",
-  "markdownStrong": "#EFF2F7",
+  "markdownStrong": "#FEFEFE",
   "markdownBlockQuote": "#BAC6DC",
-  "syntaxComment": "#8D8E93",
-  "syntaxKeyword": "#A2A1C5",
+  "syntaxComment": "#8B8996",
+  "syntaxKeyword": "#B4B3D0",
   "syntaxFunction": "#C2DEF4",
-  "syntaxType": "#BFB7C2",
-  "syntaxNumber": "#E4980E",
-  "syntaxString": "#6B9C57",
-  "syntaxOperator": "#73904D"
+  "syntaxType": "#DEBAC7",
+  "syntaxNumber": "#F9B219",
+  "syntaxString": "#89B872",
+  "syntaxOperator": "#7D90AC"
  },
  "colorsLight": {
-  "background": "#D8E3F3",
+  "background": "#EFF2F7",
   "backgroundPanel": "#FEFEFE",
-  "backgroundElement": "#EFE7FC",
-  "sidebarBg": "#A3ADB8",
+  "backgroundElement": "#E8E8F2",
+  "sidebarBg": "#CCD5E5",
   "bubbleBg": "#DDD3F6",
   "inputBg": "#CAD0D8",
   "codeBlockBg": "#C9E1F4",
-  "codeHeaderBg": "#7D85B9",
-  "text": "#111B3E",
-  "textMuted": "#2F3D57",
+  "codeHeaderBg": "#A9C3E0",
+  "text": "#181824",
+  "textMuted": "#282A45",
   "primary": "#473D94",
-  "secondary": "#394159",
-  "info": "#526B91",
-  "success": "#537B50",
-  "warning": "#996032",
-  "error": "#9D3D38",
+  "secondary": "#3D3660",
+  "info": "#0F2242",
+  "success": "#344D2C",
+  "warning": "#785614",
+  "error": "#422329",
   "border": "#87AFE3",
-  "borderActive": "#6A7FA7",
+  "borderActive": "#382A5F",
   "diffAdded": "#2B4429",
-  "diffRemoved": "#803438",
+  "diffRemoved": "#4D2638",
   "diffAddedBg": "#E5EBDD",
   "diffRemovedBg": "#EDDEDE",
-  "diffAddedLineNumberBg": "#D9E3C0",
+  "diffAddedLineNumberBg": "#F8FAF9",
   "diffRemovedLineNumberBg": "#EACAC6",
-  "markdownHeading": "#292A65",
+  "markdownHeading": "#5D4523",
   "markdownLink": "#0044A0",
-  "markdownCode": "#635696",
-  "markdownEmph": "#4C545E",
-  "markdownStrong": "#181824",
-  "markdownBlockQuote": "#46567C",
-  "syntaxComment": "#47586C",
-  "syntaxKeyword": "#26285F",
-  "syntaxFunction": "#403A81",
-  "syntaxType": "#3F3C47",
-  "syntaxNumber": "#A87916",
+  "markdownCode": "#67575A",
+  "markdownEmph": "#525D38",
+  "markdownStrong": "#111B3E",
+  "markdownBlockQuote": "#4A5164",
+  "syntaxComment": "#2E5891",
+  "syntaxKeyword": "#564A77",
+  "syntaxFunction": "#414F63",
+  "syntaxType": "#4F3F47",
+  "syntaxNumber": "#604C29",
   "syntaxString": "#243A2E",
-  "syntaxOperator": "#5E6476"
+  "syntaxOperator": "#4F4A9A"
  },
  "slots": [
   {
@@ -99,29 +99,25 @@
    "role": "页面底 / 侧栏底 / 浮层底 / 代码段未选",
    "dsh": "--dsw-alias-bg-base · bg-layer-1/2/3 · bg-overlay",
    "dark": {
-    "hex": "#181824",
+    "hex": "#151419",
     "recipe": {
      "kind": "直采",
-     "formula": "#181824",
+     "formula": "#151419",
      "sources": [
-      "3.jpg · 海报黑底"
+      "3.jpg · 画幅黑"
      ],
-     "anchor": "ink0"
+     "anchor": "codebg"
     }
    },
    "light": {
-    "hex": "#D8E3F3",
+    "hex": "#EFF2F7",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#EFF2F7 78% + #87AFE3 22%",
+     "kind": "直采",
+     "formula": "#EFF2F7",
      "sources": [
-      "3.jpg · 云白",
-      "3.jpg · 淡蓝"
+      "3.jpg · 云白"
      ],
-     "anchor": [
-      "cloud",
-      "pale"
-     ]
+     "anchor": "cloud"
     }
    }
   },
@@ -159,10 +155,10 @@
    "role": "浮层 / 引用 / 提示 / 吐司",
    "dsh": "--dsw-alias-markdown-citation · bg-module-platform · toast-bg · tooltip-bg",
    "dark": {
-    "hex": "#1C284D",
+    "hex": "#1E2B50",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#111B3E 90% + #7DA0D8 10%",
+     "formula": "#111B3E 88% + #7DA0D8 12%",
      "sources": [
       "2.jpg · 夜蓝",
       "3.jpg · 天空蓝"
@@ -174,18 +170,14 @@
     }
    },
    "light": {
-    "hex": "#EFE7FC",
+    "hex": "#E8E8F2",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#FEFEFE 78% + #BB96F5 22%",
+     "kind": "直采",
+     "formula": "#E8E8F2",
      "sources": [
-      "2.jpg · 海报纸白",
-      "3.jpg · 机体高光淡紫"
+      "3.jpg · 霾"
      ],
-     "anchor": [
-      "paper",
-      "violetLit"
-     ]
+     "anchor": "haze"
     }
    }
   },
@@ -195,10 +187,10 @@
    "role": "侧边栏底",
    "dsh": "--dsw-specific-sidebar-fill",
    "dark": {
-    "hex": "#25203D",
+    "hex": "#282242",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#1F1D32 75% + #382A5F 25%",
+     "formula": "#1F1D32 65% + #382A5F 35%",
      "sources": [
       "3.jpg · 海报暗紫",
       "3.jpg · 装甲暗紫"
@@ -210,17 +202,17 @@
     }
    },
    "light": {
-    "hex": "#A3ADB8",
+    "hex": "#CCD5E5",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#EFF2F7 55% + #47586C 45%",
+     "formula": "#EFF2F7 70% + #7A91BA 30%",
      "sources": [
       "3.jpg · 云白",
-      "1.jpg · 蓝灰"
+      "1.jpg · 钢青"
      ],
      "anchor": [
       "cloud",
-      "slate"
+      "steel"
      ]
     }
    }
@@ -231,10 +223,10 @@
    "role": "对话气泡底",
    "dsh": "--dsw-specific-bubble",
    "dark": {
-    "hex": "#1F2454",
+    "hex": "#212558",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#111B3E 74% + #473D94 26%",
+     "formula": "#111B3E 70% + #473D94 30%",
      "sources": [
       "2.jpg · 夜蓝",
       "2.jpg · 机体主紫"
@@ -267,17 +259,17 @@
    "role": "输入框底",
    "dsh": "--dsw-specific-input-major · login-input",
    "dark": {
-    "hex": "#131A35",
+    "hex": "#141520",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#111B3E 65% + #181824 35%",
+     "formula": "#151419 82% + #111B3E 18%",
      "sources": [
-      "2.jpg · 夜蓝",
-      "3.jpg · 海报黑底"
+      "3.jpg · 画幅黑",
+      "2.jpg · 夜蓝"
      ],
      "anchor": [
-      "ink1",
-      "ink0"
+      "codebg",
+      "ink1"
      ]
     }
    },
@@ -303,18 +295,14 @@
    "role": "代码块底",
    "dsh": "--dsw-alias-markdown-code-block",
    "dark": {
-    "hex": "#252630",
+    "hex": "#1F1D32",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#151419 70% + #4A5164 30%",
+     "kind": "直采",
+     "formula": "#1F1D32",
      "sources": [
-      "3.jpg · 画幅黑",
-      "3.jpg · 紫灰"
+      "3.jpg · 海报暗紫"
      ],
-     "anchor": [
-      "codebg",
-      "violetGray"
-     ]
+     "anchor": "sidebar"
     }
    },
    "light": {
@@ -354,17 +342,17 @@
     }
    },
    "light": {
-    "hex": "#7D85B9",
+    "hex": "#A9C3E0",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#C2DEF4 45% + #453D88 55%",
+     "formula": "#C2DEF4 65% + #7A91BA 35%",
      "sources": [
       "3.jpg · 浅云蓝",
-      "1.jpg · 靛蓝"
+      "1.jpg · 钢青"
      ],
      "anchor": [
       "skyLight",
-      "indigo"
+      "steel"
      ]
     }
    }
@@ -390,14 +378,14 @@
     }
    },
    "light": {
-    "hex": "#111B3E",
+    "hex": "#181824",
     "recipe": {
      "kind": "直采",
-     "formula": "#111B3E",
+     "formula": "#181824",
      "sources": [
-      "2.jpg · 夜蓝"
+      "3.jpg · 海报黑底"
      ],
-     "anchor": "ink1"
+     "anchor": "ink0"
     }
    }
   },
@@ -407,32 +395,32 @@
    "role": "次级 / 三级 / 说明文字",
    "dsh": "--dsw-alias-label-secondary · tertiary · caption · menu-icon",
    "dark": {
-    "hex": "#AFAEBC",
+    "hex": "#CEBEBD",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#9A97A8 75% + #EFF2F7 25%",
+     "formula": "#FEFEFE 15% + #C5B3B1 85%",
      "sources": [
-      "1.jpg · 雾紫灰",
-      "3.jpg · 云白"
+      "2.jpg · 海报纸白",
+      "1.jpg · 暖灰"
      ],
      "anchor": [
-      "mist",
-      "cloud"
+      "paper",
+      "warmGray"
      ]
     }
    },
    "light": {
-    "hex": "#2F3D57",
+    "hex": "#282A45",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#47586C 55% + #111B3E 45%",
+     "formula": "#22223E 85% + #47586C 15%",
      "sources": [
-      "1.jpg · 蓝灰",
-      "2.jpg · 夜蓝"
+      "3.jpg · 装甲深蓝",
+      "1.jpg · 蓝灰"
      ],
      "anchor": [
-      "slate",
-      "ink1"
+      "ink2",
+      "slate"
      ]
     }
    }
@@ -471,10 +459,10 @@
    "role": "次级 / 空闲态",
    "dsh": "--dsw-alias-state-idle-primary",
    "dark": {
-    "hex": "#BEABD4",
+    "hex": "#BEAFCF",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#BFB7C2 65% + #BB96F5 35%",
+     "formula": "#BFB7C2 75% + #BB96F5 25%",
      "sources": [
       "3.jpg · 樱紫灰",
       "3.jpg · 机体高光淡紫"
@@ -486,17 +474,17 @@
     }
    },
    "light": {
-    "hex": "#394159",
+    "hex": "#3D3660",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#4A5164 70% + #111B3E 30%",
+     "formula": "#4A5164 30% + #382A5F 70%",
      "sources": [
       "3.jpg · 紫灰",
-      "2.jpg · 夜蓝"
+      "3.jpg · 装甲暗紫"
      ],
      "anchor": [
       "violetGray",
-      "ink1"
+      "ink3"
      ]
     }
    }
@@ -518,17 +506,17 @@
     }
    },
    "light": {
-    "hex": "#526B91",
+    "hex": "#0F2242",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#A1CCF6 45% + #111B3E 55%",
+     "formula": "#0044A0 30% + #151419 70%",
      "sources": [
-      "3.jpg · 高光青",
-      "2.jpg · 夜蓝"
+      "1.jpg · 标题蓝",
+      "3.jpg · 画幅黑"
      ],
      "anchor": [
-      "cyan",
-      "ink1"
+      "blue",
+      "codebg"
      ]
     }
    }
@@ -550,17 +538,17 @@
     }
    },
    "light": {
-    "hex": "#537B50",
+    "hex": "#344D2C",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#77AE5A 65% + #111B3E 35%",
+     "formula": "#2B4429 95% + #DBFD68 5%",
      "sources": [
-      "3.jpg · 浅绿受光面",
-      "2.jpg · 夜蓝"
+      "2.jpg · 林绿",
+      "3.jpg · 荧绿高光"
      ],
      "anchor": [
-      "green2",
-      "ink1"
+      "forest",
+      "limeHi"
      ]
     }
    }
@@ -571,28 +559,32 @@
    "role": "警告态 / 警告标签",
    "dsh": "--dsw-alias-state-warn-primary · state-warn-label",
    "dark": {
-    "hex": "#E69402",
+    "hex": "#B2750A",
     "recipe": {
-     "kind": "直采",
-     "formula": "#E69402",
+     "kind": "定比混色",
+     "formula": "#E69402 75% + #181824 25%",
      "sources": [
-      "1.jpg · 装甲橙"
+      "1.jpg · 装甲橙",
+      "3.jpg · 海报黑底"
      ],
-     "anchor": "orange"
+     "anchor": [
+      "orange",
+      "ink0"
+     ]
     }
    },
    "light": {
-    "hex": "#996032",
+    "hex": "#785614",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#BA7528 45% + #7E4E3A 55%",
+     "formula": "#181824 55% + #EDA200 45%",
      "sources": [
-      "2.jpg · 赭金",
-      "3.jpg · 机体棕"
+      "3.jpg · 海报黑底",
+      "1.jpg · 亮橙高光"
      ],
      "anchor": [
-      "amberDeep",
-      "brown"
+      "ink0",
+      "orangeHi"
      ]
     }
    }
@@ -603,32 +595,32 @@
    "role": "错误态",
    "dsh": "--dsw-alias-state-error-primary",
    "dark": {
-    "hex": "#DE5C4B",
+    "hex": "#E3796A",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#D8402B 85% + #FEFEFE 15%",
+     "formula": "#FEFEFE 30% + #D8402B 70%",
      "sources": [
-      "1.jpg · 装甲红受光面",
-      "2.jpg · 海报纸白"
+      "2.jpg · 海报纸白",
+      "1.jpg · 装甲红受光面"
      ],
      "anchor": [
-      "redHot",
-      "paper"
+      "paper",
+      "redHot"
      ]
     }
    },
    "light": {
-    "hex": "#9D3D38",
+    "hex": "#422329",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#A53C36 90% + #534A4B 10%",
+     "formula": "#A53C36 30% + #181824 70%",
      "sources": [
       "1.jpg · 深红",
-      "3.jpg · 暗紫棕"
+      "3.jpg · 海报黑底"
      ],
      "anchor": [
       "redDeep",
-      "plum"
+      "ink0"
      ]
     }
    }
@@ -678,18 +670,14 @@
     }
    },
    "light": {
-    "hex": "#6A7FA7",
+    "hex": "#382A5F",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#7A91BA 85% + #111B3E 15%",
+     "kind": "直采",
+     "formula": "#382A5F",
      "sources": [
-      "1.jpg · 钢青",
-      "2.jpg · 夜蓝"
+      "3.jpg · 装甲暗紫"
      ],
-     "anchor": [
-      "steel",
-      "ink1"
-     ]
+     "anchor": "ink3"
     }
    }
   },
@@ -727,31 +715,31 @@
    "role": "删除行前景",
    "dsh": "--dsw-alias-code-diff-deleted · file-diff-deleted-marker",
    "dark": {
-    "hex": "#DF8C85",
+    "hex": "#D78A90",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#D8402B 55% + #E8E8F2 45%",
+     "formula": "#D8402B 25% + #D7A2B2 75%",
      "sources": [
       "1.jpg · 装甲红受光面",
-      "3.jpg · 霾"
+      "3.jpg · 樱粉"
      ],
      "anchor": [
       "redHot",
-      "haze"
+      "pink"
      ]
     }
    },
    "light": {
-    "hex": "#803438",
+    "hex": "#4D2638",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#A53C36 75% + #111B3E 25%",
+     "formula": "#D8402B 30% + #111B3E 70%",
      "sources": [
-      "1.jpg · 深红",
+      "1.jpg · 装甲红受光面",
       "2.jpg · 夜蓝"
      ],
      "anchor": [
-      "redDeep",
+      "redHot",
       "ink1"
      ]
     }
@@ -850,18 +838,14 @@
     }
    },
    "light": {
-    "hex": "#D9E3C0",
+    "hex": "#F8FAF9",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#EFF2F7 66% + #AFC755 34%",
+     "kind": "直采",
+     "formula": "#F8FAF9",
      "sources": [
-      "3.jpg · 云白",
-      "2.jpg · 同步绿"
+      "2.jpg · 冷纸白"
      ],
-     "anchor": [
-      "cloud",
-      "lime"
-     ]
+     "anchor": "paperCool"
     }
    }
   },
@@ -918,17 +902,17 @@
     }
    },
    "light": {
-    "hex": "#292A65",
+    "hex": "#5D4523",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#473D94 45% + #111B3E 55%",
+     "formula": "#EDA200 30% + #1F1D32 70%",
      "sources": [
-      "2.jpg · 机体主紫",
-      "2.jpg · 夜蓝"
+      "1.jpg · 亮橙高光",
+      "3.jpg · 海报暗紫"
      ],
      "anchor": [
-      "violet",
-      "ink1"
+      "orangeHi",
+      "sidebar"
      ]
     }
    }
@@ -967,32 +951,32 @@
    "role": "行内代码",
    "dsh": "code:not(pre code)",
    "dark": {
-    "hex": "#B98EA1",
+    "hex": "#CAA0B3",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#D7A2B2 85% + #111B3E 15%",
+     "formula": "#D7A2B2 85% + #7F97B9 15%",
      "sources": [
       "3.jpg · 樱粉",
-      "2.jpg · 夜蓝"
+      "1.jpg · 灰蓝"
      ],
      "anchor": [
       "pink",
-      "ink1"
+      "grayBlue"
      ]
     }
    },
    "light": {
-    "hex": "#635696",
+    "hex": "#67575A",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#BB96F5 48% + #111B3E 52%",
+     "formula": "#D7A2B2 15% + #534A4B 85%",
      "sources": [
-      "3.jpg · 机体高光淡紫",
-      "2.jpg · 夜蓝"
+      "3.jpg · 樱粉",
+      "3.jpg · 暗紫棕"
      ],
      "anchor": [
-      "violetLit",
-      "ink1"
+      "pink",
+      "plum"
      ]
     }
    }
@@ -1018,17 +1002,17 @@
     }
    },
    "light": {
-    "hex": "#4C545E",
+    "hex": "#525D38",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#6C7270 65% + #111B3E 35%",
+     "formula": "#DBFD68 30% + #181824 70%",
      "sources": [
-      "3.jpg · 青灰",
-      "2.jpg · 夜蓝"
+      "3.jpg · 荧绿高光",
+      "3.jpg · 海报黑底"
      ],
      "anchor": [
-      "teal",
-      "ink1"
+      "limeHi",
+      "ink0"
      ]
     }
    }
@@ -1039,25 +1023,25 @@
    "role": "加粗",
    "dsh": "strong",
    "dark": {
-    "hex": "#EFF2F7",
+    "hex": "#FEFEFE",
     "recipe": {
      "kind": "直采",
-     "formula": "#EFF2F7",
+     "formula": "#FEFEFE",
      "sources": [
-      "3.jpg · 云白"
+      "2.jpg · 海报纸白"
      ],
-     "anchor": "cloud"
+     "anchor": "paper"
     }
    },
    "light": {
-    "hex": "#181824",
+    "hex": "#111B3E",
     "recipe": {
      "kind": "直采",
-     "formula": "#181824",
+     "formula": "#111B3E",
      "sources": [
-      "3.jpg · 海报黑底"
+      "2.jpg · 夜蓝"
      ],
-     "anchor": "ink0"
+     "anchor": "ink1"
     }
    }
   },
@@ -1082,18 +1066,14 @@
     }
    },
    "light": {
-    "hex": "#46567C",
+    "hex": "#4A5164",
     "recipe": {
-     "kind": "定比混色",
-     "formula": "#7A91BA 50% + #111B3E 50%",
+     "kind": "直采",
+     "formula": "#4A5164",
      "sources": [
-      "1.jpg · 钢青",
-      "2.jpg · 夜蓝"
+      "3.jpg · 紫灰"
      ],
-     "anchor": [
-      "steel",
-      "ink1"
-     ]
+     "anchor": "violetGray"
     }
    }
   },
@@ -1103,29 +1083,33 @@
    "role": "注释",
    "dsh": "--shiki-token-comment",
    "dark": {
-    "hex": "#8D8E93",
+    "hex": "#8B8996",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#74757A 80% + #EFF2F7 20%",
+     "formula": "#74757A 40% + #9A97A8 60%",
      "sources": [
       "3.jpg · 云影灰",
-      "3.jpg · 云白"
+      "1.jpg · 雾紫灰"
      ],
      "anchor": [
       "gray",
-      "cloud"
+      "mist"
      ]
     }
    },
    "light": {
-    "hex": "#47586C",
+    "hex": "#2E5891",
     "recipe": {
-     "kind": "直采",
-     "formula": "#47586C",
+     "kind": "定比混色",
+     "formula": "#74757A 40% + #0044A0 60%",
      "sources": [
-      "1.jpg · 蓝灰"
+      "3.jpg · 云影灰",
+      "1.jpg · 标题蓝"
      ],
-     "anchor": "slate"
+     "anchor": [
+      "gray",
+      "blue"
+     ]
     }
    }
   },
@@ -1135,10 +1119,10 @@
    "role": "关键字",
    "dsh": "--shiki-token-keyword",
    "dark": {
-    "hex": "#A2A1C5",
+    "hex": "#B4B3D0",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#453D88 45% + #EFF2F7 55%",
+     "formula": "#453D88 35% + #EFF2F7 65%",
      "sources": [
       "1.jpg · 靛蓝",
       "3.jpg · 云白"
@@ -1150,17 +1134,17 @@
     }
    },
    "light": {
-    "hex": "#26285F",
+    "hex": "#564A77",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#473D94 38% + #111B3E 62%",
+     "formula": "#382A5F 85% + #FEFEFE 15%",
      "sources": [
-      "2.jpg · 机体主紫",
-      "2.jpg · 夜蓝"
+      "3.jpg · 装甲暗紫",
+      "2.jpg · 海报纸白"
      ],
      "anchor": [
-      "violet",
-      "ink1"
+      "ink3",
+      "paper"
      ]
     }
    }
@@ -1182,17 +1166,17 @@
     }
    },
    "light": {
-    "hex": "#403A81",
+    "hex": "#414F63",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#453D88 90% + #111B3E 10%",
+     "formula": "#1F1D32 15% + #47586C 85%",
      "sources": [
-      "1.jpg · 靛蓝",
-      "2.jpg · 夜蓝"
+      "3.jpg · 海报暗紫",
+      "1.jpg · 蓝灰"
      ],
      "anchor": [
-      "indigo",
-      "ink1"
+      "sidebar",
+      "slate"
      ]
     }
    }
@@ -1203,28 +1187,32 @@
    "role": "类型 / 参数",
    "dsh": "--shiki-token-parameter",
    "dark": {
-    "hex": "#BFB7C2",
+    "hex": "#DEBAC7",
     "recipe": {
-     "kind": "直采",
-     "formula": "#BFB7C2",
+     "kind": "定比混色",
+     "formula": "#D7A2B2 70% + #EFF2F7 30%",
      "sources": [
-      "3.jpg · 樱紫灰"
+      "3.jpg · 樱粉",
+      "3.jpg · 云白"
      ],
-     "anchor": "mauve"
+     "anchor": [
+      "pink",
+      "cloud"
+     ]
     }
    },
    "light": {
-    "hex": "#3F3C47",
+    "hex": "#4F3F47",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#534A4B 70% + #111B3E 30%",
+     "formula": "#D7A2B2 30% + #151419 70%",
      "sources": [
-      "3.jpg · 暗紫棕",
-      "2.jpg · 夜蓝"
+      "3.jpg · 樱粉",
+      "3.jpg · 画幅黑"
      ],
      "anchor": [
-      "plum",
-      "ink1"
+      "pink",
+      "codebg"
      ]
     }
    }
@@ -1235,25 +1223,25 @@
    "role": "数字 / 常量",
    "dsh": "--shiki-token-constant",
    "dark": {
-    "hex": "#E4980E",
+    "hex": "#F9B219",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#FAAB00 65% + #BA7528 35%",
+     "formula": "#FAAB00 90% + #EFF2F7 10%",
      "sources": [
       "1.jpg · 标题金",
-      "2.jpg · 赭金"
+      "3.jpg · 云白"
      ],
      "anchor": [
       "gold",
-      "amberDeep"
+      "cloud"
      ]
     }
    },
    "light": {
-    "hex": "#A87916",
+    "hex": "#604C29",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#FAAB00 65% + #111B3E 35%",
+     "formula": "#FAAB00 34% + #111B3E 66%",
      "sources": [
       "1.jpg · 标题金",
       "2.jpg · 夜蓝"
@@ -1271,17 +1259,17 @@
    "role": "字符串",
    "dsh": "--shiki-token-string",
    "dark": {
-    "hex": "#6B9C57",
+    "hex": "#89B872",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#77AE5A 88% + #111B3E 12%",
+     "formula": "#77AE5A 85% + #EFF2F7 15%",
      "sources": [
       "3.jpg · 浅绿受光面",
-      "2.jpg · 夜蓝"
+      "3.jpg · 云白"
      ],
      "anchor": [
       "green2",
-      "ink1"
+      "cloud"
      ]
     }
    },
@@ -1307,28 +1295,32 @@
    "role": "操作符 / 标点",
    "dsh": "--shiki-token-punctuation",
    "dark": {
-    "hex": "#73904D",
+    "hex": "#7D90AC",
     "recipe": {
-     "kind": "直采",
-     "formula": "#73904D",
+     "kind": "定比混色",
+     "formula": "#7F97B9 80% + #74757A 20%",
      "sources": [
-      "2.jpg · 深绿"
+      "1.jpg · 灰蓝",
+      "3.jpg · 云影灰"
      ],
-     "anchor": "limeDeep"
+     "anchor": [
+      "grayBlue",
+      "gray"
+     ]
     }
    },
    "light": {
-    "hex": "#5E6476",
+    "hex": "#4F4A9A",
     "recipe": {
      "kind": "定比混色",
-     "formula": "#4A5164 88% + #EFF2F7 12%",
+     "formula": "#473D94 85% + #7A91BA 15%",
      "sources": [
-      "3.jpg · 紫灰",
-      "3.jpg · 云白"
+      "2.jpg · 机体主紫",
+      "1.jpg · 钢青"
      ],
      "anchor": [
-      "violetGray",
-      "cloud"
+      "violet",
+      "steel"
      ]
     }
    }
@@ -1339,7 +1331,8 @@
    "hex": "#181824",
    "file": "3.jpg",
    "label": "海报黑底",
-   "declared": "#0A091A",
+   "target": "#0A091A",
+   "targetIsPixel": false,
    "support": 968,
    "flatness": 0,
    "xy": [
@@ -1362,7 +1355,8 @@
    "hex": "#111B3E",
    "file": "2.jpg",
    "label": "夜蓝",
-   "declared": "#141A41",
+   "target": "#141A41",
+   "targetIsPixel": false,
    "support": 1278,
    "flatness": 0,
    "xy": [
@@ -1385,7 +1379,8 @@
    "hex": "#22223E",
    "file": "3.jpg",
    "label": "装甲深蓝",
-   "declared": "#222946",
+   "target": "#222946",
+   "targetIsPixel": true,
    "support": 1258,
    "flatness": 0,
    "xy": [
@@ -1408,7 +1403,8 @@
    "hex": "#382A5F",
    "file": "3.jpg",
    "label": "装甲暗紫",
-   "declared": "#34304D",
+   "target": "#34304D",
+   "targetIsPixel": false,
    "support": 543,
    "flatness": 0,
    "xy": [
@@ -1431,7 +1427,8 @@
    "hex": "#1F1D32",
    "file": "3.jpg",
    "label": "海报暗紫",
-   "declared": "#15142A",
+   "target": "#15142A",
+   "targetIsPixel": false,
    "support": 1086,
    "flatness": 0,
    "xy": [
@@ -1454,7 +1451,8 @@
    "hex": "#151419",
    "file": "3.jpg",
    "label": "画幅黑",
-   "declared": "#171726",
+   "target": "#171726",
+   "targetIsPixel": false,
    "support": 640,
    "flatness": 0,
    "xy": [
@@ -1477,7 +1475,8 @@
    "hex": "#473D94",
    "file": "2.jpg",
    "label": "机体主紫",
-   "declared": "#463C99",
+   "target": "#463C99",
+   "targetIsPixel": false,
    "support": 235,
    "flatness": 0,
    "xy": [
@@ -1500,7 +1499,8 @@
    "hex": "#443F8F",
    "file": "2.jpg",
    "label": "机体紫受光面",
-   "declared": "#4A3A9E",
+   "target": "#4A3A9E",
+   "targetIsPixel": false,
    "support": 188,
    "flatness": 1,
    "xy": [
@@ -1523,7 +1523,8 @@
    "hex": "#BB96F5",
    "file": "3.jpg",
    "label": "机体高光淡紫",
-   "declared": "#BA99F5",
+   "target": "#BA99F5",
+   "targetIsPixel": false,
    "support": 144,
    "flatness": 0,
    "xy": [
@@ -1546,7 +1547,8 @@
    "hex": "#BD9CF5",
    "file": "3.jpg",
    "label": "机体高光紫",
-   "declared": "#BA97F8",
+   "target": "#BA97F8",
+   "targetIsPixel": false,
    "support": 54,
    "flatness": 1,
    "xy": [
@@ -1569,7 +1571,8 @@
    "hex": "#7DA0D8",
    "file": "3.jpg",
    "label": "天空蓝",
-   "declared": "#7FA8E4",
+   "target": "#7FA8E4",
+   "targetIsPixel": false,
    "support": 1818,
    "flatness": 0,
    "xy": [
@@ -1592,7 +1595,8 @@
    "hex": "#C2DEF4",
    "file": "3.jpg",
    "label": "浅云蓝",
-   "declared": "#ADCEEC",
+   "target": "#ADCEEC",
+   "targetIsPixel": false,
    "support": 504,
    "flatness": 0,
    "xy": [
@@ -1615,7 +1619,8 @@
    "hex": "#A1CCF6",
    "file": "3.jpg",
    "label": "高光青",
-   "declared": "#A3D9F4",
+   "target": "#A3D9F4",
+   "targetIsPixel": false,
    "support": 4889,
    "flatness": 0,
    "xy": [
@@ -1638,7 +1643,8 @@
    "hex": "#EFF2F7",
    "file": "3.jpg",
    "label": "云白",
-   "declared": "#EBF2FB",
+   "target": "#EBF2FB",
+   "targetIsPixel": false,
    "support": 1875,
    "flatness": 0,
    "xy": [
@@ -1661,7 +1667,8 @@
    "hex": "#FEFEFE",
    "file": "2.jpg",
    "label": "海报纸白",
-   "declared": "#FFFFFF",
+   "target": "#FFFFFF",
+   "targetIsPixel": true,
    "support": 16449,
    "flatness": 0,
    "xy": [
@@ -1684,7 +1691,8 @@
    "hex": "#F8FAF9",
    "file": "2.jpg",
    "label": "冷纸白",
-   "declared": "#F8FAF9",
+   "target": "#F8FAF9",
+   "targetIsPixel": true,
    "support": 0,
    "flatness": 0,
    "xy": [
@@ -1707,7 +1715,8 @@
    "hex": "#AFC755",
    "file": "2.jpg",
    "label": "同步绿",
-   "declared": "#A4CA3C",
+   "target": "#A4CA3C",
+   "targetIsPixel": false,
    "support": 6,
    "flatness": 9,
    "xy": [
@@ -1730,7 +1739,8 @@
    "hex": "#DBFD68",
    "file": "3.jpg",
    "label": "荧绿高光",
-   "declared": "#D9FF5D",
+   "target": "#D9FF5D",
+   "targetIsPixel": false,
    "support": 330,
    "flatness": 0,
    "xy": [
@@ -1753,7 +1763,8 @@
    "hex": "#73904D",
    "file": "2.jpg",
    "label": "深绿",
-   "declared": "#709E35",
+   "target": "#709E35",
+   "targetIsPixel": false,
    "support": 22,
    "flatness": 13,
    "xy": [
@@ -1776,7 +1787,8 @@
    "hex": "#77AE5A",
    "file": "3.jpg",
    "label": "浅绿受光面",
-   "declared": "#86C467",
+   "target": "#86C467",
+   "targetIsPixel": false,
    "support": 20,
    "flatness": 7,
    "xy": [
@@ -1799,7 +1811,8 @@
    "hex": "#2B4429",
    "file": "2.jpg",
    "label": "林绿",
-   "declared": "#2B4429",
+   "target": "#2B4429",
+   "targetIsPixel": false,
    "support": 0,
    "flatness": 0,
    "xy": [
@@ -1822,7 +1835,8 @@
    "hex": "#FAAB00",
    "file": "1.jpg",
    "label": "标题金",
-   "declared": "#FCAA00",
+   "target": "#FCAA00",
+   "targetIsPixel": false,
    "support": 52,
    "flatness": 0,
    "xy": [
@@ -1845,7 +1859,8 @@
    "hex": "#E69402",
    "file": "1.jpg",
    "label": "装甲橙",
-   "declared": "#ED9107",
+   "target": "#ED9107",
+   "targetIsPixel": false,
    "support": 27,
    "flatness": 4,
    "xy": [
@@ -1868,7 +1883,8 @@
    "hex": "#EDA200",
    "file": "1.jpg",
    "label": "亮橙高光",
-   "declared": "#F69604",
+   "target": "#F69604",
+   "targetIsPixel": false,
    "support": 25,
    "flatness": 4,
    "xy": [
@@ -1891,7 +1907,8 @@
    "hex": "#BA7528",
    "file": "2.jpg",
    "label": "赭金",
-   "declared": "#CD8A25",
+   "target": "#CD8A25",
+   "targetIsPixel": false,
    "support": 6,
    "flatness": 19,
    "xy": [
@@ -1914,7 +1931,8 @@
    "hex": "#7E4E3A",
    "file": "3.jpg",
    "label": "机体棕",
-   "declared": "#906244",
+   "target": "#906244",
+   "targetIsPixel": false,
    "support": 32,
    "flatness": 5,
    "xy": [
@@ -1937,7 +1955,8 @@
    "hex": "#DC4C2A",
    "file": "1.jpg",
    "label": "明日香装甲红",
-   "declared": "#E23423",
+   "target": "#E23423",
+   "targetIsPixel": false,
    "support": 318,
    "flatness": 0,
    "xy": [
@@ -1960,7 +1979,8 @@
    "hex": "#D8402B",
    "file": "1.jpg",
    "label": "装甲红受光面",
-   "declared": "#E74A22",
+   "target": "#E74A22",
+   "targetIsPixel": false,
    "support": 217,
    "flatness": 0,
    "xy": [
@@ -1983,7 +2003,8 @@
    "hex": "#A53C36",
    "file": "1.jpg",
    "label": "深红",
-   "declared": "#A02639",
+   "target": "#A02639",
+   "targetIsPixel": false,
    "support": 113,
    "flatness": 1,
    "xy": [
@@ -2006,7 +2027,8 @@
    "hex": "#534A4B",
    "file": "3.jpg",
    "label": "暗紫棕",
-   "declared": "#634858",
+   "target": "#634858",
+   "targetIsPixel": false,
    "support": 43,
    "flatness": 31,
    "xy": [
@@ -2029,7 +2051,8 @@
    "hex": "#BFB7C2",
    "file": "3.jpg",
    "label": "樱紫灰",
-   "declared": "#BC9DBE",
+   "target": "#BC9DBE",
+   "targetIsPixel": false,
    "support": 83,
    "flatness": 10,
    "xy": [
@@ -2052,7 +2075,8 @@
    "hex": "#D7A2B2",
    "file": "3.jpg",
    "label": "樱粉",
-   "declared": "#CE95AB",
+   "target": "#CE95AB",
+   "targetIsPixel": false,
    "support": 627,
    "flatness": 0,
    "xy": [
@@ -2075,7 +2099,8 @@
    "hex": "#7A91BA",
    "file": "1.jpg",
    "label": "钢青",
-   "declared": "#7A96B1",
+   "target": "#7A96B1",
+   "targetIsPixel": false,
    "support": 178,
    "flatness": 0,
    "xy": [
@@ -2098,7 +2123,8 @@
    "hex": "#453D88",
    "file": "1.jpg",
    "label": "靛蓝",
-   "declared": "#344D94",
+   "target": "#344D94",
+   "targetIsPixel": false,
    "support": 80,
    "flatness": 15,
    "xy": [
@@ -2121,7 +2147,8 @@
    "hex": "#0044A0",
    "file": "1.jpg",
    "label": "标题蓝",
-   "declared": "#044196",
+   "target": "#044196",
+   "targetIsPixel": false,
    "support": 12,
    "flatness": 8,
    "xy": [
@@ -2144,7 +2171,8 @@
    "hex": "#4A5164",
    "file": "3.jpg",
    "label": "紫灰",
-   "declared": "#4A4379",
+   "target": "#4A4379",
+   "targetIsPixel": true,
    "support": 1423,
    "flatness": 0,
    "xy": [
@@ -2167,7 +2195,8 @@
    "hex": "#9A97A8",
    "file": "1.jpg",
    "label": "雾紫灰",
-   "declared": "#86869B",
+   "target": "#86869B",
+   "targetIsPixel": false,
    "support": 123,
    "flatness": 0,
    "xy": [
@@ -2190,7 +2219,8 @@
    "hex": "#74757A",
    "file": "3.jpg",
    "label": "云影灰",
-   "declared": "#70767F",
+   "target": "#70767F",
+   "targetIsPixel": false,
    "support": 4245,
    "flatness": 0,
    "xy": [
@@ -2213,7 +2243,8 @@
    "hex": "#7F97B9",
    "file": "1.jpg",
    "label": "灰蓝",
-   "declared": "#979BA9",
+   "target": "#979BA9",
+   "targetIsPixel": false,
    "support": 117,
    "flatness": 0,
    "xy": [
@@ -2236,7 +2267,8 @@
    "hex": "#C5B3B1",
    "file": "1.jpg",
    "label": "暖灰",
-   "declared": "#B0A3A3",
+   "target": "#B0A3A3",
+   "targetIsPixel": false,
    "support": 77,
    "flatness": 0,
    "xy": [
@@ -2259,7 +2291,8 @@
    "hex": "#47586C",
    "file": "1.jpg",
    "label": "蓝灰",
-   "declared": "#55667A",
+   "target": "#55667A",
+   "targetIsPixel": true,
    "support": 136,
    "flatness": 0,
    "xy": [
@@ -2282,7 +2315,8 @@
    "hex": "#E8E8F2",
    "file": "3.jpg",
    "label": "霾",
-   "declared": "#D5DAE3",
+   "target": "#D5DAE3",
+   "targetIsPixel": false,
    "support": 504,
    "flatness": 0,
    "xy": [
@@ -2305,7 +2339,8 @@
    "hex": "#87AFE3",
    "file": "3.jpg",
    "label": "淡蓝",
-   "declared": "#A2B6E1",
+   "target": "#A2B6E1",
+   "targetIsPixel": false,
    "support": 2089,
    "flatness": 0,
    "xy": [
@@ -2328,7 +2363,8 @@
    "hex": "#6C7270",
    "file": "3.jpg",
    "label": "青灰",
-   "declared": "#6D7B7B",
+   "target": "#6D7B7B",
+   "targetIsPixel": false,
    "support": 93,
    "flatness": 5,
    "xy": [
@@ -2350,21 +2386,21 @@
  },
  "stats": {
   "dark": {
-   "coreMin": 16.1,
+   "coreMin": 16.3,
    "corePair": "syntaxKeyword×syntaxType",
-   "minCore": 4.66,
-   "comC": 4.59,
-   "opC": 4.17,
-   "brandHue": 4.4,
+   "minCore": 7.16,
+   "comC": 4.78,
+   "opC": 5.04,
+   "brandHue": 4.8,
    "brandCat": "analogous 近似"
   },
   "light": {
-   "coreMin": 12.8,
-   "corePair": "syntaxKeyword×syntaxFunction",
-   "minCore": 2.88,
-   "comC": 5.4,
-   "opC": 4.37,
-   "brandHue": 21.9,
+   "coreMin": 14.9,
+   "corePair": "syntaxFunction×syntaxType",
+   "minCore": 5.89,
+   "comC": 5.33,
+   "opC": 5.6,
+   "brandHue": 3.1,
    "brandCat": "analogous 近似"
   }
  },
@@ -2372,8 +2408,8 @@
   {
    "code": "text@background",
    "fg": "#D5D8DE",
-   "bg": "#181824",
-   "ratio": 12.31,
+   "bg": "#151419",
+   "ratio": 12.83,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2392,8 +2428,8 @@
   {
    "code": "text@backgroundElement",
    "fg": "#D5D8DE",
-   "bg": "#1C284D",
-   "ratio": 10.07,
+   "bg": "#1E2B50",
+   "ratio": 9.7,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2402,8 +2438,8 @@
   {
    "code": "text@sidebarBg",
    "fg": "#D5D8DE",
-   "bg": "#25203D",
-   "ratio": 10.87,
+   "bg": "#282242",
+   "ratio": 10.52,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2412,8 +2448,8 @@
   {
    "code": "text@bubbleBg",
    "fg": "#D5D8DE",
-   "bg": "#1F2454",
-   "ratio": 10.22,
+   "bg": "#212558",
+   "ratio": 10.0,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2422,8 +2458,8 @@
   {
    "code": "text@inputBg",
    "fg": "#D5D8DE",
-   "bg": "#131A35",
-   "ratio": 11.99,
+   "bg": "#141520",
+   "ratio": 12.7,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2432,8 +2468,8 @@
   {
    "code": "text@codeBlockBg",
    "fg": "#D5D8DE",
-   "bg": "#252630",
-   "ratio": 10.52,
+   "bg": "#1F1D32",
+   "ratio": 11.49,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2451,9 +2487,9 @@
   },
   {
    "code": "textMuted@background",
-   "fg": "#AFAEBC",
-   "bg": "#181824",
-   "ratio": 8.04,
+   "fg": "#CEBEBD",
+   "bg": "#151419",
+   "ratio": 10.23,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2461,9 +2497,9 @@
   },
   {
    "code": "labelDimmed@background",
-   "fg": "#91909E",
-   "bg": "#181824",
-   "ratio": 5.6,
+   "fg": "#A99C9C",
+   "bg": "#151419",
+   "ratio": 6.91,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2471,9 +2507,9 @@
   },
   {
    "code": "textMuted@backgroundPanel",
-   "fg": "#AFAEBC",
+   "fg": "#CEBEBD",
    "bg": "#111B3E",
-   "ratio": 7.68,
+   "ratio": 9.38,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2481,9 +2517,9 @@
   },
   {
    "code": "labelDimmed@backgroundPanel",
-   "fg": "#8F91A3",
+   "fg": "#A89DA4",
    "bg": "#111B3E",
-   "ratio": 5.4,
+   "ratio": 6.42,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2491,9 +2527,9 @@
   },
   {
    "code": "textMuted@backgroundElement",
-   "fg": "#AFAEBC",
-   "bg": "#1C284D",
-   "ratio": 6.58,
+   "fg": "#CEBEBD",
+   "bg": "#1E2B50",
+   "ratio": 7.73,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2501,9 +2537,9 @@
   },
   {
    "code": "labelDimmed@backgroundElement",
-   "fg": "#9293A6",
-   "bg": "#1C284D",
-   "ratio": 4.76,
+   "fg": "#ABA1A7",
+   "bg": "#1E2B50",
+   "ratio": 5.53,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2512,8 +2548,8 @@
   {
    "code": "markdownHeading@background",
    "fg": "#FAAB00",
-   "bg": "#181824",
-   "ratio": 9.11,
+   "bg": "#151419",
+   "ratio": 9.5,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2532,8 +2568,8 @@
   {
    "code": "markdownLink@background",
    "fg": "#A1CCF6",
-   "bg": "#181824",
-   "ratio": 10.45,
+   "bg": "#151419",
+   "ratio": 10.89,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2551,9 +2587,9 @@
   },
   {
    "code": "markdownStrong@background",
-   "fg": "#EFF2F7",
-   "bg": "#181824",
-   "ratio": 15.66,
+   "fg": "#FEFEFE",
+   "bg": "#151419",
+   "ratio": 18.17,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2561,9 +2597,9 @@
   },
   {
    "code": "markdownStrong@backgroundPanel",
-   "fg": "#EFF2F7",
+   "fg": "#FEFEFE",
    "bg": "#111B3E",
-   "ratio": 14.97,
+   "ratio": 16.66,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2572,8 +2608,8 @@
   {
    "code": "markdownEmph@background",
    "fg": "#97AD50",
-   "bg": "#181824",
-   "ratio": 7.04,
+   "bg": "#151419",
+   "ratio": 7.34,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2592,8 +2628,8 @@
   {
    "code": "markdownBlockQuote@background",
    "fg": "#BAC6DC",
-   "bg": "#181824",
-   "ratio": 10.21,
+   "bg": "#151419",
+   "ratio": 10.64,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2611,9 +2647,9 @@
   },
   {
    "code": "markdownCode@background",
-   "fg": "#B98EA1",
-   "bg": "#181824",
-   "ratio": 6.23,
+   "fg": "#CAA0B3",
+   "bg": "#151419",
+   "ratio": 8.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2621,9 +2657,9 @@
   },
   {
    "code": "markdownCode@backgroundPanel",
-   "fg": "#B98EA1",
+   "fg": "#CAA0B3",
    "bg": "#111B3E",
-   "ratio": 5.96,
+   "ratio": 7.35,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2631,9 +2667,9 @@
   },
   {
    "code": "syntaxComment@codeBlockBg",
-   "fg": "#8D8E93",
-   "bg": "#252630",
-   "ratio": 4.59,
+   "fg": "#8B8996",
+   "bg": "#1F1D32",
+   "ratio": 4.78,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2641,9 +2677,9 @@
   },
   {
    "code": "syntaxKeyword@codeBlockBg",
-   "fg": "#A2A1C5",
-   "bg": "#252630",
-   "ratio": 6.03,
+   "fg": "#B4B3D0",
+   "bg": "#1F1D32",
+   "ratio": 8.05,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2652,8 +2688,8 @@
   {
    "code": "syntaxFunction@codeBlockBg",
    "fg": "#C2DEF4",
-   "bg": "#252630",
-   "ratio": 10.76,
+   "bg": "#1F1D32",
+   "ratio": 11.76,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2661,9 +2697,9 @@
   },
   {
    "code": "syntaxType@codeBlockBg",
-   "fg": "#BFB7C2",
-   "bg": "#252630",
-   "ratio": 7.7,
+   "fg": "#DEBAC7",
+   "bg": "#1F1D32",
+   "ratio": 9.34,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2671,9 +2707,9 @@
   },
   {
    "code": "syntaxNumber@codeBlockBg",
-   "fg": "#E4980E",
-   "bg": "#252630",
-   "ratio": 6.29,
+   "fg": "#F9B219",
+   "bg": "#1F1D32",
+   "ratio": 8.91,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2681,9 +2717,9 @@
   },
   {
    "code": "syntaxString@codeBlockBg",
-   "fg": "#6B9C57",
-   "bg": "#252630",
-   "ratio": 4.66,
+   "fg": "#89B872",
+   "bg": "#1F1D32",
+   "ratio": 7.16,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2691,11 +2727,11 @@
   },
   {
    "code": "syntaxOperator@codeBlockBg",
-   "fg": "#73904D",
-   "bg": "#252630",
-   "ratio": 4.17,
+   "fg": "#7D90AC",
+   "bg": "#1F1D32",
+   "ratio": 5.04,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "hard",
    "mode": "dark"
   },
@@ -2711,9 +2747,9 @@
   },
   {
    "code": "diffRemoved@diffRemovedBg",
-   "fg": "#DF8C85",
+   "fg": "#D78A90",
    "bg": "#2F1D25",
-   "ratio": 6.22,
+   "ratio": 5.99,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2731,9 +2767,9 @@
   },
   {
    "code": "diffRemoved@diffRemovedLineNumberBg",
-   "fg": "#DF8C85",
+   "fg": "#D78A90",
    "bg": "#241A24",
-   "ratio": 6.59,
+   "ratio": 6.35,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2771,9 +2807,9 @@
   },
   {
    "code": "markdownCode@inlineChip",
-   "fg": "#B98EA1",
+   "fg": "#CAA0B3",
    "bg": "#222A48",
-   "ratio": 4.99,
+   "ratio": 6.16,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2781,9 +2817,9 @@
   },
   {
    "code": "secondary@secondaryPill",
-   "fg": "#BEABD4",
-   "bg": "#393547",
-   "ratio": 5.62,
+   "fg": "#BEAFCF",
+   "bg": "#37333D",
+   "ratio": 6.0,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2800,16 +2836,6 @@
    "mode": "dark"
   },
   {
-   "code": "contrastText(secondary)@secondary",
-   "fg": "#141414",
-   "bg": "#BEABD4",
-   "ratio": 8.74,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "hard",
-   "mode": "dark"
-  },
-  {
    "code": "contrastText(info)@info",
    "fg": "#141414",
    "bg": "#7DA0D8",
@@ -2820,40 +2846,50 @@
    "mode": "dark"
   },
   {
+   "code": "contrastText(secondary)@secondary",
+   "fg": "#141414",
+   "bg": "#BEAFCF",
+   "ratio": 8.97,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "diag",
+   "mode": "dark"
+  },
+  {
    "code": "contrastText(success)@success",
    "fg": "#141414",
    "bg": "#DBFD68",
    "ratio": 16.02,
    "threshold": 4.5,
    "verdict": "pass",
-   "kind": "hard",
+   "kind": "diag",
    "mode": "dark"
   },
   {
    "code": "contrastText(warning)@warning",
-   "fg": "#141414",
-   "bg": "#E69402",
-   "ratio": 7.55,
+   "fg": "#F4F4F5",
+   "bg": "#B2750A",
+   "ratio": 3.51,
    "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "hard",
+   "verdict": "fail",
+   "kind": "diag",
    "mode": "dark"
   },
   {
    "code": "contrastText(error)@error",
    "fg": "#F4F4F5",
-   "bg": "#DE5C4B",
-   "ratio": 3.33,
+   "bg": "#E3796A",
+   "ratio": 2.65,
    "threshold": 4.5,
    "verdict": "fail",
-   "kind": "hard",
+   "kind": "diag",
    "mode": "dark"
   },
   {
    "code": "textMuted@diffAddedLineNumberBg",
-   "fg": "#AFAEBC",
+   "fg": "#CEBEBD",
    "bg": "#212227",
-   "ratio": 7.26,
+   "ratio": 8.86,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2861,9 +2897,9 @@
   },
   {
    "code": "textMuted@diffRemovedLineNumberBg",
-   "fg": "#AFAEBC",
+   "fg": "#CEBEBD",
    "bg": "#241A24",
-   "ratio": 7.69,
+   "ratio": 9.39,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -2872,8 +2908,8 @@
   {
    "code": "borderActive@focusRing33",
    "fg": "#7A91BA",
-   "bg": "#354161",
-   "ratio": 3.17,
+   "bg": "#363E53",
+   "ratio": 3.34,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "diag",
@@ -2882,8 +2918,8 @@
   {
    "code": "borderActive@background",
    "fg": "#7A91BA",
-   "bg": "#181824",
-   "ratio": 5.51,
+   "bg": "#151419",
+   "ratio": 5.75,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2902,8 +2938,8 @@
   {
    "code": "borderActive@backgroundElement",
    "fg": "#7A91BA",
-   "bg": "#1C284D",
-   "ratio": 4.51,
+   "bg": "#1E2B50",
+   "ratio": 4.34,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2912,8 +2948,8 @@
   {
    "code": "primary@background",
    "fg": "#BB96F5",
-   "bg": "#181824",
-   "ratio": 7.36,
+   "bg": "#151419",
+   "ratio": 7.67,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2931,9 +2967,9 @@
   },
   {
    "code": "secondary@background",
-   "fg": "#BEABD4",
-   "bg": "#181824",
-   "ratio": 8.34,
+   "fg": "#BEAFCF",
+   "bg": "#151419",
+   "ratio": 8.92,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2941,9 +2977,9 @@
   },
   {
    "code": "secondary@backgroundPanel",
-   "fg": "#BEABD4",
+   "fg": "#BEAFCF",
    "bg": "#111B3E",
-   "ratio": 7.97,
+   "ratio": 8.18,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2952,8 +2988,8 @@
   {
    "code": "info@background",
    "fg": "#7DA0D8",
-   "bg": "#181824",
-   "ratio": 6.6,
+   "bg": "#151419",
+   "ratio": 6.89,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2972,8 +3008,8 @@
   {
    "code": "success@background",
    "fg": "#DBFD68",
-   "bg": "#181824",
-   "ratio": 15.28,
+   "bg": "#151419",
+   "ratio": 15.94,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -2991,9 +3027,9 @@
   },
   {
    "code": "warning@background",
-   "fg": "#E69402",
-   "bg": "#181824",
-   "ratio": 7.2,
+   "fg": "#B2750A",
+   "bg": "#151419",
+   "ratio": 4.75,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -3001,9 +3037,9 @@
   },
   {
    "code": "warning@backgroundPanel",
-   "fg": "#E69402",
+   "fg": "#B2750A",
    "bg": "#111B3E",
-   "ratio": 6.88,
+   "ratio": 4.35,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -3011,9 +3047,9 @@
   },
   {
    "code": "error@background",
-   "fg": "#DE5C4B",
-   "bg": "#181824",
-   "ratio": 4.8,
+   "fg": "#E3796A",
+   "bg": "#151419",
+   "ratio": 6.29,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -3021,19 +3057,2369 @@
   },
   {
    "code": "error@backgroundPanel",
-   "fg": "#DE5C4B",
+   "fg": "#E3796A",
    "bg": "#111B3E",
-   "ratio": 4.59,
+   "ratio": 5.77,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
    "mode": "dark"
   },
   {
+   "code": "mixGate(background)",
+   "fg": "#151419",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(backgroundPanel)",
+   "fg": "#111B3E",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(backgroundElement)",
+   "fg": "#1E2B50",
+   "bg": "-",
+   "ratio": 0.79,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(sidebarBg)",
+   "fg": "#282242",
+   "bg": "-",
+   "ratio": 0.67,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(bubbleBg)",
+   "fg": "#212558",
+   "bg": "-",
+   "ratio": 0.27,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(inputBg)",
+   "fg": "#141520",
+   "bg": "-",
+   "ratio": 0.84,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(codeBlockBg)",
+   "fg": "#1F1D32",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(codeHeaderBg)",
+   "fg": "#2B334F",
+   "bg": "-",
+   "ratio": 0.35,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(text)",
+   "fg": "#D5D8DE",
+   "bg": "-",
+   "ratio": 0.53,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(textMuted)",
+   "fg": "#CEBEBD",
+   "bg": "-",
+   "ratio": 0.53,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(primary)",
+   "fg": "#BB96F5",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(secondary)",
+   "fg": "#BEAFCF",
+   "bg": "-",
+   "ratio": 0.65,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(info)",
+   "fg": "#7DA0D8",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(success)",
+   "fg": "#DBFD68",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(warning)",
+   "fg": "#B2750A",
+   "bg": "-",
+   "ratio": 1.05,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(error)",
+   "fg": "#E3796A",
+   "bg": "-",
+   "ratio": 0.99,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(border)",
+   "fg": "#382A5F",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(borderActive)",
+   "fg": "#7A91BA",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffAdded)",
+   "fg": "#AFC755",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffRemoved)",
+   "fg": "#D78A90",
+   "bg": "-",
+   "ratio": 1.14,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffAddedBg)",
+   "fg": "#2A2D2A",
+   "bg": "-",
+   "ratio": 0.48,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffRemovedBg)",
+   "fg": "#2F1D25",
+   "bg": "-",
+   "ratio": 0.53,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffAddedLineNumberBg)",
+   "fg": "#212227",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(diffRemovedLineNumberBg)",
+   "fg": "#241A24",
+   "bg": "-",
+   "ratio": 0.72,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownHeading)",
+   "fg": "#FAAB00",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownLink)",
+   "fg": "#A1CCF6",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownCode)",
+   "fg": "#CAA0B3",
+   "bg": "-",
+   "ratio": 0.4,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownEmph)",
+   "fg": "#97AD50",
+   "bg": "-",
+   "ratio": 0.61,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownStrong)",
+   "fg": "#FEFEFE",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(markdownBlockQuote)",
+   "fg": "#BAC6DC",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxComment)",
+   "fg": "#8B8996",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxKeyword)",
+   "fg": "#B4B3D0",
+   "bg": "-",
+   "ratio": 0.66,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxFunction)",
+   "fg": "#C2DEF4",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxType)",
+   "fg": "#DEBAC7",
+   "bg": "-",
+   "ratio": 0.98,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxNumber)",
+   "fg": "#F9B219",
+   "bg": "-",
+   "ratio": 1.06,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxString)",
+   "fg": "#89B872",
+   "bg": "-",
+   "ratio": 0.37,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "mixGate(syntaxOperator)",
+   "fg": "#7D90AC",
+   "bg": "-",
+   "ratio": 0.71,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,backgroundPanel)",
+   "fg": "#151419",
+   "bg": "#111B3E",
+   "ratio": 22.33,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,backgroundElement)",
+   "fg": "#151419",
+   "bg": "#1E2B50",
+   "ratio": 24.89,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,sidebarBg)",
+   "fg": "#151419",
+   "bg": "#282242",
+   "ratio": 20.99,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,bubbleBg)",
+   "fg": "#151419",
+   "bg": "#212558",
+   "ratio": 33.27,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,inputBg)",
+   "fg": "#151419",
+   "bg": "#141520",
+   "ratio": 4.73,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,codeBlockBg)",
+   "fg": "#151419",
+   "bg": "#1F1D32",
+   "ratio": 12.82,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(background,codeHeaderBg)",
+   "fg": "#151419",
+   "bg": "#2B334F",
+   "ratio": 21.59,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,backgroundElement)",
+   "fg": "#111B3E",
+   "bg": "#1E2B50",
+   "ratio": 7.57,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,sidebarBg)",
+   "fg": "#111B3E",
+   "bg": "#282242",
+   "ratio": 6.91,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,bubbleBg)",
+   "fg": "#111B3E",
+   "bg": "#212558",
+   "ratio": 11.86,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,inputBg)",
+   "fg": "#111B3E",
+   "bg": "#141520",
+   "ratio": 17.67,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,codeBlockBg)",
+   "fg": "#111B3E",
+   "bg": "#1F1D32",
+   "ratio": 10.54,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundPanel,codeHeaderBg)",
+   "fg": "#111B3E",
+   "bg": "#2B334F",
+   "ratio": 12.84,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundElement,sidebarBg)",
+   "fg": "#1E2B50",
+   "bg": "#282242",
+   "ratio": 7.29,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundElement,bubbleBg)",
+   "fg": "#1E2B50",
+   "bg": "#212558",
+   "ratio": 10.85,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundElement,inputBg)",
+   "fg": "#1E2B50",
+   "bg": "#141520",
+   "ratio": 20.57,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundElement,codeBlockBg)",
+   "fg": "#1E2B50",
+   "bg": "#1F1D32",
+   "ratio": 12.6,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(backgroundElement,codeHeaderBg)",
+   "fg": "#1E2B50",
+   "bg": "#2B334F",
+   "ratio": 7.49,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(sidebarBg,bubbleBg)",
+   "fg": "#282242",
+   "bg": "#212558",
+   "ratio": 12.86,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(sidebarBg,inputBg)",
+   "fg": "#282242",
+   "bg": "#141520",
+   "ratio": 16.87,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(sidebarBg,codeBlockBg)",
+   "fg": "#282242",
+   "bg": "#1F1D32",
+   "ratio": 8.26,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(sidebarBg,codeHeaderBg)",
+   "fg": "#282242",
+   "bg": "#2B334F",
+   "ratio": 9.33,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(bubbleBg,inputBg)",
+   "fg": "#212558",
+   "bg": "#141520",
+   "ratio": 28.8,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(bubbleBg,codeBlockBg)",
+   "fg": "#212558",
+   "bg": "#1F1D32",
+   "ratio": 20.57,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(bubbleBg,codeHeaderBg)",
+   "fg": "#212558",
+   "bg": "#2B334F",
+   "ratio": 17.54,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(inputBg,codeBlockBg)",
+   "fg": "#141520",
+   "bg": "#1F1D32",
+   "ratio": 8.67,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(inputBg,codeHeaderBg)",
+   "fg": "#141520",
+   "bg": "#2B334F",
+   "ratio": 18.11,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "surface(codeBlockBg,codeHeaderBg)",
+   "fg": "#1F1D32",
+   "bg": "#2B334F",
+   "ratio": 11.04,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,textMuted)",
+   "fg": "#D5D8DE",
+   "bg": "#CEBEBD",
+   "ratio": 8.27,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "hier(text,textMuted)",
+   "fg": "#D5D8DE",
+   "bg": "#CEBEBD",
+   "ratio": 8.03,
+   "threshold": 6.0,
+   "verdict": "pass",
+   "kind": "hier",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownHeading)",
+   "fg": "#D5D8DE",
+   "bg": "#FAAB00",
+   "ratio": 10.46,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownHeading)",
+   "fg": "#D5D8DE",
+   "bg": "#FAAB00",
+   "ratio": 47.47,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownLink)",
+   "fg": "#D5D8DE",
+   "bg": "#A1CCF6",
+   "ratio": 6.1,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownLink)",
+   "fg": "#D5D8DE",
+   "bg": "#A1CCF6",
+   "ratio": 20.93,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownCode)",
+   "fg": "#D5D8DE",
+   "bg": "#CAA0B3",
+   "ratio": 16.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownCode)",
+   "fg": "#D5D8DE",
+   "bg": "#CAA0B3",
+   "ratio": 14.97,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownEmph)",
+   "fg": "#D5D8DE",
+   "bg": "#97AD50",
+   "ratio": 18.97,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownEmph)",
+   "fg": "#D5D8DE",
+   "bg": "#97AD50",
+   "ratio": 20.9,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownStrong)",
+   "fg": "#D5D8DE",
+   "bg": "#FEFEFE",
+   "ratio": 13.32,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownStrong)",
+   "fg": "#D5D8DE",
+   "bg": "#FEFEFE",
+   "ratio": 13.56,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownBlockQuote)",
+   "fg": "#D5D8DE",
+   "bg": "#BAC6DC",
+   "ratio": 6.82,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownBlockQuote)",
+   "fg": "#D5D8DE",
+   "bg": "#BAC6DC",
+   "ratio": 9.17,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownHeading)",
+   "fg": "#CEBEBD",
+   "bg": "#FAAB00",
+   "ratio": 2.19,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownHeading)",
+   "fg": "#CEBEBD",
+   "bg": "#FAAB00",
+   "ratio": 36.04,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownLink)",
+   "fg": "#CEBEBD",
+   "bg": "#A1CCF6",
+   "ratio": 2.17,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownLink)",
+   "fg": "#CEBEBD",
+   "bg": "#A1CCF6",
+   "ratio": 25.76,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownCode)",
+   "fg": "#CEBEBD",
+   "bg": "#CAA0B3",
+   "ratio": 8.09,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownCode)",
+   "fg": "#CEBEBD",
+   "bg": "#CAA0B3",
+   "ratio": 9.33,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownEmph)",
+   "fg": "#CEBEBD",
+   "bg": "#97AD50",
+   "ratio": 10.7,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownEmph)",
+   "fg": "#CEBEBD",
+   "bg": "#97AD50",
+   "ratio": 17.4,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownStrong)",
+   "fg": "#CEBEBD",
+   "bg": "#FEFEFE",
+   "ratio": 21.59,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownStrong)",
+   "fg": "#CEBEBD",
+   "bg": "#FEFEFE",
+   "ratio": 21.18,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,markdownBlockQuote)",
+   "fg": "#CEBEBD",
+   "bg": "#BAC6DC",
+   "ratio": 1.45,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,markdownBlockQuote)",
+   "fg": "#CEBEBD",
+   "bg": "#BAC6DC",
+   "ratio": 13.85,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownLink)",
+   "fg": "#FAAB00",
+   "bg": "#A1CCF6",
+   "ratio": 4.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownLink)",
+   "fg": "#FAAB00",
+   "bg": "#A1CCF6",
+   "ratio": 69.43,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownCode)",
+   "fg": "#FAAB00",
+   "bg": "#CAA0B3",
+   "ratio": 5.9,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownCode)",
+   "fg": "#FAAB00",
+   "bg": "#CAA0B3",
+   "ratio": 25.41,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownEmph)",
+   "fg": "#FAAB00",
+   "bg": "#97AD50",
+   "ratio": 8.51,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownEmph)",
+   "fg": "#FAAB00",
+   "bg": "#97AD50",
+   "ratio": 24.61,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownStrong)",
+   "fg": "#FAAB00",
+   "bg": "#FEFEFE",
+   "ratio": 23.77,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownStrong)",
+   "fg": "#FAAB00",
+   "bg": "#FEFEFE",
+   "ratio": 50.93,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownBlockQuote)",
+   "fg": "#FAAB00",
+   "bg": "#BAC6DC",
+   "ratio": 3.64,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownBlockQuote)",
+   "fg": "#FAAB00",
+   "bg": "#BAC6DC",
+   "ratio": 52.37,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownCode)",
+   "fg": "#A1CCF6",
+   "bg": "#CAA0B3",
+   "ratio": 10.26,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownLink,markdownCode)",
+   "fg": "#A1CCF6",
+   "bg": "#CAA0B3",
+   "ratio": 21.38,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownEmph)",
+   "fg": "#A1CCF6",
+   "bg": "#97AD50",
+   "ratio": 12.87,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownLink,markdownEmph)",
+   "fg": "#A1CCF6",
+   "bg": "#97AD50",
+   "ratio": 28.14,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownStrong)",
+   "fg": "#A1CCF6",
+   "bg": "#FEFEFE",
+   "ratio": 19.41,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownLink,markdownStrong)",
+   "fg": "#A1CCF6",
+   "bg": "#FEFEFE",
+   "ratio": 29.46,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownBlockQuote)",
+   "fg": "#A1CCF6",
+   "bg": "#BAC6DC",
+   "ratio": 0.72,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownLink,markdownBlockQuote)",
+   "fg": "#A1CCF6",
+   "bg": "#BAC6DC",
+   "ratio": 11.92,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownEmph)",
+   "fg": "#CAA0B3",
+   "bg": "#97AD50",
+   "ratio": 2.61,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,markdownEmph)",
+   "fg": "#CAA0B3",
+   "bg": "#97AD50",
+   "ratio": 24.5,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownStrong)",
+   "fg": "#CAA0B3",
+   "bg": "#FEFEFE",
+   "ratio": 29.67,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,markdownStrong)",
+   "fg": "#CAA0B3",
+   "bg": "#FEFEFE",
+   "ratio": 28.61,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownBlockQuote)",
+   "fg": "#CAA0B3",
+   "bg": "#BAC6DC",
+   "ratio": 9.54,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,markdownBlockQuote)",
+   "fg": "#CAA0B3",
+   "bg": "#BAC6DC",
+   "ratio": 12.62,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownEmph,markdownStrong)",
+   "fg": "#97AD50",
+   "bg": "#FEFEFE",
+   "ratio": 32.29,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownEmph,markdownStrong)",
+   "fg": "#97AD50",
+   "bg": "#FEFEFE",
+   "ratio": 33.68,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownEmph,markdownBlockQuote)",
+   "fg": "#97AD50",
+   "bg": "#BAC6DC",
+   "ratio": 12.15,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownEmph,markdownBlockQuote)",
+   "fg": "#97AD50",
+   "bg": "#BAC6DC",
+   "ratio": 16.51,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownStrong,markdownBlockQuote)",
+   "fg": "#FEFEFE",
+   "bg": "#BAC6DC",
+   "ratio": 20.14,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownStrong,markdownBlockQuote)",
+   "fg": "#FEFEFE",
+   "bg": "#BAC6DC",
+   "ratio": 21.73,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,markdownCode)",
+   "fg": "#D5D8DE",
+   "bg": "#CAA0B3",
+   "ratio": 16.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,markdownCode)",
+   "fg": "#D5D8DE",
+   "bg": "#CAA0B3",
+   "ratio": 14.97,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxComment)",
+   "fg": "#D5D8DE",
+   "bg": "#8B8996",
+   "ratio": 28.86,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxComment)",
+   "fg": "#D5D8DE",
+   "bg": "#8B8996",
+   "ratio": 28.56,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxKeyword)",
+   "fg": "#D5D8DE",
+   "bg": "#B4B3D0",
+   "ratio": 12.29,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxKeyword)",
+   "fg": "#D5D8DE",
+   "bg": "#B4B3D0",
+   "ratio": 12.34,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxFunction)",
+   "fg": "#D5D8DE",
+   "bg": "#C2DEF4",
+   "ratio": 0.71,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxFunction)",
+   "fg": "#D5D8DE",
+   "bg": "#C2DEF4",
+   "ratio": 9.72,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxType)",
+   "fg": "#D5D8DE",
+   "bg": "#DEBAC7",
+   "ratio": 7.55,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxType)",
+   "fg": "#D5D8DE",
+   "bg": "#DEBAC7",
+   "ratio": 7.22,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxNumber)",
+   "fg": "#D5D8DE",
+   "bg": "#F9B219",
+   "ratio": 9.0,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxNumber)",
+   "fg": "#D5D8DE",
+   "bg": "#F9B219",
+   "ratio": 43.65,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxString)",
+   "fg": "#D5D8DE",
+   "bg": "#89B872",
+   "ratio": 16.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxString)",
+   "fg": "#D5D8DE",
+   "bg": "#89B872",
+   "ratio": 22.82,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,syntaxOperator)",
+   "fg": "#D5D8DE",
+   "bg": "#7D90AC",
+   "ratio": 26.93,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,syntaxOperator)",
+   "fg": "#D5D8DE",
+   "bg": "#7D90AC",
+   "ratio": 29.12,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxComment)",
+   "fg": "#CAA0B3",
+   "bg": "#8B8996",
+   "ratio": 12.5,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxComment)",
+   "fg": "#CAA0B3",
+   "bg": "#8B8996",
+   "ratio": 10.74,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxKeyword)",
+   "fg": "#CAA0B3",
+   "bg": "#B4B3D0",
+   "ratio": 4.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxKeyword)",
+   "fg": "#CAA0B3",
+   "bg": "#B4B3D0",
+   "ratio": 9.45,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxFunction)",
+   "fg": "#CAA0B3",
+   "bg": "#C2DEF4",
+   "ratio": 17.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxFunction)",
+   "fg": "#CAA0B3",
+   "bg": "#C2DEF4",
+   "ratio": 19.91,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxType)",
+   "fg": "#CAA0B3",
+   "bg": "#DEBAC7",
+   "ratio": 8.81,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxType)",
+   "fg": "#CAA0B3",
+   "bg": "#DEBAC7",
+   "ratio": 8.95,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxNumber)",
+   "fg": "#CAA0B3",
+   "bg": "#F9B219",
+   "ratio": 7.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxNumber)",
+   "fg": "#CAA0B3",
+   "bg": "#F9B219",
+   "ratio": 22.6,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxString)",
+   "fg": "#CAA0B3",
+   "bg": "#89B872",
+   "ratio": 0.0,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxString)",
+   "fg": "#CAA0B3",
+   "bg": "#89B872",
+   "ratio": 30.87,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxOperator)",
+   "fg": "#CAA0B3",
+   "bg": "#7D90AC",
+   "ratio": 10.58,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxOperator)",
+   "fg": "#CAA0B3",
+   "bg": "#7D90AC",
+   "ratio": 12.2,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxKeyword)",
+   "fg": "#8B8996",
+   "bg": "#B4B3D0",
+   "ratio": 16.57,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxKeyword)",
+   "fg": "#8B8996",
+   "bg": "#B4B3D0",
+   "ratio": 16.65,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxFunction)",
+   "fg": "#8B8996",
+   "bg": "#C2DEF4",
+   "ratio": 29.57,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxFunction)",
+   "fg": "#8B8996",
+   "bg": "#C2DEF4",
+   "ratio": 29.96,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxType)",
+   "fg": "#8B8996",
+   "bg": "#DEBAC7",
+   "ratio": 21.32,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxType)",
+   "fg": "#8B8996",
+   "bg": "#DEBAC7",
+   "ratio": 20.05,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxNumber)",
+   "fg": "#8B8996",
+   "bg": "#F9B219",
+   "ratio": 19.86,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxNumber)",
+   "fg": "#8B8996",
+   "bg": "#F9B219",
+   "ratio": 44.28,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxString)",
+   "fg": "#8B8996",
+   "bg": "#89B872",
+   "ratio": 12.5,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxString)",
+   "fg": "#8B8996",
+   "bg": "#89B872",
+   "ratio": 20.82,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxOperator)",
+   "fg": "#8B8996",
+   "bg": "#7D90AC",
+   "ratio": 1.93,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "recede(syntaxComment,syntaxOperator)",
+   "fg": "#8B8996",
+   "bg": "#7D90AC",
+   "ratio": 11.01,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "recede",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxFunction)",
+   "fg": "#B4B3D0",
+   "bg": "#C2DEF4",
+   "ratio": 13.0,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxFunction)",
+   "fg": "#B4B3D0",
+   "bg": "#C2DEF4",
+   "ratio": 12.72,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxType)",
+   "fg": "#B4B3D0",
+   "bg": "#DEBAC7",
+   "ratio": 4.75,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxType)",
+   "fg": "#B4B3D0",
+   "bg": "#DEBAC7",
+   "ratio": 11.13,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxNumber)",
+   "fg": "#B4B3D0",
+   "bg": "#F9B219",
+   "ratio": 3.29,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxNumber)",
+   "fg": "#B4B3D0",
+   "bg": "#F9B219",
+   "ratio": 43.84,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxString)",
+   "fg": "#B4B3D0",
+   "bg": "#89B872",
+   "ratio": 4.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxString)",
+   "fg": "#B4B3D0",
+   "bg": "#89B872",
+   "ratio": 16.0,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxOperator)",
+   "fg": "#B4B3D0",
+   "bg": "#7D90AC",
+   "ratio": 14.64,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxOperator)",
+   "fg": "#B4B3D0",
+   "bg": "#7D90AC",
+   "ratio": 13.94,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxType)",
+   "fg": "#C2DEF4",
+   "bg": "#DEBAC7",
+   "ratio": 8.26,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxType)",
+   "fg": "#C2DEF4",
+   "bg": "#DEBAC7",
+   "ratio": 13.42,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxNumber)",
+   "fg": "#C2DEF4",
+   "bg": "#F9B219",
+   "ratio": 9.71,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxNumber)",
+   "fg": "#C2DEF4",
+   "bg": "#F9B219",
+   "ratio": 56.75,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxString)",
+   "fg": "#C2DEF4",
+   "bg": "#89B872",
+   "ratio": 17.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxString)",
+   "fg": "#C2DEF4",
+   "bg": "#89B872",
+   "ratio": 19.43,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxOperator)",
+   "fg": "#C2DEF4",
+   "bg": "#7D90AC",
+   "ratio": 27.65,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxOperator)",
+   "fg": "#C2DEF4",
+   "bg": "#7D90AC",
+   "ratio": 27.79,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxNumber)",
+   "fg": "#DEBAC7",
+   "bg": "#F9B219",
+   "ratio": 1.45,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxNumber)",
+   "fg": "#DEBAC7",
+   "bg": "#F9B219",
+   "ratio": 24.81,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxString)",
+   "fg": "#DEBAC7",
+   "bg": "#89B872",
+   "ratio": 8.81,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxString)",
+   "fg": "#DEBAC7",
+   "bg": "#89B872",
+   "ratio": 30.51,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxOperator)",
+   "fg": "#DEBAC7",
+   "bg": "#7D90AC",
+   "ratio": 19.39,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxOperator)",
+   "fg": "#DEBAC7",
+   "bg": "#7D90AC",
+   "ratio": 21.08,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxNumber,syntaxString)",
+   "fg": "#F9B219",
+   "bg": "#89B872",
+   "ratio": 7.36,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxNumber,syntaxString)",
+   "fg": "#F9B219",
+   "bg": "#89B872",
+   "ratio": 40.39,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxNumber,syntaxOperator)",
+   "fg": "#F9B219",
+   "bg": "#7D90AC",
+   "ratio": 17.94,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxNumber,syntaxOperator)",
+   "fg": "#F9B219",
+   "bg": "#7D90AC",
+   "ratio": 55.68,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(syntaxString,syntaxOperator)",
+   "fg": "#89B872",
+   "bg": "#7D90AC",
+   "ratio": 10.58,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(syntaxString,syntaxOperator)",
+   "fg": "#89B872",
+   "bg": "#7D90AC",
+   "ratio": 13.67,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(primary,secondary)",
+   "fg": "#BB96F5",
+   "bg": "#BEAFCF",
+   "ratio": 4.82,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(primary,secondary)",
+   "fg": "#BB96F5",
+   "bg": "#BEAFCF",
+   "ratio": 8.37,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(primary,info)",
+   "fg": "#BB96F5",
+   "bg": "#7DA0D8",
+   "ratio": 3.37,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(primary,info)",
+   "fg": "#BB96F5",
+   "bg": "#7DA0D8",
+   "ratio": 9.11,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(primary,success)",
+   "fg": "#BB96F5",
+   "bg": "#DBFD68",
+   "ratio": 25.58,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(primary,success)",
+   "fg": "#BB96F5",
+   "bg": "#DBFD68",
+   "ratio": 33.29,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(primary,warning)",
+   "fg": "#BB96F5",
+   "bg": "#B2750A",
+   "ratio": 14.5,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(primary,warning)",
+   "fg": "#BB96F5",
+   "bg": "#B2750A",
+   "ratio": 43.07,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(primary,error)",
+   "fg": "#BB96F5",
+   "bg": "#E3796A",
+   "ratio": 6.4,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(primary,error)",
+   "fg": "#BB96F5",
+   "bg": "#E3796A",
+   "ratio": 56.36,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(secondary,info)",
+   "fg": "#BEAFCF",
+   "bg": "#7DA0D8",
+   "ratio": 8.19,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(secondary,info)",
+   "fg": "#BEAFCF",
+   "bg": "#7DA0D8",
+   "ratio": 16.66,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(secondary,success)",
+   "fg": "#BEAFCF",
+   "bg": "#DBFD68",
+   "ratio": 20.77,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(secondary,success)",
+   "fg": "#BEAFCF",
+   "bg": "#DBFD68",
+   "ratio": 25.55,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(secondary,warning)",
+   "fg": "#BEAFCF",
+   "bg": "#B2750A",
+   "ratio": 19.31,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(secondary,warning)",
+   "fg": "#BEAFCF",
+   "bg": "#B2750A",
+   "ratio": 43.64,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(secondary,error)",
+   "fg": "#BEAFCF",
+   "bg": "#E3796A",
+   "ratio": 11.22,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(secondary,error)",
+   "fg": "#BEAFCF",
+   "bg": "#E3796A",
+   "ratio": 38.48,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(info,success)",
+   "fg": "#7DA0D8",
+   "bg": "#DBFD68",
+   "ratio": 28.96,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(info,success)",
+   "fg": "#7DA0D8",
+   "bg": "#DBFD68",
+   "ratio": 37.56,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(info,warning)",
+   "fg": "#7DA0D8",
+   "bg": "#B2750A",
+   "ratio": 11.12,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(info,warning)",
+   "fg": "#7DA0D8",
+   "bg": "#B2750A",
+   "ratio": 67.75,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(info,error)",
+   "fg": "#7DA0D8",
+   "bg": "#E3796A",
+   "ratio": 3.03,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(info,error)",
+   "fg": "#7DA0D8",
+   "bg": "#E3796A",
+   "ratio": 51.37,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(success,warning)",
+   "fg": "#DBFD68",
+   "bg": "#B2750A",
+   "ratio": 40.08,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(success,warning)",
+   "fg": "#DBFD68",
+   "bg": "#B2750A",
+   "ratio": 37.48,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(success,error)",
+   "fg": "#DBFD68",
+   "bg": "#E3796A",
+   "ratio": 31.98,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(success,error)",
+   "fg": "#DBFD68",
+   "bg": "#E3796A",
+   "ratio": 41.79,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(warning,error)",
+   "fg": "#B2750A",
+   "bg": "#E3796A",
+   "ratio": 8.09,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(warning,error)",
+   "fg": "#B2750A",
+   "bg": "#E3796A",
+   "ratio": 20.28,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,textMuted)",
+   "fg": "#D5D8DE",
+   "bg": "#CEBEBD",
+   "ratio": 8.27,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "hier(text,textMuted)",
+   "fg": "#D5D8DE",
+   "bg": "#CEBEBD",
+   "ratio": 8.03,
+   "threshold": 6.0,
+   "verdict": "pass",
+   "kind": "hier",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,diffAdded)",
+   "fg": "#D5D8DE",
+   "bg": "#AFC755",
+   "ratio": 9.73,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,diffAdded)",
+   "fg": "#D5D8DE",
+   "bg": "#AFC755",
+   "ratio": 13.51,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(text,diffRemoved)",
+   "fg": "#D5D8DE",
+   "bg": "#D78A90",
+   "ratio": 20.85,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(text,diffRemoved)",
+   "fg": "#D5D8DE",
+   "bg": "#D78A90",
+   "ratio": 24.35,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,diffAdded)",
+   "fg": "#CEBEBD",
+   "bg": "#AFC755",
+   "ratio": 1.46,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,diffAdded)",
+   "fg": "#CEBEBD",
+   "bg": "#AFC755",
+   "ratio": 13.21,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(textMuted,diffRemoved)",
+   "fg": "#CEBEBD",
+   "bg": "#D78A90",
+   "ratio": 12.58,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(textMuted,diffRemoved)",
+   "fg": "#CEBEBD",
+   "bg": "#D78A90",
+   "ratio": 14.3,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
+   "code": "cvdA(diffAdded,diffRemoved)",
+   "fg": "#AFC755",
+   "bg": "#D78A90",
+   "ratio": 11.12,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "dark"
+  },
+  {
+   "code": "cvd(diffAdded,diffRemoved)",
+   "fg": "#AFC755",
+   "bg": "#D78A90",
+   "ratio": 39.67,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "dark"
+  },
+  {
    "code": "text@background",
    "fg": "#D5D8DE",
-   "bg": "#181824",
-   "ratio": 12.31,
+   "bg": "#151419",
+   "ratio": 12.83,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3052,8 +5438,8 @@
   {
    "code": "text@backgroundElement",
    "fg": "#D5D8DE",
-   "bg": "#1C284D",
-   "ratio": 10.07,
+   "bg": "#1E2B50",
+   "ratio": 9.7,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3062,8 +5448,8 @@
   {
    "code": "text@sidebarBg",
    "fg": "#D5D8DE",
-   "bg": "#25203D",
-   "ratio": 10.87,
+   "bg": "#282242",
+   "ratio": 10.52,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3072,8 +5458,8 @@
   {
    "code": "text@bubbleBg",
    "fg": "#D5D8DE",
-   "bg": "#1F2454",
-   "ratio": 10.22,
+   "bg": "#212558",
+   "ratio": 10.0,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3082,8 +5468,8 @@
   {
    "code": "text@inputBg",
    "fg": "#D5D8DE",
-   "bg": "#131A35",
-   "ratio": 11.99,
+   "bg": "#141520",
+   "ratio": 12.7,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3092,8 +5478,8 @@
   {
    "code": "text@codeBlockBg",
    "fg": "#D5D8DE",
-   "bg": "#252630",
-   "ratio": 10.52,
+   "bg": "#1F1D32",
+   "ratio": 11.49,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3111,9 +5497,9 @@
   },
   {
    "code": "textMuted@background",
-   "fg": "#AFAEBC",
-   "bg": "#181824",
-   "ratio": 8.04,
+   "fg": "#CEBEBD",
+   "bg": "#151419",
+   "ratio": 10.23,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3121,9 +5507,9 @@
   },
   {
    "code": "textMuted@backgroundPanel",
-   "fg": "#AFAEBC",
+   "fg": "#CEBEBD",
    "bg": "#111B3E",
-   "ratio": 7.68,
+   "ratio": 9.38,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3131,9 +5517,9 @@
   },
   {
    "code": "textMuted@backgroundElement",
-   "fg": "#AFAEBC",
-   "bg": "#1C284D",
-   "ratio": 6.58,
+   "fg": "#CEBEBD",
+   "bg": "#1E2B50",
+   "ratio": 7.73,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3141,9 +5527,9 @@
   },
   {
    "code": "textMuted@sidebarBg",
-   "fg": "#AFAEBC",
-   "bg": "#25203D",
-   "ratio": 7.1,
+   "fg": "#CEBEBD",
+   "bg": "#282242",
+   "ratio": 8.39,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3151,9 +5537,9 @@
   },
   {
    "code": "textMuted@bubbleBg",
-   "fg": "#AFAEBC",
-   "bg": "#1F2454",
-   "ratio": 6.68,
+   "fg": "#CEBEBD",
+   "bg": "#212558",
+   "ratio": 7.97,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3161,9 +5547,9 @@
   },
   {
    "code": "textMuted@inputBg",
-   "fg": "#AFAEBC",
-   "bg": "#131A35",
-   "ratio": 7.83,
+   "fg": "#CEBEBD",
+   "bg": "#141520",
+   "ratio": 10.13,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3171,9 +5557,9 @@
   },
   {
    "code": "textMuted@codeBlockBg",
-   "fg": "#AFAEBC",
-   "bg": "#252630",
-   "ratio": 6.87,
+   "fg": "#CEBEBD",
+   "bg": "#1F1D32",
+   "ratio": 9.16,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3181,9 +5567,9 @@
   },
   {
    "code": "textMuted@codeHeaderBg",
-   "fg": "#AFAEBC",
+   "fg": "#CEBEBD",
    "bg": "#2B334F",
-   "ratio": 5.69,
+   "ratio": 6.94,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3192,8 +5578,8 @@
   {
    "code": "markdownHeading@background",
    "fg": "#FAAB00",
-   "bg": "#181824",
-   "ratio": 9.11,
+   "bg": "#151419",
+   "ratio": 9.5,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3212,8 +5598,8 @@
   {
    "code": "markdownHeading@backgroundElement",
    "fg": "#FAAB00",
-   "bg": "#1C284D",
-   "ratio": 7.46,
+   "bg": "#1E2B50",
+   "ratio": 7.18,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3222,8 +5608,8 @@
   {
    "code": "markdownHeading@sidebarBg",
    "fg": "#FAAB00",
-   "bg": "#25203D",
-   "ratio": 8.05,
+   "bg": "#282242",
+   "ratio": 7.79,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3232,8 +5618,8 @@
   {
    "code": "markdownHeading@bubbleBg",
    "fg": "#FAAB00",
-   "bg": "#1F2454",
-   "ratio": 7.57,
+   "bg": "#212558",
+   "ratio": 7.41,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3242,8 +5628,8 @@
   {
    "code": "markdownHeading@inputBg",
    "fg": "#FAAB00",
-   "bg": "#131A35",
-   "ratio": 8.88,
+   "bg": "#141520",
+   "ratio": 9.41,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3252,8 +5638,8 @@
   {
    "code": "markdownHeading@codeBlockBg",
    "fg": "#FAAB00",
-   "bg": "#252630",
-   "ratio": 7.79,
+   "bg": "#1F1D32",
+   "ratio": 8.51,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3272,8 +5658,8 @@
   {
    "code": "markdownLink@background",
    "fg": "#A1CCF6",
-   "bg": "#181824",
-   "ratio": 10.45,
+   "bg": "#151419",
+   "ratio": 10.89,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3292,8 +5678,8 @@
   {
    "code": "markdownLink@backgroundElement",
    "fg": "#A1CCF6",
-   "bg": "#1C284D",
-   "ratio": 8.55,
+   "bg": "#1E2B50",
+   "ratio": 8.23,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3302,8 +5688,8 @@
   {
    "code": "markdownLink@sidebarBg",
    "fg": "#A1CCF6",
-   "bg": "#25203D",
-   "ratio": 9.23,
+   "bg": "#282242",
+   "ratio": 8.93,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3312,8 +5698,8 @@
   {
    "code": "markdownLink@bubbleBg",
    "fg": "#A1CCF6",
-   "bg": "#1F2454",
-   "ratio": 8.68,
+   "bg": "#212558",
+   "ratio": 8.49,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3322,8 +5708,8 @@
   {
    "code": "markdownLink@inputBg",
    "fg": "#A1CCF6",
-   "bg": "#131A35",
-   "ratio": 10.18,
+   "bg": "#141520",
+   "ratio": 10.78,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3332,8 +5718,8 @@
   {
    "code": "markdownLink@codeBlockBg",
    "fg": "#A1CCF6",
-   "bg": "#252630",
-   "ratio": 8.93,
+   "bg": "#1F1D32",
+   "ratio": 9.75,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3351,9 +5737,9 @@
   },
   {
    "code": "markdownCode@background",
-   "fg": "#B98EA1",
-   "bg": "#181824",
-   "ratio": 6.23,
+   "fg": "#CAA0B3",
+   "bg": "#151419",
+   "ratio": 8.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3361,9 +5747,9 @@
   },
   {
    "code": "markdownCode@backgroundPanel",
-   "fg": "#B98EA1",
+   "fg": "#CAA0B3",
    "bg": "#111B3E",
-   "ratio": 5.96,
+   "ratio": 7.35,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3371,9 +5757,9 @@
   },
   {
    "code": "markdownCode@backgroundElement",
-   "fg": "#B98EA1",
-   "bg": "#1C284D",
-   "ratio": 5.1,
+   "fg": "#CAA0B3",
+   "bg": "#1E2B50",
+   "ratio": 6.06,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3381,9 +5767,9 @@
   },
   {
    "code": "markdownCode@sidebarBg",
-   "fg": "#B98EA1",
-   "bg": "#25203D",
-   "ratio": 5.51,
+   "fg": "#CAA0B3",
+   "bg": "#282242",
+   "ratio": 6.58,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3391,9 +5777,9 @@
   },
   {
    "code": "markdownCode@bubbleBg",
-   "fg": "#B98EA1",
-   "bg": "#1F2454",
-   "ratio": 5.18,
+   "fg": "#CAA0B3",
+   "bg": "#212558",
+   "ratio": 6.25,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3401,9 +5787,9 @@
   },
   {
    "code": "markdownCode@inputBg",
-   "fg": "#B98EA1",
-   "bg": "#131A35",
-   "ratio": 6.07,
+   "fg": "#CAA0B3",
+   "bg": "#141520",
+   "ratio": 7.94,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3411,9 +5797,9 @@
   },
   {
    "code": "markdownCode@codeBlockBg",
-   "fg": "#B98EA1",
-   "bg": "#252630",
-   "ratio": 5.32,
+   "fg": "#CAA0B3",
+   "bg": "#1F1D32",
+   "ratio": 7.18,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3421,19 +5807,19 @@
   },
   {
    "code": "markdownCode@codeHeaderBg",
-   "fg": "#B98EA1",
+   "fg": "#CAA0B3",
    "bg": "#2B334F",
-   "ratio": 4.41,
+   "ratio": 5.44,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "matrix",
    "mode": "dark"
   },
   {
    "code": "markdownEmph@background",
    "fg": "#97AD50",
-   "bg": "#181824",
-   "ratio": 7.04,
+   "bg": "#151419",
+   "ratio": 7.34,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3452,8 +5838,8 @@
   {
    "code": "markdownEmph@backgroundElement",
    "fg": "#97AD50",
-   "bg": "#1C284D",
-   "ratio": 5.76,
+   "bg": "#1E2B50",
+   "ratio": 5.54,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3462,8 +5848,8 @@
   {
    "code": "markdownEmph@sidebarBg",
    "fg": "#97AD50",
-   "bg": "#25203D",
-   "ratio": 6.22,
+   "bg": "#282242",
+   "ratio": 6.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3472,8 +5858,8 @@
   {
    "code": "markdownEmph@bubbleBg",
    "fg": "#97AD50",
-   "bg": "#1F2454",
-   "ratio": 5.85,
+   "bg": "#212558",
+   "ratio": 5.72,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3482,8 +5868,8 @@
   {
    "code": "markdownEmph@inputBg",
    "fg": "#97AD50",
-   "bg": "#131A35",
-   "ratio": 6.85,
+   "bg": "#141520",
+   "ratio": 7.26,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3492,8 +5878,8 @@
   {
    "code": "markdownEmph@codeBlockBg",
    "fg": "#97AD50",
-   "bg": "#252630",
-   "ratio": 6.01,
+   "bg": "#1F1D32",
+   "ratio": 6.57,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3511,9 +5897,9 @@
   },
   {
    "code": "markdownStrong@background",
-   "fg": "#EFF2F7",
-   "bg": "#181824",
-   "ratio": 15.66,
+   "fg": "#FEFEFE",
+   "bg": "#151419",
+   "ratio": 18.17,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3521,9 +5907,9 @@
   },
   {
    "code": "markdownStrong@backgroundPanel",
-   "fg": "#EFF2F7",
+   "fg": "#FEFEFE",
    "bg": "#111B3E",
-   "ratio": 14.97,
+   "ratio": 16.66,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3531,9 +5917,9 @@
   },
   {
    "code": "markdownStrong@backgroundElement",
-   "fg": "#EFF2F7",
-   "bg": "#1C284D",
-   "ratio": 12.82,
+   "fg": "#FEFEFE",
+   "bg": "#1E2B50",
+   "ratio": 13.73,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3541,9 +5927,9 @@
   },
   {
    "code": "markdownStrong@sidebarBg",
-   "fg": "#EFF2F7",
-   "bg": "#25203D",
-   "ratio": 13.84,
+   "fg": "#FEFEFE",
+   "bg": "#282242",
+   "ratio": 14.9,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3551,9 +5937,9 @@
   },
   {
    "code": "markdownStrong@bubbleBg",
-   "fg": "#EFF2F7",
-   "bg": "#1F2454",
-   "ratio": 13.01,
+   "fg": "#FEFEFE",
+   "bg": "#212558",
+   "ratio": 14.16,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3561,9 +5947,9 @@
   },
   {
    "code": "markdownStrong@inputBg",
-   "fg": "#EFF2F7",
-   "bg": "#131A35",
-   "ratio": 15.25,
+   "fg": "#FEFEFE",
+   "bg": "#141520",
+   "ratio": 17.98,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3571,9 +5957,9 @@
   },
   {
    "code": "markdownStrong@codeBlockBg",
-   "fg": "#EFF2F7",
-   "bg": "#252630",
-   "ratio": 13.38,
+   "fg": "#FEFEFE",
+   "bg": "#1F1D32",
+   "ratio": 16.27,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3581,9 +5967,9 @@
   },
   {
    "code": "markdownStrong@codeHeaderBg",
-   "fg": "#EFF2F7",
+   "fg": "#FEFEFE",
    "bg": "#2B334F",
-   "ratio": 11.08,
+   "ratio": 12.33,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3592,8 +5978,8 @@
   {
    "code": "markdownBlockQuote@background",
    "fg": "#BAC6DC",
-   "bg": "#181824",
-   "ratio": 10.21,
+   "bg": "#151419",
+   "ratio": 10.64,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3612,8 +5998,8 @@
   {
    "code": "markdownBlockQuote@backgroundElement",
    "fg": "#BAC6DC",
-   "bg": "#1C284D",
-   "ratio": 8.36,
+   "bg": "#1E2B50",
+   "ratio": 8.04,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3622,8 +6008,8 @@
   {
    "code": "markdownBlockQuote@sidebarBg",
    "fg": "#BAC6DC",
-   "bg": "#25203D",
-   "ratio": 9.02,
+   "bg": "#282242",
+   "ratio": 8.73,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3632,8 +6018,8 @@
   {
    "code": "markdownBlockQuote@bubbleBg",
    "fg": "#BAC6DC",
-   "bg": "#1F2454",
-   "ratio": 8.48,
+   "bg": "#212558",
+   "ratio": 8.3,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3642,8 +6028,8 @@
   {
    "code": "markdownBlockQuote@inputBg",
    "fg": "#BAC6DC",
-   "bg": "#131A35",
-   "ratio": 9.94,
+   "bg": "#141520",
+   "ratio": 10.54,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3652,8 +6038,8 @@
   {
    "code": "markdownBlockQuote@codeBlockBg",
    "fg": "#BAC6DC",
-   "bg": "#252630",
-   "ratio": 8.72,
+   "bg": "#1F1D32",
+   "ratio": 9.53,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -3671,9 +6057,9 @@
   },
   {
    "code": "text@background",
-   "fg": "#111B3E",
-   "bg": "#D8E3F3",
-   "ratio": 12.96,
+   "fg": "#181824",
+   "bg": "#EFF2F7",
+   "ratio": 15.66,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3681,9 +6067,9 @@
   },
   {
    "code": "text@backgroundPanel",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#FEFEFE",
-   "ratio": 16.66,
+   "ratio": 17.42,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3691,9 +6077,9 @@
   },
   {
    "code": "text@backgroundElement",
-   "fg": "#111B3E",
-   "bg": "#EFE7FC",
-   "ratio": 14.0,
+   "fg": "#181824",
+   "bg": "#E8E8F2",
+   "ratio": 14.44,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3701,9 +6087,9 @@
   },
   {
    "code": "text@sidebarBg",
-   "fg": "#111B3E",
-   "bg": "#A3ADB8",
-   "ratio": 7.38,
+   "fg": "#181824",
+   "bg": "#CCD5E5",
+   "ratio": 11.9,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3711,9 +6097,9 @@
   },
   {
    "code": "text@bubbleBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#DDD3F6",
-   "ratio": 11.78,
+   "ratio": 12.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3721,9 +6107,9 @@
   },
   {
    "code": "text@inputBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#CAD0D8",
-   "ratio": 10.82,
+   "ratio": 11.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3731,9 +6117,9 @@
   },
   {
    "code": "text@codeBlockBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#C9E1F4",
-   "ratio": 12.45,
+   "ratio": 13.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3741,9 +6127,9 @@
   },
   {
    "code": "text@codeHeaderBg",
-   "fg": "#111B3E",
-   "bg": "#7D85B9",
-   "ratio": 4.74,
+   "fg": "#181824",
+   "bg": "#A9C3E0",
+   "ratio": 9.68,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3751,9 +6137,9 @@
   },
   {
    "code": "textMuted@background",
-   "fg": "#2F3D57",
-   "bg": "#D8E3F3",
-   "ratio": 8.41,
+   "fg": "#282A45",
+   "bg": "#EFF2F7",
+   "ratio": 12.42,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3761,9 +6147,9 @@
   },
   {
    "code": "labelDimmed@background",
-   "fg": "#515E76",
-   "bg": "#D8E3F3",
-   "ratio": 5.04,
+   "fg": "#505269",
+   "bg": "#EFF2F7",
+   "ratio": 6.8,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3771,9 +6157,9 @@
   },
   {
    "code": "textMuted@backgroundPanel",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#FEFEFE",
-   "ratio": 10.81,
+   "ratio": 13.81,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3781,9 +6167,9 @@
   },
   {
    "code": "labelDimmed@backgroundPanel",
-   "fg": "#586478",
+   "fg": "#53546A",
    "bg": "#FEFEFE",
-   "ratio": 5.93,
+   "ratio": 7.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3791,9 +6177,9 @@
   },
   {
    "code": "textMuted@backgroundElement",
-   "fg": "#2F3D57",
-   "bg": "#EFE7FC",
-   "ratio": 9.09,
+   "fg": "#282A45",
+   "bg": "#E8E8F2",
+   "ratio": 11.45,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3801,9 +6187,9 @@
   },
   {
    "code": "labelDimmed@backgroundElement",
-   "fg": "#555F78",
-   "bg": "#EFE7FC",
-   "ratio": 5.31,
+   "fg": "#4E5068",
+   "bg": "#E8E8F2",
+   "ratio": 6.46,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3811,9 +6197,9 @@
   },
   {
    "code": "markdownHeading@background",
-   "fg": "#292A65",
-   "bg": "#D8E3F3",
-   "ratio": 10.04,
+   "fg": "#5D4523",
+   "bg": "#EFF2F7",
+   "ratio": 7.99,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3821,9 +6207,9 @@
   },
   {
    "code": "markdownHeading@backgroundPanel",
-   "fg": "#292A65",
+   "fg": "#5D4523",
    "bg": "#FEFEFE",
-   "ratio": 12.91,
+   "ratio": 8.89,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3832,8 +6218,8 @@
   {
    "code": "markdownLink@background",
    "fg": "#0044A0",
-   "bg": "#D8E3F3",
-   "ratio": 6.94,
+   "bg": "#EFF2F7",
+   "ratio": 8.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3851,9 +6237,9 @@
   },
   {
    "code": "markdownStrong@background",
-   "fg": "#181824",
-   "bg": "#D8E3F3",
-   "ratio": 13.56,
+   "fg": "#111B3E",
+   "bg": "#EFF2F7",
+   "ratio": 14.97,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3861,9 +6247,9 @@
   },
   {
    "code": "markdownStrong@backgroundPanel",
-   "fg": "#181824",
+   "fg": "#111B3E",
    "bg": "#FEFEFE",
-   "ratio": 17.42,
+   "ratio": 16.66,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3871,9 +6257,9 @@
   },
   {
    "code": "markdownEmph@background",
-   "fg": "#4C545E",
-   "bg": "#D8E3F3",
-   "ratio": 5.92,
+   "fg": "#525D38",
+   "bg": "#EFF2F7",
+   "ratio": 6.28,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3881,9 +6267,9 @@
   },
   {
    "code": "markdownEmph@backgroundPanel",
-   "fg": "#4C545E",
+   "fg": "#525D38",
    "bg": "#FEFEFE",
-   "ratio": 7.61,
+   "ratio": 6.98,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3891,9 +6277,9 @@
   },
   {
    "code": "markdownBlockQuote@background",
-   "fg": "#46567C",
-   "bg": "#D8E3F3",
-   "ratio": 5.62,
+   "fg": "#4A5164",
+   "bg": "#EFF2F7",
+   "ratio": 7.06,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3901,9 +6287,9 @@
   },
   {
    "code": "markdownBlockQuote@backgroundPanel",
-   "fg": "#46567C",
+   "fg": "#4A5164",
    "bg": "#FEFEFE",
-   "ratio": 7.22,
+   "ratio": 7.85,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3911,9 +6297,9 @@
   },
   {
    "code": "markdownCode@background",
-   "fg": "#635696",
-   "bg": "#D8E3F3",
-   "ratio": 4.91,
+   "fg": "#67575A",
+   "bg": "#EFF2F7",
+   "ratio": 6.06,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3921,9 +6307,9 @@
   },
   {
    "code": "markdownCode@backgroundPanel",
-   "fg": "#635696",
+   "fg": "#67575A",
    "bg": "#FEFEFE",
-   "ratio": 6.31,
+   "ratio": 6.74,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3931,9 +6317,9 @@
   },
   {
    "code": "syntaxComment@codeBlockBg",
-   "fg": "#47586C",
+   "fg": "#2E5891",
    "bg": "#C9E1F4",
-   "ratio": 5.4,
+   "ratio": 5.33,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3941,9 +6327,9 @@
   },
   {
    "code": "syntaxKeyword@codeBlockBg",
-   "fg": "#26285F",
+   "fg": "#564A77",
    "bg": "#C9E1F4",
-   "ratio": 10.03,
+   "ratio": 5.89,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3951,9 +6337,9 @@
   },
   {
    "code": "syntaxFunction@codeBlockBg",
-   "fg": "#403A81",
+   "fg": "#414F63",
    "bg": "#C9E1F4",
-   "ratio": 7.27,
+   "ratio": 6.17,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3961,9 +6347,9 @@
   },
   {
    "code": "syntaxType@codeBlockBg",
-   "fg": "#3F3C47",
+   "fg": "#4F3F47",
    "bg": "#C9E1F4",
-   "ratio": 7.98,
+   "ratio": 7.29,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -3971,11 +6357,11 @@
   },
   {
    "code": "syntaxNumber@codeBlockBg",
-   "fg": "#A87916",
+   "fg": "#604C29",
    "bg": "#C9E1F4",
-   "ratio": 2.88,
+   "ratio": 6.07,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "hard",
    "mode": "light"
   },
@@ -3991,11 +6377,11 @@
   },
   {
    "code": "syntaxOperator@codeBlockBg",
-   "fg": "#5E6476",
+   "fg": "#4F4A9A",
    "bg": "#C9E1F4",
-   "ratio": 4.37,
+   "ratio": 5.6,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "hard",
    "mode": "light"
   },
@@ -4011,9 +6397,9 @@
   },
   {
    "code": "diffRemoved@diffRemovedBg",
-   "fg": "#803438",
+   "fg": "#4D2638",
    "bg": "#EDDEDE",
-   "ratio": 6.53,
+   "ratio": 9.76,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4022,8 +6408,8 @@
   {
    "code": "diffAdded@diffAddedLineNumberBg",
    "fg": "#2B4429",
-   "bg": "#D9E3C0",
-   "ratio": 8.0,
+   "bg": "#F8FAF9",
+   "ratio": 10.21,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4031,9 +6417,9 @@
   },
   {
    "code": "diffRemoved@diffRemovedLineNumberBg",
-   "fg": "#803438",
+   "fg": "#4D2638",
    "bg": "#EACAC6",
-   "ratio": 5.58,
+   "ratio": 8.34,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4041,9 +6427,9 @@
   },
   {
    "code": "text@diffAddedBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#E5EBDD",
-   "ratio": 13.81,
+   "ratio": 14.44,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4051,9 +6437,9 @@
   },
   {
    "code": "text@diffRemovedBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#EDDEDE",
-   "ratio": 12.88,
+   "ratio": 13.48,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4071,9 +6457,9 @@
   },
   {
    "code": "markdownCode@inlineChip",
-   "fg": "#635696",
+   "fg": "#67575A",
    "bg": "#EBEBEB",
-   "ratio": 5.33,
+   "ratio": 5.71,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4081,9 +6467,9 @@
   },
   {
    "code": "secondary@secondaryPill",
-   "fg": "#394159",
-   "bg": "#B8C3D4",
-   "ratio": 5.69,
+   "fg": "#3D3660",
+   "bg": "#CBCCD9",
+   "ratio": 6.95,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4100,60 +6486,60 @@
    "mode": "light"
   },
   {
-   "code": "contrastText(secondary)@secondary",
+   "code": "contrastText(info)@info",
    "fg": "#F4F4F5",
-   "bg": "#394159",
-   "ratio": 9.21,
+   "bg": "#0F2242",
+   "ratio": 14.39,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
    "mode": "light"
   },
   {
-   "code": "contrastText(info)@info",
+   "code": "contrastText(secondary)@secondary",
    "fg": "#F4F4F5",
-   "bg": "#526B91",
-   "ratio": 4.94,
+   "bg": "#3D3660",
+   "ratio": 10.08,
    "threshold": 4.5,
    "verdict": "pass",
-   "kind": "hard",
+   "kind": "diag",
    "mode": "light"
   },
   {
    "code": "contrastText(success)@success",
    "fg": "#F4F4F5",
-   "bg": "#537B50",
-   "ratio": 4.43,
+   "bg": "#344D2C",
+   "ratio": 8.51,
    "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "hard",
+   "verdict": "pass",
+   "kind": "diag",
    "mode": "light"
   },
   {
    "code": "contrastText(warning)@warning",
    "fg": "#F4F4F5",
-   "bg": "#996032",
-   "ratio": 4.69,
+   "bg": "#785614",
+   "ratio": 6.08,
    "threshold": 4.5,
    "verdict": "pass",
-   "kind": "hard",
+   "kind": "diag",
    "mode": "light"
   },
   {
    "code": "contrastText(error)@error",
    "fg": "#F4F4F5",
-   "bg": "#9D3D38",
-   "ratio": 6.05,
+   "bg": "#422329",
+   "ratio": 12.7,
    "threshold": 4.5,
    "verdict": "pass",
-   "kind": "hard",
+   "kind": "diag",
    "mode": "light"
   },
   {
    "code": "textMuted@diffAddedLineNumberBg",
-   "fg": "#2F3D57",
-   "bg": "#D9E3C0",
-   "ratio": 8.15,
+   "fg": "#282A45",
+   "bg": "#F8FAF9",
+   "ratio": 13.29,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4161,9 +6547,9 @@
   },
   {
    "code": "textMuted@diffRemovedLineNumberBg",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#EACAC6",
-   "ratio": 7.15,
+   "ratio": 9.13,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "hard",
@@ -4171,19 +6557,19 @@
   },
   {
    "code": "borderActive@focusRing33",
-   "fg": "#6A7FA7",
-   "bg": "#AAB5C8",
-   "ratio": 1.95,
+   "fg": "#382A5F",
+   "bg": "#9A99B0",
+   "ratio": 4.54,
    "threshold": 3.0,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "diag",
    "mode": "light"
   },
   {
    "code": "borderActive@background",
-   "fg": "#6A7FA7",
-   "bg": "#D8E3F3",
-   "ratio": 3.11,
+   "fg": "#382A5F",
+   "bg": "#EFF2F7",
+   "ratio": 11.24,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4191,9 +6577,9 @@
   },
   {
    "code": "borderActive@backgroundPanel",
-   "fg": "#6A7FA7",
+   "fg": "#382A5F",
    "bg": "#FEFEFE",
-   "ratio": 4.0,
+   "ratio": 12.51,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4201,9 +6587,9 @@
   },
   {
    "code": "borderActive@backgroundElement",
-   "fg": "#6A7FA7",
-   "bg": "#EFE7FC",
-   "ratio": 3.36,
+   "fg": "#382A5F",
+   "bg": "#E8E8F2",
+   "ratio": 10.37,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4212,8 +6598,8 @@
   {
    "code": "primary@background",
    "fg": "#473D94",
-   "bg": "#D8E3F3",
-   "ratio": 6.86,
+   "bg": "#EFF2F7",
+   "ratio": 7.92,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4231,9 +6617,9 @@
   },
   {
    "code": "secondary@background",
-   "fg": "#394159",
-   "bg": "#D8E3F3",
-   "ratio": 7.81,
+   "fg": "#3D3660",
+   "bg": "#EFF2F7",
+   "ratio": 9.88,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4241,9 +6627,9 @@
   },
   {
    "code": "secondary@backgroundPanel",
-   "fg": "#394159",
+   "fg": "#3D3660",
    "bg": "#FEFEFE",
-   "ratio": 10.04,
+   "ratio": 10.99,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4251,9 +6637,9 @@
   },
   {
    "code": "info@background",
-   "fg": "#526B91",
-   "bg": "#D8E3F3",
-   "ratio": 4.19,
+   "fg": "#0F2242",
+   "bg": "#EFF2F7",
+   "ratio": 14.09,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4261,9 +6647,9 @@
   },
   {
    "code": "info@backgroundPanel",
-   "fg": "#526B91",
+   "fg": "#0F2242",
    "bg": "#FEFEFE",
-   "ratio": 5.38,
+   "ratio": 15.68,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4271,9 +6657,9 @@
   },
   {
    "code": "success@background",
-   "fg": "#537B50",
-   "bg": "#D8E3F3",
-   "ratio": 3.75,
+   "fg": "#344D2C",
+   "bg": "#EFF2F7",
+   "ratio": 8.34,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4281,9 +6667,9 @@
   },
   {
    "code": "success@backgroundPanel",
-   "fg": "#537B50",
+   "fg": "#344D2C",
    "bg": "#FEFEFE",
-   "ratio": 4.82,
+   "ratio": 9.28,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4291,9 +6677,9 @@
   },
   {
    "code": "warning@background",
-   "fg": "#996032",
-   "bg": "#D8E3F3",
-   "ratio": 3.98,
+   "fg": "#785614",
+   "bg": "#EFF2F7",
+   "ratio": 5.96,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4301,9 +6687,9 @@
   },
   {
    "code": "warning@backgroundPanel",
-   "fg": "#996032",
+   "fg": "#785614",
    "bg": "#FEFEFE",
-   "ratio": 5.11,
+   "ratio": 6.63,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4311,9 +6697,9 @@
   },
   {
    "code": "error@background",
-   "fg": "#9D3D38",
-   "bg": "#D8E3F3",
-   "ratio": 5.13,
+   "fg": "#422329",
+   "bg": "#EFF2F7",
+   "ratio": 12.44,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
@@ -4321,19 +6707,2369 @@
   },
   {
    "code": "error@backgroundPanel",
-   "fg": "#9D3D38",
+   "fg": "#422329",
    "bg": "#FEFEFE",
-   "ratio": 6.59,
+   "ratio": 13.84,
    "threshold": 3.0,
    "verdict": "pass",
    "kind": "ui",
    "mode": "light"
   },
   {
-   "code": "text@background",
+   "code": "mixGate(background)",
+   "fg": "#EFF2F7",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(backgroundPanel)",
+   "fg": "#FEFEFE",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(backgroundElement)",
+   "fg": "#E8E8F2",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(sidebarBg)",
+   "fg": "#CCD5E5",
+   "bg": "-",
+   "ratio": 0.53,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(bubbleBg)",
+   "fg": "#DDD3F6",
+   "bg": "-",
+   "ratio": 0.75,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(inputBg)",
+   "fg": "#CAD0D8",
+   "bg": "-",
+   "ratio": 0.56,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(codeBlockBg)",
+   "fg": "#C9E1F4",
+   "bg": "-",
+   "ratio": 0.6,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(codeHeaderBg)",
+   "fg": "#A9C3E0",
+   "bg": "-",
+   "ratio": 0.32,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(text)",
+   "fg": "#181824",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(textMuted)",
+   "fg": "#282A45",
+   "bg": "-",
+   "ratio": 0.74,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(primary)",
+   "fg": "#473D94",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(secondary)",
+   "fg": "#3D3660",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(info)",
+   "fg": "#0F2242",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(success)",
+   "fg": "#344D2C",
+   "bg": "-",
+   "ratio": 0.79,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(warning)",
+   "fg": "#785614",
+   "bg": "-",
+   "ratio": 1.13,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(error)",
+   "fg": "#422329",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(border)",
+   "fg": "#87AFE3",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(borderActive)",
+   "fg": "#382A5F",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffAdded)",
+   "fg": "#2B4429",
+   "bg": "-",
+   "ratio": 0.41,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffRemoved)",
+   "fg": "#4D2638",
+   "bg": "-",
+   "ratio": 0.44,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffAddedBg)",
+   "fg": "#E5EBDD",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffRemovedBg)",
+   "fg": "#EDDEDE",
+   "bg": "-",
+   "ratio": 0.38,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffAddedLineNumberBg)",
+   "fg": "#F8FAF9",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(diffRemovedLineNumberBg)",
+   "fg": "#EACAC6",
+   "bg": "-",
+   "ratio": 0.68,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownHeading)",
+   "fg": "#5D4523",
+   "bg": "-",
+   "ratio": 0.43,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownLink)",
+   "fg": "#0044A0",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownCode)",
+   "fg": "#67575A",
+   "bg": "-",
+   "ratio": 0.42,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownEmph)",
+   "fg": "#525D38",
+   "bg": "-",
+   "ratio": 0.57,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownStrong)",
    "fg": "#111B3E",
-   "bg": "#D8E3F3",
-   "ratio": 12.96,
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(markdownBlockQuote)",
+   "fg": "#4A5164",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxComment)",
+   "fg": "#2E5891",
+   "bg": "-",
+   "ratio": 1.27,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxKeyword)",
+   "fg": "#564A77",
+   "bg": "-",
+   "ratio": 0.61,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxFunction)",
+   "fg": "#414F63",
+   "bg": "-",
+   "ratio": 0.69,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxType)",
+   "fg": "#4F3F47",
+   "bg": "-",
+   "ratio": 0.47,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxNumber)",
+   "fg": "#604C29",
+   "bg": "-",
+   "ratio": 1.38,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxString)",
+   "fg": "#243A2E",
+   "bg": "-",
+   "ratio": 0.68,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "mixGate(syntaxOperator)",
+   "fg": "#4F4A9A",
+   "bg": "-",
+   "ratio": 0.0,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "mix",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,backgroundPanel)",
+   "fg": "#EFF2F7",
+   "bg": "#FEFEFE",
+   "ratio": 5.07,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,backgroundElement)",
+   "fg": "#EFF2F7",
+   "bg": "#E8E8F2",
+   "ratio": 4.23,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,sidebarBg)",
+   "fg": "#EFF2F7",
+   "bg": "#CCD5E5",
+   "ratio": 12.05,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,bubbleBg)",
+   "fg": "#EFF2F7",
+   "bg": "#DDD3F6",
+   "ratio": 18.87,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,inputBg)",
+   "fg": "#EFF2F7",
+   "bg": "#CAD0D8",
+   "ratio": 12.31,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,codeBlockBg)",
+   "fg": "#EFF2F7",
+   "bg": "#C9E1F4",
+   "ratio": 12.22,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(background,codeHeaderBg)",
+   "fg": "#EFF2F7",
+   "bg": "#A9C3E0",
+   "ratio": 22.99,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,backgroundElement)",
+   "fg": "#FEFEFE",
+   "bg": "#E8E8F2",
+   "ratio": 9.02,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,sidebarBg)",
+   "fg": "#FEFEFE",
+   "bg": "#CCD5E5",
+   "ratio": 17.11,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,bubbleBg)",
+   "fg": "#FEFEFE",
+   "bg": "#DDD3F6",
+   "ratio": 23.01,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,inputBg)",
+   "fg": "#FEFEFE",
+   "bg": "#CAD0D8",
+   "ratio": 17.07,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,codeBlockBg)",
+   "fg": "#FEFEFE",
+   "bg": "#C9E1F4",
+   "ratio": 16.91,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundPanel,codeHeaderBg)",
+   "fg": "#FEFEFE",
+   "bg": "#A9C3E0",
+   "ratio": 28.02,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundElement,sidebarBg)",
+   "fg": "#E8E8F2",
+   "bg": "#CCD5E5",
+   "ratio": 8.47,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundElement,bubbleBg)",
+   "fg": "#E8E8F2",
+   "bg": "#DDD3F6",
+   "ratio": 14.96,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundElement,inputBg)",
+   "fg": "#E8E8F2",
+   "bg": "#CAD0D8",
+   "ratio": 9.31,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundElement,codeBlockBg)",
+   "fg": "#E8E8F2",
+   "bg": "#C9E1F4",
+   "ratio": 9.99,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(backgroundElement,codeHeaderBg)",
+   "fg": "#E8E8F2",
+   "bg": "#A9C3E0",
+   "ratio": 19.59,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(sidebarBg,bubbleBg)",
+   "fg": "#CCD5E5",
+   "bg": "#DDD3F6",
+   "ratio": 12.19,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(sidebarBg,inputBg)",
+   "fg": "#CCD5E5",
+   "bg": "#CAD0D8",
+   "ratio": 4.64,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(sidebarBg,codeBlockBg)",
+   "fg": "#CCD5E5",
+   "bg": "#C9E1F4",
+   "ratio": 6.08,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(sidebarBg,codeHeaderBg)",
+   "fg": "#CCD5E5",
+   "bg": "#A9C3E0",
+   "ratio": 11.4,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(bubbleBg,inputBg)",
+   "fg": "#DDD3F6",
+   "bg": "#CAD0D8",
+   "ratio": 15.66,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(bubbleBg,codeBlockBg)",
+   "fg": "#DDD3F6",
+   "bg": "#C9E1F4",
+   "ratio": 14.72,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(bubbleBg,codeHeaderBg)",
+   "fg": "#DDD3F6",
+   "bg": "#A9C3E0",
+   "ratio": 15.13,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(inputBg,codeBlockBg)",
+   "fg": "#CAD0D8",
+   "bg": "#C9E1F4",
+   "ratio": 9.54,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(inputBg,codeHeaderBg)",
+   "fg": "#CAD0D8",
+   "bg": "#A9C3E0",
+   "ratio": 13.94,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "surface(codeBlockBg,codeHeaderBg)",
+   "fg": "#C9E1F4",
+   "bg": "#A9C3E0",
+   "ratio": 11.99,
+   "threshold": 2.0,
+   "verdict": "pass",
+   "kind": "surface",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,textMuted)",
+   "fg": "#181824",
+   "bg": "#282A45",
+   "ratio": 9.25,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "hier(text,textMuted)",
+   "fg": "#181824",
+   "bg": "#282A45",
+   "ratio": 9.3,
+   "threshold": 6.0,
+   "verdict": "pass",
+   "kind": "hier",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownHeading)",
+   "fg": "#181824",
+   "bg": "#5D4523",
+   "ratio": 22.27,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownHeading)",
+   "fg": "#181824",
+   "bg": "#5D4523",
+   "ratio": 30.43,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownLink)",
+   "fg": "#181824",
+   "bg": "#0044A0",
+   "ratio": 22.27,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownLink)",
+   "fg": "#181824",
+   "bg": "#0044A0",
+   "ratio": 33.17,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownCode)",
+   "fg": "#181824",
+   "bg": "#67575A",
+   "ratio": 29.9,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownCode)",
+   "fg": "#181824",
+   "bg": "#67575A",
+   "ratio": 30.17,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownEmph)",
+   "fg": "#181824",
+   "bg": "#525D38",
+   "ratio": 29.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownEmph)",
+   "fg": "#181824",
+   "bg": "#525D38",
+   "ratio": 29.26,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownStrong)",
+   "fg": "#181824",
+   "bg": "#111B3E",
+   "ratio": 2.01,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownStrong)",
+   "fg": "#181824",
+   "bg": "#111B3E",
+   "ratio": 10.11,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownBlockQuote)",
+   "fg": "#181824",
+   "bg": "#4A5164",
+   "ratio": 25.7,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownBlockQuote)",
+   "fg": "#181824",
+   "bg": "#4A5164",
+   "ratio": 25.75,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownHeading)",
+   "fg": "#282A45",
+   "bg": "#5D4523",
+   "ratio": 13.02,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownHeading)",
+   "fg": "#282A45",
+   "bg": "#5D4523",
+   "ratio": 27.98,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownLink)",
+   "fg": "#282A45",
+   "bg": "#0044A0",
+   "ratio": 13.02,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownLink)",
+   "fg": "#282A45",
+   "bg": "#0044A0",
+   "ratio": 23.22,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownCode)",
+   "fg": "#282A45",
+   "bg": "#67575A",
+   "ratio": 20.66,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownCode)",
+   "fg": "#282A45",
+   "bg": "#67575A",
+   "ratio": 25.29,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownEmph)",
+   "fg": "#282A45",
+   "bg": "#525D38",
+   "ratio": 19.82,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownEmph)",
+   "fg": "#282A45",
+   "bg": "#525D38",
+   "ratio": 20.96,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownStrong)",
+   "fg": "#282A45",
+   "bg": "#111B3E",
+   "ratio": 7.24,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownStrong)",
+   "fg": "#282A45",
+   "bg": "#111B3E",
+   "ratio": 8.67,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,markdownBlockQuote)",
+   "fg": "#282A45",
+   "bg": "#4A5164",
+   "ratio": 16.45,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,markdownBlockQuote)",
+   "fg": "#282A45",
+   "bg": "#4A5164",
+   "ratio": 16.63,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownLink)",
+   "fg": "#5D4523",
+   "bg": "#0044A0",
+   "ratio": 0.0,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownLink)",
+   "fg": "#5D4523",
+   "bg": "#0044A0",
+   "ratio": 41.08,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownCode)",
+   "fg": "#5D4523",
+   "bg": "#67575A",
+   "ratio": 7.63,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownCode)",
+   "fg": "#5D4523",
+   "bg": "#67575A",
+   "ratio": 12.48,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownEmph)",
+   "fg": "#5D4523",
+   "bg": "#525D38",
+   "ratio": 6.8,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownEmph)",
+   "fg": "#5D4523",
+   "bg": "#525D38",
+   "ratio": 7.98,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownStrong)",
+   "fg": "#5D4523",
+   "bg": "#111B3E",
+   "ratio": 20.26,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownStrong)",
+   "fg": "#5D4523",
+   "bg": "#111B3E",
+   "ratio": 36.11,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownHeading,markdownBlockQuote)",
+   "fg": "#5D4523",
+   "bg": "#4A5164",
+   "ratio": 3.43,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownHeading,markdownBlockQuote)",
+   "fg": "#5D4523",
+   "bg": "#4A5164",
+   "ratio": 25.81,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownCode)",
+   "fg": "#0044A0",
+   "bg": "#67575A",
+   "ratio": 7.63,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownLink,markdownCode)",
+   "fg": "#0044A0",
+   "bg": "#67575A",
+   "ratio": 31.17,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownEmph)",
+   "fg": "#0044A0",
+   "bg": "#525D38",
+   "ratio": 6.8,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownLink,markdownEmph)",
+   "fg": "#0044A0",
+   "bg": "#525D38",
+   "ratio": 23.1,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownStrong)",
+   "fg": "#0044A0",
+   "bg": "#111B3E",
+   "ratio": 20.26,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownLink,markdownStrong)",
+   "fg": "#0044A0",
+   "bg": "#111B3E",
+   "ratio": 25.74,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownLink,markdownBlockQuote)",
+   "fg": "#0044A0",
+   "bg": "#4A5164",
+   "ratio": 3.43,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownLink,markdownBlockQuote)",
+   "fg": "#0044A0",
+   "bg": "#4A5164",
+   "ratio": 16.1,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownEmph)",
+   "fg": "#67575A",
+   "bg": "#525D38",
+   "ratio": 0.83,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,markdownEmph)",
+   "fg": "#67575A",
+   "bg": "#525D38",
+   "ratio": 11.91,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownStrong)",
+   "fg": "#67575A",
+   "bg": "#111B3E",
+   "ratio": 27.89,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,markdownStrong)",
+   "fg": "#67575A",
+   "bg": "#111B3E",
+   "ratio": 33.94,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,markdownBlockQuote)",
+   "fg": "#67575A",
+   "bg": "#4A5164",
+   "ratio": 4.2,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,markdownBlockQuote)",
+   "fg": "#67575A",
+   "bg": "#4A5164",
+   "ratio": 11.84,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownEmph,markdownStrong)",
+   "fg": "#525D38",
+   "bg": "#111B3E",
+   "ratio": 27.06,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownEmph,markdownStrong)",
+   "fg": "#525D38",
+   "bg": "#111B3E",
+   "ratio": 28.68,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownEmph,markdownBlockQuote)",
+   "fg": "#525D38",
+   "bg": "#4A5164",
+   "ratio": 3.37,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownEmph,markdownBlockQuote)",
+   "fg": "#525D38",
+   "bg": "#4A5164",
+   "ratio": 7.56,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownStrong,markdownBlockQuote)",
+   "fg": "#111B3E",
+   "bg": "#4A5164",
+   "ratio": 23.69,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownStrong,markdownBlockQuote)",
+   "fg": "#111B3E",
+   "bg": "#4A5164",
+   "ratio": 23.67,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,markdownCode)",
+   "fg": "#181824",
+   "bg": "#67575A",
+   "ratio": 29.9,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,markdownCode)",
+   "fg": "#181824",
+   "bg": "#67575A",
+   "ratio": 30.17,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxComment)",
+   "fg": "#181824",
+   "bg": "#2E5891",
+   "ratio": 28.23,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxComment)",
+   "fg": "#181824",
+   "bg": "#2E5891",
+   "ratio": 36.97,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxKeyword)",
+   "fg": "#181824",
+   "bg": "#564A77",
+   "ratio": 25.7,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxKeyword)",
+   "fg": "#181824",
+   "bg": "#564A77",
+   "ratio": 26.43,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxFunction)",
+   "fg": "#181824",
+   "bg": "#414F63",
+   "ratio": 24.42,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxFunction)",
+   "fg": "#181824",
+   "bg": "#414F63",
+   "ratio": 24.71,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxType)",
+   "fg": "#181824",
+   "bg": "#4F3F47",
+   "ratio": 19.66,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxType)",
+   "fg": "#181824",
+   "bg": "#4F3F47",
+   "ratio": 19.91,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxNumber)",
+   "fg": "#181824",
+   "bg": "#604C29",
+   "ratio": 24.85,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxNumber)",
+   "fg": "#181824",
+   "bg": "#604C29",
+   "ratio": 30.82,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxString)",
+   "fg": "#181824",
+   "bg": "#243A2E",
+   "ratio": 13.4,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxString)",
+   "fg": "#181824",
+   "bg": "#243A2E",
+   "ratio": 16.43,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,syntaxOperator)",
+   "fg": "#181824",
+   "bg": "#4F4A9A",
+   "ratio": 26.97,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,syntaxOperator)",
+   "fg": "#181824",
+   "bg": "#4F4A9A",
+   "ratio": 30.67,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxComment)",
+   "fg": "#67575A",
+   "bg": "#2E5891",
+   "ratio": 1.67,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxComment)",
+   "fg": "#67575A",
+   "bg": "#2E5891",
+   "ratio": 33.09,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxKeyword)",
+   "fg": "#67575A",
+   "bg": "#564A77",
+   "ratio": 4.2,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxKeyword)",
+   "fg": "#67575A",
+   "bg": "#564A77",
+   "ratio": 11.44,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxFunction)",
+   "fg": "#67575A",
+   "bg": "#414F63",
+   "ratio": 5.48,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxFunction)",
+   "fg": "#67575A",
+   "bg": "#414F63",
+   "ratio": 12.78,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxType)",
+   "fg": "#67575A",
+   "bg": "#4F3F47",
+   "ratio": 10.24,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxType)",
+   "fg": "#67575A",
+   "bg": "#4F3F47",
+   "ratio": 9.99,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxNumber)",
+   "fg": "#67575A",
+   "bg": "#604C29",
+   "ratio": 5.06,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxNumber)",
+   "fg": "#67575A",
+   "bg": "#604C29",
+   "ratio": 9.28,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxString)",
+   "fg": "#67575A",
+   "bg": "#243A2E",
+   "ratio": 16.5,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxString)",
+   "fg": "#67575A",
+   "bg": "#243A2E",
+   "ratio": 16.53,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(markdownCode,syntaxOperator)",
+   "fg": "#67575A",
+   "bg": "#4F4A9A",
+   "ratio": 2.93,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(markdownCode,syntaxOperator)",
+   "fg": "#67575A",
+   "bg": "#4F4A9A",
+   "ratio": 23.14,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxKeyword)",
+   "fg": "#2E5891",
+   "bg": "#564A77",
+   "ratio": 2.53,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxKeyword)",
+   "fg": "#2E5891",
+   "bg": "#564A77",
+   "ratio": 9.91,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxFunction)",
+   "fg": "#2E5891",
+   "bg": "#414F63",
+   "ratio": 3.81,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxFunction)",
+   "fg": "#2E5891",
+   "bg": "#414F63",
+   "ratio": 14.66,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxType)",
+   "fg": "#2E5891",
+   "bg": "#4F3F47",
+   "ratio": 8.57,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxType)",
+   "fg": "#2E5891",
+   "bg": "#4F3F47",
+   "ratio": 32.87,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxNumber)",
+   "fg": "#2E5891",
+   "bg": "#604C29",
+   "ratio": 3.38,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxNumber)",
+   "fg": "#2E5891",
+   "bg": "#604C29",
+   "ratio": 40.83,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxString)",
+   "fg": "#2E5891",
+   "bg": "#243A2E",
+   "ratio": 14.83,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxComment,syntaxString)",
+   "fg": "#2E5891",
+   "bg": "#243A2E",
+   "ratio": 21.9,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxComment,syntaxOperator)",
+   "fg": "#2E5891",
+   "bg": "#4F4A9A",
+   "ratio": 1.26,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "recede(syntaxComment,syntaxOperator)",
+   "fg": "#2E5891",
+   "bg": "#4F4A9A",
+   "ratio": 20.71,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "recede",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxFunction)",
+   "fg": "#564A77",
+   "bg": "#414F63",
+   "ratio": 1.28,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxFunction)",
+   "fg": "#564A77",
+   "bg": "#414F63",
+   "ratio": 10.1,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxType)",
+   "fg": "#564A77",
+   "bg": "#4F3F47",
+   "ratio": 6.04,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxType)",
+   "fg": "#564A77",
+   "bg": "#4F3F47",
+   "ratio": 11.92,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxNumber)",
+   "fg": "#564A77",
+   "bg": "#604C29",
+   "ratio": 0.85,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxNumber)",
+   "fg": "#564A77",
+   "bg": "#604C29",
+   "ratio": 18.6,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxString)",
+   "fg": "#564A77",
+   "bg": "#243A2E",
+   "ratio": 12.29,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxString)",
+   "fg": "#564A77",
+   "bg": "#243A2E",
+   "ratio": 17.97,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxKeyword,syntaxOperator)",
+   "fg": "#564A77",
+   "bg": "#4F4A9A",
+   "ratio": 1.27,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxKeyword,syntaxOperator)",
+   "fg": "#564A77",
+   "bg": "#4F4A9A",
+   "ratio": 12.37,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxType)",
+   "fg": "#414F63",
+   "bg": "#4F3F47",
+   "ratio": 4.76,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxType)",
+   "fg": "#414F63",
+   "bg": "#4F3F47",
+   "ratio": 11.27,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxNumber)",
+   "fg": "#414F63",
+   "bg": "#604C29",
+   "ratio": 0.43,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxNumber)",
+   "fg": "#414F63",
+   "bg": "#604C29",
+   "ratio": 26.84,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxString)",
+   "fg": "#414F63",
+   "bg": "#243A2E",
+   "ratio": 11.02,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxString)",
+   "fg": "#414F63",
+   "bg": "#243A2E",
+   "ratio": 11.73,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxFunction,syntaxOperator)",
+   "fg": "#414F63",
+   "bg": "#4F4A9A",
+   "ratio": 2.55,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxFunction,syntaxOperator)",
+   "fg": "#414F63",
+   "bg": "#4F4A9A",
+   "ratio": 8.91,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxNumber)",
+   "fg": "#4F3F47",
+   "bg": "#604C29",
+   "ratio": 5.19,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxNumber)",
+   "fg": "#4F3F47",
+   "bg": "#604C29",
+   "ratio": 9.68,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxString)",
+   "fg": "#4F3F47",
+   "bg": "#243A2E",
+   "ratio": 6.25,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxString)",
+   "fg": "#4F3F47",
+   "bg": "#243A2E",
+   "ratio": 8.98,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxType,syntaxOperator)",
+   "fg": "#4F3F47",
+   "bg": "#4F4A9A",
+   "ratio": 7.31,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxType,syntaxOperator)",
+   "fg": "#4F3F47",
+   "bg": "#4F4A9A",
+   "ratio": 23.74,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxNumber,syntaxString)",
+   "fg": "#604C29",
+   "bg": "#243A2E",
+   "ratio": 11.44,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxNumber,syntaxString)",
+   "fg": "#604C29",
+   "bg": "#243A2E",
+   "ratio": 19.29,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxNumber,syntaxOperator)",
+   "fg": "#604C29",
+   "bg": "#4F4A9A",
+   "ratio": 2.12,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxNumber,syntaxOperator)",
+   "fg": "#604C29",
+   "bg": "#4F4A9A",
+   "ratio": 30.93,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(syntaxString,syntaxOperator)",
+   "fg": "#243A2E",
+   "bg": "#4F4A9A",
+   "ratio": 13.56,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(syntaxString,syntaxOperator)",
+   "fg": "#243A2E",
+   "bg": "#4F4A9A",
+   "ratio": 18.79,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(primary,secondary)",
+   "fg": "#473D94",
+   "bg": "#3D3660",
+   "ratio": 6.14,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(primary,secondary)",
+   "fg": "#473D94",
+   "bg": "#3D3660",
+   "ratio": 12.33,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(primary,info)",
+   "fg": "#473D94",
+   "bg": "#0F2242",
+   "ratio": 18.23,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(primary,info)",
+   "fg": "#473D94",
+   "bg": "#0F2242",
+   "ratio": 19.55,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(primary,success)",
+   "fg": "#473D94",
+   "bg": "#344D2C",
+   "ratio": 1.3,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(primary,success)",
+   "fg": "#473D94",
+   "bg": "#344D2C",
+   "ratio": 15.17,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(primary,warning)",
+   "fg": "#473D94",
+   "bg": "#785614",
+   "ratio": 7.62,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(primary,warning)",
+   "fg": "#473D94",
+   "bg": "#785614",
+   "ratio": 41.34,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(primary,error)",
+   "fg": "#473D94",
+   "bg": "#422329",
+   "ratio": 13.46,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(primary,error)",
+   "fg": "#473D94",
+   "bg": "#422329",
+   "ratio": 36.9,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(secondary,info)",
+   "fg": "#3D3660",
+   "bg": "#0F2242",
+   "ratio": 12.09,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(secondary,info)",
+   "fg": "#3D3660",
+   "bg": "#0F2242",
+   "ratio": 11.5,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(secondary,success)",
+   "fg": "#3D3660",
+   "bg": "#344D2C",
+   "ratio": 4.84,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(secondary,success)",
+   "fg": "#3D3660",
+   "bg": "#344D2C",
+   "ratio": 11.89,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(secondary,warning)",
+   "fg": "#3D3660",
+   "bg": "#785614",
+   "ratio": 13.76,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(secondary,warning)",
+   "fg": "#3D3660",
+   "bg": "#785614",
+   "ratio": 33.41,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(secondary,error)",
+   "fg": "#3D3660",
+   "bg": "#422329",
+   "ratio": 7.31,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(secondary,error)",
+   "fg": "#3D3660",
+   "bg": "#422329",
+   "ratio": 25.34,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(info,success)",
+   "fg": "#0F2242",
+   "bg": "#344D2C",
+   "ratio": 16.93,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(info,success)",
+   "fg": "#0F2242",
+   "bg": "#344D2C",
+   "ratio": 17.4,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(info,warning)",
+   "fg": "#0F2242",
+   "bg": "#785614",
+   "ratio": 25.85,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(info,warning)",
+   "fg": "#0F2242",
+   "bg": "#785614",
+   "ratio": 46.23,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(info,error)",
+   "fg": "#0F2242",
+   "bg": "#422329",
+   "ratio": 4.77,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(info,error)",
+   "fg": "#0F2242",
+   "bg": "#422329",
+   "ratio": 20.92,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(success,warning)",
+   "fg": "#344D2C",
+   "bg": "#785614",
+   "ratio": 8.91,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(success,warning)",
+   "fg": "#344D2C",
+   "bg": "#785614",
+   "ratio": 24.29,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(success,error)",
+   "fg": "#344D2C",
+   "bg": "#422329",
+   "ratio": 12.16,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(success,error)",
+   "fg": "#344D2C",
+   "bg": "#422329",
+   "ratio": 15.45,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(warning,error)",
+   "fg": "#785614",
+   "bg": "#422329",
+   "ratio": 21.07,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(warning,error)",
+   "fg": "#785614",
+   "bg": "#422329",
+   "ratio": 22.04,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,textMuted)",
+   "fg": "#181824",
+   "bg": "#282A45",
+   "ratio": 9.25,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "hier(text,textMuted)",
+   "fg": "#181824",
+   "bg": "#282A45",
+   "ratio": 9.3,
+   "threshold": 6.0,
+   "verdict": "pass",
+   "kind": "hier",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,diffAdded)",
+   "fg": "#181824",
+   "bg": "#2B4429",
+   "ratio": 17.45,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,diffAdded)",
+   "fg": "#181824",
+   "bg": "#2B4429",
+   "ratio": 19.49,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(text,diffRemoved)",
+   "fg": "#181824",
+   "bg": "#4D2638",
+   "ratio": 12.03,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(text,diffRemoved)",
+   "fg": "#181824",
+   "bg": "#4D2638",
+   "ratio": 10.19,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,diffAdded)",
+   "fg": "#282A45",
+   "bg": "#2B4429",
+   "ratio": 8.2,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,diffAdded)",
+   "fg": "#282A45",
+   "bg": "#2B4429",
+   "ratio": 11.1,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(textMuted,diffRemoved)",
+   "fg": "#282A45",
+   "bg": "#4D2638",
+   "ratio": 2.78,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(textMuted,diffRemoved)",
+   "fg": "#282A45",
+   "bg": "#4D2638",
+   "ratio": 9.82,
+   "threshold": 5.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "cvdA(diffAdded,diffRemoved)",
+   "fg": "#2B4429",
+   "bg": "#4D2638",
+   "ratio": 5.42,
+   "threshold": 0.0,
+   "verdict": "info",
+   "kind": "cvdA",
+   "mode": "light"
+  },
+  {
+   "code": "cvd(diffAdded,diffRemoved)",
+   "fg": "#2B4429",
+   "bg": "#4D2638",
+   "ratio": 13.73,
+   "threshold": 8.0,
+   "verdict": "pass",
+   "kind": "cvd",
+   "mode": "light"
+  },
+  {
+   "code": "text@background",
+   "fg": "#181824",
+   "bg": "#EFF2F7",
+   "ratio": 15.66,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4341,9 +9077,9 @@
   },
   {
    "code": "text@backgroundPanel",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#FEFEFE",
-   "ratio": 16.66,
+   "ratio": 17.42,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4351,9 +9087,9 @@
   },
   {
    "code": "text@backgroundElement",
-   "fg": "#111B3E",
-   "bg": "#EFE7FC",
-   "ratio": 14.0,
+   "fg": "#181824",
+   "bg": "#E8E8F2",
+   "ratio": 14.44,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4361,9 +9097,9 @@
   },
   {
    "code": "text@sidebarBg",
-   "fg": "#111B3E",
-   "bg": "#A3ADB8",
-   "ratio": 7.38,
+   "fg": "#181824",
+   "bg": "#CCD5E5",
+   "ratio": 11.9,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4371,9 +9107,9 @@
   },
   {
    "code": "text@bubbleBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#DDD3F6",
-   "ratio": 11.78,
+   "ratio": 12.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4381,9 +9117,9 @@
   },
   {
    "code": "text@inputBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#CAD0D8",
-   "ratio": 10.82,
+   "ratio": 11.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4391,9 +9127,9 @@
   },
   {
    "code": "text@codeBlockBg",
-   "fg": "#111B3E",
+   "fg": "#181824",
    "bg": "#C9E1F4",
-   "ratio": 12.45,
+   "ratio": 13.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4401,9 +9137,9 @@
   },
   {
    "code": "text@codeHeaderBg",
-   "fg": "#111B3E",
-   "bg": "#7D85B9",
-   "ratio": 4.74,
+   "fg": "#181824",
+   "bg": "#A9C3E0",
+   "ratio": 9.68,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4411,9 +9147,9 @@
   },
   {
    "code": "textMuted@background",
-   "fg": "#2F3D57",
-   "bg": "#D8E3F3",
-   "ratio": 8.41,
+   "fg": "#282A45",
+   "bg": "#EFF2F7",
+   "ratio": 12.42,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4421,9 +9157,9 @@
   },
   {
    "code": "textMuted@backgroundPanel",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#FEFEFE",
-   "ratio": 10.81,
+   "ratio": 13.81,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4431,9 +9167,9 @@
   },
   {
    "code": "textMuted@backgroundElement",
-   "fg": "#2F3D57",
-   "bg": "#EFE7FC",
-   "ratio": 9.09,
+   "fg": "#282A45",
+   "bg": "#E8E8F2",
+   "ratio": 11.45,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4441,9 +9177,9 @@
   },
   {
    "code": "textMuted@sidebarBg",
-   "fg": "#2F3D57",
-   "bg": "#A3ADB8",
-   "ratio": 4.79,
+   "fg": "#282A45",
+   "bg": "#CCD5E5",
+   "ratio": 9.43,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4451,9 +9187,9 @@
   },
   {
    "code": "textMuted@bubbleBg",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#DDD3F6",
-   "ratio": 7.64,
+   "ratio": 9.77,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4461,9 +9197,9 @@
   },
   {
    "code": "textMuted@inputBg",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#CAD0D8",
-   "ratio": 7.02,
+   "ratio": 8.97,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4471,9 +9207,9 @@
   },
   {
    "code": "textMuted@codeBlockBg",
-   "fg": "#2F3D57",
+   "fg": "#282A45",
    "bg": "#C9E1F4",
-   "ratio": 8.08,
+   "ratio": 10.32,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4481,19 +9217,19 @@
   },
   {
    "code": "textMuted@codeHeaderBg",
-   "fg": "#2F3D57",
-   "bg": "#7D85B9",
-   "ratio": 3.08,
+   "fg": "#282A45",
+   "bg": "#A9C3E0",
+   "ratio": 7.68,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "matrix",
    "mode": "light"
   },
   {
    "code": "markdownHeading@background",
-   "fg": "#292A65",
-   "bg": "#D8E3F3",
-   "ratio": 10.04,
+   "fg": "#5D4523",
+   "bg": "#EFF2F7",
+   "ratio": 7.99,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4501,9 +9237,9 @@
   },
   {
    "code": "markdownHeading@backgroundPanel",
-   "fg": "#292A65",
+   "fg": "#5D4523",
    "bg": "#FEFEFE",
-   "ratio": 12.91,
+   "ratio": 8.89,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4511,9 +9247,9 @@
   },
   {
    "code": "markdownHeading@backgroundElement",
-   "fg": "#292A65",
-   "bg": "#EFE7FC",
-   "ratio": 10.85,
+   "fg": "#5D4523",
+   "bg": "#E8E8F2",
+   "ratio": 7.37,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4521,9 +9257,9 @@
   },
   {
    "code": "markdownHeading@sidebarBg",
-   "fg": "#292A65",
-   "bg": "#A3ADB8",
-   "ratio": 5.72,
+   "fg": "#5D4523",
+   "bg": "#CCD5E5",
+   "ratio": 6.07,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4531,9 +9267,9 @@
   },
   {
    "code": "markdownHeading@bubbleBg",
-   "fg": "#292A65",
+   "fg": "#5D4523",
    "bg": "#DDD3F6",
-   "ratio": 9.13,
+   "ratio": 6.29,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4541,9 +9277,9 @@
   },
   {
    "code": "markdownHeading@inputBg",
-   "fg": "#292A65",
+   "fg": "#5D4523",
    "bg": "#CAD0D8",
-   "ratio": 8.38,
+   "ratio": 5.78,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4551,9 +9287,9 @@
   },
   {
    "code": "markdownHeading@codeBlockBg",
-   "fg": "#292A65",
+   "fg": "#5D4523",
    "bg": "#C9E1F4",
-   "ratio": 9.64,
+   "ratio": 6.65,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4561,19 +9297,19 @@
   },
   {
    "code": "markdownHeading@codeHeaderBg",
-   "fg": "#292A65",
-   "bg": "#7D85B9",
-   "ratio": 3.67,
+   "fg": "#5D4523",
+   "bg": "#A9C3E0",
+   "ratio": 4.94,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "matrix",
    "mode": "light"
   },
   {
    "code": "markdownLink@background",
    "fg": "#0044A0",
-   "bg": "#D8E3F3",
-   "ratio": 6.94,
+   "bg": "#EFF2F7",
+   "ratio": 8.02,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4592,8 +9328,8 @@
   {
    "code": "markdownLink@backgroundElement",
    "fg": "#0044A0",
-   "bg": "#EFE7FC",
-   "ratio": 7.5,
+   "bg": "#E8E8F2",
+   "ratio": 7.39,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4602,10 +9338,10 @@
   {
    "code": "markdownLink@sidebarBg",
    "fg": "#0044A0",
-   "bg": "#A3ADB8",
-   "ratio": 3.95,
+   "bg": "#CCD5E5",
+   "ratio": 6.09,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "matrix",
    "mode": "light"
   },
@@ -4642,247 +9378,7 @@
   {
    "code": "markdownLink@codeHeaderBg",
    "fg": "#0044A0",
-   "bg": "#7D85B9",
-   "ratio": 2.54,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@background",
-   "fg": "#635696",
-   "bg": "#D8E3F3",
-   "ratio": 4.91,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@backgroundPanel",
-   "fg": "#635696",
-   "bg": "#FEFEFE",
-   "ratio": 6.31,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@backgroundElement",
-   "fg": "#635696",
-   "bg": "#EFE7FC",
-   "ratio": 5.3,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@sidebarBg",
-   "fg": "#635696",
-   "bg": "#A3ADB8",
-   "ratio": 2.79,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@bubbleBg",
-   "fg": "#635696",
-   "bg": "#DDD3F6",
-   "ratio": 4.46,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@inputBg",
-   "fg": "#635696",
-   "bg": "#CAD0D8",
-   "ratio": 4.1,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@codeBlockBg",
-   "fg": "#635696",
-   "bg": "#C9E1F4",
-   "ratio": 4.71,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownCode@codeHeaderBg",
-   "fg": "#635696",
-   "bg": "#7D85B9",
-   "ratio": 1.8,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@background",
-   "fg": "#4C545E",
-   "bg": "#D8E3F3",
-   "ratio": 5.92,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@backgroundPanel",
-   "fg": "#4C545E",
-   "bg": "#FEFEFE",
-   "ratio": 7.61,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@backgroundElement",
-   "fg": "#4C545E",
-   "bg": "#EFE7FC",
-   "ratio": 6.4,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@sidebarBg",
-   "fg": "#4C545E",
-   "bg": "#A3ADB8",
-   "ratio": 3.37,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@bubbleBg",
-   "fg": "#4C545E",
-   "bg": "#DDD3F6",
-   "ratio": 5.38,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@inputBg",
-   "fg": "#4C545E",
-   "bg": "#CAD0D8",
-   "ratio": 4.94,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@codeBlockBg",
-   "fg": "#4C545E",
-   "bg": "#C9E1F4",
-   "ratio": 5.68,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownEmph@codeHeaderBg",
-   "fg": "#4C545E",
-   "bg": "#7D85B9",
-   "ratio": 2.17,
-   "threshold": 4.5,
-   "verdict": "fail",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@background",
-   "fg": "#181824",
-   "bg": "#D8E3F3",
-   "ratio": 13.56,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@backgroundPanel",
-   "fg": "#181824",
-   "bg": "#FEFEFE",
-   "ratio": 17.42,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@backgroundElement",
-   "fg": "#181824",
-   "bg": "#EFE7FC",
-   "ratio": 14.65,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@sidebarBg",
-   "fg": "#181824",
-   "bg": "#A3ADB8",
-   "ratio": 7.72,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@bubbleBg",
-   "fg": "#181824",
-   "bg": "#DDD3F6",
-   "ratio": 12.32,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@inputBg",
-   "fg": "#181824",
-   "bg": "#CAD0D8",
-   "ratio": 11.32,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@codeBlockBg",
-   "fg": "#181824",
-   "bg": "#C9E1F4",
-   "ratio": 13.02,
-   "threshold": 4.5,
-   "verdict": "pass",
-   "kind": "matrix",
-   "mode": "light"
-  },
-  {
-   "code": "markdownStrong@codeHeaderBg",
-   "fg": "#181824",
-   "bg": "#7D85B9",
+   "bg": "#A9C3E0",
    "ratio": 4.96,
    "threshold": 4.5,
    "verdict": "pass",
@@ -4890,10 +9386,250 @@
    "mode": "light"
   },
   {
+   "code": "markdownCode@background",
+   "fg": "#67575A",
+   "bg": "#EFF2F7",
+   "ratio": 6.06,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@backgroundPanel",
+   "fg": "#67575A",
+   "bg": "#FEFEFE",
+   "ratio": 6.74,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@backgroundElement",
+   "fg": "#67575A",
+   "bg": "#E8E8F2",
+   "ratio": 5.59,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@sidebarBg",
+   "fg": "#67575A",
+   "bg": "#CCD5E5",
+   "ratio": 4.6,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@bubbleBg",
+   "fg": "#67575A",
+   "bg": "#DDD3F6",
+   "ratio": 4.77,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@inputBg",
+   "fg": "#67575A",
+   "bg": "#CAD0D8",
+   "ratio": 4.38,
+   "threshold": 4.5,
+   "verdict": "fail",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@codeBlockBg",
+   "fg": "#67575A",
+   "bg": "#C9E1F4",
+   "ratio": 5.04,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownCode@codeHeaderBg",
+   "fg": "#67575A",
+   "bg": "#A9C3E0",
+   "ratio": 3.75,
+   "threshold": 4.5,
+   "verdict": "fail",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@background",
+   "fg": "#525D38",
+   "bg": "#EFF2F7",
+   "ratio": 6.28,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@backgroundPanel",
+   "fg": "#525D38",
+   "bg": "#FEFEFE",
+   "ratio": 6.98,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@backgroundElement",
+   "fg": "#525D38",
+   "bg": "#E8E8F2",
+   "ratio": 5.79,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@sidebarBg",
+   "fg": "#525D38",
+   "bg": "#CCD5E5",
+   "ratio": 4.77,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@bubbleBg",
+   "fg": "#525D38",
+   "bg": "#DDD3F6",
+   "ratio": 4.94,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@inputBg",
+   "fg": "#525D38",
+   "bg": "#CAD0D8",
+   "ratio": 4.54,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@codeBlockBg",
+   "fg": "#525D38",
+   "bg": "#C9E1F4",
+   "ratio": 5.22,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownEmph@codeHeaderBg",
+   "fg": "#525D38",
+   "bg": "#A9C3E0",
+   "ratio": 3.88,
+   "threshold": 4.5,
+   "verdict": "fail",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@background",
+   "fg": "#111B3E",
+   "bg": "#EFF2F7",
+   "ratio": 14.97,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@backgroundPanel",
+   "fg": "#111B3E",
+   "bg": "#FEFEFE",
+   "ratio": 16.66,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@backgroundElement",
+   "fg": "#111B3E",
+   "bg": "#E8E8F2",
+   "ratio": 13.8,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@sidebarBg",
+   "fg": "#111B3E",
+   "bg": "#CCD5E5",
+   "ratio": 11.37,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@bubbleBg",
+   "fg": "#111B3E",
+   "bg": "#DDD3F6",
+   "ratio": 11.78,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@inputBg",
+   "fg": "#111B3E",
+   "bg": "#CAD0D8",
+   "ratio": 10.82,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@codeBlockBg",
+   "fg": "#111B3E",
+   "bg": "#C9E1F4",
+   "ratio": 12.45,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
+   "code": "markdownStrong@codeHeaderBg",
+   "fg": "#111B3E",
+   "bg": "#A9C3E0",
+   "ratio": 9.25,
+   "threshold": 4.5,
+   "verdict": "pass",
+   "kind": "matrix",
+   "mode": "light"
+  },
+  {
    "code": "markdownBlockQuote@background",
-   "fg": "#46567C",
-   "bg": "#D8E3F3",
-   "ratio": 5.62,
+   "fg": "#4A5164",
+   "bg": "#EFF2F7",
+   "ratio": 7.06,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4901,9 +9637,9 @@
   },
   {
    "code": "markdownBlockQuote@backgroundPanel",
-   "fg": "#46567C",
+   "fg": "#4A5164",
    "bg": "#FEFEFE",
-   "ratio": 7.22,
+   "ratio": 7.85,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4911,9 +9647,9 @@
   },
   {
    "code": "markdownBlockQuote@backgroundElement",
-   "fg": "#46567C",
-   "bg": "#EFE7FC",
-   "ratio": 6.07,
+   "fg": "#4A5164",
+   "bg": "#E8E8F2",
+   "ratio": 6.51,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4921,19 +9657,19 @@
   },
   {
    "code": "markdownBlockQuote@sidebarBg",
-   "fg": "#46567C",
-   "bg": "#A3ADB8",
-   "ratio": 3.2,
+   "fg": "#4A5164",
+   "bg": "#CCD5E5",
+   "ratio": 5.36,
    "threshold": 4.5,
-   "verdict": "fail",
+   "verdict": "pass",
    "kind": "matrix",
    "mode": "light"
   },
   {
    "code": "markdownBlockQuote@bubbleBg",
-   "fg": "#46567C",
+   "fg": "#4A5164",
    "bg": "#DDD3F6",
-   "ratio": 5.11,
+   "ratio": 5.55,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4941,9 +9677,9 @@
   },
   {
    "code": "markdownBlockQuote@inputBg",
-   "fg": "#46567C",
+   "fg": "#4A5164",
    "bg": "#CAD0D8",
-   "ratio": 4.69,
+   "ratio": 5.1,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4951,9 +9687,9 @@
   },
   {
    "code": "markdownBlockQuote@codeBlockBg",
-   "fg": "#46567C",
+   "fg": "#4A5164",
    "bg": "#C9E1F4",
-   "ratio": 5.4,
+   "ratio": 5.87,
    "threshold": 4.5,
    "verdict": "pass",
    "kind": "matrix",
@@ -4961,9 +9697,9 @@
   },
   {
    "code": "markdownBlockQuote@codeHeaderBg",
-   "fg": "#46567C",
-   "bg": "#7D85B9",
-   "ratio": 2.06,
+   "fg": "#4A5164",
+   "bg": "#A9C3E0",
+   "ratio": 4.36,
    "threshold": 4.5,
    "verdict": "fail",
    "kind": "matrix",

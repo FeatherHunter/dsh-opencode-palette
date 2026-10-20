@@ -1,15 +1,15 @@
-# 主题审计基线（61 套）
+# 主题审计基线（62 套）
 
 > 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。
 
-范围：预置 37 套 + IP 24 套；评估色板 62 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。
+范围：预置 37 套 + IP 25 套；评估色板 63 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。
 
 ## 汇总
 
 | 层 | 主题 | 硬性 4.5:1 违例 | UI 3:1 违例 | 有硬性违例主题 | border<3 表面累计 | tooltip 文字<4.5 评估 |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
 | 预置 | 37 | 0 | 0 | 0 | 224 | 0 |
-| IP | 24 | 0 | 0 | 0 | 180 | 0 |
+| IP | 25 | 0 | 0 | 0 | 188 | 0 |
 
 硬性分组（预置 / IP）：
 
@@ -58,7 +58,7 @@
 | vesper | preset | 0 | 0 | 8 | 1 | — |
 | zenburn | preset | 0 | 0 | 8 | 3 | — |
 
-## IP 主题（24）
+## IP 主题（25）
 
 | 主题 | kind | 硬性违例 | UI 违例 | border<3 | 表面数 | 最差硬性对 |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
@@ -68,6 +68,7 @@
 | doraemon | ip | 0 | 0 | 8 | 8 | — |
 | dragon-ball | ip | 0 | 0 | 4 | 8 | — |
 | evangelion | ip | 0 | 0 | 8 | 8 | — |
+| evangelion-day | ip | 0 | 0 | 8 | 8 | — |
 | genshin | ip | 0 | 0 | 8 | 8 | — |
 | genshin-night | ip | 0 | 0 | 7 | 8 | — |
 | harry-potter | ip | 0 | 0 | 8 | 8 | — |
