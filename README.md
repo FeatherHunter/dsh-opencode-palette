@@ -91,11 +91,11 @@ dsh plugin --profile web add dsh-opencode-palette@<版本>
 
 喜欢这个插件的话，这几个你可能也用得上：
 
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 天天要敲的那几句提示词，存成模板就省了：点一下，整段直接进输入框（预置 24 条，也能存自己的）
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。
 
-**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），TDD、诊断 bug、写规格、代码评审那套工程工作流，装好即用
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。
 
-**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念：哪个工作区有助理在、哪组会话出了问题，左栏一眼看清（要先装 dsh-im 本体）
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念。
 
 </div>
 

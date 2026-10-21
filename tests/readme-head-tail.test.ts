@@ -122,19 +122,30 @@ test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck
 // ── 4 · MORE：三条兄弟插件各一句定稿，im-companion 排在最后 ──
 // 2026-10-19 用户逐条改写 MORE 三行（mattpocock/skills 的 star 数按 GitHub API 实测写「近 30 万」，
 // 不写死会过期的数字；dsh-prompt 改成「天天要敲的那几句存成模板」的真实用法），此处跟着定稿走。
+// 2026-10-21 用户再次精简三条：dsh-prompt 讲「反复重复的模板化提示词 → 存成自定义模板 → 选中直接注入」，
+// deck 去掉技能清单只留「预置好，装好即用」，im-companion 收成一句概念说明。
 test('MORE：三条兄弟插件各为定稿句，im-companion 排在第三条', () => {
-  assert.ok(ZH.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 天天要敲的那几句提示词，存成模板就省了：点一下，整段直接进输入框（预置 24 条，也能存自己的）'),
+  assert.ok(ZH.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。'),
     '中文 dsh-prompt 一行应为定稿原文')
-  assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The few prompts you type every day, saved as templates: one click drops the whole thing into your input box (24 prebuilt, and you can save your own)'),
+  assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you repeat over and over, saved as custom templates and injected in one click — no more effort spent.'),
     '英文 dsh-prompt 一行应为定稿原文')
-  assert.ok(ZH.includes('**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），TDD、诊断 bug、写规格、代码评审那套工程工作流，装好即用'),
+  assert.ok(ZH.includes('**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。'),
     '中文 deck 一行应为定稿原文')
-  assert.ok(EN.includes("**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills covering TDD, bug diagnosis, specs, code review; ready as soon as it's installed"),
+  assert.ok(EN.includes("**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it's installed."),
     '英文 deck 一行应为定稿原文')
-  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念：哪个工作区有助理在、哪组会话出了问题，左栏一眼看清（要先装 dsh-im 本体）'),
+  assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念。'),
     '中文 im-companion 一行应为定稿原文')
-  assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im: which workspace has an assistant on duty, which conversation group went wrong — the left rail shows it at a glance (install dsh-im first)'),
+  assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.'),
     '英文 im-companion 一行应为定稿原文')
+  // 旧长句不许回潮（三条都被用户判为啰嗦）
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
+    assert.equal(doc.includes('天天要敲的那几句'), false, `${name} 不应再有「天天要敲的那几句」`)
+    assert.equal(doc.includes('The few prompts you type every day'), false, `${name} 不应再有该句英文`)
+    assert.equal(doc.includes('工程工作流'), false, `${name} 不应再有「工程工作流」`)
+    assert.equal(doc.includes('code review'), false, `${name} 不应再有 "code review"`)
+    assert.equal(doc.includes('左栏一眼看清'), false, `${name} 不应再有「左栏一眼看清」`)
+    assert.equal(doc.includes('the left rail shows it at a glance'), false, `${name} 不应再有该句英文`)
+  }
   for (const doc of [ZH, EN, PKG]) {
     const more = doc.indexOf('<sub>MORE</sub>')
     const thanks = doc.indexOf('<sub>THANKS</sub>')

@@ -91,11 +91,11 @@ Settings → Plugins → OpenCode Palette → **Check for updates**
 
 If you like this plugin, these might be useful too:
 
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The few prompts you type every day, saved as templates: one click drops the whole thing into your input box (24 prebuilt, and you can save your own)
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you repeat over and over, saved as custom templates and injected in one click — no more effort spent.
 
-**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills covering TDD, bug diagnosis, specs, code review; ready as soon as it's installed
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it's installed.
 
-**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im: which workspace has an assistant on duty, which conversation group went wrong — the left rail shows it at a glance (install dsh-im first)
+**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.
 
 </div>
 
