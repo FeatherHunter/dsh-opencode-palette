@@ -80,12 +80,12 @@ dsh plugin --profile web add dsh-opencode-palette
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
 ```bash
-# 升级到最新版（当前 2.1.9）：web 与 desktop 两个 profile 各跑一条
+# 升级到最新版（当前 2.1.10）：web 与 desktop 两个 profile 各跑一条
 dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile desktop update dsh-opencode-palette
 # 需要钉回指定版本（把版本号换成你要的）：
-dsh plugin --profile web add dsh-opencode-palette@2.1.9
-dsh plugin --profile desktop add dsh-opencode-palette@2.1.9
+dsh plugin --profile web add dsh-opencode-palette@2.1.10
+dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 ```
 
 「设置 → 插件 → OpenCode调色板」 → **检查更新**
