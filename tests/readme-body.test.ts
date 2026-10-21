@@ -184,20 +184,35 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
   assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   // 2026-10-21 用户重写三条：原「字体单独调 / 面板跟得上 DSH 的语言 / 自己配色」判为废话，
   // 改成核心支持三件事：预置 IP 主题胶囊、打造专属主题胶囊、字体与字号自选。
-  const LEADS = [
-    ['**IP 主题胶囊 💊 预置 25 套。**', '**25 IP theme capsules 💊 preinstalled.**', 'IP 胶囊预置'],
-    ['**打造自己的专属主题胶囊 💊。**', '**Build your own capsule 💊.**', '专属胶囊'],
-    ['**字体与字号自己挑。**', '**Fonts and size, your call.**', '字体与字号'],
+  // 同日排版定稿（B 方案）：EXTENSIONS 段改成**纯 markdown 表格三行卡片**（图标 | 标题 | 说明），
+  // 不再是三段粗体引导句 —— 门禁跟着改成钉表格骨架 + 卡片标题，旧句式不许回潮。
+  const CARDS = [
+    ['**IP 主题胶囊**', '**IP theme capsules**', 'IP 胶囊预置'],
+    ['**打造专属胶囊**', '**Build your own capsule**', '专属胶囊'],
+    ['**字体与字号**', '**Fonts and size**', '字体与字号'],
   ] as const
-  for (const [zh, en, label] of LEADS) {
-    assert.equal(count(extBlock(ZH), zh), 1, `中文应有「${label}」一条`)
-    assert.equal(count(extBlock(EN), en), 1, `英文应有「${label}」一条`)
+  for (const [zh, en, label] of CARDS) {
+    assert.equal(count(extBlock(ZH), zh), 1, `中文应有「${label}」一张卡片标题`)
+    assert.equal(count(extBlock(EN), en), 1, `英文应有「${label}」一张卡片标题`)
   }
-  // 旧三条不许回潮
-  for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**']) {
+  // 表格骨架：EXTENSIONS 段恰好一张 markdown 表（表头 + 分隔行 + 三行卡片），
+  // 每张卡片三格：图标（emoji）| 标题（粗体）| 说明。
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {
+    const rows = extBlock(doc).split(/\r?\n/).map((l) => l.trim()).filter((l) => l.startsWith('|'))
+    assert.equal(rows.length, 5, `${name} 的 EXTENSIONS 应是「表头 + 分隔行 + 三行卡片」共 5 行表格`)
+    assert.ok(/^\|[\s|:-]+\|$/.test(rows[1]), `${name} 表格第二行应是分隔行`)
+    for (const row of rows.slice(2)) {
+      const cells = row.split('|').map((c) => c.trim()).filter((c) => c !== '')
+      assert.equal(cells.length, 3, `${name} 卡片行应三格（图标 | 标题 | 说明）：${row}`)
+      assert.ok(/^\p{Extended_Pictographic}$/u.test(cells[0]), `${name} 卡片首格应是图标：${row}`)
+      assert.ok(/^\*\*[^*]+\*\*$/.test(cells[1]), `${name} 卡片第二格应是粗体标题：${row}`)
+    }
+  }
+  // 旧三条不许回潮（连同 2026-10-21 那版粗体引导句）
+  for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**', '**IP 主题胶囊 💊 预置 25 套。**', '**打造自己的专属主题胶囊 💊。**', '**字体与字号自己挑。**']) {
     assert.equal(ZH.includes(gone), false, `中文不应再有「${gone}」`)
   }
-  for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**']) {
+  for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**', '**25 IP theme capsules 💊 preinstalled.**', '**Build your own capsule 💊.**', '**Fonts and size, your call.**']) {
     assert.equal(EN.includes(gone), false, `英文不应再有「${gone}」`)
   }
   // v2.1.7 事实：37 色位编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径
@@ -262,6 +277,22 @@ test('EXTENSIONS 段居左（不再包 align="center" 的 div），且排在 INS
     assert.ok(install > -1 && ext > install && upgrade > ext, `${name} 段落顺序应为 INSTALL → EXTENSIONS → UPGRADE`)
     const block = doc.slice(ext, upgrade)
     assert.equal(block.includes('<div'), false, `${name} 的 EXTENSIONS 不应再包 div（要居左）`)
+  }
+})
+
+// ── 6a · showcase 段首标语（2026-10-21 用户定稿）──
+// 用户给的定稿块：原句留着 → 一条分隔线 --- → 标语「本插件为您有更好的DSH体验而生💗」。
+// 门禁盯三样：原句还在、分隔线在（独立成行）、标语在且落在分隔线之后。
+test('showcase 段首：原句 + 分隔线 + 「本插件为您有更好的DSH体验而生💗」标语', () => {
+  assert.ok(ZH.includes('一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。'), '中文原句应仍在')
+  assert.ok(EN.includes('Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.'), '英文原句应仍在')
+  assert.ok(ZH.includes('本插件为您有更好的DSH体验而生💗'), '中文标语应在')
+  assert.ok(EN.includes('This plugin exists to make your DSH experience better 💗'), '英文标语应在')
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {
+    const show = doc.slice(doc.indexOf('<!-- showcase:start -->'), doc.indexOf('<!-- showcase:end -->'))
+    const sep = show.search(/^---$/m)
+    assert.ok(sep > -1, `${name} 的 showcase 段应有独立成行的分隔线 ---`)
+    assert.ok(show.indexOf('💗') > sep, `${name} 的标语应落在分隔线之后`)
   }
 })
 

@@ -25,6 +25,10 @@ Your ⭐ is the brightest star in my night sky.
 
 Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.
 
+---
+
+This plugin exists to make your DSH experience better 💗
+
 | Main screen (opencode theme) | Settings panel (38 themes by color family) |
 |---|---|
 | ![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png) | ![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png) |
@@ -69,11 +73,11 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
-**25 IP theme capsules 💊 preinstalled.** 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 宝可梦 Pokémon, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors.
-
-**Build your own capsule 💊.** 37 slots, one at a time, with a miniature DSH preview on the right: click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`.
-
-**Fonts and size, your call.** Fonts sit apart from color: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and the code font can be picked from the fonts installed on this machine.
+| | Feature | Details |
+|---|---|---|
+| 💊 | **IP theme capsules** | 25 preinstalled: 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 宝可梦 Pokémon, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors. |
+| 💊 | **Build your own capsule** | 37 slots, one at a time, with a miniature DSH preview on the right — click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`. |
+| 🔤 | **Fonts and size** | Fonts sit apart from color: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and the code font can be picked from the fonts installed on this machine. |
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
