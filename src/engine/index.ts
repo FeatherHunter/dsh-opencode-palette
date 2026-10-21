@@ -46,7 +46,7 @@ export function themeNames(): string[] { return listThemes() }
 export { themeGroups, GROUP_ORDER, GROUP_COLORS, COLOR_SLOT_GROUPS, COLOR_SLOTS, normalizeThemeColors, renderCustomTheme, customPreviewColors, listIpPresets, getIpPreset, countIpPresets, IP_PRESET_IDS }
 export function themeStats(): { static: number; total: number } { return { static: countStatic(), total: listThemes().length } }
 
-// 37 色槽位取值：字符串直接采用；缺失或 __error 用同明暗 opencode 色板回退（5 个扩展槽位 resolve 不产出，走 normalize 回填）
+// 37 色槽位取值：字符串直接采用；缺失或 __error 用同明暗 opencode 配色回退（5 个扩展槽位 resolve 不产出，走 normalize 回填）
 function pick37(src: ResolvedColorMap | null | undefined, fallback: ResolvedColorMap | null | undefined) {
   const out: Record<string, string> = {}
   for (const slot of COLOR_SLOTS) {
@@ -57,7 +57,7 @@ function pick37(src: ResolvedColorMap | null | undefined, fallback: ResolvedColo
   }
   return normalizeThemeColors(out)
 }
-// 预置主题 37 色提取（#84）：system→system（按 hostMode 取 opencode 对应色板）；透光主题（如 lucent-orng）→light 取 light 色板；其余 36 款→dark 取 dark 色板
+// 预置主题 37 色提取（#84）：system→system（按 hostMode 取 opencode 对应配色）；透光主题（如 lucent-orng）→light 取 light 配色；其余 36 款→dark 取 dark 配色
 export function extractPresetPalette(name: string, hostMode?: string) {
   const mode = hostMode === 'light' ? 'light' : 'dark'
   if (isSystem(name)) {

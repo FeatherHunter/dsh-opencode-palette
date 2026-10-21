@@ -28,7 +28,7 @@ if (Object.keys(seed).length !== 37) {
   process.exit(1)
 }
 
-// 有效色板：与引擎同源（补 5 扩展槽 + 浅色 diff 修复）
+// 有效配色：与引擎同源（补 5 扩展槽 + 浅色 diff 修复）
 const norm: Record<string, string> = Object.assign({}, seed)
 if (!norm.sidebarBg) norm.sidebarBg = norm.background
 for (const k of ['bubbleBg', 'inputBg', 'codeBlockBg']) if (!norm[k]) norm[k] = norm.backgroundPanel

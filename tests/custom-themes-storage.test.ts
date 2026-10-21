@@ -3,7 +3,7 @@
 // 覆盖 runtime/host.ts 的纯存储接缝与三条 RPC：
 //   - customThemesDir / sanitizeCustomThemeId / normalizeCustomTheme（纯函数，先写测试再实现）
 //   - customThemesList / customThemesSave / customThemesDelete（假 connection + 真临时 DSH_HOME 冒烟）
-//   - 内嵌 opencode 回退色板与引擎 extractPresetPalette('opencode') 一致（改 engine 忘同步 host 即红）
+//   - 内嵌 opencode 回退配色与引擎 extractPresetPalette('opencode') 一致（改 engine 忘同步 host 即红）
 //   - 构建产物同步：package/lib/channel.js 与 package/lib/index.js 必须含新电话（改 runtime 忘重建即红）
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
@@ -75,7 +75,7 @@ test('#85 normalize：非法 appearance/basePreset 回退，无 id 时返回 nul
   assert.equal(host.normalizeCustomTheme({ colors: {} }, '???', '2026-01-01T00:00:00.000Z'), null, '文件名也消毒不出 id 时整文件跳过')
 })
 
-test('#85 内嵌回退色板与引擎 opencode(dark) 37 色一致', async () => {
+test('#85 内嵌回退配色与引擎 opencode(dark) 37 色一致', async () => {
   const host = await import(hostUrl)
   const engine = await import(pathToFileURL(join(ROOT, 'src', 'engine', 'index.ts')).href)
   const expected = engine.extractPresetPalette('opencode').colors

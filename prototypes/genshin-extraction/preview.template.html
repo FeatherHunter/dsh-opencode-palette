@@ -346,9 +346,9 @@ table.t td .fail{color:var(--error);font-weight:650}
     </div>
   </section>
 
-  <!-- ══ 2. 真源色板 ══ -->
+  <!-- ══ 2. 真源配色 ══ -->
   <section>
-    <div class="sec-head"><span class="sec-num">02</span><h2>真源色板 · <span id="anc-n">—</span> 个实测锚点</h2>
+    <div class="sec-head"><span class="sec-num">02</span><h2>真源配色 · <span id="anc-n">—</span> 个实测锚点</h2>
       <span class="meta">每格 = 参考图上真实的一块像素，附取色坐标</span></div>
     <div class="sec-rule"></div>
     <p class="sec-lede">取色方法：对每张图做 14 簇 k-means（剔除近白近黑与低饱和像素），得到像素质心；再对每个像素质心在全图内做最密窗口定位，切下 120×120 实证块并回测实测色。下面每一格的颜色都能在对应原图坐标处复现 —— <b>包括覆盖率</b>，它就是该色在这张图里占的像素比例。</p>
@@ -493,7 +493,7 @@ table.t td .fail{color:var(--error);font-weight:650}
     <div class="sec-head"><span class="sec-num">04</span><h2>37 色位 · 落点与取值</h2>
       <span class="meta" id="tok-mode">明色变体</span></div>
     <div class="sec-rule"></div>
-    <p class="sec-lede">每一格下方写的是这个色位在 DSH 里的<b>真实落点</b>，不是抽象命名。切换右上角的明/暗，下面的色板、落点与后续表格会整体切换。</p>
+    <p class="sec-lede">每一格下方写的是这个色位在 DSH 里的<b>真实落点</b>，不是抽象命名。切换右上角的明/暗，下面的配色、落点与后续表格会整体切换。</p>
     <div class="tok" id="tokgrid"></div>
     <div class="legend">
       <span><i style="background:var(--bg)"></i>背景场域</span>

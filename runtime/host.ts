@@ -135,7 +135,7 @@ export function dshHomeDir(env: NodeJS.ProcessEnv | null | undefined, osHome: st
 // 用户可手放/手改/互传。宿主半只做存储与消毒，不解析颜色语义（渲染时引擎再验）。
 //
 // 打包约束：package/lib/index.js 是本文件的 tsc 转译输出（S2；构建读 dist/runtime/host.js），
-// 宿主在包内只能 import './channel.js' 与 npm 依赖 —— 因此回退色板必须自包含在此，不能 import src/engine。
+// 宿主在包内只能 import './channel.js' 与 npm 依赖 —— 因此回退配色必须自包含在此，不能 import src/engine。
 // 内嵌值 = 引擎 extractPresetPalette('opencode').colors（dark，COLOR_SLOTS 顺序），
 // 由 tests/custom-themes-storage.test.ts 锁死一致：opencode.json 改了必须同步这里。
 
@@ -171,7 +171,7 @@ export const CUSTOM_THEME_SCHEMA = 'dsh-opencode-palette.custom-theme.v1'
 
 /** 缺色回退：opencode dark 37 色（键顺序即规范槽位顺序，落盘可读性依赖它）。
  *  有意单一源：缺色永远用它补，不随主题的 basePreset/appearance 切换——宿主包内无引擎、
- *  其它预置色板不可达；basePreset 名字照常保留（供面板重编时溯源），仅回退源固定。 */
+ *  其它预置配色不可达；basePreset 名字照常保留（供面板重编时溯源），仅回退源固定。 */
 const OPENCODE_FALLBACK_COLORS: Record<string, string> = {
   background: '#0A0A0A',
   backgroundPanel: '#141414',

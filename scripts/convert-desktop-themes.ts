@@ -5,7 +5,7 @@
 //   - 直接取色：一一对应的官方色位（neutral/ink/primary/accent/success/warning/error/info/syntax-*）；
 //   - 派生补齐：桌面缺省的层级色（panel/element/muted/border）用 mix() 在 neutral↔ink 轴上按固定比例取，
 //     比例即文档（见 mix 注释），不逐主题手调；缺省 syntax 位按 one-dark 系惯例回退（串内有表）；
-//   - 判尺修复（票 #117）：产物须过 37-token 审计硬性门槛（文字 4.5 / UI 3.0）。桌面源色板的弱文字、
+//   - 判尺修复（票 #117）：产物须过 37-token 审计硬性门槛（文字 4.5 / UI 3.0）。桌面源配色的弱文字、
 //     注释、链接等前景在 TUI 判尺下不足 4.5，按对比度最小步长沿色相轴混白/黑（深色提亮、浅色压暗）；
 //   - secondary 补槽：桌面 palette 无 secondary，从各自 accent 派生（缺槽时引擎会回退通用 #5C9CF5）；
 //   - 输出 {defs:{}, theme:{dark,light 全hex}}，与 TUI 形一致，可被 resolve/测试管线直接消费。

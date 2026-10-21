@@ -235,7 +235,7 @@ function runHalf(label: string, id: string, seedColors: Record<string, string>, 
   if (commentC > minCoreC) warnings.push({ code: 'syntaxRecede', message: `syntaxComment 对比度 ${commentC.toFixed(2)} 高于核心语法最低 ${minCoreC.toFixed(2)}，未退后` })
   if (operatorC > minCoreC) warnings.push({ code: 'syntaxRecede', message: `syntaxOperator 对比度 ${operatorC.toFixed(2)} 高于核心语法最低 ${minCoreC.toFixed(2)}，未退后` })
 
-  // 引擎 diff 修复是否改动过作者色（诊断；audit-themes.ts 评的就是修复后的有效色板）
+  // 引擎 diff 修复是否改动过作者色（诊断；audit-themes.ts 评的就是修复后的有效配色）
   const repaired: string[] = []
   for (const k of Object.keys(pal)) {
     const a = authored[k], b = pal[k]
@@ -279,7 +279,7 @@ for (const h of HALVES) {
   console.log(`  背景基色相 ${h.baseHue.toFixed(1)}° · 品牌几何 ${h.brandHue}°（${h.brandCat}）`)
   console.log(`  语法核心最小 ΔE76 = ${h.coreMin.toFixed(1)}（${h.corePair}）· 退后 comment ${h.commentC.toFixed(2)} / operator ${h.operatorC.toFixed(2)} ≤ 核心最低 ${h.minCoreC.toFixed(2)}`)
   if (h.repaired.length > 0) {
-    console.log('  引擎 diff 修复（有效色板与作者色的差异）：')
+    console.log('  引擎 diff 修复（有效配色与作者色的差异）：')
     for (const r of h.repaired) console.log(`    · ${r}`)
   } else {
     console.log('  引擎 diff 修复：无需改动（作者色本身已达标）')

@@ -284,7 +284,7 @@ export const COLOR_SLOTS: ReadonlyArray<{
   { key: 'syntaxString', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxString' },
   { key: 'syntaxOperator', group: 'syn', allowTransparent: false, fallback: null, previewSlot: 'syntaxOperator' },
 ]
-// 32 色内置色板 → 37 色完整色板：仅补齐未显式指定的 5 个扩展槽（已显式的保持不动，纯函数不改入参）。
+// 32 色内置配色 → 37 色完整配色：仅补齐未显式指定的 5 个扩展槽（已显式的保持不动，纯函数不改入参）。
 // 回退链：sidebarBg←background；bubbleBg/inputBg/codeBlockBg←backgroundPanel；codeHeaderBg←backgroundElement。
 export function normalizeThemeColors(colors: ResolvedColorMap | null | undefined): ResolvedColorMap {
   const c: ResolvedColorMap = Object.assign({}, colors || {})

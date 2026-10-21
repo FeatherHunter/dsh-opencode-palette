@@ -10,7 +10,7 @@ interface Hsv { h: number; s: number; v: number }
 interface Rgb { r: number; g: number; b: number }
 interface Hsl { h: number; s: number; l: number }
 
-// 主题色板：槽位名 → 颜色值（外部数据形状不可信，读取侧统一 unknown 窄化）。
+// 主题配色：槽位名 → 颜色值（外部数据形状不可信，读取侧统一 unknown 窄化）。
 type ColorMap = Record<string, unknown>
 
 // 列表/搜索里主题的最小可读面（只用到 name/id；宿主回包与缓存主题都按此收）。

@@ -22,7 +22,7 @@ function cssVar(css: string, name: string): string | null {
 }
 
 // extractPresetPalette().colors 是 ResolvedColorMap（值里理论上可含 ColorError 对象）。
-// 预置色板全部是纯色串，测试按纯色表收窄，好直接喂给 renderCustomTheme / customPreviewColors。
+// 预置配色全部是纯色串，测试按纯色表收窄，好直接喂给 renderCustomTheme / customPreviewColors。
 function paletteColors(name: string): Record<string, string> {
   return extractPresetPalette(name).colors as Record<string, string>
 }
@@ -158,7 +158,7 @@ test('customPreviewColors：三外观 + light+transparent 胶囊口径 + 四色�
 // #120 缺陷 A 回归：自定义浅色主题的 diff 兜底必须走 light repair（向白提亮）。
 // 旧引擎 del=false 把 dark repair 写进 { light, dark } 两半，浅色 IP 的 diff 底被压成 #000000。
 test('renderCustomTheme：浅色主题 diff 兜底走 light 方向（#120 缺陷 A）', () => {
-  // 1) 合成一套「diff 对不达标」的浅色色板：旧实现 light 半会被写成深色修复值
+  // 1) 合成一套「diff 对不达标」的浅色配色：旧实现 light 半会被写成深色修复值
   const synthetic = {
     background: '#FFFFFF',
     text: '#1A1A1A',

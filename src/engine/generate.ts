@@ -76,7 +76,7 @@ export function buildTokens(darkColors: ResolvedColorMap | null | undefined, lig
   const rawDark = darkColors || {}
   const rawLight = (lightColors === undefined) ? rawDark : (lightColors || {})
   // #120 缺陷 A：lightColors 与 darkColors 是同一对象 = 单套色主题（renderCustomTheme 传 norm 两次）
-  // 还是两套色板（预置主题，light/dark 各自解析）？只有单套色主题需要「两半各自修复」。
+  // 还是两套配色（预置主题，light/dark 各自解析）？只有单套色主题需要「两半各自修复」。
   const singlePalette = lightColors !== undefined && lightColors === darkColors
   darkColors = ensureDiffContrast(normalizeThemeColors(rawDark), true)
   const light = ensureDiffContrast(normalizeThemeColors(rawLight), false)
@@ -96,7 +96,7 @@ export function buildTokens(darkColors: ResolvedColorMap | null | undefined, lig
         tokens[name] = { light: lightValue, dark: darkValue }
         return
       }
-      // 两套色板但非委托画布（自持预置主题）：维持 issue 45 的「两半深色同值=深色观感」，
+      // 两套配色但非委托画布（自持预置主题）：维持 issue 45 的「两半深色同值=深色观感」，
       // 颜色 CSS 走联合选择器同步用 dark 半；此处改动会破坏该不变式，故只对单套色生效。
       if (dok) tokens[name] = { light: dv, dark: dv }
       return
