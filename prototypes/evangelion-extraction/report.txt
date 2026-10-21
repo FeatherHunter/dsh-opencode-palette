@@ -1,4 +1,4 @@
-EVA IP 主题 · 37 色位取色台账
+EVA IP 主题 · 37 个颜色取色台账
 源图：C:\Users\辰辰洋洋\Pictures\新世纪福音战士（1.jpg / 2.jpg / 3.jpg）
 
 slot                       dark      light     配方(dark)                         配方(light)              落点

@@ -1,6 +1,6 @@
 # palette.yaml 设计（V3）
 
-> 2026-10-20 与用户对齐：V3 不再兼容 opencode 的 37 色位 JSON 形式，而是**以 opencode 的语义为灵感重新设计一份 YAML 主题系统**。
+> 2026-10-20 与用户对齐：V3 不再兼容 opencode 的 37 个颜色 JSON 形式，而是**以 opencode 的语义为灵感重新设计一份 YAML 主题系统**。
 > 本文只设计 `palette.yaml`（我们的能力全集）；`theme.yaml`（用户主题）与编译产物在 §8–§9 给出配套形状。
 > 运行时解析 YAML 已确认可行（插件构建期内联解析器，见 §12）。
 
@@ -531,7 +531,7 @@ palette.yaml 构建期生成：
 
 - `palette` 版本（能力全集）与 `api` 版本（theme schema）分开：新增能力 = palette minor；theme 文件格式破坏性变化 = api major。
 - 能力条目 `since` / `deprecated` / `replaced_by`；theme 用 `palette: '>=3.0 <4'` 声明范围。
-- **不兼容 opencode 的 37 色位 JSON**：V3 模型全新。老主题若要吸收，做一次性导入器（独立表 `migrations/opencode-37.json` → 映射到能力 id），导入产物是 `theme.yaml`，导入器不进入运行时模型。
+- **不兼容 opencode 的 37 个颜色 JSON**：V3 模型全新。老主题若要吸收，做一次性导入器（独立表 `migrations/opencode-37.json` → 映射到能力 id），导入产物是 `theme.yaml`，导入器不进入运行时模型。
 - 未知能力/未知字段前向兼容：警告不阻断（旧插件读新主题不会崩）。
 
 ---

@@ -125,7 +125,7 @@ const SLOTS: Record<'zh' | 'en', string[]> = {
   zh: ['背景', '文字', '主色', '强调', '错误', '警告', '成功'],
   en: ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success'],
 }
-// 色带七格（顺序即列序）；类型与引擎 PreviewColors 的色位键对齐，可直接索引。
+// 色带七格（顺序即列序）；类型与引擎 PreviewColors 的颜色键对齐，可直接索引。
 type BandKey = 'background' | 'text' | 'primary' | 'accent' | 'error' | 'warning' | 'success'
 const BAND_KEYS: readonly BandKey[] = ['background', 'text', 'primary', 'accent', 'error', 'warning', 'success']
 

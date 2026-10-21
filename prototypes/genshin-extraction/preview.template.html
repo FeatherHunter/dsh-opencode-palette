@@ -306,7 +306,7 @@ table.t td .fail{color:var(--error);font-weight:650}
       <h1 class="title">原神 · 纸感明信片<em>Genshin — Mondstadt Postcard</em>
         <span class="en">纸感优先 · 墨不用黑 · 一色一职</span>
       </h1>
-      <p class="lede">全部 37 个色位（明暗各一套，共 74 色）<b>没有一处是想象出来的</b>：每一个都由 5 张参考图里实测到的像素聚类锚点色，按写明的比例混合得到。纸上那张泛黄的米金纸是官方主视觉的宣纸底；字的深褐是「旅行者」题字与 Aether 皮靴的焦褐；主色靛蓝来自披风内衬与派蒙的星；成功态青绿来自温迪；错误态猩红来自可莉；警示态赭金来自官方烫金压深。</p>
+      <p class="lede">全部 37 个颜色（明暗各一套，共 74 色）<b>没有一处是想象出来的</b>：每一个都由 5 张参考图里实测到的像素聚类锚点色，按写明的比例混合得到。纸上那张泛黄的米金纸是官方主视觉的宣纸底；字的深褐是「旅行者」题字与 Aether 皮靴的焦褐；主色靛蓝来自披风内衬与派蒙的星；成功态青绿来自温迪；错误态猩红来自可莉；警示态赭金来自官方烫金压深。</p>
       <div class="anchorbar" id="anchorbar"></div>
     </div>
     <div class="mast-r">
@@ -321,7 +321,7 @@ table.t td .fail{color:var(--error);font-weight:650}
   <!-- ══ 1. 设计原则 ══ -->
   <section>
     <div class="sec-head"><span class="sec-num">01</span><h2>设计原则</h2>
-      <span class="meta">三条原则决定全部 74 个色位的落位</span></div>
+      <span class="meta">三条原则决定全部 74 个颜色的落位</span></div>
     <div class="sec-rule"></div>
     <div class="principles">
       <article class="pr">
@@ -359,9 +359,9 @@ table.t td .fail{color:var(--error);font-weight:650}
   <!-- ══ 3. 应用预览 ══ -->
   <section>
     <div class="sec-head"><span class="sec-num">03</span><h2>应用预览</h2>
-      <span class="meta">37 个色位落到 DSH 真实 UI 表面</span></div>
+      <span class="meta">37 个颜色落到 DSH 真实 UI 表面</span></div>
     <div class="sec-rule"></div>
-    <p class="sec-lede">下面这张窗口里的每一处颜色都来自 <code>theme.json</code> 的色位：侧栏 <code>sidebarBg</code>、气泡 <code>bubbleBg</code>、代码块 <code>codeBlockBg</code> / <code>codeHeaderBg</code>、浮层 <code>backgroundElement</code>、输入框 <code>inputBg</code> + <code>borderActive</code>，状态色走 <code>error</code> / <code>warning</code> / <code>success</code> / <code>info</code>，语法高亮走 shiki 的 10 个变量。</p>
+    <p class="sec-lede">下面这张窗口里的每一处颜色都来自 <code>theme.json</code> 的颜色：侧栏 <code>sidebarBg</code>、气泡 <code>bubbleBg</code>、代码块 <code>codeBlockBg</code> / <code>codeHeaderBg</code>、浮层 <code>backgroundElement</code>、输入框 <code>inputBg</code> + <code>borderActive</code>，状态色走 <code>error</code> / <code>warning</code> / <code>success</code> / <code>info</code>，语法高亮走 shiki 的 10 个变量。</p>
 
     <div class="win">
       <aside class="sb">
@@ -387,7 +387,7 @@ table.t td .fail{color:var(--error);font-weight:650}
         <div class="threads">
           <div class="th sel">原神主题 · 设计评审</div>
           <div class="th">把纸感配色写进 theme.json</div>
-          <div class="th">37 色位落点与对比度</div>
+          <div class="th">37 个颜色落点与对比度</div>
           <div class="th">参考图取色溯源</div>
         </div>
         <div class="sb-foot"><span class="av">辰</span><span>辰辰洋洋</span><span class="gear">⚙</span></div>
@@ -416,7 +416,7 @@ table.t td .fail{color:var(--error);font-weight:650}
           </div>
 
           <div class="md">
-            <h2>原神主题 · 已按 37 色位落位</h2>
+            <h2>原神主题 · 已按 37 个颜色落位</h2>
             <p>核心只有一句话：<strong>把界面当成一张泛黄的旅行明信片</strong>。底色是官方海报的米金纸，文字是「旅行者」题字的焦褐，唯一的冷色是披风内衬的深靛 —— 它承担全部交互，暖金只负责品牌。三个取舍：</p>
             <ul>
               <li>主按钮用<em>深靛</em>不用金：金在米金纸上做按钮会看不见，且浅色字过不了 4.5:1；靛蓝配字 9.87:1。</li>
@@ -446,7 +446,7 @@ table.t td .fail{color:var(--error);font-weight:650}
 
             <div class="warn">
               <span class="tag">已知取舍</span>
-              <span>提示气泡的<strong>文字色</strong>由 DSH 写死为白色，只把背景换成主题浮层色——浅色主题下对比只有 <b>1.07 : 1</b>，37 个色位修不到这一点。</span>
+              <span>提示气泡的<strong>文字色</strong>由 DSH 写死为白色，只把背景换成主题浮层色——浅色主题下对比只有 <b>1.07 : 1</b>，37 个颜色修不到这一点。</span>
             </div>
 
             <div class="diff">
@@ -466,7 +466,7 @@ table.t td .fail{color:var(--error);font-weight:650}
           </div>
         </div></div>
 
-        <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+        <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">在面板中可见</span></div>
 
         <div class="composer"><div class="col">
           <div class="cbox">
@@ -488,12 +488,12 @@ table.t td .fail{color:var(--error);font-weight:650}
     </div>
   </section>
 
-  <!-- ══ 4. 37 色位 ══ -->
+  <!-- ══ 4. 37 个颜色 ══ -->
   <section>
-    <div class="sec-head"><span class="sec-num">04</span><h2>37 色位 · 落点与取值</h2>
+    <div class="sec-head"><span class="sec-num">04</span><h2>37 个颜色 · 落点与取值</h2>
       <span class="meta" id="tok-mode">明色变体</span></div>
     <div class="sec-rule"></div>
-    <p class="sec-lede">每一格下方写的是这个色位在 DSH 里的<b>真实落点</b>，不是抽象命名。切换右上角的明/暗，下面的配色、落点与后续表格会整体切换。</p>
+    <p class="sec-lede">每一格下方写的是这个颜色在 DSH 里的<b>真实落点</b>，不是抽象命名。切换右上角的明/暗，下面的配色、落点与后续表格会整体切换。</p>
     <div class="tok" id="tokgrid"></div>
     <div class="legend">
       <span><i style="background:var(--bg)"></i>背景场域</span>
@@ -509,10 +509,10 @@ table.t td .fail{color:var(--error);font-weight:650}
 
   <!-- ══ 5. 派生配方 ══ -->
   <section>
-    <div class="sec-head"><span class="sec-num">05</span><h2>派生配方 · 每个色位怎么来的</h2>
+    <div class="sec-head"><span class="sec-num">05</span><h2>派生配方 · 每个颜色怎么来的</h2>
       <span class="meta" id="rec-mode">明色变体 · 37 条</span></div>
     <div class="sec-rule"></div>
-    <p class="sec-lede">没有任何一个色位是凭空写的。规则只有两条：<b>直取</b>（该色在图里成片出现，直接用像素质心）或 <b>混合</b>（两个真源锚点按写明比例线性混合，比例越高越靠近第二个）。色相与彩度始终落在锚点的血脉上，不会跑出参考图的色域。</p>
+    <p class="sec-lede">没有任何一个颜色是凭空写的。规则只有两条：<b>直取</b>（该色在图里成片出现，直接用像素质心）或 <b>混合</b>（两个真源锚点按写明比例线性混合，比例越高越靠近第二个）。色相与彩度始终落在锚点的血脉上，不会跑出参考图的色域。</p>
     <div class="tblwrap scroll"><table class="t" id="rectbl"></table></div>
   </section>
 
@@ -544,7 +544,7 @@ table.t td .fail{color:var(--error);font-weight:650}
 <script>
 const DATA = /*__DATA__*/;
 
-/* ── 元数据：37 色位分组与 DSH 真实落点 ── */
+/* ── 元数据：37 个颜色分组与 DSH 真实落点 ── */
 const GROUPS = [
   { id:'bg',   name:'背景与表面', note:'8 槽 · 高度梯子', keys:['background','backgroundPanel','backgroundElement','sidebarBg','bubbleBg','inputBg','codeBlockBg','codeHeaderBg'] },
   { id:'text', name:'文字',        note:'2 槽',            keys:['text','textMuted'] },
@@ -602,7 +602,7 @@ document.getElementById('srcgrid').innerHTML = DATA.anchors.map(a=>
      </div>
    </div>`).join('');
 
-/* ── 37 色位网格 ── */
+/* ── 37 个颜色网格 ── */
 function lum(h){h=h.replace('#','');const v=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)
   .map(c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
 function renderTokens(){
@@ -635,7 +635,7 @@ function renderRecipes(){
     </tr>`);
   }));
   document.getElementById('rectbl').innerHTML =
-    `<thead><tr><th style="width:200px">色位</th><th style="width:92px">取值</th><th>配方（真源锚点 ⨯ 比例）</th><th style="width:220px">DSH 落点</th></tr></thead>
+    `<thead><tr><th style="width:200px">颜色</th><th style="width:92px">取值</th><th>配方（真源锚点 ⨯ 比例）</th><th style="width:220px">DSH 落点</th></tr></thead>
      <tbody>${rows.join('')}</tbody>`;
 }
 

@@ -1,5 +1,5 @@
 // validate.ts — 用仓库自己的引擎（resolve.ts / map-dsh.ts）复刻 docs/theme-audit/criteria.md 的判尺，
-// 校验马里奥 IP 主题的浅色与深色两套 37 色位：38 条硬性 4.5:1 + 15 条 UI 3:1 + IP 设计规范告警。
+// 校验马里奥 IP 主题的浅色与深色两套 37 个颜色：38 条硬性 4.5:1 + 15 条 UI 3:1 + IP 设计规范告警。
 // 读同目录 palette.json；不写仓库任何文件。
 import { readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'

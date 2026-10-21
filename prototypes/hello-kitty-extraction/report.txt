@@ -1,4 +1,4 @@
-Hello Kitty 主题 · 37 色位报告
+Hello Kitty 主题 · 37 个颜色报告
 ==============================================================================
 源图      : C:\Users\辰辰洋洋\Pictures\HelloKitty
 参考图    : 6 张
@@ -8,7 +8,7 @@ Hello Kitty 主题 · 37 色位报告
 判尺      : 硬性 4.5:1 违例 0 · UI 3:1 违例 0 · 设计告警 1
   [roleCollision] 跨组 primary = borderActive #c8152d
 
-37 色位终值与来源
+37 个颜色终值与来源
 ------------------------------------------------------------------------------
   background               #FFFFFF   直采 paper
   backgroundPanel          #FBE6EF   直采 veil

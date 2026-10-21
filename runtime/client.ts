@@ -299,7 +299,7 @@ const I18N: Record<string, LocalePair> = {
   'cgroup.diff': { zh: '改动对比', en: 'Diff' },
   'cgroup.md': { zh: 'Markdown', en: 'Markdown' },
   'cgroup.syn': { zh: '代码高亮', en: 'Syntax' },
-  // ── 37 色位名 ──
+  // ── 37 个颜色名 ──
   'cslot.background': { zh: '背景', en: 'Background' },
   'cslot.backgroundPanel': { zh: '浮起面', en: 'Raised surface' },
   'cslot.backgroundElement': { zh: '浮层', en: 'Overlays' },
@@ -337,7 +337,7 @@ const I18N: Record<string, LocalePair> = {
   'cslot.syntaxNumber': { zh: '数字', en: 'Number' },
   'cslot.syntaxString': { zh: '字符串', en: 'String' },
   'cslot.syntaxOperator': { zh: '运算符', en: 'Operator' },
-  // ── 37 色位作用说明 ──
+  // ── 37 个颜色作用说明 ──
   'cslotUse.background': { zh: '窗口与各层底色', en: 'Window and layered surfaces' },
   'cslotUse.backgroundPanel': { zh: '标签、多选与浮起按钮底', en: 'Tags, multi-select and raised buttons' },
   'cslotUse.backgroundElement': { zh: '选择器、选中卡片、Toast、提示与引用块竖线', en: 'Selectors, active cards, toasts, tips and quote bars' },
@@ -482,7 +482,7 @@ export function createClient(slotTarget: string) {
       { pluginId: PLUGIN_ID, prefix: PHONE_PREFIX }
     )
     // ── 检查更新：dsh-plugin-update@0.18.38 入口件 + 弹窗换肤（主题一致）。头行原按钮位置挂载 variant button，
-    // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题色位映射进
+    // 面板由入口件内部按需以 dialog 挂起；轮询/安装态/文案全交包。themeTokens 把当前 opencode 主题颜色映射进
     // 包内 --dsh-update-* 变量（按钮 + dialog 同步生效，入口件打开的 dialog 自动透传）；换主题经 setThemeTokens 即时换肤。
     // 语言跟随（更新包 locale 选项）：把本面板的语言信号（官方 locale 服务优先，html[lang] 回退）
     // 以 { getActive, subscribe } 适配器交给入口件——按钮文案与它打开的 dialog 面板都按同一语言单语渲染，

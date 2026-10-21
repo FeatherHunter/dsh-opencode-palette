@@ -355,7 +355,7 @@ details summary:hover{color:var(--text)}
   </svg>
   <div class="ttl">新世纪福音战士 <span>NEON GENESIS EVANGELION · DSH IP THEME</span></div>
   <div class="right">
-    <span class="pill"><i></i><span id="st-slots">37</span> 色位 · 深浅两套</span>
+    <span class="pill"><i></i><span id="st-slots">37</span> 颜色 · 深浅两套</span>
     <div class="seg">
       <button data-m="dark">深色 · 夜战</button>
       <button data-m="light">浅色 · 晴空</button>
@@ -368,7 +368,7 @@ details summary:hover{color:var(--text)}
   <h1 class="title">新世纪福音战士 <em>EVA</em><span class="v">EVA-01 / UNIT-02</span></h1>
   <div class="sub">
     三张参考图：<b>1.jpg</b> 明日香装甲红与标题金、<b>2.jpg</b> Eva-01 机体紫与同步绿、<b>3.jpg</b> 天空云白与角色涂装。
-    全部 <b>37</b> 个色位只有两种来源：<b>直采</b>（该 hex 是参考图里一块<b>平涂区域</b>的代表色——同色像素成片、3×3 邻域方差 0）、
+    全部 <b>37</b> 个颜色只有两种来源：<b>直采</b>（该 hex 是参考图里一块<b>平涂区域</b>的代表色——同色像素成片、3×3 邻域方差 0）、
     <b>定比混色</b>（两个采样色的固定比例，配方随值记录）。<b>没有一个色值是想象出来的</b>。
     落地形态：<b>evangelion</b>（深色，<b>替换</b>仓库既有同名预置）与 <b>evangelion-day</b>（浅色，新增）两份 IP 预置。
   </div>
@@ -379,7 +379,7 @@ details summary:hover{color:var(--text)}
     <div class="idea"><div class="no">01 / 场</div><h4>底色是海报，不是画布</h4><p>深色底取 2.jpg 的海报黑 <code>#151419</code>，面板取 3.jpg 的夜蓝 <code>#111B3E</code>——界面像剧照里的夜空，而不是一块中性灰板。浅色那套则是 3.jpg 的云层。</p></div>
     <div class="idea"><div class="no">02 / 骨</div><h4>骨架靠亮度，不靠边框</h4><p>八个表面槽是一条亮度梯子（黑 → 暗紫 → 夜蓝 → 浮层），边框只留 <code>#382A5F</code> 一档，避免线框噪声。深色侧栏比页面底略亮，浅色侧栏比页面底略暗——两种模式各按自己的直觉走。</p></div>
     <div class="idea"><div class="no">03 / 跳</div><h4>稀有色才配当主角</h4><p>绿色只占三张图 <b>2.5%</b> 的面积，红色占 <b>14.1%</b>（口径 B，见 census.py）——所以同步绿只当成功态，红色留给错误与删除行，海报标题的橙独占警告。</p></div>
-    <div class="idea"><div class="no">04 / 义</div><h4>一槽一色，不撞车</h4><p>深浅两套各 <b>37/37</b> 个色位都是<b>互不相同的色值</b>：同一色相家族用不同明度台阶区分语义（新增行 / 成功 / 字符串各占一阶），避免"角色语义被抹平"。</p></div>
+    <div class="idea"><div class="no">04 / 义</div><h4>一槽一色，不撞车</h4><p>深浅两套各 <b>37/37</b> 个颜色都是<b>互不相同的色值</b>：同一色相家族用不同明度台阶区分语义（新增行 / 成功 / 字符串各占一阶），避免"角色语义被抹平"。</p></div>
   </div>
 
   <div class="win">
@@ -403,7 +403,7 @@ details summary:hover{color:var(--text)}
       <div class="threads">
         <div class="th sel">EVA 主题 · 设计评审</div>
         <div class="th">把配色写进 IP 预置</div>
-        <div class="th">37 色位落位与对比度</div>
+        <div class="th">37 个颜色落位与对比度</div>
         <div class="th">参考图取色溯源</div>
       </div>
       <div class="sb-foot"><span class="av">须</span><span>惣</span><span class="gear">⚙</span></div>
@@ -432,7 +432,7 @@ details summary:hover{color:var(--text)}
         </div>
 
         <div class="md">
-          <h2>37 色位 · 每个色值都能溯源</h2>
+          <h2>37 个颜色 · 每个色值都能溯源</h2>
           <p>整套配色只有两个动作：<strong>直采</strong> 与 <strong>定比混色</strong>。对抗式审查推翻了第一版的「直采」定义——<em>离原图最近的那个像素</em>会锁死在 JPEG 振铃与文字描边上（第一版 44 个锚点里 <b>17 个整图只有 1 个同色像素</b>，颜色名还与实际像素对不上）。现在的直采 = <strong>平涂区域代表色</strong>：该处 3×3 邻域方差为 0、同色像素成片存在。混色写明配方与比例，任何人都能复算。核心取舍：</p>
           <ul>
             <li>错误色不取图里的纯红 <code>#DC4C2A</code>：它在浮层底上只有 <code>3.37 : 1</code>；改取「装甲红受光面 <code>#D8402B</code> × 云白 35%」，<code>#E3796A</code> 落到 <code>6.29 : 1</code>，八个表面上全部过线。</li>
@@ -491,7 +491,7 @@ details summary:hover{color:var(--text)}
         </div>
       </div></div>
 
-      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">深浅两套</span></div>
+      <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">深浅两套</span></div>
 
       <div class="composer"><div class="col">
         <div class="cbox">
@@ -514,7 +514,7 @@ details summary:hover{color:var(--text)}
 
   <div class="sec">
     <div class="head"><h3>37 Color Slots</h3><span class="hintx">左起两枚色块 = 深色 / 浅色；右二列为各自的取色配方</span></div>
-    <p class="lede">色位与 DSH 的 <b>--dsw-alias-*</b> 变量一一对应（取自 <code>src/engine/map-dsh.ts</code>）。
+    <p class="lede">颜色与 DSH 的 <b>--dsw-alias-*</b> 变量一一对应（取自 <code>src/engine/map-dsh.ts</code>）。
       <b>直采</b> = 参考图里一块平涂区域的代表色（同色像素成片、3×3 邻域方差 0）；<b>定比混色</b> = 两个采样色的固定比例，配方可复算。</p>
     <div class="groups" id="groups"></div>
   </div>
@@ -524,7 +524,7 @@ details summary:hover{color:var(--text)}
     <p class="lede">下面每一张缩略图都是从参考图里裁下来的原像素区域，颜色即该区域的实际取样值。
       锚点全部来自三张参考图，没有任何外部色卡；每张缩略图下方标出该颜色在原图里的<b>同色像素数</b>与<b>邻域方差</b>（方差 0 = 真平涂，不是描边也不是振铃）。其中 <b>2</b> 个锚点（林绿 / 冷纸白）在三张图里找不到成片平涂面，保留声明值并在卡片上如实标注。</p>
     <div class="stat">
-      <div><div class="v" id="st-slots2">37</div><div class="l"><b>色位</b> × 深浅两套 = 74 个色值</div></div>
+      <div><div class="v" id="st-slots2">37</div><div class="l"><b>颜色</b> × 深浅两套 = 74 个色值</div></div>
       <div><div class="v" id="st-distinct">37</div><div class="l">深色套<b>去重后</b>色值数（37 槽零碰撞）</div></div>
       <div><div class="v" id="st-checks">730</div><div class="l">条实测（对比度 / ΔE / 色觉），<b>判尺未过 <span id="st-fails">0</span></b> · 诊断级未达标 <span id="st-diag">6</span> · 记账 <span id="st-info">172</span></div></div>
       <div><div class="v" id="st-anchors">44</div><div class="l">个取样锚点，取自三张图的<b>平涂区域</b>（<span id="st-declared">2</span> 个为声明值）</div></div>
@@ -687,7 +687,7 @@ let mode = 'dark';
 function lum(h){h=h.replace('#','');const v=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16)/255)
   .map(c=>c<=.04045?c/12.92:Math.pow((c+.055)/1.055,2.4));return .2126*v[0]+.7152*v[1]+.0722*v[2]}
 
-/* 37 色位表 */
+/* 37 个颜色表 */
 const groups=[];
 PAL.slots.forEach(s=>{let g=groups.find(x=>x.name===s.group);if(!g){g={name:s.group,slots:[]};groups.push(g)}g.slots.push(s)});
 document.getElementById('groups').innerHTML=groups.map(g=>`

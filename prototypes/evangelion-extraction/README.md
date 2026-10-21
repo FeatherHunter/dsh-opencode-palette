@@ -1,6 +1,6 @@
 # 新世纪福音战士主题 · 逐像素取色管线
 
-从三张参考图重新推导 EVA 的 37 个色位，做成**同一 IP 的明暗两册**：
+从三张参考图重新推导 EVA 的 37 个颜色，做成**同一 IP 的明暗两册**：
 `src/custom-presets/evangelion.json`（深色「夜战」）与 `src/custom-presets/evangelion-day.json`（浅色「晴空」）。
 
 **源图**（不入库，需本机存在）：`C:\Users\辰辰洋洋\Pictures\新世纪福音战士\`
@@ -28,12 +28,12 @@
 
 **只有两种来源，配方随值记录**（`slots[*].recipe.kind`）：
 
-| 来源 | 含义 | 深色半 | 浅色半 | 合计（37 色位 × 2 半 = 74 值） |
+| 来源 | 含义 | 深色半 | 浅色半 | 合计（37 个颜色 × 2 半 = 74 值） |
 | --- | --- | --- | --- | --- |
 | **直采** | hex 就是参考图里一块平涂区域的代表色 | 13 | 12 | **25** |
 | **定比混色** | 两个采样色的固定比例，配方与出处逐条可查 | 24 | 25 | **49** |
 
-> **不许凭空造色**：任何色位都必须指回上面两种之一；指不回去就是「想象出来的颜色」，直接判负。
+> **不许凭空造色**：任何颜色都必须指回上面两种之一；指不回去就是「想象出来的颜色」，直接判负。
 > 这条从第四轮起不再靠自觉——每个出货色都要过**混色闸**（§3.3 a），机器说了算。
 
 ## 2. 44 个锚点
@@ -278,7 +278,7 @@ $node = 'C:\Users\辰辰洋洋\.dsh\dsh-runtimes\dsh-primary-runtime\dependencie
 
 & $py .\extract.py       # 三图 k-means 主色 + 高饱和/亮部/暗部分组 → extracted.json
 & $py .\census.py        # 按色相扇区做材质普查 → 控制台
-& $py .\build_palette.py # 44 锚点重取 + 37 色位 × 明暗两半推导 + 判据自检 → palette.json / report.txt
+& $py .\build_palette.py # 44 锚点重取 + 37 个颜色 × 明暗两半推导 + 判据自检 → palette.json / report.txt
 & $py .\gen.py           # 生成 ../evangelion-theme-preview.html
 & $node .\validate.ts    # 用仓库引擎复算两半的 38 硬对 + 15 UI 对 + IP 设计规范
 & $py .\write_preset.py  # 写 src/custom-presets/evangelion.json + evangelion-day.json（单行 JSON / 字母序 / 无 BOM / 无尾换行）
@@ -291,7 +291,7 @@ $node = 'C:\Users\辰辰洋洋\.dsh\dsh-runtimes\dsh-primary-runtime\dependencie
 & $py .\write_preset.py D:\Temp\eva-preset-dryrun
 ```
 
-`palette.json` 是**结论**（37 色位 × 明暗两半终值 + 每个色位的锚点与推导方式 + 44 个锚点的取色现场裁切
+`palette.json` 是**结论**（37 个颜色 × 明暗两半终值 + 每个颜色的锚点与推导方式 + 44 个锚点的取色现场裁切
 + 730 行判据台账），`extracted.json` 是**素材普查结论**，`gen.py` / `write_preset.py` / `validate.ts` 都读 `palette.json`。
 
 ## 5. 复核
@@ -326,7 +326,7 @@ npm test
 
 - **深色半是「夜战」，浅色半是「晴空」**。不是把深色反相，而是同一 IP 的两个场景：
   夜战取海报夜景（黑底 `#151419` + 机体高光 + 标题金），晴空取白昼（云白 `#EFF2F7` / 纸白 `#FEFEFE`），
-  两半各自从原图取各自的像素，**两半各 37 个色位互不同值**（同色位深浅不同 hex，逐位核对过）。
+  两半各自从原图取各自的像素，**两半各 37 个颜色互不同值**（同颜色深浅不同 hex，逐位核对过）。
 - **色族各领一角**（深色半 → 浅色半，括号里是配方来源与配比）：
   - 紫族 = 品牌：`primary` 机体高光淡紫 `#BB96F5`（直采）→ 机体主紫 `#473D94`（直采）；
     `secondary` 樱紫灰×机体高光淡紫 75/25 `#BEAFCF` → 紫灰×装甲暗紫 30/70 `#3D3660`；
@@ -353,7 +353,7 @@ npm test
   第四轮起只有 primary / info 真的当填充底（§3.5），其余四个角色的 `contrastText` 只作诊断。
 - **配方演进（第四轮）**——语法七色是本轮改得最多的地方：
 
-  | 色位 | 配方 | 结果 |
+  | 颜色 | 配方 | 结果 |
   | --- | --- | --- |
   | 深色 `syntaxKeyword` | `M(indigo, cloud, 0.65)` = 靛蓝 35% + 云白 65% | `#B4B3D0` |
   | 深色 `syntaxNumber` | `M(gold, cloud, 0.1)` = 标题金 90% + 云白 10% | `#F9B219` |

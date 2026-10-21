@@ -204,7 +204,7 @@ test('shiki 语法色映射完整性（10 个变量全覆盖）', () => {
   }
 })
 
-test('generate: buildTokens 对缺失色位容错（不抛异常）', () => {
+test('generate: buildTokens 对缺失颜色容错（不抛异常）', () => {
   const colors = { background: '#000000', text: '#FFFFFF' }
   const tokens = buildTokens(colors, colors, false)
   assert.ok(tokens['--dsw-alias-bg-base'])

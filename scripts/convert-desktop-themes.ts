@@ -2,7 +2,7 @@
 // 背景：2.0 新增 amoled / oc-2 / onedarkpro / shadesofpurple 四款只存在于
 // packages/ui/src/theme/themes/（桌面 schema：light/dark palette + overrides），
 // TUI 目录（本包同步源）没有它们。本脚本做一次诚实、显式、可重跑的格式转换：
-//   - 直接取色：一一对应的官方色位（neutral/ink/primary/accent/success/warning/error/info/syntax-*）；
+//   - 直接取色：一一对应的官方颜色（neutral/ink/primary/accent/success/warning/error/info/syntax-*）；
 //   - 派生补齐：桌面缺省的层级色（panel/element/muted/border）用 mix() 在 neutral↔ink 轴上按固定比例取，
 //     比例即文档（见 mix 注释），不逐主题手调；缺省 syntax 位按 one-dark 系惯例回退（串内有表）；
 //   - 判尺修复（票 #117）：产物须过 37-token 审计硬性门槛（文字 4.5 / UI 3.0）。桌面源配色的弱文字、
@@ -23,7 +23,7 @@ const NAMES = ['amoled', 'oc-2', 'onedarkpro', 'shadesofpurple']
 // 与 sync-themes.ts 同一套必填门（缺失 = 上游结构变化，直接报错）
 const REQUIRED_KEYS = ['background', 'text', 'textMuted', 'primary', 'secondary', 'accent', 'error', 'warning', 'success', 'info', 'border', 'borderActive', 'syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxVariable', 'syntaxString', 'syntaxNumber', 'syntaxType', 'syntaxOperator']
 
-// 桌面主题 schema：只列本脚本用到的色位（其余字段原样忽略）。
+// 桌面主题 schema：只列本脚本用到的颜色（其余字段原样忽略）。
 interface DesktopPalette {
   neutral: string
   ink: string
@@ -227,7 +227,7 @@ async function main(): Promise<void> {
       theme[role] = { dark: d.toUpperCase(), light: l.toUpperCase() }
     }
     for (const k of REQUIRED_KEYS) {
-      if (!(k in theme)) fail(name + ': 缺必填色位 ' + k)
+      if (!(k in theme)) fail(name + ': 缺必填颜色 ' + k)
     }
     const out = JSON.stringify({ defs: {}, theme: theme }, null, 2) + '\n'
     await writeFile(join(OUT, name + '.json'), out)

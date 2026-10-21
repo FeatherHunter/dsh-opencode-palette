@@ -33,7 +33,7 @@ dsh-opencode-palette/
 │       ├── resolve.ts        #    颜色解析器：引用链 → RGBA/HEX
 │       ├── font-face.ts      #    生成文件：随包 OFL 字体 @font-face（inline-fonts.ts 生成，勿手改）
 │       ├── font-avail.ts     #    本机字体可用性判定：宽度对比法（document 注入，可 node 直测）
-│       ├── map-dsh.ts        #    ★ 单一真相源：opencode 色位 → DSH CSS 变量
+│       ├── map-dsh.ts        #    ★ 单一真相源：opencode 颜色 → DSH CSS 变量
 │       ├── generate.ts       #    主题 → { tokens, cssText }
 │       ├── registry.ts       #    注册表：37 静态 + system 生成
 │       └── index.ts          #    ThemeEngine 门面（无 DOM 依赖）
@@ -58,7 +58,7 @@ dsh-opencode-palette/
 ## 3. 分层职责与数据流
 
 ```
-[数据层] src/themes/*.json        opencode 官方主题定义（defs 引用表 + theme 色位表）
+[数据层] src/themes/*.json        opencode 官方主题定义（defs 引用表 + theme 颜色表）
    │  sync-themes.ts 负责获取/校验/指纹（版本锁 v1.18.12）
    ▼
 [引擎层] resolve.ts               把 defs/theme 引用链、{dark,light} 变体、ANSI 数字、
@@ -66,7 +66,7 @@ dsh-opencode-palette/
    ▼
 [引擎层] registry.ts              themes = 37 静态 + system 运行时生成；字母序；搜索
    ▼
-[适配层] map-dsh.ts               语义色位 → DSH CSS 变量（--dsw-alias-* / --shiki-token-*）
+[适配层] map-dsh.ts               语义颜色 → DSH CSS 变量（--dsw-alias-* / --shiki-token-*）
    ▼
 [生成层] generate.ts              主题 → { tokens: overrideTokens 对象, css: <style> 文本 }
    ▼
@@ -82,15 +82,15 @@ dsh-opencode-palette/
 
 ## 4. 映射表设计（map-dsh.ts · 唯一需要理解 DSH 侧知识的地方）
 
-opencode 主题约 50+ 语义色位；DSH 暴露 `--dsw-alias-*`（token 层）+ `--shiki-token-*`
+opencode 主题约 50+ 语义颜色；DSH 暴露 `--dsw-alias-*`（token 层）+ `--shiki-token-*`
 （语法高亮层）+ 少量元素级规则。映射原则：
 
-| opencode 色位 | → DSH 输出 |
+| opencode 颜色 | → DSH 输出 |
 |---|---|
 | background | 页面底与各层底：bg-base/layer-1/2/3/overlay、markdown-code-segment-unselected |
 | backgroundPanel | 浮起面：markdown-tag/placeholder、bg-multi-select、button-elevated-fill/button-floating-fill |
 | backgroundElement | 浮层：markdown-citation（思考引用块竖线）、bg-module-platform、selector/tip/bubble-highlight、toast-bg/tooltip-bg |
-| sidebarBg / bubbleBg / inputBg / codeBlockBg / codeHeaderBg | DSH 专属槽（#84 起 37 色位见 `src/engine/map-dsh.ts` COLOR_SLOTS）：sidebar-fill / bubble / input-major+login-input / markdown-code-block / code-block-banner+dsl-code-block-background |
+| sidebarBg / bubbleBg / inputBg / codeBlockBg / codeHeaderBg | DSH 专属槽（#84 起 37 个颜色见 `src/engine/map-dsh.ts` COLOR_SLOTS）：sidebar-fill / bubble / input-major+login-input / markdown-code-block / code-block-banner+dsl-code-block-background |
 | text | label-primary（+inverted/dimmed/foreground）、shiki-foreground、markdown 正文 |
 | textMuted | label-secondary/tertiary/caption/dimmed、shiki-comment |
 | primary | brand-primary、button-primary-fill、markdownHeading（标题色） |
@@ -110,7 +110,7 @@ opencode 主题约 50+ 语义色位；DSH 暴露 `--dsw-alias-*`（token 层）+
 
 > 上表为架构概览；逐条映射以 `src/engine/map-dsh.ts` 的 TOKEN_MAP / DERIVED_TOKENS / SHIKI_MAP / CSS_RULES 为准（本表部分行早于 #53/#84 的增补，若与代码表冲突以代码表为单源）。
 >
-> DSH 只认 10 个 shiki token 变量，opencode 有 9 个语法色位 + 若干 markdown 色位，
+> DSH 只认 10 个 shiki token 变量，opencode 有 9 个语法颜色 + 若干 markdown 颜色，
 > 故语法色做「角色相近合并」，合并规则集中在上表并文档化（可逐条调整）。
 
 ## 5. system 主题语义（DSH 侧无终端，取「跟随宿主」含义）

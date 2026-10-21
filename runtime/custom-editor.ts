@@ -19,7 +19,7 @@ interface Point { left: number; top: number }
 // 描边呼吸样式（slotRingStyle 的返回值，键名即原型 .hl 口径）。
 interface RingStyle { boxShadow: string; animation: string }
 // 内联样式（对象字面量与 Object.assign 合并，宿主 React 原样吃下）。
-// 值域含 ColorValue：txOf / mdBg 在缺值或解析失败时把色位原值直接透传（与改造前行为一致）。
+// 值域含 ColorValue：txOf / mdBg 在缺值或解析失败时把颜色原值直接透传（与改造前行为一致）。
 interface StyleObject { [key: string]: string | number | ColorErrorLike | undefined }
 
 // 交互目标元素（React 合成事件的 currentTarget）：指针捕获与弹板锚定只用到这些成员。
@@ -81,7 +81,7 @@ interface Hsl { h: number; s: number; l: number }
 interface LooseHex { hex: string; alphaDropped: boolean }
 // 引擎解析失败的占位形状（src/engine/resolve.ts 的 ColorError：带 __error 的对象）。
 interface ColorErrorLike { __error: unknown }
-// 37 色位 → 色值（#RRGGBB 或 'transparent'）。宿主/引擎的表可能缺键、也可能带解析失败占位
+// 37 个颜色 → 色值（#RRGGBB 或 'transparent'）。宿主/引擎的表可能缺键、也可能带解析失败占位
 // （引擎口径 = Record<string, string | ColorError | undefined>），读取侧一律按「可能不是字符串」处理。
 type ColorValue = string | ColorErrorLike | undefined
 type ColorMap = Record<string, ColorValue>
@@ -180,7 +180,7 @@ const DLG_CSS = [
 // 所以弹窗 chrome 直接吃 var() 就同时跟随「宿主深浅色」与「当前选中的调色板主题」，零 JS 传参。
 // 末尾兜底值 = 改造前的深色字面量：宿主没定义该 token 时观感与今天完全一致。
 // 不在此列（表达的是「被编辑主题」或「外观选项」本身，不随宿主走）：预览画布、右列画布底色、
-// 顶栏预览胶囊（capFace/capFg/capPrimary）、外观 seg 的深浅双色、色位 swatch 自身描边与透明棋盘格。
+// 顶栏预览胶囊（capFace/capFg/capPrimary）、外观 seg 的深浅双色、颜色 swatch 自身描边与透明棋盘格。
 const TK = {
   win: 'var(--dsw-alias-bg-layer-1, #141419)',
   panel: 'var(--dsw-alias-bg-layer-2, #1C1C21)',
@@ -207,8 +207,8 @@ const TK = {
 }
 
 // 焦点圈样式（原型 .hl/.hl-edge 口径：prototype.html:175-178 + paintHl:893）。
-// 纯函数接缝：凡被 hl 命中的色位一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
-// 用户 m08636 第 4 条要求「37 个色位命中时预览里每个受影响元素都被圈住」，
+// 纯函数接缝：凡被 hl 命中的颜色一律描边呼吸（inline 元素同样吃内阴影，原型对 span 也是 .hl）。
+// 用户 m08636 第 4 条要求「37 个颜色命中时预览里每个受影响元素都被圈住」，
 // 所以 node 容器与纯 span（t 文本、代码 token、textMuted 行）必须共用这一处判定。
 export function slotRingStyle(hl: string | null, slot: string): RingStyle | null {
   if (!hl) return null
@@ -239,7 +239,7 @@ const NAME_INPUT_MIN = 90
 // 胶囊自身上限 = 区宽 − 间隙 − 输入框下限（322 − 8 − 90 = 224）；超过就打省略号。
 const NAME_CAP_MAX = NAME_ZONE_W - 8 - NAME_INPUT_MIN
 
-// 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应色位行、出现在视野中）。
+// 预览 → 左列联动（用户 m09226：预览区鼠标悬浮某个内容时，左侧列表要滑到对应颜色那一行、出现在视野中）。
 // 只算「要不要滑」：行已完整落在左列可视区内就不动，避免鼠标扫过预览时列表空抖。
 // 纯函数接缝：view/row 形如 getBoundingClientRect() 的结果（只用到 top / height）。
 export function needsReveal(view: RevealRect | null, row: RevealRect | null, pad?: number): boolean {
@@ -334,7 +334,7 @@ export function presetToSeed(p: Preset | null | undefined) {
 }
 
 // ── #95 取色器（PalettePicker）：调研驱动的重构版调色盘 ──
-// 设计定稿（票内 resolution）：320×388 精确控制版 —— 标题（色位名 + hex 可点复制）/
+// 设计定稿（票内 resolution）：320×388 精确控制版 —— 标题（颜色名 + hex 可点复制）/
 // SV 面板 / 自绘横向色相轨（13 个 30° 常驻淡刻度 + focus-visible）/ H·S·V↔RGB↔HSL 数值行
 // （模型按钮循环切换）/ 主题色 10 个（按分组优先级，R7）/ HEX + 吸管 + WCAG 对比度一行 /
 // 透明行（仅 8 个背景槽）/ 取消·完成。
@@ -347,7 +347,7 @@ const PICK_HUE_H = 14
 const PICK_RECENT_MAX = 10
 // PalettePicker props（#95，纯展示、可独立 renderToString）：
 //   h: { createElement, useState, useEffect, useRef }, tr, trf
-//   label: 色位显示名；allowTransparent: 是否 8 个背景槽之一
+//   label: 颜色显示名；allowTransparent: 是否 8 个背景槽之一
 //   value: { hex, transparent }；recent: [hex]；contrastRefHex: 对比度基准色
 //   initialHsv: 可选 { h, s, v }（重开同一槽位时父组件回填上次色相，避免从 hex 反推）
 //   onApply(hex, transparent, hsv): 每次改动 live commit；onCancel(): 回滚关闭；onDone(): 保留关闭
@@ -811,14 +811,14 @@ export function CustomEditor(props: CustomEditorProps) {
   const rowRefs = h.useRef<Record<string, HTMLDivElement | null>>({})
   const leftColRef = h.useRef<HTMLDivElement | null>(null)
   const svDrag = h.useRef<unknown>(null)
-  // #95：按色位记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
+  // #95：按颜色记住上次的 {h,s,v}（hex 反推会丢灰/黑的色相），重开同一槽位时回填给 PalettePicker。
   const pickMem = h.useRef<Record<string, { hex: string; hsv: Hsv }>>({})
 
   // 预览小标签定位 + 左列小标签夹紧（原型 paintHl 尾部 :903-934 口径）。
   // 预览标签：锚点 = 预览里第一个命中 hl 的元素（没有 data-slot 命中时取第一个焦点圈元素，等价 matches[0] || extras[0]）；
   // 挂 fixed 覆盖层，永不进预览容器，因此不会被 .mini{overflow:hidden} 或滚动列裁掉。
   // 宽度用等宽 10px 估算（原型量字后回落 90，同为估算；估算只影响左右贴合度，不影响可见性）。
-  // 左列标签：原型按 row.clientWidth 夹紧（:929-930），这里同样把越界量算成左移像素，避免长色位名顶出列表被 overflow 裁掉。
+  // 左列标签：原型按 row.clientWidth 夹紧（:929-930），这里同样把越界量算成左移像素，避免长颜色名顶出列表被 overflow 裁掉。
   h.useEffect(function () {
     try {
       const win = typeof window !== 'undefined' ? window : null
@@ -1098,7 +1098,7 @@ export function CustomEditor(props: CustomEditorProps) {
     })
   }
 
-  // ── 左列：37 色位行（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
+  // ── 左列：37 行颜色（原型 .gtitle/.crow 口径：名→sw→hex；组级可设透明旗）──
   const leftRows: RenderNode[] = []
   for (const g of props.groups || []) {
     const gm = (props.groupMeta && props.groupMeta[g.id]) || { zh: g.id, en: g.id }
@@ -1308,7 +1308,7 @@ export function CustomEditor(props: CustomEditorProps) {
 
   // ── 右侧：微缩 DSH 仿真画布（原型 renderMini 口径：side + main + bubble + md + code + diff + brow + cinput）──
   function renderMini() {
-    // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个色位命中的每一个预览元素都要被圈住；
+    // node 与纯 span 共用同一处描边判定（用户 m08636 第 4 条：37 个颜色命中的每一个预览元素都要被圈住；
     // 此前只有 node 会圈，纯 span 命中被漏掉）
     const ringOf = function (slot: string) { return slotRingStyle(hl, slot) }
     const ringStyle = function (slot: string) { return ringOf(slot) || undefined }
@@ -1319,7 +1319,7 @@ export function CustomEditor(props: CustomEditorProps) {
     }
     // 预览里每个 data-slot 元素都自己吃 hover（原型 :743 口径：`#mini [data-slot]` 全绑），
     // 这样 hl 跟着「最内层命中元素」走（用户 m08636 第 4 条），并联动左列滚动（用户 m09226）。
-    // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 色位元素全可点）。
+    // #94：同时是弹板入口 —— 点击把被点 DOM 元素当锚点交给 clickSlot（37 个颜色全可点）。
     const bindSlot = function (slot: string): ElProps {
       return {
         onMouseEnter: function () { setHl(slot); revealRow(slot) },
@@ -1341,7 +1341,7 @@ export function CustomEditor(props: CustomEditorProps) {
     }
     // 原型文本 span 口径：data-slot 透出定位；#94 起文本也全部可点（点击原地开弹板），
     // 悬浮与焦点圈全绑（原型 :743 的 `#mini [data-slot]`）：悬浮联动左列、命中即圈。
-    // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的色位，预览里每个组成部分都要被圈住。
+    // 用户 m08636 第 4 条：像 text 这种被一整句话多处引用的颜色，预览里每个组成部分都要被圈住。
     const t = function (slot: string, s: RenderNode, key?: string) {
       return e('span', Object.assign({ key: key, 'data-slot': slot, className: ringCls(slot), style: clickableSpanStyle(slot) }, bindSlot(slot)), s)
     }
@@ -1464,7 +1464,7 @@ export function CustomEditor(props: CustomEditorProps) {
           node('error', { color: eff('error') }, tr('miniErr'), { key: 'bErr' }),
         ]),
         // 输入框（原型 .cinput 口径：borderActive 环 + 下方说明行）。#94：环从 inputBg 内圈 boxShadow
-        // 独立成可点节点，37 个色位在预览区各有自己的可点控件（点环开 borderActive，点内开 inputBg）。
+        // 独立成可点节点，37 个颜色在预览区各有自己的可点控件（点环开 borderActive，点内开 inputBg）。
         node('borderActive', {
           borderRadius: '9px', border: '2px solid ' + eff('borderActive') + '55', padding: '2px',
         }, [

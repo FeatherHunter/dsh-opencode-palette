@@ -220,9 +220,9 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
   for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**', '**25 IP theme capsules 💊 preinstalled.**', '**Build your own capsule 💊.**', '**Fonts and size, your call.**', '**IP theme capsules 💊**', '**Build your own capsule 💊**']) {
     assert.equal(EN.includes(gone), false, `英文不应再有「${gone}」`)
   }
-  // v2.1.7 事实：37 色位编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径
-  assert.ok(extBlock(ZH).includes('37 个色位'), '中文该条应讲到 37 个色位')
-  assert.ok(extBlock(EN).includes('37 slots'), '英文该条应讲到 37 个色位')
+  // v2.1.7 事实：37 个颜色编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径
+  assert.ok(extBlock(ZH).includes('37 个颜色'), '中文该条应讲到 37 个颜色')
+  assert.ok(extBlock(EN).includes('37 slots'), '英文该条应讲到 37 slots')
   for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
     assert.ok(block.includes('25'), `${name} 该条应讲到 25 个 IP 预置基底`)
     assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)

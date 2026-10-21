@@ -20,7 +20,7 @@ export const GROUP_COLORS: Record<GroupKey, string> = {
   special: '#8B8B95',
 }
 
-// 预览关键色：transparent/解析失败 → null；主题缺该色位 → undefined（历史语义原样保留）
+// 预览关键色：transparent/解析失败 → null；主题缺该颜色 → undefined（历史语义原样保留）
 export interface PreviewColors {
   background: string | null | undefined
   text: string | null | undefined
@@ -92,7 +92,7 @@ export function resolvePreview(name: string, mode?: string): PreviewColors | nul
     const v = c[k]
     if (v === undefined) return undefined
     if (typeof v === 'string') return v === 'transparent' ? null : v
-    return null // ColorError：解析失败的色位没有可预览色
+    return null // ColorError：解析失败的颜色没有可预览色
   }
   return {
     background: pick('background'),

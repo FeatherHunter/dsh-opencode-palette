@@ -191,7 +191,7 @@ test('#85 外部导入自愈：手放部分 JSON 被补齐，损坏 JSON 被跳�
   try {
     const dir = t.host.customThemesDir(t.home)
     mkdirSync(dir, { recursive: true })
-    // 部分手写：缺 name/appearance，只填 2 个色位
+    // 部分手写：缺 name/appearance，只填 2 个颜色
     writeFileSync(join(dir, 'hand.json'), JSON.stringify({ colors: { background: '#111111', text: '#222222' } }))
     // 损坏文件：绝不能阻断其它主题
     writeFileSync(join(dir, 'broken.json'), '{ not json,,,')

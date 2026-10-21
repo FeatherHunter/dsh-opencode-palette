@@ -1,13 +1,13 @@
 # 哈利波特主题 · 逐像素取色管线
 
-从四张参考图重新推导 `src/custom-presets/harry-potter.json` 的 37 个色位，并生成预览页。
+从四张参考图重新推导 `src/custom-presets/harry-potter.json` 的 37 个颜色，并生成预览页。
 
 **源图**（不入库，需本机存在）：`C:\Users\辰辰洋洋\Pictures\哈利波特\`
 `4.jpg` 海报 · `images.jpg` 冰窟 · `2.jpg` 肖像 · `3.jpg` 商品图
 
-**判尺**：每个色位只允许三种来源，第四种直接判负——
+**判尺**：每个颜色只允许三种来源，第四种直接判负——
 
-1. **直采**：hex 与参考图某个像素完全一致（15 个色位，脚本回原图逐个复核「该色确实存在」）
+1. **直采**：hex 与参考图某个像素完全一致（15 个颜色，脚本回原图逐个复核「该色确实存在」）
 2. **阶梯**：采样色的明度 / 彩度台阶
 3. **混色**：两个采样色的固定比例
 
@@ -26,8 +26,8 @@ $node = 'C:\Users\辰辰洋洋\.dsh\dsh-runtimes\dsh-primary-runtime\dependencie
 & $py .\write_preset.py  # 写 src/custom-presets/harry-potter.json（单行 JSON / 字母序 / 无尾换行）
 ```
 
-`palette.json` 是**结论**（37 色位终值），`gen.py` / `write_preset.py` / `validate.ts` 都读它；
-`provenance.json` 是**证据**（每色位的原图裁切与像素坐标），`gen.py` 把它内联进预览页。
+`palette.json` 是**结论**（37 个颜色终值），`gen.py` / `write_preset.py` / `validate.ts` 都读它；
+`provenance.json` 是**证据**（每颜色的原图裁切与像素坐标），`gen.py` 把它内联进预览页。
 两个 `write_preset.py` / `gen.py` 的输出是**确定性**的：同一份输入必然产出同一份
 `src/custom-presets/harry-potter.json` 与同一份预览页（已用 sha256 对过）。
 

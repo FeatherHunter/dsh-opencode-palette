@@ -35,7 +35,7 @@ const MD_ROLES = ['markdownHeading', 'markdownLink', 'markdownStrong', 'markdown
 const SYNTAX_ROLES = ['syntaxComment', 'syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString', 'syntaxOperator'] as const
 const SYNTAX_CORE = ['syntaxKeyword', 'syntaxFunction', 'syntaxType', 'syntaxNumber', 'syntaxString'] as const
 const BRAND_ROLES = ['primary', 'secondary', 'info', 'success', 'warning', 'error'] as const
-// 设计规范只覆盖 25 个设计角色：除 8 个背景槽与 4 个 diff 背景槽外的全部色位（与 audit-themes.ts 同源）
+// 设计规范只覆盖 25 个设计角色：除 8 个背景槽与 4 个 diff 背景槽外的全部颜色（与 audit-themes.ts 同源）
 const DIFF_BG_ROLES = ['diffAddedBg', 'diffRemovedBg', 'diffAddedLineNumberBg', 'diffRemovedLineNumberBg']
 const DESIGN_ROLES = COLOR_SLOTS.filter((s) => s.group !== 'bg' && DIFF_BG_ROLES.indexOf(s.key) < 0).map((s) => s.key)
 const DESIGN_GROUP: Record<string, string> = {}
@@ -296,7 +296,7 @@ for (const h of HALVES) {
 const verdict = totalViolations === 0 ? 'PASS' : 'FAIL'
 console.log(`  硬性/UI 违例合计 ${totalViolations} · 设计告警合计 ${totalWarnings} → ${verdict}`)
 console.log('')
-console.log('── 全部色位对比度 ──')
+console.log('── 全部颜色对比度 ──')
 for (const h of HALVES) {
   console.log(`  【${h.label}】`)
   for (const r of h.rows) console.log(`    ${r.ok ? '✓' : '✗'} ${r.code.padEnd(36)} ${r.ratio.toFixed(2).padStart(6)}  (≥${r.t})`)

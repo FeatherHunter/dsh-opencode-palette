@@ -37,7 +37,7 @@
 
 ## DC（dark）
 
-> v3.7 整版重绘（2026-10-20，逐像素取色 + 对抗式审查）：三张参考图当唯一样本——1.jpg 群像海报 / 2.jpg DC 徽章圆盘 / 3.jpg THE DC ENCYCLOPEDIA 百科封面。**判尺只允许一种来源：直采**（37 个色位落在 36 个不同色值上，全部是图里的真实像素，0 想象）；材质真伪改用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）判定——三张图都是连续渐变，某个 hex 的精确像素常常只有个位数，按精确命中判「想象色」会误杀真材质。台账见 `prototypes/dc-comics-extraction/palette.json`，逐色位原图裁切见 `prototypes/dc-comics-theme-preview.html` 的「出处证据」段，对抗式审查记录见 `prototypes/dc-comics-adversarial-review.md`。
+> v3.7 整版重绘（2026-10-20，逐像素取色 + 对抗式审查）：三张参考图当唯一样本——1.jpg 群像海报 / 2.jpg DC 徽章圆盘 / 3.jpg THE DC ENCYCLOPEDIA 百科封面。**判尺只允许一种来源：直采**（37 个颜色落在 36 个不同色值上，全部是图里的真实像素，0 想象）；材质真伪改用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）判定——三张图都是连续渐变，某个 hex 的精确像素常常只有个位数，按精确命中判「想象色」会误杀真材质。台账见 `prototypes/dc-comics-extraction/palette.json`，逐颜色原图裁切见 `prototypes/dc-comics-theme-preview.html` 的「出处证据」段，对抗式审查记录见 `prototypes/dc-comics-adversarial-review.md`。
 
 ①基调：夜蓝场，不再是「哥谭市午夜沥青黑」。8 个场域槽收在一条色相 H202–226（跨度 23.2°，0 色相孤岛），只拉开 L\*：codeBlockBg #000515（披风深处黑蓝，L\* 1.5）→ sidebarBg #0A0F12（人物之间死黑，4.1）→ background #0C1326（海报底部蓝黑，6.2）→ backgroundPanel #09203F（披风受光深蓝，12.3）→ codeHeaderBg #122543（超人披肩深蓝，14.7）→ inputBg #192D52（战衣受影的蓝，18.8）→ backgroundElement #263356（钢仔装甲的蓝，21.8）→ bubbleBg #0F437D（徽章圆盘深蓝，28.4），每步 +2.1 … +6.6 L\*，无重复行、无层级倒挂。
 ②组合：primary DC 徽章圆盘本体蓝 #0373B3（2.jpg 主体像素 48,154 px）配 secondary 神奇女侠金冠 #E4BA56，H201.8° × H42.3° = **159.6° 互补**。主色取徽章本体那一档而不是更暗的邻档（#0272B2 / #025C9A）——更暗的两档在面板上会掉出 UI 3:1；反白 4.65:1（引擎走白字分支）。
@@ -48,7 +48,7 @@
 
 > v3.3 整版重绘（2026-10-20，逐像素取色）：三张海报当唯一样本，37 槽每槽只允许四种来源——**直采**（hex 与海报某个像素完全一致）、**明度阶**（锚点 H/S 不变，只改 L）、**彩度阶**（锚点色相不变，只改 S/L）、**定比混色**（两个锚点的固定比例线性混合）。台账见 `prototypes/star-wars-extraction/palette.json`，原图裁切见 `prototypes/star-wars-theme-preview.html` 的「取色溯源」段。
 
-> v3.4 配比重排（2026-10-20，回应「颜色比例要接近、星球大战是半红半蓝」）：整版按**两刃对分**重排——底色从「深空靛」换成「近黑的紫（两刃交点）」，主色从招牌金换成**红刃**，金降级为纯排版位。配比用 `prototypes/star-wars-extraction/ratio.py` 客观核算（权重＝该色位在 `map-dsh.ts` 里驱动的 DSH 变量数，填充类 ×2）：**红刃 51.9% / 蓝刃 48.1%，差值 3.8%**。判据仍全绿。
+> v3.4 配比重排（2026-10-20，回应「颜色比例要接近、星球大战是半红半蓝」）：整版按**两刃对分**重排——底色从「深空靛」换成「近黑的紫（两刃交点）」，主色从招牌金换成**红刃**，金降级为纯排版位。配比用 `prototypes/star-wars-extraction/ratio.py` 客观核算（权重＝该颜色在 `map-dsh.ts` 里驱动的 DSH 变量数，填充类 ×2）：**红刃 51.9% / 蓝刃 48.1%，差值 3.8%**。判据仍全绿。
 
 ①基调：**两刃的交点** background #0F0814——红刃 356.6° 与蓝刃 197.9° 的中点是紫 275.8°，所以底色取 2.jpg 天行者的崛起的紫黑 #160C1C 作根，8 槽走「明度阶 + 彩度阶」双台阶（S 45%→20% 随 L 3.5%→20% 递减，抬亮时不会跑成紫罗兰）：codeBlockBg #0A050D 最深（L3.5%）→ background #0F0814（L5.5%）→ sidebarBg #150C1A（L7.5%）→ codeHeaderBg #1A1020（L9.5%）→ backgroundPanel #211627（L12%）→ inputBg #271C2E（L14.5%）→ backgroundElement #2E2235（L17%）→ bubbleBg #36293D 最亮（L20%）；border #41304B 收在同一族。基准色相 275.0°，偏差 ≤4°，0 个色相孤岛。**底色不偏任何一边，两色才都立得住**——这是 v3.3 用靛蓝底时的教训：饱和的靛把整张界面推向蓝，红刃看着像"只做危险提示"。
 
@@ -66,7 +66,7 @@
 
 ③借物：info 冰窟冷光 #3DD3FF（images.jpg 冰窟最亮的青蓝）、success 月色青 #91BEAE（4.jpg 邓布利多银须与月光）、warning 火光暖橙 #D4A681（2.jpg 壁炉打在皮肤上的暖调）、error 龙息朱砂 #E05A55（承自车身红，同明度 L61%、彩度 40%→71%、色相 +4.3° 的提纯步进）。diffAdded #A9CCC0 / diffRemoved #D9A1A3 各是月色青与车身红向白提亮的浅档，行底则用「夜空蓝 × 对应语义色」固定比例混色（82% / 34% 两档）。syntax：keyword 暮色丁香 #AC93AA（images.jpg 人像阴影）、function 雾蓝天光 #2E9FD0（4.jpg 片名后方）、type 冰窟冷光与月色青的 50/50 混色 #79C7D2、number 木墙铜镜 #BB8964（2.jpg）、string 冰面青提亮 15% #599CB6、operator 银白与夜空蓝 46/54 混色 #73818E、comment 银白压黑 46% #80807E（城墙石灰）。
 
-④技巧：**整套配色只允许三种来源**——直采（hex 与参考图某像素完全一致）、阶梯（采样色的明度/彩度台阶）、混色（两个采样色的固定比例），没有第四种；每个色位在 prototypes/harry-potter-theme-preview.html 的「取色台账」里都标着出处公式与原图裁切，15 个直采色位由脚本回原图逐个复核「该色确实存在」（#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个）。上一版的暖褐石墙与 #E8B64C 在四张参考图里一个像素都找不到，故整版退役。codeBlockBg 做全场最深舞台、codeHeaderBg 反跳家族最亮压住它（大礼堂悬烛）；七色语法两两 ΔE76 最小 13.8（function × string），comment/operator 对比度 4.87/4.83 一律退到核心语法最低 6.29 之下。**已知缺口**：四张图绿相像素不足 0.1%，success 与 diffAdded 只能共用月色青一族的两个明度台阶——这是全套唯一被素材逼出来的地方。
+④技巧：**整套配色只允许三种来源**——直采（hex 与参考图某像素完全一致）、阶梯（采样色的明度/彩度台阶）、混色（两个采样色的固定比例），没有第四种；每个颜色在 prototypes/harry-potter-theme-preview.html 的「取色台账」里都标着出处公式与原图裁切，15 个直采颜色由脚本回原图逐个复核「该色确实存在」（#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个）。上一版的暖褐石墙与 #E8B64C 在四张参考图里一个像素都找不到，故整版退役。codeBlockBg 做全场最深舞台、codeHeaderBg 反跳家族最亮压住它（大礼堂悬烛）；七色语法两两 ΔE76 最小 13.8（function × string），comment/operator 对比度 4.87/4.83 一律退到核心语法最低 6.29 之下。**已知缺口**：四张图绿相像素不足 0.1%，success 与 diffAdded 只能共用月色青一族的两个明度台阶——这是全套唯一被素材逼出来的地方。
 
 　v3.2：全 37 槽按「逐像素取色」重绘，id / name / appearance 均未变（同名 harry-potter，仍进自定义主题胶囊）。硬性 38 对 4.5:1 违例 0（最紧 labelDimmed@backgroundElement 4.67:1，正文 text@background 13.84:1）、UI 15 对 3:1 违例 0（最紧 error@backgroundPanel 4.00:1）、设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值）、审计器 --check 退出码 0、token 对账 0 失配。
 
@@ -141,7 +141,7 @@
 ①基调：赛博坦午夜天台。8 槽不是算出来的阶梯，而是 **5.jpg 夜空里真实像素排成的明度阶**——codeBlockBg #020B1C 地核停机坪 → sidebarBg #021128 侧舱走道 → background #08122B 主场 → backgroundPanel #04133A 舱室面板 → inputBg #022447 输入甲板 → codeHeaderBg #0A2250 代码盖板 → backgroundElement #0D2354 悬浮钢层；气泡槽 bubbleBg #241340 取 5.jpg 星云洋红，是全界面唯一的色相孤族（相对基准 222.9° 偏 39°，仍在 60° 线内）。
 ②组合：primary 汽车人徽章红 #D70A2B × secondary 能量电蓝 #3366A8，350.3° / 213.8° 夹角 **136.5° → 三角**（汽车人红 / 霸天虎蓝 / 大黄蜂黄三张脸都在图里）；borderActive 单独占大黄蜂车漆黄 #F4C803 —— 界面最醒目的一个点是车灯，不是按钮。
 ③借物：info 塞伯坦全息青 #0A6999、success 山林苔色 #A7ABAA、warning 车漆阴影琥珀 #B07400、error 肩炮熔炉橙 #FF5B02、diffAdded 战场草坡 #8F8C7D、diffRemoved 战损锈铜 #BC9D80。syntax：keyword 胸窗辉光红 #FF0044、function 车漆深金 #E1AA00、type Arcee 玫瑰粉 #F68C8E、number 引擎盖暖砂 #D9B9A0、string 没上漆的钢灰蓝 #8E979C、comment 战场烟灰 #767C72、operator 远景雾蓝 #727A85。
-④技巧：**这版的硬约束是「所有颜色必须从参考图产生」**，因此每个色位都带一份机器可复算的配方证明（prototypes/transformers-extraction/sources.py）：直采＝hex 与某张图的某像素完全一致，且 49×49 邻域内至少 24 个同伴像素（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素）；阶梯＝同一色相族内的明度阶且每一阶本身也是真实像素；混色＝两个采样色按固定比例相乘。四个 diff 底色是混色（引擎要求 6 位不透明）：diffAddedBg #182135 = #8F8C7D×12% + #08122B×88%，diffRemovedBg #1E2335 = #BC9D80×12% + #08122B×88%。
+④技巧：**这版的硬约束是「所有颜色必须从参考图产生」**，因此每个颜色都带一份机器可复算的配方证明（prototypes/transformers-extraction/sources.py）：直采＝hex 与某张图的某像素完全一致，且 49×49 邻域内至少 24 个同伴像素（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素）；阶梯＝同一色相族内的明度阶且每一阶本身也是真实像素；混色＝两个采样色按固定比例相乘。四个 diff 底色是混色（引擎要求 6 位不透明）：diffAddedBg #182135 = #8F8C7D×12% + #08122B×88%，diffRemovedBg #1E2335 = #BC9D80×12% + #08122B×88%。
 ⑤已知边界：五张图里 **没有一处纯正的信号绿**（海报上的绿只有 3.jpg 苔色与 4.jpg 远景草坡），所以 success 只能是山林苔色 #A7ABAA、diffAdded 是草坡橄榄 #8F8C7D——两级明度分开承担「完成」与「新增」，不另造一个更漂亮的绿；同理 markdownStrong 取 1.jpg 白棚里的纯白 #FFFFFF，text 只能退到钢白 #CFE2E8（两者 ΔE76 仅 13.4，明度上限被素材锁死）。
 ⑥判据：硬性 38 对 0 违例（最紧 syntaxOperator@codeBlockBg 4.53）、UI 15 对 0 违例（最紧 info@backgroundPanel 3.01）、角色同值碰撞 0、背景色相孤岛 0、语法核心最小 ΔE76 27.6、comment 4.59 / operator 4.53 均退到核心最低 5.00 之下、会同时同屏的相邻岗位最小 ΔE76 11.6。 v3.1 旧版（info=secondary、borderActive=markdownLink 两处并岗、heading 并入 primary）在本版全部拆开，exceptions.json 里的 transformers 记档同步删除。
 
@@ -202,7 +202,7 @@
 ①基调：月光星纱——纸是「白羽 × 樱粉」一条混色阶梯（12%→64%），8 个背景槽同族、零色相孤岛：bubbleBg #FFF6FA 最白浮起 → inputBg #FFE9F3 凹陷 → background #FFEEF5 → border #FFE2EF → codeBlockBg #FFE1EE → codeHeaderBg #FEDAEA → sidebarBg #FFDEED → backgroundPanel #FED7E9 → backgroundElement #FED1E5 最深；代码卡不再另起一块中性灰纸，改成同族浅纸（樱粉 42%）。
 ②组合：primary 2.jpg 深红蝴蝶结 #C51E56 × secondary 海报藏青短裙 #133284，HSL 夹角 116.3° 落进三角关系（粉 × 蓝 × 月金三角色，Hello Kitty 与库洛米都没有这套制服藏青）；borderActive 玫红深阶 #8B1B50，border 樱纸浅描边。
 ③借物：text 3.jpg 夜空暗部 #041541（正文与结构都是夜空墨）、info 2.jpg 星云蓝 #1659A7、success 海报青绿飘带 #006D72、warning 2.jpg 暖金长发沿明度轴压到 L0.50 的月牙金 #845A00、error 海报红日 #AA171F；syntax 五核心压在同一条明度 L=0.44 上：keyword #9B003E 深玫、function #1830D8 群青、type #025A7B 海青、number #6F4A00 赤铜、string #375D39 海绿，两两 ΔE76 最小 41.9。
-④技巧：37 个色位只允许三种来源——直采 8 个（逐像素回原图复核命中数）、阶梯 10 个（采样色沿 OKLCH 明度轴取阶）、混色 19 个（两采样色按固定比例在 sRGB 空间混合）；注释 #516384 与运算符 #625477 各自退到核心语法色之下，形成三级退后梯队；旧版的 #C42C6B 在三张参考图里一个像素都找不到，本版全部重取。审计：38 硬对 + 15 UI 对 + 6 项 IP 设计规范 0 违例 0 告警。
+④技巧：37 个颜色只允许三种来源——直采 8 个（逐像素回原图复核命中数）、阶梯 10 个（采样色沿 OKLCH 明度轴取阶）、混色 19 个（两采样色按固定比例在 sRGB 空间混合）；注释 #516384 与运算符 #625477 各自退到核心语法色之下，形成三级退后梯队；旧版的 #C42C6B 在三张参考图里一个像素都找不到，本版全部重取。审计：38 硬对 + 15 UI 对 + 6 项 IP 设计规范 0 违例 0 告警。
 
 ## 库洛米（light，第 21 套）
 

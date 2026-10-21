@@ -1,7 +1,7 @@
 # 原神主题 · 逐像素取色管线
 
 从五张参考图重新推导 `src/custom-presets/genshin.json`（原神 · 纸感明信片，light）与
-`src/custom-presets/genshin-night.json`（原神 · 夜航，dark）两个 IP 预置的 37 个色位，并生成预览页。
+`src/custom-presets/genshin-night.json`（原神 · 夜航，dark）两个 IP 预置的 37 个颜色，并生成预览页。
 
 **源图**（不入库，需本机存在）：`C:\Users\辰辰洋洋\Pictures\原神\`
 `1.jpg` 官方主视觉（、旅行者双立绘与「原神」题字）· `2.jpg` 派蒙（winking chibi 贴纸）·
@@ -56,7 +56,7 @@ $env:PYTHONIOENCODING = 'utf-8'
 | `write_presets.py` | 把求解产物写成两个 IP 预置 JSON（单行 / LF / 无尾换行 / 键序同形，与 `src/custom-presets/` 既有 21 套一致） |
 | `make_preview_data.js` | 读 `docs/theme-audit/baseline.json`（仓库审计器产物）取**真实比值**，预览里展示的对比度不是自算的 |
 | `preview.template.html` | 预览页模板（`/*__DATA__*/` 与 `/*__VARS_LIGHT__*/`/`/*__VARS_DARK__*/` 为注入点） |
-| `build_preview.py` | 注入数据 + 由色位自动生成 CSS 变量 → `preview.html` |
+| `build_preview.py` | 注入数据 + 由颜色自动生成 CSS 变量 → `preview.html` |
 | `validate.ts` | 独立复核门禁，见下 |
 
 ## validate.ts 复核什么
@@ -82,8 +82,8 @@ $env:PYTHONIOENCODING = 'utf-8'
 
 - **余量很薄**：最紧三处贴着门槛——`labelDimmed@backgroundElement` 4.52:1、
   `secondary@backgroundPanel` 3.01:1、语法核心最小 ΔE76 10.1（门槛 10）。
-  改这 37 个色位**必须重跑 `npm run audit:themes`**，别只跑 `npm test`。
+  改这 37 个颜色**必须重跑 `npm run audit:themes`**，别只跑 `npm test`。
 - 提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死、右键菜单保持毛玻璃白——
-  这三点 37 个色位修不到。
+  这三点 37 个颜色修不到。
 - 引擎的 `ensureDiffContrast` 会在 diff 前景/底对比不足 4.5:1 时**自动改写**色值。
   本套 4 个 diff 对均已达标（≥4.5:1），故引擎原样保留，预览 == 上线。

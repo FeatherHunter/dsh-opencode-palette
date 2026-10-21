@@ -23,7 +23,7 @@ export function renderTheme(name: string, typography?: ThemeTypography) {
   const light = resolveThemeColors(json, 'light')
   const errors = collectErrors(dark).concat(collectErrors(light))
   if (errors.length > 0) {
-    console.warn('[dsh-opencode-palette] ' + name + ' 有 ' + errors.length + ' 个色位解析失败:', errors)
+    console.warn('[dsh-opencode-palette] ' + name + ' 有 ' + errors.length + ' 个颜色解析失败:', errors)
   }
   return generateTheme({ dark, light }, typography || {} as ThemeTypography, name)
 }

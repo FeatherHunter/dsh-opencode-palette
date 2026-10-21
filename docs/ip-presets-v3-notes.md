@@ -126,9 +126,9 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 起因：哈利波特是 21 套 IP 主题里唯一「没有参考图」的一套——上一版的暖褐石墙 + 霍格沃茨金 #E8B64C 是照着 IP 印象补出来的，与任何具体素材都对不上。既然是这个 IP，就得有一张能指得回像素的底片。取四张参考图（`C:\Users\辰辰洋洋\Pictures\哈利波特\` 下的 4.jpg 海报 / images.jpg 冰窟 / 2.jpg 肖像 / 3.jpg 商品图）逐像素取样后整版重绘。
 
-**判尺（比 v3 更严）**：每个色位只允许三种来源，第四种直接判负——
+**判尺（比 v3 更严）**：每个颜色只允许三种来源，第四种直接判负——
 
-1. **直采**：hex 与参考图某个像素完全一致。15 个色位走这条路，由脚本回原图逐个复核「该色确实存在」：#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个，#91BEAE 在 4.jpg 邓布利多银须上找到 4 个。
+1. **直采**：hex 与参考图某个像素完全一致。15 个颜色走这条路，由脚本回原图逐个复核「该色确实存在」：#CAA654 在 3.jpg 领带里找到 13 个精确像素，#0B223B 在 4.jpg 夜空找到 4272 个，#91BEAE 在 4.jpg 邓布利多银须上找到 4 个。
 2. **阶梯**：采样色的明度 / 彩度台阶，公式写在台账卡片上（如 8 个背景槽共用 H211° 一支色相，明度 L6.1%→L23.7%）。
 3. **混色**：两个采样色的固定比例（如代码行底 #233E50 = 夜空蓝 82% × 月色青 18%）。
 
@@ -138,27 +138,27 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **已知缺口（备案）**：四张图绿相像素合计不足 0.1%，绿色素材客观缺位，所以 success #91BEAE 与 diffAdded #A9CCC0 只能共用月色青一族的两个明度台阶——这是全套唯一被素材逼出来的地方，不做「想象一个绿」。
 
-**配套物**：`prototypes/harry-potter-theme-preview.html`（自包含，含 4 张参考图 + 22 块原图裁切 + 37 色位取色台账 + 实时对比度复核）；取色与复核管线在 `prototypes/harry-potter-extraction/`（extract / census / sample / provenance / validate / gen / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。
+**配套物**：`prototypes/harry-potter-theme-preview.html`（自包含，含 4 张参考图 + 22 块原图裁切 + 37 个颜色取色台账 + 实时对比度复核）；取色与复核管线在 `prototypes/harry-potter-extraction/`（extract / census / sample / provenance / validate / gen / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。
 
 ## v3.2 美少女战士逐像素取色重绘（2026-10-20，1 套）
 
-起因：旧版美少女战士是「月光樱粉 + 制服藏青」的印象配色，37 个色位里没有一个能在参考图里指出像素——`#C42C6B` 在三张图里一个像素都找不到，代码底那种灰紫 `#F1ECF3` 同样查无此色。取三张参考图（`C:\Users\辰辰洋洋\Pictures\美少女战士\` 下的 2.jpg 双画面 / 3.jpg Super SM 近景 / images (1).jpg 海报）逐像素取样后整版重绘。
+起因：旧版美少女战士是「月光樱粉 + 制服藏青」的印象配色，37 个颜色里没有一个能在参考图里指出像素——`#C42C6B` 在三张图里一个像素都找不到，代码底那种灰紫 `#F1ECF3` 同样查无此色。取三张参考图（`C:\Users\辰辰洋洋\Pictures\美少女战士\` 下的 2.jpg 双画面 / 3.jpg Super SM 近景 / images (1).jpg 海报）逐像素取样后整版重绘。
 
-**判尺（与 v3.2 哈利波特同一把尺）**：每个色位只允许三种来源，第四种直接判负——① **直采**（hex 与参考图某个像素完全一致，脚本回原图复核命中数）：#C51E56 在 2.jpg 深红蝴蝶结找到 67 处、#041541 在 3.jpg 夜空暗部找到 813 处、#AA171F 在海报红日找到 272 处；② **阶梯**（采样色沿 OKLCH 明度轴取台阶，公式写在卡片上）；③ **混色**（两个采样色按固定比例在 sRGB 空间混合）。本套 8 直采 / 10 阶梯 / 19 混色。
+**判尺（与 v3.2 哈利波特同一把尺）**：每个颜色只允许三种来源，第四种直接判负——① **直采**（hex 与参考图某个像素完全一致，脚本回原图复核命中数）：#C51E56 在 2.jpg 深红蝴蝶结找到 67 处、#041541 在 3.jpg 夜空暗部找到 813 处、#AA171F 在海报红日找到 272 处；② **阶梯**（采样色沿 OKLCH 明度轴取台阶，公式写在卡片上）；③ **混色**（两个采样色按固定比例在 sRGB 空间混合）。本套 8 直采 / 10 阶梯 / 19 混色。
 
 **结果**：场域从「樱粉各取一色」换成**樱纸一条混色阶梯**——3.jpg 白羽 #FFFFFF × 翅膀粉 #FEB7D7 按 12%→64% 排下 8 个背景槽，同族同相、0 色相孤岛，代码卡也改回同族浅纸（42%）而不是另起一块中性灰。品牌主色取 2.jpg 深红蝴蝶结 #C51E56，第二色取海报藏青短裙 #133284，HSL 夹角 116.3° 落进三角关系（粉 × 蓝 × 月金三角色，Hello Kitty 与库洛米都没有这套制服藏青）；正文与结构都是 3.jpg 夜空的深蓝 #041541，语义色各领一桩实物：星云蓝 #1659A7 做 info、海报青绿飘带 #006D72 做 success、暖金长发压深到 L0.50 的 #845A00 做 warning、海报红日 #AA171F 做 error。语法七色先定 5 个核心色相（玫红 / 群青 / 海青 / 赤铜 / 海绿）再统一压到明度 L=0.44，两两 ΔE76 最小 41.9；注释 #516384（5.08）与运算符 #625477（5.77）退到核心语法最低 6.32 之下，形成三级退后梯队。
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 labelDimmed@backgroundElement 4.70:1，正文 text@background 15.82:1）；UI 15 对 3:1 违例 0（最紧 success@backgroundPanel 4.70:1）；设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进三角区 / 语法核心 ΔE ≥ 10 / comment·operator 退后成立）；`node scripts/audit-themes.ts --check` 退出码 0。id / name / appearance 全部不变，仍以同名 `sailor-moon`（美少女战士）进自定义主题胶囊。
 
-**已知缺口（备案）**：三张图没有饱和的绿色像素（绿相全是低彩度的浅绿前发 #7DA67E 与薄荷 #83B4B8），success 只能取海报青绿 #006D72、字符串色再压一档到 #375D39 补上「绿」的语义——这是全套唯一被素材逼出来的地方，不做「想象一个绿」。另：提示气泡文字色由宿主写死为白色，浅色主题下对比不足，37 个色位修不到这一点。
+**已知缺口（备案）**：三张图没有饱和的绿色像素（绿相全是低彩度的浅绿前发 #7DA67E 与薄荷 #83B4B8），success 只能取海报青绿 #006D72、字符串色再压一档到 #375D39 补上「绿」的语义——这是全套唯一被素材逼出来的地方，不做「想象一个绿」。另：提示气泡文字色由宿主写死为白色，浅色主题下对比不足，37 个颜色修不到这一点。
 
-**配套物**：`prototypes/sailor-moon-theme-preview.html`（自包含，含 3 张参考图 + 18 块原图裁切 + 37 色位取色台账 + 实时对比度复核）；取色与复核管线在 `prototypes/sailor-moon-extraction/`（sources / build_palette / write_preset / make_preview / verify_sources + README 跑法），换图或改配色可整套重跑并复算审计。
+**配套物**：`prototypes/sailor-moon-theme-preview.html`（自包含，含 3 张参考图 + 18 块原图裁切 + 37 个颜色取色台账 + 实时对比度复核）；取色与复核管线在 `prototypes/sailor-moon-extraction/`（sources / build_palette / write_preset / make_preview / verify_sources + README 跑法），换图或改配色可整套重跑并复算审计。
 
 ## v3.5 宝可梦逐像素取色重绘（2026-10-20，1 套）
 
-起因：旧版宝可梦是「常磐森林深墨绿 + 通用藏青」的印象配色，37 个色位里没有一个能在参考图里指出像素——`#0E1B13` 的背景绿、`#7AC74C` 的 success 绿、`#3D7DD8` 的 secondary 蓝，四张图里一个像素都找不到；v3 终审还为了合规记了 6 组有意并岗（error·keyword·diffRemoved 同火红等）。既然是这个 IP，就得有一张能指得回像素的底片。取四张参考图（`C:\Users\辰辰洋洋\Pictures\宝可梦\` 下的 01-pikachu-official-pokedex-art.png 官方图鉴立绘 / 2.jpg wikiHow 平涂 / 3.jpg 30 周年 / 4.jpg 合志插画）逐像素取样后整版重绘。
+起因：旧版宝可梦是「常磐森林深墨绿 + 通用藏青」的印象配色，37 个颜色里没有一个能在参考图里指出像素——`#0E1B13` 的背景绿、`#7AC74C` 的 success 绿、`#3D7DD8` 的 secondary 蓝，四张图里一个像素都找不到；v3 终审还为了合规记了 6 组有意并岗（error·keyword·diffRemoved 同火红等）。既然是这个 IP，就得有一张能指得回像素的底片。取四张参考图（`C:\Users\辰辰洋洋\Pictures\宝可梦\` 下的 01-pikachu-official-pokedex-art.png 官方图鉴立绘 / 2.jpg wikiHow 平涂 / 3.jpg 30 周年 / 4.jpg 合志插画）逐像素取样后整版重绘。
 
-**判尺（迄今最严）**：每个色位只允许一种来源——**直采**，hex 与参考图某个像素完全一致。37 个色位全部走这条路，**0 阶梯 / 0 混色 / 0 想象**。脚本回四张原图逐位复核命中像素数并记进台账（`prototypes/pokemon-extraction/proof.json`），命中为 0 即判负。
+**判尺（迄今最严）**：每个颜色只允许一种来源——**直采**，hex 与参考图某个像素完全一致。37 个颜色全部走这条路，**0 阶梯 / 0 混色 / 0 想象**。脚本回四张原图逐位复核命中像素数并记进台账（`prototypes/pokemon-extraction/proof.json`），命中为 0 即判负。
 
 **结果**：场域从「印象深墨绿」换成**图鉴卡的暗场**——01 号官方图鉴立绘是四张图里唯一有黑白结构的：卡面页底 `#1C1C22`、画框纯黑 `#000000`、页脚栏 `#0C0C10`。8 个背景槽收进同一条冷调明度阶梯（基准色相 240.0°，0 个色相孤岛）：codeBlockBg `#000000`（74,560 px 全场最深，做对战舞台）→ sidebarBg `#060606` → inputBg `#0C0C10` → background `#1C1C22`（58,800 px）→ bubbleBg `#28282D` → backgroundPanel `#37373B` → backgroundElement `#40404A` → codeHeaderBg `#48484D`。冷场暖字是这一版的骨架：所有暖意由徽章金与御三家承担，正文是卡面自己的白字 `#EEEEF4`（2,157 px）、弱文字是合志插画里的淡灰蓝 `#D3D3D8`。
 
@@ -170,9 +170,9 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 labelDimmed@backgroundElement 5.08:1，正文 text@background 14.67:1）；UI 15 对 3:1 违例 0（最紧 error@backgroundPanel 3.24:1）；设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进互补区 / 语法核心最小 ΔE76 = 22.0，门槛 10 / comment 5.72 与 operator 4.92 退到核心最低 5.86 之下）；`node scripts/audit-themes.ts` 报 pokemon 硬对 0 + UI 0；`prototypes/pokemon-extraction/validate.ts` 用仓库引擎（resolve.ts / map-dsh.ts）独立复算同样全绿。id / name / appearance 全部不变，仍以同名 `pokemon`（宝可梦，dark）进自定义主题胶囊。
 
-**已知缺口（备案）**：三支色在素材里只以抗锯齿细边存在——diffRemoved `#FE4C1C` 只有 16 px（2.jpg 脸颊的红边）、markdownBlockQuote `#BDBDC3` 18 px、syntaxKeyword `#C790A3` 18 px。它们确实存在于原图，但密度极低；这是"直采到底"的代价，备案而不伪装成"大面积取色"。另：提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死 `#2C2C2E`（暗色主题下恰好不违和，但那是巧合不是修复）、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个色位修不到这三点。
+**已知缺口（备案）**：三支色在素材里只以抗锯齿细边存在——diffRemoved `#FE4C1C` 只有 16 px（2.jpg 脸颊的红边）、markdownBlockQuote `#BDBDC3` 18 px、syntaxKeyword `#C790A3` 18 px。它们确实存在于原图，但密度极低；这是"直采到底"的代价，备案而不伪装成"大面积取色"。另：提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死 `#2C2C2E`（暗色主题下恰好不违和，但那是巧合不是修复）、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个颜色修不到这三点。
 
-**配套物**：`prototypes/pokemon-theme-preview.html`（自包含，含 4 张参考图 + 37 色位实时像素取证 + 取色台账 + 对比度复核）；取色与复核管线在 `prototypes/pokemon-extraction/`（extract 全图像素直方图 / census 明度阶梯普查 / build_palette 取色自检 / validate 引擎复算 / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。
+**配套物**：`prototypes/pokemon-theme-preview.html`（自包含，含 4 张参考图 + 37 个颜色实时像素取证 + 取色台账 + 对比度复核）；取色与复核管线在 `prototypes/pokemon-extraction/`（extract 全图像素直方图 / census 明度阶梯普查 / build_palette 取色自检 / validate 引擎复算 / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。
 
 ## v3.4 原神逐像素取色重绘（2026-10-20，明暗两套）
 
@@ -190,13 +190,13 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **胶囊形态**：`genshin`（原神，light）与 `genshin-night`（原神·夜航，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立，点哪条就把宿主外观拉到那种并显示对应配色——因为自定义主题一条只有一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定按哪种外观显示），「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现。
 
-**配套物**：`prototypes/genshin-theme-preview.html`（自包含，含 5 张参考图 + 35 块原图裁切实证 + 37 色位取值与落点 + 逐条派生配方 + 仓库审计器实算的对比度复核）；可复跑的取色与复核管线在 `prototypes/genshin-extraction/`（`extract.py` 锚点取样 / `solver.ts` 约束求解，固定种子逐字节可复现 / `write_presets.py` 落盘 / `validate.ts` 独立复核门禁），跑法见该目录 README。
+**配套物**：`prototypes/genshin-theme-preview.html`（自包含，含 5 张参考图 + 35 块原图裁切实证 + 37 个颜色取值与落点 + 逐条派生配方 + 仓库审计器实算的对比度复核）；可复跑的取色与复核管线在 `prototypes/genshin-extraction/`（`extract.py` 锚点取样 / `solver.ts` 约束求解，固定种子逐字节可复现 / `write_presets.py` 落盘 / `validate.ts` 独立复核门禁），跑法见该目录 README。
 
 ## v3.6 超级马里奥逐像素取色重绘（2026-10-20，明暗两套）
 
 **起因**：上一版马里奥是「印象配色」——晴空蓝底 + 帽红 + 水管绿，凭的是对 IP 的记忆而不是任何一张素材。1-1 的天、砖块、山丘、帽红到底各是多少，没有一处指得回像素。取三张参考图（`C:\Users\辰辰洋洋\Pictures\超级马里奥\` 下的 1.png NES 标题画面 / 2.jpg 3D 手办 / 3.jpg 经典卡通）逐像素取样后整版重绘，明暗各一套。
 
-**源图实测**：1.png 是严格 NES 配色，全图 51.4% 是天空 #5A96FF、10.3% 是砖橙 #CE4D08、标题字面浅沙 #FFBEB5（横幅内 39.6%）、勾线 #000000、山丘绿 #00AA00、灌木绿 #84D310、金币黄 #8C7100、小马里奥红 #DE2800；2.jpg 提供受光层次（帽红受光 #FD4E4B、背带受光 #4284DA、背带暗部 #173D7D、眼睛蓝 #529DF0、胡子和瞳孔黑 #1D100A）；3.jpg 提供高饱和原色（帽红 #C7280E、背带蓝 #0C4BAA、纽扣金 #F3CD24、鞋棕 #7E370B）。27 个源像素建台账，每个色位只允许三种来源：直采 / 明度阶梯 / 定比混色。
+**源图实测**：1.png 是严格 NES 配色，全图 51.4% 是天空 #5A96FF、10.3% 是砖橙 #CE4D08、标题字面浅沙 #FFBEB5（横幅内 39.6%）、勾线 #000000、山丘绿 #00AA00、灌木绿 #84D310、金币黄 #8C7100、小马里奥红 #DE2800；2.jpg 提供受光层次（帽红受光 #FD4E4B、背带受光 #4284DA、背带暗部 #173D7D、眼睛蓝 #529DF0、胡子和瞳孔黑 #1D100A）；3.jpg 提供高饱和原色（帽红 #C7280E、背带蓝 #0C4BAA、纽扣金 #F3CD24、鞋棕 #7E370B）。27 个源像素建台账，每个颜色只允许三种来源：直采 / 明度阶梯 / 定比混色。
 
 **明色「1-1 白昼」（`mario`，light）**：底色是 1.png 的天空 #5A96FF 混白 94% 的 #F5F9FF——界面不是屏幕，是 1-1 抬头那片天。8 个背景槽收进同一支天蓝只拉明度：inputBg #FAFCFF → codeBlockBg #F8FAFF → background #F5F9FF → sidebarBg #F2F7FF → backgroundPanel #EFF5FF → codeHeaderBg #EDF3FF → backgroundElement #EAF2FF → bubbleBg #E5EFFF。代码区不用深色卡：浅底主题的正确反差来自深墨 syntax，不来自换舞台。正文墨是 2.jpg 的胡子黑 #1D100A（17.58:1），markdownStrong 用 1.png 的勾线纯黑 #000000。
 
@@ -210,13 +210,13 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **胶囊形态**：`mario`（超级马里奥，light）与 `mario-night`（超级马里奥·夜行，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立——自定义主题一条只有一套色，「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现（同原神的两条）。
 
-**配套物**：`prototypes/mario-extraction/`（`palette.py` 逐像素取色 + 判尺自检 / `validate.ts` 用仓库引擎独立复核 / `write_preset.py` 落盘两个 JSON，跑法见该目录 README）；预览页 `prototypes/mario-theme-preview.html`（自包含，含 3 张参考图 + 37 色位取值与派生配方 + 对比度实算复核）。
+**配套物**：`prototypes/mario-extraction/`（`palette.py` 逐像素取色 + 判尺自检 / `validate.ts` 用仓库引擎独立复核 / `write_preset.py` 落盘两个 JSON，跑法见该目录 README）；预览页 `prototypes/mario-theme-preview.html`（自包含，含 3 张参考图 + 37 个颜色取值与派生配方 + 对比度实算复核）。
 
 ## v3.6 海贼王逐像素取色重绘（2026-10-20，1 套）
 
-起因：上一版海贼王是「深海夜航」印象配色——`#0A1D38` 的深海底、`#FFCC33` 的草帽黄、`#FF4A00` 的橙红，37 个色位里几乎没有一个能在参考图里指出像素：草帽受光面的真实像素是 `#FDDBC0`、草帽阴影是 `#866D54`，`#FFCC33` 不是图上任何一处草帽的颜色；底色 `#0A1D38` 也只是「印象里的深海」。既然是海贼王，就得有能指回像素的底片。取三张参考图（`C:\Users\辰辰洋洋\Pictures\海贼王\` 下的 `images.jpg` 草帽路飞 / `2.jpg` ONE PIECE 标志 / `3.jpg` 草帽团全员）逐像素取样后整版重绘。
+起因：上一版海贼王是「深海夜航」印象配色——`#0A1D38` 的深海底、`#FFCC33` 的草帽黄、`#FF4A00` 的橙红，37 个颜色里几乎没有一个能在参考图里指出像素：草帽受光面的真实像素是 `#FDDBC0`、草帽阴影是 `#866D54`，`#FFCC33` 不是图上任何一处草帽的颜色；底色 `#0A1D38` 也只是「印象里的深海」。既然是海贼王，就得有能指回像素的底片。取三张参考图（`C:\Users\辰辰洋洋\Pictures\海贼王\` 下的 `images.jpg` 草帽路飞 / `2.jpg` ONE PIECE 标志 / `3.jpg` 草帽团全员）逐像素取样后整版重绘。
 
-**判尺**：每个色位只允许一种来源——**定比混色**（两个及以上锚点的固定比例线性混合，比例写进台账）。锚点取自像素区域（矩形 + 色相窗口筛像素后取中位 / 饱和极值 / 明度极值），23 个锚点全部有像素出处，37 个色位无一例外，**0 想象**。
+**判尺**：每个颜色只允许一种来源——**定比混色**（两个及以上锚点的固定比例线性混合，比例写进台账）。锚点取自像素区域（矩形 + 色相窗口筛像素后取中位 / 饱和极值 / 明度极值），23 个锚点全部有像素出处，37 个颜色无一例外，**0 想象**。
 
 **结果：明暗反转，dark → light。** 三张参考图全是正午高调画面（晴空、积云、沙滩），浅底才是它们的真实亮度。场域从「深海夜航」换成**正午·海风**：8 个背景槽收进同一条晴空蓝色相（H200–206，跨度 5.7°，0 色相孤岛），只拉开度——inputBg `#F2F6F9` 云白天 → bubbleBg `#E6F3FC` → background `#E3F3FB` 云边淡蓝 → backgroundPanel `#CEEBFA` → sidebarBg `#C3E6FA` → codeBlockBg `#B4DFF9` 日光浅海纸面 → backgroundElement `#9FD6F9` → codeHeaderBg `#95D2F9`。越往里越深，像从天空一路潜进海里。
 
@@ -228,15 +228,15 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 syntaxOperator / syntaxComment 4.63:1，正文 text@background 14.31:1）；UI 15 对 3:1 违例 0（最紧 borderActive@backgroundElement 3.33:1、secondary@backgroundPanel 3.41:1）；设计告警 0（25 个设计角色两两不同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进类比区 / 语法核心最小 ΔE76 = 18.2，门槛 10 / comment 与 operator 4.63 退到核心最低 4.88 之下）；`node scripts/audit-themes.ts --check` 报 one-piece 硬对 0 + UI 0 + 待处理 0。id / name 不变，仍以同名 `one-piece`（海贼王，**light**）进自定义主题胶囊。
 
-**已知缺口（备案）**：① 亮草帽金在浅底主题里当不了色位，只能以 8–14% 配比混进黄铜家族，界面上真正穿纯金的只有草帽图标（插画，不受色位阈值约束）；② 焦点环 `borderActive` 在引擎里用得最广（border-l2/l3/l4 + ghost-active-border + scrollbar-hover），但 @ 最深浮层只有 3.33:1，是全套余量最薄的一处——换「航线深蓝 `#144DA5`」可到 5.13:1，代价是草帽金在界面里彻底消失；③ 25 个设计角色靠 23 个锚点，`p_navy` 一个锚点服务 12 个角色、`navy_shadow` 服务 8 个，溯源表看着「图里来」，真实色相身份只有 8–9 种，要再拉开需要火焰 / 恶魔果实那类饱和色，三张参考图里没有；④ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡写死 `#2C2C2E`、右键菜单保持毛玻璃白——37 个色位修不到这三点。
+**已知缺口（备案）**：① 亮草帽金在浅底主题里当不了颜色，只能以 8–14% 配比混进黄铜家族，界面上真正穿纯金的只有草帽图标（插画，不受颜色阈值约束）；② 焦点环 `borderActive` 在引擎里用得最广（border-l2/l3/l4 + ghost-active-border + scrollbar-hover），但 @ 最深浮层只有 3.33:1，是全套余量最薄的一处——换「航线深蓝 `#144DA5`」可到 5.13:1，代价是草帽金在界面里彻底消失；③ 25 个设计角色靠 23 个锚点，`p_navy` 一个锚点服务 12 个角色、`navy_shadow` 服务 8 个，溯源表看着「图里来」，真实色相身份只有 8–9 种，要再拉开需要火焰 / 恶魔果实那类饱和色，三张参考图里没有；④ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡写死 `#2C2C2E`、右键菜单保持毛玻璃白——37 个颜色修不到这三点。
 
-**配套物**：`prototypes/one-piece-theme-preview.html`（自包含，含 37 色位取色台账 + 逐条派生配方 + 对比度报告 + 引擎 token 落点核对）；对抗式审查记录 `prototypes/one-piece-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/one-piece-extraction/`（`extract.py` 簇普查 / `pick.py` 锚点取色 / `design.py` 配方求解 + 判尺复核 / `redteam.py` 对抗式自查 / `preview.py` 生成预览 / `apply.py` 落盘 + README 跑法），换图或改配色可整套重跑并复算审计，落盘结果与管线输出逐字节一致。
+**配套物**：`prototypes/one-piece-theme-preview.html`（自包含，含 37 个颜色取色台账 + 逐条派生配方 + 对比度报告 + 引擎 token 落点核对）；对抗式审查记录 `prototypes/one-piece-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/one-piece-extraction/`（`extract.py` 簇普查 / `pick.py` 锚点取色 / `design.py` 配方求解 + 判尺复核 / `redteam.py` 对抗式自查 / `preview.py` 生成预览 / `apply.py` 落盘 + README 跑法），换图或改配色可整套重跑并复算审计，落盘结果与管线输出逐字节一致。
 
 ## v3.6 赛博朋克 2077 逐像素取色重绘（2026-10-20，1 套）
 
-起因：上一版赛博朋克 2077 是「印象里的赛博朋克」配色——`#fcee0a` 的招牌黄、`#ede7f2` 的冷白正文、`#00f0ff` 的霓虹青、`#a6ff00` 的酸性绿，37 个色位里几乎没几个能在参考图里指出像素：`#00f0ff` 不是五张海报上任何一处领口青（真实领口青是 `#4A96B8`），`#a6ff00` 也不是图里的绿（绿簇最饱和的一档是 `#CDED66`），而 `#fcee0a` 与图上的黄场主色 `#FBF405` 也差着一档。既然是 2077，就得能指回像素。取五张参考图（`C:\Users\辰辰洋洋\Pictures\赛博朋克2077\` 下的 `1.jpg` V 持枪 / `2.jpg` 霓虹粉墙 / `3.jpg` V 全幅黄场 / `4.jpg` Phantom Liberty 热红场 / `5.jpg` V 与 Johnny）逐像素取样后整版重绘。
+起因：上一版赛博朋克 2077 是「印象里的赛博朋克」配色——`#fcee0a` 的招牌黄、`#ede7f2` 的冷白正文、`#00f0ff` 的霓虹青、`#a6ff00` 的酸性绿，37 个颜色里几乎没几个能在参考图里指出像素：`#00f0ff` 不是五张海报上任何一处领口青（真实领口青是 `#4A96B8`），`#a6ff00` 也不是图里的绿（绿簇最饱和的一档是 `#CDED66`），而 `#fcee0a` 与图上的黄场主色 `#FBF405` 也差着一档。既然是 2077，就得能指回像素。取五张参考图（`C:\Users\辰辰洋洋\Pictures\赛博朋克2077\` 下的 `1.jpg` V 持枪 / `2.jpg` 霓虹粉墙 / `3.jpg` V 全幅黄场 / `4.jpg` Phantom Liberty 热红场 / `5.jpg` V 与 Johnny）逐像素取样后整版重绘。
 
-**判尺**：每个色位只允许一种来源，三选一，**没有第四种**——**直采**（色值 = 图里的一个真实像素，28 槽）、**阶梯**（某个真实像素的同色相明度阶，6 槽）、**混色**（两个真实像素的配比，3 槽）。台账 40 张来源裁切逐像素核验，框内命中的都是**完全同值**像素而非「接近」（40/40）。
+**判尺**：每个颜色只允许一种来源，三选一，**没有第四种**——**直采**（色值 = 图里的一个真实像素，28 槽）、**阶梯**（某个真实像素的同色相明度阶，6 槽）、**混色**（两个真实像素的配比，3 槽）。台账 40 张来源裁切逐像素核验，框内命中的都是**完全同值**像素而非「接近」（40/40）。
 
 **结果：dark 保持，一条暖黑明度梯。** 8 个背景槽收进同一条暖黑带（色相 −15°…+28°，绕 0° 展开跨度 43°，离审计的 60° 孤岛阈值尚有余量），只拉开度：codeBlockBg `#0E0A0B` 最深 → codeHeaderBg `#100B08` → background `#151112` → sidebarBg `#1C1616` → backgroundPanel `#231B19` → inputBg `#261F1B` → bubbleBg `#2A231D` → backgroundElement `#2C2829` 最浅，像从皮衣的阴影一路走到反光的金属面。
 
@@ -248,15 +248,15 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 syntaxOperator@codeBlockBg 4.62:1、syntaxComment 4.75:1，正文 text@background 10.15:1）；UI 15 对 3:1 违例 0（最紧 secondary@backgroundPanel 3.33:1、error@backgroundPanel 4.38:1）；设计告警 0 待处理（25 个设计角色只有 error·diffRemoved 并岗一处重复值、0 色相孤岛、0 markdown 同值、语法核心五最小 ΔE76 = 31.6、comment/operator 退后 0 越位、可共存角色两两 ΔE76 ≥ 10 全部满足）；引擎 tokenParity 0 失配。id / name 不变，仍以同名 `cyberpunk-2077`（**dark**）进自定义主题胶囊。
 
-**已知缺口（备案）**：① `secondary` 在整个宿主只有 **1 个消费者**——`--dsw-alias-state-idle-primary` 的 8px 空闲圆点，所以霓虹品红在真实界面里几乎看不见，这套实际是**单声位**主题，粉墙只活在几何里；② `border`（border-l1）同样只有 3 个消费者（行内代码边框、菜单描边、折叠代码体），主代码卡与表格边框都不是它，这个色位在界面里几乎不可见；③ 证据不均：字面像素在全库 752,206 px 中出现 ≥50 次的只有 5 槽（borderActive 916 / primary 268 / sidebarBg 147 / backgroundPanel 114 / background 50），其余 23 槽是 1–49 次的薄样本——**色族**仍然很厚（黄场 408,882 px、黑皮阴影 127,685 px、皮革暖棕 75,979 px、红场 37,653 px、琥珀 22,151 px），但几个语义色的具体 hex 是薄样本；④ `syntaxType` `#7A9E92`、`syntaxOperator` `#7876A5`、`syntaxKeyword` `#C3B50C` 等全库仅 1 px，是为同时满足判尺与分离度而在语料里做约束搜索得到的解。
+**已知缺口（备案）**：① `secondary` 在整个宿主只有 **1 个消费者**——`--dsw-alias-state-idle-primary` 的 8px 空闲圆点，所以霓虹品红在真实界面里几乎看不见，这套实际是**单声位**主题，粉墙只活在几何里；② `border`（border-l1）同样只有 3 个消费者（行内代码边框、菜单描边、折叠代码体），主代码卡与表格边框都不是它，这个颜色在界面里几乎不可见；③ 证据不均：字面像素在全库 752,206 px 中出现 ≥50 次的只有 5 槽（borderActive 916 / primary 268 / sidebarBg 147 / backgroundPanel 114 / background 50），其余 23 槽是 1–49 次的薄样本——**色族**仍然很厚（黄场 408,882 px、黑皮阴影 127,685 px、皮革暖棕 75,979 px、红场 37,653 px、琥珀 22,151 px），但几个语义色的具体 hex 是薄样本；④ `syntaxType` `#7A9E92`、`syntaxOperator` `#7876A5`、`syntaxKeyword` `#C3B50C` 等全库仅 1 px，是为同时满足判尺与分离度而在语料里做约束搜索得到的解。
 
-**配套物**：`prototypes/cyberpunk-theme-preview.html`（自包含，含 37 色位取色台账 + 40 张逐像素来源裁切 + 53 对对比度实时复核 + 对抗式审查记录）；管线在 `prototypes/cyberpunk-extraction/`（`cp_core.py` 共享判尺与语料 / `extract.py` 色彩普查 → `clusters.json` / `design.py` 配色 + 判尺 + 语料约束搜索 → `palette.json` / `pick.py` 字面像素台账 → `anchors.json` / `redteam.py` 对抗式自查 / `preview.py` 生成预览 / `apply.py` 落盘 `src/custom-presets/cyberpunk-2077.json`），跑法见该目录 README。
+**配套物**：`prototypes/cyberpunk-theme-preview.html`（自包含，含 37 个颜色取色台账 + 40 张逐像素来源裁切 + 53 对对比度实时复核 + 对抗式审查记录）；管线在 `prototypes/cyberpunk-extraction/`（`cp_core.py` 共享判尺与语料 / `extract.py` 色彩普查 → `clusters.json` / `design.py` 配色 + 判尺 + 语料约束搜索 → `palette.json` / `pick.py` 字面像素台账 → `anchors.json` / `redteam.py` 对抗式自查 / `preview.py` 生成预览 / `apply.py` 落盘 `src/custom-presets/cyberpunk-2077.json`），跑法见该目录 README。
 
 ## v3.6 哆啦A梦逐像素取色重绘（2026-10-20，1 套）
 
-起因：上一版哆啦A梦是「印象配色」——晴空纸 #CBE7F8 的代码区、primary #0072A8、info 改紫罗兰（自称「任意门秘宝」）、number 改薰衣草紫。37 个色位里几乎没几个能在参考图里指出像素：紫罗兰与薰衣草紫在六张图里一个像素都没有，primary #0072A8 也不是 1.png 身上那支身体青蓝（真实像素是 #189BC8），铃铛黄则完全不在任何色位上。既然是哆啦A梦，就得能指回像素。取六张参考图（`C:\Users\辰辰洋洋\Pictures\哆啦A梦\` 下的 1.png 全身立绘 / 2.jpg 漫画封面 / 3.png 黄场字标 / 4.jpg 暗场海报 / 5.jpg 近景特写 / 6.jpg 合影）逐像素取样后整版重绘。
+起因：上一版哆啦A梦是「印象配色」——晴空纸 #CBE7F8 的代码区、primary #0072A8、info 改紫罗兰（自称「任意门秘宝」）、number 改薰衣草紫。37 个颜色里几乎没几个能在参考图里指出像素：紫罗兰与薰衣草紫在六张图里一个像素都没有，primary #0072A8 也不是 1.png 身上那支身体青蓝（真实像素是 #189BC8），铃铛黄则完全不在任何颜色上。既然是哆啦A梦，就得能指回像素。取六张参考图（`C:\Users\辰辰洋洋\Pictures\哆啦A梦\` 下的 1.png 全身立绘 / 2.jpg 漫画封面 / 3.png 黄场字标 / 4.jpg 暗场海报 / 5.jpg 近景特写 / 6.jpg 合影）逐像素取样后整版重绘。
 
-**判尺**：每个色位只允许三种来源，第四种直接判负——**直采**（hex 与图内某个像素完全一致；PNG 精确匹配、JPEG ±3 容差，命中数记进台账，命中为 0 即判负）、**阶梯**（同色相明度阶）、**定比混色**（两个锚点按固定比例线性混合，比例写进台账）。18 个源色、**2 槽直采 + 35 槽定比混色，0 想象**。
+**判尺**：每个颜色只允许三种来源，第四种直接判负——**直采**（hex 与图内某个像素完全一致；PNG 精确匹配、JPEG ±3 容差，命中数记进台账，命中为 0 即判负）、**阶梯**（同色相明度阶）、**定比混色**（两个锚点按固定比例线性混合，比例写进台账）。18 个源色、**2 槽直采 + 35 槽定比混色，0 想象**。
 
 **结果：场域从「印象晴空纸」换成图里那条晴空混色阶梯。** 1.png 的漫画纸白 #FFFFFF（39,280 px）× 5.jpg 身上那支柔蓝 #7FD2FE（16,393 px）拉出 8 个背景槽，同族同相（色相 H200–202°，0 色相孤岛）：inputBg #FBFDFF（L* 99.2）→ background #EFF9FF（97.4）→ bubbleBg #E4F6FF（95.8）→ sidebarBg #DBF2FF（94.2）→ backgroundPanel #D0EFFF（92.7）→ codeBlockBg #C5EBFF（91.0）→ codeHeaderBg #B9E7FE（89.2）→ backgroundElement #AEE2FE（87.3），每步 ≥1.5 L*（判尺要求 ≥1.4）。代码区不用深色卡：浅底主题的正确反差来自深墨 syntax，不来自换舞台。
 
@@ -267,15 +267,15 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 markdownBlockQuote@backgroundPanel 4.78:1，正文 text@background 16.79:1）；UI 15 对 3:1 违例 0（最紧 secondary@backgroundPanel 3.18:1、borderActive@backgroundElement 4.90:1）；设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进互补区 / 语法核心最小 ΔE76 = 15.5，门槛 10 / comment·operator 退后成立）；`node scripts/audit-themes.ts --check` 报 doraemon 硬对 0 + UI 0 + 待处理 0，token 对账 212 项 0 失配。id / name / appearance 全部不变，仍以同名 `doraemon`（哆啦A梦，light）进自定义主题胶囊。
 
-**已知缺口（备案）**：① 六张图里没有一处设计过的绿——唯一的绿是 3.png 蓝字标压在黄场上叠出来的 39 个像素 #6F997A，success 与 diffAdded 两个岗位都从这 39 px 里派生，这是全套唯一被素材逼出来的地方，不做「想象一个绿」；② 宿主把四个状态色渲染成 8px 圆点，而素材里没有第二支绿、第二支橙，所以四态靠**明度阶梯**（secondary L*54.5 / success 39.5 / warning 31.9 / error 23.4）而不是色相分开：常视最小 ΔE76 23.0，绿色觉模拟下 10.7（红绿色盲）/ 20.5（红色盲），仍过 10 的门槛但余量薄；③ `secondary` 在整个宿主只有 **1 个消费者**——`--dsw-alias-state-idle-primary` 的 8px 空闲圆点，铃铛黄在真实界面里几乎看不见；④ `border`（border-l1）同样只有 3 个消费者，且 8 个表面上都 <3:1（审计信息项 borderBelow3: 8）——描边不是文字，这是 37 槽判尺结构性照不到的一处；⑤ 宿主还有三个未被映射的 token 会漏 DeepSeek 蓝（`--dsw-alias-brand-primary-new-colorprimary-new-color` / `--dsw-alias-label-deep-diving` / `--dsw-alias-switch-thumb`），37 个色位管不到。
+**已知缺口（备案）**：① 六张图里没有一处设计过的绿——唯一的绿是 3.png 蓝字标压在黄场上叠出来的 39 个像素 #6F997A，success 与 diffAdded 两个岗位都从这 39 px 里派生，这是全套唯一被素材逼出来的地方，不做「想象一个绿」；② 宿主把四个状态色渲染成 8px 圆点，而素材里没有第二支绿、第二支橙，所以四态靠**明度阶梯**（secondary L*54.5 / success 39.5 / warning 31.9 / error 23.4）而不是色相分开：常视最小 ΔE76 23.0，绿色觉模拟下 10.7（红绿色盲）/ 20.5（红色盲），仍过 10 的门槛但余量薄；③ `secondary` 在整个宿主只有 **1 个消费者**——`--dsw-alias-state-idle-primary` 的 8px 空闲圆点，铃铛黄在真实界面里几乎看不见；④ `border`（border-l1）同样只有 3 个消费者，且 8 个表面上都 <3:1（审计信息项 borderBelow3: 8）——描边不是文字，这是 37 槽判尺结构性照不到的一处；⑤ 宿主还有三个未被映射的 token 会漏 DeepSeek 蓝（`--dsw-alias-brand-primary-new-colorprimary-new-color` / `--dsw-alias-label-deep-diving` / `--dsw-alias-switch-thumb`），37 个颜色管不到。
 
-**配套物**：`prototypes/doraemon-theme-preview.html`（自包含，含 18 块原图裁切 + 37 色位取色台账 + 场域明度阶梯 + 对比度实算复核 + 对抗式审查纪要）；对抗式审查记录 `prototypes/doraemon-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/doraemon-extraction/`（`census.py` 全图像素普查 / `derive.py` 取色 + 判尺复算 / `preview.py` 生成预览 / `apply.py` 落盘 `src/custom-presets/doraemon.json`），跑法见该目录 README。
+**配套物**：`prototypes/doraemon-theme-preview.html`（自包含，含 18 块原图裁切 + 37 个颜色取色台账 + 场域明度阶梯 + 对比度实算复核 + 对抗式审查纪要）；对抗式审查记录 `prototypes/doraemon-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/doraemon-extraction/`（`census.py` 全图像素普查 / `derive.py` 取色 + 判尺复算 / `preview.py` 生成预览 / `apply.py` 落盘 `src/custom-presets/doraemon.json`），跑法见该目录 README。
 
 ## v3.7 DC 逐像素取色重绘（2026-10-20，1 套）
 
-起因：上一版 DC 是「印象配色」——primary #64a2ff、secondary #ffcf40、background #0b0b11 这类通用值，37 个色位里没几个能在参考图上指出像素。用户的硬要求是**所有颜色必须从提供的图中产生而来，不能自己想象**，于是取三张参考图（`C:\Users\辰辰洋洋\Pictures\DC\` 下的 `1.jpg` 群像海报 / `2.jpg` DC 徽章圆盘 / `3.jpg` THE DC ENCYCLOPEDIA 百科封面）逐像素取样后整版重绘。
+起因：上一版 DC 是「印象配色」——primary #64a2ff、secondary #ffcf40、background #0b0b11 这类通用值，37 个颜色里没几个能在参考图上指出像素。用户的硬要求是**所有颜色必须从提供的图中产生而来，不能自己想象**，于是取三张参考图（`C:\Users\辰辰洋洋\Pictures\DC\` 下的 `1.jpg` 群像海报 / `2.jpg` DC 徽章圆盘 / `3.jpg` THE DC ENCYCLOPEDIA 百科封面）逐像素取样后整版重绘。
 
-**判尺**：每个色位只允许一种来源——**直采**（hex 必须是三张图里的真实像素）。但三张图都是连续渐变的绘画，某个 hex 的*精确*像素常常只有个位数（#07111D 全图 7 px、#717F8A 精确 1 px），按精确命中判「想象色」会误杀真材质，故材质真伪改用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）判定：≥300 视作真实材质、60–300 视作渐变取样、<60 视作薄。本套 **37 个色位落在 36 个不同色值上（#0A0F12 用在两处），全部是真实像素，0 想象**；mass ≥ 1000 的 30 个、300–1000 的 4 个、<300 的 2 个（#8BB551 259 / #89BF81 134，都是角色用色的自然结果）。另加两条针对本素材的加固判据：**引擎不改写判据**（`resolve.ts:221` 的 `ensureDiffContrast` 只要 diffFg 对任一 diffBg < 4.5 就整组四色重写，作者色被覆盖，故两个 diff 组的作者值本身必须 ≥4.5）与**焦点环双达标判据**（`borderActive` 对浅填充 ≥3:1 且对深浮层 ≥4.5，同族青做不到，焦点环必须浅）。
+**判尺**：每个颜色只允许一种来源——**直采**（hex 必须是三张图里的真实像素）。但三张图都是连续渐变的绘画，某个 hex 的*精确*像素常常只有个位数（#07111D 全图 7 px、#717F8A 精确 1 px），按精确命中判「想象色」会误杀真材质，故材质真伪改用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）判定：≥300 视作真实材质、60–300 视作渐变取样、<60 视作薄。本套 **37 个颜色落在 36 个不同色值上（#0A0F12 用在两处），全部是真实像素，0 想象**；mass ≥ 1000 的 30 个、300–1000 的 4 个、<300 的 2 个（#8BB551 259 / #89BF81 134，都是角色用色的自然结果）。另加两条针对本素材的加固判据：**引擎不改写判据**（`resolve.ts:221` 的 `ensureDiffContrast` 只要 diffFg 对任一 diffBg < 4.5 就整组四色重写，作者色被覆盖，故两个 diff 组的作者值本身必须 ≥4.5）与**焦点环双达标判据**（`borderActive` 对浅填充 ≥3:1 且对深浮层 ≥4.5，同族青做不到，焦点环必须浅）。
 
 **结果：场域从「通用深色」换成图里那条夜蓝阶梯。** 8 个背景槽收在一条色相 H202–226（跨度 23.2°，0 色相孤岛），只拉开 L\*：codeBlockBg #000515（1.5）→ sidebarBg #0A0F12（4.1）→ background #0C1326（6.2）→ backgroundPanel #09203F（12.3）→ codeHeaderBg #122543（14.7）→ inputBg #192D52（18.8）→ backgroundElement #263356（21.8）→ bubbleBg #0F437D（28.4，2.jpg 徽章圆盘深蓝），每步 +2.1 … +6.6 L\*，无重复行、无层级倒挂。
 
@@ -289,13 +289,13 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **已知缺口（备案）**：① 徽章上**只有一条饱和青**（#008AC9 / #0392CE / #038FCC 彼此 ΔE 1.45–4.0），而 function 需要 Y ≥ 0.1822、link 需要 Y ≥ 0.2406，窗口里只有一个解，于是 markdownLink #0392CE 与 syntaxFunction #008AC9 的 ΔE 只剩 **3.97**——这是**材料上限不是设计失误**，要拉开得换素材；② 三张图里**没有饱和紫**，只有低彩度暗玫瑰 #BDA3B0（彩度 26），syntaxKeyword 只能取它，四态语义色因此靠明度而非色相分开；③ 焦点环 #D6F0FF 是全主题最亮的一档（Y 0.838），对浮层余量足（10.51）但界面里会「跳」，若想更沉可用 #B8D8ED（对填充 3.55，落进 3:1 但余量薄）——取舍是审美；④ 审计信息项：border 对 8 个表面有 1 个 <3:1（bubbleBg 2.40）、两个 diff 底 <3:1、3 个语法色在代码头带上 <4.5，这三项判尺只记信息不判罚；⑤ 本套的温度是**素材的温度**（三张图两张浅调、一张深调），读起来是「夜里的 DC」，与仓库 notes 原写的「DC 经典蓝红金」不是同一个调子。
 
-**配套物**：`prototypes/dc-comics-theme-preview.html`（自包含，含三张参考图 + 37 色位取色台账 + 应用窗口 mockup + 53 对对比度实算复核 + v1→v2 对抗式审查表 + 材料边界声明 + 37 格出处证据拼版）；对抗式审查记录 `prototypes/dc-comics-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/dc-comics-extraction/`（`verify.py` 37 色位台账 + 38 硬对 + 15 UI 对 + W1..W5 复算 → `palette.json` / `provenance.py` 逐色位回原图取证 → `provenance.json` + `provenance-sheet.png` / `apply.py` 落盘 `src/custom-presets/dc-comics.json`），跑法见该目录 README。
+**配套物**：`prototypes/dc-comics-theme-preview.html`（自包含，含三张参考图 + 37 个颜色取色台账 + 应用窗口 mockup + 53 对对比度实算复核 + v1→v2 对抗式审查表 + 材料边界声明 + 37 格出处证据拼版）；对抗式审查记录 `prototypes/dc-comics-adversarial-review.md`；可复跑的取色与复核管线在 `prototypes/dc-comics-extraction/`（`verify.py` 37 个颜色台账 + 38 硬对 + 15 UI 对 + W1..W5 复算 → `palette.json` / `provenance.py` 逐颜色回原图取证 → `provenance.json` + `provenance-sheet.png` / `apply.py` 落盘 `src/custom-presets/dc-comics.json`），跑法见该目录 README。
 
 ## v3.6 宝可梦对抗式审查后二次重绘（2026-10-20，1 套）
 
 起因：v3.5 交付后做了一轮**四路对抗式审查**——四名审查者互相独立、各自取证，分别攻击「暗场这个根本决定」「直采判尺的真实性」「这套盘子在资深设计师眼里成不成立」「把已经写下的结论逐条推翻」。审查原文合并存 `prototypes/pokemon-adversarial-review.md`。本节只写**改了什么、为什么改、哪些提案被否、哪条原理由被证伪**。
 
-**先说被证伪的那条原理由。** v3.5 写的是「审计的 `primary@background ≥ 3:1` 决定亮黄不能当主色，所以只能做暗场」。范式评审用仓库引擎造出一套完整 37 色位、实跑判尺 **38 硬对 0 违例 / 15 UI 对 0 违例** 的浅色候选（`D:\Temp\pokemon-theme\adv3\palette.light.json`，17 直采 / 20 混色），并指出仓库 12 套浅色预置里 9 套正是把饱和黄压在浅代码卡上（naruto `#FFAFBE`、one-piece `#95D2F9`、hello-kitty `#F4B4D0`）——**3:1 只规定「哪个槽位能放亮黄」，不规定「场」**；用审计规则倒推「必须暗场」是越权推理。暗场仍然更强，但靠的是三条与审计无关的理由：① **素材的场本来就是暗的**——01 号图鉴立绘不是「白卡纸 + 黑画框」，而是**暗卡 + 30 px 白衬边**（卡面 `#1C1C22` 58,800 px 21.60% / 画框墨 `#000000` 74,363 px 27.32% / 页脚 `#0C0C10` 27,378 px 10.06%，白只占 14.05% 且集中在衬边）；② 用户「颜色必须来自图、不能想象」这条硬规则**只有暗场能以最严格形式兑现**——浅场要过 4.5:1 正文与 3:1 品牌位只能靠混色，判尺从 37 直采 / 0 混色掉到 17 直采 / 20 混色；③ **暗场的明度跑道是浅场的两倍**（8 个表面槽 L\* 跨度 0 → 30.8，浅场候选只有 84.0 → 100.0）。代价一并记下：浅场候选本身不劣（判尺余量更宽、语法核心 ΔE76 21.9 与现方案 22.0 持平、0 角色碰撞 / 0 色相孤岛 / 0 markdown 同值），但它拿不回「主色就是徽章黄」——浅场 `primary` 只能是 `#84633C`（107 px 的暗面金），主按钮读起来是「古铜」而不是「皮卡丘黄」。
+**先说被证伪的那条原理由。** v3.5 写的是「审计的 `primary@background ≥ 3:1` 决定亮黄不能当主色，所以只能做暗场」。范式评审用仓库引擎造出一套完整 37 个颜色、实跑判尺 **38 硬对 0 违例 / 15 UI 对 0 违例** 的浅色候选（`D:\Temp\pokemon-theme\adv3\palette.light.json`，17 直采 / 20 混色），并指出仓库 12 套浅色预置里 9 套正是把饱和黄压在浅代码卡上（naruto `#FFAFBE`、one-piece `#95D2F9`、hello-kitty `#F4B4D0`）——**3:1 只规定「哪个槽位能放亮黄」，不规定「场」**；用审计规则倒推「必须暗场」是越权推理。暗场仍然更强，但靠的是三条与审计无关的理由：① **素材的场本来就是暗的**——01 号图鉴立绘不是「白卡纸 + 黑画框」，而是**暗卡 + 30 px 白衬边**（卡面 `#1C1C22` 58,800 px 21.60% / 画框墨 `#000000` 74,363 px 27.32% / 页脚 `#0C0C10` 27,378 px 10.06%，白只占 14.05% 且集中在衬边）；② 用户「颜色必须来自图、不能想象」这条硬规则**只有暗场能以最严格形式兑现**——浅场要过 4.5:1 正文与 3:1 品牌位只能靠混色，判尺从 37 直采 / 0 混色掉到 17 直采 / 20 混色；③ **暗场的明度跑道是浅场的两倍**（8 个表面槽 L\* 跨度 0 → 30.8，浅场候选只有 84.0 → 100.0）。代价一并记下：浅场候选本身不劣（判尺余量更宽、语法核心 ΔE76 21.9 与现方案 22.0 持平、0 角色碰撞 / 0 色相孤岛 / 0 markdown 同值），但它拿不回「主色就是徽章黄」——浅场 `primary` 只能是 `#84633C`（107 px 的暗面金），主按钮读起来是「古铜」而不是「皮卡丘黄」。
 
 **证伪评审查出的事实错误（全部已修）**
 
@@ -327,9 +327,9 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 `labelDimmed@backgroundElement` **4.552:1**，正文 `text@background` 14.67:1、`text@sidebarBg` 17.53:1）；UI 15 对 3:1 违例 0（最紧 `error@backgroundPanel` 3.24:1）；设计告警 0（25 个设计角色 0 同值、0 色相孤岛、基准色相 240.0°、0 markdown 同值、品牌几何 primary 47.5° × secondary 223.8° = **176.2° 互补**、语法核心最小 ΔE76 22.0 门槛 10、comment 5.32 与 operator 4.57 退到核心最低 5.44 之下）；**引擎改写：无**（`ensureDiffContrast` 不会悄悄改写作者色值）。`node scripts/audit-themes.ts --check` 报 pokemon 硬对 0 + UI 0 + 待处理 0，退出码 0；`npm test` 283 / 283 通过；`prototypes/pokemon-extraction/validate.ts` 用仓库引擎（`resolve.ts` / `map-dsh.ts`）独立复算同样全绿。四图精确命中 331,427 / 830,418 px = 39.9%（01 210,119 / 2.jpg 88,570 / 3.jpg 2,568 / 4.jpg 30,170），37 槽落在 **37 个不同色值**上、0 同值重复。id / name / appearance 全部不变，仍以同名 `pokemon`（宝可梦，dark）进自定义主题胶囊。
 
-**已知缺口（备案）**：① `labelDimmed@backgroundElement` 4.552:1 是全套最紧的硬对，距 4.5 只剩 0.05——若再把 `backgroundElement` 抬亮一档就得重算；② 三支色在素材里只以抗锯齿细边存在——`diffRemoved` `#FE4C1C` 16 px、`markdownBlockQuote` `#BDBDC3` 18 px、`syntaxKeyword` `#C790A3` 18 px；③ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死 `#2C2C2E`、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个色位修不到这三点；④ 审美评审指出「直采到底」的代价：37 槽里 10 槽锚在 <60 px，6 个色位 100% 来自 01 图那条 19 px 高的图注小字带——这是素材上限不是取色失误，备案而不伪装成大面积取色。
+**已知缺口（备案）**：① `labelDimmed@backgroundElement` 4.552:1 是全套最紧的硬对，距 4.5 只剩 0.05——若再把 `backgroundElement` 抬亮一档就得重算；② 三支色在素材里只以抗锯齿细边存在——`diffRemoved` `#FE4C1C` 16 px、`markdownBlockQuote` `#BDBDC3` 18 px、`syntaxKeyword` `#C790A3` 18 px；③ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死 `#2C2C2E`、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个颜色修不到这三点；④ 审美评审指出「直采到底」的代价：37 槽里 10 槽锚在 <60 px，6 个颜色 100% 来自 01 图那条 19 px 高的图注小字带——这是素材上限不是取色失误，备案而不伪装成大面积取色。
 
-**配套物**：`prototypes/pokemon-theme-preview.html`（自包含，含 4 张参考图 + 37 色位实时像素取证 + 逐图命中自动生成的取色台账与「四图贡献」卡 + 应用窗口 mockup + 53 对对比度实算复核）；对抗式审查记录 `prototypes/pokemon-adversarial-review.md`；取色与复核管线在 `prototypes/pokemon-extraction/`（extract 全图像素直方图 / census 明度阶梯普查 / build_palette 取色自检 / validate 引擎复算 / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。范式评审做的那套**浅场对照候选**（`palette.light.json` + `validate_light.ts` + 并排渲染 `side-by-side.png`）留档在 `prototypes/pokemon-extraction/light-variant/`，可重跑对照，但**不进预置**——它拿不回「主色就是徽章黄」。
+**配套物**：`prototypes/pokemon-theme-preview.html`（自包含，含 4 张参考图 + 37 个颜色实时像素取证 + 逐图命中自动生成的取色台账与「四图贡献」卡 + 应用窗口 mockup + 53 对对比度实算复核）；对抗式审查记录 `prototypes/pokemon-adversarial-review.md`；取色与复核管线在 `prototypes/pokemon-extraction/`（extract 全图像素直方图 / census 明度阶梯普查 / build_palette 取色自检 / validate 引擎复算 / write_preset + README 跑法），换图或改配色可整套重跑并复算审计。范式评审做的那套**浅场对照候选**（`palette.light.json` + `validate_light.ts` + 并排渲染 `side-by-side.png`）留档在 `prototypes/pokemon-extraction/light-variant/`，可重跑对照，但**不进预置**——它拿不回「主色就是徽章黄」。
 
 ## v3.8 变形金刚逐像素取证重绘（2026-10-20，1 套）
 
@@ -352,7 +352,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（最紧 syntaxOperator@codeBlockBg 4.53、syntaxComment 4.59、markdownBlockQuote@backgroundPanel 4.63、contrastText(primary)@primary 4.82）；UI 15 对 3:1 违例 0（最紧 info@backgroundPanel 3.01、info@background 3.09、secondary@backgroundPanel 3.11）；设计告警 0（0 角色同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何 136.5° 三角 / 核心最小 ΔE76 27.6 / comment·operator 退后成立）；`node scripts/audit-themes.ts` 报 transformers 硬对 0 + UI 0，token 对账 212 项 0 失配，distinctSurfaces 8。`prototypes/transformers-extraction/validate.ts` 用仓库引擎（`resolve.ts` / `map-dsh.ts`）独立复算同样全绿，退出码 0。id / name / appearance 全部不变，仍以同名 `transformers`（变形金刚，dark）进自定义主题胶囊。
 
-**已知缺口（备案）**：① **素材里没有鲜绿**——五图 H120–180、S ≥ 0.30 的像素为 0，只有 3.jpg 苔色与 4.jpg 草坡两处低彩度绿，所以 success 只能是 #A7ABAA（苔灰）、diffAdded 是 #8F8C7D（草坡橄榄），两级明度分开承担「完成」与「新增」，不另造更漂亮的绿；② 明度上限被素材锁死——markdownStrong 取 1.jpg 白棚里的纯白 #FFFFFF（邻域 130,346 px），text 只能退到钢白 #CFE2E8，两者 ΔE76 仅 13.4；③ 邻域人口最薄的几支色（info 26 / syntaxKeyword 32 / primary 33 / markdownCode 52 / syntaxType 48）说明素材在这些色相上本来就是渐变边，不是实色；④ 会同时同屏的相邻岗位最小 ΔE76 11.6（syntaxString × syntaxOperator），是 49 对相邻关系里最紧的一对，比仓库判尺（只查语法核心 ΔE ≥ 10）严，但比审计信息项提示的四对灰阶（textMuted × success 8.2 等）高——素材只有约 10 个高支撑色相家族，25 个岗位靠同族明度台阶拉开，这是材料上限不是取色失误；⑤ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个色位修不到这三点。
+**已知缺口（备案）**：① **素材里没有鲜绿**——五图 H120–180、S ≥ 0.30 的像素为 0，只有 3.jpg 苔色与 4.jpg 草坡两处低彩度绿，所以 success 只能是 #A7ABAA（苔灰）、diffAdded 是 #8F8C7D（草坡橄榄），两级明度分开承担「完成」与「新增」，不另造更漂亮的绿；② 明度上限被素材锁死——markdownStrong 取 1.jpg 白棚里的纯白 #FFFFFF（邻域 130,346 px），text 只能退到钢白 #CFE2E8，两者 ΔE76 仅 13.4；③ 邻域人口最薄的几支色（info 26 / syntaxKeyword 32 / primary 33 / markdownCode 52 / syntaxType 48）说明素材在这些色相上本来就是渐变边，不是实色；④ 会同时同屏的相邻岗位最小 ΔE76 11.6（syntaxString × syntaxOperator），是 49 对相邻关系里最紧的一对，比仓库判尺（只查语法核心 ΔE ≥ 10）严，但比审计信息项提示的四对灰阶（textMuted × success 8.2 等）高——素材只有约 10 个高支撑色相家族，25 个岗位靠同族明度台阶拉开，这是材料上限不是取色失误；⑤ 提示气泡文字色由宿主写死为白色、链接悬浮预览卡被写死、右键菜单保持毛玻璃白（插件故意不接管 `--dsw-specific-menu`）——37 个颜色修不到这三点。
 
 **配套物**：`prototypes/transformers-theme-preview.html`（自包含，含 5 张参考图 + 20 块「取色现场」实拍裁切 + 37 行取色溯源表（配方 / 取色锚点含坐标与邻域人口 / 设计意图）+ 37 格色卡 + 53 对对比度实算复核 + 应用窗口 mockup + 材料边界声明）；对抗式审查记录 `prototypes/transformers-extraction/adversarial.py`（首轮推翻了「22/25 直采是聚类中位色」「success 是想象出来的」「markdownCode 与 text ΔE 4.8」三条）；可复跑的取色与复核管线在 `prototypes/transformers-extraction/`（`model.py` 全图像素账本 + 邻域人口全表 / `solve.py` 模拟退火求解 / `finalize.py` 取证与配方生成 / `build_palette.py` 配方复算 + 判尺自检 / `validate.ts` 引擎复算 / `write_preset.py` 落库 + README 跑法），换图或改配色可整套重跑并复算审计。
 
@@ -362,7 +362,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **判尺（三条）**：
 
-- **直采**——色值必须等于参考图某张图的某个像素。26 个直采色位全部带坐标与 5×5 邻域极差（43–255）；`prototypes/ultraman-extraction/build_palette.py` 按坐标**重读像素**再与出货值逐位比对。
+- **直采**——色值必须等于参考图某张图的某个像素。26 个直采颜色全部带坐标与 5×5 邻域极差（43–255）；`prototypes/ultraman-extraction/build_palette.py` 按坐标**重读像素**再与出货值逐位比对。
 - **阶梯**——8 个表面槽是画布 `#000600`（2.jpg (12,224)，44 px）染海报标题靛 `#2D2C8A`（images.jpg (256,25)，11 px）的明度阶，每档 α 由目标 L\* 反解，步长 ΔL\* 1.41–1.91（house 要求 ≥1.4）。
 - **混色**——4 个 diff 底是直采的 `diffAdded` / `diffRemoved` 按 α=0.13 / 0.20 染在画布上。
 
@@ -379,4 +379,4 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **已知缺口（备案）**：① **JPEG 参考图里没有平坦像素**——26 个直采色全部是边缘过渡色（5×5 极差 43–255），找过「极差 ≤70 的平坦天蓝」候选 0 个。所以「等于原图某像素」保证的是**没有一个标志性颜色是想象出来的**，不是「取到了大块实色」，这条限制在 surface 梯子上是美德（每步 ΔL\* ≥ 1.41 过 house 门），在语义色上是化妆；② 每个直采色在原 JPEG 里通常只出现 1 次，像素级取色对解码器敏感（±1），台账同时给出每个取样点的邻域极差供判断；③ **primary 同时是宿主的文字色角色**（`--dsw-alias-state-business-primary` 在 app.asar 里作 `color:` 用了约 15 处，12–14px），在 12% / 20% 自染底与页面底上只有 3.55–4.00:1——数学上与「按钮配白字 ≥4.5」互斥（需 L≥0.19 且 L≤0.16），house 24 套里 6 套暗色红主题同病（3.36–3.85:1），本套比它们好，记为已知限制而非缺陷。
 
-**配套物**：`prototypes/ultraman-theme-preview.html`（自包含，含 2 张参考图缩略图 + 26 张逐像素证据缩略图 + 37 行取色台账 + 「色位 → DSH 落点」表 + house 判尺原样 53 对实算复核 + 色觉可分性三卡 + 应用窗口 mockup）；取色与自检管线 `prototypes/ultraman-extraction/`（`build_palette.py` / `palette.json` / `provenance.json` / `checks.json` / `report.txt` / `README.md`）。
+**配套物**：`prototypes/ultraman-theme-preview.html`（自包含，含 2 张参考图缩略图 + 26 张逐像素证据缩略图 + 37 行取色台账 + 「颜色 → DSH 落点」表 + house 判尺原样 53 对实算复核 + 色觉可分性三卡 + 应用窗口 mockup）；取色与自检管线 `prototypes/ultraman-extraction/`（`build_palette.py` / `palette.json` / `provenance.json` / `checks.json` / `report.txt` / `README.md`）。

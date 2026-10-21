@@ -243,11 +243,11 @@
 </head>
 <body>
 <div class="sheet">
-  <div class="eyebrow">DSH / OpenCode Palette · IP 预置主题 · 37 色位</div>
+  <div class="eyebrow">DSH / OpenCode Palette · IP 预置主题 · 37 个颜色</div>
   <h1 class="title">海贼王 <em>ONE PIECE</em> — 正午·海风</h1>
   <div class="sub">
     场 = 正午的晴空，字 = 深海的墨蓝，心跳 = 草帽的红缎带。<b>没有一个颜色是想象出来的</b>：
-    37 个色位全部由三张参考图上的真实像素（草帽受光面、标志字内阴影、路飞背心红、潟湖青、麻绳棕、娜美橙……）
+    37 个颜色全部由三张参考图上的真实像素（草帽受光面、标志字内阴影、路飞背心红、潟湖青、麻绳棕、娜美橙……）
     按界面真实落点重新配比而成，每一格都能在下方溯源表里查到配方与出处。
   </div>
   <div class="anchors"><span class="anchor"><i style="background:#1698E9"></i>晴空浓蓝 #1698E9</span><span class="anchor"><i style="background:#EAF4FD"></i>积云白 #EAF4FD</span><span class="anchor"><i style="background:#E5C016"></i>标志草帽金 #E5C016</span><span class="anchor"><i style="background:#C32635"></i>路飞背心红 #C32635</span><span class="anchor"><i style="background:#23C0D9"></i>潟湖青 #23C0D9</span><span class="anchor"><i style="background:#674717"></i>船锚棕 #674717</span></div>
@@ -282,7 +282,7 @@
       <div class="side-lbl">最近</div>
       <div class="threads">
         <div class="th sel">正午海风 · 配色评审</div>
-        <div class="th">37 色位落位与配方</div>
+        <div class="th">37 个颜色落位与配方</div>
         <div class="th">取色溯源 · 三图对照</div>
         <div class="th">对比度与语法退后复核</div>
       </div>
@@ -312,12 +312,12 @@
         </div>
 
         <div class="md">
-          <h2>海贼王 · 正午海风 — 已按 37 色位落位</h2>
+          <h2>海贼王 · 正午海风 — 已按 37 个颜色落位</h2>
           <p>整套配色只有一句话：<strong>把正午的天空当纸，把深海当墨，把草帽的红缎带当唯一的心跳</strong>。
           三张参考图全是白天高调画面，所以底子必须是浅的；但草帽金在浅底上过不了 UI 3:1，
           于是主色让位给<em>背心红</em>，麦秆金退到副色与焦点环，做成黄铜件而不是亮黄。
           <strong>草帽金只剩两处</strong>：以 <em>8–14%</em> 的比例混进黄铜家族（副色 / 焦点环 / 函数名），
-          以及作为<em>插画本身</em>的草帽图标（图标不是色位，不受对比度约束）。
+          以及作为<em>插画本身</em>的草帽图标（图标不是颜色，不受对比度约束）。
           新增行的<em>麦色沙纸</em>取自 3.jpg 的沙滩米，不是草帽金——这是两个不同的物件。</p>
           <ul>
             <li>8 个表面只走一条色相（H200–206），靠明度分层：越往里越深，像从天空一路潜进海里；代码区是<em>日光浅海纸面</em>，反差来自深墨语法而不是黑卡。</li>
@@ -328,7 +328,7 @@
 
           <div class="cc">
             <div class="hd"><span class="lang">ts</span><span class="fn">recipe.ts</span><span class="cp">复制</span></div>
-<pre><span class="tk-com">// 每个色位 = 参考图像素锚点的线性混合</span>
+<pre><span class="tk-com">// 每个颜色 = 参考图像素锚点的线性混合</span>
 <span class="tk-kw">const</span> <span class="tk-fn">onePiece</span> <span class="tk-op">=</span> {
   <span class="tk-fn">field</span><span class="tk-op">:</span> <span class="tk-str">"#E3F3FB"</span>,   <span class="tk-com">// 云边淡蓝 · images.jpg</span>
   <span class="tk-fn">ink</span><span class="tk-op">:</span>  <span class="tk-str">"#0F284B"</span>,       <span class="tk-com">// 标志字内阴影 · 2.jpg</span>
@@ -350,7 +350,7 @@
             <span>草帽金 <b>#E5C016</b> 在浅底上只有 <b>1.56 : 1</b>，过不了 UI 3:1，
             所以品牌位改由背心红承担，麦秆金按图里「草帽阴影」压深成 <b>#91774D</b> 做副色；
             亮金只活在不受阈值约束的两处——黄铜家族里 8–14% 的配比，以及作为插画的草帽图标。
-            另：提示气泡的文字色由 DSH 写死为白色，浅色主题下 37 个色位修不到这一点。</span>
+            另：提示气泡的文字色由 DSH 写死为白色，浅色主题下 37 个颜色修不到这一点。</span>
           </div>
 
           <div class="diff">
@@ -373,7 +373,7 @@
         </div>
       </div></div>
 
-      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+      <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">在面板中可见</span></div>
 
       <div class="composer"><div class="col">
         <div class="cbox">
@@ -395,7 +395,7 @@
   </div>
 
   <div class="tokens">
-    <div class="head"><h3>37 Color Tokens</h3><span class="hintx">色位 → DSH 真实落点 · 每格右上角的十六进制即最终值</span></div>
+    <div class="head"><h3>37 Color Tokens</h3><span class="hintx">颜色 → DSH 真实落点 · 每格右上角的十六进制即最终值</span></div>
     <div id="fams"></div>
     <div class="legend">
       <span><i style="background:var(--bg)"></i>背景场域</span>
@@ -435,7 +435,7 @@
     <h3>取色溯源 · Provenance</h3>
     <div class="lead">每一行的配方都是参考图上真实像素的线性混合：<span class="mono">权重·锚点名(锚点 hex)</span>，出处列给出锚点所在的那张图。</div>
     <table>
-      <tr><th>色位</th><th></th><th>终值</th><th>配方（锚点混合）</th><th>出处</th><th>角色</th></tr>
+      <tr><th>颜色</th><th></th><th>终值</th><th>配方（锚点混合）</th><th>出处</th><th>角色</th></tr>
       <tr><td class="mono k">background</td><td class="mono v" style="background:#E3F3FB"></td><td class="mono h">#E3F3FB</td><td class="mono r">56%·云边淡蓝(#DDF2FA) + 44%·积云白(#EAF4FD)</td><td class="mono s">images.jpg</td><td class="zh">主场 · 云边淡蓝</td></tr>
 <tr><td class="mono k">backgroundPanel</td><td class="mono v" style="background:#CEEBFA"></td><td class="mono h">#CEEBFA</td><td class="mono r">88%·云边淡蓝(#DDF2FA) + 12%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">面板 · 淡蓝</td></tr>
 <tr><td class="mono k">backgroundElement</td><td class="mono v" style="background:#9FD6F9"></td><td class="mono h">#9FD6F9</td><td class="mono r">52%·云边淡蓝(#DDF2FA) + 48%·晴空薄蓝(#5CB8F8)</td><td class="mono s">images.jpg</td><td class="zh">浮层 · 更深一档的海</td></tr>
@@ -476,7 +476,7 @@
     </table>
   </div>
 
-  <div class="foot"><span>One Piece · 正午海风 · 37 colors · light · 每个色位都来自三张参考图</span><span>design by 麦浪 · first principles</span></div>
+  <div class="foot"><span>One Piece · 正午海风 · 37 colors · light · 每个颜色都来自三张参考图</span><span>design by 麦浪 · first principles</span></div>
 </div>
 <script>
 const C = {"inputBg": "#F2F6F9", "bubbleBg": "#E6F3FC", "background": "#E3F3FB", "backgroundPanel": "#CEEBFA", "sidebarBg": "#C3E6FA", "codeBlockBg": "#B4DFF9", "backgroundElement": "#9FD6F9", "codeHeaderBg": "#95D2F9", "text": "#0F284B", "textMuted": "#15355E", "primary": "#C32635", "secondary": "#91774D", "info": "#1B638A", "success": "#3B674E", "warning": "#934D20", "error": "#930B19", "border": "#C1E5FA", "borderActive": "#866830", "diffAdded": "#315847", "diffAddedBg": "#EDF0B3", "diffAddedLineNumberBg": "#DBE9BF", "diffRemoved": "#51192D", "diffRemovedBg": "#E6E1EB", "diffRemovedLineNumberBg": "#E5D7E1", "markdownHeading": "#B21C2B", "markdownLink": "#144DA5", "markdownCode": "#105067", "markdownEmph": "#703E22", "markdownStrong": "#171D2E", "markdownBlockQuote": "#2B5E90", "syntaxKeyword": "#A41523", "syntaxFunction": "#6C5733", "syntaxType": "#164589", "syntaxNumber": "#553323", "syntaxString": "#284A41", "syntaxComment": "#3C617F", "syntaxOperator": "#6A5B4C"};

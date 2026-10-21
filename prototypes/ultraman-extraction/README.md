@@ -1,6 +1,6 @@
 # ultraman-extraction —— 奥特曼 IP 预置主题的取色与自检管线
 
-本目录是 `src/custom-presets/ultraman.json`（奥特曼 / dark / 37 色位）的**取色与验证出处**。
+本目录是 `src/custom-presets/ultraman.json`（奥特曼 / dark / 37 个颜色）的**取色与验证出处**。
 配色里每一个色值都能在这里回答两个问题：**它从哪张图的哪个像素来**、**它过不过仓库判尺**。
 
 ## 参考图
@@ -27,8 +27,8 @@ python prototypes/ultraman-extraction/build_palette.py > prototypes/ultraman-ext
 
 | 文件 | 内容 |
 | --- | --- |
-| `palette.json` | 37 个色位的出货值（与 `src/custom-presets/ultraman.json` 同源） |
-| `provenance.json` | 每个色位的出处：直采给 `image` + `xy` + 坐标 + 设计意图；混合给可复算配方（α 精确到 4 位小数） |
+| `palette.json` | 37 个颜色的出货值（与 `src/custom-presets/ultraman.json` 同源） |
+| `provenance.json` | 每个颜色的出处：直采给 `image` + `xy` + 坐标 + 设计意图；混合给可复算配方（α 精确到 4 位小数） |
 | `checks.json` | house 53 对的实算结果、宿主现实 49 对、色盲四态 ΔE76 |
 | `report.txt` | 最近一次跑的完整报告（人读） |
 

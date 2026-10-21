@@ -184,6 +184,6 @@ for (const r of MD_ROLES) { const v = slot(r)!; (mdSeen[v.toLowerCase()] ||= [])
 const mdDup = Object.values(mdSeen).filter((v) => v.length > 1)
 console.log(`markdown 同值：${mdDup.length ? mdDup.map((c) => c.join('=')).join(', ') : '无'}`)
 
-console.log('\n── 全部色位对比度 ──')
+console.log('\n── 全部颜色对比度 ──')
 for (const r of rows) console.log(`  ${r.ok ? '✓' : '✗'} ${r.code.padEnd(34)} ${r.ratio.toFixed(2).padStart(6)}  (≥${r.t})`)
 console.log(`\n退出码：${hardFails.length + uiFails.length === 0 ? 0 : 1}`)

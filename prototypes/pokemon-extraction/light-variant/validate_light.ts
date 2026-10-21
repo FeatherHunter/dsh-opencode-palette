@@ -180,6 +180,6 @@ for (let i = 0; i < SYNTAX_CORE.length; i++) for (let j = i + 1; j < SYNTAX_CORE
   const d = deltaE76(slot(SYNTAX_CORE[i])!, slot(SYNTAX_CORE[j])!)
   console.log(`   ${SYNTAX_CORE[i]}×${SYNTAX_CORE[j]} = ${d.toFixed(1)} ${d >= 10 ? '✓' : '✗'}`)
 }
-console.log('\n── 全部色位对比度 ──')
+console.log('\n── 全部颜色对比度 ──')
 for (const r of rows) console.log(`  ${r.ok ? '✓' : '✗'} ${r.code.padEnd(34)} ${r.ratio.toFixed(2).padStart(6)}  (≥${r.t})`)
 console.log(`\n退出码：${hardFails.length + uiFails.length === 0 ? 0 : 1}`)

@@ -9,7 +9,7 @@
 ## 结论先行
 
 1. **头号根因不是手感，是信息丢失。** 色相没有独立状态：每次渲染都由 hex 反推（`runtime/custom-editor.mjs:533` 的 `const hsv = hexToHsv(pop.hex)`），而 `hexToHsv` 在灰色/黑色/白色时（`d === 0`，`runtime/custom-color.mjs:29-37`）把 `h` 归 0。于是用户把明度拖到 0（黑）或饱和度拖到 0（灰）的那一刻，色相条弹回红色 0°、SV 底板也变红；此后无论怎么拖，都只能在这个「假红色相」里选。「总感觉选不到自己满意的」首先是被这个确定性 bug 挡住的。
-2. **第二层是交互语义自相矛盾。** 拖动时已经 live commit（`runtime/custom-editor.mjs:556-558` 每次 move 都 `setColor`），但点弹窗外或按「关闭」又会整体回滚到 `orig`（`runtime/custom-editor.mjs:391-397`、`:292-317`）。用户调好颜色去点下一个色位，上一步的调色被静默丢弃 —— 这比「不准」更伤。
+2. **第二层是交互语义自相矛盾。** 拖动时已经 live commit（`runtime/custom-editor.mjs:556-558` 每次 move 都 `setColor`），但点弹窗外或按「关闭」又会整体回滚到 `orig`（`runtime/custom-editor.mjs:391-397`、`:292-317`）。用户调好颜色去点下一个颜色，上一步的调色被静默丢弃 —— 这比「不准」更伤。
 3. **第三层是控件表达力不足。** 色相用的是原生 `<input type="range">`（`runtime/custom-editor.mjs:608-618`）：没有渐变轨道、没有刻度、数字不回显、thumb 吃掉行程（226px 行程 ≈ 1.6°/px）。MDN 自己写着 range「imprecise，只应在精确值不重要时使用」（下面证据表 E1）。
 4. **第四层是色彩空间本身。** HSV/HSL 的色相不是感知均匀的：同 value/saturation 扫一圈色相，黄、品红、青明显比红蓝亮（Oklab 作者原文，E6）。用户只想「换个色相」，拿到的却是亮暗也变了的颜色 → 观感落空。
 5. **主推方案 A**：320px「精确控制版」——296×136 SV 面板 + 带渐变与刻度的横向色相轨 + H/S/V 三个数字输入（±1 步进）+ 8 个主题色 + 最近色 + HEX 输入/吸管/对比度徽章 + 仅背景槽的透明行 + 取消/完成。高度约 378px（要改定位常量）。
@@ -176,7 +176,7 @@ SV 只有 120px 高、弹板 250px 宽；定位用**硬编码 350** 判翻转（
 
 | # | 元素 | 尺寸 | 内容 | 交互 | 无障碍 |
 | --- | --- | --- | --- | --- | --- |
-| 1 | 标题行 | 22 高，12px 字 | 色位名（`tr` 取 zh/en）+ 等宽 hex | hex 点击复制（失败静默） | `aria-live="polite"` 播报新 hex |
+| 1 | 标题行 | 22 高，12px 字 | 颜色名（`tr` 取 zh/en）+ 等宽 hex | hex 点击复制（失败静默） | `aria-live="polite"` 播报新 hex |
 | 2 | SV 面板 | 296×136，圆角 8 | 三层渐变（现状口径可直接复用 `:579-580`） | pointer 拖拽；方向键 ±1、Shift+方向键 ±10 | 可聚焦；`aria-label="饱和度与明度"`；`aria-describedby` 指向操作提示 |
 | 3 | SV 手柄 | 14×14 | 白环 2px + `#0009` 外描边 + 本色芯 | `pointerEvents: 'none'`（命中靠面板） | 不单独聚焦 |
 | 4 | 色相轨 | 296×14（含 2px 命中扩展） | 13 个 30° 停的渐变（用**当前 S/V** 生成，不是纯色相） | 点击/拖拽跳转；←→ ±1、Shift ±10、PageUp/Down ±15、Home 0、End 360 | `role="slider"` + `aria-valuemin=0` / `max=360` / `now=H` + `aria-valuetext="色相 210°"` |
@@ -198,7 +198,7 @@ SV 只有 120px 高、弹板 250px 宽；定位用**硬编码 350** 判翻转（
 - **键盘**（对齐 APG，E2）：色相轨 `role=slider`；SV 面板用四向键（民间通行做法，E9）；数字框用原生 `type="text" inputmode="numeric"` + 自己处理 ↑↓（避免原生 number 的滚轮误触）。
 - **粘贴 hex**：`onPaste` 里先 `trim`、去掉全角 `＃`、去空格、允许缺 `#`；`#RGB` 展开；`#RRGGBBAA` 取前 6 位并提示「已忽略透明度」。
 - **吸管**：`if (!window.EyeDropper) → 禁用`；`open()` 返回 `sRGBHex` 后转大写写回。`catch` 里吞掉 `AbortError`（用户按 Esc）。因为要求 secure context（E10），必须有一键降级路径：见 §7.3 的「从预览取样」。
-- **对比度**：按色位映射一个基准槽（`text`/`textMuted` → `background`；`brand`/`md`/`syn`/`diff`/`border` → `backgroundPanel`；bg 槽 → 反过来对 `text`），算 WCAG 对比度显示徽章。低于 3:1 用 `TK.dangerText` 上色（不可达时也不报错，只显示数字）。
+- **对比度**：按颜色映射一个基准槽（`text`/`textMuted` → `background`；`brand`/`md`/`syn`/`diff`/`border` → `backgroundPanel`；bg 槽 → 反过来对 `text`），算 WCAG 对比度显示徽章。低于 3:1 用 `TK.dangerText` 上色（不可达时也不报错，只显示数字）。
 - **焦点陷阱**：Tab 在弹板内循环，Esc 关闭；打开时把焦点放到色相轨（用户最可能先动的控件）。
 
 ### 6.4 「本主题用过的颜色」怎么修
@@ -418,7 +418,7 @@ const ratio = (a, b) => { const x = L(a), y = L(b); return (Math.max(x, y) + 0.0
 | Tab 出界 | 键盘导航 | 焦点陷阱，循环在弹板内 | — |
 | 点弹板外面 | 鼠标 | **保留修改并关闭**（不再回滚） | — |
 | Esc | 键盘 | 回滚到 `orig` | — |
-| 切换色位 | 点别的色块 | 保留上一槽的修改（配合「点外面=保留」自然成立） | — |
+| 切换颜色 | 点别的色块 | 保留上一槽的修改（配合「点外面=保留」自然成立） | — |
 
 ---
 

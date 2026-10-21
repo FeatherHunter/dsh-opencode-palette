@@ -1,4 +1,4 @@
-// generate.ts — 生成器：解析后的主题色位 + 排印参数 → DSH 注入物 { tokens, css }
+// generate.ts — 生成器：解析后的主题颜色 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
 import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors, TOOLTIP_TEXT_SELECTOR } from './map-dsh.ts'
 import { FONT_FACE_CSS } from './font-face.ts'

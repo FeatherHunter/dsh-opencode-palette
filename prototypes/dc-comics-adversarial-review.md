@@ -1,6 +1,6 @@
 # DC · 夜蓝徽章 —— 第一性原理 + 对抗式审查
 
-> 对象：`src/custom-presets/dc-comics.json` 的重设计稿（深色，37 色位，appearance `dark`）
+> 对象：`src/custom-presets/dc-comics.json` 的重设计稿（深色，37 个颜色，appearance `dark`）
 > 依据：三张参考图 `C:\Users\辰辰洋洋\Pictures\DC\{1,2,3}.jpg`（群像海报 / 徽章圆盘 / 百科封面）；
 > 仓库判尺 `docs/theme-audit/criteria.md` + `scripts/audit-themes.ts`；引擎真值 `src/engine/resolve.ts`
 > 交付物：`prototypes/dc-comics-theme-preview.html`（自包含）；管线 `prototypes/dc-comics-extraction/`
@@ -9,7 +9,7 @@
 
 ## 0. 审查的三条规矩
 
-1. **不预设立场，先证伪。** 每个色位先假设它是对的，然后去找那个能把它推翻的观察；「看起来不错」不构成证据。
+1. **不预设立场，先证伪。** 每个颜色先假设它是对的，然后去找那个能把它推翻的观察；「看起来不错」不构成证据。
 2. **判尺是地板不是目标。** 4.5 / 3.0 过了只是及格；要看的是余量，以及**过线之后引擎会不会把我的色改掉**。
 3. **不看自己的稿，看像素和源码。** 取 `src/engine/resolve.ts` 的真实语义、取原图里该色的最近邻裁切，去反驳自己写的叙事。
 
@@ -24,9 +24,9 @@
 | 职责 | 内容 | 本稿的答法 |
 |---|---|---|
 | ① 阅读（第一职责） | 长文本 + 代码要能读；层级靠**明度阶梯**而不是颜色 | 8 个背景表面收在一条色相 H202–226（跨度 24°），只拉开 L*：井底 1.5 → 侧栏 4.1 → 场 6.2 → 卡片 12.3 → 头带 14.7 → 输入 18.8 → 浮层 21.8 → 气泡 28.4 |
-| ② 直采（宪法） | 37 个色位能回原图指出像素 | 37 位落在 **36 个不同色值**上（#0A0F12 用在两处），全部是三张图的真实像素；tonal mass（ΔE76 ≤ 6 邻域像素数）≥1000 的 30 个、300–1000 的 4 个、<300 的 2 个（#8BB551 259 / #89BF81 134） |
+| ② 直采（宪法） | 37 个颜色能回原图指出像素 | 37 位落在 **36 个不同色值**上（#0A0F12 用在两处），全部是三张图的真实像素；tonal mass（ΔE76 ≤ 6 邻域像素数）≥1000 的 30 个、300–1000 的 4 个、<300 的 2 个（#8BB551 259 / #89BF81 134） |
 | ③ 品牌可识别 | 主色必须是 DC 的符号，不是通用蓝 | primary = **徽章圆盘本体蓝 #0373B3**（2.jpg 主体像素 48,154 px / mass 54,861）；secondary = **神奇女侠金冠 #E4BA56**；两者 H201.8° × H42.3° = **159.6° 互补** |
-| ④ 落地 | 每个色位在真实 UI 里出现在哪，且不被引擎改写 | 对 `resolve.ts` 的 `ensureDiffContrast` / `contrastText` 逐条核过：两个 diff 组均 **no-op**；`contrastText(primary)` 落在白字分支 |
+| ④ 落地 | 每个颜色在真实 UI 里出现在哪，且不被引擎改写 | 对 `resolve.ts` 的 `ensureDiffContrast` / `contrastText` 逐条核过：两个 diff 组均 **no-op**；`contrastText(primary)` 落在白字分支 |
 
 ---
 
@@ -40,9 +40,9 @@
 | F4 | **背景梯级有重复行，还倒置了** | v1 `sidebarBg` L\* 14.8 vs `backgroundPanel` L\* 14.7（**差 0.04**）；`codeHeaderBg` 28.9 比 `bubbleBg` 26.8 还亮——头带比气泡亮 = 层级倒挂 | 八阶重排为 L\* 1.5 / 4.1 / 6.2 / 12.3 / 14.7 / 18.8 / 21.8 / 28.4 | 步距 +2.1 … +6.6，无重复、无倒挂 ✔ |
 | F5 | **描边在浮层上消失** | v1 `border #1D365F` 对 `backgroundElement #263356` 只有 **1.03:1**——0.5px 结构线等于没画 | 边界改取 1.jpg 钢仔装甲的**银灰 #7C7D7F**（中性，不与品牌蓝抢戏） | 8 个表面 **2.40 – 4.94:1** ✔ |
 | F6 | **弱化文字的余量被浮层吃掉** | v1 `labelDimmed`@`backgroundElement` = **4.58**（阈值 4.5，余量 0.08）——任何轻微调整都会掉线 | 不提亮品牌色（那会把 CTA 变成正文色），而是**压暗浮层**（#283F68 → #263356）+ `textMuted` 换成 1.jpg 蓝雾天光的真实像素 **#BDC0C5** | 4.97（余量 0.47）✔ |
-| F7 | **三个色位的出处标注是错的** | v1 台账：`#09203F` 标「英雄身后夜光」——实际在 1.jpg 左侧蓝雾人物的暗部；`#FEFAD4` 标「封面纸白」——实际是 3.jpg 的高光边缘；`#BEDCDE` 标「钢仔银青」——实际落在 1.jpg 神奇女侠发梢与漫画内的「RED」字样 | 改用**逐色最近邻裁切拼版**（37 格）目视核对，37 条出处逐条重写回台账 | 出处 = 拼版 + 台账 ✔ |
+| F7 | **三个颜色的出处标注是错的** | v1 台账：`#09203F` 标「英雄身后夜光」——实际在 1.jpg 左侧蓝雾人物的暗部；`#FEFAD4` 标「封面纸白」——实际是 3.jpg 的高光边缘；`#BEDCDE` 标「钢仔银青」——实际落在 1.jpg 神奇女侠发梢与漫画内的「RED」字样 | 改用**逐色最近邻裁切拼版**（37 格）目视核对，37 条出处逐条重写回台账 | 出处 = 拼版 + 台账 ✔ |
 | F8 | **「精确像素命中数」这个判据本身是错的** | 三张图都是连续渐变，精确命中几乎为 0（#07111D 全图 7 px、#717F8A 精确 1 px）——按精确命中判「想象色」会误杀真材质 | 换成 **tonal mass**（ΔE76 ≤ 6 邻域像素数）：≥300 = 真实材质，60–300 = 渐变取样，<60 = 薄 | 判据自洽 ✔ |
-| F9 | **v1 有三个色位薄到站不住** | `markdownEmph #FFED6D` mass **18**、`markdownHeading #0092F0` mass **42**、`markdownLink #00AEDE` mass **56**（渐变尖端的薄片） | 换成材质更真的实色：#82BBE8（1542）、#B8D8ED（3570）、#0392CE（12,918） | 三个都站住了 ✔ |
+| F9 | **v1 有三个颜色薄到站不住** | `markdownEmph #FFED6D` mass **18**、`markdownHeading #0092F0` mass **42**、`markdownLink #00AEDE` mass **56**（渐变尖端的薄片） | 换成材质更真的实色：#82BBE8（1542）、#B8D8ED（3570）、#0392CE（12,918） | 三个都站住了 ✔ |
 | F10 | **「深主色 + 同族焦点环」是自相矛盾的形状** | 白字分支要求主色 Y ≤ 0.16244；要同时对浅填充（≥3:1）和深底（≥4.5）成立，焦点环必须浅——v1 用同族青做环，两头都不成立 | 结构性改法：**主色深、焦点环浅**，两个岗位分工不重叠（#0373B3 / #D6F0FF） | 几何自洽 ✔ |
 
 > 另有一条判尺层面的缝，顺手记下但不作为缺陷：仓库判尺对 `labelDimmed` 要求 4.5（正文口径），对品牌色只要求 3.0（UI 口径）。这意味着**调色者只要把品牌色提亮到接近正文亮度，就能轻松拿到 labelDimmed 的余量**——但那样 CTA 就不是 CTA 了。这套稿选择相反的路（压暗浮层、换真实像素），把余量从明度里挣出来，而不是从色相里借。
@@ -101,7 +101,7 @@ node scripts/audit-themes.ts --check
 管线（`prototypes/dc-comics-extraction/`，可重跑）：
 
 ```
-python prototypes/dc-comics-extraction/verify.py        # 37 色位台账 + 38 硬对 + 15 UI 对 + W1..W5 → HARD FAILS 0 / DESIGN WARNS 0
-python prototypes/dc-comics-extraction/provenance.py    # 逐色位回原图取证 → provenance.json + provenance-sheet.png
+python prototypes/dc-comics-extraction/verify.py        # 37 个颜色台账 + 38 硬对 + 15 UI 对 + W1..W5 → HARD FAILS 0 / DESIGN WARNS 0
+python prototypes/dc-comics-extraction/provenance.py    # 逐颜色回原图取证 → provenance.json + provenance-sheet.png
 python prototypes/dc-comics-extraction/apply.py         # 落盘 src/custom-presets/dc-comics.json
 ```

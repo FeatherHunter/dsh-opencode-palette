@@ -34,7 +34,7 @@ export const ASSET_BASE = 'https://raw.githubusercontent.com/anomalyco/opencode/
 // 33 个内置主题（opencode packages/tui/src/theme/assets/ 目录的完整清单）
 export const THEME_NAMES = ["aura","ayu","carbonfox","catppuccin-frappe","catppuccin-macchiato","catppuccin","cobalt2","cursor","dracula","everforest","flexoki","github","gruvbox","kanagawa","lucent-orng","material","matrix","mercury","monokai","nightowl","nord","one-dark","opencode","orng","osaka-jade","palenight","rosepine","solarized","synthwave84","tokyonight","vercel","vesper","zenburn"]
 
-// 每个主题必须提供的语义色位（缺失 = 上游结构变化或内容被篡改，同步直接报错）
+// 每个主题必须提供的语义颜色（缺失 = 上游结构变化或内容被篡改，同步直接报错）
 export const REQUIRED_KEYS = ["background","text","textMuted","primary","accent","error","warning","success","info","border","borderActive","syntaxComment","syntaxKeyword","syntaxFunction","syntaxVariable","syntaxString","syntaxNumber","syntaxType","syntaxOperator"]
 
 // 同步错误分类（no-baseline/tamper-suspect/baseline-expired/io-failed），调用方按 kind 分流。
@@ -210,7 +210,7 @@ export function prettyOf(data: unknown): string {
   return JSON.stringify(data, null, 2) + '\n'
 }
 
-// 结构校验：defs 与 theme 均为对象；theme 含全部必填色位。
+// 结构校验：defs 与 theme 均为对象；theme 含全部必填颜色。
 // 抛错（不直接 exit），由调用方分类为“疑似篡改”并拒绝写入。
 export function validateStructure(name: string, data: unknown): true {
   if (typeof data !== 'object' || data === null) throw new Error(name + ': 非对象')
@@ -219,7 +219,7 @@ export function validateStructure(name: string, data: unknown): true {
   if (typeof doc.theme !== 'object' || doc.theme === null) throw new Error(name + ': 缺 theme')
   const theme = doc.theme as Record<string, unknown>
   for (const key of REQUIRED_KEYS) {
-    if (!(key in theme)) throw new Error(name + ': 缺必填色位 ' + key)
+    if (!(key in theme)) throw new Error(name + ': 缺必填颜色 ' + key)
   }
   return true
 }

@@ -235,7 +235,7 @@ h1.title em{font-style:normal;color:var(--primary)}
 <div class="sheet">
   <div class="eyebrow">DSH / OpenCode Palette · Custom Theme</div>
   <h1 class="title">宝可梦 <em>Pokémon</em> — 电气黄 × 档案馆黑</h1>
-  <div class="sub">四张参考图，37 个色位，全部落在原图的真实像素上——没有一个色值是凭想象配出来的。品牌色取自 30 周年画面的黄场，聚焦态取自图鉴立绘耳尖的亮黄；语义色不是抽象的红绿蓝，而是杰尼龟的甲、妙蛙种子的叶绿、小火龙的橙。<b>按仓库自带的判尺（docs/theme-audit/criteria.md）跑完 56 对对比度：0 违例；IP 设计规范 0 告警</b>——零角色碰撞，语法注释与运算符都已退后，核心语法最小 ΔE 18.2。</div>
+  <div class="sub">四张参考图，37 个颜色，全部落在原图的真实像素上——没有一个色值是凭想象配出来的。品牌色取自 30 周年画面的黄场，聚焦态取自图鉴立绘耳尖的亮黄；语义色不是抽象的红绿蓝，而是杰尼龟的甲、妙蛙种子的叶绿、小火龙的橙。<b>按仓库自带的判尺（docs/theme-audit/criteria.md）跑完 56 对对比度：0 违例；IP 设计规范 0 告警</b>——零角色碰撞，语法注释与运算符都已退后，核心语法最小 ΔE 18.2。</div>
   <div class="anchors" id="anchors"></div>
 
   <div class="why">
@@ -275,7 +275,7 @@ h1.title em{font-style:normal;color:var(--primary)}
       <div class="threads">
         <div class="th sel">宝可梦主题 · 设计评审</div>
         <div class="th">把配色写进 theme.json</div>
-        <div class="th">37 色位与对比度检查</div>
+        <div class="th">37 个颜色与对比度检查</div>
         <div class="th">参考图取色溯源</div>
       </div>
       <div class="sb-foot"><span class="av">小</span><span>小智</span><span class="gear">⚙</span></div>
@@ -304,7 +304,7 @@ h1.title em{font-style:normal;color:var(--primary)}
         </div>
 
         <div class="md">
-          <h2>宝可梦主题 · 已按 37 色位落位</h2>
+          <h2>宝可梦主题 · 已按 37 个颜色落位</h2>
           <p>核心只有一句话：<strong>先定主角，再分冷暖，最后才排语法</strong>。品牌只有一个黄，语义色全部指得回海报上的一只宝可梦，25 个设计角色两两不重值。重点做了三个取舍：</p>
           <ul>
             <li>输入框边界用<em>耳尖亮黄</em> <code>#F1D379</code>，主色用<em>黄场</em> <code>#FEC901</code>：同族不同源、亮度差一档。合成器里黄色方块（发送）与黄色描边（聚焦框）只隔 10 像素——这一档之差是必须的，不是装饰。</li>
@@ -346,7 +346,7 @@ h1.title em{font-style:normal;color:var(--primary)}
           <div class="tool">
             <div class="row"><span class="pulse"></span><span class="name">运行 audit-themes.ts</span><span class="st"><i></i>已完成</span></div>
             <div class="out">
-              [1] 37 色位像素溯源：<b>37 / 37 命中真实像素</b><br>
+              [1] 37 个颜色像素溯源：<b>37 / 37 命中真实像素</b><br>
               [2] 仓库判尺 56 对对比度（4.5 / 3.0）：<b>56 / 56 全通过</b><br>
               [3] IP 设计规范（碰撞 / 退后 / ΔE / 孤岛）：<b>0 告警</b>
             </div>
@@ -354,7 +354,7 @@ h1.title em{font-style:normal;color:var(--primary)}
         </div>
       </div></div>
 
-      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+      <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">在面板中可见</span></div>
 
       <div class="composer"><div class="col">
         <div class="cbox">
@@ -376,7 +376,7 @@ h1.title em{font-style:normal;color:var(--primary)}
   </div>
 
   <div class="tokens">
-    <div class="sec-head"><h3>37 Color Tokens</h3><span class="hintx">色位 → DSH 真实落点 · 每个色值都标了它在参考图里的出处</span></div>
+    <div class="sec-head"><h3>37 Color Tokens</h3><span class="hintx">颜色 → DSH 真实落点 · 每个色值都标了它在参考图里的出处</span></div>
     <div class="sec-note">按界面使用频率排序。每一格都标注该色值的出处——整套主题没有任何一个色值是凭想象配出来的，也没有两个设计角色取同一个值。</div>
     <div class="grid" id="grid"></div>
     <div class="legend">
@@ -405,7 +405,7 @@ h1.title em{font-style:normal;color:var(--primary)}
 
   <div class="tokens">
     <div class="sec-head"><h3>Preset Payload · 预设文件</h3><span class="hintx">src/custom-presets/pokemon.json · dsh-opencode-palette.custom-theme.v1</span></div>
-    <div class="cc" style="margin-top:12px"><div class="hd"><span class="lang">json</span><span class="fn">pokemon.json</span><span class="cp">37 色位</span></div><pre>{
+    <div class="cc" style="margin-top:12px"><div class="hd"><span class="lang">json</span><span class="fn">pokemon.json</span><span class="cp">37 个颜色</span></div><pre>{
   &quot;appearance&quot;: &quot;dark&quot;,
   &quot;basePreset&quot;: &quot;pokemon&quot;,
   &quot;colors&quot;: {
@@ -455,7 +455,7 @@ h1.title em{font-style:normal;color:var(--primary)}
   </div>
 
   <div class="foot">
-    <span>Pokémon preset · 37 colors · dark · base: pokemon → 全色位重绘 · 仓库判尺 0 违例 0 告警</span>
+    <span>Pokémon preset · 37 colors · dark · base: pokemon → 全颜色重绘 · 仓库判尺 0 违例 0 告警</span>
     <span>colors 100% sampled from 4 reference images · 每个色值都能在原图上指到坐标</span>
   </div>
 </div>
@@ -478,7 +478,7 @@ const PICK = {
 const ROLE = {
  0:"主结构图。它给出整套主题的三层纸——立绘舞台的纯黑、图注条的黑场、卡片的外框——加上发丝分隔线、图注的正文与次级灰，以及两处暖色：皮卡丘脸颊的珊瑚（关键字 / 强调）和嘴里的那点粉（字符串）。",
  1:"唯一的冷色来源。它的电属性天蓝分成三级：最亮的一层当链接，最暗的影子当次级色，中间那层留给强调。它在满屏的黄旁边承担补色对位的任务——所以必须待在次级位，不能上品牌位。",
- 2:"主角。整幅画面 68% 是同一个黄，这个黄就是品牌色 primary。它同时说明了一件事：这套主题的饱和度预算给得最狠的是黄与红两族（各 4 个色位），蓝色是唯一的冷色家族（3 个）。",
+ 2:"主角。整幅画面 68% 是同一个黄，这个黄就是品牌色 primary。它同时说明了一件事：这套主题的饱和度预算给得最狠的是黄与红两族（各 4 个颜色），蓝色是唯一的冷色家族（3 个）。",
  3:"语义图。海报里每只宝可梦自带一种状态色：杰尼龟的甲是 info，妙蛙种子的叶绿是 success，小火龙的橙是 warning，妙蛙种子的身红是 error，伊布的奶油肚皮是标题色，壳下的深青是 diff 新增底。"
 };
 // 取色点（来自构建期像素扫描：每个色值在原图上的实心位置）
@@ -516,7 +516,7 @@ IMGS.forEach((im,i) => {
     list += '<div><i style="background:'+C[k]+'"></i><b>'+C[k]+'</b><span>'+(SRC[k]||'')+'</span></div>';
   }
   const card = document.createElement('div'); card.className='pcard';
-  card.innerHTML = '<div class="ph">'+im.name+'<span class="pbadge">贡献 '+keys.length+' 色位</span></div>'+
+  card.innerHTML = '<div class="ph">'+im.name+'<span class="pbadge">贡献 '+keys.length+' 颜色</span></div>'+
     '<div class="pm">'+im.w+' × '+im.h+' 像素</div>'+
     '<div class="pimg" style="aspect-ratio:'+im.w+'/'+im.h+'">'+
     '<img src="data:image/'+im.mime+';base64,'+im.b64+'" alt="'+im.name+'">'+dots+'</div>'+

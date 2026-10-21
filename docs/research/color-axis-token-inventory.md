@@ -9,7 +9,7 @@
 
 **用语（2026-10-20 与用户对齐后）**
 
-- **opencode token**：本插件最初基于 opencode 主题设计的那 37 个参数（`COLOR_SLOTS` 的 `key`，如 `background` / `textMuted` / `syntaxKeyword`）。旧称「色位 / 色槽」，**已废弃**，新文档一律用 opencode token。
+- **opencode token**：本插件最初基于 opencode 主题设计的那 37 个参数（`COLOR_SLOTS` 的 `key`，如 `background` / `textMuted` / `syntaxKeyword`）。旧称「颜色 / 色槽」，**已废弃**，新文档一律用 opencode token。
 - **主题 token**：宿主 DSH 画界面用的 CSS 变量名（`--dsw-*` / `--shiki-*` / `--dsh-*`），即 opencode token 落到宿主上的"宿主名"。
 - **注入（inject）**：本插件把 token 值送进页面的动作。两条通道：宿主 API `theme.overrideTokens('opencode-palette', tokens)`（`runtime/client.ts:736`）与自建 `<style data-plugin>` 节点里的 `body{--x:…}` 规则（`runtime/client.ts:739-741`）。**「写」这个词不专业，停用。**
 - **覆盖（override）**：同名 token 上我们的值优先于宿主样式表的值——这是"注入"的结果，不是动作名。
@@ -134,7 +134,7 @@
 | **宿主颜色名合计** | **105** | **222** | **47%** |
 
 - **105 个全部是宿主真实声明的名字**（0 个拼错/过期/自造混入）。自造名 `--dsl-code-block-background` 用 `--dsl-` 前缀，不占宿主命名空间。
-- 105 名对应 37 个用户可见的 **opencode token**（原称"色位"，2026-10-20 由用户定名；`COLOR_SLOTS` 37；`src/engine/map-dsh.ts:230` 的注释称"37 色位元数据"）→ **平均每个 opencode token 落 2.8 个宿主名**。这是"37 参数"与"全量 token"之间最容易让人误判的地方：加名字不等于加可见控制项。
+- 105 名对应 37 个用户可见的 **opencode token**（原称"颜色"，2026-10-20 由用户定名；`COLOR_SLOTS` 37；`src/engine/map-dsh.ts:230` 的注释称"37 个颜色元数据"）→ **平均每个 opencode token 落 2.8 个宿主名**。这是"37 参数"与"全量 token"之间最容易让人误判的地方：加名字不等于加可见控制项。
 
 ### 4.2 本仓写出的 14 个死名（用户改了不会变）
 

@@ -2,7 +2,7 @@
 
 三张参考图：`C:\Users\辰辰洋洋\Pictures\DC\` 下的 `1.jpg`（群像海报：超人/蝙蝠侠/闪电侠/神奇女侠/钢仔/绿灯侠）/ `2.jpg`（DC 徽章圆盘）/ `3.jpg`（THE DC ENCYCLOPEDIA 百科封面）。
 
-**判尺：每个色位只允许一种来源——直采。** hex 必须是三张图里的真实像素；「像不像」「好不好看」一律不作数。本套 **37 个色位落在 36 个不同色值上，全部是真实像素，0 想象**（#0A0F12 同时用在 `sidebarBg` 与 `diffAddedLineNumberBg`）。
+**判尺：每个颜色只允许一种来源——直采。** hex 必须是三张图里的真实像素；「像不像」「好不好看」一律不作数。本套 **37 个颜色落在 36 个不同色值上，全部是真实像素，0 想象**（#0A0F12 同时用在 `sidebarBg` 与 `diffAddedLineNumberBg`）。
 
 **出处怎么算才诚实**：三张图都是连续渐变的绘画，某个 hex 的*精确*像素常常只有个位数（#07111D 全图 7 px、#717F8A 精确 1 px）——按精确命中判「想象色」会误杀真材质。本管线用 **tonal mass**（ΔE76 ≤ 6 邻域像素数）当材质真伪的判据：≥300 视作真实材质、60–300 视作渐变取样、<60 视作薄。当前台账：**mass ≥ 1000 的 30 个、300–1000 的 4 个、<300 的 2 个**（#8BB551 259 / #89BF81 134，都是角色用色的自然结果）。
 
@@ -15,18 +15,18 @@
 
 ```powershell
 $py = "<bundled python>"
-& $py prototypes/dc-comics-extraction/verify.py      # ① 37 色位台账 + 38 硬对 + 15 UI 对 + W1..W5 → palette.json
-& $py prototypes/dc-comics-extraction/provenance.py  # ② 逐色位回原图取证 → provenance.json + provenance-sheet.png
+& $py prototypes/dc-comics-extraction/verify.py      # ① 37 个颜色台账 + 38 硬对 + 15 UI 对 + W1..W5 → palette.json
+& $py prototypes/dc-comics-extraction/provenance.py  # ② 逐颜色回原图取证 → provenance.json + provenance-sheet.png
 & $py prototypes/dc-comics-extraction/apply.py       # ③ 落盘 src/custom-presets/dc-comics.json
 ```
 
 依赖：Python 3.11+、Pillow、NumPy。①–② 只读参考图，③ 只写 `src/custom-presets/dc-comics.json`。
-参考图目录可用环境变量 `DC_REF` 覆盖（默认即上面那条路径）。① 全量像素扫描较慢（三张图逐像素统计 + 37 个色位的邻域统计），约 1–3 分钟。
+参考图目录可用环境变量 `DC_REF` 覆盖（默认即上面那条路径）。① 全量像素扫描较慢（三张图逐像素统计 + 37 个颜色的邻域统计），约 1–3 分钟。
 
 ## 关键产物
 
-- `palette.json` — 37 色位台账：hex / 出处描述 / 精确像素数 / tonal mass / 分图命中 / 相对亮度 Y / CIE L\* / 色相 / 彩度，外加 `fails` 与 `warns` 两张空表
-- `provenance.json` — 每个色位在原图里的**最密邻域坐标**（文件 / x / y / 命中数）
+- `palette.json` — 37 个颜色台账：hex / 出处描述 / 精确像素数 / tonal mass / 分图命中 / 相对亮度 Y / CIE L\* / 色相 / 彩度，外加 `fails` 与 `warns` 两张空表
+- `provenance.json` — 每个颜色在原图里的**最密邻域坐标**（文件 / x / y / 命中数）
 - `provenance-sheet.png` — 37 格裁切拼版，用来**目视复核**「这块像素到底像什么」
 
 ## 复核

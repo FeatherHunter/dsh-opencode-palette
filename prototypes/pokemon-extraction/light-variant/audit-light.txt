@@ -27,7 +27,7 @@ markdown 同值：无
    syntaxType×syntaxString = 21.9 ✓
    syntaxNumber×syntaxString = 48.4 ✓
 
-── 全部色位对比度 ──
+── 全部颜色对比度 ──
   ✓ text@background                     16.30  (≥4.5)
   ✓ text@backgroundPanel                16.01  (≥4.5)
   ✓ text@backgroundElement              15.50  (≥4.5)

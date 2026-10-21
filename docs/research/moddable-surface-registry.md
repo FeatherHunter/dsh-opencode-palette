@@ -18,7 +18,7 @@
 |---|---|---|
 | **宿主** | DSH 主程序本身：前端页面代码 + Electron 桌面外壳 | 浏览器只是渲染引擎；我们做的是「装上来的插件」 |
 | **主题 token** | 宿主声明的 `--dsw-*` / `--shiki-*` / `--dsh-*` 变量（ui-theme 样式目录） | 公开契约面 = 425 个名 |
-| **opencode token** | 本仓 37 个用户可配语义槽（bg/text/brand/border/diff/md/syn） | 用户 JSON 里写的是它；旧称「色位 / 色槽」已废弃 |
+| **opencode token** | 本仓 37 个用户可配语义槽（bg/text/brand/border/diff/md/syn） | 用户 JSON 里写的是它；旧称「颜色 / 色槽」已废弃 |
 | **注入（A 通道）** | 调 `theme.overrideTokens(id, tokens)`，由宿主写 body inline | 落点 = body 的 `style` |
 | **注入（B 通道）** | 自建 `<style>` 塞进 `document.head` | 落点 = 样式表规则 |
 | **inline style** | 元素 `style` 属性里的声明（两种写法：JSX `style={{}}` / `el.style.setProperty()`） | 优先级高于外部样式表，低于 `!important` |

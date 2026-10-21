@@ -1,6 +1,6 @@
 // resolve.ts — 颜色解析器：把 opencode 主题 JSON 的颜色引用链解析为确定 HEX
 // 支持：hex 字符串 / 'transparent'|'none' / defs 引用 / theme 自引用 / ANSI 数字 / {dark,light} 变体
-// 循环引用抛错；单键解析失败由 resolveThemeColors 捕获为 { __error }，不影响其余色位
+// 循环引用抛错；单键解析失败由 resolveThemeColors 捕获为 { __error }，不影响其余颜色
 
 /** 单键解析失败的占位值（不参与最终 token） */
 export interface ColorError {
@@ -20,7 +20,7 @@ export type ColorValue = string | number | ColorVariants
 /** 主题 JSON 里的 defs / theme 映射 */
 export type ColorRefs = Record<string, ColorValue>
 
-/** 解析后的色位表：正常为 HEX/transparent 字符串，失败为 ColorError */
+/** 解析后的颜色表：正常为 HEX/transparent 字符串，失败为 ColorError */
 export type ResolvedColorMap = Record<string, string | ColorError | undefined>
 
 /** opencode 主题 JSON 的最小形状 */
@@ -111,7 +111,7 @@ export function resolveColor(ref: ColorValue, defs: ColorRefs, theme: ColorRefs,
   throw new Error('非法颜色值: ' + String(ref))
 }
 
-// 解析整个主题 → { 色位: hex|transparent|{__error} }
+// 解析整个主题 → { 颜色: hex|transparent|{__error} }
 export function resolveThemeColors(json: unknown, mode?: string): ResolvedColorMap {
   const m = mode || 'dark'
   const src: ThemeSource = json && typeof json === 'object' ? json as ThemeSource : {}

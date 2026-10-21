@@ -515,7 +515,7 @@ test('panelProps 自定义 API：无宿主静默降级 + 槽位/预置读取', a
   panelProps.setCustomTheme('missing-id') // 缓存未命中 → 对账后仍无 → 静默忽略，不抛
   const groups = panelProps.slotGroups()
   assert.equal(groups.length, 7, '7 大分组')
-  assert.equal(groups.reduce((n, g) => n + g.keys.length, 0), 37, '37 色位')
+  assert.equal(groups.reduce((n, g) => n + g.keys.length, 0), 37, '37 个颜色')
   const preset = panelProps.presetPalette('opencode', 'dark')
   assert.equal(preset.appearance, 'dark', 'opencode 默认外观')
   assert.equal(Object.keys(preset.colors).length, 37, '预置提取 37 色')
@@ -606,11 +606,11 @@ test('弹窗直渲染：无 DOM 全局不抛 + 槽位落位 + 主色落位', () 
   assert.ok(html.includes('直渲检查'), '编辑中主题名渲染')
   assert.ok(html.includes(String(pal.colors.primary)), '主色绑定到画布/行内样式')
   // 37 槽全部直绑 data-slot（#94：borderActive 从 inputBg 内圈 boxShadow 独立成包裹节点，
-  // 预览区 37 个色位各有自己的可点控件 —— 点环开 borderActive，点内开 inputBg）
+  // 预览区 37 个颜色各有自己的可点控件 —— 点环开 borderActive，点内开 inputBg）
   for (const s of ENGINE_SLOTS) {
     assert.ok(html.includes('data-slot="' + s.key + '"'), '槽位落位：' + s.key)
   }
-  assert.equal(ENGINE_SLOTS.length, 37, '37 色位全落位')
+  assert.equal(ENGINE_SLOTS.length, 37, '37 个颜色全落位')
   assert.ok(html.includes('data-slot="inputBg"'), '输入框本体内层节点在场')
   assert.ok(/border:2px solid #[0-9A-Fa-f]{6}55/.test(html), 'borderActive 独立描边环（可点，原型 .cinput :871 的半透明环）')
   assert.ok(html.includes('data-slot="backgroundElement"'), '行内 tip backgroundElement 节点在场（原型 :844）')
@@ -736,20 +736,20 @@ test('弹窗尺寸：高度=预览区 564、纯 center 居中、一行控件同�
 // 真 DOM 实测数据（Chrome 无头 + React 真 hooks，见 .scratch-ed-dom.mjs）：
 //   左列 scrollH=2010 clientH=564 scrollbarColor=rgba(0,0,0,0)（不滑动不可见）；
 //   行标签 gap=6（标题右边缘 +6）、vcenterDelta=2、不压色块；预览标签 fixed z=9999 且在视口内。
-// 命中色位时必有一圈：把「必须有结果」收成断言 + 非空类型，断言口只关心圈文本。
+// 命中颜色时必有一圈：把「必须有结果」收成断言 + 非空类型，断言口只关心圈文本。
 function ringOf(hl: string | null, slot: string): { boxShadow: string; animation: string } {
   const ring = slotRingStyle(hl, slot)
-  assert.ok(ring, '该色位应被圈：' + slot)
+  assert.ok(ring, '该颜色应被圈：' + slot)
   return ring
 }
 
-test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦点圈（纯函数缝）', () => {
+test('m08636-4：37 个颜色命中时，预览里每个受影响元素都吃焦点圈（纯函数缝）', () => {
   for (const s of ENGINE_SLOTS) {
     const ring = slotRingStyle(s.key, s.key)
-    assert.ok(ring && !ring.boxShadow.includes('undefined'), '色位自身必须被圈：' + s.key)
+    assert.ok(ring && !ring.boxShadow.includes('undefined'), '颜色自身必须被圈：' + s.key)
   }
-  assert.equal(ENGINE_SLOTS.length, 37, '37 色位')
-  assert.ok(ringOf('text', 'text').boxShadow.startsWith('inset'), '普通色位内圈（原型 .hl）')
+  assert.equal(ENGINE_SLOTS.length, 37, '37 个颜色')
+  assert.ok(ringOf('text', 'text').boxShadow.startsWith('inset'), '普通颜色内圈（原型 .hl）')
   assert.ok(ringOf('border', 'border').boxShadow.startsWith('0 0 0 2px'), 'border 外圈（原型 .hl-edge）')
   assert.ok(ringOf('borderActive', 'borderActive').boxShadow.startsWith('0 0 0 2px'), 'borderActive 外圈')
   // EXTRA_HL 别名：border 系命中时同圈（原型 paintHl:896-900 的 .side/.md/.cinput 口径）
@@ -758,7 +758,7 @@ test('m08636-4：37 个色位命中时，预览里每个受影响元素都吃焦
   }
   assert.ok(slotRingStyle('borderActive', 'inputBg'), 'borderActive 别名同圈：inputBg')
   assert.equal(slotRingStyle(null, 'text'), null, '无悬浮不圈')
-  assert.equal(slotRingStyle('text', 'markdownLink'), null, '无关色位不圈')
+  assert.equal(slotRingStyle('text', 'markdownLink'), null, '无关颜色不圈')
 })
 
 test('m08636-4：非 node 载体（文本 span / 代码 token / textMuted 行）也走同一圈判定', () => {
@@ -815,10 +815,10 @@ test('m08636-3：左列悬浮小标签贴标题控件右侧（不再压行角）
   assert.ok(wrapAt > 0 && bAt > wrapAt && badgeAt > bAt && swatchAt > badgeAt, 'DOM 归属：标题包裹盒 > <b> 标题 > 小标签 > 色块')
 })
 
-// ── 用户 m09226：预览区鼠标悬浮某个内容 → 左列滑到对应色位行「出现视野中」──
+// ── 用户 m09226：预览区鼠标悬浮某个内容 → 左列滑到对应颜色行「出现视野中」──
 // 真 DOM 实测（Chrome 无头 + React 真 hooks，.scratch-ed-dom.mjs 的 reveal 场景）：
-//   悬浮视野外色位 → 调 scrollIntoView({block:'center',behavior:'smooth'})，行进入左列可视区且左列 scrollTop 变化；
-//   悬浮已在视野内的色位 → needsReveal=false，不再调用（鼠标扫过预览时列表不空抖）。
+//   悬浮视野外颜色 → 调 scrollIntoView({block:'center',behavior:'smooth'})，行进入左列可视区且左列 scrollTop 变化；
+//   悬浮已在视野内的颜色 → needsReveal=false，不再调用（鼠标扫过预览时列表不空抖）。
 test('m09226：预览悬浮联动左列滚动（needsReveal 纯函数 + 原型 center/smooth 口径）', () => {
   const view = { top: 100, height: 564 }    // 左列可视区
   const inside = { top: 200, height: 64 }   // 完全在视野内
@@ -1232,7 +1232,7 @@ test('#95：PalettePicker —— 结构部件齐全且可独立 SSR（无需交�
   for (const part of ['title', 'sv', 'hue', 'hsv', 'recent', 'hex', 'eyedropper', 'contrast', 'transparent', 'footer']) {
     assert.ok(html.includes('data-picker-part="' + part + '"'), '缺部件：' + part)
   }
-  assert.ok(html.includes('主色'), '标题渲染色位名')
+  assert.ok(html.includes('主色'), '标题渲染颜色名')
   assert.ok(html.includes('#FAB283'), '标题显示当前 hex')
   assert.ok(html.includes('role="slider"'), '色相轨 role=slider')
   assert.ok(html.includes('aria-valuemin="0"') && html.includes('aria-valuemax="360"'), '色相轨 aria 范围')
@@ -1304,7 +1304,7 @@ test('#95：PalettePicker —— 源码契约（模型切换/指针/键盘/无�
   assert.ok(/onApply: function \(hex(?::\s*[^,)]+)?,\s*transparent(?::\s*[^,)]+)?,\s*hsv(?::\s*[^)]+)?\)/.test(src) && src.includes('setColor(pop.key, hex, transparent)'), '任何改动即 live commit 写回编辑中主题')
   // Spec 复核：#95 残留——重开同一槽位保色相、RGB/HSL 灰输入不丢色相、数字框 Shift 步进。
   assert.ok(src.includes('initialHsv'), '父组件按槽位记忆 H/S/V，重开时回填')
-  assert.ok(src.includes('pickMem.current[pop.key]'), '记忆读写都按色位 key（openPop 关闭后仍保留）')
+  assert.ok(src.includes('pickMem.current[pop.key]'), '记忆读写都按颜色 key（openPop 关闭后仍保留）')
   assert.ok(src.includes('function commitRgb(') && src.includes('function commitHsl('), 'RGB/HSL 数值输入走 mergeHsv（灰/黑保留色相）')
   assert.ok(src.includes("ev.key !== 'ArrowUp' && ev.key !== 'ArrowDown'") && src.includes('ev.shiftKey ? 10 : 1'), '数字输入 ↑↓ 微调 + Shift ×10')
   assert.ok(src.includes("d.addEventListener('keydown', onKey)") && src.includes("ev.key === 'Escape'"), 'Esc = 取消并回滚')

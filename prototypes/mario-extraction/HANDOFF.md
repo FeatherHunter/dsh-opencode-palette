@@ -6,8 +6,8 @@
 
 | 类型 | 路径 | 说明 |
 | --- | --- | --- |
-| 新增 | `src/custom-presets/mario-night.json` | 深色 · 1-2 夜行（37 色位，appearance=dark，id/appearance/name 自立） |
-| 重绘 | `src/custom-presets/mario.json` | 浅色 · 1-1 白昼（37 色位，appearance=light）——原通用蓝版整版换成逐像素取色版 |
+| 新增 | `src/custom-presets/mario-night.json` | 深色 · 1-2 夜行（37 个颜色，appearance=dark，id/appearance/name 自立） |
+| 重绘 | `src/custom-presets/mario.json` | 浅色 · 1-1 白昼（37 个颜色，appearance=light）——原通用蓝版整版换成逐像素取色版 |
 | 新增 | `prototypes/mario-extraction/` | 取色与复核管线（见该目录 README） |
 | 新增 | `prototypes/mario-theme-preview.html` | 自包含预览页（内联三张参考图 + 逐色溯源 + 审计器实算对比度） |
 | 改 | `src/engine/ip-presets.ts` | 注册 `mario-night`（IP 22 → 23） |
@@ -69,4 +69,4 @@ git commit -m "feat(themes): 超级马里奥逐像素取色管线与深色预置
 
 **用亮度分层，而不是用描边分割**——天蓝当「场」，奶油砖当「纸」，马里奥红是唯一的「心跳」。
 明暗两套的 8 个背景槽全部由 1.png 的天空像素 `#5A96FF` 推出（浅色混白 84%~97%，深色压黑 84%~96%），
-27 个源像素逐个标注出处与图中占比，每个色位都能回原图复核。
+27 个源像素逐个标注出处与图中占比，每个颜色都能回原图复核。

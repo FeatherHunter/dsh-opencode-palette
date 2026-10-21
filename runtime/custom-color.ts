@@ -270,7 +270,7 @@ export function contrastRefSlot(slotKey: string): string {
 }
 
 // 「本主题用过的颜色」：按分组优先级取前 max 个（R7：品牌/语法色不再被 8 个背景色挤掉），
-// 跳过当前槽自身的现值；入参 priorityKeys 为按优先级排好的色位 key 列表。
+// 跳过当前槽自身的现值；入参 priorityKeys 为按优先级排好的颜色 key 列表。
 export function pickRecentColors(colors: ColorMap | null | undefined, currentKey: string | null | undefined, priorityKeys: readonly string[] | null | undefined, max: number): string[] {
   const c = colors || {}
   const lim = max > 0 ? max : 10

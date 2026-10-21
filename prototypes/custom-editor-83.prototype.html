@@ -339,7 +339,7 @@ function reducer(state, action, PRESETS) {
       ed.colors[k] = v; ed.dirty = true; ed.preset = null;
       if (ed.changed.indexOf(k) < 0) ed.changed.push(k);
       s.editor = ed;
-      note('色位 ' + k + ' 改为 ' + v + '（右侧预览与胶囊已同步）。');
+      note('颜色 ' + k + ' 改为 ' + v + '（右侧预览与胶囊已同步）。');
       return s;
     }
     case 'TOGGLE_TRANSPARENT': {
@@ -350,7 +350,7 @@ function reducer(state, action, PRESETS) {
       ed.dirty = true; ed.preset = null;
       if (ed.changed.indexOf(kk) < 0) ed.changed.push(kk);
       s.editor = ed;
-      note('色位 ' + kk + ' 透底切换为 ' + ed.colors[kk] + '。');
+      note('颜色 ' + kk + ' 透底切换为 ' + ed.colors[kk] + '。');
       return s;
     }
     case 'SAVE': {

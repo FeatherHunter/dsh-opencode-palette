@@ -147,7 +147,7 @@ test('无基线/缺条目不放行（无“无历史即放行”），显式 fla
   await rm(dir, { recursive: true, force: true })
 })
 
-test('结构破坏（缺必填色位）即使 --update-baseline 也不进基线', async () => {
+test('结构破坏（缺必填颜色）即使 --update-baseline 也不进基线', async () => {
   const good = themeData()
   const { dir, manifestPath } = await setupDir({ names: ['t1'], contents: { t1: good }, baselineRev: 'a'.repeat(40) })
   const broken = { defs: {}, theme: { background: '#000' } }
@@ -376,10 +376,10 @@ test('NOTICES 更新只换首行，手工维护段原样保留', async () => {
   await rm(dir, { recursive: true, force: true })
 })
 
-test('validateStructure 与旧脚本同门：缺 defs/theme/色位即错', () => {
+test('validateStructure 与旧脚本同门：缺 defs/theme/颜色即错', () => {
   assert.throws(() => validateStructure('x', null), /非对象/)
   assert.throws(() => validateStructure('x', { theme: {} }), /缺 defs/)
-  assert.throws(() => validateStructure('x', { defs: {}, theme: { background: '#000' } }), /缺必填色位/)
+  assert.throws(() => validateStructure('x', { defs: {}, theme: { background: '#000' } }), /缺必填颜色/)
   assert.equal(validateStructure('x', themeData()), true)
 })
 

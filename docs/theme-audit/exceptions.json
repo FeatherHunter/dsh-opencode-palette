@@ -2,7 +2,7 @@
   "$comment": "IP 主题设计例外记档（判尺见 docs/theme-audit/criteria.md 与 map #115 Notes）。只记录 docs/ip-presets-v3-notes.md 明确写下的有意并岗/几何，行号引用该文件；对 notes 未点名的同值角色不记档，留给策展修复或另案决定。字段与 scripts/audit-themes.ts 的 Exceptions 接口一致；已记档告警从 baseline.md 的待处理数中扣除。",
   "themes": {
     "dc-comics": {
-      "notes": "v3.7（2026-10-20）逐像素取色重绘 + 对抗式审查（三张参考图 37 色位落在 36 个不同色值上、全部直采真实像素、0 想象）：原 v3 终审记档的三处并岗**已全部主动解除**——primary 取 2.jpg 徽章圆盘本体蓝 #0373B3、info 取 1.jpg 速度力水蓝 #91C1CF、link 取 2.jpg 徽章上缘亮青 #0392CE，三个岗各取所需互不同值；secondary 取 3.jpg 神奇女侠金冠 #E4BA56、borderActive 取 2.jpg 徽章白星冷光 #D6F0FF、function 取 2.jpg 徽章圆盘上缘 #008AC9，亦互不同值；heading 取 1.jpg 速度力冷白 #B8D8ED、strong 取 2.jpg 徽章白底与白星 #FFFFFF，不再同值。故本主题 0 同值碰撞、0 markdown 同值，不再需要 allowedCollisions / allowedMarkdownDuplicates 记档（详见 docs/ip-presets-v3-notes.md 的「v3.7 DC 逐像素取色重绘」段）。"
+      "notes": "v3.7（2026-10-20）逐像素取色重绘 + 对抗式审查（三张参考图 37 个颜色落在 36 个不同色值上、全部直采真实像素、0 想象）：原 v3 终审记档的三处并岗**已全部主动解除**——primary 取 2.jpg 徽章圆盘本体蓝 #0373B3、info 取 1.jpg 速度力水蓝 #91C1CF、link 取 2.jpg 徽章上缘亮青 #0392CE，三个岗各取所需互不同值；secondary 取 3.jpg 神奇女侠金冠 #E4BA56、borderActive 取 2.jpg 徽章白星冷光 #D6F0FF、function 取 2.jpg 徽章圆盘上缘 #008AC9，亦互不同值；heading 取 1.jpg 速度力冷白 #B8D8ED、strong 取 2.jpg 徽章白底与白星 #FFFFFF，不再同值。故本主题 0 同值碰撞、0 markdown 同值，不再需要 allowedCollisions / allowedMarkdownDuplicates 记档（详见 docs/ip-presets-v3-notes.md 的「v3.7 DC 逐像素取色重绘」段）。"
     },
     "doraemon": {
       "notes": "v3.6（2026-10-20）逐像素取色重绘（六张参考图 18 源色、0 想象）：原 v3 终审记档的「heading·emph 并入 strong 墨色强调岗」并岗**已主动解除**——三个角色各取所需：heading 取 3.png 招牌青蓝压深 #056D96、emph 取 6.jpg 字标粉点压深 #843F59、strong 取纯墨黑 #0C0C10，ΔE76 互不相同。同理「link 与 primary 同一可交互蓝的明暗分档」的并岗事实也不复存在：link 取 3.png 字标深蓝压深 #063F6B、primary 取 1.png 身体青蓝压深 #135F7B，同族不同值、以明度分档。故本主题 0 同值碰撞、0 markdown 同值，不再需要 allowedCollisions / allowedMarkdownDuplicates 记档。"
@@ -38,7 +38,7 @@
       "notes": "v3.3（2026-10-20）对抗式审查后重绘：判尺从「直采/阶梯/混色」改成四级（A1 实涂 9 / A2 边阶 11 / B 簇采 15 / C 阶梯 2），推翻先前「37/37 直采」的说法——按图里真实体量只有 9 条是字面像素。原 v3 终审记档的「borderActive 并入 primary」并岗**已主动解除**：焦点环用最亮的标志红 #F11E22，主按钮用能承载反白的铁人战甲红 #D32B28（标志红反白仅 3.83:1，撑不起按钮）。两个岗各取所需，primary 与 borderActive 不再同值，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
     },
     "transformers": {
-      "notes": "v5 逐像素取证重绘（2026-10-20，docs/ip-presets-notes.md「变形金刚（dark，v5 逐像素取证重绘）」）：37 个色位全部改为从五张参考图直接取证——直采色要求 hex 是原图真实像素且 49×49 邻域人口 ≥ 24 px（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素），背景 8 槽改为 5.jpg 夜空真实像素排成的明度阶，4 个 diff 底色改为固定比例混色。v3 终审记档的两处并岗（secondary=info、borderActive=markdownLink）在本版**全部拆开**：secondary #3366A8 与 info #0A6999 分属能量电蓝与塞伯坦全息青两个物，borderActive #F4C803 让给大黄蜂车漆黄做焦点环、markdownLink #0B8FBF 归能量电弧，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
+      "notes": "v5 逐像素取证重绘（2026-10-20，docs/ip-presets-notes.md「变形金刚（dark，v5 逐像素取证重绘）」）：37 个颜色全部改为从五张参考图直接取证——直采色要求 hex 是原图真实像素且 49×49 邻域人口 ≥ 24 px（在图上是一块看得见的实色，不是 JPEG 噪点里撞上的孤像素），背景 8 槽改为 5.jpg 夜空真实像素排成的明度阶，4 个 diff 底色改为固定比例混色。v3 终审记档的两处并岗（secondary=info、borderActive=markdownLink）在本版**全部拆开**：secondary #3366A8 与 info #0A6999 分属能量电蓝与塞伯坦全息青两个物，borderActive #F4C803 让给大黄蜂车漆黄做焦点环、markdownLink #0B8FBF 归能量电弧，岗位串戏降为 0 处，故不再需要 allowedCollisions 记档。"
     },
     "star-wars": {
       "notes": "v3 终审（docs/ip-presets-v3-notes.md:19）：link 故意保留与 secondary 同蓝（可交互同一岗）；borderActive 属同一交互/焦点家族，按该理由随附记录（notes 只点名 link=secondary，属推断记档）。",

@@ -1,17 +1,17 @@
-// map-dsh.ts — ★ 单一真相源：opencode 主题语义色位 → DSH 界面 CSS 变量/元素规则
+// map-dsh.ts — ★ 单一真相源：opencode 主题语义颜色 → DSH 界面 CSS 变量/元素规则
 // DSH 升级改 CSS 变量名时，只需要改这一个文件。
-// 值 = opencode 色位名；generate.ts 负责取值与派生（提亮/透明/对比色）。
+// 值 = opencode 颜色名；generate.ts 负责取值与派生（提亮/透明/对比色）。
 
 import { shade, withAlpha, contrastText, mixHex, readableTextOn, contrastRatio, type ResolvedColorMap } from './resolve.ts'
 
 // 派生 token 的 helpers 来自 resolve.ts（shade/withAlpha/contrastText）
 
-// 派生 token 的取槽助手：解析失败的色位在历史行为里会流入 helper 被宽容处理（不抛错、由
+// 派生 token 的取槽助手：解析失败的颜色在历史行为里会流入 helper 被宽容处理（不抛错、由
 // buildTokens 的 try/catch 兜底或原样输出），这里保持同一运行时语义，仅把类型收窄成 string。
 const slot = (c: ResolvedColorMap, key: string): string => c[key] as string
 
 // ── 1. token 层：theme.overrideTokens 注册的 --dsw-alias-* 变量 ──
-// 格式: [DSH 变量, 来源色位]（来源缺失/透明/解析失败 → 该 token 自动跳过，不污染）
+// 格式: [DSH 变量, 来源颜色]（来源缺失/透明/解析失败 → 该 token 自动跳过，不污染）
 // 高度梯子（第一性原理：opencode background/backgroundPanel/backgroundElement 本就是
 // 深色 step1<step2<step3 台阶，与 DSH base<panel<element 浮起方向一致）：
 //   step1 页面底 ← DSH 950 级（base/sidebar/unselected）；
@@ -115,7 +115,7 @@ function keycapColor(bg: string): string {
   return color
 }
 
-// ── 2. 派生 token：值不是直接取自色位，而是按规则计算 ──
+// ── 2. 派生 token：值不是直接取自颜色，而是按规则计算 ──
 // 格式: [DSH 变量, 计算函数(colors) → 值]（colors = resolveThemeColors 输出）
 export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMap) => string]> = [
   ['--dsw-alias-button-primary-hover', (c) => shade(c.primary, 0.12)],
@@ -169,7 +169,7 @@ export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMa
   }],
 ]
 
-// ── 3. shiki 语法高亮变量（DSH 只认 10 个，opencode 9 色位做角色合并）──
+// ── 3. shiki 语法高亮变量（DSH 只认 10 个，opencode 的 9 个颜色做角色合并）──
 export const SHIKI_MAP: ReadonlyArray<readonly [string, string]> = [
   ['--shiki-foreground', 'text'],
   ['--shiki-token-comment', 'syntaxComment'],
@@ -227,7 +227,7 @@ export const FONTS: Record<string, string> = {
   'Consolas': "Consolas,'JetBrains Mono','Fira Code','Cascadia Code','IBM Plex Mono','SF Mono','Courier New','PingFang SC','Microsoft YaHei'",
 }
 
-// ── 6. 自定义主题 37 色位元数据（#84 建，#92 定稿组名；key 口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
+// ── 6. 自定义主题 37 个颜色元数据（#84 建，#92 定稿组名；key 口径与 prototypes/custom-editor-83.prototype.html 的 GROUPS/ALL_KEYS_37/BG_KEYS 一致）──
 // 7 大分组 = 背景与表面 8 + 文字 2 + 品牌与状态 6 + 边框 2 + 改动对比 6 + Markdown 6 + 代码高亮 7 = 37
 // allowTransparent 仅 8 个背景槽为 true（其余 29 槽设 transparent 会被编辑器 reducer 拦截）；fallback 为 5 个扩展槽的默认继承源；previewSlot 为微缩画布 data-slot（恒等于 key）。
 export const COLOR_SLOT_GROUPS: ReadonlyArray<{ id: string; keys: readonly string[] }> = [

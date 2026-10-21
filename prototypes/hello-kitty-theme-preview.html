@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<title>Hello Kitty 主题配色预览 · 37 色位</title>
+<title>Hello Kitty 主题配色预览 · 37 个颜色</title>
 <style>
   :root{
     --background:#FFFFFF;
@@ -257,7 +257,7 @@
 <div class="sheet">
   <div class="eyebrow">DSH / OpenCode Palette · IP Preset Redesign</div>
   <h1 class="title">Hello Kitty <em>草莓牛奶</em> — 白脸 · 粉墙 · 蝴蝶结</h1>
-  <div class="sub">从 6 张参考图里逐像素取色，37 个色位<b>没有一个是想象出来的</b>：20 个是参考图里的精确像素值，17 个是「两枚精确像素按公开公式混合」的派生值。画布用 Kitty 的白脸，侧栏用海报的粉墙，唯一的饱和色留给她的蝴蝶结——其余全部退回纸、纱与墨。这套配色已通过仓库自己的主题判尺：<b>硬性违例 0 · UI 违例 0</b>。</div>
+  <div class="sub">从 6 张参考图里逐像素取色，37 个颜色<b>没有一个是想象出来的</b>：20 个是参考图里的精确像素值，17 个是「两枚精确像素按公开公式混合」的派生值。画布用 Kitty 的白脸，侧栏用海报的粉墙，唯一的饱和色留给她的蝴蝶结——其余全部退回纸、纱与墨。这套配色已通过仓库自己的主题判尺：<b>硬性违例 0 · UI 违例 0</b>。</div>
   <div class="anchors"><span class="anchor"><i style="background:#FFFFFF"></i>纸白 <code>#FFFFFF</code></span><span class="anchor"><i style="background:#EE86A7"></i>主视觉粉 <code>#EE86A7</code></span><span class="anchor"><i style="background:#EEA9BC"></i>玫瑰粉墙 <code>#EEA9BC</code></span><span class="anchor"><i style="background:#C8152D"></i>蝴蝶结红 <code>#C8152D</code></span><span class="anchor"><i style="background:#0E52A5"></i>背带裤蓝 <code>#0E52A5</code></span><span class="anchor"><i style="background:#14AE67"></i>苹果叶绿 <code>#14AE67</code></span><span class="anchor"><i style="background:#FFCB05"></i>鼻子黄 <code>#FFCB05</code></span><span class="anchor"><i style="background:#BD8B55"></i>小熊棕 <code>#BD8B55</code></span></div>
 
   <div class="win">
@@ -276,7 +276,7 @@
       <div class="threads">
         <div class="th sel">Hello Kitty 主题 · 配色评审</div>
         <div class="th">参考图逐像素取色笔记</div>
-        <div class="th">37 色位与 DSH 落点映射</div>
+        <div class="th">37 个颜色与 DSH 落点映射</div>
         <div class="th">对比度审计与派生公式</div>
       </div>
       <div class="sb-foot"><span class="av">婉</span><span>小婉</span><span class="gear">⚙</span></div>
@@ -303,7 +303,7 @@
         </div>
 
         <div class="md">
-          <h2>37 个色位 · 全部有出处</h2>
+          <h2>37 个颜色 · 全部有出处</h2>
           <p>核心只有一句话：<strong>让角色本人当配色方案</strong>。白脸是纸，粉墙是场，蝴蝶结红是唯一的心跳；蓝背带裤与绿苹果叶只在语义位上露面。四个取舍：</p>
           <ul>
             <li>输入框与代码块都取浅色面：<code>shiki</code> 的普通 token 走 <code>--shiki-foreground</code>（= 文字色），深底或重粉底会把无高亮代码压到 3:1 以下。</li>
@@ -315,7 +315,7 @@
 
           <div class="cc">
             <div class="hd"><span class="lang">css</span><span class="fn">hello-kitty.theme.json</span><span class="cp">复制</span></div>
-<pre><span class="tk-com">// 37 个色位，每一行都指回一张参考图的某个像素</span>
+<pre><span class="tk-com">// 37 个颜色，每一行都指回一张参考图的某个像素</span>
 <span class="tk-kw">const</span> <span class="tk-fn">helloKitty</span> <span class="tk-op">=</span> {
   <span class="tk-fn">paper</span>: <span class="tk-str">"#FFFFFF"</span>,   <span class="tk-com">// 图1 Kitty 的白脸</span>
   <span class="tk-fn">wall</span>:  <span class="tk-str">"#EEA9BC"</span>,   <span class="tk-com">// 图4 玩偶背后的粉墙</span>
@@ -336,7 +336,7 @@
 
           <div class="warn">
             <span class="tag">已知限制</span>
-            <span>提示气泡的<strong>文字色</strong>由 DSH 写死为白色，只把背景换成主题浮层色——浅色主题下对比只有 <b>1.07 : 1</b>，37 个色位修不到这一点。</span>
+            <span>提示气泡的<strong>文字色</strong>由 DSH 写死为白色，只把背景换成主题浮层色——浅色主题下对比只有 <b>1.07 : 1</b>，37 个颜色修不到这一点。</span>
           </div>
 
           <div class="diff">
@@ -350,7 +350,7 @@
             <div class="row"><span class="pulse"></span><span class="name">运行 npm run audit:themes</span><span class="st"><i></i>已完成</span></div>
             <div class="out">
               [1] 硬性 4.5:1 / 3:1 违例：<b>0 · 0</b>（与仓库其余 58 套同判尺）<br>
-              [2] 37 色位全部可溯源：<b>20 精确像素 + 17 公开公式派生</b><br>
+              [2] 37 个颜色全部可溯源：<b>20 精确像素 + 17 公开公式派生</b><br>
               [3] 设计告警：<b>1 条，已记档</b>（primary 与 borderActive 并岗，仓库 v3 已定）<br>
               <span style="color:var(--warning)">[!] success 与 warning 原图无达标值，已按公开公式压深</span>
             </div>
@@ -358,7 +358,7 @@
         </div>
       </div></div>
 
-      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+      <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">在面板中可见</span></div>
 
       <div class="composer"><div class="col">
         <div class="cbox">
@@ -379,23 +379,23 @@
     </main>
   </div>
 
-  <!-- ============ 37 色位 ============ -->
+  <!-- ============ 37 个颜色 ============ -->
   <div class="card">
-    <div class="head"><h3>37 Color Tokens</h3><span class="hintx">色位 → DSH 真实落点，按 DSH 的 7 大分组排列</span></div>
-    <p class="lede">每个色块下方标注了它的<b>来源参考图</b>；标「派生」的 17 个色位，公式在下一节逐条公开。</p>
-<div class="ghead"><h4>背景与表面</h4><span class="ghint">8 个色位</span></div>
+    <div class="head"><h3>37 Color Tokens</h3><span class="hintx">颜色 → DSH 真实落点，按 DSH 的 7 大分组排列</span></div>
+    <p class="lede">每个色块下方标注了它的<b>来源参考图</b>；标「派生」的 17 个颜色，公式在下一节逐条公开。</p>
+<div class="ghead"><h4>背景与表面</h4><span class="ghint">8 个颜色</span></div>
 <div class="grid g8"><div class="sw" data-hex="#FFFFFF" data-key="background" title="画布 = Kitty 的白脸，全库占比 29.68% 的「纸」"><div class="top" style="background:#FFFFFF;color:#231815"><span class="hex">#FFFFFF</span></div><div class="lbl"><b>background</b></div><div class="srcline"><span class="src">图1 海报 · 图2 1974 · 图3 背带裤</span></div></div><div class="sw" data-hex="#FBE6EF" data-key="backgroundPanel" title="淡粉纱：芯片 / 代码头 / 提示条 / 占位符"><div class="top" style="background:#FBE6EF;color:#231815"><span class="hex">#FBE6EF</span></div><div class="lbl"><b>backgroundPanel</b></div><div class="srcline"><span class="src">图1 海报 · 图6 纸屑</span></div></div><div class="sw" data-hex="#FAD8E3" data-key="backgroundElement" title="浮层粉（派生）：选择器 / 提示 / 引用块 / 浮起面"><div class="top" style="background:#FAD8E3;color:#231815"><span class="hex">#FAD8E3</span></div><div class="lbl"><b>backgroundElement</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#EEA9BC" data-key="sidebarBg" title="侧栏 = 海报粉墙（图4/5/6 玫瑰粉）"><div class="top" style="background:#EEA9BC;color:#231815"><span class="hex">#EEA9BC</span></div><div class="lbl"><b>sidebarBg</b></div><div class="srcline"><span class="src">图4 绒布 · 图5 线稿 · 图6 纸屑</span></div></div><div class="sw" data-hex="#EE86A7" data-key="bubbleBg" title="用户气泡 = 全库占比最大的主视觉粉「唯一主角」"><div class="top" style="background:#EE86A7;color:#231815"><span class="hex">#EE86A7</span></div><div class="lbl"><b>bubbleBg</b></div><div class="srcline"><span class="src">图1 海报 · 图4 绒布</span></div></div><div class="sw" data-hex="#FBE6EF" data-key="inputBg" title="输入框 = 淡粉纱，浮在白画布上更脆"><div class="top" style="background:#FBE6EF;color:#231815"><span class="hex">#FBE6EF</span></div><div class="lbl"><b>inputBg</b></div><div class="srcline"><span class="src">图1 海报 · 图6 纸屑</span></div></div><div class="sw" data-hex="#FFFFFF" data-key="codeBlockBg" title="代码块 = 纸白：shiki 前景=文字色，必须浅"><div class="top" style="background:#FFFFFF;color:#231815"><span class="hex">#FFFFFF</span></div><div class="lbl"><b>codeBlockBg</b></div><div class="srcline"><span class="src">图1 海报 · 图2 1974 · 图3 背带裤</span></div></div><div class="sw" data-hex="#F4B4D0" data-key="codeHeaderBg" title="代码头 = 浅粉带"><div class="top" style="background:#F4B4D0;color:#231815"><span class="hex">#F4B4D0</span></div><div class="lbl"><b>codeHeaderBg</b></div><div class="srcline"><span class="src">图1 海报</span></div></div></div>
-<div class="ghead"><h4>文字</h4><span class="ghint">2 个色位</span></div>
+<div class="ghead"><h4>文字</h4><span class="ghint">2 个颜色</span></div>
 <div class="grid g2"><div class="sw" data-hex="#231815" data-key="text" title="正文 = 暖墨勾线（图2 描边），非冷黑"><div class="top" style="background:#231815;color:#FFFFFF"><span class="hex">#231815</span></div><div class="lbl"><b>text</b></div><div class="srcline"><span class="src">图2 1974</span></div></div><div class="sw" data-hex="#40404A" data-key="textMuted" title="次级文字 = 灰墨（图1 字幕条）"><div class="top" style="background:#40404A;color:#FFFFFF"><span class="hex">#40404A</span></div><div class="lbl"><b>textMuted</b></div><div class="srcline"><span class="src">图1 海报 · 图2 1974 · 图6 纸屑</span></div></div></div>
-<div class="ghead"><h4>品牌与状态</h4><span class="ghint">6 个色位</span></div>
+<div class="ghead"><h4>品牌与状态</h4><span class="ghint">6 个颜色</span></div>
 <div class="grid g6"><div class="sw" data-hex="#C8152D" data-key="primary" title="主色 = 蝴蝶结深红，全场唯一「心跳」"><div class="top" style="background:#C8152D;color:#FFFFFF"><span class="hex">#C8152D</span></div><div class="lbl"><b>primary</b></div><div class="srcline"><span class="src">图1 海报</span></div></div><div class="sw" data-hex="#0E52A5" data-key="secondary" title="次级 = 背带裤深蓝（与主色成三角关系）"><div class="top" style="background:#0E52A5;color:#FFFFFF"><span class="hex">#0E52A5</span></div><div class="lbl"><b>secondary</b></div><div class="srcline"><span class="src">图3 背带裤</span></div></div><div class="sw" data-hex="#4F86C5" data-key="info" title="信息 = 背带裤中蓝"><div class="top" style="background:#4F86C5;color:#FFFFFF"><span class="hex">#4F86C5</span></div><div class="lbl"><b>info</b></div><div class="srcline"><span class="src">图2 1974</span></div></div><div class="sw" data-hex="#1B6A42" data-key="success" title="成功 = 苹果叶绿压深（原图 2.92:1 不足字对比）"><div class="top" style="background:#1B6A42;color:#FFFFFF"><span class="hex">#1B6A42</span></div><div class="lbl"><b>success</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#91720D" data-key="warning" title="警告 = 鼻子黄压深（原图 1.51:1 不可用）"><div class="top" style="background:#91720D;color:#FFFFFF"><span class="hex">#91720D</span></div><div class="lbl"><b>warning</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#B00C3F" data-key="error" title="错误 = 深覆盆红（图4）"><div class="top" style="background:#B00C3F;color:#FFFFFF"><span class="hex">#B00C3F</span></div><div class="lbl"><b>error</b></div><div class="srcline"><span class="src">图4 绒布</span></div></div></div>
-<div class="ghead"><h4>边框</h4><span class="ghint">2 个色位</span></div>
+<div class="ghead"><h4>边框</h4><span class="ghint">2 个颜色</span></div>
 <div class="grid g2"><div class="sw" data-hex="#F4B4D0" data-key="border" title="细线 = 浅粉 1.71:1，安静不抢戏"><div class="top" style="background:#F4B4D0;color:#231815"><span class="hex">#F4B4D0</span></div><div class="lbl"><b>border</b></div><div class="srcline"><span class="src">图1 海报</span></div></div><div class="sw" data-hex="#C8152D" data-key="borderActive" title="焦点环 = 品牌红（仓库 v3 已记档的并岗）"><div class="top" style="background:#C8152D;color:#FFFFFF"><span class="hex">#C8152D</span></div><div class="lbl"><b>borderActive</b></div><div class="srcline"><span class="src">图1 海报</span></div></div></div>
-<div class="ghead"><h4>改动对比</h4><span class="ghint">6 个色位</span></div>
+<div class="ghead"><h4>改动对比</h4><span class="ghint">6 个颜色</span></div>
 <div class="grid g6"><div class="sw" data-hex="#1E452E" data-key="diffAdded" title="新增 = 叶绿 30% 压深"><div class="top" style="background:#1E452E;color:#FFFFFF"><span class="hex">#1E452E</span></div><div class="lbl"><b>diffAdded</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#9F1627" data-key="diffRemoved" title="删除 = 蝴蝶结红压深"><div class="top" style="background:#9F1627;color:#FFFFFF"><span class="hex">#9F1627</span></div><div class="lbl"><b>diffRemoved</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#DEF4EA" data-key="diffAddedBg" title="新增底 = 叶绿 14% 淡色"><div class="top" style="background:#DEF4EA;color:#231815"><span class="hex">#DEF4EA</span></div><div class="lbl"><b>diffAddedBg</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#F8CEDD" data-key="diffRemovedBg" title="删除底 = 主视觉粉 25% 淡色"><div class="top" style="background:#F8CEDD;color:#231815"><span class="hex">#F8CEDD</span></div><div class="lbl"><b>diffRemovedBg</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#CBEDDE" data-key="diffAddedLineNumberBg" title="新增行号槽 = 叶绿 22% 淡色"><div class="top" style="background:#CBEDDE;color:#231815"><span class="hex">#CBEDDE</span></div><div class="lbl"><b>diffAddedLineNumberBg</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#F4B4D0" data-key="diffRemovedLineNumberBg" title="删除行号槽 = 浅粉"><div class="top" style="background:#F4B4D0;color:#231815"><span class="hex">#F4B4D0</span></div><div class="lbl"><b>diffRemovedLineNumberBg</b></div><div class="srcline"><span class="src">图1 海报</span></div></div></div>
-<div class="ghead"><h4>Markdown</h4><span class="ghint">6 个色位</span></div>
+<div class="ghead"><h4>Markdown</h4><span class="ghint">6 个颜色</span></div>
 <div class="grid g6"><div class="sw" data-hex="#9D274C" data-key="markdownHeading" title="标题 = 深玫红压深"><div class="top" style="background:#9D274C;color:#FFFFFF"><span class="hex">#9D274C</span></div><div class="lbl"><b>markdownHeading</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#2663AE" data-key="markdownLink" title="链接 = 背带裤蓝提亮 10%"><div class="top" style="background:#2663AE;color:#FFFFFF"><span class="hex">#2663AE</span></div><div class="lbl"><b>markdownLink</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#7F5D3B" data-key="markdownCode" title="行内代码 = 小熊棕压深"><div class="top" style="background:#7F5D3B;color:#FFFFFF"><span class="hex">#7F5D3B</span></div><div class="lbl"><b>markdownCode</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#596E72" data-key="markdownEmph" title="斜体 = 天空青压深"><div class="top" style="background:#596E72;color:#FFFFFF"><span class="hex">#596E72</span></div><div class="lbl"><b>markdownEmph</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#000000" data-key="markdownStrong" title="加粗 = 纯黑（图2/3/4 描边）"><div class="top" style="background:#000000;color:#FFFFFF"><span class="hex">#000000</span></div><div class="lbl"><b>markdownStrong</b></div><div class="srcline"><span class="src">图2 1974 · 图3 背带裤 · 图4 绒布</span></div></div><div class="sw" data-hex="#565656" data-key="markdownBlockQuote" title="引用 = 中灰"><div class="top" style="background:#565656;color:#FFFFFF"><span class="hex">#565656</span></div><div class="lbl"><b>markdownBlockQuote</b></div><div class="srcline"><span class="src">图2 1974 · 图3 背带裤 · 图5 线稿</span></div></div></div>
-<div class="ghead"><h4>语法高亮</h4><span class="ghint">7 个色位</span></div>
+<div class="ghead"><h4>语法高亮</h4><span class="ghint">7 个颜色</span></div>
 <div class="grid g7"><div class="sw" data-hex="#737378" data-key="syntaxComment" title="注释 = 浅冷灰（对比度最低，退后）"><div class="top" style="background:#737378;color:#FFFFFF"><span class="hex">#737378</span></div><div class="lbl"><b>syntaxComment</b></div><div class="srcline"><span class="src">图1 海报 · 图2 1974</span></div></div><div class="sw" data-hex="#D12E63" data-key="syntaxKeyword" title="关键字 = 深玫红"><div class="top" style="background:#D12E63;color:#FFFFFF"><span class="hex">#D12E63</span></div><div class="lbl"><b>syntaxKeyword</b></div><div class="srcline"><span class="src">图4 绒布</span></div></div><div class="sw" data-hex="#446A99" data-key="syntaxFunction" title="函数 = 背带裤中蓝压深"><div class="top" style="background:#446A99;color:#FFFFFF"><span class="hex">#446A99</span></div><div class="lbl"><b>syntaxFunction</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#14417A" data-key="syntaxType" title="类型 = 背带裤深蓝压深"><div class="top" style="background:#14417A;color:#FFFFFF"><span class="hex">#14417A</span></div><div class="lbl"><b>syntaxType</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#705235" data-key="syntaxNumber" title="数字 = 小熊棕 50% 压深"><div class="top" style="background:#705235;color:#FFFFFF"><span class="hex">#705235</span></div><div class="lbl"><b>syntaxNumber</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#1A7548" data-key="syntaxString" title="字符串 = 苹果叶绿 62%"><div class="top" style="background:#1A7548;color:#FFFFFF"><span class="hex">#1A7548</span></div><div class="lbl"><b>syntaxString</b></div><div class="srcline"><span class="src der">派生</span></div></div><div class="sw" data-hex="#966E45" data-key="syntaxOperator" title="操作符 = 小熊棕 25% 压深"><div class="top" style="background:#966E45;color:#FFFFFF"><span class="hex">#966E45</span></div><div class="lbl"><b>syntaxOperator</b></div><div class="srcline"><span class="src der">派生</span></div></div></div>
   </div>
 
@@ -413,7 +413,7 @@
     </div>
     <div class="ledgerwrap">
       <table class="t">
-        <tr><th>色位</th><th>色值</th><th>来源 / 公式</th><th>设计说明</th></tr>
+        <tr><th>颜色</th><th>色值</th><th>来源 / 公式</th><th>设计说明</th></tr>
 <tr><td class="mono">background</td><td class="mono"><b>#FFFFFF</b></td><td><span class="mono">图1 海报、图2 1974、图3 背带裤、图4 绒布、图5 线稿、图6 纸屑</span></td><td class="note">画布 = Kitty 的白脸，全库占比 29.68% 的「纸」</td></tr>
 <tr><td class="mono">backgroundPanel</td><td class="mono"><b>#FBE6EF</b></td><td><span class="mono">图1 海报、图6 纸屑</span></td><td class="note">淡粉纱：芯片 / 代码头 / 提示条 / 占位符</td></tr>
 <tr><td class="mono">backgroundElement</td><td class="mono"><b>#FAD8E3</b></td><td><span class="mono der">blend(#EE86A7 主视觉粉 32%, #FFFFFF 纸白)</span></td><td class="note">浮层粉（派生）：选择器 / 提示 / 引用块 / 浮起面</td></tr>
@@ -458,7 +458,7 @@
   <!-- ============ 审计 ============ -->
   <div class="card">
     <div class="head"><h3>对比度审计</h3><span class="hintx">右侧一列由浏览器现场重算，可自行核对</span></div>
-    <p class="lede">文字类色位按 4.5:1 判定，交互图形（焦点环）按 3:1 判定，装饰性发丝细线按 1.3:1 判定——细线只负责分隔，不承担信息。每一行都给出前景色、它实际所在的背景面，以及浏览器现场重算的比值。</p>
+    <p class="lede">文字类颜色按 4.5:1 判定，交互图形（焦点环）按 3:1 判定，装饰性发丝细线按 1.3:1 判定——细线只负责分隔，不承担信息。每一行都给出前景色、它实际所在的背景面，以及浏览器现场重算的比值。</p>
     <table class="t">
       <tr><th>检查项</th><th>前景</th><th>背景</th><th>前景色值</th><th>比值</th><th>阈值</th><th>现场重算</th></tr>
 <tr><td class="note">正文 / 纸白</td><td class="mono">#231815</td><td class="mono">#FFFFFF</td><td class="mono">17.31 : 1</td><td class="mono">4.5 : 1</td><td id="lv-text-background" class="mono">—</td></tr>
@@ -512,7 +512,7 @@
       <div class="p"><span class="n">04 · 语义不合并</span><h5>37 个槽位，32 种色</h5>
         <p>仓库判尺把「两个角色取同一 hex」记为角色碰撞，理由是<b>语义被抹平</b>。所以这里除仓库已记档的 <b>primary = borderActive</b>（红即品牌即焦点）外，其余角色一律各用各的色：标题、关键字、删除、错误是四个不同深度的红。</p></div>
       <div class="p"><span class="n">05 · 可溯源</span><h5>每个值都能验</h5>
-        <p>20 个色位是参考图的<b>精确像素值</b>，可直接在色库里检索到；17 个派生色位由<b>两枚精确像素按公开公式</b>混合得到（见台账公式列），没有一个是凭感觉写的十六进制。</p></div>
+        <p>20 个颜色是参考图的<b>精确像素值</b>，可直接在色库里检索到；17 个派生颜色由<b>两枚精确像素按公开公式</b>混合得到（见台账公式列），没有一个是凭感觉写的十六进制。</p></div>
       <div class="p"><span class="n">06 · 过判尺</span><h5>不只好看，还要合规</h5>
         <p>跑的是仓库自己的 <code>npm run audit:themes</code>：硬性 4.5:1 与 UI 3:1 违例 <b>0 / 0</b>，语法核心五色 ΔE 全 ≥ 10，注释与操作符都退到核心之下，背景家族无色相孤岛。</p></div>
     </div>

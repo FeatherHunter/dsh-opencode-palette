@@ -1,6 +1,6 @@
 # 漫威主题 · 逐像素取色管线
 
-从三张参考图重新推导 `src/custom-presets/marvel.json` 的 37 个色位，并生成预览页。
+从三张参考图重新推导 `src/custom-presets/marvel.json` 的 37 个颜色，并生成预览页。
 
 **源图**（不入库，需本机存在）：`C:\Users\辰辰洋洋\Pictures\漫威\`
 `01-spiderman-official-keyart-comic-style.png` 蜘蛛侠漫画风官方主视觉 ·
@@ -39,12 +39,12 @@ A1/A2 逐像素在图里，B 落在图里某片区域，C 的源色逐像素在�
 
 ```powershell
 cd prototypes\marvel-extraction
-python extract.py   # 全图普查 + 37 色位溯源 + 判据自检 → extracted.json / palette.json / report.txt
+python extract.py   # 全图普查 + 37 个颜色溯源 + 判据自检 → extracted.json / palette.json / report.txt
 python gen.py       # 生成 ../marvel-theme-preview.html（参考图裁切后 base64 内联，页面自包含）
 node validate.ts    # 用仓库引擎复算 38 硬对 + 15 UI 对 + IP 设计规范
 ```
 
-`palette.json` 是**结论**（37 色位终值 + 每槽的判据级别 / 来源图 / 推导方式 / 图中体量），
+`palette.json` 是**结论**（37 个颜色终值 + 每槽的判据级别 / 来源图 / 推导方式 / 图中体量），
 预览页的「37 槽溯源表」把三张参考图与 37 行溯源表一并内联。
 
 ## 设计要点

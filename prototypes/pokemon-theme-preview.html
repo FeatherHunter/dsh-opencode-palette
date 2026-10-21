@@ -11,10 +11,10 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
 </script>
 <script>
 /* ---------------------------------------------------------------
-   色位注入：页面里不写死任何色值。
-   37 个色位全部在运行时从 window.PKM_ASSETS.colors 读取
+   颜色注入：页面里不写死任何色值。
+   37 个颜色全部在运行时从 window.PKM_ASSETS.colors 读取
    （= palette.json 的 colors 单一事实源），注入为 CSS 变量。
-   仅有两个非色位例外：
+   仅有两个非颜色例外：
      --page      #0A0C12  页面衬底（不属于应用窗口，SPEC §5 允许）
      --onprimary #141414  插件 contrastText(primary) 派生前景（SPEC §2）
    --------------------------------------------------------------- */
@@ -47,7 +47,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
 <style>
   /* ============================================================
      宝可梦 · 口袋图鉴暗场 —— DSH OpenCode Palette 主题预览
-     应用窗口只使用 37 个色位（全部由 JS 从 PKM_ASSETS.colors 注入）
+     应用窗口只使用 37 个颜色（全部由 JS 从 PKM_ASSETS.colors 注入）
      + color-mix() 派生量；页衬底 #0A0C12 与派生前景 #141414 是仅有的例外。
      ============================================================ */
   :root{
@@ -334,7 +334,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
   <!-- ================= 标题区 ================= -->
   <div class="eyebrow">DSH / OpenCode Palette · Custom Theme · Dark</div>
   <h1 class="title">宝可梦 <em>Pokémon</em> — 口袋图鉴暗场</h1>
-  <div class="sub">副题：Pokémon · Pocket Field Guide。四张参考图逐像素取色，37 个色位全部是画面里真实存在的像素；正文对比 <span id="intro-text-cr">—</span>，主按钮 <code>#141414</code> 压在 <code>#FFCB05</code> 上 <span id="intro-on-primary">—</span>，语法色在代码黑底上最低 <span id="intro-syntax-min">—</span>（核心五色 <span id="intro-syntax-core">—</span>，注释与运算符按设计退后）。本页所有命中数都是浏览器现场读像素算出来的，不是抄表；<b>所有着色</b>都在运行时从 <code>window.PKM_ASSETS.colors</code> 注入，页面里出现的 hex 只是显示文本。</div>
+  <div class="sub">副题：Pokémon · Pocket Field Guide。四张参考图逐像素取色，37 个颜色全部是画面里真实存在的像素；正文对比 <span id="intro-text-cr">—</span>，主按钮 <code>#141414</code> 压在 <code>#FFCB05</code> 上 <span id="intro-on-primary">—</span>，语法色在代码黑底上最低 <span id="intro-syntax-min">—</span>（核心五色 <span id="intro-syntax-core">—</span>，注释与运算符按设计退后）。本页所有命中数都是浏览器现场读像素算出来的，不是抄表；<b>所有着色</b>都在运行时从 <code>window.PKM_ASSETS.colors</code> 注入，页面里出现的 hex 只是显示文本。</div>
   <div class="anchors">
     <span class="anchor"><i style="background:var(--primary)"></i>徽章黄 <code>#FFCB05</code></span>
     <span class="anchor"><i style="background:var(--secondary)"></i>wikiHow 蓝 <code>#799DFE</code></span>
@@ -395,7 +395,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       <div class="side-lbl">最近</div>
       <div class="threads">
         <div class="th sel">宝可梦主题 · 设计评审</div>
-        <div class="th">37 色位逐像素取证</div>
+        <div class="th">37 个颜色逐像素取证</div>
         <div class="th">对比度审计与几何检查</div>
         <div class="th">四张参考图取色笔记</div>
       </div>
@@ -415,7 +415,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       </div>
 
       <div class="feed"><div class="col">
-        <div class="user"><div class="bub">把这套宝可梦配色写进 theme.json，顺便把 37 个色位逐像素验一遍，我要看到真实命中数。</div></div>
+        <div class="user"><div class="bub">把这套宝可梦配色写进 theme.json，顺便把 37 个颜色逐像素验一遍，我要看到真实命中数。</div></div>
 
         <div class="who">
           <span class="k">
@@ -425,7 +425,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
         </div>
 
         <div class="md">
-          <h2>宝可梦主题 · 37 色位已按真实像素落位</h2>
+          <h2>宝可梦主题 · 37 个颜色已按真实像素落位</h2>
           <p>核心只有一句话：<strong>底是卡面的冷，字是图鉴页的暖</strong>。所有底色取自 01 图的卡面页底与画框黑，所有语义色取自 04 图的御三家，三个取舍：</p>
           <ul>
             <li>主按钮是<em>黄底深字</em>（<code>#FFCB05</code> / <code>#141414</code>，12.10:1）——黄当「牌」不当「底」，它一做文字色整页就垮。</li>
@@ -436,7 +436,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
 
           <div class="cc">
             <div class="hd"><span class="lang">js</span><span class="fn">pokemon.theme.js</span><span class="cp">复制</span></div>
-<pre><span class="tk-com">// 每个色位都是参考图里的真实像素</span>
+<pre><span class="tk-com">// 每个颜色都是参考图里的真实像素</span>
 <span class="tk-kw">const</span> <span class="tk-fn">pokemon</span> <span class="tk-op">=</span> {
   <span class="tk-fn">cardBase</span>: <span class="tk-str">"#1C1C22"</span>,   <span class="tk-com">// 01 卡面页底</span>
   <span class="tk-fn">badge</span>: <span class="tk-str">"#FFCB05"</span>,     <span class="tk-com">// 01 编号徽章</span>
@@ -451,7 +451,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
             <tr><td>正文对比度</td><td><span class="ok">14.67 : 1</span></td><td class="mono">#EEEEF4 / #1C1C22</td></tr>
             <tr><td>主按钮前景</td><td><span class="ok">12.10 : 1</span></td><td class="mono">#141414 / #FFCB05</td></tr>
             <tr><td>语法色最低</td><td><span class="ok"><span id="syn-min-c">—</span> : 1</span></td><td class="mono">syntaxOperator @ #0C0C10</td></tr>
-            <tr><td>零命中色位</td><td><span class="no">0 个</span></td><td class="mono">37 / 37 命中真实像素</td></tr>
+            <tr><td>零命中颜色</td><td><span class="no">0 个</span></td><td class="mono">37 / 37 命中真实像素</td></tr>
           </table>
 
           <div class="warn">
@@ -476,7 +476,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
         </div>
       </div></div>
 
-      <div class="toast"><i></i><span>主题已保存 · 37 色位</span><span class="sub">在面板中可见</span></div>
+      <div class="toast"><i></i><span>主题已保存 · 37 个颜色</span><span class="sub">在面板中可见</span></div>
 
       <div class="composer"><div class="col">
         <div class="cbox">
@@ -522,7 +522,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       </div>
     </div>
 
-    <p class="pnote"><b>判定口径：</b>命中＝像素 RGB 与色位 HEX <b>完全相等</b>（不做近似匹配、不做抗锯齿容差）；包围盒是该色在单张图内的最小外接矩形（左上角 → 右下角）；高亮＝原图整体压暗至 58%，命中像素按原色满亮度叠回，并加一道品牌黄光晕与包围框。色值一律取自 <code>window.PKM_ASSETS.colors</code>。</p>
+    <p class="pnote"><b>判定口径：</b>命中＝像素 RGB 与颜色 HEX <b>完全相等</b>（不做近似匹配、不做抗锯齿容差）；包围盒是该色在单张图内的最小外接矩形（左上角 → 右下角）；高亮＝原图整体压暗至 58%，命中像素按原色满亮度叠回，并加一道品牌黄光晕与包围框。色值一律取自 <code>window.PKM_ASSETS.colors</code>。</p>
   </section>
 
   <!-- ================= 37 色 token 网格 ================= -->
@@ -543,9 +543,9 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
 
   <!-- ================= 出处表 ================= -->
   <section class="panel">
-    <div class="phead"><h3>出处对照表 · Provenance</h3><span class="hintx">37 行：色位 / HEX / 真实命中像素 / 出处图 / 出处说明</span></div>
+    <div class="phead"><h3>出处对照表 · Provenance</h3><span class="hintx">37 行：颜色 / HEX / 真实命中像素 / 出处图 / 出处说明</span></div>
     <table class="data" id="provtable">
-      <thead><tr><th style="width:190px">色位 slot</th><th style="width:110px">HEX</th><th style="width:104px">命中像素</th><th style="width:120px">出处图</th><th style="width:290px">出处说明</th><th>分布 01 / 02 / 03 / 04</th></tr></thead>
+      <thead><tr><th style="width:190px">颜色 slot</th><th style="width:110px">HEX</th><th style="width:104px">命中像素</th><th style="width:120px">出处图</th><th style="width:290px">出处说明</th><th>分布 01 / 02 / 03 / 04</th></tr></thead>
       <tbody></tbody>
     </table>
     <p class="pnote">命中像素＝四张参考图中与该 HEX 完全相等的像素总数；分布列给出四张图各自的命中数。出处说明取自 <code>window.PKM_ASSETS.provenance</code>，HEX 取自 <code>window.PKM_ASSETS.colors</code>。</p>
@@ -555,7 +555,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
   <section class="panel">
     <div class="phead"><h3>四图贡献 · What Each Image Gave</h3><span class="hintx">下面四张卡是<b>运行时按逐图命中数自动生成</b>的，不是手写文案 —— 手写就一定会漂</span></div>
     <div class="srcs" id="srcs"></div>
-    <p class="pnote"><b>口径：</b>每张图只列出在该图里<b>命中像素 &gt; 0</b> 的色位，按命中数降序；像素数来自 <code>window.PKM_ASSETS.provenance</code> 的 <code>perImage</code> 统计（构建期逐像素扫描原图得出，与页面上的浏览器取证相互独立）。</p>
+    <p class="pnote"><b>口径：</b>每张图只列出在该图里<b>命中像素 &gt; 0</b> 的颜色，按命中数降序；像素数来自 <code>window.PKM_ASSETS.provenance</code> 的 <code>perImage</code> 统计（构建期逐像素扫描原图得出，与页面上的浏览器取证相互独立）。</p>
   </section>
 
   <!-- ================= 对比度审计 ================= -->
@@ -580,7 +580,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       <tbody></tbody>
     </table>
 
-    <p class="pnote"><b>关于 labelDimmed：</b>表中 <code>#AEAEB4 / #B4B4B9 / #B6B6BC</code> 是宿主侧的 dimmed 标签 token（<code>withAlpha(textMuted, 0.8)</code> 在对应表面上的合成结果），<b>不占本主题的 37 个色位</b>，仅作为对比审计对象列出，不参与本预览页任何着色。<b>关于数值：</b>本表全部对比度由页面在运行时用 WCAG 公式从 <code>window.PKM_ASSETS.colors</code> 现算（与仓库引擎 <code>src/engine/resolve.ts</code> 同口径），已与 <code>prototypes/pokemon-extraction/validate.ts</code> 的引擎复算逐项比对一致。</p>
+    <p class="pnote"><b>关于 labelDimmed：</b>表中 <code>#AEAEB4 / #B4B4B9 / #B6B6BC</code> 是宿主侧的 dimmed 标签 token（<code>withAlpha(textMuted, 0.8)</code> 在对应表面上的合成结果），<b>不占本主题的 37 个颜色</b>，仅作为对比审计对象列出，不参与本预览页任何着色。<b>关于数值：</b>本表全部对比度由页面在运行时用 WCAG 公式从 <code>window.PKM_ASSETS.colors</code> 现算（与仓库引擎 <code>src/engine/resolve.ts</code> 同口径），已与 <code>prototypes/pokemon-extraction/validate.ts</code> 的引擎复算逐项比对一致。</p>
   </section>
 
   <!-- ================= 已知限制 ================= -->
@@ -601,7 +601,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       </div>
       <div class="lim">
         <div class="t">④ 两个宿主 token 未定义</div>
-        <p><b>--dsw-alias-label-error</b> 与 <b>--dsw-alias-bg-layer-4</b> 在宿主侧未定义，主题里对应色位只能落到近似落点。</p>
+        <p><b>--dsw-alias-label-error</b> 与 <b>--dsw-alias-bg-layer-4</b> 在宿主侧未定义，主题里对应颜色只能落到近似落点。</p>
       </div>
     </div>
   </section>
@@ -647,7 +647,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
   });
 
   /* ---------------------------------------------------------
-     1 · 色位定义（按界面真实落点排序）
+     1 · 颜色定义（按界面真实落点排序）
      --------------------------------------------------------- */
   var GROUPS = [
     { name:'背景场域', slots:[
@@ -794,7 +794,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
   function renderOne(rec, slot){
     var st = statFor(rec, slot);
     var cx = rec.ctx, w = rec.w, h = rec.h;
-    var dimHex = A.colors.codeBlockBg;     // 压暗层用色位黑
+    var dimHex = A.colors.codeBlockBg;     // 压暗层用颜色黑
     var glowHex = A.colors.primary;         // 光晕 / 包围框用品牌黄
     cx.clearRect(0, 0, w, h);
     cx.drawImage(rec.img, 0, 0);
@@ -838,7 +838,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
     GROUPS.forEach(function(g, gi){
       var head = document.createElement('div');
       head.className = 'ghead';
-      head.innerHTML = '<b>' + String(gi + 1).padStart(2, '0') + '</b>' + g.name + '<span>· ' + g.slots.length + ' 个色位</span>';
+      head.innerHTML = '<b>' + String(gi + 1).padStart(2, '0') + '</b>' + g.name + '<span>· ' + g.slots.length + ' 个颜色</span>';
       frag.appendChild(head);
       g.slots.forEach(function(p){
         var slot = p[0], role = p[1], hex = hexOf(slot);
@@ -930,7 +930,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
         '<div class="h"><i style="background:' + (SRC_ACCENT[i] || 'var(--primary)') + '"></i>' + im.title + '</div>' +
         '<div class="f">' + im.file + '</div>' +
         '<ul>' + items + '</ul>' +
-        '<div class="f" style="margin-top:6px">贡献 ' + list.length + ' 个色位 · 共 ' + fmt(total) + ' px</div>' +
+        '<div class="f" style="margin-top:6px">贡献 ' + list.length + ' 个颜色 · 共 ' + fmt(total) + ' px</div>' +
         '</div>';
     });
     el.innerHTML = html;
@@ -1045,9 +1045,9 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
     var items = [
       { ok: imgs.length === 4, t: '参考图载入', v: imgs.length + ' / 4' },
       { ok: totalPx === 830418, t: '四图总像素', v: fmt(totalPx) + ' / 830,418' },
-      { ok: hits === 37, t: '命中真实像素的色位', v: hits + ' / 37' },
-      { ok: zeroSlots.length === 0, t: '零命中色位', v: zeroSlots.length === 0 ? '无' : zeroSlots.join(', ') },
-      { ok: SLOT_LIST.length === 37 && Object.keys(A.colors).length === 37, t: '色位来源 PKM_ASSETS.colors', v: Object.keys(A.colors).length + ' 个' },
+      { ok: hits === 37, t: '命中真实像素的颜色', v: hits + ' / 37' },
+      { ok: zeroSlots.length === 0, t: '零命中颜色', v: zeroSlots.length === 0 ? '无' : zeroSlots.join(', ') },
+      { ok: SLOT_LIST.length === 37 && Object.keys(A.colors).length === 37, t: '颜色来源 PKM_ASSETS.colors', v: Object.keys(A.colors).length + ' 个' },
       { ok: errCount() === 0, t: '运行时错误', v: errCount() + ' 条' }
     ];
     host.innerHTML = items.map(function(it){
@@ -1109,13 +1109,13 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
       imgs.forEach(function(rec){ totalPx += rec.w * rec.h; });
 
       document.getElementById('ledger').innerHTML =
-        'window.PKM_ASSETS.images 四图共 <b>' + fmt(totalPx) + '</b> 像素；37 个色位全部为真实像素 —— ' +
-        '<span class="' + (hits === 37 ? 'ok' : 'bad') + '">' + hits + ' / 37</span> 色位至少命中 1 个真实像素' +
-        (zeroSlots.length ? '，<span class="bad">' + zeroSlots.join('、') + '</span> 为 0 命中（取证失败）' : '，无 0 命中色位') + '。';
+        'window.PKM_ASSETS.images 四图共 <b>' + fmt(totalPx) + '</b> 像素；37 个颜色全部为真实像素 —— ' +
+        '<span class="' + (hits === 37 ? 'ok' : 'bad') + '">' + hits + ' / 37</span> 颜色至少命中 1 个真实像素' +
+        (zeroSlots.length ? '，<span class="bad">' + zeroSlots.join('、') + '</span> 为 0 命中（取证失败）' : '，无 0 命中颜色') + '。';
 
       select('primary');
       selfCheck(totalPx, hits, zeroSlots);
-      logLine('取证完成：' + fmt(totalPx) + ' 像素，' + hits + '/37 色位命中，运行时错误 0 条。');
+      logLine('取证完成：' + fmt(totalPx) + ' 像素，' + hits + '/37 个颜色命中，运行时错误 0 条。');
       window.__PKM_READY__ = true;
       window.__PKM_HITS__ = (function(){
         var o = {};
@@ -1141,7 +1141,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
     var st = statFor(rec, current);
     document.getElementById('lbtitle').textContent = rec.meta.title + ' · ' + rec.meta.file;
     document.getElementById('lbinfo').textContent =
-      '当前色位 ' + current + ' ' + hexOf(current) + ' · 命中 ' + fmt(st.n) + ' px' +
+      '当前颜色 ' + current + ' ' + hexOf(current) + ' · 命中 ' + fmt(st.n) + ' px' +
       (st.box ? ' · 包围盒 (' + st.box[0] + ',' + st.box[1] + ') → (' + st.box[2] + ',' + st.box[3] + ')' : '') +
       ' · 原图 ' + rec.w + '×' + rec.h;
     lb.hidden = false;
@@ -1166,9 +1166,9 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
     ['textMuted','background','次要文字'],
     ['textMuted','backgroundPanel','次要文字'],
     ['textMuted','backgroundElement','次要文字'],
-    ['labelDimmed','background','宿主 dimmed 标签（非本主题色位）'],
-    ['labelDimmed','backgroundPanel','宿主 dimmed 标签（非本主题色位）'],
-    ['labelDimmed','backgroundElement','宿主 dimmed 标签（非本主题色位）'],
+    ['labelDimmed','background','宿主 dimmed 标签（非本主题颜色）'],
+    ['labelDimmed','backgroundPanel','宿主 dimmed 标签（非本主题颜色）'],
+    ['labelDimmed','backgroundElement','宿主 dimmed 标签（非本主题颜色）'],
     ['markdownHeading','background','markdown 标题'],
     ['markdownHeading','backgroundPanel','markdown 标题'],
     ['markdownLink','background','markdown 链接'],
@@ -1214,8 +1214,8 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
   ];
 
   var IPRULES = [
-    ['色位碰撞','__COLLISION__','ok','37 个色位两两不取同值（页面实时查重）'],
-    ['markdown 重复','__MDRESET__','ok','6 个 markdown 色位互不重复（页面实时查重）'],
+    ['颜色碰撞','__COLLISION__','ok','37 个颜色两两不取同值（页面实时查重）'],
+    ['markdown 重复','__MDRESET__','ok','6 个 markdown 颜色互不重复（页面实时查重）'],
     ['品牌几何','__HUE__','ok','primary ↔ secondary 的色相差落在互补桶（180°±15°）'],
     ['syntax ΔE76','__SYNTAX__','ok','核心 5 色两两 ΔE76 ≥ 10（页面实时复算）']
   ];
@@ -1327,7 +1327,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
           if (seen[h]) dup++; else seen[h] = 1;
         });
         val = String(dup);
-        r[3] = '37 个色位里 ' + dup + ' 组同值（页面实时查重；同值数必须为 0）';
+        r[3] = '37 个颜色里 ' + dup + ' 组同值（页面实时查重；同值数必须为 0）';
         r[2] = dup === 0 ? 'ok' : 'bad';
       }
       if (val === '__MDRESET__'){
@@ -1336,7 +1336,7 @@ window.PKM_ASSETS = {"images":[{"file":"01-pikachu-official-pokedex-art.png","ti
         var ms = {}, mdup = 0;
         md.forEach(function(k){ var h = A.colors[k]; if (ms[h]) mdup++; else ms[h] = 1; });
         val = String(mdup);
-        r[3] = '6 个 markdown 色位里 ' + mdup + ' 组同值（页面实时查重）';
+        r[3] = '6 个 markdown 颜色里 ' + mdup + ' 组同值（页面实时查重）';
         r[2] = mdup === 0 ? 'ok' : 'bad';
       }
       html += '<tr><td class="slot">' + r[0] + '</td><td class="mono">' + val + '</td>' +

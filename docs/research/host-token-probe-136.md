@@ -326,7 +326,7 @@ D5 单独列为最高，理由在结论 4：**它同时满足「静默」「看�
 | 级 | 动作 | 语义 | 何时用 |
 |---|---|---|---|
 | **P0** | **不写该名** | 把名字从 `render.tokens` 里剔除 → 宿主默认生效 | 任何 `missing` / `declared-invalid` / `pinned` 命中。默认路径 |
-| **P1** | 引擎派生 | 用 `DERIVED_TOKENS` 从已知色位算出值；或从同族仍活着的 token 推导 | P0 会明显破版（如前景色没了会变黑底黑字）时 |
+| **P1** | 引擎派生 | 用 `DERIVED_TOKENS` 从已知颜色算出值；或从同族仍活着的 token 推导 | P0 会明显破版（如前景色没了会变黑底黑字）时 |
 | **P2** | 已知改名表 | `TOKEN_ALIASES: 旧名 → 新名`，只在**确认**改名时用 | 探针报 D2 且我们已把映射写进表 |
 | **P3** | 功能禁用 + UI 提示 | 整块能力关掉（毛玻璃、背景图、字体预设），设置页顶部显示一条可关闭的横幅 | D5/D7 且 P0–P2 都不够 |
 | **P4** | 探针告警 | 一条聚合 `console.warn` + `probe/last-warning` 摘要 | 上述任一发生后，统一收口 |
@@ -338,8 +338,8 @@ D5 单独列为最高，理由在结论 4：**它同时满足「静默」「看�
 | 漂移 | 探针输出 | 引擎侧 | UI | 日志 |
 |---|---|---|---|---|
 | D1 新增 | `newNames: string[]`（不告警） | 无动作 | 无 | 无 |
-| D2 改名 | `drift: 'renamed'`，附 `candidates`（同族、名相近，**仅作提示**） | 旧名 → P0 剔除；若表内有映射 → P2 换名 | 诊断页列出「N 个色位疑似改名，点此查看」 | 一条 warn |
-| D3 删除 | `state: 'missing'` | P0 剔除；若该名是 `TOKEN_MAP` 的必需项 → P1 派生 | 诊断页列出缺失名 + 影响的色位 | 一条 warn |
+| D2 改名 | `drift: 'renamed'`，附 `candidates`（同族、名相近，**仅作提示**） | 旧名 → P0 剔除；若表内有映射 → P2 换名 | 诊断页列出「N 个颜色疑似改名，点此查看」 | 一条 warn |
+| D3 删除 | `state: 'missing'` | P0 剔除；若该名是 `TOKEN_MAP` 的必需项 → P1 派生 | 诊断页列出缺失名 + 影响的颜色 | 一条 warn |
 | D4 值域（纯色） | `valueDrift: true` | 无（我们覆盖它） | 无 | 无 |
 | D4 值域（结构） | `valueDrift: true` + `structural: true`（radius/elevation/font/shadow/gradient/mask 族） | 相关预设进 `degraded` 集合，不发射不合形状的值 | 设置页对应分组出现「宿主版本变化，此组暂不可用」 | 一条 warn |
 | D5 承载迁移 | `relocated: [{name, from:'body', to:'html'}]` | 覆盖目标切换：写 `html` 而不是 `body`（或两处都写，按 `declaredBy` 决定） | 一条横幅「检测到宿主样式层变化，已自动适配」 | 一条 info |
