@@ -25,8 +25,6 @@ Your ⭐ is the brightest star in my night sky.
 
 Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.
 
-38 entries lined up by color family — search by name and switch. 37 of them are OpenCode's classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.
-
 | Main screen (opencode theme) | Settings panel (38 themes by color family) |
 |---|---|
 | ![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png) | ![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png) |
@@ -71,11 +69,11 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
-**Fonts on their own.** Color is color, fonts are fonts, and the two never collide: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and you can pick the code font from the fonts installed on this machine. Saved changes survive a restart.
+**25 IP theme capsules 💊 preinstalled.** 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 德古拉 Dracula, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors.
 
-**A panel that speaks your DSH.** DSH is in Chinese, so the panel is too; switch DSH to English and the panel follows.
+**Build your own capsule 💊.** 37 slots, one at a time, with a miniature DSH preview on the right: click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`.
 
-**Your own palette.** 37 slots, one at a time, with a miniature DSH preview on the right: click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. 25 IP presets work as bases, and saved themes land in `<DSH_HOME>/opencode-palette/custom-themes/`.
+**Fonts and size, your call.** Fonts sit apart from color: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and the code font can be picked from the fonts installed on this machine.
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
@@ -85,7 +83,7 @@ dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile web add dsh-opencode-palette@<version>
 ```
 
-Don't want to type commands? The panel has a button too: Settings → Plugins → OpenCode Palette, with a **Check for updates** at the right of the title row — it only goes online when you click it. When a newer version exists, that button turns into “Update available vX.Y.Z” right there; click to open the panel, then install. It takes effect after a DSH restart — until you do, a banner stays at the top of the panel.
+Settings → Plugins → OpenCode Palette → **Check for updates**
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 

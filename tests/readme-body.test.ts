@@ -129,18 +129,22 @@ test('图片引用存在性：三份文档里的每个 <img src> / ![..]() 都�
   assert.deepEqual(missing, [], '以下图片引用指向不存在的文件（GitHub 上会裂图）：\n' + missing.join('\n'))
 })
 
-// ── 5 · 口径定稿：38 = 37 上游 + 原生外观；字体只讲一次 ──
+// ── 5 · 口径定稿：SHOWCASE 段首不再铺「38 = 37 上游 + 跟随系统」──
 // 用户 2026-09-17 复稿：THEMES 首句精简成一句，不再在正文里铺 37/原生 的口径
 // （口径原由 theme-stories 图承担，见本文件第 1-3 组的图断言）。
 // 2026-10-19 全篇文案重写（用户逐段确认）：首句与 EXTENSIONS 三条的措辞随之改写，
 // 断言跟着新定稿走 —— 门禁盯的是「定稿那句不许被顺手改掉」，不是某几个旧字面量。
-// 2026-10-21 主题专区退役：THEMES 段与色带图一起删掉，这句口径并进 SHOWCASE 段首，
-// 断言跟着搬家（搬家后仍要钉死，别让「38 / 37 上游 / 跟随系统」在改写里悄悄变形）。
-test('口径：38 款 / 37 上游 + 跟随系统 这一句落在 SHOWCASE 段首（THEMES 段已退役）', () => {
-  assert.ok(ZH.includes('38 个入口按色系排好，搜名字就能切 —— 37 款是 OpenCode 那套经典配色，剩下那一款叫「跟随系统」，颜色一个都不改，DSH 什么样它就什么样。'),
-    '中文数据句应为定稿原文')
-  assert.ok(EN.includes('38 entries lined up by color family — search by name and switch. 37 of them are OpenCode\'s classic set; the last one is called “System” — it changes no colors at all, so DSH looks exactly as it does.'),
-    '英文数据句应为定稿原文')
+// 2026-10-21 主题专区退役：THEMES 段与色带图一起删掉，那句口径并进 SHOWCASE 段首。
+// 2026-10-21 用户判定该句为废话 → 整句删除；「38 款」的口径改由头部卖点句与徽章承担。
+// 门禁改成「不许回潮」：旧句回来看得见，38 的口径也没丢。
+test('口径：SHOWCASE 段首不再铺「38 = 37 上游 + 跟随系统」那句（已删，不许回潮）', () => {
+  assert.equal(ZH.includes('38 个入口按色系排好，搜名字就能切'), false, '中文那句已删')
+  assert.equal(ZH.includes('剩下那一款叫「跟随系统」'), false, '中文那句已删')
+  assert.equal(EN.includes('38 entries lined up by color family'), false, '英文那句已删')
+  assert.equal(EN.includes('the last one is called “System”'), false, '英文那句已删')
+  // 「38 款」的口径仍在头部卖点和徽章里（别把整体删没）
+  assert.ok(ZH.includes('**38 款配色，一键给 DSH 换装。**'), '中文卖点句仍在')
+  assert.ok(EN.includes('**38 themes for DSH, one click.**'), '英文卖点句仍在')
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('（默认）'), false, `${name} 不应再给 system 标「默认」`)
   }
@@ -154,14 +158,14 @@ test('字体话题只讲一次：全部落在 EXTENSIONS 段内', () => {
     assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
     assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
   }
-  // 排印三属性（字体 / 字号 11–24 / 作用范围）只在 EXTENSIONS 第一条出现
+  // 排印三属性（字体 / 字号 11–24 / 作用范围）只在 EXTENSIONS 段内讲一次（2026-10-21 起落在第三条）
   for (const [name, doc, needle] of [['中文页', ZH, '字号 11–24'], ['英文页', EN, '11–24 px']]) {
     assert.equal(count(doc, needle), 1, `${name}「${needle}」应只出现一次`)
     assert.ok(doc.slice(ext(doc)).includes(needle), `${name}「${needle}」应落在 EXTENSIONS 段内`)
   }
 })
 
-test('EXTENSIONS：不自贬也不摆卖方口吻，且是「字体单独调」+「面板跟得上 DSH」+「自己配色」三条', () => {
+test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专属胶囊」+「字体字号」三条', () => {
   const extBlock = (t: string): string => t.slice(t.indexOf('<sub>EXTENSIONS</sub>'), t.indexOf('<sub>UPGRADE</sub>'))
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('照抄'), false, `${name} 不应再出现「照抄」`)
@@ -178,19 +182,41 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「字体单独调」+
   }
   assert.ok(ZH.includes('<sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能'), '中文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
-  assert.ok(ZH.includes('**字体单独调。**'), '中文首条应为「字体单独调」')
-  assert.ok(EN.includes('**Fonts on their own.**'), '英文首条应为 "Fonts on their own"')
-  // 三条：字体 + 面板语言跟随 + 自己配色（2026-10-19 文案重写后的定稿）
-  assert.equal(count(extBlock(ZH), '**面板跟得上 DSH 的语言。**'), 1, '中文应保留「面板跟得上 DSH 的语言」一条')
-  assert.equal(count(extBlock(EN), '**A panel that speaks your DSH.**'), 1, '英文应保留该条')
-  assert.equal(count(extBlock(ZH), '**自己配色。**'), 1, '中文应有「自己配色」一条')
-  assert.equal(count(extBlock(EN), '**Your own palette.**'), 1, '英文应有同形一条（逐块同形门禁盯着）')
+  // 2026-10-21 用户重写三条：原「字体单独调 / 面板跟得上 DSH 的语言 / 自己配色」判为废话，
+  // 改成核心支持三件事：预置 IP 主题胶囊、打造专属主题胶囊、字体与字号自选。
+  const LEADS = [
+    ['**IP 主题胶囊 💊 预置 25 套。**', '**25 IP theme capsules 💊 preinstalled.**', 'IP 胶囊预置'],
+    ['**打造自己的专属主题胶囊 💊。**', '**Build your own capsule 💊.**', '专属胶囊'],
+    ['**字体与字号自己挑。**', '**Fonts and size, your call.**', '字体与字号'],
+  ] as const
+  for (const [zh, en, label] of LEADS) {
+    assert.equal(count(extBlock(ZH), zh), 1, `中文应有「${label}」一条`)
+    assert.equal(count(extBlock(EN), en), 1, `英文应有「${label}」一条`)
+  }
+  // 旧三条不许回潮
+  for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**']) {
+    assert.equal(ZH.includes(gone), false, `中文不应再有「${gone}」`)
+  }
+  for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**']) {
+    assert.equal(EN.includes(gone), false, `英文不应再有「${gone}」`)
+  }
   // v2.1.7 事实：37 色位编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径
   assert.ok(extBlock(ZH).includes('37 个色位'), '中文该条应讲到 37 个色位')
   assert.ok(extBlock(EN).includes('37 slots'), '英文该条应讲到 37 个色位')
   for (const [name, block] of [['中文页', extBlock(ZH)], ['英文页', extBlock(EN)]]) {
     assert.ok(block.includes('25'), `${name} 该条应讲到 25 个 IP 预置基底`)
     assert.ok(block.includes('<DSH_HOME>/opencode-palette/custom-themes/'), `${name} 该条应写明自定义主题落盘根路径`)
+  }
+})
+
+// ── 5b · UPGRADE：面板里的「检查更新」入口（2026-10-21 用户把长段判为废话）──
+// 定稿只剩一行指路：「设置 → 插件 → OpenCode调色板」 → **检查更新**。
+test('UPGRADE：面板内升级入口只剩一行指路，长段不许回潮', () => {
+  assert.ok(ZH.includes('「设置 → 插件 → OpenCode调色板」 → **检查更新**'), '中文应为定稿原文')
+  assert.ok(EN.includes('Settings → Plugins → OpenCode Palette → **Check for updates**'), '英文应为定稿原文')
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
+    assert.equal(doc.includes('不想敲命令'), false, `${name} 不应再有「不想敲命令」那句`)
+    assert.equal(doc.includes("Don't want to type commands"), false, `${name} 不应再有该句英文`)
   }
 })
 
