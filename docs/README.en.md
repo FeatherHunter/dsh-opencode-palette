@@ -92,7 +92,7 @@ Settings → Plugins → OpenCode Palette → **Check for updates**
 
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
-<div align="center">
+<div align="left">
 
 If you like this plugin, these might be useful too:
 
@@ -101,6 +101,8 @@ If you like this plugin, these might be useful too:
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it's installed.
 
 **[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.
+
+**[ilife](https://github.com/FeatherHunter/ilife)** — iLife (爱生活), the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more. ⚠️Work in progress⚠️pending official release
 
 </div>
 

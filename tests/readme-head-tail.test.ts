@@ -119,12 +119,14 @@ test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck
   assert.ok(EN.includes('Your ⭐ is the brightest star in my night sky.'), '英文求星句在场')
 })
 
-// ── 4 · MORE：三条兄弟插件各一句定稿，im-companion 排在最后 ──
+// ── 4 · MORE：四条兄弟插件各一句定稿，ilife 排在最后，四行居左 ──
 // 2026-10-19 用户逐条改写 MORE 三行（mattpocock/skills 的 star 数按 GitHub API 实测写「近 30 万」，
 // 不写死会过期的数字；dsh-prompt 改成「天天要敲的那几句存成模板」的真实用法），此处跟着定稿走。
 // 2026-10-21 用户再次精简三条：dsh-prompt 讲「反复重复的模板化提示词 → 存成自定义模板 → 选中直接注入」，
 // deck 去掉技能清单只留「预置好，装好即用」，im-companion 收成一句概念说明。
-test('MORE：三条兄弟插件各为定稿句，im-companion 排在第三条', () => {
+// 2026-10-21 晚用户点名 MORE 写四条：新增 ilife（爱生活：居家生活套件），并把整段从居中改居左 ——
+// 长句居中读起来是散开的；ilife 仍在建设中，句尾照用户原话带「⚠️建设中⚠️待正式发布」。
+test('MORE：四条兄弟插件各为定稿句，ilife 排在第四条，四行居左', () => {
   assert.ok(ZH.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。'),
     '中文 dsh-prompt 一行应为定稿原文')
   assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you repeat over and over, saved as custom templates and injected in one click — no more effort spent.'),
@@ -137,6 +139,10 @@ test('MORE：三条兄弟插件各为定稿句，im-companion 排在第三条', 
     '中文 im-companion 一行应为定稿原文')
   assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.'),
     '英文 im-companion 一行应为定稿原文')
+  assert.ok(ZH.includes('**[ilife](https://github.com/FeatherHunter/ilife)** —— 爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。⚠️建设中⚠️待正式发布'),
+    '中文 ilife 一行应为定稿原文')
+  assert.ok(EN.includes('**[ilife](https://github.com/FeatherHunter/ilife)** — iLife (爱生活), the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more. ⚠️Work in progress⚠️pending official release'),
+    '英文 ilife 一行应为定稿原文')
   // 旧长句不许回潮（三条都被用户判为啰嗦）
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('天天要敲的那几句'), false, `${name} 不应再有「天天要敲的那几句」`)
@@ -150,10 +156,18 @@ test('MORE：三条兄弟插件各为定稿句，im-companion 排在第三条', 
     const more = doc.indexOf('<sub>MORE</sub>')
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(more > -1 && thanks > more, 'MORE 应在 THANKS 之前')
-    const im = doc.indexOf('dsh-im-companion')
-    assert.ok(im > more && im < thanks, 'im-companion 应落在 MORE 段内、THANKS 之前')
-    assert.ok(doc.indexOf('[dsh-prompt]') < im, '旧两条排在 im 之前')
-    assert.ok(doc.indexOf('[dsh-mattpocock-skills-deck]') < im, '旧两条排在 im 之前')
+    const block = doc.slice(more, thanks)
+    // 用户定稿四条，一条不多一条不少
+    assert.equal(block.split('**[').length - 1, 4, 'MORE 应恰好四条兄弟插件')
+    // 四行居左：整段包 align="left" 的 div，不许再回居中
+    // （只查 div：切片尾巴带上 THANKS 标题那半行 h2 自己的 align="center"，不算数）
+    assert.ok(block.includes('<div align="left">'), 'MORE 段应左对齐')
+    assert.equal(block.includes('<div align="center">'), false, 'MORE 段不应再包居中 div')
+    // 顺序 = 用户点名顺序：dsh-prompt → deck → im-companion → ilife
+    const order = ['[dsh-prompt]', '[dsh-mattpocock-skills-deck]', '[dsh-im-companion]', '[ilife]']
+    const pos = order.map((n) => block.indexOf(n))
+    for (const n of order) assert.ok(block.includes(n), `MORE 段内应有 ${n}`)
+    assert.deepEqual(pos, [...pos].sort((a, b) => a - b), `MORE 四条应按定稿顺序排列：${order.join(' → ')}`)
   }
 })
 

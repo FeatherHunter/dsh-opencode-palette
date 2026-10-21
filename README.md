@@ -92,7 +92,7 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 
-<div align="center">
+<div align="left">
 
 喜欢这个插件的话，这几个你可能也用得上：
 
@@ -101,6 +101,8 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。
 
 **[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念。
+
+**[ilife](https://github.com/FeatherHunter/ilife)** —— 爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。⚠️建设中⚠️待正式发布
 
 </div>
 
