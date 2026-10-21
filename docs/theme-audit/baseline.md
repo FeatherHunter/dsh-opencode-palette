@@ -2,7 +2,7 @@
 
 > 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。
 
-范围：预置 37 套 + IP 25 套；评估色板 63 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。
+范围：预置 37 套 + IP 25 套；评估配色 63 套（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效配色、IP 按 appearance 修复后的有效配色各评估一次）。
 
 ## 汇总
 
@@ -94,7 +94,7 @@
 
 ## 引擎 / 宿主诊断
 
-- token 对账（有效色板复刻 vs 引擎 buildTokens 输出）：全部一致（0 主题失配）
+- token 对账（有效配色复刻 vs 引擎 buildTokens 输出）：全部一致（0 主题失配）
 - tooltip 标签色（#120 后由引擎按浮层底 backgroundElement 映射，宿主硬编码白字已被 [role="tooltip"] 规则覆盖）：全部 >=4.5（本基线无风险项；透明画布委托宿主的主题不参与）
 - 委托宿主默认 tooltip（lucent-orng）：引擎不发标签规则（浮层底透明），由宿主内置深底 + 硬编码白字承载 —— light 画布 #2C2C2E / 白字 13.94，dark 画布 #43454A / 白字 9.59，均 >=4.5。
 

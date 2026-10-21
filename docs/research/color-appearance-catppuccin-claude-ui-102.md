@@ -52,7 +52,7 @@
 
 ### 1. 配色体系如何组织
 
-- 调色板定义：packages/client/src/theme/tokens.json（约 35KB）是唯一事实源——docs/STYLE.md（约 67KB）头注声明其配色表由此 JSON 生成。色板：ivory #FCFCFB / 侧栏 #FBFBF9 / 边框 #E8E6DC / slate #141413 / clay 主色 #D97757 / accent-deep #C6613F；第二品牌 deepseek 主色 #4D6BFE。
+- 调色板定义：packages/client/src/theme/tokens.json（约 35KB）是唯一事实源——docs/STYLE.md（约 67KB）头注声明其配色表由此 JSON 生成。配色：ivory #FCFCFB / 侧栏 #FBFBF9 / 边框 #E8E6DC / slate #141413 / clay 主色 #D97757 / accent-deep #C6613F；第二品牌 deepseek 主色 #4D6BFE。
 - token 命名：palette[] 复用宿主语义名（--dsw-alias-bg-base / layer-1..3 / overlay、border-l1..3、brand-primary（双品牌值）、button fills、interactive、label-primary/secondary/tertiary/caption、state-business、link、shadow-lv2、specific-input-major 等）+ 皮肤私有 --dsh-claude-*（hover-bg、inline-code、link、table-head、canvas、sidebar-canvas 等）；typeface[7] 另管字体（见第 3 节）。
 - 变体/明暗：偏好合约 packages/client/src/prefs.ts —— PALETTE: claude | host（claude 全量皮肤色 / host 跟随宿主只留描线）、BRAND: claude | deepseek、MOTION: system | reduced | full；明暗跟随宿主 [data-ds-dark-theme]（各 CSS 以此切深色值）。接线：skin.json { id: 'claude-style', accent: '#d97757', bodyAttr: 'data-dsh-claude-style' }；constants.ts 定义 STYLE_ID / SURFACE_STYLE_ID / PALETTE_ATTR / TYPEFACE_ATTR / BRAND_ATTR / MOTION_ATTR / PAGE_ZOOM_ATTR / SETTINGS_ENTRY_FALLBACK = 'ui-skin-claude-style'。
 

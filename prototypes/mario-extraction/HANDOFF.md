@@ -15,7 +15,7 @@
 | 改 | `tests/readme-body.test.ts` | README 的 IP 预置数量断言 21 → 23 |
 | 改 | `README.md` / `docs/README.en.md` | 「21 个 IP 预置」→「23 个 IP 预置」 |
 | 改 | `DESIGN.md` / `tsconfig.build.json` / `runtime/client.ts` | 数量口径 21 → 23 |
-| 改 | `docs/theme-audit/criteria.md` | 判尺范围 58 套 → 60 套、59 色板 → 61 色板 |
+| 改 | `docs/theme-audit/criteria.md` | 判尺范围 58 套 → 60 套、59 套配色 → 61 套配色 |
 | 改 | `docs/ip-presets-notes.md` | 「超级马里奥」条目整段重写为明暗双册 |
 | 改 | `docs/ip-presets-v3-notes.md` | 新增「v3.6 超级马里奥逐像素取色重绘（明暗两套）」 |
 | 改 | `docs/theme-audit/baseline.json` / `baseline.md` | `npm run audit:themes` 重生成（确定性产物，含马里奥两套逐对实测） |

@@ -129,9 +129,9 @@
 | 语法核心最小 ΔE76 | **16.3**（syntaxKeyword × syntaxType） | **14.9**（syntaxFunction × syntaxType） |
 | 退后 | comment 4.78 / operator 5.04 ≤ 核心最低 7.16 | comment 5.33 / operator 5.60 ≤ 核心最低 5.89 |
 
-### 3.2 色板自带判据（`build_palette.py` 的 `evaluate()`）
+### 3.2 配色自带判据（`build_palette.py` 的 `evaluate()`）
 
-色板自己再判一遍，两半各 365 行台账、共 **730 行**（`palette.json` 的 `checks`）：
+配色自己再判一遍，两半各 365 行台账、共 **730 行**（`palette.json` 的 `checks`）：
 
 | 类别 | 条数（每半） | 阈值 | 作用 |
 | --- | --- | --- | --- |
@@ -156,7 +156,7 @@
 | `textMuted@diff*LineNumberBg` | 行号槽里放的是次级文字，不是正文 |
 
 `borderActive@focusRing33`（焦点环 = `borderActive` 叠 33% alpha）只记诊断：33% alpha 下任何色到不了 3:1
-（白@33% 压暗底上限 2.66:1），属原型渲染属性，不是色板缺陷。
+（白@33% 压暗底上限 2.66:1），属原型渲染属性，不是配色缺陷。
 
 ### 3.3 第四轮新增的四类机器约束
 
@@ -301,7 +301,7 @@ node scripts/audit-themes.ts --check     # 落地后：EVA 两册硬对/UI 对 0
 npm test
 ```
 
-**真机复核**（把两套色板灌进 `prototypes/custom-editor-83.prototype.html`，headless Chrome 取真实合成底色）：
+**真机复核**（把两套配色灌进 `prototypes/custom-editor-83.prototype.html`，headless Chrome 取真实合成底色）：
 深浅各 **42 个文本节点，低于 4.5:1 的 0 个**。实测值：
 
 | 位置 | 深色半 | 浅色半 |
@@ -383,7 +383,7 @@ npm test
   但确实没有全绿。
 - **深色半两条余量最薄的硬性条目**：`syntaxComment@codeBlockBg` 余量 0.28、`syntaxOperator@codeBlockBg` 余量 0.54（§3.3 d）。
   再动深色半的语法色很容易把它们推下 4.5:1。
-- **焦点环到不了 3:1**：真机里焦点环 = `borderActive` 叠 33% alpha，任何色板都过不了（白@33% 压暗底上限 2.66:1）。要改得动原型。
+- **焦点环到不了 3:1**：真机里焦点环 = `borderActive` 叠 33% alpha，任何配色都过不了（白@33% 压暗底上限 2.66:1）。要改得动原型。
 - **红色 diff 的可见度有客观上限**：图里最纯的红 `#DC4C2A`（BT.601 L ≈ .2026）在任何染色行底上都到不了 4.5:1；
   旧预置那种「一眼就跳出来」的 `#ff7a93` 是编出来的。本稿只保证 4.5:1 可读 + 行号槽 ΔE 分离。
 - **状态色的 `contrastText` 只剩诊断**（§3.5）：深色半 `contrastText(warning)` = 3.51、`contrastText(error)` = 2.65
@@ -391,7 +391,7 @@ npm test
 - **预览页的三处自身缺陷已修**（第四轮末）：锚点卡读 `target` 而非 `declared`（原先渲染 `undefined`）、
   「未过」计数不再把 172 条 `info` 记账行算成失败、写死文案改为按台账现算。见 §5 的说明。
 - **`src/custom-presets/evangelion.json` 已存在且已发布**（霓虹版绿/紫预设）。本管线的 `write_preset.py` 是
-  **原地替换**它：id 仍是 `evangelion`、name 仍是「新世纪福音战士」，只换色板。落地时要在 PR 里写明「重绘 EVA 预设配色」。
+  **原地替换**它：id 仍是 `evangelion`、name 仍是「新世纪福音战士」，只换配色。落地时要在 PR 里写明「重绘 EVA 预设配色」。
 - **落地还要改仓库另外两处**（脚本只打印清单，不代改）：
   `src/engine/ip-presets.ts` 加 import + `IP_PRESETS_RAW` 条目（保持字母序），
   `tests/ip-presets.test.ts` 的 `EXPECTED_IDS`、`countIpPresets()` 与深/浅色计数断言。

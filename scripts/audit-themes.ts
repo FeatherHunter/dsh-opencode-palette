@@ -8,7 +8,7 @@
 // 有效层口径（与引擎同源，逐位复刻 buildTokens 的输入处理，再用 token 对账兜底）：
 //   raw  = resolveThemeColors(json, mode)                     // 解析引用链
 //   pal  = ensureDiffContrast(normalizeThemeColors(raw), isDark) // 补 5 扩展槽 + diff 修复
-//   - 自持画布预置主题（36）：两套色板但非委托画布；引擎按 issue 45 把 dark pal 写进两半 -> 评估一次
+//   - 自持画布预置主题（36）：两套配色但非委托画布；引擎按 issue 45 把 dark pal 写进两半 -> 评估一次
 //   - 委托画布主题（lucent-orng）：light pal + 白画布 / dark pal + 黑画布 -> 评估两次
 //   - IP / 自定义单套色主题：#120 修复后 buildTokens(norm, norm, false) 两半各自按 isDark 修复
 //     （light 半 = light pal，dark 半 = dark pal）；按主题 appearance 取宿主实际生效的那半评估
@@ -393,7 +393,7 @@ function evaluate(pal: ResolvedColorMap, hostMode: 'light' | 'dark', canvas: str
   }
 }
 
-// token 对账：把「我们复刻的有效色板」与引擎 generateTheme/renderCustomTheme 的实际 token 对比
+// token 对账：把「我们复刻的有效配色」与引擎 generateTheme/renderCustomTheme 的实际 token 对比
 function sameColor(a: string | undefined, b: string | undefined): boolean {
   if (a === undefined || b === undefined) return a === b
   return a.trim().toLowerCase() === b.trim().toLowerCase()
@@ -997,7 +997,7 @@ async function main(): Promise<void> {
   await writeFile(BASELINE_MD, renderMarkdown(root, themes, designWarnings, presetSummary, ipSummary, designSummary), 'utf8')
 
   const totalHard = presetSummary.hardFails + ipSummary.hardFails
-  console.log('[audit-themes] 主题 ' + root.scope.themes + '（预置 ' + presetRecords.length + ' + IP ' + ipRecords.length + '），评估色板 ' + root.scope.palettes + ' 个')
+  console.log('[audit-themes] 主题 ' + root.scope.themes + '（预置 ' + presetRecords.length + ' + IP ' + ipRecords.length + '），评估配色 ' + root.scope.palettes + ' 套')
   console.log('[audit-themes] 硬性 4.5/3.0 违例：预置 ' + presetSummary.hardFails + ' text-ish + ' + presetSummary.uiFails + ' UI；IP ' + ipSummary.hardFails + ' + ' + ipSummary.uiFails + '；合计 ' + totalHard)
   console.log('[audit-themes] 信息项：border<3 表面 ' + (presetSummary.info.borderBelow3 + ipSummary.info.borderBelow3) + '，tooltip 文字<4.5 评估 ' + (presetSummary.info.tooltipBelow45 + ipSummary.info.tooltipBelow45))
   console.log('[audit-themes] 设计规范（IP）：' + designSummary.warningsTotal + ' 条告警（记档 ' + designSummary.documented + ' / 待处理 ' + designSummary.open + '）')
@@ -1042,7 +1042,7 @@ function renderMarkdown(root: Record<string, unknown>, themes: ThemeRecord[], de
   lines.push('')
   lines.push('> 由 scripts/audit-themes.ts 确定性生成（无时间戳、固定排序），请勿手改；重跑 npm run audit:themes。判尺文字版见 [criteria.md](criteria.md)，设计例外见 [exceptions.json](exceptions.json)。')
   lines.push('')
-  lines.push('范围：预置 ' + scope.presets + ' 套 + IP ' + scope.ipThemes + ' 套；评估色板 ' + scope.palettes + ' 个（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效色板、IP 按 appearance 修复后的有效色板各评估一次）。')
+  lines.push('范围：预置 ' + scope.presets + ' 套 + IP ' + scope.ipThemes + ' 套；评估配色 ' + scope.palettes + ' 套（lucent-orng 委托画布按 light/dark 各评估一次；自持画布预置按 dark 有效配色、IP 按 appearance 修复后的有效配色各评估一次）。')
   lines.push('')
   lines.push('## 汇总')
   lines.push('')
@@ -1079,7 +1079,7 @@ function renderMarkdown(root: Record<string, unknown>, themes: ThemeRecord[], de
   lines.push('## 引擎 / 宿主诊断')
   lines.push('')
   const tokenParity = (root.engineDiagnostics as { tokenParity: { themesWithMismatch: number } }).tokenParity
-  lines.push('- token 对账（有效色板复刻 vs 引擎 buildTokens 输出）：' + (tokenParity.themesWithMismatch === 0 ? '全部一致（0 主题失配）' : tokenParity.themesWithMismatch + ' 个主题失配，见 baseline.json'))
+  lines.push('- token 对账（有效配色复刻 vs 引擎 buildTokens 输出）：' + (tokenParity.themesWithMismatch === 0 ? '全部一致（0 主题失配）' : tokenParity.themesWithMismatch + ' 个主题失配，见 baseline.json'))
   const tooltips = (root.engineDiagnostics as { tooltipText: Array<{ theme: string; evaluation: string; bg: string; ratio: number }> }).tooltipText
   const badTooltips = tooltips.filter(function (t): boolean { return t.ratio < TEXT_THRESHOLD })
   if (badTooltips.length === 0) {

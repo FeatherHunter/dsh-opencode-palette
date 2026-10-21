@@ -125,7 +125,7 @@
 
 两个缺陷只在"JSON → 实际渲染 token"的生成层暴露，改主题 JSON 治不了：
 
-1. **自定义/单套色主题的 diff 修复方向错误**：`generate.ts` 的 `buildTokens` 在 del=false 时把 dark 半边的修复结果写进两半，浅色 IP 主题的 diff 背景被压成 #000000。修复：用"两半是否同一色板"识别单套色主题，light 半用 `ensureDiffContrast(pal, false)`（向白提亮）、dark 半用 `(pal, true)`（向黑压暗）；两套色板自持的预置保持两半同值不变式。
+1. **自定义/单套色主题的 diff 修复方向错误**：`generate.ts` 的 `buildTokens` 在 del=false 时把 dark 半边的修复结果写进两半，浅色 IP 主题的 diff 背景被压成 #000000。修复：用"两半是否同一配色"识别单套色主题，light 半用 `ensureDiffContrast(pal, false)`（向白提亮）、dark 半用 `(pal, true)`（向黑压暗）；两套配色自持的预置保持两半同值不变式。
    - 效果：lightThemesUsingDarkRepair 7 → 0；浅色 IP diff 底回归同色系浅底（disney #EBF0E3、doraemon #E5F2F3/#F7F6F8、hello-kitty #F8E0E5、lego #ECF2EF）。
 2. **宿主 tooltip 白字不可读**：宿主把 tooltip 标签硬编码为白（`--dsw-static-neutral-bluish-00`）且无 alias 可覆盖，浅色主题上只有 1.00–1.43:1。修复：引擎新增 `tooltipTextColor()`，按浮层底 backgroundElement 现算标签色（正文色优先，不足 4.5 退纯黑/白），legacy 与 delegated 两分支都发 `body [role="tooltip"]{color:…}` 元素规则；键帽底由浮层底派生可辨色（mixHex 16% 起步/4% 步进/上限 40%，对比 ≥1.5），不再与浮层底同值。
    - 效果：57 条 tooltip 评估全部 ≥4.5（最低 5.678，IP 最低 9.259；整改前最低 1.000）；键帽 57 token 最低 1.538（旧同值 1.000）。
@@ -134,8 +134,8 @@
 
 ## 6. 验收阶段对审计模型的修正
 
-验收时发现审计脚本一个口径漏洞：diff 的 4 个硬性对（diffAdded@diffAddedBg、diffRemoved@diffRemovedBg、text@diffAddedBg、text@diffRemovedBg）的底 `diffAddedBg/diffRemovedBg` 不是 8 个渲染表面之一，`resolveBg` 解析不到，导致这 4 对在每个色板上都被标成 `skip`——"38 硬对全评"的说法对 diff 组不成立。修正：`resolveBg` 把 diff 行底按页面底合成后解析（scripts/audit-themes.ts），其余判尺模型未动。
-- 修正后：硬性对实际评估 2234 / 2242（2234 = 38 对 × 38 色板 − lucent-orng 委托画布的 diff 8 对），diff 组最低 4.504（solarized）、全部通过；基线重新生成（baseline.json 338,572 B / baseline.md 8,775 B）。
+验收时发现审计脚本一个口径漏洞：diff 的 4 个硬性对（diffAdded@diffAddedBg、diffRemoved@diffRemovedBg、text@diffAddedBg、text@diffRemovedBg）的底 `diffAddedBg/diffRemovedBg` 不是 8 个渲染表面之一，`resolveBg` 解析不到，导致这 4 对在每个配色上都被标成 `skip`——"38 硬对全评"的说法对 diff 组不成立。修正：`resolveBg` 把 diff 行底按页面底合成后解析（scripts/audit-themes.ts），其余判尺模型未动。
+- 修正后：硬性对实际评估 2234 / 2242（2234 = 38 对 × 38 套配色 − lucent-orng 委托画布的 diff 8 对），diff 组最低 4.504（solarized）、全部通过；基线重新生成（baseline.json 338,572 B / baseline.md 8,775 B）。
 - lucent-orng 的 diff 4 对与 2 个 diffBg 信息项、tooltip 诊断项因委托透明表面按设计跳过（宿主承载），在 baseline 中如实记为 skip。
 
 ## 7. 验证与复跑

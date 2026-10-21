@@ -29,21 +29,21 @@ Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler pale
 |---|---|
 | ![OpenCode Palette — overview (opencode theme)](../showcase/opencode调色板opencode风格主页面-en.png) | ![OpenCode Palette — settings panel (grouped by color family)](../showcase/settings-opencode-en.png) |
 
-| Custom editor (37 slots) | IP preset: 原神 Genshin (light) |
+| Custom editor (37 slots) | IP theme capsule: 原神 Genshin (light) |
 |---|---|
-| ![OpenCode Palette — custom editor (37 slots)](../assets/自定义编辑器.png) | ![OpenCode Palette — IP preset: 原神 Genshin](../assets/原神.png) |
+| ![OpenCode Palette — custom editor (37 slots)](../assets/自定义编辑器.png) | ![OpenCode Palette — IP theme capsule: 原神 Genshin](../assets/原神.png) |
 
-| IP preset: 库洛米 Kuromi (light) | IP preset: 哆啦A梦 Doraemon (light) |
+| IP theme capsule: 库洛米 Kuromi (light) | IP theme capsule: 哆啦A梦 Doraemon (light) |
 |---|---|
-| ![OpenCode Palette — IP preset: 库洛米 Kuromi](../assets/库洛米.png) | ![OpenCode Palette — IP preset: 哆啦A梦 Doraemon](../assets/哆啦A梦.png) |
+| ![OpenCode Palette — IP theme capsule: 库洛米 Kuromi](../assets/库洛米.png) | ![OpenCode Palette — IP theme capsule: 哆啦A梦 Doraemon](../assets/哆啦A梦.png) |
 
-| IP preset: 哈利波特 Harry Potter (dark) | IP preset: 赛博朋克2077 Cyberpunk 2077 (dark) |
+| IP theme capsule: 哈利波特 Harry Potter (dark) | IP theme capsule: 赛博朋克2077 Cyberpunk 2077 (dark) |
 |---|---|
-| ![OpenCode Palette — IP preset: 哈利波特 Harry Potter](../assets/哈利波特.png) | ![OpenCode Palette — IP preset: 赛博朋克2077 Cyberpunk 2077](../assets/赛博朋克2077.png) |
+| ![OpenCode Palette — IP theme capsule: 哈利波特 Harry Potter](../assets/哈利波特.png) | ![OpenCode Palette — IP theme capsule: 赛博朋克2077 Cyberpunk 2077](../assets/赛博朋克2077.png) |
 
-| IP preset: 德古拉 Dracula (dark) | IP preset: 龙珠 Dragon Ball (light) |
+| Classic theme: 德古拉 Dracula (dark) | IP theme capsule: 龙珠 Dragon Ball (light) |
 |---|---|
-| ![OpenCode Palette — IP preset: 德古拉 Dracula](../assets/德古拉.png) | ![OpenCode Palette — IP preset: 龙珠 Dragon Ball](../assets/龙珠.png) |
+| ![OpenCode Palette — classic theme: 德古拉 Dracula](../assets/德古拉.png) | ![OpenCode Palette — IP theme capsule: 龙珠 Dragon Ball](../assets/龙珠.png) |
 
 </div>
 
@@ -69,7 +69,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
-**25 IP theme capsules 💊 preinstalled.** 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 德古拉 Dracula, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors.
+**25 IP theme capsules 💊 preinstalled.** 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 宝可梦 Pokémon, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors.
 
 **Build your own capsule 💊.** 37 slots, one at a time, with a miniature DSH preview on the right: click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`.
 

@@ -357,14 +357,22 @@ test('showcase：浅色 / 深色标注与图的实测亮度相符（真解码 PN
       else assert.ok(luma < LUMA_THRESHOLD, `${side} 标了深色但图实测偏亮（luma=${luma.toFixed(1)}）：${cell.image}`)
     }
   }
-  assert.equal(labeled, 14, '七款 IP 预置 × 中英两页 = 十四条明暗标注')
-  // 七款 IP 预置每款都要标明明暗，否则读者分不出哪张是浅色底
+  assert.equal(labeled, 14, '七款主题（IP 胶囊六款 + 经典主题德古拉）× 中英两页 = 十四条明暗标注')
+  // IP 主题胶囊六款每款都要标明明暗，否则读者分不出哪张是浅色底
   for (const [side, cells] of [['中文页', zh], ['英文页', en]] as const) {
-    const ip = cells.filter((c) => /IP (预置|preset)/.test(c.label))
-    assert.equal(ip.length, 7, `${side} 应恰好七款 IP 预置各占一格`)
+    const ip = cells.filter((c) => /IP (主题胶囊|theme capsule)/.test(c.label))
+    assert.equal(ip.length, 6, `${side} 应恰好六款 IP 主题胶囊各占一格`)
     for (const cell of ip) {
-      assert.ok(/浅色|深色|\(light\)|\(dark\)/i.test(cell.label), `${side} 的 IP 预置没标明明暗：${cell.label}`)
+      assert.ok(/浅色|深色|\(light\)|\(dark\)/i.test(cell.label), `${side} 的 IP 主题胶囊没标明明暗：${cell.label}`)
     }
+  }
+  // 2026-10-21：德古拉是内置的经典主题（src/themes/dracula.json），不是 IP 预置 ——
+  // 之前那一格标成「IP 预置：德古拉」是错的，这里钉住「经典主题 / classic theme」。
+  for (const [side, cells] of [['中文页', zh], ['英文页', en]] as const) {
+    const dracula = cells.filter((c) => /德古拉/.test(c.label))
+    assert.equal(dracula.length, 1, `${side} 应恰好一格是德古拉`)
+    assert.ok(/经典主题|classic theme/i.test(dracula[0].label), `${side} 德古拉那格应标成经典主题，不是 IP 胶囊：${dracula[0].label}`)
+    assert.equal(/IP (主题胶囊|theme capsule)/.test(dracula[0].label), false, `${side} 德古拉不应再被标成 IP 主题胶囊`)
   }
 })
 
@@ -377,7 +385,7 @@ test('showcase 段不再有过期口径（34 themes / full light coverage / 浅�
   assert.equal(enShow.includes('full light coverage'), false, '英文页不应再自称 full light coverage')
   // 2026-10-21：新图里有真的浅色截图，所以「浅色」这个说法本身不再是禁令 ——
   // 它的真假由上面那条实测亮度门禁逐格判。
-  assert.equal(/浅色/.test(zhShow) && !/IP 预置/.test(zhShow), false, '中文页的浅色说法只应出现在 IP 预置的明暗标注上')
+  assert.equal(/浅色/.test(zhShow) && !/IP 主题胶囊/.test(zhShow), false, '中文页的浅色说法只应出现在 IP 主题胶囊的明暗标注上')
 })
 
 // ── 工具 ──

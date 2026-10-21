@@ -188,7 +188,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（明色最紧 labelDimmed@backgroundElement 4.50:1、正文 text@background 10.86:1；暗色最紧 markdownEmph@background 4.51:1、正文 text@background 10.25:1）；UI 15 对 3:1 违例 0（明色最紧 secondary@backgroundPanel 3.02:1，暗色最紧 success@background 3.84:1）；设计告警 0（25 角色两两不同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进互补区 / 语法核心最小 ΔE76 明色 10.1、暗色 10.2，门槛 10 / comment 与 operator 退到核心最低对比之下）。**余量提示**：最紧的三处（4.50 / 3.02 / ΔE 10.1）贴着门槛，改色时须重跑 `npm run audit:themes` 复核。`node scripts/audit-themes.ts` 报 genshin 与 genshin-night 硬对 0 + UI 0 + 待处理告警 0。
 
-**胶囊形态**：`genshin`（原神，light）与 `genshin-night`（原神·夜航，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立，点哪条就把宿主外观拉到那种并显示对应色板——因为自定义主题一条只有一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定按哪种外观显示），「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现。
+**胶囊形态**：`genshin`（原神，light）与 `genshin-night`（原神·夜航，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立，点哪条就把宿主外观拉到那种并显示对应配色——因为自定义主题一条只有一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定按哪种外观显示），「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现。
 
 **配套物**：`prototypes/genshin-theme-preview.html`（自包含，含 5 张参考图 + 35 块原图裁切实证 + 37 色位取值与落点 + 逐条派生配方 + 仓库审计器实算的对比度复核）；可复跑的取色与复核管线在 `prototypes/genshin-extraction/`（`extract.py` 锚点取样 / `solver.ts` 约束求解，固定种子逐字节可复现 / `write_presets.py` 落盘 / `validate.ts` 独立复核门禁），跑法见该目录 README。
 
@@ -196,7 +196,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **起因**：上一版马里奥是「印象配色」——晴空蓝底 + 帽红 + 水管绿，凭的是对 IP 的记忆而不是任何一张素材。1-1 的天、砖块、山丘、帽红到底各是多少，没有一处指得回像素。取三张参考图（`C:\Users\辰辰洋洋\Pictures\超级马里奥\` 下的 1.png NES 标题画面 / 2.jpg 3D 手办 / 3.jpg 经典卡通）逐像素取样后整版重绘，明暗各一套。
 
-**源图实测**：1.png 是严格 NES 色板，全图 51.4% 是天空 #5A96FF、10.3% 是砖橙 #CE4D08、标题字面浅沙 #FFBEB5（横幅内 39.6%）、勾线 #000000、山丘绿 #00AA00、灌木绿 #84D310、金币黄 #8C7100、小马里奥红 #DE2800；2.jpg 提供受光层次（帽红受光 #FD4E4B、背带受光 #4284DA、背带暗部 #173D7D、眼睛蓝 #529DF0、胡子和瞳孔黑 #1D100A）；3.jpg 提供高饱和原色（帽红 #C7280E、背带蓝 #0C4BAA、纽扣金 #F3CD24、鞋棕 #7E370B）。27 个源像素建台账，每个色位只允许三种来源：直采 / 明度阶梯 / 定比混色。
+**源图实测**：1.png 是严格 NES 配色，全图 51.4% 是天空 #5A96FF、10.3% 是砖橙 #CE4D08、标题字面浅沙 #FFBEB5（横幅内 39.6%）、勾线 #000000、山丘绿 #00AA00、灌木绿 #84D310、金币黄 #8C7100、小马里奥红 #DE2800；2.jpg 提供受光层次（帽红受光 #FD4E4B、背带受光 #4284DA、背带暗部 #173D7D、眼睛蓝 #529DF0、胡子和瞳孔黑 #1D100A）；3.jpg 提供高饱和原色（帽红 #C7280E、背带蓝 #0C4BAA、纽扣金 #F3CD24、鞋棕 #7E370B）。27 个源像素建台账，每个色位只允许三种来源：直采 / 明度阶梯 / 定比混色。
 
 **明色「1-1 白昼」（`mario`，light）**：底色是 1.png 的天空 #5A96FF 混白 94% 的 #F5F9FF——界面不是屏幕，是 1-1 抬头那片天。8 个背景槽收进同一支天蓝只拉明度：inputBg #FAFCFF → codeBlockBg #F8FAFF → background #F5F9FF → sidebarBg #F2F7FF → backgroundPanel #EFF5FF → codeHeaderBg #EDF3FF → backgroundElement #EAF2FF → bubbleBg #E5EFFF。代码区不用深色卡：浅底主题的正确反差来自深墨 syntax，不来自换舞台。正文墨是 2.jpg 的胡子黑 #1D100A（17.58:1），markdownStrong 用 1.png 的勾线纯黑 #000000。
 
@@ -299,7 +299,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **证伪评审查出的事实错误（全部已修）**
 
-- 3.jpg「30」周年海报**对色板贡献原本为 0**，而 v3.5 的「四张图拿走了什么」卡与 SPEC.md 却把 `#F93D32` / `#0C0406` / `#111312` / `#FFCB05` 归给它——这四色在 3.jpg 里都是 0 px（`#F93D32` 属 4.jpg、`#0C0406` 属 01、`#111312` 属 4.jpg、`#FFCB05` 属 01）。根因是**手写的出处表**。
+- 3.jpg「30」周年海报**对配色贡献原本为 0**，而 v3.5 的「四张图拿走了什么」卡与 SPEC.md 却把 `#F93D32` / `#0C0406` / `#111312` / `#FFCB05` 归给它——这四色在 3.jpg 里都是 0 px（`#F93D32` 属 4.jpg、`#0C0406` 属 01、`#111312` 属 4.jpg、`#FFCB05` 属 01）。根因是**手写的出处表**。
 - 37 槽里有**一处精确重复**：`sidebarBg` 与 `diffRemovedLineNumberBg` 同为 `#060606`。审计不报，因为角色碰撞检查只覆盖 25 个设计角色（排除 bg 组与 4 个 diff\*Bg）。
 - 出处表另有 5 处归属错：`#D3D3D8`、`#BDBDC3` 声明 04 实为 01；`#6E9BBC` 声明 02 实为 04；`#85858A`、`#7A7A7F` 声明「01/04」实为 01。
 - SPEC.md §4.3 的 8 个对比度数字是旧草稿值（`text@sidebarBg` 17.86 实为 17.53；`labelDimmed` 三组把单一色当逐表面合成色算，等等）。

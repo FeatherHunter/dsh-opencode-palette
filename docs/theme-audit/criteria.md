@@ -5,12 +5,12 @@
 ## 1. 审计对象与口径
 
 - 对象：`src/themes/*.json` 的 **37 套预置主题**（33 套 TUI + 4 套 desktop-2.0）与 `src/custom-presets/*.json` 的 **24 套 IP 主题**，共 61 套。
-- 评估色板：**62 个**。自持画布**预置主题**（36 套）虽有两套色板但非委托画布：引擎按 issue #45 把 dark 有效色板写进 light/dark 两半，按一套色板评一次；委托画布主题（`lucent-orng`）light 色板叠白底、dark 色板叠黑底，各评一次；**IP / 自定义单套色主题**（24 套）在 #120 修复后两半各自修复（light 半用 `ensureDiffContrast(..., false)`、dark 半用 `ensureDiffContrast(..., true)`），按主题 `appearance` 取宿主实际生效的那半评一次。
+- 评估配色：**62 套**。自持画布**预置主题**（36 套）虽有两套配色但非委托画布：引擎按 issue #45 把 dark 有效配色写进 light/dark 两半，按一套配色评一次；委托画布主题（`lucent-orng`）light 配色叠白底、dark 配色叠黑底，各评一次；**IP / 自定义单套色主题**（24 套）在 #120 修复后两半各自修复（light 半用 `ensureDiffContrast(..., false)`、dark 半用 `ensureDiffContrast(..., true)`），按主题 `appearance` 取宿主实际生效的那半评一次。
 - 有效渲染层（与引擎同源）：
   1. `resolveThemeColors(json, mode)` 解析引用链得到原始槽位；
   2. `normalizeThemeColors(raw)` 补齐缺省槽：`sidebarBg ← background`、`bubbleBg / inputBg / codeBlockBg ← backgroundPanel`、`codeHeaderBg ← backgroundElement`；
   3. `ensureDiffContrast(pal, isDark)` 做 diff 前景修复（issue #73/#80 的修复后有效值才是真正渲染值）；单套色自定义/IP 主题在 #120 后两半各自按方向修复（见上一条），审计按 `appearance` 选生效半；
-  4. `tokenParity` 对账：把上述有效色板与 `generateTheme` / `renderCustomTheme` 实际 `buildTokens` 输出逐 token 比较，**0 失配**才算口径可信（见 `baseline.json.engineDiagnostics.tokenParity`）。
+  4. `tokenParity` 对账：把上述有效配色与 `generateTheme` / `renderCustomTheme` 实际 `buildTokens` 输出逐 token 比较，**0 失配**才算口径可信（见 `baseline.json.engineDiagnostics.tokenParity`）。
 - 表面（surface）与 alpha 合成：真实渲染里背景槽可能带 alpha，必须按叠放顺序合成到不透明底色后再算对比度，而不是直接拿 JSON 值当颜色：
   - `background` 合成到宿主画布（浅色主题 `#FFFFFF`、深色主题 `#000000`）；
   - `backgroundPanel / backgroundElement / sidebarBg / bubbleBg / inputBg / codeBlockBg` 合成到 `background`；
@@ -94,4 +94,4 @@
 - alpha 槽位按线性 sRGB 合成（与引擎/浏览器一致），但未覆盖宿主 CSS 的额外滤镜或渐变。
 - `labelDimmed` 的 0.8 是对宿主 `label-dimmed` 类的近似（宿主实现可能按主题微调）；tooltip 文字色按引擎映射规则计算（与 `generate.ts` 的 `tooltipTextColor` 同源）。
 - 委托画布只覆盖白/黑两种宿主底；其他宿主底色（如壁纸）不在本轮范围。
-- 预置主题的暗色主题只评估深色画布（自持画布主题同一套色板写两半）；浅色宿主下的实际观感不在覆盖范围。
+- 预置主题的暗色主题只评估深色画布（自持画布主题同一套配色写两半）；浅色宿主下的实际观感不在覆盖范围。

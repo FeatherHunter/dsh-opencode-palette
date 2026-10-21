@@ -29,21 +29,21 @@
 |---|---|
 | ![OpenCode调色板 — 主界面（opencode 主题）](assets/opencode.png) | ![OpenCode调色板 — 设置面板（按色系分组）](assets/设置页面.png) |
 
-| 自定义编辑器（37 个色位） | IP 预置：原神（浅色） |
+| 自定义编辑器（37 个色位） | IP 主题胶囊：原神（浅色） |
 |---|---|
-| ![OpenCode调色板 — 自定义编辑器（37 个色位）](assets/自定义编辑器.png) | ![OpenCode调色板 — IP 预置色板：原神](assets/原神.png) |
+| ![OpenCode调色板 — 自定义编辑器（37 个色位）](assets/自定义编辑器.png) | ![OpenCode调色板 — IP 主题胶囊：原神](assets/原神.png) |
 
-| IP 预置：库洛米（浅色） | IP 预置：哆啦A梦（浅色） |
+| IP 主题胶囊：库洛米（浅色） | IP 主题胶囊：哆啦A梦（浅色） |
 |---|---|
-| ![OpenCode调色板 — IP 预置色板：库洛米](assets/库洛米.png) | ![OpenCode调色板 — IP 预置色板：哆啦A梦](assets/哆啦A梦.png) |
+| ![OpenCode调色板 — IP 主题胶囊：库洛米](assets/库洛米.png) | ![OpenCode调色板 — IP 主题胶囊：哆啦A梦](assets/哆啦A梦.png) |
 
-| IP 预置：哈利波特（深色） | IP 预置：赛博朋克2077（深色） |
+| IP 主题胶囊：哈利波特（深色） | IP 主题胶囊：赛博朋克2077（深色） |
 |---|---|
-| ![OpenCode调色板 — IP 预置色板：哈利波特](assets/哈利波特.png) | ![OpenCode调色板 — IP 预置色板：赛博朋克2077](assets/赛博朋克2077.png) |
+| ![OpenCode调色板 — IP 主题胶囊：哈利波特](assets/哈利波特.png) | ![OpenCode调色板 — IP 主题胶囊：赛博朋克2077](assets/赛博朋克2077.png) |
 
-| IP 预置：德古拉（深色） | IP 预置：龙珠（浅色） |
+| 经典主题：德古拉（深色） | IP 主题胶囊：龙珠（浅色） |
 |---|---|
-| ![OpenCode调色板 — IP 预置色板：德古拉](assets/德古拉.png) | ![OpenCode调色板 — IP 预置色板：龙珠](assets/龙珠.png) |
+| ![OpenCode调色板 — 经典主题：德古拉](assets/德古拉.png) | ![OpenCode调色板 — IP 主题胶囊：龙珠](assets/龙珠.png) |
 
 </div>
 
@@ -69,7 +69,7 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 
-**IP 主题胶囊 💊 预置 25 套。** 原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、德古拉、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。
+**IP 主题胶囊 💊 预置 25 套。** 原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。
 
 **打造自己的专属主题胶囊 💊。** 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。存好的胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/`。
 

@@ -45,7 +45,7 @@ python check_palette.py palette.json --theme-name sailor-moon
 - `make_preview.py` —— 生成自包含预览页
 - `verify_sources.py` —— 18 个取色框的上下文联系表（人眼复核用）
 - `check_palette.py` —— 独立判尺检查器（只读、离线、确定性；硬性违例退出码 1）
-- `palette.json` / `ledger.json` —— 产物：色板与逐色位台账
+- `palette.json` / `ledger.json` —— 产物：配色与逐色位台账
 
 ## 关键结果
 

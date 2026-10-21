@@ -73,7 +73,7 @@ $env:PYTHONIOENCODING = 'utf-8'
 自定义主题/IP 预置**一条只装一套色**：`renderCustomTheme` 把同一套 37 色同时灌进 dark/light 两半，
 `appearance` 只决定宿主按哪种外观显示这一套色（不是「第二套色」）。因此「明暗一体」在胶囊层
 只能靠**两条各带自己 appearance 的胶囊**实现——`genshin`（light）与 `genshin-night`（dark），
-点哪条 `setIpTheme` 就把宿主外观拉到那种并显示对应色板。
+点哪条 `setIpTheme` 就把宿主外观拉到那种并显示对应配色。
 
 内置主题（`src/themes/*.json`，opencode theme.json 格式）原生支持 `{dark, light}` 两套，
 但那会动「内置 37+system=38 冻结」的口径，且与 IP 胶囊同区展示会撞名——故未走该路。

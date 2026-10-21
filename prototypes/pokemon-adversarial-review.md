@@ -7,11 +7,11 @@
 | 1 | 范式评审 | 「暗场」这一根本决定是否成立 | **暗场成立，但成立的理由不是原来给的那条**。原理由「审计 `primary@background ≥ 3:1` 决定亮黄不能当主色，所以只能做暗场」被证伪：3:1 只规定**哪个槽位能放亮黄**，不规定场；评审者造出一套完整 37 色位、实跑仓库判尺 38 硬对 0 违例 / 15 UI 对 0 违例的浅色候选（`D:\Temp\pokemon-theme\adv3\palette.light.json`，17 直采 / 20 混色），并指出仓库 12 套浅色预置里 9 套正是把饱和黄压在浅代码卡上。暗场仍然更强，靠的是三条与审计无关的理由：① 素材的场本来就是暗的（01 号图鉴立绘是**暗卡 + 30 px 白衬边**，不是白卡 + 黑画框：卡面 `#1C1C22` 21.60% / 画框墨 `#000000` 27.32% / 页脚 `#0C0C10` 10.06%，白只占 14.05% 且集中在衬边）；② 用户「颜色必须来自图、不能想象」这条硬规则，只有暗场能以最严格形式兑现（浅场过 4.5:1 正文与 3:1 品牌位只能靠混色，判尺从 37 直采 / 0 混色掉到 17 直采 / 20 混色）；③ 暗场的明度跑道是浅场的两倍（8 个表面槽 L\* 跨度 0 → 30.8，浅场只有 84.0 → 100.0）。代价也说清楚：浅场候选本身不劣（判尺余量更宽、语法核心 ΔE76 21.9 持平），但它拿不回「主色就是徽章黄」——浅场 primary 只能是 `#84633C`（107 px 的暗面金），主按钮读起来是「古铜」而不是「皮卡丘黄」。 |
 | 2 | 出处评审 | 「直采」判尺与像素真实性 | 判据从「命中像素数」升级为**自身感知邻域**（同图内 ΔE76 ≤ 2 的全部像素）：真设计区邻域倍数 ≈ 1.0–2.0，量化台阶 ≫ 2。37 槽中 17 槽「字面值 = 色区本身」、4 槽小台阶、16 槽是大色区里的量化台阶（邻域 4.2×–115×）。6 个色位 100% 来自 01 号图 y=439..457 那行 19 px 高的图注小字。JPEG 脆弱性实测：2.jpg 重存后 `#FE4C1C` 16→1/2 px、`#658F8B` 72→1/24 px，而真平色 `#FAE721` 11,186→9,777 仍保有。另一支实测（ALT：12 直采 / 11 阶梯 / 14 混色）显示：审计违例 1→0、语法核心 21.96→32.38，而**精确覆盖 41%→24%，感知覆盖 67%→64% 几乎不动**。 |
 | 3 | 审美评审 | 这套盘子在资深设计师眼里成不成立 | 「是一份诚实的直采，但不是一份被设计过的调色板。」10/37 锚在 < 60 px；结构灰阶采自 01 图同一条 18 px 抗锯齿边；`textMuted` 是全仓 23 套预置里最不 muted 的次要文字；两个大黄同屏违反作者自己的第①条律；`border` 比它框的 codeHeaderBg 还亮（层级倒置）；纯黑代码台是洞不是面。给出 R1–R7 最小改动清单。 |
-| 4 | 证伪评审 | 把已经写下的结论逐条推翻 | **引擎与审计层零缺陷，错的全在文档、出处叙述与暂存状态。** 证伪 9 条（其中 6 条高危：SPEC 的 8 个对比度数字错、出处表 5 个色位与页面自己的「分布」列矛盾、「四张图拿走了什么」卡把 3 个色值归给 0 像素的图、exceptions.json 的 pokemon 条目其实还在、index 里预置还是旧色板却先提交了文档等），12 条存活（53 对对比度与仓库 baseline 逐项相同、`ensureDiffContrast` 改写 0 槽、像素取证诚实、proof.json 37/37 逐位相同）。 |
+| 4 | 证伪评审 | 把已经写下的结论逐条推翻 | **引擎与审计层零缺陷，错的全在文档、出处叙述与暂存状态。** 证伪 9 条（其中 6 条高危：SPEC 的 8 个对比度数字错、出处表 5 个色位与页面自己的「分布」列矛盾、「四张图拿走了什么」卡把 3 个色值归给 0 像素的图、exceptions.json 的 pokemon 条目其实还在、index 里预置还是旧配色却先提交了文档等），12 条存活（53 对对比度与仓库 baseline 逐项相同、`ensureDiffContrast` 改写 0 槽、像素取证诚实、proof.json 37/37 逐位相同）。 |
 
 **已落地的改动与被否决的提案**（依据见下面四份原文）：
 
-- 落地：`borderActive` `#F4D77C` → `#FEED79`（3.jpg 周年海报奶油金 1,516 px —— v3.5 文档把 3.jpg 说成供给了红与金，其实它对色板贡献近乎为零）；`diffRemovedLineNumberBg` `#060606` → `#141000`（原值与 `sidebarBg` **完全同值**，37 槽里唯一的重复）；`markdownHeading` `#FAE721` → `#E3C371`（两个大黄同屏）；`syntaxNumber` `#DFBF6F` → `#C5A863`（与 borderActive 的 ΔE76 9.46 是全矩阵最差的一对）；`codeBlockBg` `#000000` → `#0C0C10`（纯黑洞变卡面暗场）；`codeHeaderBg` `#48484D` → `#58585A`、`border` `#58585A` → `#40404A`（层级倒置修正，描边首次比它框的面暗）。
+- 落地：`borderActive` `#F4D77C` → `#FEED79`（3.jpg 周年海报奶油金 1,516 px —— v3.5 文档把 3.jpg 说成供给了红与金，其实它对配色贡献近乎为零）；`diffRemovedLineNumberBg` `#060606` → `#141000`（原值与 `sidebarBg` **完全同值**，37 槽里唯一的重复）；`markdownHeading` `#FAE721` → `#E3C371`（两个大黄同屏）；`syntaxNumber` `#DFBF6F` → `#C5A863`（与 borderActive 的 ΔE76 9.46 是全矩阵最差的一对）；`codeBlockBg` `#000000` → `#0C0C10`（纯黑洞变卡面暗场）；`codeHeaderBg` `#48484D` → `#58585A`、`border` `#58585A` → `#40404A`（层级倒置修正，描边首次比它框的面暗）。
 - 否决：审美评审 R1「`textMuted` → `#A49E9E`」——与宿主门禁冲突，`labelDimmed@backgroundElement` 会掉到 3.13:1（硬性 4.5），本仓其它主题的 muted 值本就是按门禁反推的；R6「`markdownEmph` → `#F8D69B`」——该色在四张图里 0 命中，素材的暖色高对比候选全在金族会与 heading/code 撞色；出处评审的「放宽成 12 直采 / 11 阶梯 / 14 混色」ALT——会把 v3.5 主动收严的判尺退回仓库通用口径。
 - 文档层修正：出处表与「四图贡献」卡改为**运行时按逐图命中自动生成**（不再手写归属）；`docs/theme-audit/exceptions.json` 里 pokemon 的旧记档条目删除；SPEC 与仓库笔记里的 8 个错数、5 处错误归属、两处旧色号全部改真。
 
@@ -27,7 +27,7 @@
 # 宝可梦主题 · 范式对抗评审（审查「暗场」这一根本决定）
 
 > 评审对象：`D:\Temp\pokemon-theme\palette.json`（现方案，dark，37/37 直采）与 `D:\Temp\pokemon-theme\adv3\palette.light.json`（本文新建的浅色替代候选，17 直采 / 20 混色 / 0 想象）。
-> 评审方法：读图取证 → 逐像素直方图与明度阶梯 → 仓库审计规则与例外机制取证 → 全量预置主题先例扫描 → 用仓库引擎（只读 import）实跑两套色板的判尺 → headless Chrome 并排渲染 → 设计师视角裁决。
+> 评审方法：读图取证 → 逐像素直方图与明度阶梯 → 仓库审计规则与例外机制取证 → 全量预置主题先例扫描 → 用仓库引擎（只读 import）实跑两套配色的判尺 → headless Chrome 并排渲染 → 设计师视角裁决。
 > 本评审**未修改** `D:\dsh-plugin\dsh-opencode-palette` 任何文件，未修改 `preview.html` / `palette.json` / `assets.js` / `proof.json` / `CONTEXT.md`；全部产物在 `D:\Temp\pokemon-theme\adv3\`。
 
 ---
@@ -168,7 +168,7 @@
 
 ### 2.3 实跑判尺（仓库引擎，只读 import；未写仓库任何文件）
 
-用 `adv3/validate_light.ts`（仓库 `prototypes/pokemon-extraction/validate.ts` 的**副本**，只改了 import 路径、文件名与 `ensureDiffContrast(authored, !LIGHT)` 标志）实跑，两套色板同尺对比：
+用 `adv3/validate_light.ts`（仓库 `prototypes/pokemon-extraction/validate.ts` 的**副本**，只改了 import 路径、文件名与 `ensureDiffContrast(authored, !LIGHT)` 标志）实跑，两套配色同尺对比：
 
 ```
 ── palette.dark.json  (dark) ──                     ── palette.light.json  (light) ──
@@ -251,7 +251,7 @@ markdown 同值：无                                      markdown 同值：无
 | `D:\Temp\pokemon-theme\review-paradigm.md` | 本文 |
 | `D:\Temp\pokemon-theme\adv3\palette.light.json` | 浅色候选 37 色位 |
 | `D:\Temp\pokemon-theme\adv3\validate_light.ts` | 判尺器（仓库版本的副本，只读 import 引擎） |
-| `D:\Temp\pokemon-theme\adv3\audit-light.txt` / `audit-dark.txt` | 两套色板的判尺全文 |
+| `D:\Temp\pokemon-theme\adv3\audit-light.txt` / `audit-dark.txt` | 两套配色的判尺全文 |
 | `D:\Temp\pokemon-theme\adv3\provenance-light.csv` | 37 槽来源表（公式可回算，0 条对不上） |
 | `D:\Temp\pokemon-theme\adv3\ladders-bench.txt` | 12 套浅色预置 + 两套候选的表面阶梯 benchmark |
 | `D:\Temp\pokemon-theme\adv3\precedent-header.txt` | 浅色预置 codeHeaderBg 饱和度先例表 |
@@ -290,7 +290,7 @@ markdown 同值：无                                      markdown 同值：无
    宝可梦把顺序反过来了：先定岗位、再去找像素（find-to-fit），于是 20 个槽位最终压在 1 px 细线、17 连通块、53 连通块上。
 
 4. **破 —— 37 色并不"像这些图"。**
-   字面精确命中四图合计 **41.03%**（01 号 77.62% / 2.jpg 63.00% / **3.jpg 0.53%** / 4.jpg 14.31%）。3.jpg 支配色 `#FEC901` 占该图 **67.99%（135,910 px = 全语料 16.4%）**，根本不在 37 色内，色板反而去 2.jpg 取了同色族邻居 `#FAE721`；3.jpg 对整块色板的贡献只有 1,050 px。
+   字面精确命中四图合计 **41.03%**（01 号 77.62% / 2.jpg 63.00% / **3.jpg 0.53%** / 4.jpg 14.31%）。3.jpg 支配色 `#FEC901` 占该图 **67.99%（135,910 px = 全语料 16.4%）**，根本不在 37 色内，配色反而去 2.jpg 取了同色族邻居 `#FAE721`；3.jpg 对整块配色的贡献只有 1,050 px。
    改用感知邻域（ΔE≤2）口径，覆盖率升到 67.04%——**说明"覆盖"是感知邻近带来的，不是字面相等带来的**。
 
 5. **破 —— 「0 阶梯 / 0 混色 / 0 想象」「迄今最严」是换措辞，不是更严。**
@@ -462,12 +462,12 @@ bubbleBg                #28282D  01-pikachu      31     23   74.2%
 | **ΔE≤2 感知覆盖（四图合计）** | 67.04% | **64.47%** | **基本持平** |
 
 **这就是决定性的实测结论：换成宽松判尺后，"字面精确命中覆盖率"从 41% 掉到 24%，但"感知覆盖"几乎不动（67% → 64%）。**
-也就是说——**那 41% 里被当作"provenance 信用"的部分，本来就不是色板"像不像图"的主要来源；感知覆盖才是。** 用 20 个 1 px 细线换来的覆盖率，换不来任何感知收益。
+也就是说——**那 41% 里被当作"provenance 信用"的部分，本来就不是配色"像不像图"的主要来源；感知覆盖才是。** 用 20 个 1 px 细线换来的覆盖率，换不来任何感知收益。
 
 ALT 相对 CURRENT 的关键改动（`adv1\alt_intent.json:41-198`，每条都带配方与锚点）：
 `sidebarBg #060606 → #1E222C`（混色 #191917 × #4B76E7 90%）、`diffRemoved #FE4C1C → #CA5900`（阶梯 #FB8603 L 0.736→0.596）、`markdownBlockQuote #BDBDC3 → #B0AAAA`（阶梯 #A49E9E L 0.704→0.744）、`syntaxKeyword #C790A3 → #B96D98`（混色 #799DFE × #F93D32 50%）、`syntaxComment #85858A → #757574`（混色 #FFFFFF × #191917 40%）、`syntaxOperator #7A7A7F → #777789`（混色 #289BCA × #EE4027 60%）、`syntaxString #80CAAF → #558549`（阶梯 #4F7F43）、`syntaxType #658F8B → #5C9390`（阶梯 #3E7572）、`syntaxFunction #6E9BBC → #5890C4`（阶梯 #207BC2）、`markdownEmph #F9B584 → #FAB685`（**直采，4.jpg 真平色区 1,009 px**）、`text #EEEEF4 → #EEEEEE`、`textMuted #D3D3D8 → #D1D1D1`（阶梯 #FFFFFF L→0.86）、`diffAddedLineNumberBg #111312 → #011E1E`、`diffRemovedBg #0C0406 → #170001`、`diffRemovedLineNumberBg #060606 → #180604`（**与 sidebarBg 同值问题一并解决**）。
 
-> 诚实声明：ALT 是**方法可行性**的证明，不是可以直接落盘的建议色板——其中 `success #7AA85D → #94AF4B`、`syntaxString → #558549` 等语义取舍仍需人眼复核；真正可生产化的路径是仓库已有的 `prototypes/cyberpunk-extraction/design.py`（判尺约束搜索 + 锚点吸附），宝可梦照搬那套管线即可。
+> 诚实声明：ALT 是**方法可行性**的证明，不是可以直接落盘的建议配色——其中 `success #7AA85D → #94AF4B`、`syntaxString → #558549` 等语义取舍仍需人眼复核；真正可生产化的路径是仓库已有的 `prototypes/cyberpunk-extraction/design.py`（判尺约束搜索 + 锚点吸附），宝可梦照搬那套管线即可。
 
 #### 2.4 结论
 
@@ -520,7 +520,7 @@ ALT 相对 CURRENT 的关键改动（`adv1\alt_intent.json:41-198`，每条都�
 
 ---
 
-### 4. 色板真的像这些图吗？
+### 4. 配色真的像这些图吗？
 
 #### 4.1 逐图覆盖（`adv1\final_analysis.txt:91-111`）
 
@@ -534,15 +534,15 @@ ALT 相对 CURRENT 的关键改动（`adv1\alt_intent.json:41-198`，每条都�
 
 #### 4.2 三条要害
 
-1. **3.jpg 基本是空白的。** 这张图 67.99% 的像素是同一个黄 `#FEC901`（135,910 px = 全语料的 16.4%），**它不在 37 色里**；色板反而去 2.jpg 挑了同色族的邻居 `#FAE721` 当 markdownHeading。3.jpg 对整块色板的字面贡献只有 1,050 px（#FFFFFF 985 + #000000 31 + #060606 5 + #111312 1 + #FFCB05 28）。
+1. **3.jpg 基本是空白的。** 这张图 67.99% 的像素是同一个黄 `#FEC901`（135,910 px = 全语料的 16.4%），**它不在 37 色里**；配色反而去 2.jpg 挑了同色族的邻居 `#FAE721` 当 markdownHeading。3.jpg 对整块配色的字面贡献只有 1,050 px（#FFFFFF 985 + #000000 31 + #060606 5 + #111312 1 + #FFCB05 28）。
 2. **4.jpg 的大块也漏了。** 4.jpg 支配色里入册 9 支，没入册的 9 支全是真区域：`#FEDE00`(5,074)、`#FEED79`(1,516)、`#191917`(1,610)、`#145E9D`(1,257)、`#F0FCFA`(1,263)、`#EE4027`(1,164)、`#FAB685`(1,009)、`#A49E9E`(807)、`#4B76E7`(711)。
-3. **"41%" 这个数字要打折。** 它看起来像"四张图里 41% 的像素就是这 37 个色"，但其中最大的一块来自 01 号图那一行 19 px 的图注带 + 卡面黑白结构；把感知邻域口径打开（67.04%）反而说明：图里那些大色区**不是**字面等于色板色，而是**恰好近**。也就是说，"取自图"在多数槽位上成立的方式，是"近到可以算"，不是"就是"。
+3. **"41%" 这个数字要打折。** 它看起来像"四张图里 41% 的像素就是这 37 个色"，但其中最大的一块来自 01 号图那一行 19 px 的图注带 + 卡面黑白结构；把感知邻域口径打开（67.04%）反而说明：图里那些大色区**不是**字面等于配色本身，而是**恰好近**。也就是说，"取自图"在多数槽位上成立的方式，是"近到可以算"，不是"就是"。
 
 #### 4.3 结论
 
 - "37 色都真实出现在四张图里"：**成立**（0 想象）。
 - "37 色就是这些图的配色"：**不成立**。3.jpg 贡献 0.53%；8 支色位来自一行图注；16 支是量化台阶。
-- 如果用户说的"像这些图"是**感知上像**（屏上这套色板一眼看得出是宝可梦/皮卡丘），那么 67% 的感知覆盖 + 黄色 primary + 红颊橙 + 御三家的绿/蓝/红，是成立的。**但这个成立靠的是大色块（01 号图的卡面黑白、2.jpg 的蓝底、4.jpg 的御三家），不靠那 20 支 1 px 细线。**
+- 如果用户说的"像这些图"是**感知上像**（屏上这套配色一眼看得出是宝可梦/皮卡丘），那么 67% 的感知覆盖 + 黄色 primary + 红颊橙 + 御三家的绿/蓝/红，是成立的。**但这个成立靠的是大色块（01 号图的卡面黑白、2.jpg 的蓝底、4.jpg 的御三家），不靠那 20 支 1 px 细线。**
 
 ---
 
@@ -602,9 +602,9 @@ ALT 相对 CURRENT 的关键改动（`adv1\alt_intent.json:41-198`，每条都�
 | success | #7AA85D | **#94AF4B** | 混色 #FEC901 × #7AA85D 20%（把 3.jpg 的支配黄接进来） | 1,316 → 135,910 |
 | borderActive | #F4D77C（share 20.3%） | **#F0D679** | 阶梯 #FDE386 L 0.918→0.878 | 4,673 → 211 |
 
-> 上表是**方向**，不是最终色板：`syntaxString → #558549`（草绿）与 `syntaxKeyword → #B96D98`（藕紫）这类取舍需要人眼在真实界面上复核。真要落盘，建议照搬仓库已有的 `prototypes/cyberpunk-extraction/design.py` 管线（判尺约束搜索 → 吸附字面像素 → 40 张来源裁切逐像素核验）。
+> 上表是**方向**，不是最终配色：`syntaxString → #558549`（草绿）与 `syntaxKeyword → #B96D98`（藕紫）这类取舍需要人眼在真实界面上复核。真要落盘，建议照搬仓库已有的 `prototypes/cyberpunk-extraction/design.py` 管线（判尺约束搜索 → 吸附字面像素 → 40 张来源裁切逐像素核验）。
 
-### 修法 5：把 3.jpg 接进来（当前色板对这张图几乎空白）
+### 修法 5：把 3.jpg 接进来（当前配色对这张图几乎空白）
 
 - 3.jpg 的支配色 `#FEC901`（135,910 px）应当入册。最低成本的接法：`markdownHeading` 从 `#FAE721`（2.jpg，11,186 px）改到 `#FEC901`（3.jpg，135,910 px），或让 `primary` 改用 `#FEC901`、把徽章金 `#FFCB05` 留作 `borderActive`。
 - 4.jpg 漏掉的 9 支真区域（`#FEDE00`/`#191917`/`#145E9D`/`#EE4027`/`#FAB685`/`#A49E9E`/`#FEED79`/`#F0FCFA`/`#4B76E7`）应作为优先候选池——尤其 `#EE4027`（红，`diffRemoved` 的正确归属）、`#145E9D`（蓝，`info` 系）、`#FAB685`（肤色，`markdownEmph` 的正确归属）、`#A49E9E`（灰，`markdownBlockQuote` 的正确归属）。
@@ -681,7 +681,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 |---|---|---|
 | ①「黄只做牌不做底」 | `primary` 只作填充、前景 #141414（12.10:1）成立；但**同一屏里还有第二个大黄场** —— `markdownHeading` #FAE721 与 primary 的 ΔE00 只有 **9.70**（≈ 10 是「明显不同」的临界线）、互相对比 **1.20:1**、色相差 7.2°。同一个视口内同时出现 `primary` 填充 2,223 px + `borderActive` 2,252 px + `markdownHeading` 1,081 px。 | **半成立（主按钮守住了，标题没守住）** |
 | ②「冷场暖字，基准色相 240.0°」 | 场域各面确实在 H240 一族（C\* 1.2–6.5）。但**灰阶不是阶梯**：相邻步进 ΔL\* = 12.70 / **4.23** / **3.32** / 6.71，其中两级低于 1px 发丝线的可见下限（CR 1.30），ΔE00 仅 4.60 与 3.86（≈5 是「明显不同」线）。 | **不成立（色相成立，阶梯不成立）** |
-| ③「语义色来自御三家，4.jpg 一图交齐」 | `warning`=小火龙橙 #FB8603、`success`=妙蛙种子绿、`info`=杰尼龟蓝、`error`=精灵球红，四个确实同出于 4.jpg。**但 3.jpg（30 周年海报）贡献 0 个独有色位**：其主色 #FEC901 与 `primary` 的 ΔE76 只有 0.83，199,908 px 里仅 0.53% 落在 37 色板上。`secondary` #799DFE 取自 2.jpg **wikiHow 平涂插画的平涂底色（55.91% 的画面）**。 | **半成立（御三家成立，「一图交齐」与图鉴出处不成立）** |
+| ③「语义色来自御三家，4.jpg 一图交齐」 | `warning`=小火龙橙 #FB8603、`success`=妙蛙种子绿、`info`=杰尼龟蓝、`error`=精灵球红，四个确实同出于 4.jpg。**但 3.jpg（30 周年海报）贡献 0 个独有色位**：其主色 #FEC901 与 `primary` 的 ΔE76 只有 0.83，199,908 px 里仅 0.53% 落在 37 色的范围内。`secondary` #799DFE 取自 2.jpg **wikiHow 平涂插画的平涂底色（55.91% 的画面）**。 | **半成立（御三家成立，「一图交齐」与图鉴出处不成立）** |
 | ④「互补几何 primary×secondary = 176.2°」 | primary H47.5°、secondary H223.8°，与真互补 H227.5° 差 3.8°。**几何成立，但它同时离 canonical 水属性 H213.6° 只差 10.2°** —— 也就是说 secondary 之所以落在互补位上，是因为 wikiHow 那张图的蓝恰好在那儿。这是巧合被写成了定律。 | **成立但因果是反的** |
 | 附：「每个色位只允许一种来源：直采」 | 逐位复算：37/37 精确命中成立。**但「直采」不等于「设计」** —— 一个色位可以是忠实的直采，同时是 18 px 抗锯齿边的残渣。 | **成立但被误当成质量证明** |
 
@@ -877,7 +877,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 | warning | #FB8603 | 电 #FAC000（34.40）/ 火（43.89）/ 地（45.20） | 34.40 | — | 32° | ❌ **小火龙橙不是属性色，是角色色** |
 | secondary | #799DFE | **水 #2980EF（16.03）** / 飞行 #A98FF3（17.59） | 16.03 | — | 10.1° | ⚠️ 偏紫的蓝，离水属性不远 |
 
-**公平地说一条**：语义六元组的**最小成对 ΔE76 = 35.50**（secondary ↔ info），优于官方 18 属性色板自身的最小成对 ΔE76 = 15.22。也就是说，这套语义色**彼此不会互相混淆** —— 这一条设计是成立的。
+**公平地说一条**：语义六元组的**最小成对 ΔE76 = 35.50**（secondary ↔ info），优于官方 18 属性配色自身的最小成对 ΔE76 = 15.22。也就是说，这套语义色**彼此不会互相混淆** —— 这一条设计是成立的。
 
 #### 4.2 但「借用」的边界在哪里？
 
@@ -895,7 +895,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 | 01 官方图鉴立绘 | **20 / 37** | #1C1C22 58,800 px | 场域与大部分中性色的来源 |
 | 2.jpg wikiHow 平涂 | **8 / 37** | #799DFE 88,538 px（55.91%） | secondary 与 markdownHeading 的来源 |
 | 4.jpg 合志插画 | **20 / 37** | — | 全部语义色（御三家 + 精灵球红 + 紫）+ border 的来源 |
-| **3.jpg 30 周年海报** | **0 / 37** | #FEC901 135,910 px（67.99%） | 该主色与 `primary` 的 **ΔE76 = 0.83**；全图 199,908 px 中仅 **0.53%** 落在 37 色板上 |
+| **3.jpg 30 周年海报** | **0 / 37** | #FEC901 135,910 px（67.99%） | 该主色与 `primary` 的 **ΔE76 = 0.83**；全图 199,908 px 中仅 **0.53%** 落在 37 色的范围内 |
 
 **3.jpg 在账本上贡献为零**，却在 preview 页脚被列为四大来源之一（当前：01 → 2.jpg → 3.jpg → 4.jpg）。一条占 27% 版面的参考图，在 37 色位里没有留下任何一个独有色。
 
@@ -1109,9 +1109,9 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 | **F2** | 预览页出处表「出处图」列 | `preview.html` 出处表（`:549` 脚注声明出处取自 provenance） | **5 个色位的出处与页面自己的「分布」列自相矛盾**（分布列是现场算的，出处列是手写 notes） |
 | **F3** | 「四张图拿走了什么」卡片 | `preview.html:552-601` | **3 条把色值归给了不含该像素的图**（卡02 #6E9BBC 0 px、卡03 #F93D32 0 px、卡03 #0C0406 0 px） |
 | **F4** | labelDimmed 脚注「#AEAEB4 / #AFB4B9 / #B6B6BC」 | `preview.html:626` | 中间色写错：应为 **#B4B4B9**；**与页面自己表格第 16 行显示的值冲突** |
-| **F5** | 「exceptions.json 的 pokemon 条目随之删除」 | `docs/ip-presets-notes.md:9`、`docs/ip-presets-v3-notes.md:169` | **条目还在**：HEAD / index / 工作区三层都有，含 6 组旧色板的 allowedCollisions 记档 |
-| **F6** | 交付状态（隐含「本次改动已成套落地」） | git index | **暂存空洞**：index 里笔记与 baseline 已是新版（描述新色板），但 index 的 `src/custom-presets/pokemon.json` **仍是旧的**（#0e1b13 / #60a5fa） |
-| **F7** | v3.5 历史叙事「旧版 37 个色位里没有一个能在参考图里指出像素」+「旧 success #7AC74C / 旧 secondary #3D7DD8」 | `docs/ip-presets-v3-notes.md:159` | 两个旧 hex **写错**（实为 #4ade80 / #60a5fa）；且旧色板有 **2 个槽能指回像素**（primary #ffcb05 3046 px、markdownStrong #ffffff 45033 px） |
+| **F5** | 「exceptions.json 的 pokemon 条目随之删除」 | `docs/ip-presets-notes.md:9`、`docs/ip-presets-v3-notes.md:169` | **条目还在**：HEAD / index / 工作区三层都有，含 6 组旧配色的 allowedCollisions 记档 |
+| **F6** | 交付状态（隐含「本次改动已成套落地」） | git index | **暂存空洞**：index 里笔记与 baseline 已是新版（描述新配色），但 index 的 `src/custom-presets/pokemon.json` **仍是旧的**（#0e1b13 / #60a5fa） |
+| **F7** | v3.5 历史叙事「旧版 37 个色位里没有一个能在参考图里指出像素」+「旧 success #7AC74C / 旧 secondary #3D7DD8」 | `docs/ip-presets-v3-notes.md:159` | 两个旧 hex **写错**（实为 #4ade80 / #60a5fa）；且旧配色有 **2 个槽能指回像素**（primary #ffcb05 3046 px、markdownStrong #ffffff 45033 px） |
 | **F8** | 仓库笔记的逐色出处描述 | `docs/ip-presets-notes.md:17-18`、`docs/ip-presets-v3-notes.md:163,168` | **3 处归属错误**（function #6E9BBC 实在 4.jpg 非 2.jpg；textMuted #D3D3D8 实为 01 号图；blockquote #BDBDC3 实为 01 号图） |
 | **F9** | 「页面里的每个色值都在运行时从 assets 注入，没有写死的调色板」 | `preview.html` 副题 | **不成立**：72 处 hex 字面量，其中 **27 种主题色出现约 46 处**（虽只是显示文本、不参与上色）；`--onprimary:#141414` 是 CSS 硬编码 |
 
@@ -1122,7 +1122,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 1. **对比度引擎口径完全正确**：我从零重写的 WCAG 实现复算 53 对，与仓库 `baseline.json` 逐项相同（Δ≤0.0005，四舍五入级），fg/bg hex 全同。
 2. **53/53 与引擎一致**：headless Chrome 渲染后页面表格的 53 行与我的独立数**逐项相同**（不是抄表——页面是运行时算的，我实测它算得对）。
 3. **38 硬性 + 15 UI 就是完整硬性集**：`scripts/audit-themes.ts:119-147` 的 PAIR_DEFS 与 `docs/theme-audit/criteria.md` §2.1/§2.2 一一对应，无漏评的对（另有 17 信息项 + 1 诊断项 = 71 总对，属非门禁项）。
-4. **`node scripts/audit-themes.ts --check` 退出码 0**（主题 60 / 色板 61 / 硬性 0 违例 / IP 设计告警 12 条记档、0 待处理）。
+4. **`node scripts/audit-themes.ts --check` 退出码 0**（主题 60 套 / 配色 61 套 / 硬性 0 违例 / IP 设计告警 12 条记档、0 待处理）。
 5. **无静默改色**：`ensureDiffContrast` 对 pokemon 的 37 槽在 dark / light 两半**改写 0 槽**，作者写的 6 个 diff 槽位原样存活（4 对 diff 中 2 对达标 → 走 needFix=false 分支）。
 6. **宿主侧不对称成立且对 DARK 主题无害**：导出的 `<style>` 确实带 DARK 半（`generate.ts:218-221,224,229`），审计按 `appearance` 选半（`audit-themes.ts:464-470`），pokemon `appearance=dark` → **两者重合**。
 7. **labelDimmed 口径一致**：引擎发 `rgba(211,211,216,0.8)`（`map-dsh.ts:140`），审计逐表面 flatten 压平 = 模拟浏览器合成，口径相同（SPEC 写 0.8 alpha 这一点是对的）。
@@ -1160,7 +1160,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 | `recount.py` | Pillow + numpy 从四张原图重数 37 色位命中像素与逐图分布 | 否（素材是同一批图，判定口径按页面声明「RGB 完全相等，不做容差」） |
 | `engine_probe.ts` | Node 直接 `import` `src/engine/resolve.ts` + `src/engine/map-dsh.ts`，实测 `ensureDiffContrast` / 槽位集合 | 用仓库引擎**行为**（这是 ground truth，属任务书指定） |
 | `layers.py` | git HEAD / index / worktree 三层对 exceptions.json、baseline.json、pokemon.json 的精确比对 | 否 |
-| `old_palette.py` | 用旧色板 37 个 hex 回查四图，核 v3.5 的历史叙事 | 否 |
+| `old_palette.py` | 用旧配色 37 个 hex 回查四图，核 v3.5 的历史叙事 | 否 |
 | `assets_hash.py` | assets.js 内联 data URI vs 磁盘原文件 sha256 | 否 |
 | `html_scan.py` / `hex_context.py` | preview.html 全部 hex 字面量分类 + 逐处上下文 | 否 |
 
@@ -1238,7 +1238,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
 | labelDimmed@backgroundElement | **5.02** | **5.0757**（#B6B6BC） | +0.06 | 同上（#B6B6BC 恰好是 backgroundElement 上的合成色） |
 | markdownEmph@background | **10.01** | **9.6649** | −0.35 | 手写残留（约 1.035 倍放大） |
 | markdownEmph@backgroundPanel | **6.99** | **6.7552** | −0.23 | 同上 |
-| markdownBlockQuote@background | **7.39** | **9.0675** | **+1.68** | 早期色板残留（约 0.815 倍缩小） |
+| markdownBlockQuote@background | **7.39** | **9.0675** | **+1.68** | 早期配色残留（约 0.815 倍缩小） |
 | markdownBlockQuote@backgroundPanel | **5.17** | **6.3377** | **+1.17** | 同上 |
 
 - 其余 **45 个数字全部对上**（含 text@background 14.67、textMuted 11.37/7.95/6.87、markdown 六角色其余、syntax 七色、diff 四对、contrastText(primary) 12.10、UI 15 对）。
@@ -1265,7 +1265,7 @@ Set-Location "D:\Temp\pokemon-theme\adv1"
   UI：BORDER_ACTIVE_SURFACES 3 + BRAND_ROLES 6 × BRAND_SURFACES 2 = **15**。与 `docs/theme-audit/criteria.md` §2.1/§2.2 表格**一一对应** → **38+15 确为完整硬性集，没有漏评的对**。
 - `node scripts/audit-themes.ts --check` → **EXITCODE = 0**
   ```
-  [audit-themes] 主题 60（预置 37 + IP 23），评估色板 61 个
+  [audit-themes] 主题 60（预置 37 + IP 23），评估配色 61 套
   硬性 4.5/3.0 违例：预置 0 text-ish + 0 UI；IP 0 + 0；合计 0
   信息项：border<3 表面 407，tooltip 文字<4.5 评估 0
   设计规范（IP）：12 条告警（记档 12 / 待处理 0）
@@ -1468,7 +1468,7 @@ M  prototypes/disney-theme-preview.html   ← 其他 agent
 | `docs/ip-presets-v3-notes.md` | 无 v3.5 段 | **有 v3.5 宝可梦段** | 有（+ 别人 v3.6） | ⚠️ 文档进 index，预置没进 |
 | `docs/ip-presets-notes.md` | 无 v3.5 段 | **有 v3.5 段** | 有（+ 别人 v3.6） | ⚠️ 同上 |
 
-**F6 的具体后果**：此刻若有人执行 `git commit`（只提交 index），得到的仓是：文档与 baseline 描述**新色板**（coreMin 22 / brand 176.2° / 0 碰撞 / surfaces #1C1C22 系列），而 `src/custom-presets/pokemon.json` 仍是**旧色板**（#0e1b13 绿调 / secondary #60a5fa）。届时 `npm run audit:themes` 会重算出与 baseline 不符的结果，且 v3.5 笔记描述的 37 色与实际预置不符。**这是活仓里最现实的一处风险。**
+**F6 的具体后果**：此刻若有人执行 `git commit`（只提交 index），得到的仓是：文档与 baseline 描述**新配色**（coreMin 22 / brand 176.2° / 0 碰撞 / surfaces #1C1C22 系列），而 `src/custom-presets/pokemon.json` 仍是**旧配色**（#0e1b13 绿调 / secondary #60a5fa）。届时 `npm run audit:themes` 会重算出与 baseline 不符的结果，且 v3.5 笔记描述的 37 色与实际预置不符。**这是活仓里最现实的一处风险。**
 
 ### 4.4 笔记与实际 preset 的矛盾
 
@@ -1482,7 +1482,7 @@ M  prototypes/disney-theme-preview.html   ← 其他 agent
 | `docs/ip-presets-v3-notes.md:163` | 「弱文字是合志插画里的淡灰蓝 #D3D3D8」 | 同上 | ❌ |
 | `docs/ip-presets-notes.md:18` | 「blockquote 合志淡灰蓝阶 #BDBDC3」 | 18 px **全在 01 号图** | ❌ |
 | `docs/ip-presets-v3-notes.md:159` | 「旧 success #7AC74C / 旧 secondary #3D7DD8」 | 旧 preset 实际是 **#4ade80 / #60a5fa** | ❌ |
-| `docs/ip-presets-v3-notes.md:159` | 「37 个色位里没有一个能在参考图里指出像素」 | 旧色板有 **2 槽能指回**（primary #ffcb05 3046 px、markdownStrong #ffffff 45033 px） | ❌ |
+| `docs/ip-presets-v3-notes.md:159` | 「37 个色位里没有一个能在参考图里指出像素」 | 旧配色有 **2 槽能指回**（primary #ffcb05 3046 px、markdownStrong #ffffff 45033 px） | ❌ |
 | `docs/ip-presets-v3-notes.md:171` | 「最紧 labelDimmed@backgroundElement 5.08、正文 14.67、UI 最紧 error@backgroundPanel 3.24、核心 ΔE76 22.0、comment 5.72、operator 4.92、核心最低 5.86」 | 5.0757 / 14.6713 / 3.2400 / 21.96 / 5.7193 / 4.9178 / 5.8551 | ✅ 全对 |
 | `docs/ip-presets-v3-notes.md:173` | 「#FE4C1C 16 px、#BDBDC3 18 px、#C790A3 18 px」 | 16 / 18 / 18 | ✅ 全对 |
 | `docs/ip-presets-v3-notes.md:166` | 「success/warning/error/info 均取自 4.jpg；secondary = 2.jpg 的 #799DFE（88,538 px）」 | 1316 / 4690 / 1984 / 2973 全在 04；secondary 88538 全在 02 | ✅ 全对 |
@@ -1493,11 +1493,11 @@ M  prototypes/disney-theme-preview.html   ← 其他 agent
 
 | 行 | 文字 | 与终值矛盾之处 |
 |---|---|---|
-| `:235` | 「Pokémon `sidebarBg #070D0A` → … → `backgroundElement #1E3A28`（`REPO/src/custom-presets/pokemon.json:1`）」 | 8 个背景槽全为改前旧值；且对 `pokemon.json:1` 的引用已不成立（该文件现在是新色板） |
+| `:235` | 「Pokémon `sidebarBg #070D0A` → … → `backgroundElement #1E3A28`（`REPO/src/custom-presets/pokemon.json:1`）」 | 8 个背景槽全为改前旧值；且对 `pokemon.json:1` 的引用已不成立（该文件现在是新配色） |
 | `:239` | 「Pokémon `codeBlockBg #070e0b` vs `background #0e1b13`」 | 现为 #000000 vs #1C1C22 |
 | `:258` | 「Pokémon (dark) currently uses `codeBlockBg #070e0b` + `primary #ffcb05`」 | codeBlockBg 现为 #000000 |
 | `:282` | 「Pokémon today: primary #ffcb05 (47.5°) vs secondary **#60a5fa (213.1°)** → **165.6°**」 | 现为 #799DFE / 223.8° / **176.24°** |
-| `:284-285` | 「Poketeer's six documented collisions（currently filed as exceptions）… exceptions.json:4-33」 | 6 组并岗在新色板已不存在（0 碰撞）；记档文件条目确实还在（与 F5 呼应） |
+| `:284-285` | 「Poketeer's six documented collisions（currently filed as exceptions）… exceptions.json:4-33」 | 6 组并岗在新配色已不存在（0 碰撞）；记档文件条目确实还在（与 F5 呼应） |
 
 > §2.6（Silent diff-colour rewriting）、§3.1/§3.2（38+15 判定集）、§5（已知限制 12 条）经复核**准确**，唯上述 pokemon 快照段落是改前残留。
 
@@ -1558,8 +1558,8 @@ light：disney / doraemon / dragon-ball / genshin / hello-kitty / kuromi / lego 
 ### 必须修（阻塞交付）
 
 1. **修 `SPEC.md` §4.3 的 8 个对比度数字**（F1）：text@sidebarBg 17.53、labelDimmed 三组 7.68 / 5.74 / 5.08（并注明三色分别是 #AEAEB4 / #B4B4B9 / #B6B6BC 的逐表面合成）、markdownEmph 9.66 / 6.76、markdownBlockQuote 9.07 / 6.34。
-2. **把 `src/custom-presets/pokemon.json` 暂存（或与文档同批提交）**（F6）：当前 index 里文档与 baseline 是新版、预置是旧版，提交即产生「文档描述一套色板、预置是另一套」的仓。
-3. **删掉 `docs/theme-audit/exceptions.json` 里的 pokemon 条目**（F5）：文档已两处声称删除，实际还在；留着等于给一个 0 碰撞的主题继续授 6 组并岗豁免（旧色板的 hex 也在里面）。
+2. **把 `src/custom-presets/pokemon.json` 暂存（或与文档同批提交）**（F6）：当前 index 里文档与 baseline 是新版、预置是旧版，提交即产生「文档描述一套配色、预置是另一套」的仓。
+3. **删掉 `docs/theme-audit/exceptions.json` 里的 pokemon 条目**（F5）：文档已两处声称删除，实际还在；留着等于给一个 0 碰撞的主题继续授 6 组并岗豁免（旧配色的 hex 也在里面）。
 
 ### 应当修（交付物诚实性）
 

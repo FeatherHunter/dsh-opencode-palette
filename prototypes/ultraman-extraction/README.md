@@ -1,7 +1,7 @@
 # ultraman-extraction —— 奥特曼 IP 预置主题的取色与自检管线
 
 本目录是 `src/custom-presets/ultraman.json`（奥特曼 / dark / 37 色位）的**取色与验证出处**。
-色板里每一个色值都能在这里回答两个问题：**它从哪张图的哪个像素来**、**它过不过仓库判尺**。
+配色里每一个色值都能在这里回答两个问题：**它从哪张图的哪个像素来**、**它过不过仓库判尺**。
 
 ## 参考图
 
@@ -21,7 +21,7 @@ python prototypes/ultraman-extraction/build_palette.py > prototypes/ultraman-ext
 ```
 
 依赖：Python 3 + numpy + Pillow（DSH 自带运行时里都有）。
-脚本**自己从参考图重读像素**得出颜色，再与 `EXPECTED`（出货值）逐位比对——换图或换解码器会当场报错而不是默默出一份新色板。
+脚本**自己从参考图重读像素**得出颜色，再与 `EXPECTED`（出货值）逐位比对——换图或换解码器会当场报错而不是默默出一份新配色。
 
 ## 产物
 

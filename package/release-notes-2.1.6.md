@@ -21,7 +21,7 @@
 - `npm run deps:check` exit 0：`dsh-plugin-update` 本地声明 / 已安装 / 产物声明 / 上游 latest **四处均 0.18.33** ✓；`dsh-log` 0.3.4 ✓。
 - `npm test` **283 pass / 0 fail**（Node 24.19.0）。
 - `npm run verify:artifacts` 八项全过（字体一致 / 两次构建逐字节一致 / 八件齐全非空 / 八件不含 CR / `package/lib` 恰 4 文件 / 八件未被 git 跟踪 / `font-face.ts` 仍被跟踪 / `.gitattributes` 钉 `eol=lf`）。
-- `npm run audit:themes` exit 0：**58 套主题**（预置 37 + IP 21）、59 个色板；硬性 4.5/3.0 违例 **0 + 0**；tooltip 文字 < 4.5 评估 0 条；信息项 border<3 表面 392（按设计不设门槛）；设计告警 21 条记档 / 0 待处理。
+- `npm run audit:themes` exit 0：**58 套主题**（预置 37 + IP 21）、59 套配色；硬性 4.5/3.0 违例 **0 + 0**；tooltip 文字 < 4.5 评估 0 条；信息项 border<3 表面 392（按设计不设门槛）；设计告警 21 条记档 / 0 待处理。
 - `npm run sync` exit 0（33 套中 31 套声明漂移、需处理 0，不写盘）。
 - `npm pack`（在 package/ 内）7 files：README.md、cordis.patch.yml、lib/channel.js、lib/client.js、lib/event-list.json、lib/index.js、package.json；包内 version=2.1.6、dependencies dsh-plugin-update 0.18.33；tgz 637164 B。
 - 隔离工作树（本次发布提交的干净检出 + `npm install`）重建：`npm run build` + `npm pack` 产出的 tgz 与主树 pack **sha1 逐字符相同**（`e5a452e…`，637164 B）——发布载荷字节级可复现。

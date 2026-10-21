@@ -49,8 +49,8 @@
 
 | 产品 | SV / 主面板 | 色相控件 | 数值输入 | 吸管 | 最近色 / 预设 | 键盘 | 对比度 | 透明度 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| **Figma** | 色板（palette）里取色 + 色相滑杆 + 不透明度滑杆 | 横向滑杆 | 数值表示 + 色模下拉（RGB/HEX/CSS/HSL/HSB） | ✅ 画布内吸色 | ✅ 当前文件颜色 + 库/样式/变量 | 未取证 † | ✅ 4.5/3/7:1 + **一键吸附到最近合规色**，分 Auto/Large/Normal/Graphics 与 AA/AAA | ✅ 独立滑杆 |
-| **Chrome DevTools** | Shades 区 + 可拖的 Color circle | 横向滑杆 | Display value（可切 12 个色彩空间，含 oklch/lab） | ✅ 按 `C` 激活 / `Esc` 退出，**只采 sRGB，越界裁到最近** | ✅ Material / Custom / CSS 变量 / Page colors 四种色板 | `C` 吸管、`Shift`+点击预览图标直接开色模下拉 | ✅ Contrast ratio（仅 `color`），可切 WebAIM/APCA，点「Use suggested color」一键合规 | 不透明度滑杆 |
+| **Figma** | 配色（palette）里取色 + 色相滑杆 + 不透明度滑杆 | 横向滑杆 | 数值表示 + 色模下拉（RGB/HEX/CSS/HSL/HSB） | ✅ 画布内吸色 | ✅ 当前文件颜色 + 库/样式/变量 | 未取证 † | ✅ 4.5/3/7:1 + **一键吸附到最近合规色**，分 Auto/Large/Normal/Graphics 与 AA/AAA | ✅ 独立滑杆 |
+| **Chrome DevTools** | Shades 区 + 可拖的 Color circle | 横向滑杆 | Display value（可切 12 个色彩空间，含 oklch/lab） | ✅ 按 `C` 激活 / `Esc` 退出，**只采 sRGB，越界裁到最近** | ✅ Material / Custom / CSS 变量 / Page colors 四种配色 | `C` 吸管、`Shift`+点击预览图标直接开色模下拉 | ✅ Contrast ratio（仅 `color`），可切 WebAIM/APCA，点「Use suggested color」一键合规 | 不透明度滑杆 |
 | **react-colorful** | `__saturation` 面板 | `__hue` 滑杆（可换环） | 不内置，另配 `HexColorInput` | — | 不内置（recipe 里给 preset 方案） | ✅ `onChange` 每次按键触发，`onChangeEnd` 在 keyup | — | 单独 `*Alpha*` 组件 |
 | **Coloris** | marker（SV）面板 | hueSlider | 颜色值输入框（打开时 `focusInput`/`selectInput`） | — | swatches 数组 | ✅ a11y `instruction`：SV 面板用上下左右方向键 | — | alpha 开关 / alphaSlider |
 | **iro.js** | 组件化（SV 方框 / 色相环 / 色相条可拆装），`width` 控制尺寸 | 环或条，按组件选 | 读写 `hex/rgb/hsv/hsl/kelvin` | — | 多手柄做配色和声 | 文档首屏未给 † | — | — |
@@ -73,16 +73,16 @@
 | --- | --- | --- |
 | E1 | 原生 range「imprecise」，官方建议只在**精确值不重要**时使用；默认 `step=1`，值被钳制在 min/max | [MDN `<input type="range">`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input/range) |
 | E2 | 滑动条键盘映射：←/→/↑/↓ 步进 1，Home/End 到两端，PageUp/PageDown 用更大增量；配 `role="slider"` + `aria-valuenow/min/max`，数值不直观时给 `aria-valuetext` | [W3C WAI-ARIA APG Slider Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/slider/) |
-| E3 | 取色器黄金组合：色板 + 色相滑杆 + 不透明度滑杆 + 数值/色模切换 + 吸管 + 最近色/库色 + 对比度检查 | [Figma: Apply paints with the color picker](https://help.figma.com/hc/en-us/articles/360041003774-Apply-paints-with-the-color-picker) |
+| E3 | 取色器黄金组合：配色 + 色相滑杆 + 不透明度滑杆 + 数值/色模切换 + 吸管 + 最近色/库色 + 对比度检查 | [Figma: Apply paints with the color picker](https://help.figma.com/hc/en-us/articles/360041003774-Apply-paints-with-the-color-picker) |
 | E4 | 对比度阈值 4.5:1 正文 / 3:1 大字与图形 / 7:1 AAA；不达标时**点一下吸附到最近的合规色** | 同上（Figma） |
-| E5 | DevTools 取色器：Shades + Color circle + 色相 + 不透明度 + Display value + 对比度 + 色板切换 + 吸管（`C`/`Esc`，仅 sRGB，越界裁切）+ 高动态范围 gamut 边界线与裁切警告 + 「Use suggested color」一键合规（WebAIM / APCA 可切） | [Chrome DevTools: Inspect and debug colors（文档源文件）](https://raw.githubusercontent.com/GoogleChrome/developer.chrome.com/main/site/en/docs/devtools/css/color/index.md) |
+| E5 | DevTools 取色器：Shades + Color circle + 色相 + 不透明度 + Display value + 对比度 + 配色切换 + 吸管（`C`/`Esc`，仅 sRGB，越界裁切）+ 高动态范围 gamut 边界线与裁切警告 + 「Use suggested color」一键合规（WebAIM / APCA 可切） | [Chrome DevTools: Inspect and debug colors（文档源文件）](https://raw.githubusercontent.com/GoogleChrome/developer.chrome.com/main/site/en/docs/devtools/css/color/index.md) |
 | E6 | HSV 同 value/saturation 扫色相时亮度极不均匀：「Yellow, magenta and cyan appear much lighter than red and blue」 | [Oklab 作者原文](https://bottosson.github.io/posts/oklab/) |
 | E7 | 拖拽期与提交期应分两个回调：`onChange` 拖动中（含每次按键），`onChangeEnd` 在 mouseup/touchend/keyup —— 后者才做贵操作 | [react-colorful README](https://github.com/omgovich/react-colorful/blob/master/README.md) |
 | E8 | 关闭语义的先例：**点页面任意处关闭并保留**；**Esc 关闭并恢复原值**；另有 `close()` / `close(true)` | [Coloris README](https://github.com/mdbassit/Coloris) |
 | E9 | SV 面板用四向键微调是通行做法（官方 a11y 文案直接这么写） | 同上（Coloris） |
 | E10 | `EyeDropper.open()` 返回 `{ sRGBHex }`，Esc 取消，可用 `AbortSignal` 中止；**非 Baseline、实验性、要求 secure context** | [MDN EyeDropper](https://developer.mozilla.org/en-US/docs/Web/API/EyeDropper) |
 | E11 | UI 组件与其状态（含**滑块 thumb**）与相邻色至少 3:1；焦点指示同样要有对比 | [WCAG 2.2 SC 1.4.11 Non-text Contrast](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) |
-| E12 | 12 阶色板每阶绑定用途（1 应用底 … 12 高对比文字），9 阶最纯，11/12 阶保证 Lc 60/90 | [Radix Colors: Understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) |
+| E12 | 12 阶配色每阶绑定用途（1 应用底 … 12 高对比文字），9 阶最纯，11/12 阶保证 Lc 60/90 | [Radix Colors: Understanding the scale](https://www.radix-ui.com/colors/docs/palette-composition/understanding-the-scale) |
 | E13 | 取色器可以做到零依赖、3.1KB、带 WAI-ARIA、支持触屏与键盘 | [react-colorful README](https://github.com/omgovich/react-colorful/blob/master/README.md) |
 | E14 | 仓内约束（非外部证据）：37 槽只有 8 个 bg 槽 `allowTransparent: true`；hex 只接受 `#RGB`/`#RRGGBB` | [`src/engine/map-dsh.mjs:205-243`](../src/engine/map-dsh.mjs)、[`runtime/custom-color.mjs:6-16`](../runtime/custom-color.mjs) |
 

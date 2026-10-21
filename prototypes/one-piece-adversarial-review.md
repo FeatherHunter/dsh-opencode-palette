@@ -80,7 +80,7 @@
 
 ```
 node scripts/audit-themes.ts --check
-[audit-themes] 主题 59（预置 37 + IP 22），评估色板 60 个
+[audit-themes] 主题 59（预置 37 + IP 22），评估配色 60 套
 [audit-themes] 硬性 4.5/3.0 违例：预置 0 text-ish + 0 UI；IP 0 + 0；合计 0
 [audit-themes] 设计规范（IP）：12 条告警（记档 12 / 待处理 0）
 | one-piece | ip | 0 | 0 | 8 | 8 | — |
