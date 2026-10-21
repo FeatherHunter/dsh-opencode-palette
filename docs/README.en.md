@@ -136,10 +136,8 @@ If you like this plugin, these might be useful too:
 
 </div>
 
-<h2 align="center"><sub>STAR HISTORY</sub><br>Stars over time</h2>
-
 <div align="center">
 
-![Star history chart: total stars and daily new stars](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=20261021)
+![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610210816)
 
 </div>

@@ -61,11 +61,14 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 ## Star History
 
-两页 README 的 CONNECT 段下面挂着星标增长曲线，图是自己画的：GitHub API 拉「每颗星何时被点亮」→ 按 UTC 天聚合 → 纯函数画自包含 SVG。
+两页 README 的 CONNECT 段下面挂着星标增长曲线，图是自己画的：GitHub API 拉「每颗星何时被点亮」→ 按 UTC 天聚合 → 纯函数画自包含 SVG。图形规格照 2026-10-21 的会话级交接（源仓 `dsh-mattpocock-skills-deck` 的 B3 方案，见 `D:\Temp\handoff-star-history-session-2026-10-21.md`）。
 
-- **取数与出图**：`npm run star:history`（`scripts/update-star-history.ts`）—— 自己调 `gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at"`（那个 Accept 头不能省，默认返回里没有时间），写 `docs/star-history.json`（数据）与 `docs/star-history.svg`（图）。画图纯函数在 `scripts/star-history.ts`：`aggregateByDay` 按 UTC 日聚合、`buildSvg` 出图（手绘抖动来自 `fnv1a`+`mulberry32` 种子，同数据同字节）。
-- **一张图顶两套配色**：SVG 里用 CSS 变量 + `@media (prefers-color-scheme: dark)`，不拆深浅两个文件 —— 拆了就得靠 `<picture>` 切换，而市场详情页渲染器整段丢弃原始 HTML，`<picture>`/`<img>` 在那边都不显示。
-- **图片走绝对 raw 直链**（`https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=YYYYMMDD`）：GitHub / npm 包内副本 / 市场详情页三处都能出图；`?v=` 是缓存戳，GitHub 图片代理按 URL 缓存，**图换了必须换戳**。
-- **每日自动更新**：`.github/workflows/star-history.yml`（cron UTC 02:17 + `workflow_dispatch`）拉数 → 重画 → 改两页 README 的 `?v=` 戳 → 有变化才提交。脚本不裸 `git push`（任务跑得久、期间远端可能又前进，裸 push 会被拒）：先 `git pull --rebase origin main`，冲突就当天跳过不报错。Node 用 22.18（本仓 `.ts` 靠原生类型剥离直跑，Node 20 跑不了）。
-- **门禁**：`tests/star-history.test.ts` 钉住「同数据同字节」「盘上 SVG = 现画的 SVG（改了数据忘了重画就红）」「两页 README 都在 CONNECT 之后引用图且带 `?v=` 戳」。
+- **取数与出图**：`npm run star:history`（`scripts/update-star-history.ts`）—— 自己调 `gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at"`（那个 Accept 头不能省，默认返回里没有时间），写 `docs/star-history.json`（数据）与 `docs/star-history.svg`（图）。画图纯函数在 `scripts/star-history.ts`：`aggregateByDay` 按 UTC 日聚合、`buildSvg` 出图（手绘抖动来自 `fnv1a`+`mulberry32` 种子，同数据同字节）、`monotonePath` 做单调三次插值。**总量只能涨不能跌**：新数据的总数比盘上旧的小，就是这次拉到残缺数据（GitHub 分页/缓存），脚本直接抛错拒绝写盘。
+- **图的样子（别改回去）**：**双 Y 轴** —— Total 读左轴、Daily 读右轴（共用一根尺子时每日新增会被压成贴底平线）；**两条曲线都平滑** —— Total 用 Catmull-Rom，Daily 用 Fritsch–Carlson 单调三次插值（圆滑但每段不越界，不造假峰）；**轴名横排染色兼作色键**（`Total Stars` 红 / `Daily New` 蓝），因此不画图例、也不许竖排文字；**两条曲线各标自己的最高点**（`data-peak="total"` / `data-peak="daily"`，描边用背景色做底衬）；右轴刻度配同色刻度短线（读的是右轴，不是最近那条横网格）。
+- **配色**：每套主题里一个系列只有一个色值（曲线、轴线、轴名、刻度、峰值共用）。深色主题红 `#ff6b6b` / 蓝 `#38bdf8`；浅色主题整体压深到红 `#b93a34` / 蓝 `#1d4ed8`（13px 刻度小字也要过 WCAG AA）。旧亮色 `#d94f4f` / `#2f81f7` 不许回潮。
+- **一张图顶两套配色**：SVG 里用 CSS 变量 + `@media (prefers-color-scheme: dark)`，不拆深浅两个文件 —— 拆了就得靠 `<picture>` 切换，而市场详情页渲染器整段丢弃原始 HTML，`<picture>`/`<img>` 在那边都不显示。`<style>` 里**只许写变量定义、不许写 `fill:`**（CSS 规则优先级高于元素上的 fill 属性，会把所有元素的 fill 悄悄盖掉）；默认字色写在根 `<svg>` 的 `fill` 属性上，由子元素继承。
+- **图片走绝对 raw 直链**（`https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=YYYYMMDDHHMM`）：GitHub / npm 包内副本 / 市场详情页三处都能出图；`?v=` 是缓存戳，GitHub 图片代理按 URL 缓存，**图换了必须换戳**。戳到分钟（UTC）而不是只到日 —— 同一天里改图也得换 URL，否则图片代理会顶着同一个 URL 继续吐旧图。
+- **每日自动更新**：`.github/workflows/star-history.yml`（cron UTC 02:17 + `workflow_dispatch`，带 `concurrency` 防重叠）拉数 → 重画 → 改两页 README 的 `?v=` 戳 → 有变化才提交。拉取失败**不吞掉**（`|| true` 会让残缺数据画成掉头的曲线）；push 前 `git fetch` + `git merge` 重试三次，冲突就当天跳过不报错（源仓那批每日任务连红 12 天，栽在裸 push 与 Node 20）。Node 用 22.18（本仓 `.ts` 靠原生类型剥离直跑，Node 20 跑不了）。
+- **门禁**：`tests/star-history.test.ts` 钉住「同数据同字节」「盘上 SVG = 现画的 SVG（改了数据忘了重画就红）」「双 Y 轴与两列刻度各用系列色」「轴名横排、无图例、无 `rotate(`」「Daily 是 C 段平滑且不越界、拐点切线连续」「峰值标注来自数据」「`<style>` 里没有 `fill:`、根 svg 带正文色」「浅色旧亮色不许回潮」「两页 README 都在 CONNECT 之后引用图且带 `?v=` 戳、且不再有 STAR HISTORY 段标题」。
+
 

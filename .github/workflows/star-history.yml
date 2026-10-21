@@ -5,6 +5,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+# 防重叠：上一次还没跑完就别再起一个（源仓那批每日任务排队排了两小时）
+concurrency:
+  group: star-history
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -20,16 +24,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at" > /tmp/stars.txt || true
+          # 拉取失败不要再用 || true 吞掉：残缺数据会把曲线画成掉头的样子，
+          # 宁可让这一步红。总量变小由 update-star-history.ts 负责拒绝写盘。
+          gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at" > /tmp/stars.txt
           if [ ! -s /tmp/stars.txt ]; then echo "No stars fetched"; exit 0; fi
           node scripts/update-star-history.ts /tmp/stars.txt
       - name: Commit if changed
         run: |
           if git diff --quiet docs/star-history.json docs/star-history.svg; then echo "No change"; exit 0; fi
           # 缓存戳：GitHub 的图片代理按 URL 缓存 —— 图换了必须把 ?v= 换掉，否则读者看到的还是旧图。
+          # 戳到分钟（YYYYMMDDHHMM，UTC）而不是只到日：同一天里改图也得换 URL，
+          # 否则图片代理会顶着同一个 URL 继续吐旧图。
           node -e "
             const fs = require('fs');
-            const stamp = new Date().toISOString().slice(0,10).replace(/-/g,'');
+            const stamp = new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
             for (const f of ['README.md','docs/README.en.md']) {
               let s = fs.readFileSync(f,'utf8');
               s = s.replace(/(star-history[.]svg[?]v=)[0-9]+/g, (m, p1) => p1 + stamp);
@@ -42,7 +50,19 @@ jobs:
           git add docs/star-history.json docs/star-history.svg README.md docs/README.en.md
           git commit -m "每日更新 Star History：拉取星标数据并重绘手绘曲线图"
           # 别裸 push：任务跑得久，期间远端可能又前进了（源仓那批每日任务就是这么全红的）。
-          if ! git pull --rebase origin main; then
-            echo "rebase 冲突，今天先不更新"; git rebase --abort || true; exit 0
-          fi
+          # 先 fetch + merge，冲突重试三次；三次还不成就今天先不更新（不报错，下次补上）。
+          for i in 1 2 3; do
+            git fetch origin main
+            if git merge --no-edit origin/main; then
+              echo "merged origin/main (attempt $i)"
+              break
+            fi
+            echo "merge 冲突，第 $i 次重试"
+            git merge --abort || true
+            if [ "$i" = "3" ]; then
+              echo "今天先不更新，下次补上"
+              exit 0
+            fi
+            sleep 5
+          done
           git push origin HEAD:main
