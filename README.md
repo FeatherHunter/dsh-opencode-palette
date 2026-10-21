@@ -23,8 +23,6 @@
 
 <div align="center">
 
-一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。
-
 ---
 
 本插件为您有更好的DSH体验而生💗
@@ -73,18 +71,21 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 
-| | 能力 | 说明 |
-|---|---|---|
-| 💊 | **IP 主题胶囊** | 预置 25 套：原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。 |
-| 💊 | **打造专属胶囊** | 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。存好的胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/`。 |
-| 🔤 | **字体与字号** | 字体独立于颜色：等宽（终端风）把整个界面换成等宽字，常规（界面风）只让代码块用等宽；字号 11–24 px，代码字体可以直接从本机已装字体里挑。 |
+| 能力 | 说明 |
+|---|---|
+| **IP 主题胶囊 💊** | 预置 25 套：原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。 |
+| **打造专属胶囊 💊** | 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。存好的胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/`。 |
+| **字体与字号** | 字体独立于颜色：等宽（终端风）把整个界面换成等宽字，常规（界面风）只让代码块用等宽；字号 11–24 px，代码字体可以直接从本机已装字体里挑。 |
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
 
 ```bash
+# 升级到最新版（当前 2.1.9）：web 与 desktop 两个 profile 各跑一条
 dsh plugin --profile web update dsh-opencode-palette
-# 需要钉回历史版本：
-dsh plugin --profile web add dsh-opencode-palette@<版本>
+dsh plugin --profile desktop update dsh-opencode-palette
+# 需要钉回指定版本（把版本号换成你要的）：
+dsh plugin --profile web add dsh-opencode-palette@2.1.9
+dsh plugin --profile desktop add dsh-opencode-palette@2.1.9
 ```
 
 「设置 → 插件 → OpenCode调色板」 → **检查更新**

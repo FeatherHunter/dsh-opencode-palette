@@ -184,11 +184,12 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
   assert.ok(EN.includes('<sub>EXTENSIONS</sub><br>What the OpenCode themes come with'), '英文小标题应为复稿原文（品牌已按上游 OpenCode 转正）')
   // 2026-10-21 用户重写三条：原「字体单独调 / 面板跟得上 DSH 的语言 / 自己配色」判为废话，
   // 改成核心支持三件事：预置 IP 主题胶囊、打造专属主题胶囊、字体与字号自选。
-  // 同日排版定稿（B 方案）：EXTENSIONS 段改成**纯 markdown 表格三行卡片**（图标 | 标题 | 说明），
+  // 同日排版定稿（B 方案）：EXTENSIONS 段改成**纯 markdown 表格三行卡片**（标题 | 说明），
   // 不再是三段粗体引导句 —— 门禁跟着改成钉表格骨架 + 卡片标题，旧句式不许回潮。
+  // 再定：图标列（| 💊 |）太丑，用户判删 —— 表格改成两列，💊 留在标题行内。
   const CARDS = [
-    ['**IP 主题胶囊**', '**IP theme capsules**', 'IP 胶囊预置'],
-    ['**打造专属胶囊**', '**Build your own capsule**', '专属胶囊'],
+    ['**IP 主题胶囊 💊**', '**IP theme capsules 💊**', 'IP 胶囊预置'],
+    ['**打造专属胶囊 💊**', '**Build your own capsule 💊**', '专属胶囊'],
     ['**字体与字号**', '**Fonts and size**', '字体与字号'],
   ] as const
   for (const [zh, en, label] of CARDS) {
@@ -196,17 +197,18 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
     assert.equal(count(extBlock(EN), en), 1, `英文应有「${label}」一张卡片标题`)
   }
   // 表格骨架：EXTENSIONS 段恰好一张 markdown 表（表头 + 分隔行 + 三行卡片），
-  // 每张卡片三格：图标（emoji）| 标题（粗体）| 说明。
+  // 每张卡片两格：标题（粗体）| 说明 —— 图标列已删。
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {
     const rows = extBlock(doc).split(/\r?\n/).map((l) => l.trim()).filter((l) => l.startsWith('|'))
     assert.equal(rows.length, 5, `${name} 的 EXTENSIONS 应是「表头 + 分隔行 + 三行卡片」共 5 行表格`)
     assert.ok(/^\|[\s|:-]+\|$/.test(rows[1]), `${name} 表格第二行应是分隔行`)
     for (const row of rows.slice(2)) {
       const cells = row.split('|').map((c) => c.trim()).filter((c) => c !== '')
-      assert.equal(cells.length, 3, `${name} 卡片行应三格（图标 | 标题 | 说明）：${row}`)
-      assert.ok(/^\p{Extended_Pictographic}$/u.test(cells[0]), `${name} 卡片首格应是图标：${row}`)
-      assert.ok(/^\*\*[^*]+\*\*$/.test(cells[1]), `${name} 卡片第二格应是粗体标题：${row}`)
+      assert.equal(cells.length, 2, `${name} 卡片行应两格（标题 | 说明）：${row}`)
+      assert.ok(/^\*\*[^*]+\*\*$/.test(cells[0]), `${name} 卡片首格应是粗体标题：${row}`)
     }
+    // 图标列不许回潮（2026-10-21 用户判「太丑」，整列删掉）
+    assert.equal(/^\|\s*\p{Extended_Pictographic}\s*\|/mu.test(extBlock(doc)), false, `${name} 不应再有图标列`)
   }
   // 旧三条不许回潮（连同 2026-10-21 那版粗体引导句）
   for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**', '**IP 主题胶囊 💊 预置 25 套。**', '**打造自己的专属主题胶囊 💊。**', '**字体与字号自己挑。**']) {
@@ -232,6 +234,26 @@ test('UPGRADE：面板内升级入口只剩一行指路，长段不许回潮', (
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('不想敲命令'), false, `${name} 不应再有「不想敲命令」那句`)
     assert.equal(doc.includes("Don't want to type commands"), false, `${name} 不应再有该句英文`)
+  }
+})
+
+// ── 5c · UPGRADE：两个 profile + 活的版本号（2026-10-21 用户定）──
+// 用户要求这段「实时放最新的版本号」，并同时给 desktop 与 web 两个 profile。
+// 「实时」靠派生而不是靠人记得改：README 里的版本号必须等于 package.json 的版本，
+// 发布改号时由 scripts/sync-readme-version.ts 刷新（npm run readme:version）。
+// 这里离线可查（不联网），版本号一过期就红。
+test('UPGRADE：命令同时给 web 与 desktop 两个 profile，版本号是活的（= package.json 版本）', () => {
+  const pkg = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { version: string }
+  const v = pkg.version.replace(/\./g, '\\.')
+  const upgradeBlock = (t: string): string => t.slice(t.indexOf('<sub>UPGRADE</sub>'), t.indexOf('<sub>MORE</sub>'))
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {
+    const block = upgradeBlock(doc)
+    assert.ok(block.includes('--profile web'), `${name} 应给 web profile 的命令`)
+    assert.ok(block.includes('--profile desktop'), `${name} 应给 desktop profile 的命令`)
+    assert.equal(block.includes('<版本>'), false, `${name} 不应留「<版本>」占位符`)
+    assert.equal(block.includes('<version>'), false, `${name} 不应留「<version>」占位符`)
+    assert.ok(block.includes(`dsh-opencode-palette@${pkg.version}`), `${name} 应写明当前版本 ${pkg.version}`)
+    assert.ok(new RegExp(`(当前|currently)\\s*${v}`).test(block), `${name} 的注释里应写明当前版本 ${pkg.version}`)
   }
 })
 
@@ -281,11 +303,12 @@ test('EXTENSIONS 段居左（不再包 align="center" 的 div），且排在 INS
 })
 
 // ── 6a · showcase 段首标语（2026-10-21 用户定稿）──
-// 用户给的定稿块：原句留着 → 一条分隔线 --- → 标语「本插件为您有更好的DSH体验而生💗」。
-// 门禁盯三样：原句还在、分隔线在（独立成行）、标语在且落在分隔线之后。
-test('showcase 段首：原句 + 分隔线 + 「本插件为您有更好的DSH体验而生💗」标语', () => {
-  assert.ok(ZH.includes('一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。'), '中文原句应仍在')
-  assert.ok(EN.includes('Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.'), '英文原句应仍在')
+// 用户给的定稿块：原句 → 一条分隔线 --- → 标语「本插件为您有更好的DSH体验而生💗」。
+// 同日用户又判原句（「一天十来个小时盯屏幕…会好受些。」）为废话 → 整句删除，不许回潮。
+// 门禁盯三样：分隔线在（独立成行）、标语在且落在分隔线之后、旧原句不回潮。
+test('showcase 段首：分隔线 + 「本插件为您有更好的DSH体验而生💗」标语（旧原句已删，不许回潮）', () => {
+  assert.equal(ZH.includes('一天十来个小时盯屏幕，眼睛发涩是常事。换一套温和点的配色，会好受些。'), false, '中文旧原句应已删除')
+  assert.equal(EN.includes('Ten-plus hours of screen time a day, eyes going blurry is normal. A gentler palette feels better.'), false, '英文旧原句应已删除')
   assert.ok(ZH.includes('本插件为您有更好的DSH体验而生💗'), '中文标语应在')
   assert.ok(EN.includes('This plugin exists to make your DSH experience better 💗'), '英文标语应在')
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {

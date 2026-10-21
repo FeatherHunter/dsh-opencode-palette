@@ -34,6 +34,8 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 
 小步递增：常规发布默认 patch（+0.0.1，如 1.6.0 → 1.6.1）；确有新功能才 minor（+0.1.0）；大版本由作者拍板（如 2.0.0）。bump 前先与用户确认，确认后再构建与发布。
 
+**bump 之后刷新 README 里的版本号**：两页 README 的 UPGRADE 段给用户看的是真实当前版本（不是 `<版本>` 占位符），那份版本号由 `package.json` 派生 —— bump 完跑 `npm run readme:version`（`scripts/sync-readme-version.ts`）把两页一起刷成新版本号。`npm run readme:version:check` 只查不写，过期 exit 1；`tests/readme-body.test.ts` 里也钉着「README 版本号 = package.json 版本」，所以忘了刷新会红。
+
 ### 流程
 
 1. **构建与验证**：`npm run build`（类型检查 `typecheck` → 依赖门禁 `check-deps.ts` → 字体生成 → tsc emit `dist/` → 零依赖内联 `build-client.ts`，末两步即 `npm run build:artifacts`）→ `npm test` 全绿（Node `22.18.0` 与 `24.x` 各跑一遍；源码与测试均为 `.ts`，靠 Node 原生类型剥离直接跑；`pretest` 先跑 `build:artifacts` 现产 8 个产物，读产物的测试因此永远测当前源码）→ `npm run verify:artifacts` 干净（`node scripts/verify-artifacts.ts` 八项：字体一致（`npm run fonts` 前后各比一次 `src/engine/font-face.ts`，行尾归一化后比较）/ 两次构建逐字节一致 / 八件齐全非空 / 八件不含 CR 字节（LF 载荷）/ `package/lib` 恰 4 文件 / 八件未被 git 跟踪 / `font-face.ts` 仍被跟踪 / `.gitattributes` 钉住 `eol=lf`）→ 在 `package/` 里 `npm pack`，得到 `dsh-opencode-palette-<版本>.tgz`。
