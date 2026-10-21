@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="480" viewBox="0 0 840 480">
+  <style>
+  :root{--bg:#fffdf7;--text:#24292f;--muted:#57606a;--grid:#e8ebf0;--axis:#24292f;--total:#d94f4f;--daily:#2f81f7}
+  @media (prefers-color-scheme: dark){:root{--bg:#0b0e14;--text:#e6edf3;--muted:#9aa3b2;--grid:#232b3a;--axis:#cdd9e5;--total:#ff6b6b;--daily:#38bdf8}}
+  text{font-family:"Comic Sans MS","Comic Sans","Chalkboard SE","Marker Felt","Segoe Print",cursive;fill:var(--text)}
+  .bg{fill:var(--bg)}
+  .grid{stroke:var(--grid)}
+  .axis{stroke:var(--axis)}
+  .total{stroke:var(--total)}
+  .daily{stroke:var(--daily)}
+  .muted{fill:var(--muted)}
+  .legend{fill:var(--bg);stroke:var(--text)}
+  </style>
+  <rect class="bg" width="100%" height="100%"/>
+  <text x="420" y="34" text-anchor="middle" font-size="21">Star History</text>
+  <line class="grid" x1="64" y1="332.5" x2="804" y2="332.5" stroke-width="1" opacity="0.7"/>
+  <line class="grid" x1="64" y1="243.0" x2="804" y2="243.0" stroke-width="1" opacity="0.7"/>
+  <line class="grid" x1="64" y1="153.5" x2="804" y2="153.5" stroke-width="1" opacity="0.7"/>
+  <line class="grid" x1="64" y1="64.0" x2="804" y2="64.0" stroke-width="1" opacity="0.7"/>
+  <path class="axis" d="M 64 422 L 155.9 422.5 L 248.0 423.0 L 340.4 421.7 L 433.1 422.0 L 525.4 421.8 L 618.6 421.5 L 712.5 422.8 L 805.0 422.5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <path class="axis" d="M 64 64 L 64.9 107.9 L 63.4 154.4 L 63.9 198.7 L 64.4 242.8 L 63.4 287.8 L 65.1 333.1 L 64.2 376.1 L 64.8 422.2" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+  <text class="muted" x="54" y="426.0" text-anchor="end" font-size="13">0</text>
+  <text class="muted" x="54" y="336.5" text-anchor="end" font-size="13">20</text>
+  <text class="muted" x="54" y="247.0" text-anchor="end" font-size="13">40</text>
+  <text class="muted" x="54" y="157.5" text-anchor="end" font-size="13">60</text>
+  <text class="muted" x="54" y="68.0" text-anchor="end" font-size="13">80</text>
+  <text class="muted" x="64.0" y="446" text-anchor="middle" font-size="13">08/15</text>
+  <text class="muted" x="207.6" y="446" text-anchor="middle" font-size="13">08/28</text>
+  <text class="muted" x="450.6" y="446" text-anchor="middle" font-size="13">09/19</text>
+  <text class="muted" x="671.5" y="446" text-anchor="middle" font-size="13">10/09</text>
+  <text class="muted" x="804.0" y="446" text-anchor="middle" font-size="13">10/21</text>
+  <text class="muted" x="18" y="243" font-size="12" transform="rotate(-90 18 243)" text-anchor="middle">Stars</text>
+  <text class="muted" x="420" y="468" font-size="12" text-anchor="middle">Date</text>
+  <path class="daily" d="M 65.0 414.0 C 66.5 414.5, 68.7 417.9, 74.1 417.1 C 79.5 416.2, 91.8 408.7, 97.5 408.9 C 103.1 409.1, 104.7 416.9, 108.2 418.4 C 111.6 419.9, 114.5 418.8, 118.1 417.8 C 121.7 416.7, 126.1 412.1, 129.8 412.1 C 133.5 412.1, 136.7 416.6, 140.4 417.6 C 144.1 418.7, 146.3 418.5, 152.0 418.4 C 157.8 418.3, 167.3 417.2, 174.9 417.0 C 182.4 416.8, 191.6 416.9, 197.1 417.1 C 202.6 417.2, 195.0 418.4, 207.9 417.9 C 220.9 417.3, 260.1 414.0, 274.7 414.0 C 289.3 413.9, 288.3 416.7, 295.5 417.4 C 302.8 418.2, 310.6 418.4, 318.2 418.5 C 325.8 418.7, 330.2 418.5, 341.1 418.4 C 352.0 418.3, 374.5 418.9, 383.5 418.0 C 392.5 417.1, 391.2 414.3, 394.9 412.9 C 398.7 411.5, 402.5 409.7, 406.1 409.6 C 409.7 409.4, 411.0 410.9, 416.4 412.1 C 421.9 413.4, 432.9 416.5, 438.7 417.3 C 444.5 418.1, 447.4 416.8, 451.2 417.1 C 455.0 417.3, 457.9 418.4, 461.6 418.6 C 465.3 418.7, 468.0 418.0, 473.4 417.9 C 478.8 417.8, 483.1 418.6, 494.0 417.9 C 504.8 417.2, 527.2 414.0, 538.4 413.8 C 549.5 413.6, 549.9 418.4, 560.9 416.7 C 571.8 415.0, 591.3 404.5, 604.3 403.7 C 617.2 403.0, 631.1 411.4, 638.5 412.3 C 646.0 413.1, 645.7 408.6, 649.3 408.9 C 652.9 409.2, 656.5 412.6, 660.1 414.1 C 663.8 415.7, 667.5 418.1, 671.4 418.0 C 675.2 418.0, 679.7 414.7, 683.4 413.7 C 687.2 412.7, 688.7 412.2, 693.9 412.1 C 699.1 412.1, 709.2 414.1, 714.6 413.5 C 720.1 412.8, 721.2 408.5, 726.7 408.4 C 732.2 408.2, 742.4 413.0, 747.7 412.5 C 753.1 411.9, 755.0 406.3, 758.8 404.8 C 762.5 403.3, 766.4 401.0, 770.3 403.3 C 774.1 405.5, 778.2 416.1, 782.1 418.3 C 786.0 420.5, 790.1 416.4, 793.7 416.4 C 797.2 416.5, 801.8 418.1, 803.4 418.5" fill="none" stroke-width="1.8" stroke-dasharray="6 4" stroke-linecap="round" opacity="0.9"/>
+  <path class="total" d="M 64.1 413.4 C 66.1 412.6, 70.8 412.1, 76.1 408.9 C 81.5 405.7, 90.9 397.5, 96.4 394.3 C 101.9 391.1, 105.2 390.9, 109.2 389.7 C 113.1 388.4, 116.3 388.9, 119.9 386.7 C 123.5 384.5, 127.5 378.9, 130.9 376.6 C 134.3 374.4, 137.1 374.5, 140.5 373.2 C 143.9 371.9, 145.8 370.7, 151.4 369.0 C 157.0 367.3, 166.5 364.4, 174.0 362.9 C 181.5 361.5, 191.0 361.6, 196.5 360.3 C 202.1 359.1, 194.3 357.9, 207.3 355.6 C 220.3 353.2, 259.5 348.3, 274.3 346.0 C 289.1 343.7, 288.5 343.5, 295.8 341.9 C 303.2 340.3, 311.4 338.2, 318.6 336.5 C 325.8 334.8, 328.4 333.2, 339.2 331.7 C 350.0 330.3, 374.0 330.0, 383.2 327.9 C 392.5 325.8, 390.8 322.7, 394.8 319.1 C 398.8 315.4, 403.4 309.7, 407.3 306.1 C 411.2 302.5, 413.2 299.7, 418.4 297.6 C 423.6 295.5, 433.2 295.0, 438.5 293.3 C 443.8 291.5, 446.4 288.7, 450.1 287.1 C 453.9 285.4, 457.2 284.9, 461.0 283.3 C 464.8 281.8, 467.5 279.5, 473.0 277.9 C 478.5 276.3, 482.9 275.6, 494.0 273.6 C 505.1 271.5, 528.4 267.6, 539.5 265.5 C 550.6 263.4, 549.4 264.7, 560.5 260.9 C 571.5 257.2, 593.1 247.5, 606.0 242.8 C 618.9 238.1, 630.9 236.5, 638.0 233.0 C 645.1 229.5, 644.9 225.0, 648.5 221.6 C 652.1 218.2, 655.7 215.0, 659.6 212.6 C 663.5 210.2, 667.8 209.3, 671.7 207.1 C 675.6 204.8, 679.3 202.1, 682.9 199.2 C 686.5 196.3, 688.0 192.5, 693.4 189.5 C 698.9 186.5, 710.0 184.8, 715.6 181.2 C 721.2 177.6, 721.4 171.7, 726.9 167.9 C 732.4 164.2, 743.2 163.3, 748.7 158.8 C 754.3 154.3, 756.2 147.0, 760.0 141.0 C 763.8 135.0, 767.9 126.5, 771.5 122.8 C 775.1 119.0, 778.0 119.9, 781.5 118.5 C 785.0 117.1, 788.6 115.7, 792.5 114.2 C 796.4 112.7, 803.0 110.5, 805.1 109.7" fill="none" stroke-width="3" stroke-linecap="round"/>
+
+  <rect class="legend" x="78" y="72" width="152" height="52" rx="7" stroke-width="1.4" opacity="0.92"/>
+  <line class="total" x1="90" y1="88" x2="116" y2="88" stroke-width="3" stroke-linecap="round"/>
+  <text x="124" y="92" font-size="13">Total Stars</text>
+  <line class="daily" x1="90" y1="108" x2="116" y2="108" stroke-width="2" stroke-dasharray="6 4" stroke-linecap="round"/>
+  <text x="124" y="112" font-size="13">Daily New</text>
+  <text class="muted" x="804" y="466" text-anchor="end" font-size="12">70 stars · 2026-10-21</text>
+</svg>

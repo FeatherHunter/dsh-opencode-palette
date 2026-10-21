@@ -73,8 +73,8 @@ dsh plugin --profile web add dsh-opencode-palette
 
 | 能力 | 说明 |
 |---|---|
-| **IP 主题胶囊 💊** | 预置 25 套：原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。 |
-| **打造专属胶囊 💊** | 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。存好的胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/`。 |
+| **IP 主题胶囊** | 预置 25 套：原神、库洛米、哆啦A梦、哈利波特、赛博朋克2077、宝可梦、龙珠……开箱即用，挑一套喜欢的当配色基底直接用。 |
+| **打造专属胶囊** | 37 个色位逐个调，右边是微缩的 DSH 预览：点预览里的元素，左边对应那行会滚到中间并打开取色器；鼠标划过左边的色位，右边预览里那个元素会亮起一圈。存好的胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/`。 |
 | **字体与字号** | 字体独立于颜色：等宽（终端风）把整个界面换成等宽字，常规（界面风）只让代码块用等宽；字号 11–24 px，代码字体可以直接从本机已装字体里挑。 |
 
 <h2 align="center"><sub>UPGRADE</sub><br>升级</h2>
@@ -130,8 +130,16 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.9
 
 <div align="center">
 
-遇到问题或者有改进想法，直接 [提 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues) 就行；也想找人聊聊，扫下面的码进 **DSH 插件交流群**。
+👏欢迎提交[PR](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)、[ISSUE](https://github.com/FeatherHunter/dsh-opencode-palette/issues)。星星之火可以燎原🔥。有任何建议、意见、想法、吐槽、idea都可以进群交流。
 
 <img src="assets/feishu-qr.png" alt="DSH 插件交流群二维码" width="260" />
+
+</div>
+
+<h2 align="center"><sub>STAR HISTORY</sub><br>星标增长</h2>
+
+<div align="center">
+
+![星标增长曲线：累计星标与每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=20261021)
 
 </div>

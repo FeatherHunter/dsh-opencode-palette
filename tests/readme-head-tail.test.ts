@@ -206,16 +206,33 @@ test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () =>
   }
 })
 
-// ── 6 · CONNECT：issue 入口 + 社群二维码（2026-10-18 由「作者飞书」换成 DSH 插件交流群群码） ──
-test('CONNECT：issue 入口与交流群二维码沿用，宽度不变', () => {
-  assert.ok(ZH.includes('[提 Issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文 issue 入口在场')
-  assert.ok(EN.includes('[open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '英文 issue 入口在场')
+// ── 6 · CONNECT：PR/ISSUE 入口 + 社群二维码（2026-10-18 由「作者飞书」换成 DSH 插件交流群群码） ──
+// 2026-10-21 用户改写这句：「遇到问题或者有改进想法，直接 提 Issue 就行；也想找人聊聊…」
+// → 「👏欢迎提交PR、ISSUE。星星之火可以燎原🔥。有任何建议、意见、想法、吐槽、idea都可以进群交流。」
+test('CONNECT：PR/ISSUE 入口与交流群二维码沿用，宽度不变', () => {
+  // 新文案在场（PR 与 ISSUE 都得是能点的链接）
+  assert.ok(ZH.includes('👏欢迎提交'), '中文页应写「👏欢迎提交PR、ISSUE」')
+  assert.ok(ZH.includes('星星之火可以燎原🔥'), '中文页应写「星星之火可以燎原🔥」')
+  assert.ok(ZH.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)'), '中文页应有 PR 入口')
+  assert.ok(ZH.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文页应有 ISSUE 入口')
+  assert.ok(EN.includes('👏Welcome'), '英文页应写「👏Welcome PRs and issues」')
+  assert.ok(EN.includes('A single spark can start a prairie fire 🔥'), '英文页应有「星星之火」的英文句')
+  assert.ok(EN.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)'), '英文页应有 PR 入口')
+  assert.ok(EN.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '英文页应有 ISSUE 入口')
+  // 旧句不许回潮
+  for (const gone of ['遇到问题或者有改进想法', '[提 Issue](', '也想找人聊聊']) {
+    assert.equal(ZH.includes(gone), false, `中文页不应再有「${gone}」`)
+  }
+  for (const gone of ['Found a bug or have an idea', '[open an issue](', "you'd rather talk it over"]) {
+    assert.equal(EN.includes(gone), false, `英文页不应再有「${gone}」`)
+  }
   assert.ok(ZH.includes('src="assets/feishu-qr.png"'), '中文页二维码路径在场（文件名沿用，内容已换成群码）')
   assert.ok(EN.includes('src="../assets/feishu-qr.png"'), '英文页二维码路径在场')
   for (const doc of [ZH, EN, PKG]) {
     assert.ok(doc.includes('width="260"'), '二维码宽度沿用 260')
   }
   // 群码无需备注：文案应写明是交流群，且旧的「加作者 / 备注词」说法不得回潮
+  // （群名现在落在二维码的 alt 文本里，正文改成「进群交流」）
   assert.ok(ZH.includes('DSH 插件交流群'), '中文页应写明社群名称')
   assert.ok(EN.includes('DSH plugin community group'), '英文页应写明社群名称')
   assert.equal(ZH.includes('备注 `dsh-opencode-palette`'), false, '中文页不应再有「备注词」旧说法')

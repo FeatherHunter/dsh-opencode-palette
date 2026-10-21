@@ -73,8 +73,8 @@ dsh plugin --profile web add dsh-opencode-palette
 
 | Feature | Details |
 |---|---|
-| **IP theme capsules 💊** | 25 preinstalled: 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 宝可梦 Pokémon, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors. |
-| **Build your own capsule 💊** | 37 slots, one at a time, with a miniature DSH preview on the right — click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`. |
+| **IP theme capsules** | 25 preinstalled: 原神 Genshin, 库洛米 Kuromi, 哆啦A梦 Doraemon, 哈利波特 Harry Potter, 赛博朋克2077 Cyberpunk 2077, 宝可梦 Pokémon, 龙珠 Dragon Ball… ready out of the box — pick one you like and use it as the base for your colors. |
+| **Build your own capsule** | 37 slots, one at a time, with a miniature DSH preview on the right — click an element in the preview and the matching row on the left scrolls to the middle and opens the color picker; hover a slot on the left and that element lights up in the preview. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`. |
 | **Fonts and size** | Fonts sit apart from color: Mono (terminal look) turns the whole interface monospaced, Regular (interface look) applies monospace to code blocks only; size 11–24 px, and the code font can be picked from the fonts installed on this machine. |
 
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
@@ -130,8 +130,16 @@ If you like this plugin, these might be useful too:
 
 <div align="center">
 
-Found a bug or have an idea? Just [open an issue](https://github.com/FeatherHunter/dsh-opencode-palette/issues). And if you'd rather talk it over, scan the code to join the **DSH plugin community group**.
+👏Welcome [PRs](https://github.com/FeatherHunter/dsh-opencode-palette/pulls) and [issues](https://github.com/FeatherHunter/dsh-opencode-palette/issues). A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
 
 <img src="../assets/feishu-qr.png" alt="DSH plugin community group QR code" width="260" />
+
+</div>
+
+<h2 align="center"><sub>STAR HISTORY</sub><br>Stars over time</h2>
+
+<div align="center">
+
+![Star history chart: total stars and daily new stars](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=20261021)
 
 </div>

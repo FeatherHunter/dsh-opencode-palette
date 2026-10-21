@@ -187,9 +187,10 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
   // 同日排版定稿（B 方案）：EXTENSIONS 段改成**纯 markdown 表格三行卡片**（标题 | 说明），
   // 不再是三段粗体引导句 —— 门禁跟着改成钉表格骨架 + 卡片标题，旧句式不许回潮。
   // 再定：图标列（| 💊 |）太丑，用户判删 —— 表格改成两列，💊 留在标题行内。
+  // 再定（同日）：标题行内的 💊 也去掉 —— 胶囊两个字已经说清楚了，emoji 是多余的装饰。
   const CARDS = [
-    ['**IP 主题胶囊 💊**', '**IP theme capsules 💊**', 'IP 胶囊预置'],
-    ['**打造专属胶囊 💊**', '**Build your own capsule 💊**', '专属胶囊'],
+    ['**IP 主题胶囊**', '**IP theme capsules**', 'IP 胶囊预置'],
+    ['**打造专属胶囊**', '**Build your own capsule**', '专属胶囊'],
     ['**字体与字号**', '**Fonts and size**', '字体与字号'],
   ] as const
   for (const [zh, en, label] of CARDS) {
@@ -206,15 +207,17 @@ test('EXTENSIONS：不自贬也不摆卖方口吻，且是「IP 胶囊」+「专
       const cells = row.split('|').map((c) => c.trim()).filter((c) => c !== '')
       assert.equal(cells.length, 2, `${name} 卡片行应两格（标题 | 说明）：${row}`)
       assert.ok(/^\*\*[^*]+\*\*$/.test(cells[0]), `${name} 卡片首格应是粗体标题：${row}`)
+      // 标题里不许再有 emoji（2026-10-21 用户判胶囊 emoji 多余）
+      assert.equal(/\p{Extended_Pictographic}/u.test(cells[0]), false, `${name} 卡片标题不该带 emoji：${cells[0]}`)
     }
     // 图标列不许回潮（2026-10-21 用户判「太丑」，整列删掉）
     assert.equal(/^\|\s*\p{Extended_Pictographic}\s*\|/mu.test(extBlock(doc)), false, `${name} 不应再有图标列`)
   }
   // 旧三条不许回潮（连同 2026-10-21 那版粗体引导句）
-  for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**', '**IP 主题胶囊 💊 预置 25 套。**', '**打造自己的专属主题胶囊 💊。**', '**字体与字号自己挑。**']) {
+  for (const gone of ['**字体单独调。**', '**面板跟得上 DSH 的语言。**', '**自己配色。**', '**IP 主题胶囊 💊 预置 25 套。**', '**打造自己的专属主题胶囊 💊。**', '**字体与字号自己挑。**', '**IP 主题胶囊 💊**', '**打造专属胶囊 💊**']) {
     assert.equal(ZH.includes(gone), false, `中文不应再有「${gone}」`)
   }
-  for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**', '**25 IP theme capsules 💊 preinstalled.**', '**Build your own capsule 💊.**', '**Fonts and size, your call.**']) {
+  for (const gone of ['**Fonts on their own.**', '**A panel that speaks your DSH.**', '**Your own palette.**', '**25 IP theme capsules 💊 preinstalled.**', '**Build your own capsule 💊.**', '**Fonts and size, your call.**', '**IP theme capsules 💊**', '**Build your own capsule 💊**']) {
     assert.equal(EN.includes(gone), false, `英文不应再有「${gone}」`)
   }
   // v2.1.7 事实：37 色位编辑器 + 微缩预览双向定位 + 25 IP 预置基底（含库洛米、原神 / 马里奥 / 火影忍者 / 新世纪福音战士的明暗双册）+ 单文件落盘路径

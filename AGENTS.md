@@ -58,3 +58,14 @@ Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/age
 - `E409 previously published versions`：该版本已正式发布过，这时才需要升版本号。
 - **`scripts/*.ps1` 必须带 UTF-8 BOM**（纯 ASCII 可免）：弹窗跑的是 Windows PowerShell 5.1，它读无 BOM 的 `.ps1` 会按 ANSI/GBK 解码，中文被撕碎后整个脚本解析失败、报错还全是乱码。任何编辑器改写都可能顺手丢掉 BOM —— `tests/release-scripts.test.ts` 守着这条门禁，改完跑 `npm test` 即可发现。
 - **构建产物不入库**（[ADR 0004](docs/adr/0004-build-artifacts-out-of-git.md)）：`package/` 里的 7 个派生物（`package.json` / `README.md` / `cordis.patch.yml` / `lib/` 下 4 个文件）与根 `client.js` 已移出 git；`package/release-notes-*.md` 与根 `cordis.patch.yml` 仍是手写源文件，继续入库。后果：新克隆 / 新机器首跑 `npm test` 由 `pretest` 先现产这 8 个产物（约 2 s）；`git pull` 到取消跟踪的那个提交会把这些文件从本地删掉，重跑 `npm run build`（或直接 `npm test`）即恢复；根 `client.js` 只是本地开发产物，不进 npm 包、也不是 Release 资产；改 `scripts/build-client.ts` 里的产物字面量后不必再提交产物文件。回滚 = `git add -f`。包内文本副本（`README.md`、`cordis.patch.yml`、`lib/event-list.json`）由构建器**统一成 LF 再写**（载荷 LF、与检出 EOL 解耦）：`.gitattributes` 只管新克隆，本机 `docs/README.en.md` 仍是历史 CRLF 检出时，不归一会让同一 commit 的包内 README 5315 B/CRLF vs 新克隆 5207 B/LF、tgz 615846 vs 615833（sha1 亦不同）；谁把它们改回随检出行尾，`verify:artifacts` 的「八件不含 CR」一项会红。
+
+## Star History
+
+两页 README 的 CONNECT 段下面挂着星标增长曲线，图是自己画的：GitHub API 拉「每颗星何时被点亮」→ 按 UTC 天聚合 → 纯函数画自包含 SVG。
+
+- **取数与出图**：`npm run star:history`（`scripts/update-star-history.ts`）—— 自己调 `gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at"`（那个 Accept 头不能省，默认返回里没有时间），写 `docs/star-history.json`（数据）与 `docs/star-history.svg`（图）。画图纯函数在 `scripts/star-history.ts`：`aggregateByDay` 按 UTC 日聚合、`buildSvg` 出图（手绘抖动来自 `fnv1a`+`mulberry32` 种子，同数据同字节）。
+- **一张图顶两套配色**：SVG 里用 CSS 变量 + `@media (prefers-color-scheme: dark)`，不拆深浅两个文件 —— 拆了就得靠 `<picture>` 切换，而市场详情页渲染器整段丢弃原始 HTML，`<picture>`/`<img>` 在那边都不显示。
+- **图片走绝对 raw 直链**（`https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=YYYYMMDD`）：GitHub / npm 包内副本 / 市场详情页三处都能出图；`?v=` 是缓存戳，GitHub 图片代理按 URL 缓存，**图换了必须换戳**。
+- **每日自动更新**：`.github/workflows/star-history.yml`（cron UTC 02:17 + `workflow_dispatch`）拉数 → 重画 → 改两页 README 的 `?v=` 戳 → 有变化才提交。脚本不裸 `git push`（任务跑得久、期间远端可能又前进，裸 push 会被拒）：先 `git pull --rebase origin main`，冲突就当天跳过不报错。Node 用 22.18（本仓 `.ts` 靠原生类型剥离直跑，Node 20 跑不了）。
+- **门禁**：`tests/star-history.test.ts` 钉住「同数据同字节」「盘上 SVG = 现画的 SVG（改了数据忘了重画就红）」「两页 README 都在 CONNECT 之后引用图且带 `?v=` 戳」。
+
