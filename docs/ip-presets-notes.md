@@ -10,11 +10,13 @@
 
 > v3.6 逐像素取色 + 对抗式审查（2026-10-20）：**宝可梦二次重绘**——v3.5 交付后做了一轮四路对抗式审查（范式 / 出处 / 审美 / 证伪，原文见 `prototypes/pokemon-adversarial-review.md`），据此修掉 5 处实质问题：3.jpg 周年海报原本对色板近乎零贡献（文档却声称它供给了红与金）→ `borderActive` 改取 3.jpg 奶油金 `#FEED79`；`diffRemovedLineNumberBg` 与 `sidebarBg` 完全同值 `#060606` → 拆成 `#141000`；两个大黄同屏（`markdownHeading` `#FAE721` 与 primary `#FFCB05` 互相对比 1.20:1）→ heading 改 `#E3C371`；`syntaxNumber` 与 `borderActive` 的 ΔE76 9.46 是全矩阵最差的一对 → number 改 `#C5A863`；纯黑代码台 → `codeBlockBg` 改 `#0C0C10`，并把描边 `border` 收到 `#40404A`（首次比它框的面暗，层级倒置修正）。37 槽仍是 37 个不同值、全部直采、0 阶梯 0 混色 0 想象；硬对 38 / UI 15 全绿，设计告警 0。审查同时**证伪了「3:1 规则决定必须暗场」这条原理由**（3:1 只规定哪个槽位能放亮黄、不规定场；暗场成立靠的是素材的场本来就是暗的、「0 混色」判尺只有暗场守得住、暗场明度跑道是浅场的两倍）。其余 20 套不受影响。
 
-> v3.4 逐像素取色（2026-10-20）：**原神整版重绘 · 明暗两套**——五张参考图（官方主视觉 / 派蒙 / 可莉 / 温迪 / 旅行者）逐像素取样，只允许「直采 / 两色定比混色」两种来源。胶囊从一条变两条：`genshin`（原神，light，纸感明信片）与 `genshin-night`（原神 · 夜航，dark，夜航明信片）——自定义胶囊一条只装一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定宿主按哪种外观显示），所以「明暗一体」只能靠两条胶囊各自带自己的 appearance 实现。硬对 38 / UI 15 全绿，设计告警 0 条。其余 20 套不受影响。
+> v3.4 逐像素取色（2026-10-20）：**原神整版重绘 · 明暗两套**——五张参考图（官方主视觉 / 派蒙 / 可莉 / 温迪 / 旅行者）逐像素取样，只允许「直采 / 两色定比混色」两种来源。胶囊从一条变两条：`genshin`（原神，light，纸感明信片）与 `genshin-night`（原神·夜航，dark，夜航明信片）——自定义胶囊一条只装一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定宿主按哪种外观显示），所以「明暗一体」只能靠两条胶囊各自带自己的 appearance 实现。硬对 38 / UI 15 全绿，设计告警 0 条。其余 20 套不受影响。
 
 > v3.9 逐像素取证重绘（2026-10-20）：**奥特曼整版重绘**——37 槽全部改由两张参考图（`C:\Users\辰辰洋洋\Pictures\奥特曼\` 下的 `2.jpg` 奥特战士立绘 / `images.jpg`「奥特曼图鉴」海报）逐像素取证，只允许「直采 / 明度阶梯 / 定比混色」三种来源，id / name / appearance 不变（仍是同名 `ultraman` 胶囊，dark）。品牌重切成奥特曼的两个声部——**红冠 + 金眼**（primary 战甲受光正红 `#D52518` × secondary 金瞳边缘高光 `#EFCB5D`，色相差 41.1° 类比）；画布换成海报里最黑的那格 `#000600`，场域收进海报标题靛 `#2D2C8A` 染出来的 7 档明度阶。取色台账与原图裁切见 `prototypes/ultraman-theme-preview.html`；取色与自检管线见 `prototypes/ultraman-extraction/`。house 判尺 53/53 全过（硬性 38 + UI 15），宿主现实 49 对 0 硬违例，设计告警 0 条，引擎 `ensureDiffContrast` 对本套 37 槽 **no-op**（台账值＝出货值）。其余 23 套不受影响。
 
 > v3.10 逐像素平涂取色 + 对抗式审查（2026-10-20）：**新世纪福音战士整版重绘，并新增浅色册**。三张参考图（1.jpg 明日香装甲红与标题金 / 2.jpg Eva-01 机体紫与同步绿 / 3.jpg 天空云白与角色涂装）当唯一样本，37 槽每槽只允许两种来源——**直采**（平涂区域代表色：同色像素成片存在、3×3 邻域方差 0）与**定比混色**（两个采样色的固定比例，比例随值记账）。**第一条就推翻了上一版的做法**：上一版把「直采」定义成「离锚点最近的那个像素」，实测 44 个锚点里有 17 个整图只有 1 个同色像素（落在 JPEG 振铃与标题描边上），标签与像素对不上；本版把直采改成「成片平涂面的代表色」。另加一道**混色闸**：每个出货色到三张原图全部像素的最小 ΔE76 必须 ≤ 2.0，否则构建失败——因为定比混色本身「能造色」（44 锚点两两 × 3 配比 = 2,838 个混色里有 19 个 ΔE > 5，最大 15.85）。硬对 38 / UI 15 全绿、设计告警 0、引擎 `ensureDiffContrast` no-op；真实 widget 原型 42 个文本节点 0 个低于 4.5:1。落地形态：`evangelion`（dark，**原地替换**已发布的霓虹绿紫版）+ `evangelion-day`（light，新增）两条胶囊。取色管线见 `prototypes/evangelion-extraction/`，预览页见 `prototypes/evangelion-theme-preview.html`，对抗式审查原文见 `prototypes/evangelion-adversarial-review.md`。其余 24 套不受影响。
+
+> v3.11 命名口径（2026-10-21）：展示名一律不加空格（「·」两侧也不加）；同一 IP 的明暗双册统一成「一册裸名 + 一册『·二字后缀』」。据此改名 7 条：`赛博朋克 2077`→`赛博朋克2077`、`Hello Kitty`→`HelloKitty`、`新世纪福音战士 · 晴空`→`新世纪福音战士·晴空`、`原神 · 夜航`→`原神·夜航`、`超级马里奥 · 夜行`→`超级马里奥·夜行`、`火影忍者 · 晒过的和纸`→`火影忍者`（明册回归裸名）、`火影忍者 · 夜之暗`→`火影忍者·暗部`（暗册取「暗部」：字数对齐夜航/夜行/晴空，又是原生 IP 词）。id / appearance / 37 色全部不动。
 
 ## 宝可梦（dark）
 
@@ -97,21 +99,21 @@
 ③借物：info 胶囊科技青 #266670、success 神龙那美克星绿 #367036、warning 龙珠金压深 #7A4C00、error 如意棒赤 #6B1C21。语法七色按 IP 语义重分且色相不变、转深墨：keyword 魔贯光杀炮紫 #42365C、function 龙珠金 #664C19、type 仙豆黄绿 #335C22、number 胶囊粉 #61435F、string 球体橙 #612B05、operator 悟空肤色暖灰 #756148、comment 修行烟尘灰 #70615C（后两色 4.54/4.55 退到核心语法最低 6.00 之下）。
 ④技巧：**大面积低彩度、小面积高彩度**——这是这次改版的全部理由。上一版把 21% 的屏幕面积铺成 S87 的饱和橘 #FCB120，一眼是龙珠但长时间盯着刺眼；现在饱和橘只留在真正需要提示的小面积（主按钮、侧栏、代码卡顶带、行内码、diff），画布交给 S5–15 的暖纸。**浅底上弱文字必须更深**：textMuted #573E2A（土棕）在暖纸上的 80% 透明合成仍有 4.74:1，浅色主题的 labelDimmed 才是真正的坑。53 对判尺全绿（正文最低 10.76:1、语法最低 6.00:1、主按钮反白 5.01:1），全库审计 0 违例、IP 设计规范 0 待处理；4 个 diff 底色是「真实像素 × 真实暗底」的合成值（图里本就没有暗绿/暗红），其余 33 槽是原图 1:1 像素。
 
-## 火影忍者（light·晒过的和纸）
+## 火影忍者（light）
 
 ①基调：**晒过的和纸**。三张参考图（2.jpg 剧场版海报 466×659 / 3.jpg 第七班合影 555×553 / images.jpg 单行本卷一封面 364×549）里没有一块大面积的「漫画纸」—— 唯一真纸页是封面 #FFFFFF，其余奶油色都是皮肤与光影。所以亮册 8 个表面槽是**按封面金黄云纹的色相（H 95）派生的暖纸阶梯**，不是直采像素：inputBg #FDFBF7（L\*98.7 C\*2.1）→ background #F7F5EF（96.5/3.1）→ backgroundPanel #F0EDE8（93.8/2.8）→ codeBlockBg #EBE6D6（91.3/8.5）→ bubbleBg #FFDBDD（90.4/13.3，樱花粉）→ backgroundElement #E0D9C7（86.8/9.7）→ codeHeaderBg #D0C5A7（79.7/16.5）→ sidebarBg #C4C0B4（77.7/6.6）。浅底主题的「暖纸同族」是有意的规矩：7 个 chrome 表面同属 GOLD 锚点 ±20°，bubbleBg 是唯一的樱粉例外。
 ②组合：primary 鸣人战衣橘 #A0542D（L\*44.2 C\*45.8 H52）× secondary 佐助藏青 #364364（28.7/21.5/H282），HSL 夹角 157.3° 落进**互补**。**故意不做高彩度橘**：参考图的战衣橘是照片固有色（C\*48），而龙珠/马里奥/乐高的 primary 是合成高彩度（C\*74–85）—— 保持低彩度正是本主题读作「照片里的鸣人战衣」而不是「通用橙」的原因；与龙珠 primary 的感知距离 ΔE2000 8.1 / ΔE76 28.7，拉开靠的是彩度不是色相。borderActive 藏青 #1C578C，border 冷灰 #C1C2C7。
 ③借物：text 勾线墨 #2B2D39、textMuted 面罩蓝灰 #3B3F4F、info 天空查克拉蓝 #407AA8、success 乌鸦暗部松绿 #477C68、warning 金发暗阶 #6C6A25、error 樱红衣 #AB475A；markdownHeading 藏青 #203E74、markdownLink 封面蓝天 #0869A8、markdownCode 战衣深橘 #7C3D18、markdownEmph 樱肤 #975A60、markdownStrong 纯墨 #171923、markdownBlockQuote 背心橄榄 #666B5F。syntax 五核心：keyword 深橘 #823B29、function 藏青 #48609A、type 钢蓝 #44668D、number 橄榄金 #5A5A03、string 松绿 #335A4A（两两 ΔE76 最小 12.9）；comment #5A6A54 与 operator #66676D 退到核心之下。
 ④技巧：**大面积低彩、小面积高彩**。渲染实测（playwright 逐像素统计）：bubbleBg 占屏 10.7%、响度 14.2；primary 只占 1.05%、响度 4.8 —— 这套盘子的第一眼不跳橙色，要看第二眼，这是「参考图里本就没有大面积橙色」的素材事实的直接后果。浅底上弱文字才是真正的坑：textMuted 的 80% 合成（labelDimmed）在 backgroundElement 上仍有 4.59:1。四支 diff 色显式给足：diffAdded #134C3A / diffAddedBg #CFDFD8（7.16:1）、diffRemoved #7D263A / diffRemovedBg #E2CDCE（6.27:1），引擎 ensureDiffContrast 对本册 6 支 diff 色 0 改写。
 
-## 火影忍者（dark·夜之暗）
+## 火影忍者·暗部（dark）
 
 ①基调：**夜之暗**。暗册不做「藏青一路到底」—— 仓内已有 8+ 个藏青暗主题。8 个表面槽按 L\* 拉开且各自微微偏一点：background #0A0E18（L\*4.0 C\*6.4）→ codeBlockBg #121319（6.0/4.3）→ sidebarBg #181920（8.9/5.2）→ inputBg #1C1C2B（10.9/11.0）→ backgroundPanel #1E2334（14.0/12.2）→ backgroundElement #232C3D（17.9/12.1）→ codeHeaderBg #27324F（21.1/19.8）→ bubbleBg #3A3746（23.9/10.1）。**bubbleBg 原本给的是樱红 #43292B，判尺报出「色相孤岛」告警**（8 个背景槽里彩度 ≥8 的必须落在基色 ±60°，樱红 H 15.9 与基色 H 279 差 97°）—— 改成同一藏青家族里偏紫的 #3A3746 后告警清零，代价是暗册失去了唯一一抹樱色，改由 error #D76979 与 markdownEmph #EDAAAF 承担。
 ②组合：primary 战衣橘 #EF9568（L\*70.1 C\*48.0 H52）× secondary 藏青 #5C6D91（46.0/21.9/H277.8），夹角 159.2° 互补。**暗册是「先亮后暖」**：primary 是全册最亮的高彩色，从近黑的底上天然跳出来；与龙珠 primary 的感知距离 ΔE2000 24.8。borderActive 亮蓝 #7CA3D6、border 冷灰 #38393F。
 ③借物：text 卷白 #E7E8EC、textMuted 银发 #B1B3BC、info 夜空钢蓝 #7C8CA7、success 背心灰绿 #83A294、warning 金发亮阶 #E2C377、error 樱红衣提亮 #D76979；markdownHeading 金发 #F0DC94、markdownLink 查克拉天蓝 #97B8E9、markdownCode 樱肤 #E5A88C、markdownEmph 樱粉 #EDAAAF、markdownStrong 纯白 #FBFCFF、markdownBlockQuote 银灰 #9A9BA2。syntax 五核心：keyword 桃红 #F39984、function 亮蓝 #8E9ED8、type 钢蓝 #6F8DBC、number 柠檬金 #C9C474、string 薄荷松绿 #B2D3C6（两两 ΔE76 最小 10.7）。
 ④技巧：**代码卡是近黑的洞**（codeBlockBg #121319 比 background 深两档），配 codeHeaderBg #27324F 的顶沿，块码像从夜里挖出来的一块。暗册四支 diff 色：diffAdded #ADE3CD / diffAddedBg #1D2D26（10.06:1）、diffRemoved #EB929E / diffRemovedBg #352023（6.61:1）；**diffRemovedLineNumberBg 原给 #523D3E 时对比只有 4.36:1，运行时引擎 ensureDiffContrast 会改写它、并把两个 diff 底压成同一个值** —— 提前压深到 #4D393A（4.66:1）后引擎 0 改写。这是「判尺全绿 ≠ 出货即最终值」的实例：判尺只查作者值，运行时兜底是另一套算法。
 
-## Hello Kitty（light）
+## HelloKitty（light）
 
 ①基调：草莓牛奶粉白卧室，340° 粉红家族阶梯：background #FFF5F7 → 气泡 → 面板 → 输入 → 侧边 → 元素逐级加深；代码区改草莓纸面 codeBlockBg #FBE7ED + header #F6D9E3（浅底浅卡，syntax 转深墨）。
 ②组合：primary 蝴蝶结正红 #E60012 × secondary 婴儿粉 #FF8FB2，同色相深浅类比；borderActive 蝴蝶结桃粉高亮变体；text 可可棕 #3D2B33 压全场。 v3.1：primary·borderActive 收拢同值压到 #DB0011（反白 4.6:1，documented 并岗保留）；secondary 压深为 #BF6B86 达浅底 3:1。
@@ -178,7 +180,7 @@
 
 ④技巧与代价：**错误色不能是图里的纯红**——图中最纯的红 #DC4C2A 在浮层底上只有 3.37:1，改取「装甲红受光面 #D8402B × 云白 35%」得 #E3796A（页底 6.29:1）；**饱和红过不了引擎 pickText 的陷阱区**（luma601 落在 0.4–0.6 会挑到白字，而饱和红的 luma601 最高只有 0.299），所以错误色只作文字与圆点、不作填充按钮底（真机原型里填充按钮底只有 primary / info）；**焦点环 33% alpha 到不了 3:1**（白 @33% 压暗底上限 2.66:1，任何色板都救不了）——这是渲染属性，不是色板缺陷；**注释与运算符不要求互相可分**（都是低显著度记号，仓库判尺只要求它们退后到核心语法之下）。
 
-## 新世纪福音战士 · 晴空（light，新增）
+## 新世纪福音战士·晴空（light，新增）
 
 ①基调：白天的天空。浅色半不是深色半反过来——底来自 3.jpg 的云层 #EFF2F7，文字用 2.jpg 的夜蓝 #181824（所以白天那套是天空，不是纸）。8 槽一条冷调亮度梯（基准色相 217.5°）：background #EFF2F7 → sidebarBg #CCD5E5 → bubbleBg #DDD3F6（紫调气泡）→ backgroundPanel #FEFEFE（纯白卡片）→ backgroundElement #E8E8F2 → inputBg #CAD0D8（中性钢灰）→ codeBlockBg #C9E1F4（浅蓝代码纸）→ codeHeaderBg #A9C3E0（更亮的顶灯带）。
 
@@ -188,7 +190,7 @@
 
 ④技巧与代价：**白底上 4.5:1 ⇒ 状态色只能用墨色**（L* ≤ 50），所以浅色半的 error / warning / success 都是深墨而不是鲜色——红绿状态色在红色盲下仍会互相靠拢，这是「白底 + 4.5:1」的客观结果，不粉饰；**浅色半的「退后」空间天生窄**：注释 5.33 / 运算符 5.60 已经贴着核心最低 5.89——曾尝试整体加深 5 个核心语法色来拉开空间，立刻换来 7 条硬违例（核心角色挤成同一片深色），已全部回滚。
 
-## 赛博朋克 2077（dark）
+## 赛博朋克2077（dark）
 
 ①基调：夜之城午夜沥青暖李子黑 background #141017（原通用藏青蓝黑改掉，带品红霾味）。8 槽同李子灰家族阶梯：codeBlockBg #0A070D 坑底最深 → background → sidebarBg → panel → inputBg → bubbleBg → element → header #2E2344 霓虹雾沿最亮。
 ②组合：primary 2077 Logo 漆黄 #FCEE0A × secondary 丽兹酒吧霓虹粉 #FF2A6D，高明度互补对冲；borderActive 漆黄高亮。info 网络黑客冰蓝 #00F0FF 加入，黄粉青霓虹三角色（标题黄、链接青、描边黄闭环）。 v3.1：borderActive/heading 从 primary 漆黄拆成两级 #FFF24A/#FFF7A8；textMuted 提为 #B3A8BE（与引用解耦）；error=diffRemoved 并岗保留。

@@ -188,7 +188,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（明色最紧 labelDimmed@backgroundElement 4.50:1、正文 text@background 10.86:1；暗色最紧 markdownEmph@background 4.51:1、正文 text@background 10.25:1）；UI 15 对 3:1 违例 0（明色最紧 secondary@backgroundPanel 3.02:1，暗色最紧 success@background 3.84:1）；设计告警 0（25 角色两两不同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进互补区 / 语法核心最小 ΔE76 明色 10.1、暗色 10.2，门槛 10 / comment 与 operator 退到核心最低对比之下）。**余量提示**：最紧的三处（4.50 / 3.02 / ΔE 10.1）贴着门槛，改色时须重跑 `npm run audit:themes` 复核。`node scripts/audit-themes.ts` 报 genshin 与 genshin-night 硬对 0 + UI 0 + 待处理告警 0。
 
-**胶囊形态**：`genshin`（原神，light）与 `genshin-night`（原神 · 夜航，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立，点哪条就把宿主外观拉到那种并显示对应色板——因为自定义主题一条只有一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定按哪种外观显示），「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现。
+**胶囊形态**：`genshin`（原神，light）与 `genshin-night`（原神·夜航，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立，点哪条就把宿主外观拉到那种并显示对应色板——因为自定义主题一条只有一套色（`renderCustomTheme` 把同一套 37 色灌进明暗两半，`appearance` 只决定按哪种外观显示），「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现。
 
 **配套物**：`prototypes/genshin-theme-preview.html`（自包含，含 5 张参考图 + 35 块原图裁切实证 + 37 色位取值与落点 + 逐条派生配方 + 仓库审计器实算的对比度复核）；可复跑的取色与复核管线在 `prototypes/genshin-extraction/`（`extract.py` 锚点取样 / `solver.ts` 约束求解，固定种子逐字节可复现 / `write_presets.py` 落盘 / `validate.ts` 独立复核门禁），跑法见该目录 README。
 
@@ -208,7 +208,7 @@ secondary 改藏青制服蓝（RYB 三角色：蝴蝶结粉+制服藏青+月光�
 
 **审计**：硬性 38 对 4.5:1 违例 0（明色最紧 info@backgroundPanel 4.59:1、syntaxComment@codeBlockBg 4.51:1、正文 text@background 17.58:1；暗色最紧 diffRemoved@diffRemovedBg 4.67:1、正文 text@background 16.21:1）；UI 15 对 3:1 违例 0（明色最紧 borderActive@backgroundElement 3.69:1，暗色最紧 primary@backgroundPanel 3.18:1）；设计告警 0（25 角色两两不同值 / 0 色相孤岛 / 0 markdown 同值 / 品牌几何落进互补区 / 语法核心最小 ΔE76 明色 13.2、暗色 37.3，门槛 10 / comment 与 operator 退到核心最低对比之下）。**余量提示**：最紧的几处（3.18 / 4.51 / ΔE 13.2）贴着门槛，改色时须重跑 `npm run audit:themes` 复核。
 
-**胶囊形态**：`mario`（超级马里奥，light）与 `mario-night`（超级马里奥 · 夜行，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立——自定义主题一条只有一套色，「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现（同原神的两条）。
+**胶囊形态**：`mario`（超级马里奥，light）与 `mario-night`（超级马里奥·夜行，dark）两条并列出现在自定义胶囊区，id / name / appearance 三者各自独立——自定义主题一条只有一套色，「明暗一体」在这套机制里只能靠两条各带 appearance 的胶囊实现（同原神的两条）。
 
 **配套物**：`prototypes/mario-extraction/`（`palette.py` 逐像素取色 + 判尺自检 / `validate.ts` 用仓库引擎独立复核 / `write_preset.py` 落盘两个 JSON，跑法见该目录 README）；预览页 `prototypes/mario-theme-preview.html`（自包含，含 3 张参考图 + 37 色位取值与派生配方 + 对比度实算复核）。
 

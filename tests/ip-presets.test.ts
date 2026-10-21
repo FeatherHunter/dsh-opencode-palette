@@ -42,6 +42,8 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
   for (const p of listIpPresets()) {
     assert.ok(p.name && typeof p.name === 'string', p.name + ' 有名')
     assert.ok(p.title && typeof p.title === 'string', p.name + ' 有中文展示名')
+    // 命名口径（2026-10-21）：展示名一律不加空格（「·」两侧也不加）；双册靠「·二字后缀」区分
+    assert.equal(/\s/.test(p.title), false, p.name + ' 展示名不含空白（' + p.title + '）')
     assert.ok(p.appearance === 'dark' || p.appearance === 'light', p.name + ' 外观合法')
     if (p.appearance === 'dark') dark++
     else light++
@@ -52,7 +54,7 @@ test('每套 37 槽齐、值全是 hex、名非空、外观合法', function () 
     }
   }
   assert.equal(dark, 12, '深色 12')
-  assert.equal(light, 13, '浅色 13（迪士尼、哆啦A梦、龙珠、原神、Hello Kitty、库洛米、乐高、马里奥、火影忍者、海贼王、美少女战士、塞尔达传说、新世纪福音战士·晴空）')
+  assert.equal(light, 13, '浅色 13（迪士尼、哆啦A梦、龙珠、原神、HelloKitty、库洛米、乐高、马里奥、火影忍者、海贼王、美少女战士、塞尔达传说、新世纪福音战士·晴空）')
 })
 
 test('getIpPreset 按 id 取，miss 回 null', function () {
@@ -60,6 +62,9 @@ test('getIpPreset 按 id 取，miss 回 null', function () {
   assert.equal(preset('sailor-moon').title, '美少女战士')
   assert.equal(preset('pokemon').appearance, 'dark')
   assert.equal(preset('pokemon').title, '宝可梦')
+  // 双册命名（2026-10-21 定稿）：明册裸名、暗册「·暗部」，与夜航 / 夜行 / 晴空同一位置
+  assert.equal(preset('naruto').title, '火影忍者')
+  assert.equal(preset('naruto-night').title, '火影忍者·暗部')
   assert.equal(getIpPreset('nope'), null)
   assert.equal(getIpPreset('system'), null)
 })
