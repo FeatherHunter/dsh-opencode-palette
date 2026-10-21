@@ -346,11 +346,11 @@
 | IP 预置主题（25 套） | IP 主题胶囊 | IP theme capsule | README EXTENSIONS 段首条、showcase 网格列名、市场条目描述统一用此词 |
 | 自定义主题（37 色位编辑出来的） | 专属主题胶囊 | your own capsule | 存盘落在 `<DSH_HOME>/opencode-palette/custom-themes/` |
 | 泛指一套颜色 | 配色 | palette | 只写「配色」；**「色板」一词在本仓 Markdown 里禁用**（门禁 `tests/terminology.test.ts`） |
-| 品牌（产品名） | OpenCode调色板 | OpenCode Palette | 品牌豁免：清术语不许误伤它（名字里恰好含被禁的两个字，门禁按 `(?<!调)` 放行） |
+| 品牌（产品名） | OpenCode调色板 | OpenCode Palette | 品牌豁免：「调色板」是「调色-板」这一整套名词，不是被禁的那个词（见下） |
 
 ## 禁用词与重写方向
 
-- 禁「色板」（2026-10-21 用户定）：泛指一套颜色写「配色」，IP 预置那层写「主题胶囊」；品牌「OpenCode调色板」不在此例。门禁 `tests/terminology.test.ts` 拦独立出现的「色板」，谁写回去谁红。
+- 禁「色板」（2026-10-21 用户定）：泛指一套颜色写「配色」，IP 预置那层写「主题胶囊」。**「色板」是自造词**；「调色板」是「调色-板」这一整套名词（标准复合词），两者不是一回事，品牌不在此例。门禁 `tests/terminology.test.ts` 按 `(?<!调)` 拦独立出现的「色板」，谁写回去谁红。
 - 禁最高级/空话/无结果动词（面板）；`不再繁琐` 类空话删除，保留动作＋结果（如 prompt 改“保存常用 prompt 预设，一键注入开发任务”）。
 - 口语防撞车：`没读到` 口语化且与 `fontScanFail` 撞车，改“为空”版区分。
 - 技术术语保留英文：`失败级别` 改 `warn/error`；`local/mono` 统一句首大写 `Local/Mono`；缺对象补对象（`disableTitle/enableTitle` 补 `the theme`）、缺量词补量词（`themeCount` 补 `themes`）。
