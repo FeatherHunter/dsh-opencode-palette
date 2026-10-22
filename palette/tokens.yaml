@@ -101,7 +101,7 @@ tokens:
     namespace: dsh
     family: typography
     status: live
-    declared: ['packages/client/ui-layout/src/client/theme-presenter.ts:78']
+    declared: ['packages/client/ui-layout/src/client/theme-presenter.ts:31']
     consumed: ['body inline style（宿主自己写）']
     in_repo: false
     note: 由 ThemePresenter.apply() 写到 body inline，属 A 通道落点

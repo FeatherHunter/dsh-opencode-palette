@@ -245,7 +245,7 @@ function collectSheets(doc: Document): { sheets: Sheet[]; via: 'dom' | 'cssom' |
       "raw": "var(--dsw-static-neutral-950)",  // A 通道原文，排障用
       "computed": { "html": "", "body": "#0d0d0d", "surface": "#161616" },
       "consumers": 37,                    // 宿主 CSS 内 var() 引用数（排除我们的表）
-      "state": "live",                    // live | declared-invalid | missing | dead | pinned | gated
+      "state": "live",                    // 旧版六值口径；v1.6 起用户层状态 = 主状态 live/dead/missing + 修饰 declared_invalid/pinned/gated——「拒绝写入」仅引擎过滤层
       "normalized": "#0d0d0d"
     }
     // …403 条
@@ -475,7 +475,7 @@ html[data-platform='darwin'] body[data-ds-dark-theme] { --dsw-specific-menu: rgb
 
 处理：
 
-- 探针把该名在该平台下标 `state: 'pinned'`，**不当成漂移**（值域里 `0.94` 是设计意图，不是异常）。
+- 探针把该名在该平台下标 `state: 'pinned'`（2026-10-22 #147 定稿：pinned 只表示宿主压制；用户层仍允许设置、只提示，引擎默认不覆盖），**不当成漂移**（值域里 `0.94` 是设计意图，不是异常）。
 - 我们默认**不覆盖**它。要毛玻璃就必须写 `html[data-platform='darwin'] body{--dsw-specific-menu: ...}` 同权重规则，且排在宿主之后——可以做到，但那是**主动背离宿主平台设计**，必须做成用户可见的开关（默认关）并每次宿主升级复验。
 - 非 darwin 平台上该规则的 `html[data-platform]` 不匹配 → 值来自 `design-platform.css` 主声明。Windows 桌面实测 `data-platform="win32"`，所以**本机永远看不到 94%**——这也是为什么这条必须在 mac 上单独验，不能拿 Windows 的效果推断。
 
@@ -529,12 +529,14 @@ html[data-platform='darwin'] body[data-ds-dark-theme] { --dsw-specific-menu: rgb
 | 门 | 断言 | 失败含义 |
 |---|---|---|
 | **G0** 基线采集 | 在 win32 桌面 + Web 各导出一次 manifest，入库为 `docs/research/probe-baseline/<hostVersion>.manifest.json` | 没有基线就没有 diff 参照 |
-| **G1** 覆盖率 | 我们对 `TOKEN_MAP ∪ DERIVED_TOKENS ∪ SHIKI_MAP` 声明的每个名字，在基线里 `state` ∈ {`live`, `dead`, `pinned`}（**不允许 `missing` / `declared-invalid`**，除非在例外清单里且带理由） | 有名字在我们以为活着的地方其实不存在 |
+| **G1** 覆盖率 | 我们对 `TOKEN_MAP ∪ DERIVED_TOKENS ∪ SHIKI_MAP` 声明的每个名字，在基线里 `state` ∈ {`live`, `dead`, `pinned`}（**不允许 `missing` / `declared-invalid`**，除非在例外清单里且带理由；`pinned` 仅表示宿主压制，不是用户禁令） | 有名字在我们以为活着的地方其实不存在 |
 | **G2** 拒绝发射 | `PINNED_NO_EMIT`（含 `--dsw-mask-blur`）与生成器输出交集为空（**仅引擎过滤层**；用户层 raw_tokens / 能力仍允许写 pinned 名，只提示） | 有人给钉死项加了写入口 |
 | **G3** 过滤层单测 | 用合成 manifest 覆盖 D2/D3/D5/D7 四类分支 + `manifest === null` 直通分支 | 降级逻辑本身没被测 |
 | **G4** 白屏门禁 | 在 `overrideTokens` 缺失、`manifest` 为 null、`getComputedStyle` 抛错三种注入故障下，`applyStyle()` 仍返回值且 `styleTag` 有内容 | 探针或宿主变化能把整套主题带崩 |
 | **G5** 指纹稳定 | 同一输入跑两次 `filter` + `digest`，逐字节相同（含键序） | INV-3 破了，基线 diff 全是噪声 |
 | **G6** 漂移可见 | 用构造的「承载体迁移」manifest 跑一遍，必须产出 `relocated !== null` 且 UI 文案非空 | 最危险的 D5 静默通过 |
+
+> 注：上表 `state` 是探针内部六值口径；**用户层**状态模型见 `palette/tokens.yaml` 的 `status_model`（主状态 live/dead/missing + 修饰 declared_invalid/pinned/gated），v1.6 已单源化。
 
 G0 的「入库基线」要不要进 git：**要**（几 KB 的 JSON，是唯一能让人在 review 时看见「宿主这次改了什么」的东西）。但**不要**入库完整 403 条快照（约 80 KB 且每次升级全变）——入 `digests` + `hooks` + `drift` 摘要即可，全量快照只在本地排障时生成。
 
