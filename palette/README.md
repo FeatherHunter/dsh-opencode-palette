@@ -24,6 +24,9 @@
 | `probes.yaml` | 探测原语与探测环境 | 手写 |
 | `tokens.yaml` | 宿主 token 全集、活死状态、声明位置 | **生成** |
 | `anchors.yaml` | DOM 锚点候选 + 控件清单 | **部分生成** |
+| `SPEC.md` | 格式规范入口：palette.yaml + theme.yaml + assets 三样东西、加载管线、验收判据（给人/新 AI 读，不参与机器校验） | 手写 |
+
+> 给新会话的读法：先读 `SPEC.md`（要做什么）→ 再读 `_index.yaml`（有哪些模块）→ 再读 `palette.yaml`（能配什么）。
 
 ## 三层用法
 
