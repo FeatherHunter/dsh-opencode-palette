@@ -23,19 +23,20 @@ write_kinds:
     status: stable
     description: |
       通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
-      本原语只服务 palette 作者（能力绑定）：名字必须在 tokens.yaml 里 status=live；
-      写死名/门控名必须显式 allow_status + allow_reason。
+      本原语只服务 palette 作者（能力绑定）：名字必须在 tokens.yaml 里主状态 = live；
+      允许写死名/门控名时须显式 allow_primary_status / allow_modifiers + allow_reason。
       用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
     fields:
       name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 语法上任意 -- 名；存在性由 validates 约束
       state:           { required: false, type: enum, values: [hover, active, focus, disabled, selected] }
       value:           { required: false, type: any }         # 缺省取能力值
       value_template:  { required: false, type: string }      # 例：'$value'
-      allow_status:    { required: false, type: list, values: [live, dead, missing, pinned, gated, declared_invalid] }
-      allow_reason:    { required: false, type: string }      # allow_status 非 live 时必填
+      allow_primary_status: { required: false, type: list, values: [live, dead, missing] }
+      allow_modifiers:      { required: false, type: list, values: [pinned, gated, declared_invalid] }
+      allow_reason:         { required: false, type: string }  # 放宽主状态或声明修饰时必填
     validates:
       - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 14 条样本，未覆盖的名字 = 门禁错误）
-      - allow_status 缺省时 status 必须为 live
+      - allow_primary_status 缺省时主状态必须为 live；allow_modifiers 只放宽修饰、不改变主状态
 
   # —— 手段二：rule —— 注入 CSS 规则（选择器 / @font-face / @keyframes）
   rule:

@@ -8,6 +8,7 @@
   5. 控件模板能展开：id = <region>.<controlName>.<property>，各段合法、展开 id 全局唯一
   6. 展开 id 与手写 id 重名时手写优先（去重计数）
   7. anchors.yaml 的 coverage 计数与清单一致
+  7b. tokens.yaml 状态模型：主状态恰为 live/dead/missing，修饰恰为 pinned/gated/declared_invalid，样本状态值合法；primitives.token 的 allow_* 取值与之一致
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
 
 用法：python scripts/research/palette-check.py
@@ -202,11 +203,45 @@ def main():
         'controls_total': len(controls),
         'controls_documented': control_conf.get('documented', 0),
         'controls_inferred': control_conf.get('inferred', 0),
-        'template_expandable': len(controls),
+        'template_expandable_controls': len(controls),
     }
     for key, actual in expected_cov.items():
         if anchor_coverage.get(key) != actual:
             errors.append(f'anchors.coverage.{key}={anchor_coverage.get(key)} 实际 {actual}')
+
+    # —— tokens.yaml 状态模型 schema（主状态 + 修饰标签） ——
+    status_model = tokens.get('status_model', {})
+    primary_values = set((status_model.get('primary_status') or {}).keys())
+    modifier_values = set((status_model.get('modifiers') or {}).keys())
+    if primary_values != {'live', 'dead', 'missing'}:
+        errors.append(f'tokens.status_model.primary_status 必须恰为 live/dead/missing，实际 {sorted(primary_values)}')
+    if modifier_values != {'pinned', 'gated', 'declared_invalid'}:
+        errors.append(f'tokens.status_model.modifiers 必须恰为 pinned/gated/declared_invalid，实际 {sorted(modifier_values)}')
+    t_primary, t_mod = Counter(), Counter()
+    for t in tokens.get('tokens', []):
+        tname = t.get('name', '?')
+        st = t.get('status')
+        if st not in primary_values:
+            errors.append(f'tokens.{tname}: status={st} 不是主状态（{sorted(primary_values)}）')
+        else:
+            t_primary[st] += 1
+        mods = t.get('modifiers', []) or []
+        if not isinstance(mods, list):
+            errors.append(f'tokens.{tname}: modifiers 必须是列表')
+            mods = []
+        for m in mods:
+            if m not in modifier_values:
+                errors.append(f'tokens.{tname}: modifier={m} 未在 status_model.modifiers 登记')
+            else:
+                t_mod[m] += 1
+
+    token_fields = write_kinds['token']['fields']
+    if 'allow_status' in token_fields:
+        errors.append('primitives.token.fields 不应再有 allow_status（已拆为 allow_primary_status / allow_modifiers）')
+    if set(token_fields.get('allow_primary_status', {}).get('values', [])) != primary_values:
+        errors.append('primitives.token.fields.allow_primary_status 取值必须与 status_model.primary_status 一致')
+    if set(token_fields.get('allow_modifiers', {}).get('values', [])) != modifier_values:
+        errors.append('primitives.token.fields.allow_modifiers 取值必须与 status_model.modifiers 一致')
 
     # —— assets / probes 基本形状 ——
     if 'policy' not in assets:
@@ -255,6 +290,7 @@ def main():
     print(f'区域覆盖          = {len(covered)}/{len(regions)}（缺口 {", ".join(gap) or "无"}）')
     print(f'控件 / 锚点       = {len(controls)} / {len(anchor_ids)}')
     print(f'能力引用的 token  = {len(token_refs)}（样本表覆盖 {len(token_refs) - len(missing_tokens)}）')
+    print(f'状态样本          = {len(tokens.get("tokens", []))} 条（主状态 {dict(t_primary)}；修饰 {dict(t_mod) or "无"}）')
     print(f'错误              = {len(errors)}')
     for e in errors:
         print('  ERR ', e)

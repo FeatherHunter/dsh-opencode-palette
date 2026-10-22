@@ -8,8 +8,8 @@
 # 生成策略：扫描器产出完整表后整表替换，人工不补全表；当前 partial 阶段的 14 条
 # 样本为人工核实值，扫描器就位后由生成物覆盖（手改会在 CI 被检测并报告）。
 # 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
-# 当前版本 = 骨架 + 14 条已核实样本（状态样本覆盖 live / dead / gated 三类；
-# missing / pinned / declared_invalid 仅有词表定义，样本待扫描器补齐；命名空间覆盖 3 个）。
+# 当前版本 = 骨架 + 14 条已核实样本（主状态：13 live + 1 dead；修饰标签：1 gated；
+# missing 与 pinned / declared_invalid 修饰仅有词表定义，样本待扫描器补齐；命名空间覆盖 3 个）。
 # 完整 425 名由扫描器批量填充。注意：本文件 api:1 是「宿主事实表自身版本」，
 # 与主题 schema 的 api:3 无关（两个独立版本轴）。
 # =============================================================================
@@ -63,24 +63,26 @@ runtime_scan:                  # 首屏 Playwright 实测
   roles: 6                     # 首屏出现
 
 # -----------------------------------------------------------------------------
-# 2. 状态枚举
+# 2. 状态模型（主状态互斥 + 修饰标签可叠加）
 # -----------------------------------------------------------------------------
-status_values:
-  live:             有消费方，写它生效
-  dead:             宿主声明了但没有任何 var() 消费方
-  missing:          宿主从未声明这个名字（用户可能拼错或宿主升级改名）
-  pinned:           宿主用 !important 规则钉住，普通规则压不过
-  gated:            由运行时消费（JS 读取），不是 CSS var() 能判断
-  declared_invalid: 声明了但消费方式特殊（如依赖 fallback / 由 JS 注入）
-# 六个值按优先级互斥判定：missing > dead > pinned > gated > declared_invalid > live（见 SPEC §6）
+status_model:
+  primary_status:                # 三选一、互斥；颜色轴 184 + 38 + 0 = 222 恰好分完
+    live:      有消费方，写它生效
+    dead:      宿主声明了但没有任何 var() 消费方
+    missing:   宿主从未声明这个名字（用户可能拼错或宿主升级改名）
+  modifiers:                     # 可叠加在 primary 上（尤其 live），不另计基数
+    pinned:            宿主用 !important 规则钉住，普通规则压不过
+    gated:             由运行时消费（JS 读取），不是 CSS var() 能判断
+    declared_invalid:  声明了但消费方式特殊（如依赖 fallback / 由 JS 注入）
+# 见 palette/SPEC.md §6；修饰标签不增加颜色轴计数（不得再对 184+38 加修饰数）
 
 # -----------------------------------------------------------------------------
 # 3. token 明细
-#    当前为「已核实样本」：12 live + 1 dead + 1 gated；完整 425 名由扫描器填充（同结构）。
+#    当前为「已核实样本」：13 live（其中 1 条带 gated 修饰）+ 1 dead；完整 425 名由扫描器填充（同结构）。
 # -----------------------------------------------------------------------------
 tokens:
 
-  # —— 已核实状态样本：live / dead / gated 各一条 ——
+  # —— 已核实状态样本：live / dead 各一条 + 带 gated 修饰的 live 一条 ——
   - name: --dsw-static-blue-50
     namespace: dsw
     family: static
@@ -102,11 +104,12 @@ tokens:
   - name: --shiki-token-string
     namespace: shiki
     family: shiki
-    status: gated
+    status: live
+    modifiers: [gated]
     declared: ['src/styles/']
     consumed: ['shiki 运行时（JS 读 token 名）']
     in_repo: true
-    note: 6 个 shiki token 由运行时消费，活名
+    note: 活名，但由 shiki 运行时（JS）消费，CSS var() 静态扫描看不见 → gated 修饰
 
   - name: --dsw-focus-ring-color
     namespace: dsw

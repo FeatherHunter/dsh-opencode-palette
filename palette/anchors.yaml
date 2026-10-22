@@ -246,5 +246,5 @@ coverage:
   controls_total: 12
   controls_documented: 7
   controls_inferred: 5
-  template_expandable: 12
+  template_expandable_controls: 12   # 可被 control_templates 展开的控件数（= controls 总数；由 checker 重算）
 

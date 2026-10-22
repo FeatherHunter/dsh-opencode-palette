@@ -4,7 +4,7 @@
 > 采集日期：2026-10-20
 > 基线：DSH 源码 `D:\Temp\dsh-src` @ `687f282`（v0.2.1-rc.2）；本仓 `D:\dsh-plugin\dsh-opencode-palette`
 > 证据约定：宿主路径相对 `D:\Temp\dsh-src`，本仓路径相对仓库根。**（事实）** = 逐行读过或脚本逐条数过；**（计数）** = 本次用 PowerShell 全量扫描数出来的，复现脚本见 §8；**（推断）** = 由事实外推、未实机验证。
-> 本文不重复既有研究：宿主 token 契约、状态机（`live / declared-invalid / missing / dead / pinned / gated`）与漂移探针见 [host-token-probe-136.md](./host-token-probe-136.md)；403 总数与排印轴见 [v3-capability-matrix.md](./v3-capability-matrix.md)；"全量"的市面上限对标见 [theme-ceiling-benchmark-151.md](./theme-ceiling-benchmark-151.md)。
+> 本文不重复既有研究：宿主 token 契约、状态机（`live / declared_invalid / missing / dead / pinned / gated`；旧笔记写作 `declared-invalid`，以 palette 机器值 `declared_invalid` 为准）与漂移探针见 [host-token-probe-136.md](./host-token-probe-136.md)；403 总数与排印轴见 [v3-capability-matrix.md](./v3-capability-matrix.md)；"全量"的市面上限对标见 [theme-ceiling-benchmark-151.md](./theme-ceiling-benchmark-151.md)。
 > **本文只回答既有笔记没回答的一问**：把范围收紧到**颜色轴**，逐名给出「声明 / 有效 / 死名」三份清单，并把本仓今天写出的名字逐条对上号。既有笔记给的是「425 名里约 180 个有效」的**混合口径**（180 里含排印名的折算），且没有颜色轴逐名清单，也没有「本仓今天写错了哪几个」的对照——所以需要这一次新查。
 
 **用语（2026-10-20 与用户对齐后）**
@@ -25,7 +25,7 @@
 4. **本仓今天写出 105 个宿主颜色名，其中 14 个正落在死名清单上**（§4.2）。也就是说：**用户现在调这 14 个名字，界面一定不变**。14 个的死名身份不是我们猜的，是宿主侧零消费方判定的。
 5. **本仓写的名字没有拼错、没有过期、没有自造名混进宿主命名空间**：105 个全部能在宿主声明里找到（§4.1）；唯一自造名 `--dsl-code-block-background` 用 `--dsl-` 前缀，不占用宿主名。
 6. **宿主有、本仓没写的活名 = 93 个**（§4.3）。按族拆：static 60 + alias 19 + elevation 5 + gradient 3 + shadow 2 + focus 1 + menu 1 + shiki 1 + specific 1。这 93 个就是"全量"要求里**真正的新增面**——注意其中 60 个是调色板原子（static），它们不直接出现在组件样式里，而是被 alias 定义引用。
-7. **"配了不生效"有 6 种成因，不止死名一种**（§5）：死名 38、声明期值链断裂 2、组件局部重绑 6、平台门控 2、我们主动拒写 1、属性/状态门控若干。票面决策点②要的"5 类"应当对齐既有状态机（`dead / declared-invalid / pinned / gated / missing`），而不是只讲死名。
+7. **"配了不生效"有 5 种成因，不止死名一种**（§5）：死名 38、声明期值链断裂 2、元素级重绑 5（颜色轴；另有 `--dsh` 轴 1）、平台门控 2、我们主动拒写 1。票面决策点②要的"5 类"应当对齐既有状态机（`dead / declared_invalid / pinned / gated / missing`；其中 declared_invalid / pinned / gated 是叠加在 `live` 上的修饰标签，不是并列状态），而不是只讲死名。
 8. **三档暴露的候选数字**（§6）：基础档 37 个 opencode token → 105 名；分区全表 → 184 活名（含 60 原子）；专家档 → 任意 `--` 名。死名一律不进默认 UI。
 
 ---
@@ -179,20 +179,35 @@
 
 ---
 
-## 5. "配了不生效"的 6 种成因（对齐既有状态机）
+## 5. "配了不生效"的成因（主状态 + 修饰标签，对齐既有状态机）
 
-既有探针笔记（`host-token-probe-136.md:248`）已经把状态定义成 `live | declared-invalid | missing | dead | pinned | gated`。颜色轴逐条落位：
+既有探针笔记（`host-token-probe-136.md:248`）把状态定义成 `live | declared_invalid | missing | dead | pinned | gated`；palette 机器源（`palette/tokens.yaml` §2、`palette/SPEC.md` §6）把它规范成「主状态互斥 + 修饰标签可叠加」——旧笔记里的 `declared-invalid` 是显示写法，机器值统一 `declared_invalid`。
 
-| 状态 | 颜色轴上的实测 | 数量 | 代表 |
+### 5.1 主状态（三选一，颜色轴 184 + 38 + 0 = 222）
+
+| 主状态 | 含义 | 颜色轴实测 | 代表 |
 | --- | --- | --- | --- |
 | `dead` | 无任何消费方 | **38** | §3 全表 |
-| `declared-invalid` | 声明合法但值链断裂（`:root` 引 body 级 alias） | **2** | `--shiki-foreground`、`--shiki-background`（`shiki.css:7-19`；宿主靠 `CodeBlock.module.css:92-94` 的 `!important` 兜底） |
-| `pinned` | 宿主钉死、我们不发射 | **1–2** | `--dsw-mask-blur: none`（`gradient-shadow-text.css:19`）、darwin `--dsw-specific-menu: rgba(…,0.94)`（`design-platform.css:400-408`，Windows 不匹配） |
-| `gated`（组件局部重绑） | 写在 body 上被元素级重声明盖掉 | **6** | `--dsw-elevation-*`（`body, body *` 逐元素，`gradient-shadow-text.css:31-40`）、`--dsw-elevation-stroke-color`（≥10 组件重绑）、`--dsh-scrollbar-thumb/-hover`（约 15 处，`scrollbar.css:46-50` 注释写明"每元素声明，继承会被 body 已代入的颜色锁死"） |
-| `missing` | 我们写、宿主没声明 | **0** | 本仓 105 名全部可寻址（§4.1） |
-| `live` | 正常可覆盖 | **184** | — |
+| `live` | 有消费方 | **184** | — |
+| `missing` | 宿主从未声明 | **0** | 本仓 105 名全部可寻址（§4.1） |
 
-**票面决策点②要求的"5 类"应当直接映射到这张表**（`dead / declared-invalid / pinned / gated / missing`），不要在讨论里另造分类；这样 §5 的判定可以完全由探针数据驱动，不用人工维护清单（`host-token-probe-136.md:143`、`:496` 已把"不硬编码死名清单"定为原则）。
+### 5.2 修饰标签（叠加在主状态上，不另计基数）
+
+| 修饰 | 含义 | 颜色轴实测 | 代表 |
+| --- | --- | --- | --- |
+| `declared_invalid` | 声明合法但值链断裂（`:root` 引 body 级 alias） | **2** | `--shiki-foreground`、`--shiki-background`（`shiki.css:7-19`；宿主靠 `CodeBlock.module.css:92-94` 的 `!important` 兜底） |
+| `pinned` | 宿主钉死、我们不发射 | **1–2** | `--dsw-mask-blur: none`（`gradient-shadow-text.css:19`）、darwin `--dsw-specific-menu: rgba(…,0.94)`（`design-platform.css:400-408`，Windows 不匹配） |
+| `gated` | 宿主元素级重声明，body 级写入被盖掉 | **5** | 见 5.3 |
+
+> **算术纪律**：184 + 38 = 222 是唯一成立的加法；修饰标签不增加基数。不要再对「184 + 38 + 2 + 1–2 + 6」求和。
+
+### 5.3 `gated` 精确清单（颜色轴 5 + 轴外 1）
+
+- 颜色轴 5 名：`--dsw-elevation-stroke`、`--dsw-elevation-panel`、`--dsw-elevation-prominent`、`--dsw-elevation-soft`（`gradient-shadow-text.css:31-40` 在 `body, body *` 逐元素重声明）+ `--dsw-elevation-stroke-color`（≥10 个组件局部重绑，`gradient-shadow-text.css` 注释与组件样式）。
+- 轴外 1 名：`--dsh-scrollbar-thumb`（`scrollbar.css:55-60` 每元素声明 `scrollbar-color`；该路径无 hover 对应变量），属 `--dsh` 命名空间，不在 §2 的 222 颜色轴分族表内。
+- 旧记「gated 6」是跨轴合计（5 + 1），不是颜色轴计数；SPEC §6 与决定评论已按 5 + 1 修正。
+
+**用途**：`dead / declared_invalid / pinned / gated` 是"配了不生效"的四种成因，`missing` 是第五种（宿主声明面驱动）。`host-token-probe-136.md:143`、`:496` 已把"不硬编码死名清单"定为原则；判定由探针数据驱动。
 
 **一条重要的机制修正**（本轮新发现）：`--shiki-foreground` 虽然默认 `declared-invalid`，但**本仓在 body 级写它反而修好了宿主的坏链**——内联 style 里的 `var(--shiki-foreground)` 从 body 继承到了我们写的字面量。所以 `declared-invalid` 不等于"写它一定无效"：写在 body 级可以救场。而 `--shiki-background` 本仓没写 → 仍是坏链，属"补上即活"。这两条直接说明：**决策点②不能简单地"死名一律隐藏"**，要按成因分别处理。
 
@@ -216,7 +231,7 @@
 
 1. **写 body 级是唯一默认位置**：宿主的 alias/static/specific/shadow/linear/gradient 都声明在 `body` 与 `body[data-ds-dark-theme]`；写在 `:root` 会被 body 声明盖掉。（`design-platform.css` 全文）
 2. **light/dark 必须成对**：`overrideTokens` 的值形状是 `{light, dark}`（本仓 `src/engine/map-dsh.ts` 的 `TOKEN_MAP` 结构），单个值类型不符会被拒。这是票面决策点④的现成约束。
-3. **`body, body *` 逐元素重绑的 6 个名字**（§5 `gated`）写 body 无效，只能进 L3 且要提示"可能不生效"。
+3. **`body, body *` 逐元素重绑的 5 个颜色轴名字**（§5.3 `gated`：`--dsw-elevation-stroke/-panel/-prominent/-soft/-stroke-color`）写 body 无效，只能进 L3 且要提示"可能不生效"；`--dsh-scrollbar-thumb` 同理但不在颜色轴。
 4. **`--dsw-elevation-*` 是半透明材质**：改它会连带改变浮层通透度，与"毛玻璃"效果耦合，不宜放进普通用户档。
 5. **darwin 平台门控**：`html[data-platform='darwin']` 下的 `--dsw-specific-menu` 是宿主钉死的 0.94，Windows 用户看不到差异——跨平台主题的"还原度"要在文档里声明这个例外。
 
