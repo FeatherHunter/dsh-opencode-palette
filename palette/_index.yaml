@@ -2,7 +2,7 @@
 # palette/_index.yaml —— 模块注册表（唯一入口）
 # role: 注册表
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 新 session / 新 AI 先读本文件。它回答三件事：
 #   1) 能力集由哪几部分组成、每部分在哪个文件；
@@ -15,6 +15,7 @@
 # =============================================================================
 api: 3
 palette_version: 3.0.0
+implementation: scaffold       # 设计稿阶段：9 模块齐全、样本已核实；扫描器/门禁/运行时编译器尚未实现（见 SPEC.md §9）
 
 requires:                 # 能力菜单依赖的最低模块版本，门禁校验
   vocabulary: '>=3.0.0'
@@ -65,14 +66,14 @@ modules:
     version: 'dsh 0.2.1-rc.2 @ 687f282'
     generated: true
     kind: host_facts
-    command: npm run palette:scan-tokens
+    command: palette:scan-tokens（扫描器规划中；当前 tokens.yaml 为 14 条手工核实样本）
     summary: 宿主 token 全集与活/死状态、声明行、消费方（扫描生成，禁手改）
   anchors:
     file: anchors.yaml
     version: 'dsh 0.2.1-rc.2 @ 687f282'
     generated: partial       # 锚点候选扫描生成，置信度与控件清单人工确认
     kind: host_facts
-    command: npm run palette:scan-anchors
+    command: palette:scan-anchors（扫描器规划中；当前 anchors.yaml 为人工清单）
     reviewed: true
     summary: DOM 锚点候选与控件清单（宿主私有选择器集中地）
 
@@ -90,3 +91,4 @@ artifacts:
   gaps: docs/palette/coverage-gaps.md   # 宿主有、能力集没有的缺口 = 扩建待办
   matrix: docs/palette/capability-matrix.md  # 区域 × 角色 × 属性 的能力矩阵
   schema: palette/schema/palette-v3.schema.json  # 由本目录派生，供编辑器/AI 校验
+

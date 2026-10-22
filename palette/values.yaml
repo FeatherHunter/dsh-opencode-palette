@@ -2,7 +2,7 @@
 # palette/values.yaml —— 值类型系统
 # role: 值类型（怎么校验、怎么归一化、怎么序列化）
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 这里只描述「值长什么样」。具体写到宿主哪里，在 primitives.yaml。
 # 防注入的关键：值必须按类型解析后由我们重新序列化，禁止原文拼进样式表。
@@ -24,6 +24,14 @@ value_types:
     ref: true
     parse: css_color
     serialize: css_color
+
+  gradient:                    # 渐变：2–4 个色停靠点，可作颜色/背景/阴影
+    kind: gradient
+    stops: { min: 2, max: 4 }
+    diurnal: true
+    ref: true
+    parse: css_gradient
+    serialize: css_gradient
 
   paint:                       # 能当「绘制值」用的一切（CSS 背景可用）
     kind: union
@@ -49,6 +57,12 @@ value_types:
     diurnal: false
     ref: true
 
+  line_height:                 # 行高：无单位倍数（1.5）或长度（24px）
+    kind: union
+    of: [number, length]
+    diurnal: false
+    ref: true
+
   font_stack:
     kind: font_stack
     diurnal: false
@@ -70,6 +84,12 @@ value_types:
     of: [font_stack, asset_font, font_set]
     diurnal: false
     ref: true
+
+  asset_font:                  # 单个字体资源（@font-face 的 src）
+    kind: asset
+    asset_kind: font
+    diurnal: false
+    ref: false
 
   weight:
     kind: enum
@@ -160,3 +180,4 @@ semantics:
   absent: 不注入
   null: 清除本层写入
   values_are_visual_truth: false
+

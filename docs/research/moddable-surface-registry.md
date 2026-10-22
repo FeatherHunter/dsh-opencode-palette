@@ -245,6 +245,8 @@ body: style="--dsh-content-font-size: 14px; --dsh-code-font-size: 11px; --dsh-te
 
 ## 6. YAML registry 设计（唯一真源）
 
+> **2026-10-22 superseded**：本节的单文件 `registry/*.yaml` 设计已演进为 `palette/` 目录（9 个按技术域拆分的 YAML + `palette/SPEC.md`）。本节保留为历史设计记录，不再作为实现依据；现行真源见 `palette/_index.yaml`、`palette/SPEC.md` 与 `docs/research/color-region-map.md`。
+
 ### 6.1 目标
 
 一份 `registry/*.yaml` 同时承担三个角色：

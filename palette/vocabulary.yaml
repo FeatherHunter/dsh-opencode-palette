@@ -2,7 +2,7 @@
 # palette/vocabulary.yaml —— 词表
 # role: 词表（区域 / 角色 / 属性 / recipe / 状态 / 语言 / 目录）
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 这份文件管「名字的合法性」：能力 id 的每一段必须来自这里。
 # 好处：能力 id 永远拼写稳定、编辑器能按词表分组、AI 输出能被机器校验。
@@ -44,7 +44,7 @@ regions:
   - { id: plugin,       label: 插件市场 }
 
 # -----------------------------------------------------------------------------
-# 3. 角色（26）：区域里「哪个部件」
+# 3. 角色：区域里「哪个部件」（计数以 _index 合并视图为准，不在此硬编码）
 #    角色是能力的第二段，也是锚点与控件清单的分类依据
 # -----------------------------------------------------------------------------
 roles:
@@ -136,3 +136,4 @@ catalog:
     - { id: effects,    label: 视觉效果, members: ['*.glass', '*.wallpaper', '*.noise'] }
     - { id: chrome,     label: 窗口外壳, members: ['window.*'] }
     - { id: control,    label: 控件,     members: ['button.*'] }
+

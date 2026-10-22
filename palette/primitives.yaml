@@ -2,7 +2,7 @@
 # palette/primitives.yaml —— 写原语
 # role: 写原语（能力怎么落到宿主）
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 这是「技术域」的核心文件：每种落到宿主的手段，在这里定义字段与约束。
 # 未来出现全新手段（宿主开放样式 API、窗口控件 API……）：
@@ -25,11 +25,11 @@ write_kinds:
       通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
       只允许写 tokens.yaml 里 status=live 的活名；写死名必须显式 allow_status + 原因。
     fields:
-      name:            { required: true,  type: token_name, pattern: '^--(dsw|shiki|dsh)-' }
+      name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 任意 -- 名（含 --dsl-*、组件局部）；公开合约 425 指 dsw/shiki/dsh 三个命名空间
       state:           { required: false, type: enum, values: [hover, active, focus, disabled, selected] }
       value:           { required: false, type: any }         # 缺省取能力值
       value_template:  { required: false, type: string }      # 例：'$value'
-      allow_status:    { required: false, type: list, values: [live, dead, pinned, gated, declared_invalid] }
+      allow_status:    { required: false, type: list, values: [live, dead, missing, pinned, gated, declared_invalid] }
       allow_reason:    { required: false, type: string }      # allow_status 非 live 时必填
     validates:
       - name 必须在 tokens.yaml 存在
@@ -159,3 +159,4 @@ policies:
   diagnostics: |
     每个写最终状态必须是：applied / degraded / suppressed / failed 之一，
     并带原因（如「锚点不存在」「token 为死名」「被宿主 !important 压制」）。
+

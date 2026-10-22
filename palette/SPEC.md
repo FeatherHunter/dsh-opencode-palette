@@ -1,6 +1,6 @@
 # V3 主题格式规格（palette.yaml + theme.yaml + assets）
 
-- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口
+- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口；v1.1 按对抗式二审修正（同日）
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
 - 机器源：`palette/` 目录；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁为准
 - 未定项：见 §9，由后续票承接（不在本文假装已定）
@@ -11,7 +11,7 @@ V3 主题系统只有三样东西：
 
 | 东西 | 归谁 | 何时生效 | 用户看得见吗 |
 |---|---|---|---|
-| **能力集** `palette/`（palette.yaml + 7 个技术域模块） | 插件作者维护，构建期 | 随插件版本 | 看不见；只决定「能配什么」 |
+| **能力集** `palette/`（palette.yaml + 8 个技术域模块 + 本文件） | 插件作者维护，构建期 | 随插件版本 | 看不见；只决定「能配什么」 |
 | **主题包** `theme.yaml` + `assets/` | 主题作者 / 用户 / 外部 AI | 安装或编辑时加载 | 看得见；用户唯一要写的东西 |
 | **运行时 plan**（内存对象，无文件产物） | 插件运行时 | 加载时编译 | 看不见；预览与运行时共用同一份 |
 
@@ -19,12 +19,15 @@ V3 主题系统只有三样东西：
 
 ## 1. 术语
 
-- **能力（capability）**：一个语义化可配置项，id 形如 `<区域>.<角色>.<属性>`（如 `sidebar.panel.background`）或 `<区域>.<recipe>`（如 `composer.glass`）。值只来自值类型系统。
-- **能力集（palette）**：全部能力的真源，按技术域拆成多个 YAML 模块（§4）。
+- **能力（capability）**：一个语义化可配置项，id 形如 `<区域>.<角色>.<属性>`（如 `sidebar.panel.background`）或 `<区域>.<recipe>`（如 `composer.glass`）；控件级 recipe 允许 `<区域>.<角色>.<recipe>`。
+- **能力集（palette）**：全部能力的真源，按技术域拆成多个 YAML 模块（§4）。「合并视图」= 手写能力 + `control_templates × anchors.controls` 展开结果。
 - **主题包（theme package）**：一个目录，含 `theme.yaml` 与 `assets/`；目录名可自由取（如「海贼王」），显示名取 `theme.yaml` 的 `meta.name`。
-- **raw_tokens**：主题里的逃生舱，直接写任意 `--` 开头的宿主变量名（兜底 425 全量可达）。
+- **raw_tokens**：主题里的逃生舱，直接写任意 `--` 开头的宿主变量名（兜底 425 公开合约全量可达）。名字不校验，值只校验形状（单值或 `{light,dark}`）。
 - **注入**：把主题写进宿主的动作（A 通道 `theme.overrideTokens` / B 通道自建 `<style>`）；「写」这个词停用。
 - **绑定（binding）**：能力 → 宿主落地手段的映射：`token`（变量）/ `rule`（规则）/ `dom`（命令式 DOM）/ `asset`（资源）。绑定策略链按「当前宿主可用」降级。
+- **diurnal**：值类型是否需要 light/dark 两套。`diurnal: true` 的类型接受成对值；`diurnal: false` 的类型只接受单值。
+- **liveness（存活判定）**：token 是否有消费方。`live` = 有 `var()` 消费；`dead` = 声明但零消费；`missing` = 宿主从未声明。判定方式见 §5。
+- **legacy 能力**：老 v1 JSON 的 37 个 opencode token 在内部映射成 `legacy.<组>.<名字>` 能力 id（组 = bg/text/brand/border/diff/md/syn），用户不可直接写这个前缀；由 v1 自动识别。
 
 ## 2. 仓库内布局
 
@@ -32,12 +35,12 @@ V3 主题系统只有三样东西：
 palette/                        能力集（构建期真源，随插件版本发布）
   _index.yaml                   注册表：模块/版本/生成命令/计数 ← 唯一入口
   palette.yaml                  能力菜单 + 控件模板
-  vocabulary.yaml               区域/角色/属性/recipe/状态/语言词表
+  vocabulary.yaml               区域/角色/属性/recipe/状态/语言词表 + grammar
   values.yaml                   值类型 + Unicode 范围 + 变量语法
   primitives.yaml               写原语：token/rule/dom/host_api
   assets.yaml                   资源类型与安全策略
   probes.yaml                   探测原语
-  tokens.yaml                   宿主 token 事实表（扫描生成，禁手改）
+  tokens.yaml                   宿主 token 事实表（扫描生成，禁手改；当前 14 条样本）
   anchors.yaml                  锚点候选 + 控件清单（扫描生成，人工确认）
   SPEC.md                       本文件
 ```
@@ -60,7 +63,7 @@ palette/                        能力集（构建期真源，随插件版本发
 
 ```yaml
 # 版本：程序拿到文件就知道是哪种格式（对应原第 7/8 条）
-api: 3                      # 主题 schema 版本；缺省视为 v1 老 JSON
+api: 3                      # 主题 schema 版本；缺省视为 v1 老 JSON（api 编号暂定，见 §9）
 meta:
   name: 海贼王
   id: one-piece             # 稳定 id；改名不改 id
@@ -74,7 +77,7 @@ meta:
 variables:                  # 主题变量层：编译成 --palette-var-<name>，值里写 $name 引用
   ink: { light: '#241d12', dark: '#f2ead9' }
 
-capabilities:               # 只写能力 id（来自 palette.yaml）；light/dark 成对
+capabilities:               # 只写能力 id（来自 palette 合并视图）；diurnal 类型可写 light/dark 成对
   global.page.background: { light: '$ink', dark: '#12100c' }
   global.text.font_family:
     latin: assets/Font-Latin.woff2
@@ -82,9 +85,10 @@ capabilities:               # 只写能力 id（来自 palette.yaml）；light/d
   sidebar.panel.background: { light: 'assets/sidebar-light.jpg', dark: 'assets/sidebar-dark.mp4' }
   composer.glass: { blur: 12px, opacity: 0.6 }
 
-raw_tokens:                 # 逃生舱：任意 -- 名，只校验值形状，不校验名字
-  '--dsw-static-neutral-100': { light: '#f5f5f5', dark: '#1a1a1a' }
-  '--dsw-specific-sidebar-fill': 'linear-gradient(180deg, #fdf6e3, #f5e6c8)'
+raw_tokens:                 # 逃生舱：任意 -- 名；单值或 {light,dark} 两种形态都接受
+  '--dsw-static-neutral-100': { light: '#f5f5f5', dark: '#1a1a1a' }   # 成对
+  '--dsw-specific-sidebar-fill': 'linear-gradient(180deg, #fdf6e3, #f5e6c8)'  # 单值
+  '--dsw-font-markdown-base-line-height': '1.6'                       # 排印 token：单值
 
 assets:                     # 资源清单（可省略，由引用自动收集）
   - assets/bg.mp4
@@ -92,17 +96,18 @@ assets:                     # 资源清单（可省略，由引用自动收集�
 
 硬规则：
 
-1. `capabilities` 的键必须是 `palette.yaml` 登记过的能力 id（拼错 = 校验错误）。
-2. 值必须符合能力声明的值类型；颜色/渐变支持 `{light, dark}` 成对；`null` = 清掉该层；没写 = 不注入。
-3. 值与资源在写进样式表前必须解析后重新序列化（防 CSS 注入）。
-4. 老 v1 JSON（37 个 opencode token）没有 `api`/`capabilities` 时，程序按 v1 识别并归一化为「37 个 legacy 能力」，无需用户迁移（对应原第 16 条）。
-5. `theme-plan.json` 之类的落盘编译产物**不存在**：加载后只在内存编译。
+1. `capabilities` 的键必须是合并视图里登记过的能力 id（拼错 = 校验错误）；合并视图 = `palette.yaml` 手写能力 + `control_templates × anchors.controls` 展开能力。
+2. `capabilities` 的值必须符合能力声明的值类型；`diurnal: true` 的类型（颜色/渐变/阴影/图片/媒体）接受单值或 `{light, dark}` 成对，`diurnal: false` 的类型（长度/数字/字体栈/字重/图标）只接受单值；`null` = 清掉该层；没写 = 不注入。
+3. `raw_tokens` 的名字不校验（任意 `--` 名，包含 `--dsl-*`、组件局部变量、宿主未来新增名）；值接受**单值字符串**或 **`{light, dark}` 对象**，不强制成对、不按 token 语义分类。
+4. 所有值与资源在写进样式表前必须解析后重新序列化（防 CSS 注入）；资源路径必须落在主题包内。
+5. 老 v1 JSON（37 个 opencode token）没有 `api`/`capabilities` 时，程序按 v1 识别并归一化为 37 个 legacy 能力（`legacy.<组>.<名字>`，组 = bg/text/brand/border/diff/md/syn），无需用户迁移（对应原第 16 条）。
+6. `theme-plan.json` 之类的落盘编译产物**不存在**：加载后只在内存编译。
 
 ## 4. palette 模块的职责边界
 
 | 模块 | 管什么 | 不许管什么 |
 |---|---|---|
-| `palette.yaml` | 能力条目、控件模板 | 宿主 token 名（写进 token 引用可以）、选择器（用 anchor 引用） |
+| `palette.yaml` | 能力条目、控件模板 | 宿主 token 名（token 引用可以）、选择器（用 anchor 引用） |
 | `vocabulary.yaml` | 名字的合法性（id 每段） | 任何实现细节 |
 | `values.yaml` | 值长什么样、怎么解析/序列化 | 值写到哪儿 |
 | `primitives.yaml` | 写入手段与字段、撤销、冲突策略 | 具体能力 |
@@ -113,56 +118,92 @@ assets:                     # 资源清单（可省略，由引用自动收集�
 
 扩展规则：新技术 = 新模块 + 在 `_index.yaml` 注册 + 在 `primitives.yaml` 加写原语；`palette.yaml` 条目形状不变。
 
+`tokens.yaml` / `anchors.yaml` 是**生成物**：当前版本只含 14 条已核实 token 样本与 23 个锚点；完整 425 条与全量锚点由扫描器（`palette:scan-tokens` / `palette:scan-anchors`，实现期）生成，生成后替换整表，不手工补。
+
 ## 5. 加载管线
 
 ```
 theme.yaml + assets/
   → 解析 YAML（版本识别：有无 api / capabilities）
   → 校验（能力 id 存在、值类型合法、资源路径合法；未知 id = 错误，死名/未知 token = 警告不阻止）
-  → 归一化（light/dark 成对、变量展开、旧 v1 JSON 映射到 legacy 能力、raw_tokens 并入）
+  → 归一化（diurnal 成对/单值规则、变量展开、旧 v1 JSON 映射到 legacy 能力、raw_tokens 并入）
   → 内存编译出 plan { tokens, rules, runtimeOps, assets }（不落盘）
   → 预览（同一份 plan） + 运行时（同一份 plan）
 ```
+
+存活判定（#136 结论进管线）：`tokens.yaml` 的每条 token 记录 `consumers` 计数（源码 `var()` 扫描）与三点采样结果（A/B/A，两次 A 必须一致才算稳定）；`consumers === 0` → `dead`；名字在宿主声明表里不存在 → `missing`；编辑/保存时据此给状态标记与提示，不阻止写入。宿主升级（`tokens.yaml` 版本变化）→ 重新生成 → diff 报告新增/消失/改名，作为漂移测试。
 
 ## 6. 暴露层级（对应原第 1 条）
 
 | 层 | 内容 | 谁用 |
 |---|---|---|
-| L1 | 37 个 opencode token（等价今天编辑器） | 普通用户、老主题 |
-| L2 | 语义能力菜单（`palette.yaml`，14 区域分组，覆盖 184 个活名的语义部分） | 想让主题「像某个世界」的用户 |
+| L1 | 37 个 opencode token（等价今天编辑器；内部 id = `legacy.<组>.<名字>`） | 普通用户、老主题 |
+| L2 | 语义能力菜单（`palette.yaml` 合并视图，14 区域分组；12/14 区域已有能力，detail/plugin 为登记缺口） | 想让主题「像某个世界」的用户 |
 | L3 | `raw_tokens`：任意 `--` 名（含 60 个 static 原子、死名、排印 token），425 个公开 token 全部可达 | 专家、外部 AI 逃生舱 |
 
-规则：L2 只列活名对应的能力，避免「调了不变」；L3 一律允许设置，保存只给状态提示（dead / declared-invalid / pinned / gated / missing），不阻止、不删除。
+规则：L2 只列活名对应的能力，避免「调了不变」；L3 一律允许设置，保存只给状态提示，不阻止、不删除。
+
+补充定义：
+
+- **状态机（6 值，按优先级互斥判定）**：`missing`（宿主从未声明）> `dead`（声明但零消费方）> `pinned`（被宿主字面量 / `!important` 硬编码压制）> `gated`（需引擎 `!important` 才生效）> `declared-invalid`（声明值非法）> `live`。来源：`docs/research/host-style-override-attention.md`（22 行 `!important`、宿主 inline 清单）+ #136 判死规则。UI 只在保存时显示这六个词之一。
+- **425 / 573 / 任意 `--` 的边界**：425 = 公开合约命名空间（`--dsw` 403 + `--shiki` 11 + `--dsh` 11，源码声明总量）；573 = 运行时页面实际出现的变量名（多出 148 个包内局部变量，如 `--dsl-*` 20 个、组件局部 56 个）；`raw_tokens` 允许任意 `--` 名（可以写 573 之外的），但只有宿主有消费方的名字才生效。「全量可达」指 425 公开合约面。
+- **14 区域覆盖**：12/14（detail、plugin 为登记缺口，见 `docs/research/color-region-map.md`）；门禁目标 14/14，是目标不是现状。
+- **184 活名的归属**：不是 L2 条目数；L2 条目是语义菜单，184 是宿主事实层名字数，映射表见 `docs/research/color-region-map.md`。356 个 token 名与 37 个 opencode token 不是同一单位，不做加法。
+
+效果家族 × 暴露层（#153 结论的落地标记；不假装全量）：
+
+| 效果家族 | L1 | L2 | L3（raw_tokens） | 备注 |
+|---|---|---|---|---|
+| 颜色（含渐变/半透明） | ✅ | ✅ | ✅ | 主战场 |
+| 排印（字体/字号/行距/字重） | 37 中的 text 组 | ✅ 能力已定义 | ✅ 排印 token | 本票只定承载格式，排印验收归 #148（待用户确认拆分） |
+| 圆角/阴影/模糊/玻璃 | ⛔ | ✅ recipe | ✅ shadow token | 玻璃依赖 backdrop-filter，需实测层叠 |
+| 图标替换 | ⛔ | ✅ 控件级 icon 能力 | 宿主无图标 token | 运行时 DOM 替换，幂等重放 |
+| 图片/动态图/视频背景 | ⛔ | ✅ media 值类型 | 宿主无媒体 token | 视频走 `insert-media-layer`，见验收 6 |
+| 动效细节（过渡曲线/时长） | ⛔ | ⛔ | ⛔ | 宿主无 token；C2 任意属性未对外开放（见 §9） |
+| 密度（padding/margin/gap） | ⛔ | ⛔ | ⛔ | `primitives.rule` 白名单不含间距；属范围外（见 §9） |
+| DOM 结构/控件行为 | ⛔ | ⛔ | ⛔ | 本票不做 |
 
 ## 7. 版本与兼容
 
-- `api`：主题 schema 版本（当前 3）；v1 JSON 无此字段 → 自动按 v1 处理。
+- `api`：主题 schema 版本（当前暂定 3）；v1 JSON 无此字段 → 自动按 v1 处理。**api 编号与 `raw_tokens` 字段名由 #140 最终确认**（本票只定「有版本、有逃生舱」）。
 - `palette_version`：能力集自身版本（新增能力 +0.1.0，破坏性 +1.0.0）。
 - 模块 `version` + `_index.yaml` 的 `requires`：跨模块不兼容时门禁报错。
-- `tokens.yaml` / `anchors.yaml` 版本 = 宿主版本 + commit（当前 `dsh 0.2.1-rc.2 @ 687f282`），随宿主升级整体替换。
-- 旧 v1 37 个 opencode token 保留为映射层、不改名（对应原第 16/23 条）；视觉重定归 #145。
+- `tokens.yaml` / `anchors.yaml` 版本 = 宿主版本 + commit（当前 `dsh 0.2.1-rc.2 @ 687f282`），随宿主升级整体替换；`tokens.yaml` 自身 `api: 1` 是事实表独立版本，与主题 `api: 3` 无关。
+- 旧 v1 37 个 opencode token 保留为映射层、不改名（对应原第 16 条）；第 23 条（37 款预置主题颜色升级）是主题数据升级，归 #145，与本映射层不是同一件事。
+- `vocabulary.yaml` roles 当前 27 个（注释计数已删，以 `_index.yaml` 合并视图为准）。
 
 ## 8. 验收判据（可变成测试）
 
-1. `palette/` 9 个 YAML 解析通过；跨模块检查 0 错误（`scripts/research/palette-check.py`）。
+1. `palette/` 9 个 YAML 解析通过；跨模块检查 0 错误（当前命令 `python scripts/research/palette-check.py`；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
-3. 42 个公开 token 全量可达：抽样 60 个 static 原子 + 全部死名，写进 `raw_tokens` 均不报错。
-4. 老 v1 JSON 加载后 37 个 opencode token 全部命中，未写的 token 取宿主默认。
-5. 颜色/渐变值 `{light, dark}` 成对通过校验；单词值被拒。
+3. 425 个公开 token 全量可达（扫描器实现后）：生成完整 `tokens.yaml` 后，把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；当前先行用例 = 14 条样本 + 37 个 legacy 名 + 38 个死名。
+4. 老 v1 JSON 加载后 37 个 legacy 能力全部命中（夹具 + 测试）；未写的 token 取宿主默认。
+5. 值形状：`diurnal: true` 类型单值/成对都通过、`diurnal: false` 类型只接受单值、`raw_tokens` 两种形态都通过；非法值被拒。
 6. 视频背景经 `insert-media-layer` 生效，切主题后被精确撤销（无残留节点）。
 7. 预览与运行时对同一 theme.yaml 产生同一份 plan（快照测试）。
+8. 区域覆盖：合并视图中 12/14 区域至少 1 条能力（detail/plugin 已登记为缺口）；实现期门禁提升到 14/14。
+9. `_index.yaml` 计数与合并视图一致（手写数 + 展开数；不一致 = 错误，不是 warning）。
 
 ## 9. 未定项（不要假装已定）
 
 - 主题包分发/市场/审核/版本升级：地图 #128 「Not yet specified」。
-- 字段细节（`meta` 子字段、`basedOn` 语义、license、hostContract）：由 #140 承接；本文只定「有这些概念」。
+- 字段细节（`meta` 子字段、`basedOn` 语义、license、hostContract）、`api` 编号、`raw_tokens` 最终字段名：由 #140 承接；本文只定「有这些概念」。
 - 主题包资源如何送到浏览器（插件客户端读不到本地文件）：未确证，需宿主文件通道或 URL 方案。
-- 能力条目从 28 条扩到 100+、扫描器生成完整 `tokens.yaml` / `anchors.yaml`：实现期。
-- 排印轴（字体/字号/行距/多语言）与材质轴（玻璃档位）：归 #148 / #149，本文只定义承载格式。
+- 能力条目从 28 条手写+65 条展开扩到 100+、扫描器生成完整 `tokens.yaml` / `anchors.yaml`；`npm run palette:gate` / `palette:scan-tokens` / `palette:scan-anchors` 尚未接入 `package.json`：实现期。
+- 排印轴（字体/字号/行距/多语言）与材质轴（玻璃档位）承载格式已定义，但排印验收归 #148、材质归 #149 的拆分**待用户确认**。
+- C2「任意选择器 + 任意属性」不开放给用户（安全与可维护性），用户只通过 `capabilities` 菜单 + `raw_tokens` 表达；需要新效果 = 作者扩 palette（待用户确认是否接受）。
+- 动效细节（过渡曲线/时长）与密度（padding/margin/gap）当前标 ⛔：前者宿主无 token、后者不在 rule 白名单；是否扩进 V3 范围待定。
 - 37 预置主题从 `*.json` 迁到目录包：归 #145。
+- `palette-check.py` 当前是 research 原型：只校验 capability 段与 token 引用（recipe/raw_tokens/值类型/live 状态、计数不符合升级为 error 属实现期）；「0 错 0 警」不覆盖全 schema。
+- #153（EC 研究票）结论被本 SPEC 引用，但该票仍 open：本 SPEC 相关结论标 `provisional`，研究票收口后复核。
 
 ## 10. 决策来源
 
-- #147 决定评论：三档暴露、死名呈现、分区、raw_tokens 边界、存量 37 保留。
-- 证据文档：`docs/research/color-axis-token-inventory.md`、`theme-ceiling-absolute.md`、`moddable-surface-registry.md`、`palette-v3-requirement-coverage.md`、`palette-yaml-v3-adversarial-review.md`。
+- #147 决定评论：三档暴露、死名呈现、分区、raw_tokens 边界、存量 37 保留；v1.1 修正见 #147 二审核验评论。
+- 证据文档：`docs/research/color-axis-token-inventory.md`、`theme-ceiling-absolute.md`、`host-style-override-attention.md`、`moddable-surface-registry.md`、`palette-v3-requirement-coverage.md`、`palette-yaml-v3-adversarial-review.md`、`color-region-map.md`。
 - 机器源：`palette/`（v3.0.0，2026-10-22 提交入库）。
+
+## 11. 变更记录
+
+- 2026-10-22 v1.0：格式确定，落盘 palette/。
+- 2026-10-22 v1.1（二审修正）：425 全量验收改可执行；`raw_tokens` 单值/成对语义统一；补 `gradient`/`asset_font`/`line_height` 类型；补 6 值状态机、425/573 边界、legacy id、效果家族矩阵、区域覆盖 12/14 与缺口；api:3 标暂定待 #140；palette 门禁注明未接 npm。

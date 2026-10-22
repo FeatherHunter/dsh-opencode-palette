@@ -2,7 +2,7 @@
 # palette/palette.yaml —— 能力菜单（V3 设计稿，v3.0.0）
 # role: 能力菜单
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 本文件只写「能配什么、怎么落到宿主」。宿主有哪些 token 在 tokens.yaml，
 # 锚点在 anchors.yaml，值类型在 values.yaml，写原语在 primitives.yaml。
@@ -267,7 +267,7 @@ capabilities:
       fields:
         blur:    { type: length, default: 12px }
         opacity: { type: number, default: 0.6 }
-        tint:    { type: color,  default: 'var(--dsw-alias-bg-base)' }
+        tint:    { type: color,  default: { light: '#ffffff', dark: '#1b1b1c' } }   # 默认值不暴露宿主 token 名
     aspects:
       backdrop:
         fields: [blur]
@@ -312,6 +312,7 @@ capabilities:
       fields:
         blur:    { type: length, default: 16px }
         opacity: { type: number, default: 0.7 }
+        tint:    { type: color,  default: { light: '#f8f9fa', dark: '#1b1b1c' } }   # 默认值不暴露宿主 token 名
     aspects:
       backdrop:
         fields: [blur]
@@ -321,12 +322,12 @@ capabilities:
               - { id: blur, use: rule, anchor: menu.surface, layer: component,
                   decl: { 'backdrop-filter': 'blur($fields.blur)', '-webkit-backdrop-filter': 'blur($fields.blur)' } }
       tint:
-        fields: [opacity]
+        fields: [opacity, tint]
         effects:
           - id: rule-tint
             writes:
               - { id: tint, use: rule, anchor: menu.surface, layer: component,
-                  decl: { 'background-color': 'color-mix(in srgb, var(--dsw-alias-bg-base) calc($fields.opacity * 100%), transparent)' } }
+                  decl: { 'background-color': 'color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)' } }
 
   menu.item.background:
     kind: property
@@ -379,7 +380,7 @@ capabilities:
     since: 3.0.0
     tier: basic
     tags: [code, typography]
-    value: length
+    value: line_height
     realization:
       - id: rule
         writes:
@@ -390,7 +391,7 @@ capabilities:
     since: 3.0.0
     tier: basic
     tags: [markdown, typography]
-    value: length
+    value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
     realization:
       - id: prefer-token
@@ -407,7 +408,7 @@ capabilities:
     since: 3.0.0
     tier: basic
     tags: [markdown, typography]
-    value: length
+    value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（标题）。
     realization:
       - id: rule
@@ -529,3 +530,4 @@ capabilities:
 # 3. 扩展位（前向兼容）
 # -----------------------------------------------------------------------------
 extensions: {}
+

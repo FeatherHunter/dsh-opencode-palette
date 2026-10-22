@@ -2,7 +2,7 @@
 # palette/probes.yaml —— 探测原语
 # role: 探测（能力生效前先问宿主「这个还行吗」）
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 能力条目里的 when.probe 只能引用这里登记的原语；
 # 代码实现也只实现这些原语（数据驱动，不写自由逻辑）。
@@ -52,3 +52,4 @@ results:
   supported:   { description: 探测通过，可以写入 }
   unsupported: { description: 探测失败，走下一档降级效果 }
   unknown:     { description: 预览环境无法判定，按 supported 处理但标「未验证」 }
+

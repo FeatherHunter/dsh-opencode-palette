@@ -2,12 +2,14 @@
 # palette/tokens.yaml —— 宿主 token 事实表
 # role: 宿主事实（token 全集 / 活死状态 / 声明位置 / 消费方）
 # generated: true
-# command: npm run palette:scan-tokens
-# validate: npm run palette:gate
+# command: palette:scan-tokens（扫描器规划中，当前为手工样本）
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # ⚠️ 本文件由扫描器生成，禁止手改。手改会在 CI 被覆盖并报错。
 # 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
-# 当前版本是「骨架 + 已核实样本」；完整 425 名由扫描器批量填充。
+# 当前版本 = 骨架 + 14 条已核实样本（覆盖 5 类状态与 3 个命名空间），
+# 完整 425 名由扫描器批量填充。注意：本文件 api:1 是「宿主事实表自身版本」，
+# 与主题 schema 的 api:3 无关（两个独立版本轴）。
 # =============================================================================
 api: 1
 
@@ -64,9 +66,11 @@ runtime_scan:                  # 首屏 Playwright 实测
 status_values:
   live:             有消费方，写它生效
   dead:             宿主声明了但没有任何 var() 消费方
+  missing:          宿主从未声明这个名字（用户可能拼错或宿主升级改名）
   pinned:           宿主用 !important 规则钉住，普通规则压不过
   gated:            由运行时消费（JS 读取），不是 CSS var() 能判断
   declared_invalid: 声明了但消费方式特殊（如依赖 fallback / 由 JS 注入）
+# 六个值按优先级互斥判定：missing > dead > pinned > gated > declared_invalid > live（见 SPEC §6）
 
 # -----------------------------------------------------------------------------
 # 3. token 明细
@@ -200,3 +204,4 @@ todo:
   - 标出 2 个 declared_invalid 的具体名字
   - pinned 清单（22 行 !important 中影响外观的 6 行/7 条）
   - 宿主升级时重新扫描并生成 diff 报告
+

@@ -2,8 +2,8 @@
 # palette/anchors.yaml —— 锚点与控件清单
 # role: 宿主事实（DOM 锚点候选 + 控件清单）
 # generated: partial（候选由扫描器产出，置信度与控件清单经人工确认）
-# command: npm run palette:scan-anchors
-# validate: npm run palette:gate
+# command: palette:scan-anchors（扫描器规划中，当前为人工清单）
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 所有「宿主私有名字」（data-slot、role、类名）只准出现在本文件。
 # 宿主升级时，只改这里，不改能力条目。
@@ -239,3 +239,4 @@ coverage:
   inferred: 12
   fragile: 2
   template_expandable: 12
+

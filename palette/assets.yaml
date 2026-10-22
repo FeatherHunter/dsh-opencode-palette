@@ -2,7 +2,7 @@
 # palette/assets.yaml —— 资源类型与安全策略
 # role: 资源（图片 / 动态图 / 视频 / 字体 / 图标）
 # generated: false
-# validate: npm run palette:gate
+# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
 # 主题包结构：<任意主题目录>/theme.yaml + assets/…
 # 所有资源只允许主题包内相对路径；构建/导入时校验体积、格式、数量。
@@ -83,3 +83,4 @@ open_questions:
     需要宿主的文件读取接口或可访问的 URL 方案。
   - 视频解码性能/功耗上限：桌面端与低配机器需要降级策略。
   - 动态图是否会被宿主现有规则覆盖（需实测）。
+
