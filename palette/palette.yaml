@@ -13,6 +13,9 @@
 #   realization: property 的效果链（按顺序尝试，先命中先落地）
 #   aspects: recipe 的分面，各自独立效果链
 # 写：use: token / rule / dom（来自 primitives.yaml），每个写有稳定 id 供撤销。
+# 控件模板展开：id = <region>.<controlName>.<property>，例如 composer.sendButton + button →
+#   composer.sendButton.icon；controlName 来自 anchors.controls 的键（不是 role）。
+#   展开后与手写 id 重名时，手写优先（展开条目不另计）；合法展开条数 = 65，去重后合并视图 = 89。
 # =============================================================================
 api: 3
 palette_version: 3.0.0
@@ -395,7 +398,7 @@ capabilities:
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
     realization:
       - id: prefer-token
-        accepts: length
+        accepts: line_height
         when: { probe: token_live }
         writes:
           - { id: token, use: token, name: --dsw-font-markdown-base-line-height }

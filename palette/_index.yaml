@@ -64,7 +64,7 @@ modules:
   tokens:
     file: tokens.yaml
     version: 'dsh 0.2.1-rc.2 @ 687f282'
-    generated: true
+    generated: partial        # 当前为 14 条手工核实样本；完整 425 由扫描器生成
     kind: host_facts
     command: palette:scan-tokens（扫描器规划中；当前 tokens.yaml 为 14 条手工核实样本）
     summary: 宿主 token 全集与活/死状态、声明行、消费方（扫描生成，禁手改）
@@ -81,9 +81,12 @@ modules:
 counts:
   capabilities_authored: 28     # palette.yaml 里手写的条目
   capabilities_generated: 65    # 由 control_templates × controls 展开（构建期计算）
+  capabilities_unique: 89       # 手写 + 展开去重后的合并视图（4 条展开与手写重名，手写优先）
   controls: 12
   regions: 14
   roles: 27
+  regions_covered: 12           # detail / plugin 为登记缺口
+  regions_gap: [detail, plugin]
 
 # 生成物与派生物（不属于源文件，按需生成）
 artifacts:

@@ -96,7 +96,7 @@ assets:                     # 资源清单（可省略，由引用自动收集�
 
 硬规则：
 
-1. `capabilities` 的键必须是合并视图里登记过的能力 id（拼错 = 校验错误）；合并视图 = `palette.yaml` 手写能力 + `control_templates × anchors.controls` 展开能力。
+1. `capabilities` 的键必须是合并视图里登记过的能力 id（拼错 = 校验错误）；合并视图 = `palette.yaml` 手写能力（28）+ `control_templates × anchors.controls` 展开能力（65）= 89 条唯一 id。展开 id 规则：`<region>.<controlName>.<property>`，`controlName` 是 `anchors.controls` 的键的第二段（如 `composer.sendButton`），不是 `role`；与手写 id 重名时手写优先（当前 4 条重名：`menu.item.background`、`sidebar.item.background`、`code.block.background`、`markdown.link.foreground`）。
 2. `capabilities` 的值必须符合能力声明的值类型；`diurnal: true` 的类型（颜色/渐变/阴影/图片/媒体）接受单值或 `{light, dark}` 成对，`diurnal: false` 的类型（长度/数字/字体栈/字重/图标）只接受单值；`null` = 清掉该层；没写 = 不注入。
 3. `raw_tokens` 的名字不校验（任意 `--` 名，包含 `--dsl-*`、组件局部变量、宿主未来新增名）；值接受**单值字符串**或 **`{light, dark}` 对象**，不强制成对、不按 token 语义分类。
 4. 所有值与资源在写进样式表前必须解析后重新序列化（防 CSS 注入）；资源路径必须落在主题包内。
@@ -138,14 +138,14 @@ theme.yaml + assets/
 | 层 | 内容 | 谁用 |
 |---|---|---|
 | L1 | 37 个 opencode token（等价今天编辑器；内部 id = `legacy.<组>.<名字>`） | 普通用户、老主题 |
-| L2 | 语义能力菜单（`palette.yaml` 合并视图，14 区域分组；12/14 区域已有能力，detail/plugin 为登记缺口） | 想让主题「像某个世界」的用户 |
+| L2 | 语义能力菜单（`palette.yaml` 合并视图 89 条 = 28 手写 + 65 展开去重 4，14 区域分组；12/14 区域已有能力，detail/plugin 为登记缺口） | 想让主题「像某个世界」的用户 |
 | L3 | `raw_tokens`：任意 `--` 名（含 60 个 static 原子、死名、排印 token），425 个公开 token 全部可达 | 专家、外部 AI 逃生舱 |
 
 规则：L2 只列活名对应的能力，避免「调了不变」；L3 一律允许设置，保存只给状态提示，不阻止、不删除。
 
 补充定义：
 
-- **状态机（6 值，按优先级互斥判定）**：`missing`（宿主从未声明）> `dead`（声明但零消费方）> `pinned`（被宿主字面量 / `!important` 硬编码压制）> `gated`（需引擎 `!important` 才生效）> `declared-invalid`（声明值非法）> `live`。来源：`docs/research/host-style-override-attention.md`（22 行 `!important`、宿主 inline 清单）+ #136 判死规则。UI 只在保存时显示这六个词之一。
+- **状态机（6 值，按优先级互斥判定）**：`missing`（宿主从未声明）> `dead`（声明但零消费方）> `pinned`（被宿主字面量 / `!important` 硬编码压制）> `gated`（需引擎 `!important` 才生效）> `declared_invalid`（声明值非法）> `live`。来源：`docs/research/host-style-override-attention.md`（22 行 `!important`、宿主 inline 清单）+ #136 判死规则。UI 只在保存时显示这六个词之一。
 - **425 / 573 / 任意 `--` 的边界**：425 = 公开合约命名空间（`--dsw` 403 + `--shiki` 11 + `--dsh` 11，源码声明总量）；573 = 运行时页面实际出现的变量名（多出 148 个包内局部变量，如 `--dsl-*` 20 个、组件局部 56 个）；`raw_tokens` 允许任意 `--` 名（可以写 573 之外的），但只有宿主有消费方的名字才生效。「全量可达」指 425 公开合约面。
 - **14 区域覆盖**：12/14（detail、plugin 为登记缺口，见 `docs/research/color-region-map.md`）；门禁目标 14/14，是目标不是现状。
 - **184 活名的归属**：不是 L2 条目数；L2 条目是语义菜单，184 是宿主事实层名字数，映射表见 `docs/research/color-region-map.md`。356 个 token 名与 37 个 opencode token 不是同一单位，不做加法。
@@ -155,7 +155,7 @@ theme.yaml + assets/
 | 效果家族 | L1 | L2 | L3（raw_tokens） | 备注 |
 |---|---|---|---|---|
 | 颜色（含渐变/半透明） | ✅ | ✅ | ✅ | 主战场 |
-| 排印（字体/字号/行距/字重） | 37 中的 text 组 | ✅ 能力已定义 | ✅ 排印 token | 本票只定承载格式，排印验收归 #148（待用户确认拆分） |
+| 排印（字体/字号/行距/字重） | ⛔（37 个 token 里没有排印名） | ✅ 能力已定义 | ✅ 排印 token | 本票只定承载格式，排印验收归 #148（待用户确认拆分） |
 | 圆角/阴影/模糊/玻璃 | ⛔ | ✅ recipe | ✅ shadow token | 玻璃依赖 backdrop-filter，需实测层叠 |
 | 图标替换 | ⛔ | ✅ 控件级 icon 能力 | 宿主无图标 token | 运行时 DOM 替换，幂等重放 |
 | 图片/动态图/视频背景 | ⛔ | ✅ media 值类型 | 宿主无媒体 token | 视频走 `insert-media-layer`，见验收 6 |
@@ -174,15 +174,15 @@ theme.yaml + assets/
 
 ## 8. 验收判据（可变成测试）
 
-1. `palette/` 9 个 YAML 解析通过；跨模块检查 0 错误（当前命令 `python scripts/research/palette-check.py`；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
+1. `palette/` 9 个 YAML 解析通过；跨模块检查 0 错误（当前命令 `python scripts/research/palette-check.py`：校验手写 id 各段词表、value 类型、anchor/token/写原语引用、模板展开 id 唯一性、展开去重计数、`_index` 计数；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
 3. 425 个公开 token 全量可达（扫描器实现后）：生成完整 `tokens.yaml` 后，把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；当前先行用例 = 14 条样本 + 37 个 legacy 名 + 38 个死名。
 4. 老 v1 JSON 加载后 37 个 legacy 能力全部命中（夹具 + 测试）；未写的 token 取宿主默认。
 5. 值形状：`diurnal: true` 类型单值/成对都通过、`diurnal: false` 类型只接受单值、`raw_tokens` 两种形态都通过；非法值被拒。
 6. 视频背景经 `insert-media-layer` 生效，切主题后被精确撤销（无残留节点）。
 7. 预览与运行时对同一 theme.yaml 产生同一份 plan（快照测试）。
-8. 区域覆盖：合并视图中 12/14 区域至少 1 条能力（detail/plugin 已登记为缺口）；实现期门禁提升到 14/14。
-9. `_index.yaml` 计数与合并视图一致（手写数 + 展开数；不一致 = 错误，不是 warning）。
+8. 区域覆盖：合并视图 89 条唯一能力覆盖 12/14 区域（detail/plugin 已登记为缺口）；实现期门禁提升到 14/14。
+9. `_index.yaml` 计数与重算一致：`capabilities_authored`=28、`capabilities_generated`=65、`capabilities_unique`=89、`regions_covered`=12、`regions_gap`=[detail, plugin]；不一致 = 错误，不是 warning。
 
 ## 9. 未定项（不要假装已定）
 
@@ -194,7 +194,8 @@ theme.yaml + assets/
 - C2「任意选择器 + 任意属性」不开放给用户（安全与可维护性），用户只通过 `capabilities` 菜单 + `raw_tokens` 表达；需要新效果 = 作者扩 palette（待用户确认是否接受）。
 - 动效细节（过渡曲线/时长）与密度（padding/margin/gap）当前标 ⛔：前者宿主无 token、后者不在 rule 白名单；是否扩进 V3 范围待定。
 - 37 预置主题从 `*.json` 迁到目录包：归 #145。
-- `palette-check.py` 当前是 research 原型：只校验 capability 段与 token 引用（recipe/raw_tokens/值类型/live 状态、计数不符合升级为 error 属实现期）；「0 错 0 警」不覆盖全 schema。
+- `palette-check.py` 当前是 research 原型（v1.2）：已覆盖手写/展开 id 词表与唯一性、value 类型、anchor/token/写原语引用、展开去重、`_index` 计数（计数不符为 error）；**未覆盖** recipe 分面、`raw_tokens` 值形状、token live 状态校验、`values` 细节契约——这些属实现期门禁。
+- **控件展开 id 规则**是本轮（第二轮二审）新定的：此前 65 条展开中有 48 条第二段不是词表 role（`sendButton`/`tooltip`/`tab` 等），且 4 条与手写 id 重名；现统一为 `<region>.<controlName>.<property>` 并在 `palette-check.py` 中强制校验。若后续要改用别的命名（如四段式 `region.role.control.property`），属破坏性变更，需 palette_version +1.0.0。
 - #153（EC 研究票）结论被本 SPEC 引用，但该票仍 open：本 SPEC 相关结论标 `provisional`，研究票收口后复核。
 
 ## 10. 决策来源
@@ -206,4 +207,4 @@ theme.yaml + assets/
 ## 11. 变更记录
 
 - 2026-10-22 v1.0：格式确定，落盘 palette/。
-- 2026-10-22 v1.1（二审修正）：425 全量验收改可执行；`raw_tokens` 单值/成对语义统一；补 `gradient`/`asset_font`/`line_height` 类型；补 6 值状态机、425/573 边界、legacy id、效果家族矩阵、区域覆盖 12/14 与缺口；api:3 标暂定待 #140；palette 门禁注明未接 npm。
+- 2026-10-22 v1.2（第二轮二审修正）：控件模板展开 id 规则定案（`<region>.<controlName>.<property>`，65 展开 − 4 重名 = 89 唯一）；`palette-check.py` 升级校验展开合法性/唯一性/去重与计数；L1 排印能力更正为 ⛔（37 token 无排印名）；状态名统一 `declared_invalid`；tokens 样本状态计数更正（12 live + 1 dead + 1 gated）。

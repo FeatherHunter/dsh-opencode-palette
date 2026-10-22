@@ -20,8 +20,11 @@ grammar:
   property_id: '<region>.<role>.<property>'
   recipe_id: '<region>.<recipe>'
   recipe_role_id: '<region>.<role>.<recipe>'
+  expanded_property_id: '<region>.<control_name>.<property>'   # 控件模板展开：第二段是 anchors.controls 的控件名（不是 role）
+  expanded_dedupe: '展开 id 与手写 id 相同时，手写优先，展开条目不另计'
+  control_name_source: 'anchors.yaml controls 的键：<region>.<controlName>（如 composer.sendButton）'
   custom_prefix: custom
-  vocabulary_bound: true       # 三段必须来自本文件词表（custom 例外）
+  vocabulary_bound: true       # 三段必须来自本文件词表（role 段也可是已登记控件名；custom 例外）
   locked: true                 # id 发布后不可改名，只能 deprecated + replaced_by
 
 # -----------------------------------------------------------------------------
@@ -88,7 +91,7 @@ properties:
   - { id: shadow,        label: 阴影,     value: shadow }
   - { id: font_family,   label: 字体,     value: typeface }
   - { id: font_size,     label: 字号,     value: length }
-  - { id: line_height,   label: 行高,     value: length }
+  - { id: line_height,   label: 行高,     value: line_height }
   - { id: font_weight,   label: 字重,     value: weight }
   - { id: letter_spacing,label: 字距,     value: length }
   - { id: icon,          label: 图标,     value: icon }

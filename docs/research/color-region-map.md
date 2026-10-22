@@ -22,25 +22,28 @@ legacy 能力 id 规则（写进 SPEC §1）：`legacy.<组>.<名字>`，如 `le
 
 ## 2. 14 区域 × 能力数（合并视图，2026-10-22 实测）
 
-手写来自 `palette/palette.yaml`（28 条）；展开来自 `control_templates × anchors.controls`（65 条）。
+手写来自 `palette/palette.yaml`（28 条）；展开来自 `control_templates × anchors.controls`（65 条，展开 id = `<region>.<controlName>.<property>`）；其中 4 条展开与手写重名，手写优先 → 合并视图 **89 条唯一 id**（不是 93）。
 
-| 区域 | 手写 | 展开 | 合计 | 备注 |
+| 区域 | 手写 | 展开 | 唯一合计 | 备注 |
 |---|---|---|---|---|
 | global | 6 | 9 | 15 | tooltip/文本 + dialog 表面 |
 | window | 1 | 0 | 1 | 窗口外壳（标题栏 token 走 A 通道） |
-| sidebar | 2 | 4 | 6 | item 模板展开 |
+| sidebar | 2 | 4 | 5 | item 模板展开；1 条与手写重名 |
 | conversation | 1 | 14 | 15 | 2 个 button 控件 |
 | composer | 3 | 14 | 17 | 发送/附件按钮 |
 | detail | 0 | 0 | 0 | **缺口**（详情页宿主 token 少） |
 | settings | 0 | 11 | 11 | tab + switch |
-| menu | 3 | 4 | 7 | 菜单面/菜单项 |
-| code | 3 | 4 | 7 | 代码块表面 |
-| markdown | 5 | 5 | 10 | 段落/标题/链接/行距 |
+| menu | 3 | 4 | 6 | 菜单面/菜单项；1 条与手写重名 |
+| code | 3 | 4 | 6 | 代码块表面；1 条与手写重名 |
+| markdown | 5 | 5 | 9 | 段落/标题/链接/行距；1 条与手写重名 |
 | tool | 2 | 0 | 2 | 工具卡片 |
 | terminal | 1 | 0 | 1 | 终端 |
 | deliverable | 1 | 0 | 1 | 产物区 |
 | plugin | 0 | 0 | 0 | **缺口**（插件市场页） |
-| **合计** | **28** | **65** | **93** | 12/14 区域有覆盖 |
+| **合计** | **28** | **65** | **89** | 12/14 区域有覆盖 |
+
+4 条重名（手写优先）：`menu.item.background`、`sidebar.item.background`、`code.block.background`、`markdown.link.foreground`。
+展开命名规则见 `palette/vocabulary.yaml` grammar 与 `palette/SPEC.md` §3 硬规则 1；`palette-check.py` 强制展开 id 唯一且每段在词表。
 
 缺口登记：`detail`、`plugin` 两区列 `coverage-gaps`；实现期门禁目标 14/14（SPEC §8.8）。
 

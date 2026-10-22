@@ -143,7 +143,9 @@ anchors:
 # -----------------------------------------------------------------------------
 # 2. 控件清单
 #    template：套用 palette.yaml 的 control_templates，构建期展开成能力 id
-#    例：composer.sendButton + button 模板 → button.send.icon / button.send.background ...
+#    展开 id = <region>.<controlName>.<property>，如 composer.sendButton + button →
+#      composer.sendButton.icon / composer.sendButton.background ...（controlName 不是 role）
+#    与手写 id 重名时手写优先（4 条重名，见 SPEC.md §6）
 # -----------------------------------------------------------------------------
 controls:
 
@@ -182,7 +184,7 @@ controls:
     anchors: ['[role="menuitem"]', '[role="menuitemradio"]']
     confidence: documented
 
-  tab.item:
+  settings.tab:
     region: settings
     role: tab
     template: item
@@ -203,21 +205,21 @@ controls:
     anchors: ['a']
     confidence: documented
 
-  tooltip.root:
+  global.tooltip:
     region: global
     role: tooltip
     template: text
     anchors: ['[role="tooltip"]']
     confidence: documented
 
-  switch.control:
+  settings.switch:
     region: settings
     role: button
     template: button
     anchors: ['[role="switch"]']
     confidence: documented
 
-  dialog.root:
+  global.dialog:
     region: global
     role: overlay
     template: surface
