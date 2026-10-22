@@ -48,7 +48,7 @@
 
 ## 2. 颜色轴 222 名的分族表（计数）
 
-判定方法（§8 脚本）：在 `packages/client/ui-theme/src/styles/*.css` 里抓 `--(dsw|shiki|dsh)-...:` 声明；剔除**几何量、滤镜、时长**等非颜色 token；用全仓非本仓样式表的 `var(\s*--name` 计数判定消费方；`--shiki-token-*` 9 名由 shiki 运行时的 `css-variables` 主题消费（`CodeBlock.tsx:53` 的 `className: 'shiki css-variables'`），记为活。
+判定方法（§8 脚本）：在 `packages/client/ui-theme/src/styles/*.css` 里抓 `--(dsw|shiki|dsh)-...:` 声明；剔除**几何量、滤镜、时长**等非颜色 token；用全仓非本仓样式表的 `var(\s*--name` 计数判定消费方；`--shiki-token-*` 9 名由 shiki 运行时的 `css-variables` 主题消费（`CodeBlock.tsx:52` 的 `className: 'shiki css-variables'`），记为活。
 
 | 族 | 声明数 | 死名 | 活名 | 说明 |
 | --- | --- | --- | --- | --- |

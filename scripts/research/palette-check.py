@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.8）。
+"""palette/ 跨模块一致性检查（门禁原型 v1.9）。
 
 校验：
   1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -12,6 +12,7 @@
   7c. tokens.yaml 表条目：名字语法与 namespace 前缀合法；能力写死名或非 live 名时强制 allow_primary_status / allow_modifiers
   7d. tokens.yaml 表条目重名拒绝；declared 路径必须为仓库根相对（host.source 可访问时校验存在）
   7e. allow_* 必带 allow_reason；live 名不得给 allow_primary_status
+  7f. 被 `when: { probe: token_live }` 守卫的 token 写属条件写：不强制 allow_*（守卫即活死探测）；无守卫写非 live 名必须 allow_*
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
   9. _index 模块 version 与 requires 约束（语义版本比较，不满足 = error）
 
@@ -94,9 +95,11 @@ def main():
         if _cnt > 1:
             errors.append(f'tokens.{_nm}: 条目重名 {_cnt} 次（token 表必须全局唯一）')
 
-    def check_write(cid, w):
+    def check_write(cid, w, eff=None):
         wid = w.get('id', '?')
         use = w.get('use')
+        # 条件写：该 realization 条目带 token_live 探测守卫时，token 名当前不是 live 属预期，不强制 allow_*
+        guarded = ((eff or {}).get('when') or {}).get('probe') == 'token_live'
         if use not in write_kinds:
             errors.append(f'{cid}/{wid}: use {use} 未登记')
             return
@@ -133,9 +136,9 @@ def main():
                 errors.append(f'{cid}/{wid}: 给了 allow_primary_status/allow_modifiers 就必须给 allow_reason')
             if meta is not None and meta.get('status') == 'live' and has_allow_primary:
                 errors.append(f'{cid}/{wid}: 写 live 名 {tname} 不应给 allow_primary_status（放宽主状态只用于非 live 名）')
-            if meta is not None and meta.get('status') != 'live':
+            if meta is not None and meta.get('status') != 'live' and not guarded:
                 if not has_allow_primary:
-                    errors.append(f'{cid}/{wid}: 写 {tname}（主状态 {meta.get("status")}）必须显式给 allow_primary_status')
+                    errors.append(f'{cid}/{wid}: 写 {tname}（主状态 {meta.get("status")}）必须显式给 allow_primary_status，或把该 realization 标 when: {{ probe: token_live }}')
                 elif w.get('allow_primary_status') != meta.get('status'):
                     errors.append(f'{cid}/{wid}: allow_primary_status={w.get("allow_primary_status")} 与 tokens.yaml 主状态 {meta.get("status")} 不一致')
             if has_allow_mods:
@@ -165,7 +168,7 @@ def main():
                 errors.append(f'{cid}: value {c.get("value")} 不在 values.yaml')
             for eff in c.get('realization', []):
                 for w in eff.get('writes', []):
-                    check_write(cid, w)
+                    check_write(cid, w, eff)
         elif kind == 'recipe':
             if len(parts) not in (2, 3):
                 errors.append(f'{cid}: kind=recipe 应为两段或三段')
@@ -182,7 +185,7 @@ def main():
             for aname, aspect in (c.get('aspects') or {}).items():
                 for eff in aspect.get('effects', []):
                     for w in eff.get('writes', []):
-                        check_write(f'{cid}.{aname}', w)
+                        check_write(f'{cid}.{aname}', w, eff)
         else:
             errors.append(f'{cid}: 未知 kind {kind}')
 

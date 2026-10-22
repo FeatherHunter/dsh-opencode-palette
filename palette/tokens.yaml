@@ -9,7 +9,7 @@
 # 样本为人工核实值，扫描器就位后由生成物覆盖（手改会在 CI 被检测并报告）。
 # 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
 # declared 路径约定：仓库根相对路径（packages/… 或 apps/…，可带 :行号）；基准目录 = host.source。
-# 当前版本 = 骨架 + 15 条已核实样本（主状态：14 live + 1 dead；修饰标签：1 gated，
+# 当前版本 = 骨架 + 15 条已核实样本（主状态：12 live + 3 dead；修饰标签：1 gated，
 # 落在 --dsw-elevation-panel；missing 与 pinned / declared_invalid 修饰仅有词表定义，
 # 样本待扫描器补齐；命名空间覆盖 3 个）。
 # 完整 425 名由扫描器批量填充。注意：本文件 api:1 是「宿主事实表自身版本」，
@@ -83,7 +83,7 @@ status_model:
 
 # -----------------------------------------------------------------------------
 # 3. token 明细
-#    当前为「已核实样本」：14 live（其中 1 条带 gated 修饰）+ 1 dead；完整 425 名由扫描器填充（同结构）。
+#    当前为「已核实样本」：12 live（其中 1 条带 gated 修饰）+ 3 dead；完整 425 名由扫描器填充（同结构）。
 # -----------------------------------------------------------------------------
 tokens:
 
@@ -202,18 +202,20 @@ tokens:
   - name: --dsw-font-markdown-base-font-size
     namespace: dsw
     family: typography
-    status: live
+    status: dead
     declared: ['packages/client/ui-theme/src/styles/gradient-shadow-text.css:97']
-    consumed: ['--dsw-font-markdown-base 复合 token']
+    consumed: []
     in_repo: false
+    note: '长手声明但无消费方：宿主消费复合 `font: var(--dsw-font-markdown-base)`（ui-primitives/src/markdown/MarkdownText.module.css:8），从不引用该长手；inventory §1「150 个 longhand 里 149 个是死名」'
 
   - name: --dsw-font-markdown-base-line-height
     namespace: dsw
     family: typography
-    status: live
+    status: dead
     declared: ['packages/client/ui-theme/src/styles/gradient-shadow-text.css:96']
-    consumed: ['--dsw-font-markdown-base 复合 token']
+    consumed: []
     in_repo: false
+    note: '长手声明但无消费方：宿主消费复合 `font: var(--dsw-font-markdown-base)`（ui-primitives/src/markdown/MarkdownText.module.css:8），从不引用该长手；inventory §1「150 个 longhand 里 149 个是死名」'
 
 # -----------------------------------------------------------------------------
 # 4. 待确认（扫描器补齐时处理）
