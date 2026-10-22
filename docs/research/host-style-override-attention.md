@@ -8,7 +8,7 @@
 ## §0 一页结论
 
 1. **量**：宿主全仓 CSS `!important` 共 **22 行** = `packages/client` 19 行（轨迹表 10 / markdown 文本 5 / 代码块 2 / 闪烁文本 1 / 终端 1）+ `apps/desktop/renderer` 辅助页 3 行。
-2. **其中真正影响外观的只有 6 行 / 7 条声明**：代码块背景、markdown 颜色继承、闪烁文本颜色继承、终端光标（背景+字色）、轨迹事件背景、更新页错误红。其余 16 行是 padding / margin / overflow / 显隐，属排版与布局。
+2. **其中真正影响外观的只有 6 行 / 7 条声明**：代码块背景、markdown 颜色继承、闪烁文本颜色继承、终端光标（背景+字色）、轨迹事件背景、更新页错误红。其余 16 行是 padding / margin / overflow / 显隐 / 字号（`MarkdownText.module.css:169,388`）/ 对齐（`TrajectoryTable.module.css:148`），属排版与布局。
 3. **7 条里有 5 条仍能经 token 层 / 祖先色绕过**（值是 `var()` 或 `inherit`）；真正被钉死的只有桌面「强制更新」辅助页的固定红 `#d93025`（不在主 UI）。
 4. **`!important` 不总是敌人**：宿主写 `background: var(--dsw-...) !important` 时，我们改的是变量值，不需要跟它抢属性——这也是 token 层比 style 层稳的原因。
 5. **本仓目前 0 条 `!important`**（`grep` 全仓 `src/`），所以现在打不过任何宿主 `!important`。这不是 bug，是「注意表」要暴露的第一个缺口。

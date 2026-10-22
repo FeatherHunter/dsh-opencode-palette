@@ -6,6 +6,8 @@
 #
 # 能力条目里的 when.probe 只能引用这里登记的原语；
 # 代码实现也只实现这些原语（数据驱动，不写自由逻辑）。
+# 门禁（palette-check.py）校验：probe 名必须登记、args 键必须在原语声明的 args 内；
+# token_live 作为 realization 守卫时省略 args.name = 逐写绑定各自 token 名（见 primitives.yaml §1b）。
 # =============================================================================
 api: 3
 
@@ -25,7 +27,7 @@ primitives:
     kind: host
     eval: token_status_live
     args: [name]
-    description: 该宿主 token 有消费方（status=live），写它才会生效。
+    description: 该宿主 token 有消费方（status=live），写它才会生效。作为 realization 守卫时 `args.name` 可省略：省略即逐写绑定该 realization 内 token 写各自的 token 名；显式给出时必须与写入名一致。
 
   token_declared:
     label: token 已声明

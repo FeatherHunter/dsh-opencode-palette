@@ -25,6 +25,8 @@ write_kinds:
       通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
       本原语只服务 palette 作者（能力绑定）：名字必须在 tokens.yaml 里主状态 = live；
       允许写死名/门控名时须显式 allow_primary_status / allow_modifiers + allow_reason。
+      例外（v1.10）：realization 级 `when: { probe: token_live }` 守卫的条件写——守卫已表达
+      「只在该 token 活着时才写」，该守卫绑定的 token 写可不给 allow_*（详见 §1b realization schema）。
       用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
     fields:
       name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 语法上任意 -- 名；存在性由 validates 约束
@@ -40,6 +42,7 @@ write_kinds:
       - 出现 allow_primary_status 或 allow_modifiers 时 allow_reason 必填
       - live 名不得给 allow_primary_status（放宽主状态只用于非 live 名）
       - tokens.yaml 表内条目名全局唯一（重名 = 门禁错误）
+      - 'token_live 守卫的条件写例外（v1.10）：被 realization 级 when: { probe: token_live } 守卫、且未显式给 allow_* 的 token 写视为合法；守卫绑定该写自己的 token 名（见 §1b）'
 
   # —— 手段二：rule —— 注入 CSS 规则（选择器 / @font-face / @keyframes）
   rule:
@@ -149,6 +152,27 @@ write_kinds:
       api:     { required: true, type: string }
       params:  { required: false, type: map }
       teardown: { required: true, type: enum, ref: teardowns }
+
+# -----------------------------------------------------------------------------
+# 1b. realization 结构（能力条目 → 效果链；token 守卫的单一契约源）
+# -----------------------------------------------------------------------------
+realization:
+  description: |
+    一个能力（capability）由若干 realization 组成，按声明顺序取第一条「探测通过」的；
+    recipe 的每个 aspect 各自独立降级。realization 级 when 是整条效果链的前置探测。
+  fields:
+    id:       { required: true,  type: string }                 # 能力条目内唯一
+    accepts:  { required: false, type: value_type_ref }         # 该效果链接受的值类型
+    when:     { required: false, type: guard }                  # 探测守卫
+    writes:   { required: true,  type: list, item: write }      # 至少一条写
+  guard:
+    probe:    { required: true,  type: string, ref: probes.primitives }
+    args:     { required: false, type: map }                    # 键必须在探测原语声明的 args 内
+  validates:
+    - when.probe 必须引用 probes.yaml 已登记的原语；args 的键必须是该原语声明的参数
+    - token_live 守卫的绑定：显式给 args.name 时，该 realization 内每个 token 写的 name 必须与之一致；省略 args.name 时逐写绑定各自 token 名（每条 token 写只在自己那个 token 活着时执行）
+    - 守卫只对 token 写生效；realization 内其余写（rule/dom）照常执行，除非另有 when
+    - 无守卫的 token 写必须遵守 write_kinds.token.validates 的 allow_* 规则
 
 # -----------------------------------------------------------------------------
 # 2. 全局策略

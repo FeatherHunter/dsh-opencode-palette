@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.9）。
+"""palette/ 跨模块一致性检查（门禁原型 v1.10）。
 
 校验：
   1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -9,10 +9,11 @@
   6. 展开 id 与手写 id 重名时手写优先（去重计数）
   7. anchors.yaml 的 coverage 计数与清单一致
   7b. tokens.yaml 状态模型：主状态恰为 live/dead/missing，修饰恰为 pinned/gated/declared_invalid，样本状态值合法；primitives.token 的 allow_* 取值与之一致
-  7c. tokens.yaml 表条目：名字语法与 namespace 前缀合法；能力写死名或非 live 名时强制 allow_primary_status / allow_modifiers
+  7c. tokens.yaml 表条目：名字语法与 namespace 前缀合法；能力写死名或非 live 名时强制 allow_primary_status / allow_modifiers（守卫例外见 7f/7g）
   7d. tokens.yaml 表条目重名拒绝；declared 路径必须为仓库根相对（host.source 可访问时校验存在）
   7e. allow_* 必带 allow_reason；live 名不得给 allow_primary_status
   7f. 被 `when: { probe: token_live }` 守卫的 token 写属条件写：不强制 allow_*（守卫即活死探测）；无守卫写非 live 名必须 allow_*
+  7g. realization.when 守卫：probe 必须登记、args 键必须是该原语参数；token_live 显式 args.name 必须与写入 token 名一致，省略则逐写绑定（契约源 = primitives.yaml §1b）
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
   9. _index 模块 version 与 requires 约束（语义版本比较，不满足 = error）
 
@@ -82,6 +83,8 @@ def main():
     status_model = tokens.get('status_model', {})
     primary_values = set((status_model.get('primary_status') or {}).keys())
     modifier_values = set((status_model.get('modifiers') or {}).keys())
+    probe_defs = probes.get('primitives') or {}
+    realization_schema = prims.get('realization') or {}
 
     errors, warnings = [], []
     token_refs = set()
@@ -95,11 +98,39 @@ def main():
         if _cnt > 1:
             errors.append(f'tokens.{_nm}: 条目重名 {_cnt} 次（token 表必须全局唯一）')
 
-    def check_write(cid, w, eff=None):
+    def check_when(cid, eff):
+        """校验 realization.when 守卫：probe 必须登记、args 键必须在该原语声明的 args 内。"""
+        when = eff.get('when')
+        if when is None:
+            return None
+        if not isinstance(when, dict) or not when:
+            errors.append(f'{cid}: realization.when 必须是非空映射')
+            return None
+        probe = when.get('probe')
+        if probe not in probe_defs:
+            errors.append(f'{cid}: when.probe {probe} 未在 probes.yaml 登记')
+            return None
+        allowed = set(probe_defs[probe].get('args') or [])
+        for k in when:
+            if k in ('probe', 'args'):
+                continue
+            errors.append(f'{cid}: when 出现未知键 {k}（只允许 probe 与 args）')
+        gargs = when.get('args') or {}
+        if not isinstance(gargs, dict):
+            errors.append(f'{cid}: when.args 必须是映射')
+        else:
+            for ak in gargs:
+                if ak not in allowed:
+                    errors.append(f'{cid}: when.args.{ak} 不是探测原语 {probe} 的参数（允许 {sorted(allowed)}）')
+        return probe
+
+    def check_write(cid, w, eff=None, probe=None):
         wid = w.get('id', '?')
         use = w.get('use')
-        # 条件写：该 realization 条目带 token_live 探测守卫时，token 名当前不是 live 属预期，不强制 allow_*
-        guarded = ((eff or {}).get('when') or {}).get('probe') == 'token_live'
+        # 条件写：realization 级 token_live 探测守卫（守卫即活死探测，token 名当前不是 live 属预期）
+        guarded = probe == 'token_live'
+        if guarded and w.get('when'):
+            errors.append(f'{cid}/{wid}: 守卫只能写在 realization 级 when，不能写在 write 上')
         if use not in write_kinds:
             errors.append(f'{cid}/{wid}: use {use} 未登记')
             return
@@ -130,6 +161,11 @@ def main():
             tname = w.get('name')
             token_refs.add(tname)
             meta = token_status.get(tname)
+            if guarded:
+                _wargs = ((eff or {}).get('when') or {}).get('args') or {}
+                _gname = _wargs.get('name')
+                if _gname is not None and _gname != tname:
+                    errors.append(f'{cid}/{wid}: token_live 守卫 args.name={_gname} 与写入 token {tname} 不一致')
             has_allow_primary = 'allow_primary_status' in w
             has_allow_mods = 'allow_modifiers' in w
             if (has_allow_primary or has_allow_mods) and not w.get('allow_reason'):
@@ -167,8 +203,9 @@ def main():
             if c.get('value') not in value_types:
                 errors.append(f'{cid}: value {c.get("value")} 不在 values.yaml')
             for eff in c.get('realization', []):
+                probe = check_when(cid, eff)
                 for w in eff.get('writes', []):
-                    check_write(cid, w, eff)
+                    check_write(cid, w, eff, probe)
         elif kind == 'recipe':
             if len(parts) not in (2, 3):
                 errors.append(f'{cid}: kind=recipe 应为两段或三段')
@@ -184,8 +221,9 @@ def main():
                     errors.append(f'{cid}: recipe {parts[2]} 不在词表')
             for aname, aspect in (c.get('aspects') or {}).items():
                 for eff in aspect.get('effects', []):
+                    probe = check_when(f'{cid}.{aname}', eff)
                     for w in eff.get('writes', []):
-                        check_write(f'{cid}.{aname}', w, eff)
+                        check_write(f'{cid}.{aname}', w, eff, probe)
         else:
             errors.append(f'{cid}: 未知 kind {kind}')
 
