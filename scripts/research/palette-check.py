@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.3）。
+"""palette/ 跨模块一致性检查（门禁原型 v1.5）。
 
 校验：
   1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -9,6 +9,7 @@
   6. 展开 id 与手写 id 重名时手写优先（去重计数）
   7. anchors.yaml 的 coverage 计数与清单一致
   7b. tokens.yaml 状态模型：主状态恰为 live/dead/missing，修饰恰为 pinned/gated/declared_invalid，样本状态值合法；primitives.token 的 allow_* 取值与之一致
+  7c. tokens.yaml 表条目：名字语法与 namespace 前缀合法；能力写死名或非 live 名时强制 allow_primary_status / allow_modifiers
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
 
 用法：python scripts/research/palette-check.py
@@ -16,6 +17,7 @@
 """
 import glob
 import os
+import re
 import sys
 
 import yaml
@@ -70,7 +72,12 @@ def main():
     rule_policies = write_kinds['rule']['policies']
     allowed_props = set(rule_policies['allowed_css_properties'])
     allowed_at = {k: set(v) for k, v in rule_policies['allowed_at_descriptors'].items()}
-    token_names = {t['name'] for t in tokens['tokens']}
+    token_status = {t['name']: t for t in tokens.get('tokens', [])}
+    token_names = set(token_status)
+    namespace_keys = {k for k in (tokens.get('namespaces') or {}) if k != 'total'}
+    status_model = tokens.get('status_model', {})
+    primary_values = set((status_model.get('primary_status') or {}).keys())
+    modifier_values = set((status_model.get('modifiers') or {}).keys())
 
     errors, warnings = [], []
     token_refs = set()
@@ -105,7 +112,21 @@ def main():
                 if '*' not in allowed and key not in allowed:
                     errors.append(f'{cid}/{wid}: decl 键 {key} 不在白名单')
         elif use == 'token':
-            token_refs.add(w.get('name'))
+            tname = w.get('name')
+            token_refs.add(tname)
+            meta = token_status.get(tname)
+            if meta is not None and meta.get('status') != 'live':
+                if 'allow_primary_status' not in w:
+                    errors.append(f'{cid}/{wid}: 写 {tname}（主状态 {meta.get("status")}）必须显式给 allow_primary_status')
+                elif w.get('allow_primary_status') != meta.get('status'):
+                    errors.append(f'{cid}/{wid}: allow_primary_status={w.get("allow_primary_status")} 与 tokens.yaml 主状态 {meta.get("status")} 不一致')
+            if 'allow_modifiers' in w:
+                allowed_mods = set(meta.get('modifiers') or []) if meta is not None else set()
+                for m in (w.get('allow_modifiers') or []):
+                    if m not in modifier_values:
+                        errors.append(f'{cid}/{wid}: allow_modifiers 含未登记修饰 {m}')
+                    elif meta is not None and m not in allowed_mods:
+                        errors.append(f'{cid}/{wid}: allow_modifiers 含 {m}，但 tokens.yaml 该名没有此修饰')
 
     caps = palette['capabilities']
     for cid, c in caps.items():
@@ -210,9 +231,6 @@ def main():
             errors.append(f'anchors.coverage.{key}={anchor_coverage.get(key)} 实际 {actual}')
 
     # —— tokens.yaml 状态模型 schema（主状态 + 修饰标签） ——
-    status_model = tokens.get('status_model', {})
-    primary_values = set((status_model.get('primary_status') or {}).keys())
-    modifier_values = set((status_model.get('modifiers') or {}).keys())
     if primary_values != {'live', 'dead', 'missing'}:
         errors.append(f'tokens.status_model.primary_status 必须恰为 live/dead/missing，实际 {sorted(primary_values)}')
     if modifier_values != {'pinned', 'gated', 'declared_invalid'}:
@@ -234,6 +252,21 @@ def main():
                 errors.append(f'tokens.{tname}: modifier={m} 未在 status_model.modifiers 登记')
             else:
                 t_mod[m] += 1
+
+    # —— tokens.yaml 表条目语法与 namespace 前缀 ——
+    TOKEN_RE = re.compile(r'^--[a-z0-9][a-z0-9-]*$')
+    for t in tokens.get('tokens', []):
+        tname = t.get('name', '')
+        if not isinstance(tname, str) or not TOKEN_RE.match(tname):
+            errors.append(f'tokens.{tname!r}: 条目名语法非法（应为 --[a-z0-9][a-z0-9-]*）')
+            continue
+        if t.get('namespace') not in namespace_keys:
+            errors.append(f'tokens.{tname}: namespace={t.get("namespace")} 未在 tokens.namespaces 登记')
+        elif not tname.startswith('--' + t['namespace'] + '-'):
+            errors.append(f'tokens.{tname}: 名字前缀与 namespace={t.get("namespace")} 不一致')
+        for req in ('family', 'status'):
+            if req not in t:
+                errors.append(f'tokens.{tname}: 缺字段 {req}')
 
     token_fields = write_kinds['token']['fields']
     if 'allow_status' in token_fields:

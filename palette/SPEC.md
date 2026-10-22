@@ -1,6 +1,6 @@
 # V3 主题格式规格（palette.yaml + theme.yaml + assets）
 
-- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口；已过四轮独立对抗式二审修正（v1.1 → v1.4）
+- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口；已过五轮独立对抗式二审修正（v1.1 → v1.5）
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
 - 机器源：`palette/` 目录；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁为准
 - 未定项：见 §9，由后续票承接（不在本文假装已定）
@@ -145,7 +145,7 @@ theme.yaml + assets/
 
 补充定义：
 
-- **状态模型（主状态 + 修饰，不是单值互斥）**：主状态 `live`（有消费方）/ `dead`（声明但零消费方）/ `missing`（宿主从未声明），三者互斥；颜色轴 184 + 38 + 0 = 222 恰好分完。修饰状态可叠加在主状态上：`declared_invalid`（声明链断裂，颜色轴 2：`--shiki-foreground/background`，写在 body 级可救）、`pinned`（被宿主字面量或 `!important` 压制，1–2）、`gated`（宿主元素级重声明，body 级写入被盖掉；颜色轴 **5** = `--dsw-elevation-stroke/-panel/-prominent/-soft/-stroke-color`；另有 `--dsh-scrollbar-thumb` 1 名属 `--dsh` 轴、不在 222 内；旧记「gated 6」是跨轴合计）。UI 显示「主状态 + 修饰标签」，不是六选一。机器源：`palette/tokens.yaml` §2（`status_model`）+ `palette/primitives.yaml` token 原语字段（`allow_primary_status` / `allow_modifiers`），由 `palette-check.py` 校验。来源：`docs/research/host-style-override-attention.md` + `docs/research/color-axis-token-inventory.md` §5 + #136 判死规则。
+- **状态模型（主状态 + 修饰，不是单值互斥）**：主状态 `live`（有消费方）/ `dead`（声明但零消费方）/ `missing`（宿主从未声明），三者互斥；颜色轴 184 + 38 + 0 = 222 恰好分完。修饰状态可叠加在主状态上：`declared_invalid`（声明链断裂，颜色轴 2：`--shiki-foreground/background`，写在 body 级可救）、`pinned`（被宿主字面量或 `!important` 压制，1–2）、`gated`（宿主元素级重声明，body 级写入被盖掉；颜色轴 **5** = `--dsw-elevation-stroke/-panel/-prominent/-soft/-stroke-color`；另有 `--dsh-scrollbar-thumb` 1 名属 `--dsh` 轴、不在 222 内；旧记「gated 6」是跨轴合计）。UI 显示「主状态 + 修饰标签」，不是六选一。机器源：`palette/tokens.yaml` §2（`status_model`）+ `palette/primitives.yaml` token 原语字段（`allow_primary_status` / `allow_modifiers`），由 `palette-check.py` 校验。`gated` 只指「元素级重声明」这一种机制；shiki 运行时消费（CSS 扫描看不见消费方）属探测盲区，主状态仍记 `live`，不是 gated。来源：`docs/research/host-style-override-attention.md` + `docs/research/color-axis-token-inventory.md` §5 + #136 判死规则。
 - **425 / 573 / 任意 `--` 的边界**：425 = 公开合约命名空间（`--dsw` 403 + `--shiki` 11 + `--dsh` 11，源码声明总量）；573 = 运行时页面实际出现的变量名（多出 148 个包内局部变量，如 `--dsl-*` 20 个、组件局部 56 个）；`raw_tokens` 允许任意 `--` 名（可以写 573 之外的），但只有宿主有消费方的名字才生效。「全量可达」指 425 公开合约面。
 - **14 区域覆盖**：12/14（detail、plugin 为登记缺口，见 `docs/research/color-region-map.md`）；门禁目标 14/14，是目标不是现状。
 - **184 活名的归属**：不是 L2 条目数；L2 条目是语义菜单，184 是宿主事实层名字数，映射表见 `docs/research/color-region-map.md`。425 个 token 名与 37 个 opencode token 不是同一单位，不做加法。
@@ -174,7 +174,7 @@ theme.yaml + assets/
 
 ## 8. 验收判据（可变成测试）
 
-1. `palette/` 9 个 YAML 全部被解析（`palette-check.py` v1.4 会 load 全部 9 个）；跨模块检查 0 错误（校验：手写/展开 id 各段词表与唯一性、value 类型、anchor/token（存在性）/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态/修饰/`allow_*` 一致）、`_index` 计数（含 `regions_gap`，不符 = 错误）；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
+1. `palette/` 9 个 YAML 全部被解析（`palette-check.py` v1.5 会 load 全部 9 个）；跨模块检查 0 错误（校验：手写/展开 id 各段词表与唯一性、value 类型、anchor/token（存在性）/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态/修饰/`allow_*` 一致）、tokens 表条目名语法与命名空间前缀、写死名或非 live 名时 `allow_primary_status`/`allow_modifiers` 强制、`_index` 计数（含 `regions_gap`，不符 = 错误）；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
 3. 425 个公开 token 全量可达（扫描器实现后）：生成完整 `tokens.yaml` 后，把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；当前先行用例 = 14 条样本 + 37 个 legacy 名 + 38 个死名。
 4. 老 v1 JSON 加载后 37 个 legacy 能力全部命中（夹具 + 测试）；未写的 token 取宿主默认。
@@ -194,8 +194,8 @@ theme.yaml + assets/
 - C2「任意选择器 + 任意属性」不开放给用户（安全与可维护性），用户只通过 `capabilities` 菜单 + `raw_tokens` 表达；需要新效果 = 作者扩 palette（待用户确认是否接受）。
 - 动效细节（过渡曲线/时长）与密度（padding/margin/gap）当前标 ⛔：前者宿主无 token、后者不在 rule 白名单；是否扩进 V3 范围待定。
 - 37 预置主题从 `*.json` 迁到目录包：归 #145。
-- `palette-check.py` 当前是 research 原型（v1.4）：已覆盖全部 9 个 YAML 解析、手写/展开 id 词表与唯一性、value 类型、anchor/token 存在性/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态恰为 live/dead/missing、修饰恰为 pinned/gated/declared_invalid、`primitives.token.allow_*` 与 `status_model` 一致）、`_index` 计数（含 `regions_gap`，不符为 error）；**未覆盖** `raw_tokens` 值形状、主题加载管线、token live 状态的完整表校验、`values` 细节契约——这些属实现期门禁。
-- **状态模型单源化**（第四轮二审修正）：`palette/tokens.yaml` §2 的 `status_model`（primary_status + modifiers）与 `palette/primitives.yaml` token 原语字段 `allow_primary_status` / `allow_modifiers` 是唯一机器源；旧研究笔记里的「gated 6」是跨轴合计（颜色轴 5 + `--dsh` 轴 1），颜色轴计数以 5 为准。
+- `palette-check.py` 当前是 research 原型（v1.5）：已覆盖全部 9 个 YAML 解析、手写/展开 id 词表与唯一性、value 类型、anchor/token 存在性/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态恰为 live/dead/missing、修饰恰为 pinned/gated/declared_invalid、`primitives.token.allow_*` 与 `status_model` 一致）、tokens 表条目名语法与命名空间前缀、能力写死名或非 live 名时强制 `allow_primary_status`/`allow_modifiers`、`_index` 计数（含 `regions_gap`，不符为 error）；**未覆盖** `raw_tokens` 值形状、主题加载管线、token 表 425 全量扫描校验与表内条目真实性（是否真在宿主存在；checker 只校验语法/结构/namespace 前缀，真实性由扫描器负责）、`values` 细节契约——这些属实现期门禁。
+- **状态模型单源化**（第四轮二审修正）：`palette/tokens.yaml` §2 的 `status_model`（primary_status + modifiers）与 `palette/primitives.yaml` token 原语字段 `allow_primary_status` / `allow_modifiers` 是唯一机器源；旧研究笔记里的「gated 6」是跨轴合计（颜色轴 5 + `--dsh` 轴 1），颜色轴计数以 5 为准。**v1.5 定义统一**：`gated` = 元素级重声明（`gradient-shadow-text.css:31-40` 的 elevation 族等）；shiki 运行时消费不是 gated——它是「CSS var() 扫描看不见消费方」的探测盲区，主状态仍按「有运行时消费方」记 `live`。
 - **控件展开 id 规则**是本轮（第二轮二审）新定的：此前 65 条展开中有 48 条第二段不是词表 role（`sendButton`/`tooltip`/`tab` 等），且 4 条与手写 id 重名；现统一为 `<region>.<controlName>.<property>` 并在 `palette-check.py` 中强制校验。若后续要改用别的命名（如四段式 `region.role.control.property`），属破坏性变更，需 palette_version +1.0.0。
 - #153（EC 研究票）结论被本 SPEC 引用，但该票仍 open：本 SPEC 相关结论标 `provisional`，研究票收口后复核。
 
@@ -212,3 +212,4 @@ theme.yaml + assets/
 - 2026-10-22 v1.2（第二轮二审修正）：控件模板展开 id 规则定案（`<region>.<controlName>.<property>`，65 展开 − 4 重名 = 89 唯一）；`palette-check.py` 升级校验展开合法性/唯一性/去重与计数；L1 排印能力更正为 ⛔（37 token 无排印名）；状态名统一 `declared_invalid`；tokens 样本状态计数更正（12 live + 1 dead + 1 gated）。
 - 2026-10-22 v1.3（第三轮二审修正）：状态模型改「主状态 live/dead/missing + 修饰 declared_invalid/pinned/gated」（消除 6 值互斥与 184+38 的算术冲突）；`palette-check.py` 升级为 load 全部 9 个 YAML、token 存在性/recipe 名/decl 白名单/控件 role/置信度计数/`regions_gap` 全部 error；修正 28+65−4 算式、锚点覆盖计数（15/7/1）、`color-region-map` 的「93 个活名未写」口误；Q3 在决定评论与文档中统一标「推荐 A、待用户逐字裁定」。
 - 2026-10-22 v1.4（第四轮二审修正）：机器源单源化——`tokens.yaml` 改 `status_model`（primary_status + modifiers）、样本 `--shiki-token-string` 改 `status: live` + `modifiers: [gated]`、`primitives.token` 的 `allow_status` 拆为 `allow_primary_status` / `allow_modifiers`；`palette-check.py` 增加状态模型 schema 校验与 `allow_*` 一致性校验；gated 计数改为「颜色轴 5 + `--dsh` 轴 1」；`color-axis-token-inventory.md` §5 改主状态+修饰表；`anchors.coverage.template_expandable` 改名 `template_expandable_controls`；决定评论同步第 4 轮与 ❓Q5 定义。
+- 2026-10-22 v1.5（第五轮二审修正）：修饰标签**定义**统一——`gated` 只指元素级重声明，shiki 运行时消费改为「探测盲区」注记（样本 `--shiki-token-string` 去掉 gated，新增 `--dsw-elevation-panel` 作 gated 样本）；`palette-check.py` 增加 tokens 表条目名语法/命名空间前缀校验与「写死名或非 live 名必须显式 `allow_primary_status`/`allow_modifiers`」强制；修正 checker 文档版本号与决定评论验收判据①的 v1.3 残留；body 第 1 条判据措辞改为「①可执行；②③ 属实现期门禁」。
