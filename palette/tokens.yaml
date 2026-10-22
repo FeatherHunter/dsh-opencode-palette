@@ -92,7 +92,7 @@ tokens:
     namespace: dsw
     family: static
     status: dead
-    declared: ['packages/client/ui-theme/src/styles/design-platform.css:15']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:15', 'packages/client/ui-theme/src/styles/design-platform.css:96']
     consumed: []
     in_repo: false
     note: 死 static 之一（17 个死 static 见 color-axis-token-inventory.md §3）

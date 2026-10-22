@@ -1,6 +1,6 @@
 # V3 主题格式规格（palette.yaml + theme.yaml + assets）
 
-- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口；已过七轮独立对抗式二审修正（v1.1 → v1.7）
+- 状态：架构已定（2026-10-22），由「讨论：Token 模型与「全量」边界（第 1/2 条·颜色轴）」(#147) 收口；已过八轮独立对抗式二审修正（v1.1 → v1.8）
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
 - 机器源：`palette/` 目录；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁为准
 - 未定项：见 §9，由后续票承接（不在本文假装已定）
@@ -167,14 +167,14 @@ theme.yaml + assets/
 
 - `api`：主题 schema 版本（当前暂定 3）；v1 JSON 无此字段 → 自动按 v1 处理。**api 编号与 `raw_tokens` 字段名由 #140 最终确认**（本票只定「有版本、有逃生舱」）。
 - `palette_version`：能力集自身版本（新增能力 +0.1.0，破坏性 +1.0.0）。
-- 模块 `version` + `_index.yaml` 的 `requires`：跨模块不兼容时门禁报错。
+- 模块 `version` + `_index.yaml` 的 `requires`：跨模块不兼容时门禁报错（`palette-check.py` v1.8 已实现）。
 - `tokens.yaml` / `anchors.yaml` 版本 = 宿主版本 + commit（当前 `dsh 0.2.1-rc.2 @ 687f282`），随宿主升级整体替换；`tokens.yaml` 自身 `api: 1` 是事实表独立版本，与主题 `api: 3` 无关。
 - 旧 v1 37 个 opencode token 保留为映射层、不改名（对应原第 16 条）；第 23 条（37 款预置主题颜色升级）是主题数据升级，归 #145，与本映射层不是同一件事。
 - `vocabulary.yaml` roles 当前 27 个（注释计数已删，以 `_index.yaml` 合并视图为准）。
 
 ## 8. 验收判据（可变成测试）
 
-1. `palette/` 9 个 YAML 全部被解析（`palette-check.py` v1.6 会 load 全部 9 个）；跨模块检查 0 错误（校验：手写/展开 id 各段词表与唯一性、value 类型、anchor/token（存在性）/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态/修饰/`allow_*` 一致）、tokens 表条目名语法与命名空间前缀、写死名或非 live 名时 `allow_primary_status`/`allow_modifiers` 强制（`allow_reason` 必填、live 名不得放宽主状态）、token 表条目重名拒绝、declared 路径必须为仓库根相对且在 host.source 可访问时存在、`_index` 计数（含 `regions_gap`，不符 = 错误）；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
+1. `palette/` 9 个 YAML 全部被解析（`palette-check.py` v1.8 会 load 全部 9 个）；跨模块检查 0 错误（校验：手写/展开 id 各段词表与唯一性、value 类型、anchor/token（存在性）/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态/修饰/`allow_*` 一致）、tokens 表条目名语法与命名空间前缀、写死名或非 live 名时 `allow_primary_status`/`allow_modifiers` 强制（`allow_reason` 必填、live 名不得放宽主状态）、token 表条目重名拒绝、declared 路径必须为仓库根相对且在 host.source 可访问时存在、`_index` 计数（含 `regions_gap`，不符 = 错误）、模块 `version` 与 `requires` 约束（语义版本比较）；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
 3. 425 个公开 token 全量可达（扫描器实现后）：生成完整 `tokens.yaml` 后，把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；当前先行用例 = 15 条样本 + 37 个 legacy 名 + 38 个死名。
 4. 老 v1 JSON 加载后 37 个 legacy 能力全部命中（夹具 + 测试）；未写的 token 取宿主默认。
@@ -194,7 +194,7 @@ theme.yaml + assets/
 - C2「任意选择器 + 任意属性」不开放给用户（安全与可维护性），用户只通过 `capabilities` 菜单 + `raw_tokens` 表达；需要新效果 = 作者扩 palette（待用户确认是否接受）。
 - 动效细节（过渡曲线/时长）与密度（padding/margin/gap）当前标 ⛔：前者宿主无 token、后者不在 rule 白名单；是否扩进 V3 范围待定。
 - 37 预置主题从 `*.json` 迁到目录包：归 #145。
-- `palette-check.py` 当前是 research 原型（v1.6）：已覆盖全部 9 个 YAML 解析、手写/展开 id 词表与唯一性、value 类型、anchor/token 存在性/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态恰为 live/dead/missing、修饰恰为 pinned/gated/declared_invalid、`primitives.token.allow_*` 与 `status_model` 一致）、tokens 表条目名语法与命名空间前缀、能力写死名或非 live 名时强制 `allow_primary_status`/`allow_modifiers`（`allow_reason` 必填、live 名不得给 `allow_primary_status`）、token 表条目重名拒绝、declared 路径格式（仓库根相对）与存在性（host.source 可访问时）、`_index` 计数（含 `regions_gap`，不符为 error）；**未覆盖** `raw_tokens` 值形状、主题加载管线、token 表 425 全量扫描校验与表内条目真实性（是否真在宿主存在/被消费；checker 只做 declared 文件存在性，真实性与消费关系由扫描器负责）、`values` 细节契约——这些属实现期门禁。
+- `palette-check.py` 当前是 research 原型（v1.8）：已覆盖全部 9 个 YAML 解析、手写/展开 id 词表与唯一性、value 类型、anchor/token 存在性/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、锚点与控件置信度计数、tokens 状态模型 schema（主状态恰为 live/dead/missing、修饰恰为 pinned/gated/declared_invalid、`primitives.token.allow_*` 与 `status_model` 一致）、tokens 表条目名语法与命名空间前缀、能力写死名或非 live 名时强制 `allow_primary_status`/`allow_modifiers`（`allow_reason` 必填、live 名不得给 `allow_primary_status`）、token 表条目重名拒绝、declared 路径格式（仓库根相对）与存在性（host.source 可访问时）、`_index` 计数（含 `regions_gap`，不符为 error）、模块 `version` 与 `requires` 约束（语义版本比较）；**未覆盖** `raw_tokens` 值形状、主题加载管线、token 表 425 全量扫描校验与表内条目真实性（是否真在宿主存在/被消费；checker 只做 declared 文件存在性，真实性与消费关系由扫描器负责）、`values` 细节契约——这些属实现期门禁。
 - **状态模型单源化**（第四轮二审修正）：`palette/tokens.yaml` §2 的 `status_model`（primary_status + modifiers）与 `palette/primitives.yaml` token 原语字段 `allow_primary_status` / `allow_modifiers` 是唯一机器源；旧研究笔记里的「gated 6」是跨轴合计（颜色轴 5 + `--dsh` 轴 1），颜色轴计数以 5 为准。**v1.5 定义统一**：`gated` = 元素级重声明（`gradient-shadow-text.css:31-40` 的 elevation 族等）；shiki 运行时消费不是 gated——它是「CSS var() 扫描看不见消费方」的探测盲区，主状态仍按「有运行时消费方」记 `live`。**v1.6 再统一 `pinned`**：`pinned` = 宿主字面量 / `!important` / inline 压制（写入当前不生效，但用户层与 L3 **一律允许设置**、只提示不阻止）；旧探针笔记里的「拒绝写入 / `PINNED_NO_EMIT` / G2」只是**引擎自动生成过滤层**的策略，不是用户层禁令。
 - **控件展开 id 规则**是本轮（第二轮二审）新定的：此前 65 条展开中有 48 条第二段不是词表 role（`sendButton`/`tooltip`/`tab` 等），且 4 条与手写 id 重名；现统一为 `<region>.<controlName>.<property>` 并在 `palette-check.py` 中强制校验。若后续要改用别的命名（如四段式 `region.role.control.property`），属破坏性变更，需 palette_version +1.0.0。
 - #153（EC 研究票）结论被本 SPEC 引用，但该票仍 open：本 SPEC 相关结论标 `provisional`，研究票收口后复核。
@@ -215,3 +215,4 @@ theme.yaml + assets/
 - 2026-10-22 v1.5（第五轮二审修正）：修饰标签**定义**统一——`gated` 只指元素级重声明，shiki 运行时消费改为「探测盲区」注记（样本 `--shiki-token-string` 去掉 gated，新增 `--dsw-elevation-panel` 作 gated 样本）；`palette-check.py` 增加 tokens 表条目名语法/命名空间前缀校验与「写死名或非 live 名必须显式 `allow_primary_status`/`allow_modifiers`」强制；修正 checker 文档版本号与决定评论验收判据①的 v1.3 残留；body 第 1 条判据措辞改为「①可执行；②③ 属实现期门禁」。
 - 2026-10-22 v1.6（第六轮二审修正）：样本计数全仓统一为 15（14 live + 1 dead；1 gated）；checker 增加 token 表重名拒绝、`allow_reason` 必填、live 名不得给 `allow_primary_status`、declared 路径格式（仓库根相对）与存在性（host.source 可访问时）校验；`tokens.yaml` 的 declared 统一为 `packages/client/...` 全路径；`pinned` 定义统一为「宿主压制、仍允许设置、只提示」，旧探针笔记的「拒绝写入/PINNED_NO_EMIT」注明为引擎过滤层策略。
 - 2026-10-22 v1.7（第七轮二审修正）：文档级 P2 补正——§9「未覆盖」段改为 declared 只做存在性、不校验宿主真实性；`tokens.yaml` 的 `--dsh-content-font-size` declared 行号改 `:31`（字面量位置，非 `:78` 的 setProperty 写循环）；inventory §0 #7 注明「平台门控/主动拒写」属引擎过滤层分类、不进入用户层状态机；探针笔记六值枚举补 v1.6 注。
+- 2026-10-22 v1.8（第八轮二审修正）：`tokens.yaml` 的 `--dsw-static-blue-50` 补第二处声明行 `design-platform.css:96`；`palette-check.py` 补 `_index` 模块 `version` 与 `requires` 语义版本约束校验（此前 SPEC §7/README 声称门禁校验但未实现），并输出校验项 9；文档版本号同步 v1.8。

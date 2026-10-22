@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.6）。
+"""palette/ 跨模块一致性检查（门禁原型 v1.8）。
 
 校验：
   1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -13,6 +13,7 @@
   7d. tokens.yaml 表条目重名拒绝；declared 路径必须为仓库根相对（host.source 可访问时校验存在）
   7e. allow_* 必带 allow_reason；live 名不得给 allow_primary_status
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
+  9. _index 模块 version 与 requires 约束（语义版本比较，不满足 = error）
 
 用法：python scripts/research/palette-check.py
 退出码：0 无错误；1 有错误。
@@ -345,6 +346,38 @@ def main():
     for mname, meta in modules.items():
         if meta.get('file') not in FILES:
             errors.append(f'_index modules.{mname}: 文件 {meta.get("file")} 不在 9 个 YAML 内')
+
+    # —— _index 模块 version 与 requires 约束 ——
+    semver = re.compile(r'^\d+\.\d+\.\d+$')
+    palette_version = idx.get('palette_version')
+    if not isinstance(palette_version, str) or not semver.match(palette_version):
+        errors.append(f'_index.palette_version 必须是 x.y.z：{palette_version!r}')
+    for mname, meta in modules.items():
+        if 'version' not in meta:
+            errors.append(f'_index modules.{mname} 缺 version')
+    requires = idx.get('requires', {})
+    if not isinstance(requires, dict):
+        errors.append('_index.requires 必须是映射（模块名 → 最低版本）')
+        requires = {}
+    for rname, rspec in requires.items():
+        if rname not in modules:
+            errors.append(f'_index.requires.{rname}: 未注册的同名模块')
+            continue
+        ver = modules[rname].get('version')
+        if not isinstance(ver, str) or not semver.match(ver):
+            errors.append(f'_index modules.{rname}.version 必须是 x.y.z（被 requires 约束）：{ver!r}')
+            continue
+        m = re.match(r'^(>=|<=|==|>|<)?\s*(\d+)\.(\d+)\.(\d+)$', str(rspec).strip())
+        if not m:
+            errors.append(f'_index.requires.{rname} 约束格式非法：{rspec!r}')
+            continue
+        op = m.group(1) or '=='
+        want = tuple(int(m.group(i)) for i in (2, 3, 4))
+        cur = tuple(int(x) for x in ver.split('.'))
+        okq = {'>=': cur >= want, '<=': cur <= want, '>': cur > want,
+               '<': cur < want, '==': cur == want}[op]
+        if not okq:
+            errors.append(f'_index.requires.{rname}={rspec!r} 未满足（modules.{rname}.version={ver}）')
 
     print(f'YAML 解析         = {len(loaded)}/{len(FILES)}（目录内 {len(on_disk)} 个）')
     print(f'能力（手写）      = {len(caps)}')
