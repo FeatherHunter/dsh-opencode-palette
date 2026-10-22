@@ -234,11 +234,17 @@ controls:
     confidence: documented
 
 # -----------------------------------------------------------------------------
-# 3. 覆盖率统计（门禁重算）
+# 3. 覆盖率统计（门禁重算；数字必须与上方清单一致）
+#    anchors：23 个 = documented 15 / inferred 7 / fragile 1
+#    controls：12 个 = documented 7 / inferred 5（独立计数，不计入 anchors 的 23）
 # -----------------------------------------------------------------------------
 coverage:
-  documented: 6
-  inferred: 12
-  fragile: 2
+  anchors: 23
+  documented: 15
+  inferred: 7
+  fragile: 1
+  controls_total: 12
+  controls_documented: 7
+  controls_inferred: 5
   template_expandable: 12
 

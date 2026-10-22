@@ -67,7 +67,7 @@ modules:
     generated: partial        # 当前为 14 条手工核实样本；完整 425 由扫描器生成
     kind: host_facts
     command: palette:scan-tokens（扫描器规划中；当前 tokens.yaml 为 14 条手工核实样本）
-    summary: 宿主 token 全集与活/死状态、声明行、消费方（扫描生成，禁手改）
+    summary: 宿主 token 全集与活/死状态、声明行、消费方（扫描器产出后整表替换；当前 partial，14 条手工核实样本）
   anchors:
     file: anchors.yaml
     version: 'dsh 0.2.1-rc.2 @ 687f282'

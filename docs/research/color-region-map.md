@@ -53,7 +53,7 @@ legacy 能力 id 规则（写进 SPEC §1）：`legacy.<组>.<名字>`，如 `le
 
 | 功能桶 | 颜色轴活名数 | 归属区域（初判） | 置信度 |
 |---|---|---|---|
-| 原子色阶（static） | 60 | 不进 L2；L3 `raw_tokens` 直达（Q3-A 的「原子折叠入口」） | 高 |
+| 原子色阶（static） | 60 | 不进 L2；L3 `raw_tokens` 直达（❓Q3 推荐案 A 的「原子折叠入口」） | 高 |
 | 背景填充（bg alias） | 22 | global、sidebar、conversation、composer、menu | 高 |
 | 品牌色 | 18 | global、window | 中 |
 | 特定页面（settings/plugin 等） | 12 | settings、plugin、deliverable | 低（部分为 detail 缺口） |
@@ -68,11 +68,11 @@ legacy 能力 id 规则（写进 SPEC §1）：`legacy.<组>.<名字>`，如 `le
 | 其它（gradient/onboarding 等） | 6 | window、global | 中 |
 | **合计** | **184** | — | — |
 
-说明：60 个原子不分配区域（它们是调色板原料，不是区域外观）；L2 底部提供折叠入口，L3 逐名可写。Q3-A 的承诺在此落地；若用户裁定改为 B/C，本表相应调整。
+说明：60 个原子不分配区域（它们是调色板原料，不是区域外观）；L2 底部提供折叠入口，L3 逐名可写。本表按 ❓Q3 的**推荐案 A**（语义菜单）设计，但用户尚未逐字裁定；若改选 B/C，本表相应调整。
 
 ## 4. 缺口与后续
 
 1. 逐名归属表：由 `palette:scan-tokens` 扫描器把 184 活名逐名映射到区域/角色/属性，本表只保证「桶级加总 = 184」。
 2. `detail`、`plugin`：需要补能力条目（先补 token 事实，再补 anchors），否则 14/14 门禁不通过。
 3. 7 组 legacy 的 UI 分组定义（编辑器里怎么显示这 7 组）尚未写进 `vocabulary.yaml` 的 catalog；L1 视图仍需分组表（实现期）。
-4. 375 个「活名但本仓未写」中，93 个属颜色轴之外（排印/尺寸），不在本表范围；排印轴归 #148。
+4. 184 个活名里，本仓当前注入 91 个（105 写入名 − 14 死名），**93 个活名未写**（见 `color-axis-token-inventory.md` §4.3），全部属颜色轴；排印/尺寸类 token 不在本表范围（排印轴归 #148）。

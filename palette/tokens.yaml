@@ -5,7 +5,8 @@
 # command: palette:scan-tokens（扫描器规划中，当前为手工样本）
 # validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
-# ⚠️ 本文件由扫描器生成，禁止手改。手改会在 CI 被覆盖并报错。
+# 生成策略：扫描器产出完整表后整表替换，人工不补全表；当前 partial 阶段的 14 条
+# 样本为人工核实值，扫描器就位后由生成物覆盖（手改会在 CI 被检测并报告）。
 # 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
 # 当前版本 = 骨架 + 14 条已核实样本（状态样本覆盖 live / dead / gated 三类；
 # missing / pinned / declared_invalid 仅有词表定义，样本待扫描器补齐；命名空间覆盖 3 个）。

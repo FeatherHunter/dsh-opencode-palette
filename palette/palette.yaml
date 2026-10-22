@@ -28,23 +28,21 @@ description: |
 # 1. 控件模板：控件清单 × 模板 → 构建期展开成普通能力 id
 #    例：composer.sendButton + button → composer.sendButton.icon 等
 #    展开结果在合并视图中可见；本文件只保留手写能力，避免重复维护。
+#    模板是「属性集合」：任何控件都可以套任何模板；用哪个模板由控件清单决定，
+#    模板不再声明 applies_to（v1.2 起控件键已含 region，角色只作说明性字段）。
 # -----------------------------------------------------------------------------
 control_templates:
 
   button:
-    applies_to: { role: button }
     properties: [icon, background, foreground, border_color, radius, opacity, shadow]
 
   item:
-    applies_to: { role: item, role_alt: menuitem }
     properties: [background, foreground, border_color, radius]
 
   text:
-    applies_to: { role: text, role_alt: link }
     properties: [foreground, font_family, font_size, line_height, font_weight]
 
   surface:
-    applies_to: { role: panel, role_alt: surface }
     properties: [background, border_color, radius, shadow]
 
 # -----------------------------------------------------------------------------

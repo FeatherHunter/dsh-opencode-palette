@@ -23,16 +23,18 @@ write_kinds:
     status: stable
     description: |
       通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
-      只允许写 tokens.yaml 里 status=live 的活名；写死名必须显式 allow_status + 原因。
+      本原语只服务 palette 作者（能力绑定）：名字必须在 tokens.yaml 里 status=live；
+      写死名/门控名必须显式 allow_status + allow_reason。
+      用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
     fields:
-      name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 任意 -- 名（含 --dsl-*、组件局部）；公开合约 425 指 dsw/shiki/dsh 三个命名空间
+      name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 语法上任意 -- 名；存在性由 validates 约束
       state:           { required: false, type: enum, values: [hover, active, focus, disabled, selected] }
       value:           { required: false, type: any }         # 缺省取能力值
       value_template:  { required: false, type: string }      # 例：'$value'
       allow_status:    { required: false, type: list, values: [live, dead, missing, pinned, gated, declared_invalid] }
       allow_reason:    { required: false, type: string }      # allow_status 非 live 时必填
     validates:
-      - name 必须在 tokens.yaml 存在
+      - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 14 条样本，未覆盖的名字 = 门禁错误）
       - allow_status 缺省时 status 必须为 live
 
   # —— 手段二：rule —— 注入 CSS 规则（选择器 / @font-face / @keyframes）
@@ -66,6 +68,10 @@ write_kinds:
          mask-image, mask-size, mask-repeat, mask-position,
          outline-color, outline-width, outline-style, text-decoration-color,
          caret-color, scrollbar-color, scrollbar-width, transition, transform]
+      allowed_at_descriptors: # at 规则（@font-face 等）允许的描述符，与属性白名单分开
+        '@font-face': [font-family, src, font-weight, font-style, font-display, unicode-range]
+        '@keyframes': ['*']            # 关键帧内部是任意属性，由 lint 另行约束
+        '@property': [syntax, inherits, 'initial-value']
 
   # —— 手段三：dom —— 命令式 DOM 操作（最强，也最需要撤销与守卫）
   dom:
