@@ -140,6 +140,6 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 <div align="center">
 
-![星标增长曲线：左轴累计星标、右轴每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610210816)
+![星标增长曲线：左轴累计星标、右轴每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610221437)
 
 </div>
