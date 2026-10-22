@@ -1,13 +1,14 @@
 # =============================================================================
 # palette/tokens.yaml —— 宿主 token 事实表
 # role: 宿主事实（token 全集 / 活死状态 / 声明位置 / 消费方）
-# generated: partial（当前 14 条手工核实样本；完整 425 由扫描器生成后替换）
+# generated: partial（当前 15 条手工核实样本；完整 425 由扫描器生成后替换）
 # command: palette:scan-tokens（扫描器规划中，当前为手工样本）
 # validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
 #
-# 生成策略：扫描器产出完整表后整表替换，人工不补全表；当前 partial 阶段的 14 条
+# 生成策略：扫描器产出完整表后整表替换，人工不补全表；当前 partial 阶段的 15 条
 # 样本为人工核实值，扫描器就位后由生成物覆盖（手改会在 CI 被检测并报告）。
 # 数据来源：D:\Temp\dsh-src @ 687f282（dsh 0.2.1-rc.2）与 Playwright 首屏实测。
+# declared 路径约定：仓库根相对路径（packages/… 或 apps/…，可带 :行号）；基准目录 = host.source。
 # 当前版本 = 骨架 + 15 条已核实样本（主状态：14 live + 1 dead；修饰标签：1 gated，
 # 落在 --dsw-elevation-panel；missing 与 pinned / declared_invalid 修饰仅有词表定义，
 # 样本待扫描器补齐；命名空间覆盖 3 个）。
@@ -20,6 +21,7 @@ host:
   version: 0.2.1-rc.2
   commit: 687f282
   source: 'D:\Temp\dsh-src'
+  path_base: '仓库根相对路径（packages/… 或 apps/…，可带 :行号）'
   runtime_scan: playwright-headless-chromium   # 首屏实测
 
 # -----------------------------------------------------------------------------
@@ -72,7 +74,7 @@ status_model:
     dead:      宿主声明了但没有任何 var() 消费方
     missing:   宿主从未声明这个名字（用户可能拼错或宿主升级改名）
   modifiers:                     # 可叠加在 primary 上（尤其 live），不另计基数
-    pinned:            宿主用 !important 或 inline 钉住；普通规则压不过，需更高优先级
+    pinned:            宿主用字面量 / !important / inline 钉住；我们照常写入但当前被压制、不生效（仍允许设置，只提示，不阻止不删除）
     gated:             宿主在元素级重声明同名变量（elevation 族等）；body 级写入被子元素覆盖，需区域级选择器
     declared_invalid:  宿主自己声明了但消费链无效（声明位置与读取位置不一致，靠 fallback / JS 注入才有值）
 # 见 palette/SPEC.md §6；修饰标签不增加颜色轴计数（不得再对 184+38 加修饰数）。
@@ -81,7 +83,7 @@ status_model:
 
 # -----------------------------------------------------------------------------
 # 3. token 明细
-#    当前为「已核实样本」：13 live（其中 1 条带 gated 修饰）+ 1 dead；完整 425 名由扫描器填充（同结构）。
+#    当前为「已核实样本」：14 live（其中 1 条带 gated 修饰）+ 1 dead；完整 425 名由扫描器填充（同结构）。
 # -----------------------------------------------------------------------------
 tokens:
 
@@ -90,7 +92,7 @@ tokens:
     namespace: dsw
     family: static
     status: dead
-    declared: ['src/styles/design-platform.css:15']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:15']
     consumed: []
     in_repo: false
     note: 死 static 之一（17 个死 static 见 color-axis-token-inventory.md §3）
@@ -99,7 +101,7 @@ tokens:
     namespace: dsh
     family: typography
     status: live
-    declared: ['ui-layout/src/client/theme-presenter.ts:78']
+    declared: ['packages/client/ui-layout/src/client/theme-presenter.ts:78']
     consumed: ['body inline style（宿主自己写）']
     in_repo: false
     note: 由 ThemePresenter.apply() 写到 body inline，属 A 通道落点
@@ -108,7 +110,7 @@ tokens:
     namespace: shiki
     family: shiki
     status: live
-    declared: ['src/styles/']
+    declared: ['packages/client/ui-theme/src/styles/shiki.css:7-19']
     consumed: ['shiki 运行时（JS 读 token 名）']
     in_repo: true
     note: 活名；由 shiki 运行时读取计算值消费，CSS var() 静态扫描看不见 → 探测盲区，不是 gated
@@ -118,16 +120,16 @@ tokens:
     family: elevation
     status: live
     modifiers: [gated]
-    declared: ['src/styles/gradient-shadow-text.css:34（元素级重声明块 :31-40）']
+    declared: ['packages/client/ui-theme/src/styles/gradient-shadow-text.css:34']
     consumed: ['组件内 var(--dsw-elevation-panel)']
     in_repo: false
-    note: gated 的唯一机制 = 宿主在元素级重声明同名变量 → body 级写入被覆盖，需区域级选择器
+    note: gated 的唯一机制 = 宿主在元素级重声明同名变量（声明块 packages/client/ui-theme/src/styles/gradient-shadow-text.css:31-40）→ body 级写入被覆盖，需区域级选择器
 
   - name: --dsw-focus-ring-color
     namespace: dsw
     family: focus
     status: live
-    declared: ['src/styles/focus.css:19']
+    declared: ['packages/client/ui-theme/src/styles/focus.css:19']
     consumed: ['focus.css / 组件 fallback']
     in_repo: false
     note: 宿主有默认值声明（此前「宿主不声明默认值」的说法已作废）
@@ -137,7 +139,7 @@ tokens:
     namespace: dsw
     family: alias
     status: live
-    declared: ['src/styles/design-platform.css:167', 'src/styles/design-platform.css:285']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:167', 'packages/client/ui-theme/src/styles/design-platform.css:285']
     consumed: ['ui-conversation / ui-layout 等组件的 var(--dsw-alias-bg-base)']
     in_repo: true
 
@@ -145,7 +147,7 @@ tokens:
     namespace: dsw
     family: alias
     status: live
-    declared: ['src/styles/design-platform.css:222', 'src/styles/design-platform.css:340']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:222', 'packages/client/ui-theme/src/styles/design-platform.css:340']
     consumed: ['组件文字色']
     in_repo: true
 
@@ -153,15 +155,15 @@ tokens:
     namespace: dsw
     family: alias
     status: live
-    declared: ['src/styles/design-platform.css:227', 'src/styles/design-platform.css:345']
-    consumed: ['ui-primitives/src/markdown/MarkdownText.module.css:63/80 等']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:227', 'packages/client/ui-theme/src/styles/design-platform.css:345']
+    consumed: ['packages/client/ui-primitives/src/markdown/MarkdownText.module.css:63/80 等']
     in_repo: true
 
   - name: --dsw-alias-bg-layer-2
     namespace: dsw
     family: alias
     status: live
-    declared: ['src/styles/design-platform.css:172', 'src/styles/design-platform.css:290']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:172', 'packages/client/ui-theme/src/styles/design-platform.css:290']
     consumed: ['列表项 / 层叠背景']
     in_repo: false
 
@@ -169,7 +171,7 @@ tokens:
     namespace: dsw
     family: alias
     status: live
-    declared: ['src/styles/design-platform.css:230', 'src/styles/design-platform.css:348']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:230', 'packages/client/ui-theme/src/styles/design-platform.css:348']
     consumed: ['CodeCard.module.css:16（作为 --dsl-code-block-background 的 fallback）']
     in_repo: true
 
@@ -177,7 +179,7 @@ tokens:
     namespace: dsw
     family: specific
     status: live
-    declared: ['src/styles/design-platform.css:275', 'src/styles/design-platform.css:393']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:275', 'packages/client/ui-theme/src/styles/design-platform.css:393']
     consumed: ['侧栏背景 / 桌面标题栏探针（preload-windows.ts:21-23）']
     in_repo: true
 
@@ -185,7 +187,7 @@ tokens:
     namespace: dsw
     family: menu
     status: live
-    declared: ['src/styles/design-platform.css:271', 'src/styles/design-platform.css:389']
+    declared: ['packages/client/ui-theme/src/styles/design-platform.css:271', 'packages/client/ui-theme/src/styles/design-platform.css:389']
     consumed: ['菜单面板背景']
     in_repo: false
 
@@ -193,7 +195,7 @@ tokens:
     namespace: dsw
     family: typography
     status: live
-    declared: ['src/styles/base.css:9', 'src/styles/base.css:30']
+    declared: ['packages/client/ui-theme/src/styles/base.css:9', 'packages/client/ui-theme/src/styles/base.css:30']
     consumed: ['--dsw-font-markdown-* 复合 token 与全局字体']
     in_repo: false
 
@@ -201,7 +203,7 @@ tokens:
     namespace: dsw
     family: typography
     status: live
-    declared: ['src/styles/gradient-shadow-text.css:97']
+    declared: ['packages/client/ui-theme/src/styles/gradient-shadow-text.css:97']
     consumed: ['--dsw-font-markdown-base 复合 token']
     in_repo: false
 
@@ -209,7 +211,7 @@ tokens:
     namespace: dsw
     family: typography
     status: live
-    declared: ['src/styles/gradient-shadow-text.css:96']
+    declared: ['packages/client/ui-theme/src/styles/gradient-shadow-text.css:96']
     consumed: ['--dsw-font-markdown-base 复合 token']
     in_repo: false
 

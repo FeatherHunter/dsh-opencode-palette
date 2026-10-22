@@ -35,8 +35,11 @@ write_kinds:
       allow_modifiers:      { required: false, type: list, values: [pinned, gated, declared_invalid] }
       allow_reason:         { required: false, type: string }  # 放宽主状态或声明修饰时必填
     validates:
-      - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 14 条样本，未覆盖的名字 = 门禁错误）
+      - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 15 条样本，未覆盖的名字 = 门禁错误）
       - allow_primary_status 缺省时主状态必须为 live；allow_modifiers 只放宽修饰、不改变主状态
+      - 出现 allow_primary_status 或 allow_modifiers 时 allow_reason 必填
+      - live 名不得给 allow_primary_status（放宽主状态只用于非 live 名）
+      - tokens.yaml 表内条目名全局唯一（重名 = 门禁错误）
 
   # —— 手段二：rule —— 注入 CSS 规则（选择器 / @font-face / @keyframes）
   rule:

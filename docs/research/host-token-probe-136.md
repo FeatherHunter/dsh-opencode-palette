@@ -20,7 +20,7 @@
 7. **引擎复用度约 70%**：`usable()`（`src/engine/generate.ts:61-68`）、`put2`（同文件 `:85-107`）、`DERIVED_TOKENS` 的逐条 `try/catch`（`src/engine/generate.ts:112-122`）、`normalizeThemeColors` 的别名槽链（`src/engine/map-dsh.ts:289-297`）都能直接接探针。**缺的是两个维度**：`TOKEN_MAP`（`src/engine/map-dsh.ts:20-97`）是「宿主名 → 我们的槽」的二维表，没有「这个宿主名还活着吗」和「它声明在哪个元素上」的位置。
 8. **接入方式是「过滤层」而不是「重写生成器」**：`renderTheme/renderCustomTheme` 返回的 `render.tokens` 是 `Record<string,string>`，探针只需拿 `Object.keys(render.tokens)` 与 manifest 的 `declared` 集合做交集，剔除死名后再交给 `theme.overrideTokens`。生成器的不变式（`src/engine/generate.ts:1-2`「输出完全由输入决定」）因此不被破坏，且过滤层是**纯函数**，可在 Node 里单测（本仓测试直接跑 `.ts`，不需要 DOM）。
 9. **`update-tokens.ts` 不接探针**：它产的是 `dsh-plugin-update` 的 `themeTokens`（24 键、只出 hex，`src/engine/update-tokens.ts:42-47 / :64-83`），与宿主 `--dsw-*` 是两套契约，接探针只会制造假依赖。
-10. **三条已知钉死项应当被探针显式建模为「常量」而非「数据」**：darwin 的 `--dsw-specific-menu: rgba(...,0.94)`（`design-platform.css:400-408`，只在 `html[data-platform='darwin']` 下生效，Windows 上根本不匹配）、`--dsw-mask-blur: none`（`gradient-shadow-text.css:19`，绝不发射）、149/150 个字体 longhand 的「死名」（`consumers === 0`）。探针把它们标 `pinned` / `dead` 并**拒绝写入**，需要一条负向断言测试守住。
+10. **三条已知钉死项应当被探针显式建模为「常量」而非「数据」**：darwin 的 `--dsw-specific-menu: rgba(...,0.94)`（`design-platform.css:400-408`，只在 `html[data-platform='darwin']` 下生效，Windows 上根本不匹配）、`--dsw-mask-blur: none`（`gradient-shadow-text.css:19`，绝不发射）、149/150 个字体 longhand 的「死名」（`consumers === 0`）。探针把它们标 `pinned` / `dead` 并**拒绝写入**，需要一条负向断言测试守住。（2026-10-22 #147 定稿口径：**用户层 / L3 一律允许写入**，`pinned` 只提示不阻止；这里的「拒绝写入」仅是探针过滤层对引擎自动生成物的策略，见 `palette/SPEC.md` §6。）
 11. **自动化实机探测不可行**：本机 `http://127.0.0.1:61570/` 对裸 HTTP 返回 `401 Unauthorized`（桌面版 `main.ts:454` 用 `authenticateWebHost` 换 cookie 才可访问）。所以验收门禁里的「实机采集」必须在**页面内**执行（DevTools console 调探针 / 设置页「诊断 · 导出 manifest」按钮），不能靠 curl。
 12. **门禁的核心不是「一致」，而是「变化必须被看见」**：同 `hostVersion` 而 `shapeDigest` 变化 → 强制人工复核；不同 `hostVersion` 而 `shapeDigest` 未变 → 自动放行。这条规则把「每次宿主升级都重新做人」的成本降到只有真变化时才付。
 
@@ -483,7 +483,7 @@ html[data-platform='darwin'] body[data-ds-dark-theme] { --dsw-specific-menu: rgb
 
 **事实**：`gradient-shadow-text.css:19` 声明 `--dsw-mask-blur: none`。文件内注释（同段）说明了它与 `--dsw-menu-backdrop-filter: blur(40px) saturate(150%)`（`:20`）的配合：宿主自己控制遮罩模糊，插件不应参与。
 
-处理：进**拒绝发射名单**（`PINNED_NO_EMIT`）。探针把它标 `pinned`，`filter` 若发现 `render.tokens` 里出现该名则剔除并记一条 warn（真正的 bug 信号：我们不该生成它）。加一条负向断言测试：`Object.keys(renderTheme(...).tokens) ∩ PINNED_NO_EMIT === ∅`。
+处理：进**拒绝发射名单**（`PINNED_NO_EMIT`）。探针把它标 `pinned`，`filter` 若发现 `render.tokens` 里出现该名则剔除并记一条 warn（真正的 bug 信号：我们不该生成它）。加一条负向断言测试：`Object.keys(renderTheme(...).tokens) ∩ PINNED_NO_EMIT === ∅`。（注：这是引擎过滤层策略；2026-10-22 #147 决定用户层仍允许写 pinned 名、只提示不阻止。）
 
 **现状核查**：`src/engine/*.ts` 里 grep `mask-blur` / `specific-menu` 只命中 `map-dsh.ts:28` 的一句注释（记录 F3 退出），引擎当前**不发射**这两个名 → G2 天然通过，这条测试是防回归而不是修 bug。
 
@@ -530,7 +530,7 @@ html[data-platform='darwin'] body[data-ds-dark-theme] { --dsw-specific-menu: rgb
 |---|---|---|
 | **G0** 基线采集 | 在 win32 桌面 + Web 各导出一次 manifest，入库为 `docs/research/probe-baseline/<hostVersion>.manifest.json` | 没有基线就没有 diff 参照 |
 | **G1** 覆盖率 | 我们对 `TOKEN_MAP ∪ DERIVED_TOKENS ∪ SHIKI_MAP` 声明的每个名字，在基线里 `state` ∈ {`live`, `dead`, `pinned`}（**不允许 `missing` / `declared-invalid`**，除非在例外清单里且带理由） | 有名字在我们以为活着的地方其实不存在 |
-| **G2** 拒绝发射 | `PINNED_NO_EMIT`（含 `--dsw-mask-blur`）与生成器输出交集为空 | 有人给钉死项加了写入口 |
+| **G2** 拒绝发射 | `PINNED_NO_EMIT`（含 `--dsw-mask-blur`）与生成器输出交集为空（**仅引擎过滤层**；用户层 raw_tokens / 能力仍允许写 pinned 名，只提示） | 有人给钉死项加了写入口 |
 | **G3** 过滤层单测 | 用合成 manifest 覆盖 D2/D3/D5/D7 四类分支 + `manifest === null` 直通分支 | 降级逻辑本身没被测 |
 | **G4** 白屏门禁 | 在 `overrideTokens` 缺失、`manifest` 为 null、`getComputedStyle` 抛错三种注入故障下，`applyStyle()` 仍返回值且 `styleTag` 有内容 | 探针或宿主变化能把整套主题带崩 |
 | **G5** 指纹稳定 | 同一输入跑两次 `filter` + `digest`，逐字节相同（含键序） | INV-3 破了，基线 diff 全是噪声 |

@@ -196,7 +196,7 @@
 | 修饰 | 含义 | 颜色轴实测 | 代表 |
 | --- | --- | --- | --- |
 | `declared_invalid` | 声明合法但值链断裂（`:root` 引 body 级 alias） | **2** | `--shiki-foreground`、`--shiki-background`（`shiki.css:7-19`；宿主靠 `CodeBlock.module.css:92-94` 的 `!important` 兜底） |
-| `pinned` | 宿主钉死、我们不发射 | **1–2** | `--dsw-mask-blur: none`（`gradient-shadow-text.css:19`）、darwin `--dsw-specific-menu: rgba(…,0.94)`（`design-platform.css:400-408`，Windows 不匹配） |
+| `pinned` | 宿主用字面量 / `!important` / inline 压制，写入当前不生效；**仍允许设置、只提示不阻止**（旧「我们不发射」是引擎过滤层策略，不是用户禁令） | **1–2** | `--dsw-mask-blur: none`（`gradient-shadow-text.css:19`）、darwin `--dsw-specific-menu: rgba(…,0.94)`（`design-platform.css:400-408`，Windows 不匹配） |
 | `gated` | 宿主元素级重声明，body 级写入被盖掉 | **5** | 见 5.3 |
 
 > **算术纪律**：184 + 38 = 222 是唯一成立的加法；修饰标签不增加基数。不要再对「184 + 38 + 2 + 1–2 + 6」求和。

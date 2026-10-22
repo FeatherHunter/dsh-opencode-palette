@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.5）。
+"""palette/ 跨模块一致性检查（门禁原型 v1.6）。
 
 校验：
   1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -10,6 +10,8 @@
   7. anchors.yaml 的 coverage 计数与清单一致
   7b. tokens.yaml 状态模型：主状态恰为 live/dead/missing，修饰恰为 pinned/gated/declared_invalid，样本状态值合法；primitives.token 的 allow_* 取值与之一致
   7c. tokens.yaml 表条目：名字语法与 namespace 前缀合法；能力写死名或非 live 名时强制 allow_primary_status / allow_modifiers
+  7d. tokens.yaml 表条目重名拒绝；declared 路径必须为仓库根相对（host.source 可访问时校验存在）
+  7e. allow_* 必带 allow_reason；live 名不得给 allow_primary_status
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
 
 用法：python scripts/research/palette-check.py
@@ -82,6 +84,15 @@ def main():
     errors, warnings = [], []
     token_refs = set()
 
+    # token 表条目重名（后写覆盖前写会绕过状态强制，必须拒绝）
+    _seen = {}
+    for _t in tokens.get('tokens', []):
+        _nm = _t.get('name')
+        _seen[_nm] = _seen.get(_nm, 0) + 1
+    for _nm, _cnt in _seen.items():
+        if _cnt > 1:
+            errors.append(f'tokens.{_nm}: 条目重名 {_cnt} 次（token 表必须全局唯一）')
+
     def check_write(cid, w):
         wid = w.get('id', '?')
         use = w.get('use')
@@ -115,12 +126,18 @@ def main():
             tname = w.get('name')
             token_refs.add(tname)
             meta = token_status.get(tname)
+            has_allow_primary = 'allow_primary_status' in w
+            has_allow_mods = 'allow_modifiers' in w
+            if (has_allow_primary or has_allow_mods) and not w.get('allow_reason'):
+                errors.append(f'{cid}/{wid}: 给了 allow_primary_status/allow_modifiers 就必须给 allow_reason')
+            if meta is not None and meta.get('status') == 'live' and has_allow_primary:
+                errors.append(f'{cid}/{wid}: 写 live 名 {tname} 不应给 allow_primary_status（放宽主状态只用于非 live 名）')
             if meta is not None and meta.get('status') != 'live':
-                if 'allow_primary_status' not in w:
+                if not has_allow_primary:
                     errors.append(f'{cid}/{wid}: 写 {tname}（主状态 {meta.get("status")}）必须显式给 allow_primary_status')
                 elif w.get('allow_primary_status') != meta.get('status'):
                     errors.append(f'{cid}/{wid}: allow_primary_status={w.get("allow_primary_status")} 与 tokens.yaml 主状态 {meta.get("status")} 不一致')
-            if 'allow_modifiers' in w:
+            if has_allow_mods:
                 allowed_mods = set(meta.get('modifiers') or []) if meta is not None else set()
                 for m in (w.get('allow_modifiers') or []):
                     if m not in modifier_values:
@@ -210,7 +227,7 @@ def main():
     # —— token 存在性 ——
     missing_tokens = sorted(token_refs - token_names)
     for name in missing_tokens:
-        errors.append(f'token 引用 {name} 不在 tokens.yaml（当前 14 条样本；新引用需先登记事实）')
+        errors.append(f'token 引用 {name} 不在 tokens.yaml（当前 15 条样本；新引用需先登记事实）')
 
     # —— anchors.yaml 置信度计数 ——
     from collections import Counter
@@ -267,6 +284,19 @@ def main():
         for req in ('family', 'status'):
             if req not in t:
                 errors.append(f'tokens.{tname}: 缺字段 {req}')
+        declared = t.get('declared')
+        if not isinstance(declared, list) or not declared:
+            errors.append(f'tokens.{tname}: declared 必须是非空列表')
+            declared = []
+        host_src = (tokens.get('host') or {}).get('source')
+        for d in declared:
+            if not isinstance(d, str) or not re.match(r'^(packages|apps)/[^:]*(:\d+(-\d+)?)?$', d):
+                errors.append(f'tokens.{tname}: declared {d!r} 必须为仓库根相对路径（packages/… 或 apps/…，可带 :行号）')
+                continue
+            if host_src and os.path.isdir(host_src):
+                rel = re.sub(r':\d+(-\d+)?$', '', d)
+                if not os.path.exists(os.path.join(host_src, rel.replace('/', os.sep))):
+                    errors.append(f'tokens.{tname}: declared 路径不存在于 host.source：{d}')
 
     token_fields = write_kinds['token']['fields']
     if 'allow_status' in token_fields:
