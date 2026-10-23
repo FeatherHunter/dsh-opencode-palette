@@ -97,6 +97,13 @@ function niceStep(rough: number): number {
   return 10 * pow
 }
 
+// 向上就近取整数：给坐标轴顶部用（如 239.2→250），档位比 niceStep 密，最差也有八成占位。
+function niceCeil125(x: number): number {
+  const pow = Math.pow(10, Math.floor(Math.log10(Math.max(1, x))))
+  for (const m of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * pow >= x) return m * pow
+  return 10 * pow
+}
+
 // Catmull-Rom 转贝塞尔，让曲线圆滑接近手绘描线
 function smoothPath(pts: number[][]): string {
   if (pts.length === 1) return `M ${pts[0][0].toFixed(1)} ${pts[0][1].toFixed(1)}`
@@ -186,15 +193,21 @@ export function buildSvg(data: StarDay[]): string {
 
   const totals = data.map((d) => d.total)
   const maxTotal = Math.max(1, ...totals)
-  const yStep = niceStep(maxTotal / 4)
-  const yMax = Math.max(yStep, Math.ceil((maxTotal * 1.06) / yStep) * yStep)
+  // 左轴（Total，红线）：顶部取 maxTotal × 1.15 向上就近的 1/2/2.5/5/10 整数
+  // （如 208→250），红线峰值贴着顶部；刻度按量程五等分取整步长。
+  const yMaxTop = niceCeil125(maxTotal * 1.15)
+  const yStep = niceStep(yMaxTop / 5)
+  const yMax = Math.max(yStep, yMaxTop)
 
-  // 右轴（Daily）自己的量程：刻度最多给 3 档，按「最大值的一半」找步长，
-  // 例如最大值 8 时步长取 5、量程到 10，既不会出现 8 这种不好读的刻度，也不会把线顶到框上。
+  // 右轴（Daily，蓝线）：蓝线峰值不得超过红线峰值屏幕高度的一半。
+  // 量程按红线实际占位反推：dTarget = maxDaily / (0.5 × maxTotal/yMax)；
+  // 刻度仍按“目标量程的一半”找步长、最多 3 档（如 daily 峰值 8、红线占位 83% 时量程到 20）。
   const dailies = data.map((d) => d.daily)
   const maxDaily = Math.max(1, ...dailies)
-  const dStep = niceStep(maxDaily / 2)
-  const dMax = Math.max(dStep, Math.ceil((maxDaily * 1.06) / dStep) * dStep)
+  const redFrac = maxTotal / yMax
+  const dTarget = maxDaily / (0.5 * redFrac)
+  const dStep = niceStep(dTarget / 2)
+  const dMax = Math.max(dStep, Math.ceil(dTarget / dStep) * dStep)
 
   // 横轴按真实时间线性放：没有新星的日子照样占时间跨度
   const times = data.map((d) => Date.parse(d.date + 'T00:00:00Z'))
