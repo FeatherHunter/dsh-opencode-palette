@@ -21,7 +21,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { aggregateByDay, buildSvg, monotonePath, type StarDay } from '../scripts/star-history.ts'
+import { aggregateByDay, buildSvg, monotonePath, withZeroStart, type StarDay } from '../scripts/star-history.ts'
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 const ZH = readFileSync(join(ROOT, 'README.md'), 'utf8')
@@ -189,4 +189,14 @@ test('两页 README 都在 CONNECT 之后引用星标图，且带 ?v= 缓存戳'
     // 2026-10-21 用户判标题多余：图表自己就写着 Star History，段标题去掉
     assert.equal(doc.includes('<sub>STAR HISTORY</sub>'), false, `${name} 不该再有 STAR HISTORY 段标题`)
   }
+})
+
+test('withZeroStart：首日前一天补零星行，幂等，空数组保持空', () => {
+  assert.deepEqual(withZeroStart([]), [])
+  const got = withZeroStart([{ date: '2026-08-15', total: 2, daily: 2 }])
+  assert.deepEqual(got, [
+    { date: '2026-08-14', total: 0, daily: 0 },
+    { date: '2026-08-15', total: 2, daily: 2 },
+  ])
+  assert.deepEqual(withZeroStart(got), got, '已有零星行直接返回')
 })

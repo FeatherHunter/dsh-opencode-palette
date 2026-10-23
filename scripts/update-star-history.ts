@@ -10,7 +10,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { aggregateByDay, buildSvg, type StarDay } from './star-history.ts'
+import { aggregateByDay, buildSvg, withZeroStart, type StarDay } from './star-history.ts'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const REPO = 'FeatherHunter/dsh-opencode-palette'
@@ -40,7 +40,7 @@ const list = input
   ? readFileSync(input, 'utf8').split(/\r?\n/).map((l) => l.trim()).filter(Boolean)
   : fetchStars()
 
-const data = aggregateByDay(list)
+const data = withZeroStart(aggregateByDay(list))
 if (data.length === 0) {
   console.log('No stars fetched — 现有产物保持不动')
   process.exit(0)
