@@ -69,6 +69,134 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **③ 挑一个喜欢的主题。**
 
+<h2 align="center"><sub>DEMO</sub><br>基础使用演示</h2>
+
+以下 7 段视频与英文页共用同一批地址，默认折叠，点开即看。
+
+<details>
+<summary>基础使用演示：点开看 7 段操作视频</summary>
+
+<details>
+<summary>安装插件</summary>
+
+**安装插件**
+
+跟着视频一次装好插件并重启生效。
+
+<video src="https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
+
+1. 跑 `dsh plugin --profile web add dsh-opencode-palette` 把插件装进你的 profile。
+2. 重启 DSH（或刷新浏览器页面）。
+3. 打开「OpenCode调色板」，确认面板能打开。
+
+</details>
+
+<details>
+<summary>设置字体字号</summary>
+
+**设置字体字号**
+
+分清等宽与常规两种字体，字号 11–24 px 随手调。
+
+<video src="https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
+
+1. 打开设置面板，找到字体与字号两处。
+2. 等宽把整个界面换成等宽字，常规只让代码块用等宽。
+3. 字号在 11–24 px 之间拖到看着舒服为止。
+
+</details>
+
+<details>
+<summary>选择主题</summary>
+
+**选择主题**
+
+一键挑中喜欢的主题，界面立即换装。
+
+<video src="https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
+
+1. 打开「OpenCode调色板」，按色系浏览 38 款配色。
+2. 点中喜欢的那一款，界面立即换装。
+3. 不满意再点另一款，随时可换。
+
+</details>
+
+<details>
+<summary>新增自定义主题</summary>
+
+**新增自定义主题**
+
+37 个颜色逐个调，右边预览实时联动，存成专属胶囊。
+
+<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd
+
+1. 点新增，37 个颜色逐个调，右边预览实时联动。
+2. 点预览里的元素，左边对应那行会滚到中间并打开取色器。
+3. 存好后胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/` 里。
+
+</details>
+
+<details>
+<summary>编辑自定义主题</summary>
+
+**编辑自定义主题**
+
+回来改存好的胶囊，改完界面即时换上新配色。
+
+<video src="https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
+
+1. 打开存好的自定义主题，进编辑。
+2. 改要动的颜色，预览里即时看效果。
+3. 保存，界面即时换上新的配色。
+
+</details>
+
+<details>
+<summary>删除自定义主题</summary>
+
+**删除自定义主题**
+
+删掉不想要的胶囊，删前确认，删后可以重建。
+
+<video src="https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
+
+1. 选中不想要的自定义主题，点删除。
+2. 确认删除，胶囊从列表里消失。
+3. 后悔了照新增那条重建一个。
+
+</details>
+
+<details>
+<summary>AI 编辑自定义主题</summary>
+
+**AI 编辑自定义主题**
+
+一句话让 AI 改色，不用逐个手调。
+
+<video src="https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+
+https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
+
+1. 打开自定义主题的 AI 编辑入口。
+2. 一句话说清想要的配色，比如“暖一点的暗色”。
+3. 看预览，满意就保存，不满意再说一句。
+
+</details>
+
+</details>
+
 <h2 align="center"><sub>EXTENSIONS</sub><br>OpenCode 主题之外提供的功能</h2>
 
 | 能力 | 说明 |

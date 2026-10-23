@@ -150,18 +150,26 @@ test('口径：SHOWCASE 段首不再铺「38 = 37 上游 + 跟随系统」那句
   }
 })
 
-test('字体话题只讲一次：全部落在 EXTENSIONS 段内', () => {
-  const ext = (t: string): number => t.indexOf('<sub>EXTENSIONS</sub>')
+test('字体话题只讲两次：EXTENSIONS 定稿 + DEMO 视频演示，其余段落不讲', () => {
+  // 2026-10-21 定稿：排印话题收敛到 EXTENSIONS 第三条，前面不许散讲。
+  // 2026-10-23 规格 06：DEMO 章第 2 段就是字体字号视频演示（含一句话说明与三步文字兜底），
+  // 所以排印词允许再讲一次 —— 但只许在 DEMO 段内，其余段落仍不许散讲。
   // 英文页正文里是 "monospace"（含 "monospaced"），所以这里统一小写后比，避免被大小写绊倒
-  for (const [name, doc, word] of [['中文页', ZH, '等宽'], ['英文页', EN, 'monospace']]) {
-    const lower = (t: string): string => t.toLowerCase()
-    assert.equal(count(lower(doc.slice(0, ext(doc))), word), 0, `${name} 的 EXTENSIONS 之前不应再出现「${word}」`)
-    assert.ok(count(lower(doc.slice(ext(doc))), word) >= 1, `${name} 的 EXTENSIONS 内应讲到「${word}」`)
+  for (const r of [['中文页', ZH, '等宽'], ['英文页', EN, 'monospace']] as const) {
+    const low = r[1].toLowerCase()
+    const demoAt = low.indexOf('<sub>demo</sub>')
+    const extAt = low.indexOf('<sub>extensions</sub>')
+    const upAt = low.indexOf('<sub>upgrade</sub>')
+    assert.equal(count(low.slice(0, demoAt), r[2]), 0, r[0] + ' 的 DEMO 之前不应再出现「' + r[2] + '」')
+    assert.ok(count(low.slice(demoAt, extAt), r[2]) >= 1, r[0] + ' 的 DEMO 第 2 段应讲到「' + r[2] + '」')
+    assert.ok(count(low.slice(extAt), r[2]) >= 1, r[0] + ' 的 EXTENSIONS 内应讲到「' + r[2] + '」')
+    assert.equal(count(low.slice(upAt), r[2]), 0, r[0] + ' 的 UPGRADE 及之后不应再出现「' + r[2] + '」')
   }
-  // 排印三属性（字体 / 字号 11–24 / 作用范围）只在 EXTENSIONS 段内讲一次（2026-10-21 起落在第三条）
-  for (const [name, doc, needle] of [['中文页', ZH, '字号 11–24'], ['英文页', EN, '11–24 px']]) {
-    assert.equal(count(doc, needle), 1, `${name}「${needle}」应只出现一次`)
-    assert.ok(doc.slice(ext(doc)).includes(needle), `${name}「${needle}」应落在 EXTENSIONS 段内`)
+  // 排印三属性（字体 / 字号 11–24 / 作用范围）：EXTENSIONS 一次 + DEMO 一次，其余段落不许出现
+  for (const r of [['中文页', ZH, '字号 11–24'], ['英文页', EN, '11–24 px']] as const) {
+    assert.equal(count(r[1], r[2]), 2, r[0] + '「' + r[2] + '」应恰好出现两次（EXTENSIONS 一次 + DEMO 一次）')
+    assert.ok(r[1].slice(r[1].indexOf('<sub>EXTENSIONS</sub>'), r[1].indexOf('<sub>UPGRADE</sub>')).includes(r[2]), r[0] + '「' + r[2] + '」一次应落在 EXTENSIONS 段内')
+    assert.ok(demoBlock(r[1]).includes(r[2]), r[0] + '「' + r[2] + '」一次应落在 DEMO 段内')
   }
 })
 
@@ -290,8 +298,16 @@ test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet /
   assert.equal(zh.filter((x) => x === 'FIG').length, 0, '正文不再有独立成行的图片：2026-10-21 起 showcase 截图走两栏 markdown 表格（图片行以 `|` 开头），THEMES 的色带图随主题专区一起退役')
   assert.equal(zh.filter((x) => x === 'STEP').length, 3, 'INSTALL 应是清晰三步')
   assert.equal(zh.filter((x) => x === 'BULLET').length, 0, 'EXTENSIONS 与 UPGRADE 都已不用 bullet（2026-09-18 起主体内应无 `- ` 列表项）')
-  assert.equal(count(ZH, '<details>'), 0, 'UPGRADE 不再有 details（日志与 1.4.x 两段已删）')
-  assert.equal(count(EN, '<details>'), 0, '英文页同样没有 details')
+  // 2026-10-23 规格 06：DEMO 章是全仓唯一的 details 用途（外层 1 + 内层 7）。
+  // UPGRADE 段仍不许有 details（日志与 1.4.x 两段已删的结论不变），DEMO 段恰好 8 个开启标签。
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN]] as const) {
+    const upgrade = doc.slice(doc.indexOf('<sub>UPGRADE</sub>'), doc.indexOf('<sub>MORE</sub>'))
+    assert.equal(count(upgrade, '<details>'), 0, name + ' 的 UPGRADE 段仍不应有 details')
+    const demo = doc.slice(doc.indexOf('<sub>DEMO</sub>'), doc.indexOf('<sub>EXTENSIONS</sub>'))
+    assert.ok(demo.length > 0, name + ' 应有 DEMO 章且落在 INSTALL 与 EXTENSIONS 之间')
+    assert.equal(count(demo, '<details>'), 8, name + ' 的 DEMO 章应恰好 8 个 details 开启（外层 1 + 内层 7）')
+    assert.equal(count(demo, '</details>'), 8, name + ' 的 DEMO 章开启闭合应对齐')
+  }
 })
 
 test('EXTENSIONS 段居左（不再包 align="center" 的 div），且排在 INSTALL 之后', () => {
@@ -443,6 +459,81 @@ test('showcase 段不再有过期口径（34 themes / full light coverage / 浅�
   // 2026-10-21：新图里有真的浅色截图，所以「浅色」这个说法本身不再是禁令 ——
   // 它的真假由上面那条实测亮度门禁逐格判。
   assert.equal(/浅色/.test(zhShow) && !/IP 主题胶囊/.test(zhShow), false, '中文页的浅色说法只应出现在 IP 主题胶囊的明暗标注上')
+})
+
+// ── 7 · DEMO：基础使用演示（规格 06，2026-10-23）──
+// 外层一折叠包 7 条内层折叠，全部默认闭合；
+// 每条 = 标题行 + 一句话说明 + 播放器 + 裸链接 + 三步文字兜底。
+// 好测试只看外部行为：两页文档当纯文本断字符串与数量，不渲染、不联网、不解码视频。
+const DEMO_URLS = [
+  'https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03',
+  'https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055',
+  'https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a',
+  'https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd',
+  'https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8',
+  'https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2',
+  'https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9',
+]
+const DEMO_TITLES_ZH = ['安装插件', '设置字体字号', '选择主题', '新增自定义主题', '编辑自定义主题', '删除自定义主题', 'AI 编辑自定义主题']
+const DEMO_TITLES_EN = ['Install the plugin', 'Change fonts and size', 'Switch themes', 'Create a custom theme', 'Edit a custom theme', 'Delete a custom theme', 'AI-edit a custom theme']
+
+function demoBlock(t: string): string {
+  return t.slice(t.indexOf('<sub>DEMO</sub>'), t.indexOf('<sub>EXTENSIONS</sub>'))
+}
+
+test('DEMO 落点：中英都在 INSTALL 之后、EXTENSIONS 之前，且标题锁死', () => {
+  const rows = [['中文页', ZH, '基础使用演示'], ['英文页', EN, 'Basic usage demo']] as const
+  for (const r of rows) {
+    const install = r[1].indexOf('<sub>INSTALL</sub>')
+    const demo = r[1].indexOf('<sub>DEMO</sub>')
+    const ext = r[1].indexOf('<sub>EXTENSIONS</sub>')
+    assert.ok(install > -1 && demo > install && ext > demo, r[0] + ' 段落顺序应为 INSTALL → DEMO → EXTENSIONS')
+    assert.ok(r[1].includes('<sub>DEMO</sub><br>' + r[2]), r[0] + ' 标题应锁死为 ' + r[2])
+  }
+})
+
+test('DEMO 折叠：外层默认闭合、内层恰好 7 条且标题一一对应', () => {
+  const rows = [['中文页', ZH, DEMO_TITLES_ZH], ['英文页', EN, DEMO_TITLES_EN]] as const
+  for (const r of rows) {
+    const demo = demoBlock(r[1])
+    assert.equal(demo.includes('<details open'), false, r[0] + ' DEMO 不应有默认展开（全部闭合）')
+    const summaries = Array.from(demo.matchAll(/<summary>([\s\S]*?)<\/summary>/g), function (m) { return m[1] })
+    assert.equal(summaries.length, 8, r[0] + ' DEMO 应恰好 8 个 summary（外层 1 + 内层 7）')
+    assert.deepEqual(summaries.slice(1), Array.from(r[2]), r[0] + ' 内层 7 条标题应与 7 段一一对应且有序')
+    for (const s of summaries) {
+      assert.equal(s.includes('\n'), false, r[0] + ' summary 应为单行：' + s)
+      assert.equal(/[<#\[\]!|]/.test(s), false, r[0] + ' summary 应为纯文本（无标签/标题/链接/图片/表格）：' + s)
+    }
+  }
+})
+
+test('DEMO 条目：每条含播放器声明与裸链接，无自动播放，视频无入库', () => {
+  for (const r of [['中文页', ZH], ['英文页', EN]] as const) {
+    const demo = demoBlock(r[1])
+    assert.equal(/autoplay|loop/.test(demo), false, r[0] + ' DEMO 只声明播放控制，不声明自动播放与循环')
+    assert.equal(demo.includes('.mp4'), false, r[0] + ' DEMO 不应引用入库视频（只用托管地址）')
+    for (const url of DEMO_URLS) {
+      assert.ok(demo.includes('<video src="' + url + '" controls'), r[0] + ' 应有播放器声明：' + url)
+      assert.equal(count(demo, url), 2, r[0] + ' 每条应恰好两处地址（播放器 + 裸链接）：' + url)
+    }
+  }
+})
+
+test('DEMO 兜底：每条恰好三步文字步骤（2~4 步口径内）', () => {
+  for (const r of [['中文页', ZH], ['英文页', EN]] as const) {
+    const demo = demoBlock(r[1])
+    for (const n of ['1.', '2.', '3.']) {
+      const c = demo.split('\n').filter(function (l) { return l.startsWith(n + ' ') }).length
+      assert.equal(c, 7, r[0] + ' 每条应恰好一步「' + n + '」（7 条各一共 7 行）')
+    }
+    assert.equal(demo.split('\n').filter(function (l) { return l.startsWith('4. ') }).length, 0, r[0] + ' 不应有第 4 步')
+  }
+})
+
+test('DEMO 中英对齐：7 段地址同序，包内副本随派生带入', () => {
+  assert.deepEqual(DEMO_URLS.filter(function (u) { return demoBlock(ZH).includes(u) }), DEMO_URLS, '中文页 7 段地址应齐且有序')
+  assert.deepEqual(DEMO_URLS.filter(function (u) { return demoBlock(EN).includes(u) }), DEMO_URLS, '英文页 7 段地址应与中文页同一批且同序')
+  for (const url of DEMO_URLS) assert.ok(PKG.includes(url), '包内副本应随派生带入：' + url)
 })
 
 // ── 工具 ──
