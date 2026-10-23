@@ -506,6 +506,7 @@ test('DEMO 折叠：外层默认闭合、内层恰好 7 条且标题一一对应
     for (const t of Array.from(r[2])) {
       assert.equal(demo.includes('**' + t + '**'), false, r[0] + ' 标题只留折叠标签一行，不应再有加粗重复标题：' + t)
     }
+    assert.equal(count(demo, '\n---\n'), 6, r[0] + ' DEMO 7 段之间应恰好 6 道分隔线')
     for (const s of summaries) {
       assert.equal(s.includes('\n'), false, r[0] + ' summary 应为单行：' + s)
       assert.equal(/[<#\[\]!|]/.test(s), false, r[0] + ' summary 应为纯文本（无标签/标题/链接/图片/表格）：' + s)

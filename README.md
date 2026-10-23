@@ -87,6 +87,8 @@ https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
 </details>
 
+---
+
 <details>
 <summary>设置字体字号</summary>
 
@@ -99,6 +101,8 @@ https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 3. 字号在 11–24 px 之间拖到看着舒服为止。
 
 </details>
+
+---
 
 <details>
 <summary>选择主题</summary>
@@ -113,6 +117,8 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 </details>
 
+---
+
 <details>
 <summary>新增自定义主题</summary>
 
@@ -125,6 +131,8 @@ https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 3. 存好后胶囊落在 `<DSH_HOME>/opencode-palette/custom-themes/` 里。
 
 </details>
+
+---
 
 <details>
 <summary>编辑自定义主题</summary>
@@ -139,6 +147,8 @@ https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 
 </details>
 
+---
+
 <details>
 <summary>删除自定义主题</summary>
 
@@ -151,6 +161,8 @@ https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 3. 后悔了照新增那条重建一个。
 
 </details>
+
+---
 
 <details>
 <summary>AI 编辑自定义主题</summary>
