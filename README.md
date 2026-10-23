@@ -134,9 +134,9 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 37 个颜色逐个调，右边预览实时联动，存成专属胶囊。
 
-<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
+<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
 
-https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd
+https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 
 1. 点新增，37 个颜色逐个调，右边预览实时联动。
 2. 点预览里的元素，左边对应那行会滚到中间并打开取色器。

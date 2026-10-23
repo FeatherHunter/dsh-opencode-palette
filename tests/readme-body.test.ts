@@ -469,7 +469,7 @@ const DEMO_URLS = [
   'https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03',
   'https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055',
   'https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a',
-  'https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd',
+  'https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd',
   'https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8',
   'https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2',
   'https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9',

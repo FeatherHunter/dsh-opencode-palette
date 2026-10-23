@@ -134,9 +134,9 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 Tune 37 colors one by one with a live preview, then save your own capsule.
 
-<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd" controls width="100%">Your browser cannot play this video; use the link below.</video>
+<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd" controls width="100%">Your browser cannot play this video; use the link below.</video>
 
-https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd
+https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 
 1. Click new: tune 37 colors one by one while the preview follows live.
 2. Click an element in the preview and the matching row scrolls into view with the color picker.
