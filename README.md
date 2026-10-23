@@ -110,21 +110,23 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 <div align="left">
 
-[@oopsdoes](https://github.com/oopsdoes) — #46 提议不透明主题也跟随浅色宿主（#45 搁置的另一半）🌹、#55 揪出跟随系统写成深色 🌹
+感谢每一位提交 Issue、PR 与参与讨论的朋友，是你们让这个插件一点点变好。
 
-[@gitwch1](https://github.com/gitwch1) — #73 在全新安装上复现不出，提出漏重启 DSH 或被别的主题插件双重覆盖 🌹
+<!-- THANKS-TABLE-ZH-START -->
+| 贡献者 | 致敬 | 贡献 |
+| --- | --- | --- |
+| [@oopsdoes](https://github.com/oopsdoes) | 🌹🌹 | [#46](https://github.com/FeatherHunter/dsh-opencode-palette/issues/46) [#55](https://github.com/FeatherHunter/dsh-opencode-palette/issues/55) |
+| [@insp63](https://github.com/insp63) | 🌹 | [#124](https://github.com/FeatherHunter/dsh-opencode-palette/issues/124) |
+| [@gitwch1](https://github.com/gitwch1) | 🌹 | [#73](https://github.com/FeatherHunter/dsh-opencode-palette/issues/73) |
+| [@anci3ntr0ck](https://github.com/anci3ntr0ck) | 🌹 | [#73](https://github.com/FeatherHunter/dsh-opencode-palette/issues/73) |
+| [@SRKBob](https://github.com/SRKBob) | 🌹 | [#43](https://github.com/FeatherHunter/dsh-opencode-palette/issues/43) |
+| [@anupamme](https://github.com/anupamme) | 🌹 | [#32](https://github.com/FeatherHunter/dsh-opencode-palette/pull/32) |
+| [@Number444](https://github.com/Number444) | 🌹 | [#12](https://github.com/FeatherHunter/dsh-opencode-palette/issues/12) |
+| [@xiSage](https://github.com/xiSage) | 🌹 | [#11](https://github.com/FeatherHunter/dsh-opencode-palette/issues/11) |
+| [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) | 🌹 | [#3](https://github.com/FeatherHunter/dsh-opencode-palette/issues/3) |
+<!-- THANKS-TABLE-ZH-END -->
 
-[@anci3ntr0ck](https://github.com/anci3ntr0ck) — #73 报大部分主题 diff 行看不清：增删底色压着文字，北极整条同色 🌹
-
-[@SRKBob](https://github.com/SRKBob) — #43 嫌白色刺眼，想要一份不扎眼的配色 🌹
-
-[@anupamme](https://github.com/anupamme) — #32 指出主题下载缺一道校验 🌹
-
-[@Number444](https://github.com/Number444) — #12 要 Maple Mono NF CN 中英同宽 🌹
-
-[@xiSage](https://github.com/xiSage) — #11 要任意系统字体，点开即列本机字体 🌹
-
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 收录进 DSH Meme Hub 换皮肤专区，附取色考据 🌹
+也感谢在评论区与讨论区留下想法的每一位朋友。如果你也遇到了问题或有新想法，欢迎直接提 Issue 或发起讨论。
 
 </div>
 
@@ -132,9 +134,17 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 <div align="center">
 
-👏欢迎提交[PR](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)、[ISSUE](https://github.com/FeatherHunter/dsh-opencode-palette/issues)。星星之火可以燎原🔥。有任何建议、意见、想法、吐槽、idea都可以进群交流。
+👏欢迎提交PR、ISSUE。星星之火可以燎原🔥。有任何建议、意见、想法、吐槽、idea都可以进群交流。
 
-<img src="assets/feishu-qr.png" alt="DSH 插件交流群二维码" width="260" />
+Bug 与需求请直接提 ISSUE，更高效可追溯；日常闲聊与快速答疑走群里。
+
+QQ 群常驻、微信群限时、飞书群常驻，三群同为 DSH 插件交流群。
+
+<img src="assets/contact-qq-permanent.jpg" width="260" alt="DSH 插件交流群 QQ 群二维码" /> <img src="assets/contact-wechat-weekly.png" width="260" alt="DSH 插件交流群微信群二维码" /> <img src="assets/contact-feishu-permanent.png" width="260" alt="DSH 插件交流群飞书群二维码" />
+
+QQ 群号 1020866453，加群失败可搜群号加入。
+
+微信群二维码 7 天有效、每周更新，过期请走 QQ 或飞书群。
 
 </div>
 

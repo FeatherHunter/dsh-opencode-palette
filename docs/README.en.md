@@ -110,31 +110,41 @@ If you like this plugin, these might be useful too:
 
 <div align="left">
 
-[@oopsdoes](https://github.com/oopsdoes) — #46 proposed light-mode following for opaque themes (the half #45 deferred) 🌹; #55 caught follow-system persisting as dark 🌹
+Thanks to everyone who opened an issue, sent a PR, or joined a discussion — you made this plugin better bit by bit.
 
-[@gitwch1](https://github.com/gitwch1) — #73 found no repro on a fresh install, suggesting a missed DSH restart or a second theme plugin double-overriding 🌹
+<!-- THANKS-TABLE-EN-START -->
+| Contributor | Tribute | Contributions |
+| --- | --- | --- |
+| [@oopsdoes](https://github.com/oopsdoes) | 🌹🌹 | [#46](https://github.com/FeatherHunter/dsh-opencode-palette/issues/46) [#55](https://github.com/FeatherHunter/dsh-opencode-palette/issues/55) |
+| [@insp63](https://github.com/insp63) | 🌹 | [#124](https://github.com/FeatherHunter/dsh-opencode-palette/issues/124) |
+| [@gitwch1](https://github.com/gitwch1) | 🌹 | [#73](https://github.com/FeatherHunter/dsh-opencode-palette/issues/73) |
+| [@anci3ntr0ck](https://github.com/anci3ntr0ck) | 🌹 | [#73](https://github.com/FeatherHunter/dsh-opencode-palette/issues/73) |
+| [@SRKBob](https://github.com/SRKBob) | 🌹 | [#43](https://github.com/FeatherHunter/dsh-opencode-palette/issues/43) |
+| [@anupamme](https://github.com/anupamme) | 🌹 | [#32](https://github.com/FeatherHunter/dsh-opencode-palette/pull/32) |
+| [@Number444](https://github.com/Number444) | 🌹 | [#12](https://github.com/FeatherHunter/dsh-opencode-palette/issues/12) |
+| [@xiSage](https://github.com/xiSage) | 🌹 | [#11](https://github.com/FeatherHunter/dsh-opencode-palette/issues/11) |
+| [@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) | 🌹 | [#3](https://github.com/FeatherHunter/dsh-opencode-palette/issues/3) |
+<!-- THANKS-TABLE-EN-END -->
 
-[@anci3ntr0ck](https://github.com/anci3ntr0ck) — #73 reported diff rows unreadable across most themes: tints sitting on the text, Nord a solid block 🌹
-
-[@SRKBob](https://github.com/SRKBob) — #43 found the whites too harsh and asked for a softer palette 🌹
-
-[@anupamme](https://github.com/anupamme) — #32 flagged a missing check on theme downloads 🌹
-
-[@Number444](https://github.com/Number444) — #12 asked for Maple Mono NF CN 2:1 CJK 🌹
-
-[@xiSage](https://github.com/xiSage) — #11 asked for any system font; the panel now lists your local fonts 🌹
-
-[@the-beating-light-of-the-nail](https://github.com/the-beating-light-of-the-nail) — #3 listed this plugin in DSH Meme Hub with palette notes 🌹
+And thanks to everyone who left thoughts in comments and discussions. If you hit a problem or have an idea, feel free to open an issue or start a discussion.
 
 </div>
 
-<h2 align="center"><sub>CONNECT</sub><br>Feedback & Contact</h2>
+<h2 align="center"><sub>CONNECT</sub><br>Feedback and Contact</h2>
 
 <div align="center">
 
-👏Welcome [PRs](https://github.com/FeatherHunter/dsh-opencode-palette/pulls) and [issues](https://github.com/FeatherHunter/dsh-opencode-palette/issues). A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
+👏Welcome PRs and issues. A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
 
-<img src="../assets/feishu-qr.png" alt="DSH plugin community group QR code" width="260" />
+Bugs and feature requests go straight to ISSUEs for better traceability; casual chat and quick Q&A live in the groups.
+
+QQ group is permanent, WeChat group is time-limited, Feishu group is permanent — all three are the DSH plugin community group.
+
+<img src="../assets/contact-qq-permanent.jpg" width="260" alt="DSH plugin community group QQ QR code" /> <img src="../assets/contact-wechat-weekly.png" width="260" alt="DSH plugin community group WeChat QR code" /> <img src="../assets/contact-feishu-permanent.png" width="260" alt="DSH plugin community group Feishu QR code" />
+
+QQ group number 1020866453 — search the number to join if scanning fails.
+
+WeChat QR code is valid for 7 days and refreshed weekly; if expired, use QQ or Feishu instead.
 
 </div>
 
