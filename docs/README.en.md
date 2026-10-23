@@ -79,8 +79,6 @@ The 7 videos below reuse the same URLs as the Chinese page (recorded in the Chin
 <details>
 <summary>Install the plugin</summary>
 
-**Install the plugin**
-
 Follow the video to install the plugin and restart once.
 
 https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
@@ -93,8 +91,6 @@ https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
 <details>
 <summary>Change fonts and size</summary>
-
-**Change fonts and size**
 
 Mono vs regular, and sizes from 11–24 px.
 
@@ -109,8 +105,6 @@ https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 <details>
 <summary>Switch themes</summary>
 
-**Switch themes**
-
 Pick a theme in one click, applied instantly.
 
 https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
@@ -123,8 +117,6 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 <details>
 <summary>Create a custom theme</summary>
-
-**Create a custom theme**
 
 Tune 37 colors one by one with a live preview, then save your own capsule.
 
@@ -139,8 +131,6 @@ https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 <details>
 <summary>Edit a custom theme</summary>
 
-**Edit a custom theme**
-
 Come back and re-tune a saved capsule; the interface wears the new colors at once.
 
 https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
@@ -154,8 +144,6 @@ https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 <details>
 <summary>Delete a custom theme</summary>
 
-**Delete a custom theme**
-
 Remove capsules you no longer want; you can always rebuild one.
 
 https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
@@ -168,8 +156,6 @@ https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 
 <details>
 <summary>AI-edit a custom theme</summary>
-
-**AI-edit a custom theme**
 
 Recolor with one sentence, no manual tuning.
 

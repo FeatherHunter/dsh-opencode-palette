@@ -77,8 +77,6 @@ dsh plugin --profile web add dsh-opencode-palette
 <details>
 <summary>安装插件</summary>
 
-**安装插件**
-
 跟着视频一次装好插件并重启生效。
 
 https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
@@ -91,8 +89,6 @@ https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
 <details>
 <summary>设置字体字号</summary>
-
-**设置字体字号**
 
 分清等宽与常规两种字体，字号 11–24 px 随手调。
 
@@ -107,8 +103,6 @@ https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 <details>
 <summary>选择主题</summary>
 
-**选择主题**
-
 一键挑中喜欢的主题，界面立即换装。
 
 https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
@@ -121,8 +115,6 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 <details>
 <summary>新增自定义主题</summary>
-
-**新增自定义主题**
 
 37 个颜色逐个调，右边预览实时联动，存成专属胶囊。
 
@@ -137,8 +129,6 @@ https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 <details>
 <summary>编辑自定义主题</summary>
 
-**编辑自定义主题**
-
 回来改存好的胶囊，改完界面即时换上新配色。
 
 https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
@@ -152,8 +142,6 @@ https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 <details>
 <summary>删除自定义主题</summary>
 
-**删除自定义主题**
-
 删掉不想要的胶囊，删前确认，删后可以重建。
 
 https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
@@ -166,8 +154,6 @@ https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 
 <details>
 <summary>AI 编辑自定义主题</summary>
-
-**AI 编辑自定义主题**
 
 一句话让 AI 改色，不用逐个手调。
 

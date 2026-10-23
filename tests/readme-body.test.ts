@@ -503,6 +503,9 @@ test('DEMO 折叠：外层默认闭合、内层恰好 7 条且标题一一对应
     const summaries = Array.from(demo.matchAll(/<summary>([\s\S]*?)<\/summary>/g), (m) => m[1])
     assert.equal(summaries.length, 8, r[0] + ' DEMO 应恰好 8 个 summary（外层 1 + 内层 7）')
     assert.deepEqual(summaries.slice(1), Array.from(r[2]), r[0] + ' 内层 7 条标题应与 7 段一一对应且有序')
+    for (const t of Array.from(r[2])) {
+      assert.equal(demo.includes('**' + t + '**'), false, r[0] + ' 标题只留折叠标签一行，不应再有加粗重复标题：' + t)
+    }
     for (const s of summaries) {
       assert.equal(s.includes('\n'), false, r[0] + ' summary 应为单行：' + s)
       assert.equal(/[<#\[\]!|]/.test(s), false, r[0] + ' summary 应为纯文本（无标签/标题/链接/图片/表格）：' + s)
