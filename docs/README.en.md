@@ -139,3 +139,10 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 <table align="center"><tr><td align="center"><b>QQ Group</b></td><td align="center"><b>WeChat Group</b></td><td align="center"><b>Feishu Group</b></td></tr><tr><td><img src="../assets/contact-qq-permanent.jpg" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="../assets/contact-wechat-weekly.png" width="260" alt="DSH plugin community group WeChat QR code" /></td><td><img src="../assets/contact-feishu-permanent.png" width="260" alt="DSH plugin community group Feishu QR code" /></td></tr></table>
 
 </div>
+
+<div align="center">
+
+![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610221437)
+
+</div>
+

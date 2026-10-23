@@ -139,3 +139,10 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 <table align="center"><tr><td align="center"><b>QQ群</b></td><td align="center"><b>微信群</b></td><td align="center"><b>飞书群</b></td></tr><tr><td><img src="assets/contact-qq-permanent.jpg" width="260" alt="DSH 插件交流群 QQ 群二维码" /></td><td><img src="assets/contact-wechat-weekly.png" width="260" alt="DSH 插件交流群微信群二维码" /></td><td><img src="assets/contact-feishu-permanent.png" width="260" alt="DSH 插件交流群飞书群二维码" /></td></tr></table>
 
 </div>
+
+<div align="center">
+
+![星标增长曲线：左轴累计星标、右轴每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610221437)
+
+</div>
+
