@@ -497,7 +497,7 @@ test('DEMO 折叠：外层默认闭合、内层恰好 7 条且标题一一对应
   for (const r of rows) {
     const demo = demoBlock(r[1])
     assert.equal(demo.includes('<details open'), false, r[0] + ' DEMO 不应有默认展开（全部闭合）')
-    const summaries = Array.from(demo.matchAll(/<summary>([\s\S]*?)<\/summary>/g), function (m) { return m[1] })
+    const summaries = Array.from(demo.matchAll(/<summary>([\s\S]*?)<\/summary>/g), (m) => m[1])
     assert.equal(summaries.length, 8, r[0] + ' DEMO 应恰好 8 个 summary（外层 1 + 内层 7）')
     assert.deepEqual(summaries.slice(1), Array.from(r[2]), r[0] + ' 内层 7 条标题应与 7 段一一对应且有序')
     for (const s of summaries) {
@@ -523,16 +523,16 @@ test('DEMO 兜底：每条恰好三步文字步骤（2~4 步口径内）', () =>
   for (const r of [['中文页', ZH], ['英文页', EN]] as const) {
     const demo = demoBlock(r[1])
     for (const n of ['1.', '2.', '3.']) {
-      const c = demo.split('\n').filter(function (l) { return l.startsWith(n + ' ') }).length
+      const c = demo.split('\n').filter((l) => l.startsWith(n + ' ')).length
       assert.equal(c, 7, r[0] + ' 每条应恰好一步「' + n + '」（7 条各一共 7 行）')
     }
-    assert.equal(demo.split('\n').filter(function (l) { return l.startsWith('4. ') }).length, 0, r[0] + ' 不应有第 4 步')
+    assert.equal(demo.split('\n').filter((l) => l.startsWith('4. ')).length, 0, r[0] + ' 不应有第 4 步')
   }
 })
 
 test('DEMO 中英对齐：7 段地址同序，包内副本随派生带入', () => {
-  assert.deepEqual(DEMO_URLS.filter(function (u) { return demoBlock(ZH).includes(u) }), DEMO_URLS, '中文页 7 段地址应齐且有序')
-  assert.deepEqual(DEMO_URLS.filter(function (u) { return demoBlock(EN).includes(u) }), DEMO_URLS, '英文页 7 段地址应与中文页同一批且同序')
+  assert.deepEqual(DEMO_URLS.filter((u) => demoBlock(ZH).includes(u)), DEMO_URLS, '中文页 7 段地址应齐且有序')
+  assert.deepEqual(DEMO_URLS.filter((u) => demoBlock(EN).includes(u)), DEMO_URLS, '英文页 7 段地址应与中文页同一批且同序')
   for (const url of DEMO_URLS) assert.ok(PKG.includes(url), '包内副本应随派生带入：' + url)
 })
 

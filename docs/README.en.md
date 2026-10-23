@@ -69,6 +69,134 @@ dsh plugin --profile web add dsh-opencode-palette
 
 **③ Pick a theme you like.**
 
+<h2 align="center"><sub>DEMO</sub><br>Basic usage demo</h2>
+
+The 7 videos below reuse the same URLs as the Chinese page (recorded in the Chinese UI); all collapsed by default — expand to watch.
+
+<details>
+<summary>Basic usage demo: expand for 7 short videos</summary>
+
+<details>
+<summary>Install the plugin</summary>
+
+**Install the plugin**
+
+Follow the video to install the plugin and restart once.
+
+<video src="https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
+
+1. Run `dsh plugin --profile web add dsh-opencode-palette` to add the plugin to your profile.
+2. Restart DSH (or refresh the browser page).
+3. Open "OpenCode Palette" and confirm the panel opens.
+
+</details>
+
+<details>
+<summary>Change fonts and size</summary>
+
+**Change fonts and size**
+
+Mono vs regular, and sizes from 11–24 px.
+
+<video src="https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
+
+1. Open the settings panel and find fonts and size.
+2. Mono turns the whole interface monospaced, while Regular keeps monospace to code blocks.
+3. Drag the size until it feels right.
+
+</details>
+
+<details>
+<summary>Switch themes</summary>
+
+**Switch themes**
+
+Pick a theme in one click, applied instantly.
+
+<video src="https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
+
+1. Open "OpenCode Palette" and browse 38 themes by color family.
+2. Click the one you like; the interface switches instantly.
+3. Changed your mind? Click another — switch anytime.
+
+</details>
+
+<details>
+<summary>Create a custom theme</summary>
+
+**Create a custom theme**
+
+Tune 37 colors one by one with a live preview, then save your own capsule.
+
+<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c9c6f9dfccd
+
+1. Click new: tune 37 colors one by one while the preview follows live.
+2. Click an element in the preview and the matching row scrolls into view with the color picker.
+3. Saved capsules land in `<DSH_HOME>/opencode-palette/custom-themes/`.
+
+</details>
+
+<details>
+<summary>Edit a custom theme</summary>
+
+**Edit a custom theme**
+
+Come back and re-tune a saved capsule; the interface wears the new colors at once.
+
+<video src="https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
+
+1. Open a saved custom theme for editing.
+2. Change the colors you want; the preview updates instantly.
+3. Save, and the interface wears the new colors at once.
+
+</details>
+
+<details>
+<summary>Delete a custom theme</summary>
+
+**Delete a custom theme**
+
+Remove capsules you no longer want; you can always rebuild one.
+
+<video src="https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
+
+1. Select the custom theme you no longer want and delete it.
+2. Confirm; the capsule disappears from the list.
+3. Regret it? Rebuild one following the fourth video above.
+
+</details>
+
+<details>
+<summary>AI-edit a custom theme</summary>
+
+**AI-edit a custom theme**
+
+Recolor with one sentence, no manual tuning.
+
+<video src="https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9" controls width="100%">Your browser cannot play this video; use the link below.</video>
+
+https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
+
+1. Open the AI editing entry of a custom theme.
+2. Describe the palette you want in one sentence (for example "a warmer dark theme").
+3. Check the preview; save if you like it, or ask again.
+
+</details>
+
+</details>
+
 <h2 align="center"><sub>EXTENSIONS</sub><br>What the OpenCode themes come with</h2>
 
 | Feature | Details |
