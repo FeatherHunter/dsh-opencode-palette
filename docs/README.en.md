@@ -83,8 +83,6 @@ The 7 videos below reuse the same URLs as the Chinese page (recorded in the Chin
 
 Follow the video to install the plugin and restart once.
 
-<video src="https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03" controls width="100%">Your browser cannot play this video; use the link below.</video>
-
 https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
 1. Run `dsh plugin --profile web add dsh-opencode-palette` to add the plugin to your profile.
@@ -99,8 +97,6 @@ https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 **Change fonts and size**
 
 Mono vs regular, and sizes from 11–24 px.
-
-<video src="https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055" controls width="100%">Your browser cannot play this video; use the link below.</video>
 
 https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 
@@ -117,8 +113,6 @@ https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 
 Pick a theme in one click, applied instantly.
 
-<video src="https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a" controls width="100%">Your browser cannot play this video; use the link below.</video>
-
 https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 1. Open "OpenCode Palette" and browse 38 themes by color family.
@@ -133,8 +127,6 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 **Create a custom theme**
 
 Tune 37 colors one by one with a live preview, then save your own capsule.
-
-<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd" controls width="100%">Your browser cannot play this video; use the link below.</video>
 
 https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 
@@ -151,8 +143,6 @@ https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 
 Come back and re-tune a saved capsule; the interface wears the new colors at once.
 
-<video src="https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8" controls width="100%">Your browser cannot play this video; use the link below.</video>
-
 https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 
 1. Open a saved custom theme for editing.
@@ -168,8 +158,6 @@ https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 
 Remove capsules you no longer want; you can always rebuild one.
 
-<video src="https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2" controls width="100%">Your browser cannot play this video; use the link below.</video>
-
 https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 
 1. Select the custom theme you no longer want and delete it.
@@ -184,8 +172,6 @@ https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 **AI-edit a custom theme**
 
 Recolor with one sentence, no manual tuning.
-
-<video src="https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9" controls width="100%">Your browser cannot play this video; use the link below.</video>
 
 https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
 

@@ -289,9 +289,12 @@ function bodyShape(t: string): string[] {
   })
 }
 
+// 2026-10-24 票 11：英文页 DEMO 章首多一行共用地址注（含中文录制说明，规格 06 要求保留），
+// 中文页对应句已按用户意见删除；同形比对前先摘掉这一行（唯一允许的中英不对称行）。
+const EN_DEMO_NOTE = 'The 7 videos below reuse the same URLs as the Chinese page (recorded in the Chinese UI); all collapsed by default — expand to watch.'
 test('主体：中英逐块同形（标题 / 图 / 引导句 / 步骤 / bullet / details 一一对应）', () => {
   const zh = bodyShape(ZH)
-  const en = bodyShape(EN)
+  const en = bodyShape(EN.replace(EN_DEMO_NOTE + '\n', ''))
   assert.deepEqual(zh, en, '中英主体结构应逐块同形，一侧多一句就红')
   assert.equal(zh.filter((x) => x === 'H2:SHOWCASE').length, 1, 'SHOWCASE 应恰好一版')
   assert.equal(zh.filter((x) => x === 'IMG').length, 0, 'showcase 截图必须走 markdown 语法：市场详情页的渲染器把原始 HTML 整段丢弃，<img> 在那边一张都不显示')
@@ -507,14 +510,16 @@ test('DEMO 折叠：外层默认闭合、内层恰好 7 条且标题一一对应
   }
 })
 
-test('DEMO 条目：每条含播放器声明与裸链接，无自动播放，视频无入库', () => {
+test('DEMO 条目：裸链接单播放器，无自动播放，视频无入库', () => {
+  // 2026-10-24 票 11：用户截图实证——video 标签渲染出坏壳（黑屏 0:00，文件头 -.mp4），
+  // 裸链接自动嵌入的播放器可播（0:01/0:17）。故每条只留裸链接一个播放器，不再写 video 标签。
   for (const r of [['中文页', ZH], ['英文页', EN]] as const) {
     const demo = demoBlock(r[1])
-    assert.equal(/autoplay|loop/.test(demo), false, r[0] + ' DEMO 只声明播放控制，不声明自动播放与循环')
+    assert.equal(demo.includes('<video'), false, r[0] + ' DEMO 不应再有 video 标签（渲染出坏壳，裸链接才是可播的那个）')
+    assert.equal(/autoplay|loop/.test(demo), false, r[0] + ' DEMO 不声明自动播放与循环')
     assert.equal(demo.includes('.mp4'), false, r[0] + ' DEMO 不应引用入库视频（只用托管地址）')
     for (const url of DEMO_URLS) {
-      assert.ok(demo.includes('<video src="' + url + '" controls'), r[0] + ' 应有播放器声明：' + url)
-      assert.equal(count(demo, url), 2, r[0] + ' 每条应恰好两处地址（播放器 + 裸链接）：' + url)
+      assert.equal(count(demo, url), 1, r[0] + ' 每条应恰好一处地址（裸链接单播放器）：' + url)
     }
   }
 })

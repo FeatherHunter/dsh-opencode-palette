@@ -71,8 +71,6 @@ dsh plugin --profile web add dsh-opencode-palette
 
 <h2 align="center"><sub>DEMO</sub><br>基础使用演示</h2>
 
-以下 7 段视频与英文页共用同一批地址，默认折叠，点开即看。
-
 <details>
 <summary>基础使用演示：点开看 7 段操作视频</summary>
 
@@ -82,8 +80,6 @@ dsh plugin --profile web add dsh-opencode-palette
 **安装插件**
 
 跟着视频一次装好插件并重启生效。
-
-<video src="https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
 
 https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
@@ -100,8 +96,6 @@ https://github.com/user-attachments/assets/3332e166-ecdc-4a3a-877b-154a2614dd03
 
 分清等宽与常规两种字体，字号 11–24 px 随手调。
 
-<video src="https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
-
 https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 
 1. 打开设置面板，找到字体与字号两处。
@@ -116,8 +110,6 @@ https://github.com/user-attachments/assets/f6c17168-5b39-4a12-bf9b-f819db681055
 **选择主题**
 
 一键挑中喜欢的主题，界面立即换装。
-
-<video src="https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
 
 https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
@@ -134,8 +126,6 @@ https://github.com/user-attachments/assets/b425fed9-1aab-43c3-ab70-726de38a9c1a
 
 37 个颜色逐个调，右边预览实时联动，存成专属胶囊。
 
-<video src="https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
-
 https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 
 1. 点新增，37 个颜色逐个调，右边预览实时联动。
@@ -150,8 +140,6 @@ https://github.com/user-attachments/assets/349dba7f-4cdb-4281-b71c-c39c6f9dfccd
 **编辑自定义主题**
 
 回来改存好的胶囊，改完界面即时换上新配色。
-
-<video src="https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
 
 https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 
@@ -168,8 +156,6 @@ https://github.com/user-attachments/assets/4ff48986-142f-404b-bb1b-70d948d95ba8
 
 删掉不想要的胶囊，删前确认，删后可以重建。
 
-<video src="https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
-
 https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 
 1. 选中不想要的自定义主题，点删除。
@@ -184,8 +170,6 @@ https://github.com/user-attachments/assets/5f2e42bb-7e5b-4bf2-b61a-600df5e47ba2
 **AI 编辑自定义主题**
 
 一句话让 AI 改色，不用逐个手调。
-
-<video src="https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9" controls width="100%">您的浏览器不支持播放该视频，请用下面的链接打开。</video>
 
 https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
 
