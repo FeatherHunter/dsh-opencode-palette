@@ -1,54 +1,43 @@
-# =============================================================================
-# palette/values.yaml —— 值类型系统
-# role: 值类型（怎么校验、怎么归一化、怎么序列化）
-# generated: false
-# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
-#
-# 这里只描述「值长什么样」。具体写到宿主哪里，在 primitives.yaml。
-# 防注入的关键：值必须按类型解析后由我们重新序列化，禁止原文拼进样式表。
-# =============================================================================
 api: 3
-
-# -----------------------------------------------------------------------------
-# 1. 值类型
-#    kind：结构化类型
-#    diurnal：是否允许 {light, dark} 成对
-#    ref：是否允许 $variable 引用（主题变量）
-#    parse/serialize：代码里登记的实现名（枚举），不允许自由函数
-# -----------------------------------------------------------------------------
 value_types:
-
   color:
     kind: color
     diurnal: true
     ref: true
     parse: css_color
     serialize: css_color
-
-  gradient:                    # 渐变：2–4 个色停靠点，可作颜色/背景/阴影
+  gradient:
     kind: gradient
-    stops: { min: 2, max: 4 }
+    stops:
+      min: 2
+      max: 4
     diurnal: true
     ref: true
     parse: css_gradient
     serialize: css_gradient
-
-  paint:                       # 能当「绘制值」用的一切（CSS 背景可用）
+  paint:
     kind: union
-    of: [color, gradient, image]
+    of:
+    - color
+    - gradient
+    - image
     diurnal: true
     ref: true
     parse: css_paint
     serialize: css_paint
-
   length:
     kind: length
-    units: [px, rem, em, '%', vh, vw]
+    units:
+    - px
+    - rem
+    - em
+    - '%'
+    - vh
+    - vw
     diurnal: false
     ref: true
     parse: css_length
     serialize: css_length
-
   number:
     kind: number
     min: 0
@@ -56,128 +45,148 @@ value_types:
     step: 0.01
     diurnal: false
     ref: true
-
-  line_height:                 # 行高：无单位倍数（1.5）或长度（24px）
+  line_height:
     kind: union
-    of: [number, length]
+    of:
+    - number
+    - length
     diurnal: false
     ref: true
-
   font_stack:
     kind: font_stack
     diurnal: false
     ref: true
     parse: font_stack
     serialize: font_stack
-
-  font_set:                    # 语言/书写系统 → 各自字体（第 1 条需求的关键）
+  font_set:
     kind: map
-    key: script                # latin / han / kana / hangul / cyrillic / arabic ...
+    key: script
     value: font_stack
-    value_asset: font          # 也可以直接给字体资源
-    unicode_range: builtin     # 由下方 scripts 表生成 @font-face 的 unicode-range
+    value_asset: font
+    unicode_range: builtin
     diurnal: false
     ref: true
-
-  typeface:                    # 字体：字体栈 / 字体资源 / 字体集合
+  typeface:
     kind: union
-    of: [font_stack, asset_font, font_set]
+    of:
+    - font_stack
+    - asset_font
+    - font_set
     diurnal: false
     ref: true
-
-  asset_font:                  # 单个字体资源（@font-face 的 src）
+  asset_font:
     kind: asset
     asset_kind: font
     diurnal: false
     ref: false
-
   weight:
     kind: enum
-    values: [100, 200, 300, 400, 500, 600, 700, 800, 900]
+    values:
+    - 100
+    - 200
+    - 300
+    - 400
+    - 500
+    - 600
+    - 700
+    - 800
+    - 900
     diurnal: false
     ref: false
-
   icon:
     kind: asset
     asset_kind: icon
     diurnal: false
     ref: false
-
-  image:                       # 静态图
+  image:
     kind: asset
     asset_kind: wallpaper
     diurnal: true
     ref: false
-
-  animated_image:              # 动态图：GIF / WebP / AVIF / APNG
+  animated_image:
     kind: asset
     asset_kind: wallpaper
     animated: true
     diurnal: true
     ref: false
-
-  video:                       # 视频：CSS 背景做不了，必须插 <video> 层
+  video:
     kind: asset
     asset_kind: video
     diurnal: true
     ref: false
     poster: optional
-
-  media:                       # 背景媒体三态：静态图 / 动态图 / 视频
+  media:
     kind: union
-    of: [image, animated_image, video]
+    of:
+    - image
+    - animated_image
+    - video
     diurnal: true
     ref: false
-
   shadow:
     kind: shadow
     diurnal: true
     ref: true
-
   duration:
     kind: duration
-    units: [ms, s]
+    units:
+    - ms
+    - s
     diurnal: false
     ref: false
-
   easing:
     kind: easing
     diurnal: false
     ref: false
-
-# -----------------------------------------------------------------------------
-# 2. 书写系统 → Unicode 范围
-#    font_set 编译时用它生成 @font-face 的 unicode-range，实现「同一段里
-#    英文用 A 字体、中文用 B 字体」。范围表随 Unicode 版本更新。
-# -----------------------------------------------------------------------------
+  font:
+    zh: CSS font 简写（font shorthand）
+    kind: string
+    css_grammar: font
+    example: 14px/24px 'Noto Sans SC', sans-serif
+    diurnal: true
+    parse: 按 CSS font 简写语法校验（字族必须在白名单/资源内）
+    note: '宿主 30 个排印复合 token 用 `font: var(--dsw-font-*)` 简写消费，写整条即可整体生效。'
+  font_style:
+    zh: 字体样式
+    kind: enum
+    values:
+    - normal
+    - italic
+    - oblique
+    diurnal: false
+    note: 宿主 150 条排印长手中的 font-style 轴；多数为 dead，仅登记。
+  filter:
+    zh: CSS 滤镜 / 背景滤镜
+    kind: string
+    css_grammar: filter | backdrop-filter
+    example: blur(12px) saturate(120%)
+    diurnal: true
+  shape:
+    zh: 形状（squircle 等）
+    kind: enum
+    values:
+    - squircle
+    - round
+    - bevel
+    diurnal: false
+    note: --dsw-corner-shape 当前无消费方；登记以便宿主日后启用。
 scripts:
-  latin:      'U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20A0-20CF, U+2100-214F'
-  greek:      'U+0370-03FF'
-  cyrillic:   'U+0400-04FF, U+0500-052F'
-  hebrew:     'U+0590-05FF, U+FB1D-FB4F'
-  arabic:     'U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF'
-  devanagari: 'U+0900-097F'
-  thai:       'U+0E00-0E7F'
-  han:        'U+2E80-2EFF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+20000-2FA1F'
-  kana:       'U+3040-30FF, U+31F0-31FF'
-  hangul:     'U+1100-11FF, U+3130-318F, U+AC00-D7AF'
-
-# -----------------------------------------------------------------------------
-# 3. 主题变量（theme.yaml 的 variables 段）
-#    编译成 --palette-var-<name>，能力值里写 $name 引用，改一处全局生效
-# -----------------------------------------------------------------------------
+  latin: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20A0-20CF, U+2100-214F
+  greek: U+0370-03FF
+  cyrillic: U+0400-04FF, U+0500-052F
+  hebrew: U+0590-05FF, U+FB1D-FB4F
+  arabic: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF
+  devanagari: U+0900-097F
+  thai: U+0E00-0E7F
+  han: U+2E80-2EFF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+20000-2FA1F
+  kana: U+3040-30FF, U+31F0-31FF
+  hangul: U+1100-11FF, U+3130-318F, U+AC00-D7AF
 variables:
-  pattern: '^[a-z][a-z0-9]*(-[a-z0-9]+)*$'
+  pattern: ^[a-z][a-z0-9]*(-[a-z0-9]+)*$
   max: 64
   reserved_prefix: palette
-  css_var_prefix: '--palette-var-'
-
-# -----------------------------------------------------------------------------
-# 4. 值的三个语义（来自对抗审查 P0-6）
-#    没写 = 不注入；null = 清掉这一层；默认视觉值不属于能力集（在默认主题里）
-# -----------------------------------------------------------------------------
+  css_var_prefix: --palette-var-
 semantics:
   absent: 不注入
   null: 清除本层写入
   values_are_visual_truth: false
-

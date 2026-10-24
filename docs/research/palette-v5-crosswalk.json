@@ -1,0 +1,4266 @@
+{
+ "stats": {
+  "capabilities": 331,
+  "direct_bindings": 425,
+  "runtime": 148
+ },
+ "rows": {
+  "P1": [
+   {
+    "token": "--dsw-alias-bg-layer-1",
+    "semantic": "global.surface.layer-1",
+    "capability": "global.surface.layer-1",
+    "direct_binding": "token.dsw.alias.bg.layer.1"
+   },
+   {
+    "token": "--dsw-alias-bg-base",
+    "semantic": "global.page.background",
+    "capability": "global.page.background",
+    "direct_binding": "token.dsw.alias.bg.base"
+   },
+   {
+    "token": "--dsw-alias-bg-module-platform",
+    "semantic": "global.surface.module",
+    "capability": "global.surface.module",
+    "direct_binding": "token.dsw.alias.bg.module.platform"
+   },
+   {
+    "token": "--dsw-alias-bg-layer-2",
+    "semantic": "global.surface.layer-2",
+    "capability": "global.surface.layer-2",
+    "direct_binding": "token.dsw.alias.bg.layer.2"
+   },
+   {
+    "token": "--dsw-alias-bg-layer-3",
+    "semantic": "global.surface.layer-3",
+    "capability": "global.surface.layer-3",
+    "direct_binding": "token.dsw.alias.bg.layer.3"
+   },
+   {
+    "token": "--dsw-alias-bg-skeleton",
+    "semantic": "global.surface.skeleton",
+    "capability": "global.surface.skeleton",
+    "direct_binding": "token.dsw.alias.bg.skeleton"
+   },
+   {
+    "token": "--dsw-alias-bg-mask-1",
+    "semantic": "overlay.mask.primary",
+    "capability": "overlay.mask.primary",
+    "direct_binding": "token.dsw.alias.bg.mask.1"
+   },
+   {
+    "token": "--dsw-alias-bg-document-preview",
+    "semantic": "document.preview.background",
+    "capability": "document.preview.background",
+    "direct_binding": "token.dsw.alias.bg.document.preview"
+   },
+   {
+    "token": "--dsw-alias-bg-document-selection",
+    "semantic": "document.selection.background",
+    "capability": "document.selection.background",
+    "direct_binding": "token.dsw.alias.bg.document.selection"
+   },
+   {
+    "token": "--dsw-alias-bg-mask-drop",
+    "semantic": "overlay.mask.drop",
+    "capability": "overlay.mask.drop",
+    "direct_binding": "token.dsw.alias.bg.mask.drop"
+   },
+   {
+    "token": "--dsw-alias-bg-overlay",
+    "semantic": "overlay.surface",
+    "capability": "overlay.surface",
+    "direct_binding": "token.dsw.alias.bg.overlay"
+   },
+   {
+    "token": "--dsw-alias-bg-mask-2",
+    "semantic": "overlay.mask.alt-2",
+    "capability": "overlay.mask.alt-2",
+    "direct_binding": "token.dsw.alias.bg.mask.2"
+   },
+   {
+    "token": "--dsw-alias-bg-mask-3",
+    "semantic": "overlay.mask.alt-3",
+    "capability": "overlay.mask.alt-3",
+    "direct_binding": "token.dsw.alias.bg.mask.3"
+   },
+   {
+    "token": "--dsw-alias-bg-mask-photo",
+    "semantic": "overlay.mask.photo",
+    "capability": "overlay.mask.photo",
+    "direct_binding": "token.dsw.alias.bg.mask.photo"
+   },
+   {
+    "token": "--dsw-alias-bg-multi-select",
+    "semantic": "selection.multi.background",
+    "capability": null,
+    "direct_binding": "token.dsw.alias.bg.multi.select"
+   },
+   {
+    "token": "--dsw-alias-label-primary",
+    "semantic": "global.text.primary",
+    "capability": "global.text.primary",
+    "direct_binding": "token.dsw.alias.label.primary"
+   },
+   {
+    "token": "--dsw-alias-label-tertiary",
+    "semantic": "global.text.tertiary",
+    "capability": "global.text.tertiary",
+    "direct_binding": "token.dsw.alias.label.tertiary"
+   },
+   {
+    "token": "--dsw-alias-label-secondary",
+    "semantic": "global.text.secondary",
+    "capability": "global.text.secondary",
+    "direct_binding": "token.dsw.alias.label.secondary"
+   },
+   {
+    "token": "--dsw-alias-label-caption",
+    "semantic": "global.text.caption",
+    "capability": "global.text.caption",
+    "direct_binding": "token.dsw.alias.label.caption"
+   },
+   {
+    "token": "--dsw-alias-label-primary-inverted",
+    "semantic": "global.text.inverted",
+    "capability": "global.text.inverted",
+    "direct_binding": "token.dsw.alias.label.primary.inverted"
+   },
+   {
+    "token": "--dsw-alias-label-dimmed",
+    "semantic": "global.text.dimmed",
+    "capability": "global.text.dimmed",
+    "direct_binding": "token.dsw.alias.label.dimmed"
+   },
+   {
+    "token": "--dsw-alias-label-primary-foreground",
+    "semantic": "control.text.on-accent",
+    "capability": "control.text.on-accent",
+    "direct_binding": "token.dsw.alias.label.primary.foreground"
+   },
+   {
+    "token": "--dsw-alias-label-primary-dimmed",
+    "semantic": "global.text.primary-dimmed",
+    "capability": "global.text.primary-dimmed",
+    "direct_binding": "token.dsw.alias.label.primary.dimmed"
+   },
+   {
+    "token": "--dsw-alias-label-deep-diving",
+    "semantic": "decor.text.deep-diving",
+    "capability": "decor.text.deep-diving",
+    "direct_binding": "token.dsw.alias.label.deep.diving"
+   },
+   {
+    "token": "--dsw-alias-label-deep-diving-shimmer",
+    "semantic": "decor.text.deep-diving-shimmer",
+    "capability": "decor.text.deep-diving-shimmer",
+    "direct_binding": "token.dsw.alias.label.deep.diving.shimmer"
+   },
+   {
+    "token": "--dsw-alias-label-document-preview",
+    "semantic": "document.preview.text",
+    "capability": "document.preview.text",
+    "direct_binding": "token.dsw.alias.label.document.preview"
+   },
+   {
+    "token": "--dsw-alias-label-primary-bluish",
+    "semantic": "global.text.primary-bluish",
+    "capability": "global.text.primary-bluish",
+    "direct_binding": "token.dsw.alias.label.primary.bluish"
+   },
+   {
+    "token": "--dsw-alias-label-shimmer",
+    "semantic": "decor.text.shimmer",
+    "capability": "decor.text.shimmer",
+    "direct_binding": "token.dsw.alias.label.shimmer"
+   },
+   {
+    "token": "--dsw-alias-state-business-primary",
+    "semantic": "status.business.primary",
+    "capability": "status.business.primary",
+    "direct_binding": "token.dsw.alias.state.business.primary"
+   },
+   {
+    "token": "--dsw-alias-state-error-primary",
+    "semantic": "status.error.primary",
+    "capability": "status.error.primary",
+    "direct_binding": "token.dsw.alias.state.error.primary"
+   },
+   {
+    "token": "--dsw-alias-state-success-primary",
+    "semantic": "status.success.primary",
+    "capability": "status.success.primary",
+    "direct_binding": "token.dsw.alias.state.success.primary"
+   },
+   {
+    "token": "--dsw-alias-state-warn-tertiary",
+    "semantic": "status.warn.tertiary",
+    "capability": "status.warn.tertiary",
+    "direct_binding": "token.dsw.alias.state.warn.tertiary"
+   },
+   {
+    "token": "--dsw-alias-state-warn-label",
+    "semantic": "status.warn.label",
+    "capability": "status.warn.label",
+    "direct_binding": "token.dsw.alias.state.warn.label"
+   },
+   {
+    "token": "--dsw-alias-state-warn-primary",
+    "semantic": "status.warn.primary",
+    "capability": "status.warn.primary",
+    "direct_binding": "token.dsw.alias.state.warn.primary"
+   },
+   {
+    "token": "--dsw-alias-state-business-tertiary",
+    "semantic": "status.business.tertiary",
+    "capability": "status.business.tertiary",
+    "direct_binding": "token.dsw.alias.state.business.tertiary"
+   },
+   {
+    "token": "--dsw-alias-state-error-secondary",
+    "semantic": "status.error.secondary",
+    "capability": "status.error.secondary",
+    "direct_binding": "token.dsw.alias.state.error.secondary"
+   },
+   {
+    "token": "--dsw-alias-state-success-tertiary",
+    "semantic": "status.success.tertiary",
+    "capability": "status.success.tertiary",
+    "direct_binding": "token.dsw.alias.state.success.tertiary"
+   },
+   {
+    "token": "--dsw-alias-state-success-secondary",
+    "semantic": "status.success.secondary",
+    "capability": "status.success.secondary",
+    "direct_binding": "token.dsw.alias.state.success.secondary"
+   },
+   {
+    "token": "--dsw-alias-state-warn-secondary",
+    "semantic": "status.warn.secondary",
+    "capability": "status.warn.secondary",
+    "direct_binding": "token.dsw.alias.state.warn.secondary"
+   },
+   {
+    "token": "--dsw-alias-state-idle-primary",
+    "semantic": "status.idle.primary",
+    "capability": "status.idle.primary",
+    "direct_binding": "token.dsw.alias.state.idle.primary"
+   },
+   {
+    "token": "--dsw-alias-button-primary-fill",
+    "semantic": "control.button.primary.background",
+    "capability": "control.button.primary.background",
+    "direct_binding": "token.dsw.alias.button.primary.fill"
+   },
+   {
+    "token": "--dsw-alias-button-floating-hover",
+    "semantic": "control.button.floating.hover.background",
+    "capability": "control.button.floating.hover.background",
+    "direct_binding": "token.dsw.alias.button.floating.hover"
+   },
+   {
+    "token": "--dsw-alias-button-ghost-active-fill",
+    "semantic": "control.button.ghost.active.background",
+    "capability": "control.button.ghost.active.background",
+    "direct_binding": "token.dsw.alias.button.ghost.active.fill"
+   },
+   {
+    "token": "--dsw-alias-button-primary-hover",
+    "semantic": "control.button.primary.hover.background",
+    "capability": "control.button.primary.hover.background",
+    "direct_binding": "token.dsw.alias.button.primary.hover"
+   },
+   {
+    "token": "--dsw-alias-button-contrast-fill",
+    "semantic": "control.button.contrast.background",
+    "capability": "control.button.contrast.background",
+    "direct_binding": "token.dsw.alias.button.contrast.fill"
+   },
+   {
+    "token": "--dsw-alias-button-elevated-fill",
+    "semantic": "control.button.elevated.background",
+    "capability": "control.button.elevated.background",
+    "direct_binding": "token.dsw.alias.button.elevated.fill"
+   },
+   {
+    "token": "--dsw-alias-button-floating-fill",
+    "semantic": "control.button.floating.background",
+    "capability": "control.button.floating.background",
+    "direct_binding": "token.dsw.alias.button.floating.fill"
+   },
+   {
+    "token": "--dsw-alias-button-ghost-active-border",
+    "semantic": "control.button.ghost.active.border",
+    "capability": "control.button.ghost.active.border",
+    "direct_binding": "token.dsw.alias.button.ghost.active.border"
+   },
+   {
+    "token": "--dsw-alias-button-info-fill",
+    "semantic": "control.button.info.background",
+    "capability": "control.button.info.background",
+    "direct_binding": "token.dsw.alias.button.info.fill"
+   },
+   {
+    "token": "--dsw-alias-button-info-hover",
+    "semantic": "control.button.info.hover.background",
+    "capability": "control.button.info.hover.background",
+    "direct_binding": "token.dsw.alias.button.info.hover"
+   },
+   {
+    "token": "--dsw-alias-button-tool-bar-fill",
+    "semantic": "control.button.tool-bar.background",
+    "capability": "control.button.tool-bar.background",
+    "direct_binding": "token.dsw.alias.button.tool.bar.fill"
+   },
+   {
+    "token": "--dsw-alias-button-tool-bar-hover",
+    "semantic": "control.button.tool-bar.hover.background",
+    "capability": "control.button.tool-bar.hover.background",
+    "direct_binding": "token.dsw.alias.button.tool.bar.hover"
+   },
+   {
+    "token": "--dsw-alias-button-ghost-active-hover",
+    "semantic": "control.button.ghost.active.hover.background",
+    "capability": "control.button.ghost.active.hover.background",
+    "direct_binding": "token.dsw.alias.button.ghost.active.hover"
+   },
+   {
+    "token": "--dsw-alias-button-primary-dimmed",
+    "semantic": "control.button.primary-dimmed",
+    "capability": "control.button.primary-dimmed",
+    "direct_binding": "token.dsw.alias.button.primary.dimmed"
+   },
+   {
+    "token": "--dsw-alias-button-tool-bar-fill-invisible",
+    "semantic": "control.button.tool-bar.background-invisible",
+    "capability": "control.button.tool-bar.background-invisible",
+    "direct_binding": "token.dsw.alias.button.tool.bar.fill.invisible"
+   },
+   {
+    "token": "--dsw-alias-border-l2",
+    "semantic": "global.border.level-2",
+    "capability": "global.border.level-2",
+    "direct_binding": "token.dsw.alias.border.l2"
+   },
+   {
+    "token": "--dsw-alias-border-l3",
+    "semantic": "global.border.level-3",
+    "capability": "global.border.level-3",
+    "direct_binding": "token.dsw.alias.border.l3"
+   },
+   {
+    "token": "--dsw-alias-border-l1",
+    "semantic": "global.border.level-1",
+    "capability": "global.border.level-1",
+    "direct_binding": "token.dsw.alias.border.l1"
+   },
+   {
+    "token": "--dsw-alias-border-l4",
+    "semantic": "global.border.level-4",
+    "capability": "global.border.level-4",
+    "direct_binding": "token.dsw.alias.border.l4"
+   },
+   {
+    "token": "--dsw-alias-border-l2-darkmode-thin",
+    "semantic": "global.border.level-2-thin",
+    "capability": "global.border.level-2-thin",
+    "direct_binding": "token.dsw.alias.border.l2.darkmode.thin"
+   },
+   {
+    "token": "--dsw-alias-border-inverted",
+    "semantic": "global.border.inverted",
+    "capability": "global.border.inverted",
+    "direct_binding": "token.dsw.alias.border.inverted"
+   },
+   {
+    "token": "--dsw-alias-border-inverted2",
+    "semantic": "global.border.inverted-2",
+    "capability": "global.border.inverted-2",
+    "direct_binding": "token.dsw.alias.border.inverted2"
+   },
+   {
+    "token": "--dsw-alias-interactive-bg-hover",
+    "semantic": "global.interaction.hover",
+    "capability": "global.interaction.hover",
+    "direct_binding": "token.dsw.alias.interactive.bg.hover"
+   },
+   {
+    "token": "--dsw-alias-interactive-bg-hover-danger",
+    "semantic": "global.interaction.hover-danger",
+    "capability": "global.interaction.hover-danger",
+    "direct_binding": "token.dsw.alias.interactive.bg.hover.danger"
+   },
+   {
+    "token": "--dsw-alias-interactive-bg-hover-solid",
+    "semantic": "global.interaction.hover-solid",
+    "capability": "global.interaction.hover-solid",
+    "direct_binding": "token.dsw.alias.interactive.bg.hover.solid"
+   },
+   {
+    "token": "--dsw-alias-interactive-bg-active",
+    "semantic": "global.interaction.active",
+    "capability": "global.interaction.active",
+    "direct_binding": "token.dsw.alias.interactive.bg.active"
+   },
+   {
+    "token": "--dsw-alias-interactive-bg-hover-accent",
+    "semantic": "global.interaction.hover-accent",
+    "capability": "global.interaction.hover-accent",
+    "direct_binding": "token.dsw.alias.interactive.bg.hover.accent"
+   },
+   {
+    "token": "--dsw-alias-brand-primary-new-colorprimary-new-color",
+    "semantic": "global.brand.primary-legacy",
+    "capability": "global.brand.primary-legacy",
+    "direct_binding": "token.dsw.alias.brand.primary.new.colorprimary.new.color"
+   },
+   {
+    "token": "--dsw-alias-brand-primary",
+    "semantic": "global.brand.primary",
+    "capability": "global.brand.primary",
+    "direct_binding": "token.dsw.alias.brand.primary"
+   },
+   {
+    "token": "--dsw-alias-brand-primary-invert",
+    "semantic": "global.brand.primary-inverted",
+    "capability": "global.brand.primary-inverted",
+    "direct_binding": "token.dsw.alias.brand.primary.invert"
+   },
+   {
+    "token": "--dsw-alias-brand-text",
+    "semantic": "global.brand.text",
+    "capability": "global.brand.text",
+    "direct_binding": "token.dsw.alias.brand.text"
+   },
+   {
+    "token": "--dsw-alias-markdown-code-block",
+    "semantic": "content.markdown.code-block.background",
+    "capability": "content.markdown.code-block.background",
+    "direct_binding": "token.dsw.alias.markdown.code.block"
+   },
+   {
+    "token": "--dsw-alias-markdown-code-block-banner",
+    "semantic": "content.markdown.code-block.banner",
+    "capability": "content.markdown.code-block.banner",
+    "direct_binding": "token.dsw.alias.markdown.code.block.banner"
+   },
+   {
+    "token": "--dsw-alias-markdown-citation",
+    "semantic": "content.markdown.citation",
+    "capability": "content.markdown.citation",
+    "direct_binding": "token.dsw.alias.markdown.citation"
+   },
+   {
+    "token": "--dsw-alias-markdown-inline-code",
+    "semantic": "content.markdown.inline-code",
+    "capability": "content.markdown.inline-code",
+    "direct_binding": "token.dsw.alias.markdown.inline.code"
+   },
+   {
+    "token": "--dsw-alias-markdown-tag",
+    "semantic": "content.markdown.tag",
+    "capability": "content.markdown.tag",
+    "direct_binding": "token.dsw.alias.markdown.tag"
+   },
+   {
+    "token": "--dsw-alias-markdown-code-segment-selected",
+    "semantic": "content.markdown.code-segment.selected",
+    "capability": "content.markdown.code-segment.selected",
+    "direct_binding": "token.dsw.alias.markdown.code.segment.selected"
+   },
+   {
+    "token": "--dsw-alias-markdown-code-segment-unselected",
+    "semantic": "content.markdown.code-segment.unselected",
+    "capability": "content.markdown.code-segment.unselected",
+    "direct_binding": "token.dsw.alias.markdown.code.segment.unselected"
+   },
+   {
+    "token": "--dsw-alias-markdown-placeholder",
+    "semantic": "content.markdown.placeholder",
+    "capability": "content.markdown.placeholder",
+    "direct_binding": "token.dsw.alias.markdown.placeholder"
+   },
+   {
+    "token": "--dsw-alias-code-diff-added",
+    "semantic": "content.diff.code.added",
+    "capability": "content.diff.code.added",
+    "direct_binding": "token.dsw.alias.code.diff.added"
+   },
+   {
+    "token": "--dsw-alias-code-diff-deleted",
+    "semantic": "content.diff.code.deleted",
+    "capability": "content.diff.code.deleted",
+    "direct_binding": "token.dsw.alias.code.diff.deleted"
+   },
+   {
+    "token": "--dsw-alias-file-diff-added-bg",
+    "semantic": "content.file.diff.added.bg",
+    "capability": "content.file.diff.added.bg",
+    "direct_binding": "token.dsw.alias.file.diff.added.bg"
+   },
+   {
+    "token": "--dsw-alias-file-diff-added-gutter",
+    "semantic": "content.file.diff.added.gutter",
+    "capability": "content.file.diff.added.gutter",
+    "direct_binding": "token.dsw.alias.file.diff.added.gutter"
+   },
+   {
+    "token": "--dsw-alias-file-diff-added-marker",
+    "semantic": "content.file.diff.added.marker",
+    "capability": "content.file.diff.added.marker",
+    "direct_binding": "token.dsw.alias.file.diff.added.marker"
+   },
+   {
+    "token": "--dsw-alias-file-diff-deleted-bg",
+    "semantic": "content.file.diff.deleted.bg",
+    "capability": "content.file.diff.deleted.bg",
+    "direct_binding": "token.dsw.alias.file.diff.deleted.bg"
+   },
+   {
+    "token": "--dsw-alias-file-diff-deleted-gutter",
+    "semantic": "content.file.diff.deleted.gutter",
+    "capability": "content.file.diff.deleted.gutter",
+    "direct_binding": "token.dsw.alias.file.diff.deleted.gutter"
+   },
+   {
+    "token": "--dsw-alias-file-diff-deleted-marker",
+    "semantic": "content.file.diff.deleted.marker",
+    "capability": "content.file.diff.deleted.marker",
+    "direct_binding": "token.dsw.alias.file.diff.deleted.marker"
+   },
+   {
+    "token": "--dsw-alias-menu-icon",
+    "semantic": "menu.icon",
+    "capability": "menu.icon",
+    "direct_binding": "token.dsw.alias.menu.icon"
+   },
+   {
+    "token": "--dsw-alias-menu-group-header-fill",
+    "semantic": "menu.group-header.background",
+    "capability": "menu.group-header.background",
+    "direct_binding": "token.dsw.alias.menu.group.header.fill"
+   },
+   {
+    "token": "--dsw-alias-scrollbar-bg-l2",
+    "semantic": "global.scrollbar.level-2.thumb",
+    "capability": null,
+    "direct_binding": "token.dsw.alias.scrollbar.bg.l2"
+   },
+   {
+    "token": "--dsw-alias-scrollbar-hover-l2",
+    "semantic": "global.scrollbar.level-2.thumb-hover",
+    "capability": null,
+    "direct_binding": "token.dsw.alias.scrollbar.hover.l2"
+   },
+   {
+    "token": "--dsw-alias-scrollbar-bg-l1",
+    "semantic": "global.scrollbar.level-1.thumb",
+    "capability": null,
+    "direct_binding": "token.dsw.alias.scrollbar.bg.l1"
+   },
+   {
+    "token": "--dsw-alias-scrollbar-hover-l1",
+    "semantic": "global.scrollbar.level-1.thumb-hover",
+    "capability": null,
+    "direct_binding": "token.dsw.alias.scrollbar.hover.l1"
+   },
+   {
+    "token": "--dsw-alias-onboarding-accent",
+    "semantic": "onboarding.accent",
+    "capability": "onboarding.accent",
+    "direct_binding": "token.dsw.alias.onboarding.accent"
+   },
+   {
+    "token": "--dsw-alias-onboarding-secondary-fill",
+    "semantic": "onboarding.secondary.fill",
+    "capability": "onboarding.secondary.fill",
+    "direct_binding": "token.dsw.alias.onboarding.secondary.fill"
+   },
+   {
+    "token": "--dsw-alias-onboarding-card-fill",
+    "semantic": "onboarding.card.fill",
+    "capability": "onboarding.card.fill",
+    "direct_binding": "token.dsw.alias.onboarding.card.fill"
+   },
+   {
+    "token": "--dsw-alias-onboarding-checkbox-border",
+    "semantic": "onboarding.checkbox.border",
+    "capability": "onboarding.checkbox.border",
+    "direct_binding": "token.dsw.alias.onboarding.checkbox.border"
+   },
+   {
+    "token": "--dsw-alias-settings-card-fill",
+    "semantic": "settings.card.background",
+    "capability": "settings.card.background",
+    "direct_binding": "token.dsw.alias.settings.card.fill"
+   },
+   {
+    "token": "--dsw-alias-settings-card-stroke",
+    "semantic": "settings.card.border",
+    "capability": "settings.card.border",
+    "direct_binding": "token.dsw.alias.settings.card.stroke"
+   },
+   {
+    "token": "--dsw-alias-tooltip-bg",
+    "semantic": "tooltip.background",
+    "capability": "tooltip.background",
+    "direct_binding": "token.dsw.alias.tooltip.bg"
+   },
+   {
+    "token": "--dsw-alias-tooltip-key-bg",
+    "semantic": "tooltip.key.background",
+    "capability": "tooltip.key.background",
+    "direct_binding": "token.dsw.alias.tooltip.key.bg"
+   },
+   {
+    "token": "--dsw-alias-toast-bg",
+    "semantic": "toast.background",
+    "capability": "toast.background",
+    "direct_binding": "token.dsw.alias.toast.bg"
+   },
+   {
+    "token": "--dsw-alias-toast-label",
+    "semantic": "toast.text",
+    "capability": "toast.text",
+    "direct_binding": "token.dsw.alias.toast.label"
+   },
+   {
+    "token": "--dsw-alias-turn-trigger-bg",
+    "semantic": "conversation.turn-trigger.background",
+    "capability": "conversation.turn-trigger.background",
+    "direct_binding": "token.dsw.alias.turn.trigger.bg"
+   },
+   {
+    "token": "--dsw-alias-turn-trigger-bg-hover",
+    "semantic": "conversation.turn-trigger.background-hover",
+    "capability": "conversation.turn-trigger.background-hover",
+    "direct_binding": "token.dsw.alias.turn.trigger.bg.hover"
+   },
+   {
+    "token": "--dsw-alias-link",
+    "semantic": "global.link.text",
+    "capability": "global.link.text",
+    "direct_binding": "token.dsw.alias.link"
+   },
+   {
+    "token": "--dsw-alias-switch-thumb",
+    "semantic": "control.switch.thumb",
+    "capability": "control.switch.thumb",
+    "direct_binding": "token.dsw.alias.switch.thumb"
+   },
+   {
+    "token": "--dsw-specific-menu",
+    "semantic": "specific.menu.fill",
+    "capability": null,
+    "direct_binding": "token.dsw.specific.menu"
+   },
+   {
+    "token": "--dsw-specific-sidebar-fill",
+    "semantic": "specific.sidebar.fill",
+    "capability": "specific.sidebar.fill",
+    "direct_binding": "token.dsw.specific.sidebar.fill"
+   },
+   {
+    "token": "--dsw-specific-input-major",
+    "semantic": "specific.input.major",
+    "capability": "specific.input.major",
+    "direct_binding": "token.dsw.specific.input.major"
+   },
+   {
+    "token": "--dsw-specific-bubble",
+    "semantic": "specific.bubble.fill",
+    "capability": "specific.bubble.fill",
+    "direct_binding": "token.dsw.specific.bubble"
+   },
+   {
+    "token": "--dsw-specific-selector",
+    "semantic": "specific.selector.fill",
+    "capability": "specific.selector.fill",
+    "direct_binding": "token.dsw.specific.selector"
+   },
+   {
+    "token": "--dsw-specific-sidebar-nav-item-active",
+    "semantic": "specific.sidebar.nav-item.active",
+    "capability": "specific.sidebar.nav-item.active",
+    "direct_binding": "token.dsw.specific.sidebar.nav.item.active"
+   },
+   {
+    "token": "--dsw-specific-sidebar-nav-item-active-accent",
+    "semantic": "specific.sidebar.nav-item.active-accent",
+    "capability": "specific.sidebar.nav-item.active-accent",
+    "direct_binding": "token.dsw.specific.sidebar.nav.item.active.accent"
+   },
+   {
+    "token": "--dsw-specific-sidebar-nav-item-hover",
+    "semantic": "specific.sidebar.nav-item.hover",
+    "capability": "specific.sidebar.nav-item.hover",
+    "direct_binding": "token.dsw.specific.sidebar.nav.item.hover"
+   },
+   {
+    "token": "--dsw-specific-bubble-highlight",
+    "semantic": "specific.bubble.highlight",
+    "capability": "specific.bubble.highlight",
+    "direct_binding": "token.dsw.specific.bubble.highlight"
+   },
+   {
+    "token": "--dsw-specific-login-input",
+    "semantic": "specific.login.input",
+    "capability": "specific.login.input",
+    "direct_binding": "token.dsw.specific.login.input"
+   },
+   {
+    "token": "--dsw-specific-tip",
+    "semantic": "specific.tip.fill",
+    "capability": "specific.tip.fill",
+    "direct_binding": "token.dsw.specific.tip"
+   },
+   {
+    "token": "--shiki-background",
+    "semantic": "content.code.background",
+    "capability": null,
+    "direct_binding": "token.shiki.background"
+   },
+   {
+    "token": "--shiki-foreground",
+    "semantic": "content.code.foreground",
+    "capability": "content.code.foreground",
+    "direct_binding": "token.shiki.foreground"
+   },
+   {
+    "token": "--shiki-token-comment",
+    "semantic": "content.code.syntax.comment",
+    "capability": "content.code.syntax.comment",
+    "direct_binding": "token.shiki.token.comment"
+   },
+   {
+    "token": "--shiki-token-constant",
+    "semantic": "content.code.syntax.constant",
+    "capability": "content.code.syntax.constant",
+    "direct_binding": "token.shiki.token.constant"
+   },
+   {
+    "token": "--shiki-token-function",
+    "semantic": "content.code.syntax.function",
+    "capability": "content.code.syntax.function",
+    "direct_binding": "token.shiki.token.function"
+   },
+   {
+    "token": "--shiki-token-keyword",
+    "semantic": "content.code.syntax.keyword",
+    "capability": "content.code.syntax.keyword",
+    "direct_binding": "token.shiki.token.keyword"
+   },
+   {
+    "token": "--shiki-token-link",
+    "semantic": "content.code.syntax.link",
+    "capability": "content.code.syntax.link",
+    "direct_binding": "token.shiki.token.link"
+   },
+   {
+    "token": "--shiki-token-parameter",
+    "semantic": "content.code.syntax.parameter",
+    "capability": "content.code.syntax.parameter",
+    "direct_binding": "token.shiki.token.parameter"
+   },
+   {
+    "token": "--shiki-token-punctuation",
+    "semantic": "content.code.syntax.punctuation",
+    "capability": "content.code.syntax.punctuation",
+    "direct_binding": "token.shiki.token.punctuation"
+   },
+   {
+    "token": "--shiki-token-string",
+    "semantic": "content.code.syntax.string",
+    "capability": "content.code.syntax.string",
+    "direct_binding": "token.shiki.token.string"
+   },
+   {
+    "token": "--shiki-token-string-expression",
+    "semantic": "content.code.syntax.string-expression",
+    "capability": "content.code.syntax.string-expression",
+    "direct_binding": "token.shiki.token.string.expression"
+   },
+   {
+    "token": "--dsw-static-blue-500",
+    "semantic": "atom.blue-500",
+    "capability": "atom.blue-500",
+    "direct_binding": "token.dsw.static.blue.500"
+   },
+   {
+    "token": "--dsw-static-blue-950",
+    "semantic": "atom.blue-950",
+    "capability": "atom.blue-950",
+    "direct_binding": "token.dsw.static.blue.950"
+   },
+   {
+    "token": "--dsw-static-blue-300",
+    "semantic": "atom.blue-300",
+    "capability": "atom.blue-300",
+    "direct_binding": "token.dsw.static.blue.300"
+   },
+   {
+    "token": "--dsw-static-blue-400",
+    "semantic": "atom.blue-400",
+    "capability": "atom.blue-400",
+    "direct_binding": "token.dsw.static.blue.400"
+   },
+   {
+    "token": "--dsw-static-blue-450",
+    "semantic": "atom.blue-450",
+    "capability": "atom.blue-450",
+    "direct_binding": "token.dsw.static.blue.450"
+   },
+   {
+    "token": "--dsw-static-blue-600",
+    "semantic": "atom.blue-600",
+    "capability": "atom.blue-600",
+    "direct_binding": "token.dsw.static.blue.600"
+   },
+   {
+    "token": "--dsw-static-blue-900",
+    "semantic": "atom.blue-900",
+    "capability": "atom.blue-900",
+    "direct_binding": "token.dsw.static.blue.900"
+   },
+   {
+    "token": "--dsw-static-blue-100",
+    "semantic": "atom.blue-100",
+    "capability": "atom.blue-100",
+    "direct_binding": "token.dsw.static.blue.100"
+   },
+   {
+    "token": "--dsw-static-blue-50",
+    "semantic": "atom.blue-50",
+    "capability": "atom.blue-50",
+    "direct_binding": "token.dsw.static.blue.50"
+   },
+   {
+    "token": "--dsw-static-blue-50p",
+    "semantic": "atom.blue-50p",
+    "capability": "atom.blue-50p",
+    "direct_binding": "token.dsw.static.blue.50p"
+   },
+   {
+    "token": "--dsw-static-blue-75",
+    "semantic": "atom.blue-75",
+    "capability": "atom.blue-75",
+    "direct_binding": "token.dsw.static.blue.75"
+   },
+   {
+    "token": "--dsw-static-blue-800",
+    "semantic": "atom.blue-800",
+    "capability": "atom.blue-800",
+    "direct_binding": "token.dsw.static.blue.800"
+   },
+   {
+    "token": "--dsw-static-deepseek-500",
+    "semantic": "atom.deepseek-500",
+    "capability": "atom.deepseek-500",
+    "direct_binding": "token.dsw.static.deepseek.500"
+   },
+   {
+    "token": "--dsw-static-deepseek-400",
+    "semantic": "atom.deepseek-400",
+    "capability": "atom.deepseek-400",
+    "direct_binding": "token.dsw.static.deepseek.400"
+   },
+   {
+    "token": "--dsw-static-deepseek-450",
+    "semantic": "atom.deepseek-450",
+    "capability": "atom.deepseek-450",
+    "direct_binding": "token.dsw.static.deepseek.450"
+   },
+   {
+    "token": "--dsw-static-deepseek-100",
+    "semantic": "atom.deepseek-100",
+    "capability": "atom.deepseek-100",
+    "direct_binding": "token.dsw.static.deepseek.100"
+   },
+   {
+    "token": "--dsw-static-deepseek-200",
+    "semantic": "atom.deepseek-200",
+    "capability": "atom.deepseek-200",
+    "direct_binding": "token.dsw.static.deepseek.200"
+   },
+   {
+    "token": "--dsw-static-deepseek-50",
+    "semantic": "atom.deepseek-50",
+    "capability": "atom.deepseek-50",
+    "direct_binding": "token.dsw.static.deepseek.50"
+   },
+   {
+    "token": "--dsw-static-deepseek-800",
+    "semantic": "atom.deepseek-800",
+    "capability": "atom.deepseek-800",
+    "direct_binding": "token.dsw.static.deepseek.800"
+   },
+   {
+    "token": "--dsw-static-deepseek-300",
+    "semantic": "atom.deepseek-300",
+    "capability": "atom.deepseek-300",
+    "direct_binding": "token.dsw.static.deepseek.300"
+   },
+   {
+    "token": "--dsw-static-deepseek-600",
+    "semantic": "atom.deepseek-600",
+    "capability": "atom.deepseek-600",
+    "direct_binding": "token.dsw.static.deepseek.600"
+   },
+   {
+    "token": "--dsw-static-deepseek-700-delete",
+    "semantic": "atom.deepseek-700-delete",
+    "capability": "atom.deepseek-700-delete",
+    "direct_binding": "token.dsw.static.deepseek.700.delete"
+   },
+   {
+    "token": "--dsw-static-deepseek-900",
+    "semantic": "atom.deepseek-900",
+    "capability": "atom.deepseek-900",
+    "direct_binding": "token.dsw.static.deepseek.900"
+   },
+   {
+    "token": "--dsw-static-green-500",
+    "semantic": "atom.green-500",
+    "capability": "atom.green-500",
+    "direct_binding": "token.dsw.static.green.500"
+   },
+   {
+    "token": "--dsw-static-green-400",
+    "semantic": "atom.green-400",
+    "capability": "atom.green-400",
+    "direct_binding": "token.dsw.static.green.400"
+   },
+   {
+    "token": "--dsw-static-green-100",
+    "semantic": "atom.green-100",
+    "capability": "atom.green-100",
+    "direct_binding": "token.dsw.static.green.100"
+   },
+   {
+    "token": "--dsw-static-green-500-a08",
+    "semantic": "atom.green-500-a08",
+    "capability": "atom.green-500-a08",
+    "direct_binding": "token.dsw.static.green.500.a08"
+   },
+   {
+    "token": "--dsw-static-green-500-a12",
+    "semantic": "atom.green-500-a12",
+    "capability": "atom.green-500-a12",
+    "direct_binding": "token.dsw.static.green.500.a12"
+   },
+   {
+    "token": "--dsw-static-green-900",
+    "semantic": "atom.green-900",
+    "capability": "atom.green-900",
+    "direct_binding": "token.dsw.static.green.900"
+   },
+   {
+    "token": "--dsw-static-amber-400",
+    "semantic": "atom.amber-400",
+    "capability": "atom.amber-400",
+    "direct_binding": "token.dsw.static.amber.400"
+   },
+   {
+    "token": "--dsw-static-amber-500",
+    "semantic": "atom.amber-500",
+    "capability": "atom.amber-500",
+    "direct_binding": "token.dsw.static.amber.500"
+   },
+   {
+    "token": "--dsw-static-amber-600",
+    "semantic": "atom.amber-600",
+    "capability": "atom.amber-600",
+    "direct_binding": "token.dsw.static.amber.600"
+   },
+   {
+    "token": "--dsw-static-amber-100",
+    "semantic": "atom.amber-100",
+    "capability": "atom.amber-100",
+    "direct_binding": "token.dsw.static.amber.100"
+   },
+   {
+    "token": "--dsw-static-amber-900",
+    "semantic": "atom.amber-900",
+    "capability": "atom.amber-900",
+    "direct_binding": "token.dsw.static.amber.900"
+   },
+   {
+    "token": "--dsw-static-neutral-00",
+    "semantic": "atom.neutral-00",
+    "capability": "atom.neutral-00",
+    "direct_binding": "token.dsw.static.neutral.00"
+   },
+   {
+    "token": "--dsw-static-neutral-50",
+    "semantic": "atom.neutral-50",
+    "capability": "atom.neutral-50",
+    "direct_binding": "token.dsw.static.neutral.50"
+   },
+   {
+    "token": "--dsw-static-neutral-800",
+    "semantic": "atom.neutral-800",
+    "capability": "atom.neutral-800",
+    "direct_binding": "token.dsw.static.neutral.800"
+   },
+   {
+    "token": "--dsw-static-neutral-850",
+    "semantic": "atom.neutral-850",
+    "capability": "atom.neutral-850",
+    "direct_binding": "token.dsw.static.neutral.850"
+   },
+   {
+    "token": "--dsw-static-neutral-100",
+    "semantic": "atom.neutral-100",
+    "capability": "atom.neutral-100",
+    "direct_binding": "token.dsw.static.neutral.100"
+   },
+   {
+    "token": "--dsw-static-neutral-200",
+    "semantic": "atom.neutral-200",
+    "capability": "atom.neutral-200",
+    "direct_binding": "token.dsw.static.neutral.200"
+   },
+   {
+    "token": "--dsw-static-neutral-300",
+    "semantic": "atom.neutral-300",
+    "capability": "atom.neutral-300",
+    "direct_binding": "token.dsw.static.neutral.300"
+   },
+   {
+    "token": "--dsw-static-neutral-600",
+    "semantic": "atom.neutral-600",
+    "capability": "atom.neutral-600",
+    "direct_binding": "token.dsw.static.neutral.600"
+   },
+   {
+    "token": "--dsw-static-neutral-700",
+    "semantic": "atom.neutral-700",
+    "capability": "atom.neutral-700",
+    "direct_binding": "token.dsw.static.neutral.700"
+   },
+   {
+    "token": "--dsw-static-neutral-1000",
+    "semantic": "atom.neutral-1000",
+    "capability": "atom.neutral-1000",
+    "direct_binding": "token.dsw.static.neutral.1000"
+   },
+   {
+    "token": "--dsw-static-neutral-400",
+    "semantic": "atom.neutral-400",
+    "capability": "atom.neutral-400",
+    "direct_binding": "token.dsw.static.neutral.400"
+   },
+   {
+    "token": "--dsw-static-neutral-550",
+    "semantic": "atom.neutral-550",
+    "capability": "atom.neutral-550",
+    "direct_binding": "token.dsw.static.neutral.550"
+   },
+   {
+    "token": "--dsw-static-neutral-150",
+    "semantic": "atom.neutral-150",
+    "capability": "atom.neutral-150",
+    "direct_binding": "token.dsw.static.neutral.150"
+   },
+   {
+    "token": "--dsw-static-neutral-250",
+    "semantic": "atom.neutral-250",
+    "capability": "atom.neutral-250",
+    "direct_binding": "token.dsw.static.neutral.250"
+   },
+   {
+    "token": "--dsw-static-neutral-500",
+    "semantic": "atom.neutral-500",
+    "capability": "atom.neutral-500",
+    "direct_binding": "token.dsw.static.neutral.500"
+   },
+   {
+    "token": "--dsw-static-neutral-900",
+    "semantic": "atom.neutral-900",
+    "capability": "atom.neutral-900",
+    "direct_binding": "token.dsw.static.neutral.900"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-00",
+    "semantic": "atom.neutral-bluish-00",
+    "capability": "atom.neutral-bluish-00",
+    "direct_binding": "token.dsw.static.neutral.bluish.00"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-800",
+    "semantic": "atom.neutral-bluish-800",
+    "capability": "atom.neutral-bluish-800",
+    "direct_binding": "token.dsw.static.neutral.bluish.800"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-50",
+    "semantic": "atom.neutral-bluish-50",
+    "capability": "atom.neutral-bluish-50",
+    "direct_binding": "token.dsw.static.neutral.bluish.50"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-850",
+    "semantic": "atom.neutral-bluish-850",
+    "capability": "atom.neutral-bluish-850",
+    "direct_binding": "token.dsw.static.neutral.bluish.850"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-750",
+    "semantic": "atom.neutral-bluish-750",
+    "capability": "atom.neutral-bluish-750",
+    "direct_binding": "token.dsw.static.neutral.bluish.750"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-100",
+    "semantic": "atom.neutral-bluish-100",
+    "capability": "atom.neutral-bluish-100",
+    "direct_binding": "token.dsw.static.neutral.bluish.100"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-400",
+    "semantic": "atom.neutral-bluish-400",
+    "capability": "atom.neutral-bluish-400",
+    "direct_binding": "token.dsw.static.neutral.bluish.400"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-1000",
+    "semantic": "atom.neutral-bluish-1000",
+    "capability": "atom.neutral-bluish-1000",
+    "direct_binding": "token.dsw.static.neutral.bluish.1000"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-60",
+    "semantic": "atom.neutral-bluish-60",
+    "capability": "atom.neutral-bluish-60",
+    "direct_binding": "token.dsw.static.neutral.bluish.60"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-700",
+    "semantic": "atom.neutral-bluish-700",
+    "capability": "atom.neutral-bluish-700",
+    "direct_binding": "token.dsw.static.neutral.bluish.700"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-75",
+    "semantic": "atom.neutral-bluish-75",
+    "capability": "atom.neutral-bluish-75",
+    "direct_binding": "token.dsw.static.neutral.bluish.75"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-900",
+    "semantic": "atom.neutral-bluish-900",
+    "capability": "atom.neutral-bluish-900",
+    "direct_binding": "token.dsw.static.neutral.bluish.900"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-300",
+    "semantic": "atom.neutral-bluish-300",
+    "capability": "atom.neutral-bluish-300",
+    "direct_binding": "token.dsw.static.neutral.bluish.300"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-600",
+    "semantic": "atom.neutral-bluish-600",
+    "capability": "atom.neutral-bluish-600",
+    "direct_binding": "token.dsw.static.neutral.bluish.600"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-950",
+    "semantic": "atom.neutral-bluish-950",
+    "capability": "atom.neutral-bluish-950",
+    "direct_binding": "token.dsw.static.neutral.bluish.950"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-150",
+    "semantic": "atom.neutral-bluish-150",
+    "capability": "atom.neutral-bluish-150",
+    "direct_binding": "token.dsw.static.neutral.bluish.150"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-200",
+    "semantic": "atom.neutral-bluish-200",
+    "capability": "atom.neutral-bluish-200",
+    "direct_binding": "token.dsw.static.neutral.bluish.200"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-500",
+    "semantic": "atom.neutral-bluish-500",
+    "capability": "atom.neutral-bluish-500",
+    "direct_binding": "token.dsw.static.neutral.bluish.500"
+   },
+   {
+    "token": "--dsw-static-neutral-bluish-875",
+    "semantic": "atom.neutral-bluish-875",
+    "capability": "atom.neutral-bluish-875",
+    "direct_binding": "token.dsw.static.neutral.bluish.875"
+   },
+   {
+    "token": "--dsw-static-red-400",
+    "semantic": "atom.red-400",
+    "capability": "atom.red-400",
+    "direct_binding": "token.dsw.static.red.400"
+   },
+   {
+    "token": "--dsw-static-red-600",
+    "semantic": "atom.red-600",
+    "capability": "atom.red-600",
+    "direct_binding": "token.dsw.static.red.600"
+   },
+   {
+    "token": "--dsw-static-red-400-a12",
+    "semantic": "atom.red-400-a12",
+    "capability": "atom.red-400-a12",
+    "direct_binding": "token.dsw.static.red.400.a12"
+   },
+   {
+    "token": "--dsw-static-red-600-a08",
+    "semantic": "atom.red-600-a08",
+    "capability": "atom.red-600-a08",
+    "direct_binding": "token.dsw.static.red.600.a08"
+   },
+   {
+    "token": "--dsw-static-red-100",
+    "semantic": "atom.red-100",
+    "capability": "atom.red-100",
+    "direct_binding": "token.dsw.static.red.100"
+   },
+   {
+    "token": "--dsw-static-red-50",
+    "semantic": "atom.red-50",
+    "capability": "atom.red-50",
+    "direct_binding": "token.dsw.static.red.50"
+   },
+   {
+    "token": "--dsw-static-red-500",
+    "semantic": "atom.red-500",
+    "capability": "atom.red-500",
+    "direct_binding": "token.dsw.static.red.500"
+   },
+   {
+    "token": "--dsw-static-red-900",
+    "semantic": "atom.red-900",
+    "capability": "atom.red-900",
+    "direct_binding": "token.dsw.static.red.900"
+   },
+   {
+    "token": "--dsw-focus-ring-color",
+    "semantic": "global.focus.ring",
+    "capability": null,
+    "direct_binding": "token.dsw.focus.ring.color"
+   },
+   {
+    "token": "--dsw-menu-surface-fill",
+    "semantic": "menu.surface.fill",
+    "capability": null,
+    "direct_binding": "token.dsw.menu.surface.fill"
+   },
+   {
+    "token": "--dsw-shadow-lv3",
+    "semantic": "effect.shadow.lv3",
+    "capability": "effect.shadow.lv3",
+    "direct_binding": "token.dsw.shadow.lv3"
+   },
+   {
+    "token": "--dsw-shadow-lv2",
+    "semantic": "effect.shadow.lv2",
+    "capability": "effect.shadow.lv2",
+    "direct_binding": "token.dsw.shadow.lv2"
+   },
+   {
+    "token": "--dsw-shadow-lv1",
+    "semantic": "effect.shadow.lv1",
+    "capability": "effect.shadow.lv1",
+    "direct_binding": "token.dsw.shadow.lv1"
+   },
+   {
+    "token": "--dsw-shadow-lv1-blur",
+    "semantic": "effect.shadow.lv1-blur",
+    "capability": "effect.shadow.lv1-blur",
+    "direct_binding": "token.dsw.shadow.lv1.blur"
+   },
+   {
+    "token": "--dsw-elevation-prominent",
+    "semantic": "effect.elevation.prominent",
+    "capability": "effect.elevation.prominent",
+    "direct_binding": "token.dsw.elevation.prominent"
+   },
+   {
+    "token": "--dsw-elevation-panel",
+    "semantic": "effect.elevation.panel",
+    "capability": "effect.elevation.panel",
+    "direct_binding": "token.dsw.elevation.panel"
+   },
+   {
+    "token": "--dsw-elevation-stroke",
+    "semantic": "effect.elevation.stroke",
+    "capability": "effect.elevation.stroke",
+    "direct_binding": "token.dsw.elevation.stroke"
+   },
+   {
+    "token": "--dsw-elevation-soft",
+    "semantic": "effect.elevation.soft",
+    "capability": "effect.elevation.soft",
+    "direct_binding": "token.dsw.elevation.soft"
+   },
+   {
+    "token": "--dsw-elevation-stroke-color",
+    "semantic": "effect.elevation.stroke-color",
+    "capability": "effect.elevation.stroke-color",
+    "direct_binding": "token.dsw.elevation.stroke.color"
+   },
+   {
+    "token": "--dsw-gradient-onboarding-blue-stops",
+    "semantic": "onboarding.gradient.blue",
+    "capability": "onboarding.gradient.blue",
+    "direct_binding": "token.dsw.gradient.onboarding.blue.stops"
+   },
+   {
+    "token": "--dsw-gradient-onboarding-cyan-stops",
+    "semantic": "onboarding.gradient.cyan",
+    "capability": "onboarding.gradient.cyan",
+    "direct_binding": "token.dsw.gradient.onboarding.cyan.stops"
+   },
+   {
+    "token": "--dsw-gradient-onboarding-violet-stops",
+    "semantic": "onboarding.gradient.violet",
+    "capability": "onboarding.gradient.violet",
+    "direct_binding": "token.dsw.gradient.onboarding.violet.stops"
+   },
+   {
+    "token": "--dsw-linear-gradient-think",
+    "semantic": "effect.linear.gradient-think",
+    "capability": "effect.linear.gradient-think",
+    "direct_binding": "token.dsw.linear.gradient.think"
+   },
+   {
+    "token": "--dsw-linear-think-select",
+    "semantic": "effect.linear.think-select",
+    "capability": "effect.linear.think-select",
+    "direct_binding": "token.dsw.linear.think.select"
+   }
+  ],
+  "P2": [
+   {
+    "name": "--dsl-code-block-background",
+    "ability": "content.code.block.background",
+    "capability": "content.code.block.background",
+    "direct_binding": "token.dsw.alias-markdown-code-block"
+   },
+   {
+    "name": "--dsl-code-block-banner-background-color",
+    "ability": "content.code.block.banner.background",
+    "capability": "content.code.block.banner.background",
+    "direct_binding": "token.dsw.alias-markdown-code-block-banner"
+   },
+   {
+    "name": "--dsl-code-block-banner-font",
+    "ability": "content.code.block.banner.font",
+    "capability": "content.code.block.banner.font",
+    "direct_binding": "token.dsw.font-family"
+   },
+   {
+    "name": "--dsl-code-block-border-radius",
+    "ability": "content.code.block.radius",
+    "capability": "content.code.block.radius",
+    "direct_binding": "token.dsw.radius-lg"
+   },
+   {
+    "name": "--dsl-code-block-content-font",
+    "ability": "content.code.block.content.font",
+    "capability": "content.code.block.content.font",
+    "direct_binding": "token.dsw.font-markdown-code-block"
+   },
+   {
+    "name": "--dsl-code-block-line-number-width",
+    "ability": "content.private.code-block-line-number-width",
+    "capability": "content.private.code-block-line-number-width",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-code-block-line-white-space",
+    "ability": "content.code.block.line.wrap",
+    "capability": "content.code.block.line.wrap",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-command-whitespace",
+    "ability": "content.terminal.command.wrap",
+    "capability": "content.terminal.command.wrap",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-guide-entry-radius",
+    "ability": "sidebar.guide.entry.radius",
+    "capability": "sidebar.guide.entry.radius",
+    "direct_binding": "token.dsw.radius-xl"
+   },
+   {
+    "name": "--dsl-read-gutter",
+    "ability": "content.private.read-gutter",
+    "capability": "content.private.read-gutter",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-search-line-height",
+    "ability": "content.search.line-height",
+    "capability": "content.search.line-height",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-search-radius",
+    "ability": "content.search.radius",
+    "capability": "content.search.radius",
+    "direct_binding": "token.dsw.radius-lg"
+   },
+   {
+    "name": "--dsl-terminal-command-whitespace",
+    "ability": "content.terminal.command.wrap",
+    "capability": "content.terminal.command.wrap",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-terminal-font",
+    "ability": "content.terminal.font",
+    "capability": "content.terminal.font",
+    "direct_binding": "token.dsw.font-markdown-code-block-small"
+   },
+   {
+    "name": "--dsl-terminal-gutter",
+    "ability": "content.terminal.gutter",
+    "capability": "content.terminal.gutter",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-terminal-line-height",
+    "ability": "content.terminal.line-height",
+    "capability": "content.terminal.line-height",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-terminal-line-whitespace",
+    "ability": "content.terminal.line.wrap",
+    "capability": "content.terminal.line.wrap",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-terminal-output-max-height",
+    "ability": "content.terminal.output.max-height",
+    "capability": "content.terminal.output.max-height",
+    "direct_binding": null
+   },
+   {
+    "name": "--dsl-terminal-radius",
+    "ability": "content.terminal.radius",
+    "capability": "content.terminal.radius",
+    "direct_binding": "token.dsw.radius-lg"
+   },
+   {
+    "name": "--dsl-web-radius",
+    "ability": "content.web.radius",
+    "capability": "content.web.radius",
+    "direct_binding": "token.dsw.radius-lg"
+   },
+   {
+    "name": "--terminal-cursor",
+    "ability": "content.terminal.cursor.color",
+    "capability": "terminal.cursor",
+    "direct_binding": null
+   },
+   {
+    "name": "--terminal-cursor-accent",
+    "ability": "content.terminal.cursor.accent",
+    "capability": "terminal.cursor",
+    "direct_binding": null
+   },
+   {
+    "name": "--terminal-cursor-cell-background",
+    "ability": "content.terminal.cursor.cell.background",
+    "capability": "terminal.cursor",
+    "direct_binding": null
+   },
+   {
+    "name": "--terminal-cursor-cell-foreground",
+    "ability": "content.terminal.cursor.cell.foreground",
+    "capability": "terminal.cursor",
+    "direct_binding": null
+   }
+  ],
+  "P3": [
+   {
+    "id": "global.focusRing",
+    "capability": "global.focusRing",
+    "tech": [
+     "token:--dsw-focus-ring-color",
+     "rule:全页 :focus-visible"
+    ]
+   },
+   {
+    "id": "global.scrollbar",
+    "capability": "global.scrollbar",
+    "tech": [
+     "token:--dsw-alias-scrollbar-bg-l1",
+     "token:--dsw-alias-scrollbar-hover-l1",
+     "token:--dsw-alias-scrollbar-bg-l2",
+     "token:--dsw-alias-scrollbar-hover-l2",
+     "rule::: -webkit-scrollbar"
+    ]
+   },
+   {
+    "id": "global.selection",
+    "capability": "global.selection",
+    "tech": [
+     "rule:::selection"
+    ]
+   },
+   {
+    "id": "menu.surface",
+    "capability": "menu.surface",
+    "tech": [
+     "token:--dsw-menu-surface-fill",
+     "token:--dsw-specific-menu",
+     "rule:backdrop-filter"
+    ]
+   },
+   {
+    "id": "code.block.background",
+    "capability": "code.block.background",
+    "tech": [
+     "token:--dsw-alias-markdown-code-block",
+     "var:--dsl-code-block-background",
+     "rule:pre.shiki background"
+    ]
+   },
+   {
+    "id": "global.page.background.media",
+    "capability": "global.page.background.media",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "sidebar.panel.background.media",
+    "capability": "sidebar.panel.background.media",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "conversation.main.background.media",
+    "capability": "conversation.main.background.media",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "composer.input.background.media",
+    "capability": "composer.input.background.media",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "global.page.overlay.tint",
+    "capability": "global.page.overlay.tint",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "global.page.texture.noise",
+    "capability": "global.page.texture.noise",
+    "tech": [
+     "css"
+    ]
+   },
+   {
+    "id": "composer.panel.glass",
+    "capability": "composer.panel.glass",
+    "tech": [
+     "css"
+    ]
+   },
+   {
+    "id": "control.button.icon",
+    "capability": "control.button.icon",
+    "tech": [
+     "dom+css"
+    ]
+   },
+   {
+    "id": "control.button.label",
+    "capability": "control.button.label",
+    "tech": [
+     "dom"
+    ]
+   },
+   {
+    "id": "entry.themeSettings.button",
+    "capability": "entry.themeSettings.button",
+    "tech": [
+     "dom"
+    ]
+   },
+   {
+    "id": "window.titleBar.background",
+    "capability": "window.titleBar.background",
+    "tech": [
+     "token+electron"
+    ]
+   },
+   {
+    "id": "window.titleBar.immersive",
+    "capability": "window.titleBar.immersive",
+    "tech": [
+     "token"
+    ]
+   },
+   {
+    "id": "effect.hover.surface",
+    "capability": "effect.hover.surface",
+    "tech": [
+     "css"
+    ]
+   },
+   {
+    "id": "structure.element.hidden",
+    "capability": "structure.element.hidden",
+    "tech": [
+     "dom"
+    ]
+   },
+   {
+    "id": "structure.element.move",
+    "capability": "structure.element.move",
+    "tech": [
+     "dom"
+    ]
+   },
+   {
+    "id": "structure.element.inject",
+    "capability": "structure.element.inject",
+    "tech": [
+     "dom"
+    ]
+   },
+   {
+    "id": "terminal.cursor",
+    "capability": "terminal.cursor",
+    "tech": [
+     "runtime+rule"
+    ]
+   },
+   {
+    "id": "code.block.lineNumber.width",
+    "capability": "code.block.lineNumber.width",
+    "tech": [
+     "rule"
+    ]
+   }
+  ],
+  "P4": [
+   {
+    "token": "--dsw-menu-backdrop-filter",
+    "capability_id": "menu.surface.backdrop_filter",
+    "capability": "menu.surface.backdrop_filter",
+    "direct_binding": "token.dsw.menu-backdrop-filter",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-family",
+    "capability_id": "typography.family.default",
+    "capability": "typography.family.default",
+    "direct_binding": "token.dsw.font-family",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-xs-13",
+    "capability_id": "typography.xs-13.composite",
+    "capability": "typography.xs-13.composite",
+    "direct_binding": "token.dsw.font-xs-13",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-xxs-12",
+    "capability_id": "typography.xxs-12.composite",
+    "capability": "typography.xxs-12.composite",
+    "direct_binding": "token.dsw.font-xxs-12",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block",
+    "capability_id": "typography.markdown-code-block.composite",
+    "capability": "typography.markdown-code-block.composite",
+    "direct_binding": "token.dsw.font-markdown-code-block",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small",
+    "capability_id": "typography.markdown-code-block-small.composite",
+    "capability": "typography.markdown-code-block-small.composite",
+    "direct_binding": "token.dsw.font-markdown-code-block-small",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-family-brand",
+    "capability_id": "typography.family.brand",
+    "capability": "typography.family.brand",
+    "direct_binding": "token.dsw.font-family-brand",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13",
+    "capability_id": "typography.xs-strong-13.composite",
+    "capability": "typography.xs-strong-13.composite",
+    "direct_binding": "token.dsw.font-xs-strong-13",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-xxxs-11",
+    "capability_id": "typography.xxxs-11.composite",
+    "capability": "typography.xxxs-11.composite",
+    "direct_binding": "token.dsw.font-xxxs-11",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-l-20",
+    "capability_id": "typography.l-20.composite",
+    "capability": "typography.l-20.composite",
+    "direct_binding": "token.dsw.font-l-20",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-base",
+    "capability_id": "typography.markdown-base.composite",
+    "capability": "typography.markdown-base.composite",
+    "direct_binding": "token.dsw.font-markdown-base",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong",
+    "capability_id": "typography.markdown-base-strong.composite",
+    "capability": "typography.markdown-base-strong.composite",
+    "direct_binding": "token.dsw.font-markdown-base-strong",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-code",
+    "capability_id": "typography.markdown-code.composite",
+    "capability": "typography.markdown-code.composite",
+    "direct_binding": "token.dsw.font-markdown-code",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-code-font-family",
+    "capability_id": "typography.markdown-code.font_family",
+    "capability": "typography.markdown-code.font_family",
+    "direct_binding": "token.dsw.font-markdown-code-font-family",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h1",
+    "capability_id": "typography.markdown-h1.composite",
+    "capability": "typography.markdown-h1.composite",
+    "direct_binding": "token.dsw.font-markdown-h1",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h2",
+    "capability_id": "typography.markdown-h2.composite",
+    "capability": "typography.markdown-h2.composite",
+    "direct_binding": "token.dsw.font-markdown-h2",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h3",
+    "capability_id": "typography.markdown-h3.composite",
+    "capability": "typography.markdown-h3.composite",
+    "direct_binding": "token.dsw.font-markdown-h3",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h4",
+    "capability_id": "typography.markdown-h4.composite",
+    "capability": "typography.markdown-h4.composite",
+    "direct_binding": "token.dsw.font-markdown-h4",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-small",
+    "capability_id": "typography.markdown-small.composite",
+    "capability": "typography.markdown-small.composite",
+    "direct_binding": "token.dsw.font-markdown-small",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-table",
+    "capability_id": "typography.markdown-table.composite",
+    "capability": "typography.markdown-table.composite",
+    "direct_binding": "token.dsw.font-markdown-table",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head",
+    "capability_id": "typography.markdown-table-head.composite",
+    "capability": "typography.markdown-table-head.composite",
+    "direct_binding": "token.dsw.font-markdown-table-head",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-s-14",
+    "capability_id": "typography.s-14.composite",
+    "capability": "typography.s-14.composite",
+    "direct_binding": "token.dsw.font-s-14",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-base-font-size",
+    "capability_id": "typography.markdown-base.font_size",
+    "capability": "typography.markdown-base.font_size",
+    "direct_binding": "token.dsw.font-markdown-base-font-size",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-base-line-height",
+    "capability_id": "typography.markdown-base.line_height",
+    "capability": "typography.markdown-base.line_height",
+    "direct_binding": "token.dsw.font-markdown-base-line-height",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h1-font-size",
+    "capability_id": "typography.markdown-h1.font_size",
+    "capability": "typography.markdown-h1.font_size",
+    "direct_binding": "token.dsw.font-markdown-h1-font-size",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h1-line-height",
+    "capability_id": "typography.markdown-h1.line_height",
+    "capability": "typography.markdown-h1.line_height",
+    "direct_binding": "token.dsw.font-markdown-h1-line-height",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h2-font-size",
+    "capability_id": "typography.markdown-h2.font_size",
+    "capability": "typography.markdown-h2.font_size",
+    "direct_binding": "token.dsw.font-markdown-h2-font-size",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h2-line-height",
+    "capability_id": "typography.markdown-h2.line_height",
+    "capability": "typography.markdown-h2.line_height",
+    "direct_binding": "token.dsw.font-markdown-h2-line-height",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h3-font-size",
+    "capability_id": "typography.markdown-h3.font_size",
+    "capability": "typography.markdown-h3.font_size",
+    "direct_binding": "token.dsw.font-markdown-h3-font-size",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-h3-line-height",
+    "capability_id": "typography.markdown-h3.line_height",
+    "capability": "typography.markdown-h3.line_height",
+    "direct_binding": "token.dsw.font-markdown-h3-line-height",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-small-font-size",
+    "capability_id": "typography.markdown-small.font_size",
+    "capability": "typography.markdown-small.font_size",
+    "direct_binding": "token.dsw.font-markdown-small-font-size",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-markdown-small-line-height",
+    "capability_id": "typography.markdown-small.line_height",
+    "capability": "typography.markdown-small.line_height",
+    "direct_binding": "token.dsw.font-markdown-small-line-height",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-font-base-16",
+    "capability_id": "typography.base-16.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-16-font-family",
+    "capability_id": "typography.base-16.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-16-font-size",
+    "capability_id": "typography.base-16.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-16-font-style",
+    "capability_id": "typography.base-16.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-16-font-weight",
+    "capability_id": "typography.base-16.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-16-line-height",
+    "capability_id": "typography.base-16.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-16-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16",
+    "capability_id": "typography.base-strong-16.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16-font-family",
+    "capability_id": "typography.base-strong-16.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16-font-size",
+    "capability_id": "typography.base-strong-16.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16-font-style",
+    "capability_id": "typography.base-strong-16.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16-font-weight",
+    "capability_id": "typography.base-strong-16.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-base-strong-16-line-height",
+    "capability_id": "typography.base-strong-16.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-base-strong-16-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-l-20-font-family",
+    "capability_id": "typography.l-20.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-l-20-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-l-20-font-size",
+    "capability_id": "typography.l-20.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-l-20-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-l-20-font-style",
+    "capability_id": "typography.l-20.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-l-20-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-l-20-font-weight",
+    "capability_id": "typography.l-20.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-l-20-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-l-20-line-height",
+    "capability_id": "typography.l-20.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-l-20-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18",
+    "capability_id": "typography.m-18.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18-font-family",
+    "capability_id": "typography.m-18.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18-font-size",
+    "capability_id": "typography.m-18.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18-font-style",
+    "capability_id": "typography.m-18.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18-font-weight",
+    "capability_id": "typography.m-18.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-m-18-line-height",
+    "capability_id": "typography.m-18.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-m-18-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-font-family",
+    "capability_id": "typography.markdown-base.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-font-style",
+    "capability_id": "typography.markdown-base.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-font-weight",
+    "capability_id": "typography.markdown-base.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic",
+    "capability_id": "typography.markdown-base-italic.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic-font-family",
+    "capability_id": "typography.markdown-base-italic.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic-font-size",
+    "capability_id": "typography.markdown-base-italic.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic-font-style",
+    "capability_id": "typography.markdown-base-italic.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic-font-weight",
+    "capability_id": "typography.markdown-base-italic.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-italic-line-height",
+    "capability_id": "typography.markdown-base-italic.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-italic-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-font-family",
+    "capability_id": "typography.markdown-base-strong.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-font-size",
+    "capability_id": "typography.markdown-base-strong.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-font-style",
+    "capability_id": "typography.markdown-base-strong.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-font-weight",
+    "capability_id": "typography.markdown-base-strong.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic",
+    "capability_id": "typography.markdown-base-strong-italic.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic-font-family",
+    "capability_id": "typography.markdown-base-strong-italic.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic-font-size",
+    "capability_id": "typography.markdown-base-strong-italic.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic-font-style",
+    "capability_id": "typography.markdown-base-strong-italic.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic-font-weight",
+    "capability_id": "typography.markdown-base-strong-italic.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-italic-line-height",
+    "capability_id": "typography.markdown-base-strong-italic.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-italic-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-base-strong-line-height",
+    "capability_id": "typography.markdown-base-strong.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-base-strong-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-font-family",
+    "capability_id": "typography.markdown-code-block.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-font-size",
+    "capability_id": "typography.markdown-code-block.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-font-style",
+    "capability_id": "typography.markdown-code-block.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-font-weight",
+    "capability_id": "typography.markdown-code-block.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-line-height",
+    "capability_id": "typography.markdown-code-block.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small-font-family",
+    "capability_id": "typography.markdown-code-block-small.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-small-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small-font-size",
+    "capability_id": "typography.markdown-code-block-small.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-small-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small-font-style",
+    "capability_id": "typography.markdown-code-block-small.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-small-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small-font-weight",
+    "capability_id": "typography.markdown-code-block-small.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-small-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-block-small-line-height",
+    "capability_id": "typography.markdown-code-block-small.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-block-small-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-font-size",
+    "capability_id": "typography.markdown-code.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-font-style",
+    "capability_id": "typography.markdown-code.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-font-weight",
+    "capability_id": "typography.markdown-code.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-code-line-height",
+    "capability_id": "typography.markdown-code.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-code-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h1-font-family",
+    "capability_id": "typography.markdown-h1.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h1-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h1-font-style",
+    "capability_id": "typography.markdown-h1.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h1-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h1-font-weight",
+    "capability_id": "typography.markdown-h1.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h1-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h2-font-family",
+    "capability_id": "typography.markdown-h2.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h2-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h2-font-style",
+    "capability_id": "typography.markdown-h2.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h2-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h2-font-weight",
+    "capability_id": "typography.markdown-h2.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h2-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h3-font-family",
+    "capability_id": "typography.markdown-h3.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h3-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h3-font-style",
+    "capability_id": "typography.markdown-h3.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h3-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h3-font-weight",
+    "capability_id": "typography.markdown-h3.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h3-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h4-font-family",
+    "capability_id": "typography.markdown-h4.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h4-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h4-font-size",
+    "capability_id": "typography.markdown-h4.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h4-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h4-font-style",
+    "capability_id": "typography.markdown-h4.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h4-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h4-font-weight",
+    "capability_id": "typography.markdown-h4.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h4-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-h4-line-height",
+    "capability_id": "typography.markdown-h4.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-h4-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-font-family",
+    "capability_id": "typography.markdown-small.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-font-style",
+    "capability_id": "typography.markdown-small.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-font-weight",
+    "capability_id": "typography.markdown-small.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic",
+    "capability_id": "typography.markdown-small-italic.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic-font-family",
+    "capability_id": "typography.markdown-small-italic.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic-font-size",
+    "capability_id": "typography.markdown-small-italic.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic-font-style",
+    "capability_id": "typography.markdown-small-italic.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic-font-weight",
+    "capability_id": "typography.markdown-small-italic.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-italic-line-height",
+    "capability_id": "typography.markdown-small-italic.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-italic-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong",
+    "capability_id": "typography.markdown-small-strong.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-font-family",
+    "capability_id": "typography.markdown-small-strong.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-font-size",
+    "capability_id": "typography.markdown-small-strong.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-font-style",
+    "capability_id": "typography.markdown-small-strong.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-font-weight",
+    "capability_id": "typography.markdown-small-strong.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic",
+    "capability_id": "typography.markdown-small-strong-italic.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic-font-family",
+    "capability_id": "typography.markdown-small-strong-italic.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic-font-size",
+    "capability_id": "typography.markdown-small-strong-italic.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic-font-style",
+    "capability_id": "typography.markdown-small-strong-italic.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic-font-weight",
+    "capability_id": "typography.markdown-small-strong-italic.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-italic-line-height",
+    "capability_id": "typography.markdown-small-strong-italic.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-italic-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-small-strong-line-height",
+    "capability_id": "typography.markdown-small-strong.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-small-strong-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-font-family",
+    "capability_id": "typography.markdown-table.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-font-size",
+    "capability_id": "typography.markdown-table.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-font-style",
+    "capability_id": "typography.markdown-table.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-font-weight",
+    "capability_id": "typography.markdown-table.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head-font-family",
+    "capability_id": "typography.markdown-table-head.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-head-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head-font-size",
+    "capability_id": "typography.markdown-table-head.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-head-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head-font-style",
+    "capability_id": "typography.markdown-table-head.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-head-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head-font-weight",
+    "capability_id": "typography.markdown-table-head.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-head-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-head-line-height",
+    "capability_id": "typography.markdown-table-head.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-head-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-markdown-table-line-height",
+    "capability_id": "typography.markdown-table.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-markdown-table-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-14-font-family",
+    "capability_id": "typography.s-14.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-14-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-14-font-size",
+    "capability_id": "typography.s-14.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-14-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-14-font-style",
+    "capability_id": "typography.s-14.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-14-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-14-font-weight",
+    "capability_id": "typography.s-14.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-14-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-14-line-height",
+    "capability_id": "typography.s-14.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-14-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14",
+    "capability_id": "typography.s-strong-14.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14-font-family",
+    "capability_id": "typography.s-strong-14.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14-font-size",
+    "capability_id": "typography.s-strong-14.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14-font-style",
+    "capability_id": "typography.s-strong-14.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14-font-weight",
+    "capability_id": "typography.s-strong-14.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-s-strong-14-line-height",
+    "capability_id": "typography.s-strong-14.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-s-strong-14-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24",
+    "capability_id": "typography.xl-24.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24-font-family",
+    "capability_id": "typography.xl-24.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24-font-size",
+    "capability_id": "typography.xl-24.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24-font-style",
+    "capability_id": "typography.xl-24.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24-font-weight",
+    "capability_id": "typography.xl-24.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xl-24-line-height",
+    "capability_id": "typography.xl-24.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xl-24-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-13-font-family",
+    "capability_id": "typography.xs-13.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-13-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-13-font-size",
+    "capability_id": "typography.xs-13.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-13-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-13-font-style",
+    "capability_id": "typography.xs-13.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-13-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-13-font-weight",
+    "capability_id": "typography.xs-13.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-13-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-13-line-height",
+    "capability_id": "typography.xs-13.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-13-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13-font-family",
+    "capability_id": "typography.xs-strong-13.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-strong-13-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13-font-size",
+    "capability_id": "typography.xs-strong-13.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-strong-13-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13-font-style",
+    "capability_id": "typography.xs-strong-13.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-strong-13-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13-font-weight",
+    "capability_id": "typography.xs-strong-13.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-strong-13-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xs-strong-13-line-height",
+    "capability_id": "typography.xs-strong-13.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xs-strong-13-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-12-font-family",
+    "capability_id": "typography.xxs-12.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-12-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-12-font-size",
+    "capability_id": "typography.xxs-12.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-12-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-12-font-style",
+    "capability_id": "typography.xxs-12.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-12-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-12-font-weight",
+    "capability_id": "typography.xxs-12.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-12-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-12-line-height",
+    "capability_id": "typography.xxs-12.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-12-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12",
+    "capability_id": "typography.xxs-strong-12.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12-font-family",
+    "capability_id": "typography.xxs-strong-12.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12-font-size",
+    "capability_id": "typography.xxs-strong-12.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12-font-style",
+    "capability_id": "typography.xxs-strong-12.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12-font-weight",
+    "capability_id": "typography.xxs-strong-12.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxs-strong-12-line-height",
+    "capability_id": "typography.xxs-strong-12.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxs-strong-12-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-11-font-family",
+    "capability_id": "typography.xxxs-11.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-11-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-11-font-size",
+    "capability_id": "typography.xxxs-11.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-11-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-11-font-style",
+    "capability_id": "typography.xxxs-11.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-11-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-11-font-weight",
+    "capability_id": "typography.xxxs-11.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-11-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-11-line-height",
+    "capability_id": "typography.xxxs-11.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-11-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11",
+    "capability_id": "typography.xxxs-strong-11.composite",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11-font-family",
+    "capability_id": "typography.xxxs-strong-11.font_family",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11-font-family",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11-font-size",
+    "capability_id": "typography.xxxs-strong-11.font_size",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11-font-size",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11-font-style",
+    "capability_id": "typography.xxxs-strong-11.font_style",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11-font-style",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11-font-weight",
+    "capability_id": "typography.xxxs-strong-11.font_weight",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11-font-weight",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-font-xxxs-strong-11-line-height",
+    "capability_id": "typography.xxxs-strong-11.line_height",
+    "capability": null,
+    "direct_binding": "token.dsw.font-xxxs-strong-11-line-height",
+    "status": "dead"
+   },
+   {
+    "token": "--dsw-radius-sm",
+    "capability_id": "radius.sm",
+    "capability": "radius.sm",
+    "direct_binding": "token.dsw.radius-sm",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-radius-md",
+    "capability_id": "radius.md",
+    "capability": "radius.md",
+    "direct_binding": "token.dsw.radius-md",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-radius-lg",
+    "capability_id": "radius.lg",
+    "capability": "radius.lg",
+    "direct_binding": "token.dsw.radius-lg",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-radius-xl",
+    "capability_id": "radius.xl",
+    "capability": "radius.xl",
+    "direct_binding": "token.dsw.radius-xl",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-radius-xs",
+    "capability_id": "radius.xs",
+    "capability": "radius.xs",
+    "direct_binding": "token.dsw.radius-xs",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-radius-panel",
+    "capability_id": "radius.panel",
+    "capability": "radius.panel",
+    "direct_binding": "token.dsw.radius-panel",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-corner-shape",
+    "capability_id": "structure.corner.shape",
+    "capability": "structure.corner.shape",
+    "direct_binding": "token.dsw.corner-shape",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-mask-blur",
+    "capability_id": "mask.blur",
+    "capability": "mask.blur",
+    "direct_binding": "token.dsw.mask-blur",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-content-font-delta",
+    "capability_id": "runtime.content-font-delta",
+    "capability": "runtime.content-font-delta",
+    "direct_binding": "token.dsh.content-font-delta",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-content-font-size-secondary",
+    "capability_id": "runtime.content-font-size-secondary",
+    "capability": "runtime.content-font-size-secondary",
+    "direct_binding": "token.dsh.content-font-size-secondary",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-content-font-delta-secondary",
+    "capability_id": "runtime.content-font-delta-secondary",
+    "capability": "runtime.content-font-delta-secondary",
+    "direct_binding": "token.dsh.content-font-delta-secondary",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-code-font-delta",
+    "capability_id": "runtime.code-font-delta",
+    "capability": "runtime.code-font-delta",
+    "direct_binding": "token.dsh.code-font-delta",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-font-family-text-default",
+    "capability_id": "runtime.font-family-text-default",
+    "capability": "runtime.font-family-text-default",
+    "direct_binding": "token.dsh.font-family-text-default",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-scrollbar-width",
+    "capability_id": "runtime.scrollbar-width",
+    "capability": "runtime.scrollbar-width",
+    "direct_binding": "token.dsh.scrollbar-width",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-font-family-code-default",
+    "capability_id": "runtime.font-family-code-default",
+    "capability": "runtime.font-family-code-default",
+    "direct_binding": "token.dsh.font-family-code-default",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-scrollbar-thumb",
+    "capability_id": "runtime.scrollbar-thumb",
+    "capability": "runtime.scrollbar-thumb",
+    "direct_binding": "token.dsh.scrollbar-thumb",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-scrollbar-thumb-border",
+    "capability_id": "runtime.scrollbar-thumb-border",
+    "capability": "runtime.scrollbar-thumb-border",
+    "direct_binding": "token.dsh.scrollbar-thumb-border",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-scrollbar-thumb-hover",
+    "capability_id": "runtime.scrollbar-thumb-hover",
+    "capability": "runtime.scrollbar-thumb-hover",
+    "direct_binding": "token.dsh.scrollbar-thumb-hover",
+    "status": "live"
+   },
+   {
+    "token": "--dsh-scrollbar-track-margin",
+    "capability_id": "runtime.scrollbar-track-margin",
+    "capability": "runtime.scrollbar-track-margin",
+    "direct_binding": "token.dsh.scrollbar-track-margin",
+    "status": "live"
+   },
+   {
+    "token": "--dsw-focus-ring-width",
+    "capability_id": "global.focusRing",
+    "capability": "global.focusRing",
+    "direct_binding": "token.dsw.focus-ring-width",
+    "status": "live"
+   }
+  ],
+  "master": [
+   {
+    "id": "global.surface.layer-1",
+    "capability": "global.surface.layer-1",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.page.background",
+    "capability": "global.page.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.surface.module",
+    "capability": "global.surface.module",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.surface.layer-2",
+    "capability": "global.surface.layer-2",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.surface.layer-3",
+    "capability": "global.surface.layer-3",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.surface.skeleton",
+    "capability": "global.surface.skeleton",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.mask.primary",
+    "capability": "overlay.mask.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "document.preview.background",
+    "capability": "document.preview.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "document.selection.background",
+    "capability": "document.selection.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.mask.drop",
+    "capability": "overlay.mask.drop",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.surface",
+    "capability": "overlay.surface",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.mask.alt-2",
+    "capability": "overlay.mask.alt-2",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.mask.alt-3",
+    "capability": "overlay.mask.alt-3",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "overlay.mask.photo",
+    "capability": "overlay.mask.photo",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.primary",
+    "capability": "global.text.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.tertiary",
+    "capability": "global.text.tertiary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.secondary",
+    "capability": "global.text.secondary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.caption",
+    "capability": "global.text.caption",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.inverted",
+    "capability": "global.text.inverted",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.dimmed",
+    "capability": "global.text.dimmed",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.text.on-accent",
+    "capability": "control.text.on-accent",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.primary-dimmed",
+    "capability": "global.text.primary-dimmed",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "decor.text.deep-diving",
+    "capability": "decor.text.deep-diving",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "decor.text.deep-diving-shimmer",
+    "capability": "decor.text.deep-diving-shimmer",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "document.preview.text",
+    "capability": "document.preview.text",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.text.primary-bluish",
+    "capability": "global.text.primary-bluish",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "decor.text.shimmer",
+    "capability": "decor.text.shimmer",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.business.primary",
+    "capability": "status.business.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.error.primary",
+    "capability": "status.error.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.success.primary",
+    "capability": "status.success.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.warn.tertiary",
+    "capability": "status.warn.tertiary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.warn.label",
+    "capability": "status.warn.label",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.warn.primary",
+    "capability": "status.warn.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.business.tertiary",
+    "capability": "status.business.tertiary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.error.secondary",
+    "capability": "status.error.secondary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.success.tertiary",
+    "capability": "status.success.tertiary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.success.secondary",
+    "capability": "status.success.secondary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.warn.secondary",
+    "capability": "status.warn.secondary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "status.idle.primary",
+    "capability": "status.idle.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.primary.background",
+    "capability": "control.button.primary.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.floating.hover.background",
+    "capability": "control.button.floating.hover.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.ghost.active.background",
+    "capability": "control.button.ghost.active.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.primary.hover.background",
+    "capability": "control.button.primary.hover.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.contrast.background",
+    "capability": "control.button.contrast.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.elevated.background",
+    "capability": "control.button.elevated.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.floating.background",
+    "capability": "control.button.floating.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.ghost.active.border",
+    "capability": "control.button.ghost.active.border",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.info.background",
+    "capability": "control.button.info.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.info.hover.background",
+    "capability": "control.button.info.hover.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.tool-bar.background",
+    "capability": "control.button.tool-bar.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.tool-bar.hover.background",
+    "capability": "control.button.tool-bar.hover.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.ghost.active.hover.background",
+    "capability": "control.button.ghost.active.hover.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.primary-dimmed",
+    "capability": "control.button.primary-dimmed",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.button.tool-bar.background-invisible",
+    "capability": "control.button.tool-bar.background-invisible",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.level-2",
+    "capability": "global.border.level-2",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.level-3",
+    "capability": "global.border.level-3",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.level-1",
+    "capability": "global.border.level-1",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.level-4",
+    "capability": "global.border.level-4",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.level-2-thin",
+    "capability": "global.border.level-2-thin",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.inverted",
+    "capability": "global.border.inverted",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.border.inverted-2",
+    "capability": "global.border.inverted-2",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.interaction.hover",
+    "capability": "global.interaction.hover",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.interaction.hover-danger",
+    "capability": "global.interaction.hover-danger",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.interaction.hover-solid",
+    "capability": "global.interaction.hover-solid",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.interaction.active",
+    "capability": "global.interaction.active",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.interaction.hover-accent",
+    "capability": "global.interaction.hover-accent",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.brand.primary-legacy",
+    "capability": "global.brand.primary-legacy",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.brand.primary",
+    "capability": "global.brand.primary",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.brand.primary-inverted",
+    "capability": "global.brand.primary-inverted",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.brand.text",
+    "capability": "global.brand.text",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.code-block.background",
+    "capability": "content.markdown.code-block.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.code-block.banner",
+    "capability": "content.markdown.code-block.banner",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.citation",
+    "capability": "content.markdown.citation",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.inline-code",
+    "capability": "content.markdown.inline-code",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.tag",
+    "capability": "content.markdown.tag",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.code-segment.selected",
+    "capability": "content.markdown.code-segment.selected",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.code-segment.unselected",
+    "capability": "content.markdown.code-segment.unselected",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.markdown.placeholder",
+    "capability": "content.markdown.placeholder",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.diff.code.added",
+    "capability": "content.diff.code.added",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.diff.code.deleted",
+    "capability": "content.diff.code.deleted",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.added.bg",
+    "capability": "content.file.diff.added.bg",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.added.gutter",
+    "capability": "content.file.diff.added.gutter",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.added.marker",
+    "capability": "content.file.diff.added.marker",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.deleted.bg",
+    "capability": "content.file.diff.deleted.bg",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.deleted.gutter",
+    "capability": "content.file.diff.deleted.gutter",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.file.diff.deleted.marker",
+    "capability": "content.file.diff.deleted.marker",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "menu.icon",
+    "capability": "menu.icon",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "menu.group-header.background",
+    "capability": "menu.group-header.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.accent",
+    "capability": "onboarding.accent",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.secondary.fill",
+    "capability": "onboarding.secondary.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.card.fill",
+    "capability": "onboarding.card.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.checkbox.border",
+    "capability": "onboarding.checkbox.border",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "settings.card.background",
+    "capability": "settings.card.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "settings.card.border",
+    "capability": "settings.card.border",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "tooltip.background",
+    "capability": "tooltip.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "tooltip.key.background",
+    "capability": "tooltip.key.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "toast.background",
+    "capability": "toast.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "toast.text",
+    "capability": "toast.text",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "conversation.turn-trigger.background",
+    "capability": "conversation.turn-trigger.background",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "conversation.turn-trigger.background-hover",
+    "capability": "conversation.turn-trigger.background-hover",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.link.text",
+    "capability": "global.link.text",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "control.switch.thumb",
+    "capability": "control.switch.thumb",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.sidebar.fill",
+    "capability": "specific.sidebar.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.input.major",
+    "capability": "specific.input.major",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.bubble.fill",
+    "capability": "specific.bubble.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.selector.fill",
+    "capability": "specific.selector.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.sidebar.nav-item.active",
+    "capability": "specific.sidebar.nav-item.active",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.sidebar.nav-item.active-accent",
+    "capability": "specific.sidebar.nav-item.active-accent",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.sidebar.nav-item.hover",
+    "capability": "specific.sidebar.nav-item.hover",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.bubble.highlight",
+    "capability": "specific.bubble.highlight",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.login.input",
+    "capability": "specific.login.input",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "specific.tip.fill",
+    "capability": "specific.tip.fill",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.foreground",
+    "capability": "content.code.foreground",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.comment",
+    "capability": "content.code.syntax.comment",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.constant",
+    "capability": "content.code.syntax.constant",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.function",
+    "capability": "content.code.syntax.function",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.keyword",
+    "capability": "content.code.syntax.keyword",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.link",
+    "capability": "content.code.syntax.link",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.parameter",
+    "capability": "content.code.syntax.parameter",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.punctuation",
+    "capability": "content.code.syntax.punctuation",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.string",
+    "capability": "content.code.syntax.string",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "content.code.syntax.string-expression",
+    "capability": "content.code.syntax.string-expression",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-500",
+    "capability": "atom.blue-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-950",
+    "capability": "atom.blue-950",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-300",
+    "capability": "atom.blue-300",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-400",
+    "capability": "atom.blue-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-450",
+    "capability": "atom.blue-450",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-600",
+    "capability": "atom.blue-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-900",
+    "capability": "atom.blue-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-100",
+    "capability": "atom.blue-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-50",
+    "capability": "atom.blue-50",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-50p",
+    "capability": "atom.blue-50p",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-75",
+    "capability": "atom.blue-75",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.blue-800",
+    "capability": "atom.blue-800",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-500",
+    "capability": "atom.deepseek-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-400",
+    "capability": "atom.deepseek-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-450",
+    "capability": "atom.deepseek-450",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-100",
+    "capability": "atom.deepseek-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-200",
+    "capability": "atom.deepseek-200",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-50",
+    "capability": "atom.deepseek-50",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-800",
+    "capability": "atom.deepseek-800",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-300",
+    "capability": "atom.deepseek-300",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-600",
+    "capability": "atom.deepseek-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-700-delete",
+    "capability": "atom.deepseek-700-delete",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.deepseek-900",
+    "capability": "atom.deepseek-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-500",
+    "capability": "atom.green-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-400",
+    "capability": "atom.green-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-100",
+    "capability": "atom.green-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-500-a08",
+    "capability": "atom.green-500-a08",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-500-a12",
+    "capability": "atom.green-500-a12",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.green-900",
+    "capability": "atom.green-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.amber-400",
+    "capability": "atom.amber-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.amber-500",
+    "capability": "atom.amber-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.amber-600",
+    "capability": "atom.amber-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.amber-100",
+    "capability": "atom.amber-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.amber-900",
+    "capability": "atom.amber-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-00",
+    "capability": "atom.neutral-00",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-50",
+    "capability": "atom.neutral-50",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-800",
+    "capability": "atom.neutral-800",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-850",
+    "capability": "atom.neutral-850",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-100",
+    "capability": "atom.neutral-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-200",
+    "capability": "atom.neutral-200",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-300",
+    "capability": "atom.neutral-300",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-600",
+    "capability": "atom.neutral-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-700",
+    "capability": "atom.neutral-700",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-1000",
+    "capability": "atom.neutral-1000",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-400",
+    "capability": "atom.neutral-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-550",
+    "capability": "atom.neutral-550",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-150",
+    "capability": "atom.neutral-150",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-250",
+    "capability": "atom.neutral-250",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-500",
+    "capability": "atom.neutral-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-900",
+    "capability": "atom.neutral-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-00",
+    "capability": "atom.neutral-bluish-00",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-800",
+    "capability": "atom.neutral-bluish-800",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-50",
+    "capability": "atom.neutral-bluish-50",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-850",
+    "capability": "atom.neutral-bluish-850",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-750",
+    "capability": "atom.neutral-bluish-750",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-100",
+    "capability": "atom.neutral-bluish-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-400",
+    "capability": "atom.neutral-bluish-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-1000",
+    "capability": "atom.neutral-bluish-1000",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-60",
+    "capability": "atom.neutral-bluish-60",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-700",
+    "capability": "atom.neutral-bluish-700",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-75",
+    "capability": "atom.neutral-bluish-75",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-900",
+    "capability": "atom.neutral-bluish-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-300",
+    "capability": "atom.neutral-bluish-300",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-600",
+    "capability": "atom.neutral-bluish-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-950",
+    "capability": "atom.neutral-bluish-950",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-150",
+    "capability": "atom.neutral-bluish-150",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-200",
+    "capability": "atom.neutral-bluish-200",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-500",
+    "capability": "atom.neutral-bluish-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.neutral-bluish-875",
+    "capability": "atom.neutral-bluish-875",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-400",
+    "capability": "atom.red-400",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-600",
+    "capability": "atom.red-600",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-400-a12",
+    "capability": "atom.red-400-a12",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-600-a08",
+    "capability": "atom.red-600-a08",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-100",
+    "capability": "atom.red-100",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-50",
+    "capability": "atom.red-50",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-500",
+    "capability": "atom.red-500",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "atom.red-900",
+    "capability": "atom.red-900",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.shadow.lv3",
+    "capability": "effect.shadow.lv3",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.shadow.lv2",
+    "capability": "effect.shadow.lv2",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.shadow.lv1",
+    "capability": "effect.shadow.lv1",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.shadow.lv1-blur",
+    "capability": "effect.shadow.lv1-blur",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.elevation.prominent",
+    "capability": "effect.elevation.prominent",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.elevation.panel",
+    "capability": "effect.elevation.panel",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.elevation.stroke",
+    "capability": "effect.elevation.stroke",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.elevation.soft",
+    "capability": "effect.elevation.soft",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.elevation.stroke-color",
+    "capability": "effect.elevation.stroke-color",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.gradient.blue",
+    "capability": "onboarding.gradient.blue",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.gradient.cyan",
+    "capability": "onboarding.gradient.cyan",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "onboarding.gradient.violet",
+    "capability": "onboarding.gradient.violet",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.linear.gradient-think",
+    "capability": "effect.linear.gradient-think",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "effect.linear.think-select",
+    "capability": "effect.linear.think-select",
+    "kind": "token-semantic"
+   },
+   {
+    "id": "global.focusRing",
+    "capability": "global.focusRing",
+    "kind": "effect"
+   },
+   {
+    "id": "global.scrollbar",
+    "capability": "global.scrollbar",
+    "kind": "effect"
+   },
+   {
+    "id": "global.selection",
+    "capability": "global.selection",
+    "kind": "effect"
+   },
+   {
+    "id": "menu.surface",
+    "capability": "menu.surface",
+    "kind": "effect"
+   },
+   {
+    "id": "code.block.background",
+    "capability": "code.block.background",
+    "kind": "effect"
+   },
+   {
+    "id": "global.page.background.media",
+    "capability": "global.page.background.media",
+    "kind": "effect"
+   },
+   {
+    "id": "sidebar.panel.background.media",
+    "capability": "sidebar.panel.background.media",
+    "kind": "effect"
+   },
+   {
+    "id": "conversation.main.background.media",
+    "capability": "conversation.main.background.media",
+    "kind": "effect"
+   },
+   {
+    "id": "composer.input.background.media",
+    "capability": "composer.input.background.media",
+    "kind": "effect"
+   },
+   {
+    "id": "global.page.overlay.tint",
+    "capability": "global.page.overlay.tint",
+    "kind": "effect"
+   },
+   {
+    "id": "global.page.texture.noise",
+    "capability": "global.page.texture.noise",
+    "kind": "effect"
+   },
+   {
+    "id": "composer.panel.glass",
+    "capability": "composer.panel.glass",
+    "kind": "effect"
+   },
+   {
+    "id": "control.button.icon",
+    "capability": "control.button.icon",
+    "kind": "effect"
+   },
+   {
+    "id": "control.button.label",
+    "capability": "control.button.label",
+    "kind": "effect"
+   },
+   {
+    "id": "entry.themeSettings.button",
+    "capability": "entry.themeSettings.button",
+    "kind": "effect"
+   },
+   {
+    "id": "window.titleBar.background",
+    "capability": "window.titleBar.background",
+    "kind": "effect"
+   },
+   {
+    "id": "window.titleBar.immersive",
+    "capability": "window.titleBar.immersive",
+    "kind": "effect"
+   },
+   {
+    "id": "effect.hover.surface",
+    "capability": "effect.hover.surface",
+    "kind": "effect"
+   },
+   {
+    "id": "structure.element.hidden",
+    "capability": "structure.element.hidden",
+    "kind": "effect"
+   },
+   {
+    "id": "structure.element.move",
+    "capability": "structure.element.move",
+    "kind": "effect"
+   },
+   {
+    "id": "structure.element.inject",
+    "capability": "structure.element.inject",
+    "kind": "effect"
+   },
+   {
+    "id": "terminal.cursor",
+    "capability": "terminal.cursor",
+    "kind": "effect"
+   },
+   {
+    "id": "code.block.lineNumber.width",
+    "capability": "code.block.lineNumber.width",
+    "kind": "effect"
+   }
+  ]
+ }
+}

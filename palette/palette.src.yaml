@@ -1,0 +1,864 @@
+# palette.src.yaml —— 手写能力源（能力菜单的手写部分，唯一人工维护入口）
+# 说明：palette/palette.yaml 由 scripts/research/gen_palette_v5.py 生成（手写条目 + 生成条目），不要手改 palette.yaml。
+# 改能力请改本文件，然后重跑生成器与 scripts/research/palette-check.py。
+
+api: 3
+palette_version: 3.0.0
+title: DSH 全量主题能力表
+description: '插件的唯一能力真源。用户主题只能写这里登记过的能力 id；
+
+  宿主改名时，只改 tokens.yaml / anchors.yaml，本文件不动。
+
+  '
+control_templates:
+  button:
+    properties:
+    - icon
+    - background
+    - foreground
+    - border_color
+    - radius
+    - opacity
+    - shadow
+  item:
+    properties:
+    - background
+    - foreground
+    - border_color
+    - radius
+  text:
+    properties:
+    - foreground
+    - font_family
+    - font_size
+    - line_height
+    - font_weight
+  surface:
+    properties:
+    - background
+    - border_color
+    - radius
+    - shadow
+capabilities:
+  global.page.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - surface
+    - global
+    - media
+    value: media
+    docs: '页面整体背景。纯色走宿主 token；渐变/图画成规则；视频插媒体层。
+
+      第 8–11 条需求的通用实现：区域背景（静态图 / 动态图 / 视频）。
+
+      '
+    examples:
+    - value:
+        light: '#f7f3ea'
+        dark: '#12100c'
+    - value: 'linear-gradient(180deg, #fdf6e3, #f5e6c8)'
+    - value: assets/bg.jpg
+    - value: assets/bg.mp4
+    realization:
+    - id: prefer-token
+      accepts: color
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-bg-base
+    - id: css-paint
+      accepts: paint
+      writes:
+      - id: bg
+        use: rule
+        anchor: global.root
+        layer: base
+        decl:
+          background: $value
+          background-size: cover
+          background-position: center
+    - id: media-layer
+      accepts: video
+      writes:
+      - id: media
+        use: dom
+        anchor: global.root
+        op: insert-media-layer
+        payload: $value
+        params:
+          position: fixed
+          inset: '0'
+          z: -1
+          fit: cover
+          loop: true
+          muted: true
+          autoplay: true
+          reduced_motion: static_poster
+          pointer_events: none
+        teardown: remove-node
+        guard: observer
+    meta:
+      evidence:
+      - packages/client/ui-theme/src/client/index.ts:369-378
+  global.text.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - text
+    - global
+    value: color
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-label-primary
+  global.text.font_family:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - typography
+    - font
+    value: typeface
+    docs: '第 1 条需求：英文用英文字体、中文用中文字体。给 font_set（书写系统 → 字体）
+
+      时自动生成 @font-face + unicode-range，同一段混排也能逐字分派；
+
+      给字体栈则整体应用。
+
+      '
+    examples:
+    - value: '"LXGW WenKai", "Noto Sans SC", sans-serif'
+    - value:
+        latin: assets/Font-Latin.woff2
+        han: assets/Font-CJK.woff2
+    realization:
+    - id: token-stack
+      accepts: font_stack
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-font-family
+        value_template: $value
+    - id: font-set-faces
+      accepts: font_set
+      atomic: true
+      repeat:
+        over: $value
+        as: entry
+      writes:
+      - id: face-$entry.key
+        use: rule
+        at: '@font-face'
+        layer: base
+        decl:
+          font-family: Palette-$entry.key
+          src: url($entry.value) format("woff2")
+          unicode-range: $entry.range
+      - id: apply
+        use: rule
+        anchor: global.root
+        layer: base
+        decl:
+          font-family: $family_stack
+  global.link.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - text
+    - link
+    - global
+    value: color
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-link
+  window.titleBar.background:
+    kind: property
+    since: 3.0.0
+    tier: expert
+    envs:
+    - desktop
+    tags:
+    - window
+    - chrome
+    value: paint
+    partial: true
+    gaps:
+    - 标题栏高度、按钮形状/位置不可改（宿主硬编码）
+    - 渐变会让宿主探针取不到合法 background-color → 退化为透明 overlay，只保留文字色可配
+    docs: '宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
+
+      再调 setTitleBarOverlay；写 token 即可，且会随注入即时生效。
+
+      '
+    realization:
+    - id: token
+      accepts: color
+      when:
+        probe: token_live
+      writes:
+      - id: fill
+        use: token
+        name: --dsw-specific-sidebar-fill
+      - id: symbol
+        use: token
+        name: --dsw-alias-label-primary
+    meta:
+      evidence:
+      - apps/desktop/src/preload-windows.ts:21-23
+      - apps/desktop/src/main.ts:1049-1059
+  sidebar.panel.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - sidebar
+    - surface
+    - media
+    value: media
+    docs: 第 9 条需求：左侧工作区背景（静态图 / 动态图 / 视频）。
+    realization:
+    - id: prefer-token
+      accepts: color
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-specific-sidebar-fill
+    - id: css-paint
+      accepts: paint
+      writes:
+      - id: bg
+        use: rule
+        anchor: sidebar.root
+        layer: component
+        decl:
+          background: $value
+          background-size: cover
+          background-position: center
+        important: when_inline_conflict
+    - id: media-layer
+      accepts: video
+      writes:
+      - id: media
+        use: dom
+        anchor: sidebar.root
+        op: insert-media-layer
+        payload: $value
+        params:
+          position: absolute
+          inset: '0'
+          z: 0
+          fit: cover
+          loop: true
+          muted: true
+          autoplay: true
+          reduced_motion: static_poster
+          pointer_events: none
+        teardown: remove-node
+        guard: observer
+  sidebar.item.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - sidebar
+    - item
+    - state
+    value: paint
+    states:
+    - hover
+    - active
+    - selected
+    docs: 侧栏列表项背景；没写的状态回落到默认值。
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-bg-layer-2
+    - id: rules
+      writes:
+      - id: bg
+        use: rule
+        anchor: sidebar.item
+        layer: component
+        decl:
+          background: $value
+      - id: bg-hover
+        use: rule
+        anchor: sidebar.item
+        layer: state
+        state: hover
+        decl:
+          background: $value
+      - id: bg-active
+        use: rule
+        anchor: sidebar.item
+        layer: state
+        state: active
+        decl:
+          background: $value
+      - id: bg-selected
+        use: rule
+        anchor: sidebar.item
+        layer: state
+        state: selected
+        decl:
+          background: $value
+  conversation.main.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - conversation
+    - surface
+    - media
+    value: media
+    docs: 第 10 条需求：对话主窗口背景（静态图 / 动态图 / 视频）。
+    realization:
+    - id: css-paint
+      accepts: paint
+      writes:
+      - id: bg
+        use: rule
+        anchor: conversation.main
+        layer: component
+        decl:
+          background: $value
+          background-size: cover
+          background-position: center
+        important: when_inline_conflict
+    - id: media-layer
+      accepts: video
+      writes:
+      - id: media
+        use: dom
+        anchor: conversation.main
+        op: insert-media-layer
+        payload: $value
+        params:
+          position: absolute
+          inset: '0'
+          z: 0
+          fit: cover
+          loop: true
+          muted: true
+          autoplay: true
+          reduced_motion: static_poster
+          pointer_events: none
+        teardown: remove-node
+        guard: observer
+  composer.input.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - composer
+    - input
+    - media
+    value: media
+    docs: 第 11 条需求：输入框背景（静态图 / 动态图 / 视频）。
+    realization:
+    - id: css-paint
+      accepts: paint
+      writes:
+      - id: bg
+        use: rule
+        anchor: composer.input
+        layer: component
+        decl:
+          background: $value
+          background-size: cover
+          background-position: center
+        important: when_inline_conflict
+    - id: media-layer
+      accepts: video
+      writes:
+      - id: media
+        use: dom
+        anchor: composer.input
+        op: insert-media-layer
+        payload: $value
+        params:
+          position: absolute
+          inset: '0'
+          z: 0
+          fit: cover
+          loop: true
+          muted: true
+          autoplay: true
+          reduced_motion: static_poster
+          pointer_events: none
+        teardown: remove-node
+        guard: observer
+  composer.input.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - composer
+    - input
+    - text
+    value: color
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-label-primary
+  composer.glass:
+    kind: recipe
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - effect
+    - glass
+    - composer
+    docs: '第 6 条需求：输入区玻璃态。模糊与半透明底色两个 aspect 独立降级：
+
+      宿主不支持 backdrop-filter 时仍保留半透明底色，文字可读。
+
+      '
+    value:
+      type: object
+      fields:
+        blur:
+          type: length
+          default: 12px
+        opacity:
+          type: number
+          default: 0.6
+        tint:
+          type: color
+          default:
+            light: '#ffffff'
+            dark: '#1b1b1c'
+    aspects:
+      backdrop:
+        fields:
+        - blur
+        effects:
+        - id: rule-blur
+          writes:
+          - id: blur
+            use: rule
+            anchor: composer.root
+            layer: component
+            decl:
+              backdrop-filter: blur($fields.blur)
+              -webkit-backdrop-filter: blur($fields.blur)
+      tint:
+        fields:
+        - opacity
+        - tint
+        effects:
+        - id: rule-tint
+          writes:
+          - id: tint
+            use: rule
+            anchor: composer.root
+            layer: component
+            decl:
+              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
+    meta:
+      gap: 玻璃能否吃到底层媒体层取决于层叠上下文，需实测。
+  menu.surface.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - menu
+    - surface
+    value: paint
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-menu-surface-fill
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: menu.surface
+        layer: component
+        decl:
+          background: $value
+        important: when_inline_conflict
+  menu.surface.glass:
+    kind: recipe
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - effect
+    - glass
+    - menu
+    docs: 控件级 recipe 示例（recipe_role_id：<region>.<role>.<recipe>）。
+    value:
+      type: object
+      fields:
+        blur:
+          type: length
+          default: 16px
+        opacity:
+          type: number
+          default: 0.7
+        tint:
+          type: color
+          default:
+            light: '#f8f9fa'
+            dark: '#1b1b1c'
+    aspects:
+      backdrop:
+        fields:
+        - blur
+        effects:
+        - id: rule-blur
+          writes:
+          - id: blur
+            use: rule
+            anchor: menu.surface
+            layer: component
+            decl:
+              backdrop-filter: blur($fields.blur)
+              -webkit-backdrop-filter: blur($fields.blur)
+      tint:
+        fields:
+        - opacity
+        - tint
+        effects:
+        - id: rule-tint
+          writes:
+          - id: tint
+            use: rule
+            anchor: menu.surface
+            layer: component
+            decl:
+              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
+  menu.item.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - menu
+    - item
+    - state
+    value: paint
+    states:
+    - hover
+    - active
+    - selected
+    realization:
+    - id: rules
+      writes:
+      - id: bg
+        use: rule
+        anchor: menu.item
+        layer: component
+        decl:
+          background: $value
+      - id: bg-hover
+        use: rule
+        anchor: menu.item
+        layer: state
+        state: hover
+        decl:
+          background: $value
+      - id: bg-selected
+        use: rule
+        anchor: menu.item
+        layer: state
+        state: selected
+        decl:
+          background: $value
+    meta:
+      gap: 菜单项与菜单面的背景同时设置时，注意菜单面 !important 或层叠顺序造成的遮挡。
+  code.block.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - code
+    - surface
+    value: paint
+    realization:
+    - id: prefer-token
+      accepts: color
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-markdown-code-block
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: code.block
+        layer: component
+        decl:
+          background: $value
+        important: when_inline_conflict
+    meta:
+      gap: 宿主在 pre.shiki 上用 !important 引用 --dsl-code-block-background（pinned），规则需 important 策略。
+  code.block.font_family:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - code
+    - typography
+    value: typeface
+    realization:
+    - id: rule
+      writes:
+      - id: font
+        use: rule
+        anchor: code.block
+        layer: component
+        decl:
+          font-family: $value
+  code.block.line_height:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - code
+    - typography
+    value: line_height
+    realization:
+    - id: rule
+      writes:
+      - id: lh
+        use: rule
+        anchor: code.block
+        layer: component
+        decl:
+          line-height: $value
+  markdown.paragraph.line_height:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - markdown
+    - typography
+    value: line_height
+    docs: 第 5 条需求：不同内容行距各自设置（段落）。
+    realization:
+    - id: prefer-token
+      accepts: line_height
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-font-markdown-base-line-height
+    - id: rule
+      writes:
+      - id: lh
+        use: rule
+        anchor: markdown.paragraph
+        layer: component
+        decl:
+          line-height: $value
+  markdown.heading.line_height:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - markdown
+    - typography
+    value: line_height
+    docs: 第 5 条需求：不同内容行距各自设置（标题）。
+    realization:
+    - id: rule
+      writes:
+      - id: lh
+        use: rule
+        anchor: markdown.heading
+        layer: component
+        decl:
+          line-height: $value
+  markdown.paragraph.font_size:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - markdown
+    - typography
+    value: length
+    realization:
+    - id: prefer-token
+      accepts: length
+      when:
+        probe: token_live
+      writes:
+      - id: token
+        use: token
+        name: --dsw-font-markdown-base-font-size
+    - id: rule
+      writes:
+      - id: fs
+        use: rule
+        anchor: markdown.paragraph
+        layer: component
+        decl:
+          font-size: $value
+  markdown.heading.font_size:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - markdown
+    - typography
+    value: length
+    realization:
+    - id: rule
+      writes:
+      - id: fs
+        use: rule
+        anchor: markdown.heading
+        layer: component
+        decl:
+          font-size: $value
+  markdown.link.foreground:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - markdown
+    - link
+    value: color
+    realization:
+    - id: token
+      writes:
+      - id: token
+        use: token
+        name: --dsw-alias-link
+    - id: rule
+      writes:
+      - id: color
+        use: rule
+        anchor: markdown.paragraph
+        layer: component
+        decl:
+          text-decoration-color: $value
+  tool.card.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - tool
+    - card
+    value: paint
+    realization:
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: tool.card
+        layer: component
+        decl:
+          background: $value
+        important: when_inline_conflict
+  tool.card.radius:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - tool
+    - card
+    value: length
+    realization:
+    - id: rule
+      writes:
+      - id: radius
+        use: rule
+        anchor: tool.card
+        layer: component
+        decl:
+          border-radius: $value
+  terminal.panel.background:
+    kind: property
+    since: 3.0.0
+    tier: basic
+    tags:
+    - terminal
+    - surface
+    value: paint
+    realization:
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: terminal.root
+        layer: component
+        decl:
+          background: $value
+        important: when_inline_conflict
+  deliverable.card.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - deliverable
+    - card
+    value: paint
+    realization:
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: deliverable.card
+        layer: component
+        decl:
+          background: $value
+    meta:
+      confidence: fragile
+  global.scrollbar.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - scrollbar
+    value: paint
+    realization:
+    - id: rule
+      writes:
+      - id: thumb
+        use: rule
+        anchor: scrollbar.root
+        layer: component
+        decl:
+          scrollbar-color: $value
+  global.selection.background:
+    kind: property
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - selection
+    value: paint
+    realization:
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: selection.text
+        layer: component
+        decl:
+          background-color: $value
+extensions: {}

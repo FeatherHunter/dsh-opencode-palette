@@ -1,29 +1,12 @@
-# =============================================================================
-# palette/_index.yaml —— 模块注册表（唯一入口）
-# role: 注册表
-# generated: false
-# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
-#
-# 新 session / 新 AI 先读本文件。它回答三件事：
-#   1) 能力集由哪几部分组成、每部分在哪个文件；
-#   2) 哪些文件是扫描生成的、禁止手改，改哪个命令重新生成；
-#   3) 各模块版本与最低依赖版本，避免跨模块错配。
-#
-# 设计原则（第一性原理，详见 README.md）：
-#   单一事实源 / 按技术域拆分 / 按变化频率分层 / 契约先行 / 生成与手写分离 /
-#   开闭扩展（新技术 = 新文件 + 注册，不改 palette.yaml 结构）。
-# =============================================================================
 api: 3
 palette_version: 3.0.0
-implementation: scaffold       # 设计稿阶段：9 模块齐全、样本已核实；扫描器/门禁/运行时编译器尚未实现（见 SPEC.md §9）
-
-requires:                 # 能力菜单依赖的最低模块版本，门禁校验
+implementation: scaffold
+requires:
   vocabulary: '>=3.0.0'
   values: '>=3.0.0'
   primitives: '>=3.0.0'
   assets: '>=3.0.0'
   probes: '>=3.0.0'
-
 modules:
   palette:
     file: palette.yaml
@@ -63,35 +46,35 @@ modules:
     summary: 探测原语与探测环境——能力生效前先问宿主「这个还行吗」
   tokens:
     file: tokens.yaml
-    version: 'dsh 0.2.1-rc.3 @ 1f81c04（rc.3 主题面与 rc.2 逐字节相同）'
+    version: dsh 0.2.1-rc.3 @ 1f81c04（rc.3 主题面与 rc.2 逐字节相同）
     generated: full
     kind: host_facts
     command: python scripts/research/gen_token_registry.py（扫描器已实现，全量 425 条）
     summary: 宿主 token 全集 425 条：状态（live/dead + 修饰）、声明位置（全部）、消费次数、消费位置（全部）、本仓是否已注入；扫描器生成，勿手改
   anchors:
     file: anchors.yaml
-    version: 'dsh 0.2.1-rc.2 @ 687f282'
-    generated: partial       # 锚点候选扫描生成，置信度与控件清单人工确认
+    version: dsh 0.2.1-rc.2 @ 687f282
+    generated: partial
     kind: host_facts
     command: palette:scan-anchors（扫描器规划中；当前 anchors.yaml 为人工清单）
     reviewed: true
     summary: DOM 锚点候选与控件清单（宿主私有选择器集中地）
-
-# counts 由门禁从源文件重算并比对；这里只是快照
 counts:
-  capabilities_authored: 28     # palette.yaml 里手写的条目
-  capabilities_generated: 65    # 由 control_templates × controls 展开（构建期计算）
-  capabilities_unique: 89       # 手写 + 展开去重后的合并视图（4 条展开与手写重名，手写优先）
+  capabilities_authored: 28
+  capabilities_generated: 65
+  capabilities_unique: 392
   controls: 12
   regions: 14
   roles: 27
-  regions_covered: 12           # detail / plugin 为登记缺口
-  regions_gap: [detail, plugin]
-
-# 生成物与派生物（不属于源文件，按需生成）
+  regions_covered: 12
+  regions_gap:
+  - detail
+  - plugin
+  domains_covered: 30
+  direct_bindings: 425
+  runtime_registered: 148
 artifacts:
-  merged: palette/_merged.yaml          # 合并视图：给人/AI 通读，不参与校验
-  gaps: docs/palette/coverage-gaps.md   # 宿主有、能力集没有的缺口 = 扩建待办
-  matrix: docs/palette/capability-matrix.md  # 区域 × 角色 × 属性 的能力矩阵
-  schema: palette/schema/palette-v3.schema.json  # 由本目录派生，供编辑器/AI 校验
-
+  merged: palette/_merged.yaml
+  gaps: docs/palette/coverage-gaps.md
+  matrix: docs/palette/capability-matrix.md
+  schema: palette/schema/palette-v3.schema.json

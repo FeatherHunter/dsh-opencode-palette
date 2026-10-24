@@ -1,192 +1,295 @@
-# =============================================================================
-# palette/vocabulary.yaml —— 词表
-# role: 词表（区域 / 角色 / 属性 / recipe / 状态 / 语言 / 目录）
-# generated: false
-# validate: python scripts/research/palette-check.py（npm/CI 接入属实现期）
-#
-# 这份文件管「名字的合法性」：能力 id 的每一段必须来自这里。
-# 好处：能力 id 永远拼写稳定、编辑器能按词表分组、AI 输出能被机器校验。
-# =============================================================================
 api: 3
-
-# -----------------------------------------------------------------------------
-# 1. 文法：能力 id 怎么拼
-#    - 单旋钮能力：<region>.<role>.<property>，例如 sidebar.item.background
-#    - 区域级 recipe：<region>.<recipe>，例如 composer.glass（整个区域）
-#    - 控件级 recipe：<region>.<role>.<recipe>，例如 menu.surface.glass（某个控件）
-#    - 自定义扩展：custom.<owner>.<name>，必须 custom: true，宿主不识别也不报错
-# -----------------------------------------------------------------------------
 grammar:
-  property_id: '<region>.<role>.<property>'
-  recipe_id: '<region>.<recipe>'
-  recipe_role_id: '<region>.<role>.<recipe>'
-  expanded_property_id: '<region>.<control_name>.<property>'   # 控件模板展开：第二段是 anchors.controls 的控件名（不是 role）
-  expanded_dedupe: '展开 id 与手写 id 相同时，手写优先，展开条目不另计'
-  control_name_source: 'anchors.yaml controls 的键：<region>.<controlName>（如 composer.sendButton）'
+  property_id: <region>.<role>.<property>
+  recipe_id: <region>.<recipe>
+  recipe_role_id: <region>.<role>.<recipe>
+  expanded_property_id: <region>.<control_name>.<property>
+  expanded_dedupe: 展开 id 与手写 id 相同时，手写优先，展开条目不另计
+  control_name_source: anchors.yaml controls 的键：<region>.<controlName>（如 composer.sendButton）
   custom_prefix: custom
-  vocabulary_bound: true       # 三段必须来自本文件词表（role 段也可是已登记控件名；custom 例外）
-  locked: true                 # id 发布后不可改名，只能 deprecated + replaced_by
-  # 语义能力 id（P1/P2/P3/P4 文档与 palette 条目共用）：<domain>.<segment>{1..5}
-  # domain 见下方 capability_domains；segment 允许 kebab-case（layer-1 / string-expression）。
-  # property_id 是「写到哪」（绑定目标），capability_id 是「用户看到什么」（能力身份），两套不混用。
-  capability_id: '<domain>.<segment>(.<segment>){1,5}'
-  capability_id_pattern: '^[a-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+){1,8}$'   # 首段小写；2~9 段（直绑定 token.<长名> 需要更深）；段内允许 kebab/snake/camel
+  vocabulary_bound: true
+  locked: true
+  capability_id: <domain>.<segment>(.<segment>){1,5}
+  capability_id_pattern: ^[a-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+){1,8}$
   capability_domains_ref: capability_domains
-  direct_binding_prefix: token   # 构建期生成的直绑定条目命名空间：token.<token 名去 -- 换 .>
-
-# -----------------------------------------------------------------------------
-# 1b. 能力域（33）：能力 id 的第一段。= 现有 14 区域 + 19 个语义域（P4 新增 typography/radius/runtime/mask）。
-#     为什么扩：能力要「强大而全面」，不为简单牺牲精度；语义域与绑定区域分开后，
-#     能力 id 只表达用户看到什么，写到哪由 property_id/anchor 表达。
-# -----------------------------------------------------------------------------
+  direct_binding_prefix: token
 capability_domains:
-  # —— 与 14 区域同名（编辑器分组直接复用）——
-  - { id: global,       label: 全局 }
-  - { id: window,       label: 窗口外壳 }
-  - { id: sidebar,      label: 侧栏 }
-  - { id: conversation, label: 对话区 }
-  - { id: composer,     label: 输入区 }
-  - { id: detail,       label: 详情面板 }
-  - { id: settings,     label: 设置页 }
-  - { id: menu,         label: 菜单/弹窗 }
-  - { id: code,         label: 代码 }
-  - { id: markdown,     label: Markdown }
-  - { id: tool,         label: 工具调用 }
-  - { id: terminal,     label: 终端 }
-  - { id: deliverable,  label: 交付物 }
-  - { id: plugin,       label: 插件页 }
-  # —— 语义域（能力身份专用）——
-  - { id: content,      label: 内容（代码/Markdown/搜索等正文区域） }
-  - { id: control,      label: 控件（按钮/输入/图标等可换控件） }
-  - { id: status,       label: 状态色（成功/警告/错误/进行中） }
-  - { id: atom,         label: 调色板原子（底层原材料） }
-  - { id: specific,     label: 区域特化色（bubble/sidebar-fill 等） }
-  - { id: effect,       label: 视觉特效（阴影/材质/景深） }
-  - { id: onboarding,   label: 引导页 }
-  - { id: overlay,      label: 蒙层/浮层 }
-  - { id: document,     label: 文档预览 }
-  - { id: decor,        label: 装饰（噪点/纹理/边框） }
-  - { id: tooltip,      label: 提示气泡 }
-  - { id: toast,        label: 轻提示 }
-  - { id: selection,    label: 选区/选中态 }
-  - { id: entry,        label: 入口（官方 slot 按钮等） }
-  - { id: structure,    label: 结构改动（隐藏/移动/注入，实验） }
-  # —— P4 新增（非颜色 203 需要自己的语义域）——
-  - { id: typography,   label: 排印（字族/字号/行高/字重） }
-  - { id: radius,       label: 圆角 }
-  - { id: runtime,      label: 运行时布局量（--dsh 等内部变量，登记不开放） }
-  - { id: mask,         label: 蒙层/模糊 }
-
-# -----------------------------------------------------------------------------
-# 2. 区域（14）：编辑器一级分组
-# -----------------------------------------------------------------------------
+- id: global
+  label: 全局
+- id: window
+  label: 窗口外壳
+- id: sidebar
+  label: 侧栏
+- id: conversation
+  label: 对话区
+- id: composer
+  label: 输入区
+- id: detail
+  label: 详情面板
+- id: settings
+  label: 设置页
+- id: menu
+  label: 菜单/弹窗
+- id: code
+  label: 代码
+- id: markdown
+  label: Markdown
+- id: tool
+  label: 工具调用
+- id: terminal
+  label: 终端
+- id: deliverable
+  label: 交付物
+- id: plugin
+  label: 插件页
+- id: content
+  label: 内容（代码/Markdown/搜索等正文区域）
+- id: control
+  label: 控件（按钮/输入/图标等可换控件）
+- id: status
+  label: 状态色（成功/警告/错误/进行中）
+- id: atom
+  label: 调色板原子（底层原材料）
+- id: specific
+  label: 区域特化色（bubble/sidebar-fill 等）
+- id: effect
+  label: 视觉特效（阴影/材质/景深）
+- id: onboarding
+  label: 引导页
+- id: overlay
+  label: 蒙层/浮层
+- id: document
+  label: 文档预览
+- id: decor
+  label: 装饰（噪点/纹理/边框）
+- id: tooltip
+  label: 提示气泡
+- id: toast
+  label: 轻提示
+- id: selection
+  label: 选区/选中态
+- id: entry
+  label: 入口（官方 slot 按钮等）
+- id: structure
+  label: 结构改动（隐藏/移动/注入，实验）
+- id: typography
+  label: 排印（字族/字号/行高/字重）
+- id: radius
+  label: 圆角
+- id: runtime
+  label: 运行时布局量（--dsh 等内部变量，登记不开放）
+- id: mask
+  label: 蒙层/模糊
+- id: token
+  zh: 直绑定（裸 token 名）
+  desc: 自动生成的 token 直绑定条目；id 形如 token.<namespace>.<名字>
 regions:
-  - { id: global,       label: 全局 }
-  - { id: window,       label: 窗口外壳 }
-  - { id: sidebar,      label: 侧栏 }
-  - { id: conversation, label: 对话区 }
-  - { id: composer,     label: 输入区 }
-  - { id: detail,       label: 详情面板 }
-  - { id: settings,     label: 设置页 }
-  - { id: menu,         label: 菜单与弹层 }
-  - { id: code,         label: 代码与差异 }
-  - { id: markdown,     label: Markdown 排版 }
-  - { id: tool,         label: 工具调用卡片 }
-  - { id: terminal,     label: 终端 }
-  - { id: deliverable,  label: 产物与文件 }
-  - { id: plugin,       label: 插件市场 }
-
-# -----------------------------------------------------------------------------
-# 3. 角色：区域里「哪个部件」（计数以 _index 合并视图为准，不在此硬编码）
-#    角色是能力的第二段，也是锚点与控件清单的分类依据
-# -----------------------------------------------------------------------------
+- id: global
+  label: 全局
+- id: window
+  label: 窗口外壳
+- id: sidebar
+  label: 侧栏
+- id: conversation
+  label: 对话区
+- id: composer
+  label: 输入区
+- id: detail
+  label: 详情面板
+- id: settings
+  label: 设置页
+- id: menu
+  label: 菜单与弹层
+- id: code
+  label: 代码与差异
+- id: markdown
+  label: Markdown 排版
+- id: tool
+  label: 工具调用卡片
+- id: terminal
+  label: 终端
+- id: deliverable
+  label: 产物与文件
+- id: plugin
+  label: 插件市场
 roles:
-  - { id: page,      label: 页面 }
-  - { id: window,    label: 窗口 }
-  - { id: main,      label: 主区 }
-  - { id: panel,     label: 面板 }
-  - { id: surface,   label: 表面（可点可悬停的容器） }
-  - { id: card,      label: 卡片 }
-  - { id: block,     label: 代码块 }
-  - { id: item,      label: 列表项 }
-  - { id: button,    label: 按钮 }
-  - { id: input,     label: 输入框 }
-  - { id: text,      label: 正文 }
-  - { id: paragraph, label: 段落 }
-  - { id: heading,   label: 标题 }
-  - { id: list,      label: 列表 }
-  - { id: link,      label: 链接 }
-  - { id: icon,      label: 图标 }
-  - { id: menu,      label: 菜单 }
-  - { id: menuitem,  label: 菜单项 }
-  - { id: tooltip,   label: 气泡提示 }
-  - { id: tab,       label: 标签页 }
-  - { id: badge,     label: 徽标 }
-  - { id: scrollbar, label: 滚动条 }
-  - { id: selection, label: 选区 }
-  - { id: titleBar,  label: 标题栏 }
-  - { id: table,     label: 表格 }
-  - { id: divider,   label: 分隔线 }
-  - { id: overlay,   label: 遮罩层 }
-
-# -----------------------------------------------------------------------------
-# 4. 属性（16）：能力 id 的第三段
-# -----------------------------------------------------------------------------
+- id: page
+  label: 页面
+- id: window
+  label: 窗口
+- id: main
+  label: 主区
+- id: panel
+  label: 面板
+- id: surface
+  label: 表面（可点可悬停的容器）
+- id: card
+  label: 卡片
+- id: block
+  label: 代码块
+- id: item
+  label: 列表项
+- id: button
+  label: 按钮
+- id: input
+  label: 输入框
+- id: text
+  label: 正文
+- id: paragraph
+  label: 段落
+- id: heading
+  label: 标题
+- id: list
+  label: 列表
+- id: link
+  label: 链接
+- id: icon
+  label: 图标
+- id: menu
+  label: 菜单
+- id: menuitem
+  label: 菜单项
+- id: tooltip
+  label: 气泡提示
+- id: tab
+  label: 标签页
+- id: badge
+  label: 徽标
+- id: scrollbar
+  label: 滚动条
+- id: selection
+  label: 选区
+- id: titleBar
+  label: 标题栏
+- id: table
+  label: 表格
+- id: divider
+  label: 分隔线
+- id: overlay
+  label: 遮罩层
 properties:
-  - { id: background,    label: 背景,     value: paint }
-  - { id: foreground,    label: 前景色,   value: color }
-  - { id: border_color,  label: 边框颜色, value: color }
-  - { id: border_width,  label: 边框粗细, value: length }
-  - { id: radius,        label: 圆角,     value: length }
-  - { id: shadow,        label: 阴影,     value: shadow }
-  - { id: font_family,   label: 字体,     value: typeface }
-  - { id: font_size,     label: 字号,     value: length }
-  - { id: line_height,   label: 行高,     value: line_height }
-  - { id: font_weight,   label: 字重,     value: weight }
-  - { id: letter_spacing,label: 字距,     value: length }
-  - { id: icon,          label: 图标,     value: icon }
-  - { id: opacity,       label: 透明度,   value: number }
-  - { id: blur,          label: 模糊,     value: length }
-  - { id: transition,    label: 过渡,     value: duration }
-  - { id: image,         label: 背景图,   value: image }
-
-# -----------------------------------------------------------------------------
-# 5. 复合能力（7）：一个能力 = 多个 aspect 各自独立降级
-# -----------------------------------------------------------------------------
+- id: background
+  label: 背景
+  value: paint
+- id: foreground
+  label: 前景色
+  value: color
+- id: border_color
+  label: 边框颜色
+  value: color
+- id: border_width
+  label: 边框粗细
+  value: length
+- id: radius
+  label: 圆角
+  value: length
+- id: shadow
+  label: 阴影
+  value: shadow
+- id: font_family
+  label: 字体
+  value: typeface
+- id: font_size
+  label: 字号
+  value: length
+- id: line_height
+  label: 行高
+  value: line_height
+- id: font_weight
+  label: 字重
+  value: weight
+- id: letter_spacing
+  label: 字距
+  value: length
+- id: icon
+  label: 图标
+  value: icon
+- id: opacity
+  label: 透明度
+  value: number
+- id: blur
+  label: 模糊
+  value: length
+- id: transition
+  label: 过渡
+  value: duration
+- id: image
+  label: 背景图
+  value: image
 recipes:
-  - { id: glass,           label: 毛玻璃 }
-  - { id: wallpaper,       label: 壁纸 }
-  - { id: noise,           label: 噪点纹理 }
-  - { id: vignette,        label: 暗角 }
-  - { id: gradient_border, label: 渐变描边 }
-  - { id: scanline,        label: 扫描线 }
-  - { id: paper,           label: 纸张质感 }
-
-# -----------------------------------------------------------------------------
-# 6. 状态（5）：写规则时自动拼成选择器后缀
-# -----------------------------------------------------------------------------
+- id: glass
+  label: 毛玻璃
+- id: wallpaper
+  label: 壁纸
+- id: noise
+  label: 噪点纹理
+- id: vignette
+  label: 暗角
+- id: gradient_border
+  label: 渐变描边
+- id: scanline
+  label: 扫描线
+- id: paper
+  label: 纸张质感
 states:
-  hover:    ':hover'
-  active:   ':active'
-  focus:    ':focus-visible'
+  hover: :hover
+  active: :active
+  focus: :focus-visible
   disabled: '[disabled], [aria-disabled="true"]'
   selected: '[aria-selected="true"]'
-
-# -----------------------------------------------------------------------------
-# 7. 语言（供按语言整段配置；字形级分派由 values.yaml 的 scripts 负责）
-# -----------------------------------------------------------------------------
 languages:
-  selector: ':lang({tag})'
-  tags: [zh-CN, zh-TW, en, ja, ko, fr, de, es, pt, it, ru, ar, vi, th, hi]
-
-# -----------------------------------------------------------------------------
-# 8. 目录：编辑器展示顺序与快速上手集合（纯展示，不参与编译）
-# -----------------------------------------------------------------------------
+  selector: :lang({tag})
+  tags:
+  - zh-CN
+  - zh-TW
+  - en
+  - ja
+  - ko
+  - fr
+  - de
+  - es
+  - pt
+  - it
+  - ru
+  - ar
+  - vi
+  - th
+  - hi
 catalog:
-  order: [global, window, sidebar, conversation, composer, menu, code, markdown, tool, terminal, deliverable, settings, plugin, detail]
+  order:
+  - global
+  - window
+  - sidebar
+  - conversation
+  - composer
+  - menu
+  - code
+  - markdown
+  - tool
+  - terminal
+  - deliverable
+  - settings
+  - plugin
+  - detail
   groups:
-    - { id: quickstart, label: 快速上手, members: ['global.page.background', 'global.text.foreground', 'global.link.foreground', 'sidebar.panel.background'] }
-    - { id: effects,    label: 视觉效果, members: ['*.glass', '*.wallpaper', '*.noise'] }
-    - { id: chrome,     label: 窗口外壳, members: ['window.*'] }
-    - { id: control,    label: 控件,     members: ['button.*'] }
-
+  - id: quickstart
+    label: 快速上手
+    members:
+    - global.page.background
+    - global.text.foreground
+    - global.link.foreground
+    - sidebar.panel.background
+  - id: effects
+    label: 视觉效果
+    members:
+    - '*.glass'
+    - '*.wallpaper'
+    - '*.noise'
+  - id: chrome
+    label: 窗口外壳
+    members:
+    - window.*
+  - id: control
+    label: 控件
+    members:
+    - button.*

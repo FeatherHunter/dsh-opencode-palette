@@ -32,6 +32,7 @@ ROOT = os.path.join(os.path.dirname(__file__), '..', '..', 'palette')
 FILES = [
     '_index.yaml',
     'palette.yaml',
+    'palette.src.yaml',
     'vocabulary.yaml',
     'values.yaml',
     'primitives.yaml',
@@ -234,8 +235,75 @@ def main():
                     probe = check_when(f'{cid}.{aname}', eff)
                     for w in eff.get('writes', []):
                         check_write(f'{cid}.{aname}', w, eff, probe)
+        elif kind == 'token':
+            if c.get('value') not in value_types:
+                errors.append(f'{cid}: kind=token 的 value={c.get("value")} 不在 values.yaml')
+            binds = c.get('binds') or []
+            if not binds:
+                errors.append(f'{cid}: kind=token 必须至少一个 binds')
+            for b in binds:
+                tn = b.get('token')
+                if tn not in token_status:
+                    errors.append(f'{cid}: binds 的 token {tn} 不在 tokens.yaml')
+                    continue
+                token_refs.add(tn)
+                st = token_status[tn].get('status')
+                if st != 'live' and c.get('tier') != 'dead':
+                    errors.append(f'{cid}: 绑定了非 live token {tn}（{st}），tier 必须为 dead')
+        elif kind == 'effect':
+            if not c.get('tech'):
+                errors.append(f'{cid}: kind=effect 必须给 tech（实现技术链）')
         else:
             errors.append(f'{cid}: 未知 kind {kind}')
+
+    # —— direct_bindings：425 个 token 的直绑定兜底 ——
+    direct = palette.get('direct_bindings') or {}
+    DID_RE = re.compile(r'^token\.(dsw|shiki|dsh)\.[a-z0-9][a-z0-9-]*$')
+    if len(direct) != len(tokens.get('tokens', [])):
+        errors.append(f'direct_bindings 数量 {len(direct)} 与 tokens 数量 {len(tokens.get("tokens", []))} 不一致')
+    covered_tokens = set()
+    for did, d in direct.items():
+        if not DID_RE.match(did):
+            errors.append(f'direct_bindings.{did}: id 语法非法（token.<ns>.<名字去前缀>）')
+        if did in caps:
+            errors.append(f'{did}: 与 capabilities 撞名（两条 id 空间必须分开）')
+        tn = d.get('token')
+        if tn not in token_status:
+            errors.append(f'direct_bindings.{did}: token {tn} 不在 tokens.yaml')
+            continue
+        covered_tokens.add(tn)
+        token_refs.add(tn)
+        meta = token_status[tn]
+        if d.get('status') != meta.get('status'):
+            errors.append(f'direct_bindings.{did}: status={d.get("status")} 与 tokens.yaml {meta.get("status")} 不一致')
+        if d.get('value_type') not in value_types:
+            errors.append(f'direct_bindings.{did}: value_type={d.get("value_type")} 不在 values.yaml')
+        if d.get('tier') not in {'stable', 'advanced', 'experimental', 'dead'}:
+            errors.append(f'direct_bindings.{did}: tier={d.get("tier")} 非法')
+        if not d.get('exposure'):
+            errors.append(f'direct_bindings.{did}: 缺 exposure')
+    missing_direct = sorted(set(token_status) - covered_tokens)
+    if missing_direct:
+        errors.append(f'direct_bindings 未覆盖 token：{missing_direct[:5]}')
+
+    # —— runtime 段：148 条登记（不建能力） ——
+    rt = tokens.get('runtime') or {}
+    groups = rt.get('groups') or []
+    if not groups:
+        errors.append('tokens.yaml 缺 runtime 段')
+    else:
+        rt_names = []
+        for g in groups:
+            items = g.get('items') or []
+            rt_names += [i.get('name') for i in items]
+            if g.get('count') != len(items):
+                errors.append(f'runtime 组 {g.get("id")}: count={g.get("count")} 与 items={len(items)} 不一致')
+        if len(rt_names) != len(set(rt_names)):
+            errors.append('runtime 段内含重复变量名')
+        if set(rt_names) & set(token_status):
+            errors.append('runtime 变量与公开 token 撞名')
+        if rt.get('total') != len(rt_names):
+            errors.append(f'runtime.total={rt.get("total")} 与实际 {len(rt_names)} 不一致')
 
     # —— 控件模板展开 ——
     generated_raw = 0
@@ -377,11 +445,16 @@ def main():
 
     # —— 计数与 _index 比对 ——
     counts = idx.get('counts', {})
+    src_caps = (loaded.get('palette.src.yaml') or {}).get('capabilities') or {}
+    domains_covered = len(covered & set(cap_domains))
     checks = [
-        ('capabilities_authored', len(caps)),
+        ('capabilities_authored', len(src_caps)),
         ('capabilities_generated', generated_raw),
         ('capabilities_unique', len(merged)),
-        ('regions_covered', len(covered)),
+        ('regions_covered', len(covered & regions)),
+        ('domains_covered', domains_covered),
+        ('direct_bindings', len(direct)),
+        ('runtime_registered', rt.get('total') if rt else 0),
     ]
     for key, actual in checks:
         if key not in counts:
@@ -398,7 +471,7 @@ def main():
     modules = idx.get('modules', {})
     for mname, meta in modules.items():
         if meta.get('file') not in FILES:
-            errors.append(f'_index modules.{mname}: 文件 {meta.get("file")} 不在 9 个 YAML 内')
+            errors.append(f'_index modules.{mname}: 文件 {meta.get("file")} 不在 10 个 YAML 内')
 
     # —— _index 模块 version 与 requires 约束 ——
     semver = re.compile(r'^\d+\.\d+\.\d+$')
@@ -436,7 +509,8 @@ def main():
     print(f'能力（手写）      = {len(caps)}')
     print(f'能力（模板展开）  = {generated_raw}（去重后新增 {deduped}）')
     print(f'能力（合并唯一）  = {len(merged)}')
-    print(f'区域覆盖          = {len(covered)}/{len(regions)}（缺口 {", ".join(gap) or "无"}）')
+    print(f'区域覆盖          = {len(covered & regions)}/{len(regions)}（缺口 {", ".join(gap) or "无"}）')
+    print(f'能力域覆盖        = {domains_covered}/{len(cap_domains)}')
     print(f'控件 / 锚点       = {len(controls)} / {len(anchor_ids)}')
     print(f'能力引用的 token  = {len(token_refs)}（样本表覆盖 {len(token_refs) - len(missing_tokens)}）')
     print(f'状态样本          = {len(tokens.get("tokens", []))} 条（主状态 {dict(t_primary)}；修饰 {dict(t_mod) or "无"}）')

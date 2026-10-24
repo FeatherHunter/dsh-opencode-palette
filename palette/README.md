@@ -16,17 +16,18 @@
 | 文件 | 内容 | 手写? |
 |---|---|---|
 | `_index.yaml` | 注册表：模块清单、版本、生成命令、计数 | 手写 |
-| `palette.yaml` | 能力菜单：一行一个可配置能力 + 控件模板 | 手写 |
-| `vocabulary.yaml` | 词表：区域/角色/属性/recipe/状态/语言/目录 | 手写 |
-| `values.yaml` | 值类型、书写系统 Unicode 范围、主题变量语法 | 手写 |
+| `palette.src.yaml` | **手写能力源**：28 条手写能力 + 控件模板 + `api`/`palette_version`；改能力改这里 | 手写 |
+| `palette.yaml` | **生成物**：能力菜单 `capabilities`（331 条，含手写/展开/master/P1–P4）+ `direct_bindings`（425 条，425 个公开 token 一通一）；由 `gen_palette_v5.py` 生成，**不要手改** | **生成** |
+| `vocabulary.yaml` | 词表：区域/角色/属性/recipe/状态/语言/能力域（34）/目录 | 手写 |
+| `values.yaml` | 值类型（23 种）、书写系统 Unicode 范围、主题变量语法 | 手写 |
 | `primitives.yaml` | 写原语：token / rule / dom / host_api 的字段与策略 | 手写 |
 | `assets.yaml` | 资源类型与安全策略：图/动态图/视频/字体/图标 | 手写 |
 | `probes.yaml` | 探测原语与探测环境 | 手写 |
-| `tokens.yaml` | 宿主 token 全集、活死状态、声明位置 | **生成** |
+| `tokens.yaml` | 宿主 token 全集（425 条：颜色 222 + 非颜色 203）、状态、声明位置、全部消费位置、`runtime` 段 148 条登记 | **生成** |
 | `anchors.yaml` | DOM 锚点候选 + 控件清单 | **部分生成** |
 | `SPEC.md` | 格式规范入口：palette.yaml + theme.yaml + assets 三样东西、加载管线、验收判据（给人/新 AI 读，不参与机器校验） | 手写 |
 
-> 给新会话的读法：先读 `SPEC.md`（要做什么）→ 再读 `_index.yaml`（有哪些模块）→ 再读 `palette.yaml`（能配什么）。
+> 给新会话的读法：先读 `SPEC.md`（要做什么）→ 再读 `_index.yaml`（有哪些模块/计数）→ 再读 `palette.src.yaml`（手写能力）与 `palette.yaml`（含生成的直绑定；**不要手改**）。
 
 ## 三层用法
 
@@ -46,9 +47,9 @@
 1. 跑扫描：`npm run palette:scan-tokens`、`npm run palette:scan-anchors`
 2. 看 `coverage-gaps.md`：新增 token / 锚点 / 控件
 3. 有缺口 → 先补 `anchors.yaml`（人工确认置信度）或 `tokens.yaml`（自动）
-4. 新能力 → `palette.yaml` 加条目，只引用已有词表/值类型/原语
+4. 新能力 → `palette.src.yaml` 加条目（只引用已有词表/值类型/原语），跑 `python scripts/research/gen_palette_v5.py` 重新生成 `palette.yaml`
 5. 需要新类型/新原语 → 改 `values.yaml` / `primitives.yaml`，不改 palette 条目形状
-6. 跑门禁：`npm run palette:gate`（跨模块引用、计数、生成物一致性、版本对账）
+6. 跑门禁：`python scripts/research/palette-check.py`（跨模块引用、计数、生成物一致性、版本对账）
 7. 预览截图对比；升 `palette_version`（新增 +0.1.0，破坏性 +1.0.0）
 
 ## 版本策略
