@@ -68,9 +68,9 @@ modules:
     reviewed: true
     summary: DOM 锚点候选与控件清单（宿主私有选择器集中地）
 counts:
-  capabilities_authored: 28
+  capabilities_authored: 30
   capabilities_generated: 65
-  capabilities_unique: 392
+  capabilities_unique: 394
   controls: 12
   regions: 14
   roles: 27

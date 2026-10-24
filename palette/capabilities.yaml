@@ -861,4 +861,39 @@ capabilities:
         layer: component
         decl:
           background-color: $value
+  content.code.background:
+    kind: token
+    since: 3.0.0
+    tier: stable
+    tags:
+    - code
+    - markdown
+    - shiki
+    value: color
+    binds:
+    - token: --shiki-background
+    docs: 代码高亮背景色。宿主的 --shiki-background 在 :root 上引用 body 级别名，计算期为空；
+      由主题在 body 级直接写值即可补齐（shiki 运行时读计算值消费，CSS var() 扫描看不见，属探测盲区）。
+    probe: token_live(--shiki-background)
+    examples:
+    - value:
+        light: '#f6f8fa'
+        dark: '#161b22'
+  global.focus.ring.width:
+    kind: token
+    since: 3.0.0
+    tier: stable
+    tags:
+    - focus
+    - control
+    value: length
+    binds:
+    - token: --dsw-focus-ring-width
+    docs: 焦点环宽度（宿主 focus.css 声明默认 2px，消费方普遍带 fallback）。
+    probe: token_live(--dsw-focus-ring-width)
+    examples:
+    - value: 2px
+    - value:
+        light: 2px
+        dark: 3px
 extensions: {}

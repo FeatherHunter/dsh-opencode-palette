@@ -303,7 +303,32 @@ def zh_of(name, family, sub):
     return name
 
 
+def _load_doc_value_types():
+    """P1/P4 逐条表里的 value_type 比按族猜更准；有则优先用。"""
+    m = {}
+    for rel in ("color-ability-map.json", "noncolor-surface-map.json"):
+        p = os.path.join(ROOT, "docs", "research", rel)
+        if not os.path.exists(p):
+            continue
+        try:
+            data = json.load(open(p, encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        rows = data.get("rows") if isinstance(data, dict) else data
+        for r in rows or []:
+            n = r.get("token") or r.get("name")
+            vt = r.get("value_type")
+            if n and vt and n not in m:
+                m[n] = vt
+    return m
+
+
+DOC_VALUE_TYPES = _load_doc_value_types()
+
+
 def value_type(name, family):
+    if name in DOC_VALUE_TYPES:
+        return DOC_VALUE_TYPES[name]
     if family in ("shadow", "elevation"):
         return "shadow"
     if family in ("gradient", "linear"):
@@ -316,6 +341,8 @@ def value_type(name, family):
 
 
 def out_value_type(name, family):
+    if name in DOC_VALUE_TYPES:
+        return DOC_VALUE_TYPES[name]
     if family in ("shadow", "elevation"):
         return "shadow（多段阴影）"
     if family in ("gradient", "linear"):

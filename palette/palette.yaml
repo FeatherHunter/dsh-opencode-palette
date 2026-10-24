@@ -2185,6 +2185,44 @@ capabilities:
           background-color: $value
     exposure: 默认开放
     source: hand-authored
+  content.code.background:
+    kind: token
+    since: 3.0.0
+    tier: stable
+    tags:
+    - code
+    - markdown
+    - shiki
+    value: color
+    binds:
+    - token: --shiki-background
+    docs: 代码高亮背景色。宿主的 --shiki-background 在 :root 上引用 body 级别名，计算期为空； 由主题在 body 级直接写值即可补齐（shiki 运行时读计算值消费，CSS var() 扫描看不见，属探测盲区）。
+    probe: token_live(--shiki-background)
+    examples:
+    - value:
+        light: '#f6f8fa'
+        dark: '#161b22'
+    exposure: 默认开放
+    source: hand-authored
+  global.focus.ring.width:
+    kind: token
+    since: 3.0.0
+    tier: stable
+    tags:
+    - focus
+    - control
+    value: length
+    binds:
+    - token: --dsw-focus-ring-width
+    docs: 焦点环宽度（宿主 focus.css 声明默认 2px，消费方普遍带 fallback）。
+    probe: token_live(--dsw-focus-ring-width)
+    examples:
+    - value: 2px
+    - value:
+        light: 2px
+        dark: 3px
+    exposure: 默认开放
+    source: hand-authored
   global.surface.layer-1:
     since: 3.0.0
     kind: token
@@ -5096,7 +5134,7 @@ capabilities:
     - token:--dsw-gradient-onboarding-blue-stops
     binds:
     - token: --dsw-gradient-onboarding-blue-stops
-    value: color
+    value: gradient
   onboarding.gradient.cyan:
     since: 3.0.0
     kind: token
@@ -5110,7 +5148,7 @@ capabilities:
     - token:--dsw-gradient-onboarding-cyan-stops
     binds:
     - token: --dsw-gradient-onboarding-cyan-stops
-    value: color
+    value: gradient
   onboarding.gradient.violet:
     since: 3.0.0
     kind: token
@@ -5124,7 +5162,7 @@ capabilities:
     - token:--dsw-gradient-onboarding-violet-stops
     binds:
     - token: --dsw-gradient-onboarding-violet-stops
-    value: color
+    value: gradient
   effect.linear.gradient-think:
     since: 3.0.0
     kind: token
@@ -5138,7 +5176,7 @@ capabilities:
     - token:--dsw-linear-gradient-think
     binds:
     - token: --dsw-linear-gradient-think
-    value: color
+    value: gradient
   effect.linear.think-select:
     since: 3.0.0
     kind: token
@@ -5152,7 +5190,7 @@ capabilities:
     - token:--dsw-linear-think-select
     binds:
     - token: --dsw-linear-think-select
-    value: color
+    value: gradient
   global.focusRing:
     since: 3.0.0
     kind: effect
@@ -6280,7 +6318,7 @@ direct_bindings:
   token.dsw.alias-bg-layer-1:
     token: --dsw-alias-bg-layer-1
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6292,7 +6330,7 @@ direct_bindings:
   token.dsw.alias-bg-base:
     token: --dsw-alias-bg-base
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6304,7 +6342,7 @@ direct_bindings:
   token.dsw.alias-bg-module-platform:
     token: --dsw-alias-bg-module-platform
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6316,7 +6354,7 @@ direct_bindings:
   token.dsw.alias-bg-layer-2:
     token: --dsw-alias-bg-layer-2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6328,7 +6366,7 @@ direct_bindings:
   token.dsw.alias-bg-layer-3:
     token: --dsw-alias-bg-layer-3
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6340,7 +6378,7 @@ direct_bindings:
   token.dsw.alias-bg-skeleton:
     token: --dsw-alias-bg-skeleton
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6352,7 +6390,7 @@ direct_bindings:
   token.dsw.alias-bg-mask-1:
     token: --dsw-alias-bg-mask-1
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6364,7 +6402,7 @@ direct_bindings:
   token.dsw.alias-bg-document-preview:
     token: --dsw-alias-bg-document-preview
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6376,7 +6414,7 @@ direct_bindings:
   token.dsw.alias-bg-document-selection:
     token: --dsw-alias-bg-document-selection
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6388,7 +6426,7 @@ direct_bindings:
   token.dsw.alias-bg-mask-drop:
     token: --dsw-alias-bg-mask-drop
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6400,7 +6438,7 @@ direct_bindings:
   token.dsw.alias-bg-overlay:
     token: --dsw-alias-bg-overlay
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: live
     modifiers: []
     tier: stable
@@ -6412,7 +6450,7 @@ direct_bindings:
   token.dsw.alias-bg-mask-2:
     token: --dsw-alias-bg-mask-2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: dead
     modifiers: []
     tier: dead
@@ -6424,7 +6462,7 @@ direct_bindings:
   token.dsw.alias-bg-mask-3:
     token: --dsw-alias-bg-mask-3
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: dead
     modifiers: []
     tier: dead
@@ -6436,7 +6474,7 @@ direct_bindings:
   token.dsw.alias-bg-mask-photo:
     token: --dsw-alias-bg-mask-photo
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: dead
     modifiers: []
     tier: dead
@@ -6448,7 +6486,7 @@ direct_bindings:
   token.dsw.alias-bg-multi-select:
     token: --dsw-alias-bg-multi-select
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color / paint（背景类可放渐变或图片）
     status: dead
     modifiers: []
     tier: dead
@@ -6460,7 +6498,7 @@ direct_bindings:
   token.dsw.alias-label-primary:
     token: --dsw-alias-label-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6472,7 +6510,7 @@ direct_bindings:
   token.dsw.alias-label-tertiary:
     token: --dsw-alias-label-tertiary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6484,7 +6522,7 @@ direct_bindings:
   token.dsw.alias-label-secondary:
     token: --dsw-alias-label-secondary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6496,7 +6534,7 @@ direct_bindings:
   token.dsw.alias-label-caption:
     token: --dsw-alias-label-caption
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6508,7 +6546,7 @@ direct_bindings:
   token.dsw.alias-label-primary-inverted:
     token: --dsw-alias-label-primary-inverted
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6520,7 +6558,7 @@ direct_bindings:
   token.dsw.alias-label-dimmed:
     token: --dsw-alias-label-dimmed
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6532,7 +6570,7 @@ direct_bindings:
   token.dsw.alias-label-primary-foreground:
     token: --dsw-alias-label-primary-foreground
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6544,7 +6582,7 @@ direct_bindings:
   token.dsw.alias-label-primary-dimmed:
     token: --dsw-alias-label-primary-dimmed
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6556,7 +6594,7 @@ direct_bindings:
   token.dsw.alias-label-deep-diving:
     token: --dsw-alias-label-deep-diving
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6568,7 +6606,7 @@ direct_bindings:
   token.dsw.alias-label-deep-diving-shimmer:
     token: --dsw-alias-label-deep-diving-shimmer
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6580,7 +6618,7 @@ direct_bindings:
   token.dsw.alias-label-document-preview:
     token: --dsw-alias-label-document-preview
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6592,7 +6630,7 @@ direct_bindings:
   token.dsw.alias-label-primary-bluish:
     token: --dsw-alias-label-primary-bluish
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6604,7 +6642,7 @@ direct_bindings:
   token.dsw.alias-label-shimmer:
     token: --dsw-alias-label-shimmer
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6616,7 +6654,7 @@ direct_bindings:
   token.dsw.alias-state-business-primary:
     token: --dsw-alias-state-business-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6628,7 +6666,7 @@ direct_bindings:
   token.dsw.alias-state-error-primary:
     token: --dsw-alias-state-error-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6640,7 +6678,7 @@ direct_bindings:
   token.dsw.alias-state-success-primary:
     token: --dsw-alias-state-success-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6652,7 +6690,7 @@ direct_bindings:
   token.dsw.alias-state-warn-tertiary:
     token: --dsw-alias-state-warn-tertiary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6664,7 +6702,7 @@ direct_bindings:
   token.dsw.alias-state-warn-label:
     token: --dsw-alias-state-warn-label
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6676,7 +6714,7 @@ direct_bindings:
   token.dsw.alias-state-warn-primary:
     token: --dsw-alias-state-warn-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6688,7 +6726,7 @@ direct_bindings:
   token.dsw.alias-state-business-tertiary:
     token: --dsw-alias-state-business-tertiary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6700,7 +6738,7 @@ direct_bindings:
   token.dsw.alias-state-error-secondary:
     token: --dsw-alias-state-error-secondary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6712,7 +6750,7 @@ direct_bindings:
   token.dsw.alias-state-success-tertiary:
     token: --dsw-alias-state-success-tertiary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6724,7 +6762,7 @@ direct_bindings:
   token.dsw.alias-state-success-secondary:
     token: --dsw-alias-state-success-secondary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6736,7 +6774,7 @@ direct_bindings:
   token.dsw.alias-state-warn-secondary:
     token: --dsw-alias-state-warn-secondary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6748,7 +6786,7 @@ direct_bindings:
   token.dsw.alias-state-idle-primary:
     token: --dsw-alias-state-idle-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6760,7 +6798,7 @@ direct_bindings:
   token.dsw.alias-button-primary-fill:
     token: --dsw-alias-button-primary-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6772,7 +6810,7 @@ direct_bindings:
   token.dsw.alias-button-floating-hover:
     token: --dsw-alias-button-floating-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6784,7 +6822,7 @@ direct_bindings:
   token.dsw.alias-button-ghost-active-fill:
     token: --dsw-alias-button-ghost-active-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6796,7 +6834,7 @@ direct_bindings:
   token.dsw.alias-button-primary-hover:
     token: --dsw-alias-button-primary-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6808,7 +6846,7 @@ direct_bindings:
   token.dsw.alias-button-contrast-fill:
     token: --dsw-alias-button-contrast-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6820,7 +6858,7 @@ direct_bindings:
   token.dsw.alias-button-elevated-fill:
     token: --dsw-alias-button-elevated-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6832,7 +6870,7 @@ direct_bindings:
   token.dsw.alias-button-floating-fill:
     token: --dsw-alias-button-floating-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6844,7 +6882,7 @@ direct_bindings:
   token.dsw.alias-button-ghost-active-border:
     token: --dsw-alias-button-ghost-active-border
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6856,7 +6894,7 @@ direct_bindings:
   token.dsw.alias-button-info-fill:
     token: --dsw-alias-button-info-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6868,7 +6906,7 @@ direct_bindings:
   token.dsw.alias-button-info-hover:
     token: --dsw-alias-button-info-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6880,7 +6918,7 @@ direct_bindings:
   token.dsw.alias-button-tool-bar-fill:
     token: --dsw-alias-button-tool-bar-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6892,7 +6930,7 @@ direct_bindings:
   token.dsw.alias-button-tool-bar-hover:
     token: --dsw-alias-button-tool-bar-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6904,7 +6942,7 @@ direct_bindings:
   token.dsw.alias-button-ghost-active-hover:
     token: --dsw-alias-button-ghost-active-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -6916,7 +6954,7 @@ direct_bindings:
   token.dsw.alias-button-primary-dimmed:
     token: --dsw-alias-button-primary-dimmed
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -6928,7 +6966,7 @@ direct_bindings:
   token.dsw.alias-button-tool-bar-fill-invisible:
     token: --dsw-alias-button-tool-bar-fill-invisible
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -6940,7 +6978,7 @@ direct_bindings:
   token.dsw.alias-border-l2:
     token: --dsw-alias-border-l2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6952,7 +6990,7 @@ direct_bindings:
   token.dsw.alias-border-l3:
     token: --dsw-alias-border-l3
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6964,7 +7002,7 @@ direct_bindings:
   token.dsw.alias-border-l1:
     token: --dsw-alias-border-l1
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6976,7 +7014,7 @@ direct_bindings:
   token.dsw.alias-border-l4:
     token: --dsw-alias-border-l4
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -6988,7 +7026,7 @@ direct_bindings:
   token.dsw.alias-border-l2-darkmode-thin:
     token: --dsw-alias-border-l2-darkmode-thin
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7000,7 +7038,7 @@ direct_bindings:
   token.dsw.alias-border-inverted:
     token: --dsw-alias-border-inverted
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7012,7 +7050,7 @@ direct_bindings:
   token.dsw.alias-border-inverted2:
     token: --dsw-alias-border-inverted2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7024,7 +7062,7 @@ direct_bindings:
   token.dsw.alias-interactive-bg-hover:
     token: --dsw-alias-interactive-bg-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7036,7 +7074,7 @@ direct_bindings:
   token.dsw.alias-interactive-bg-hover-danger:
     token: --dsw-alias-interactive-bg-hover-danger
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7048,7 +7086,7 @@ direct_bindings:
   token.dsw.alias-interactive-bg-hover-solid:
     token: --dsw-alias-interactive-bg-hover-solid
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7060,7 +7098,7 @@ direct_bindings:
   token.dsw.alias-interactive-bg-active:
     token: --dsw-alias-interactive-bg-active
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7072,7 +7110,7 @@ direct_bindings:
   token.dsw.alias-interactive-bg-hover-accent:
     token: --dsw-alias-interactive-bg-hover-accent
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7084,7 +7122,7 @@ direct_bindings:
   token.dsw.alias-brand-primary-new-colorprimary-new-color:
     token: --dsw-alias-brand-primary-new-colorprimary-new-color
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7096,7 +7134,7 @@ direct_bindings:
   token.dsw.alias-brand-primary:
     token: --dsw-alias-brand-primary
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7108,7 +7146,7 @@ direct_bindings:
   token.dsw.alias-brand-primary-invert:
     token: --dsw-alias-brand-primary-invert
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7120,7 +7158,7 @@ direct_bindings:
   token.dsw.alias-brand-text:
     token: --dsw-alias-brand-text
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7132,7 +7170,7 @@ direct_bindings:
   token.dsw.alias-markdown-code-block:
     token: --dsw-alias-markdown-code-block
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7144,7 +7182,7 @@ direct_bindings:
   token.dsw.alias-markdown-code-block-banner:
     token: --dsw-alias-markdown-code-block-banner
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7156,7 +7194,7 @@ direct_bindings:
   token.dsw.alias-markdown-citation:
     token: --dsw-alias-markdown-citation
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7168,7 +7206,7 @@ direct_bindings:
   token.dsw.alias-markdown-inline-code:
     token: --dsw-alias-markdown-inline-code
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7180,7 +7218,7 @@ direct_bindings:
   token.dsw.alias-markdown-tag:
     token: --dsw-alias-markdown-tag
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7192,7 +7230,7 @@ direct_bindings:
   token.dsw.alias-markdown-code-segment-selected:
     token: --dsw-alias-markdown-code-segment-selected
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7204,7 +7242,7 @@ direct_bindings:
   token.dsw.alias-markdown-code-segment-unselected:
     token: --dsw-alias-markdown-code-segment-unselected
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7216,7 +7254,7 @@ direct_bindings:
   token.dsw.alias-markdown-placeholder:
     token: --dsw-alias-markdown-placeholder
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7228,7 +7266,7 @@ direct_bindings:
   token.dsw.alias-code-diff-added:
     token: --dsw-alias-code-diff-added
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7240,7 +7278,7 @@ direct_bindings:
   token.dsw.alias-code-diff-deleted:
     token: --dsw-alias-code-diff-deleted
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7252,7 +7290,7 @@ direct_bindings:
   token.dsw.alias-file-diff-added-bg:
     token: --dsw-alias-file-diff-added-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7264,7 +7302,7 @@ direct_bindings:
   token.dsw.alias-file-diff-added-gutter:
     token: --dsw-alias-file-diff-added-gutter
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7276,7 +7314,7 @@ direct_bindings:
   token.dsw.alias-file-diff-added-marker:
     token: --dsw-alias-file-diff-added-marker
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7288,7 +7326,7 @@ direct_bindings:
   token.dsw.alias-file-diff-deleted-bg:
     token: --dsw-alias-file-diff-deleted-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7300,7 +7338,7 @@ direct_bindings:
   token.dsw.alias-file-diff-deleted-gutter:
     token: --dsw-alias-file-diff-deleted-gutter
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7312,7 +7350,7 @@ direct_bindings:
   token.dsw.alias-file-diff-deleted-marker:
     token: --dsw-alias-file-diff-deleted-marker
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7324,7 +7362,7 @@ direct_bindings:
   token.dsw.alias-menu-icon:
     token: --dsw-alias-menu-icon
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7336,7 +7374,7 @@ direct_bindings:
   token.dsw.alias-menu-group-header-fill:
     token: --dsw-alias-menu-group-header-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7348,7 +7386,7 @@ direct_bindings:
   token.dsw.alias-scrollbar-bg-l2:
     token: --dsw-alias-scrollbar-bg-l2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7360,7 +7398,7 @@ direct_bindings:
   token.dsw.alias-scrollbar-hover-l2:
     token: --dsw-alias-scrollbar-hover-l2
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7372,7 +7410,7 @@ direct_bindings:
   token.dsw.alias-scrollbar-bg-l1:
     token: --dsw-alias-scrollbar-bg-l1
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7384,7 +7422,7 @@ direct_bindings:
   token.dsw.alias-scrollbar-hover-l1:
     token: --dsw-alias-scrollbar-hover-l1
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7396,7 +7434,7 @@ direct_bindings:
   token.dsw.alias-onboarding-accent:
     token: --dsw-alias-onboarding-accent
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7408,7 +7446,7 @@ direct_bindings:
   token.dsw.alias-onboarding-secondary-fill:
     token: --dsw-alias-onboarding-secondary-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7420,7 +7458,7 @@ direct_bindings:
   token.dsw.alias-onboarding-card-fill:
     token: --dsw-alias-onboarding-card-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7432,7 +7470,7 @@ direct_bindings:
   token.dsw.alias-onboarding-checkbox-border:
     token: --dsw-alias-onboarding-checkbox-border
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7444,7 +7482,7 @@ direct_bindings:
   token.dsw.alias-settings-card-fill:
     token: --dsw-alias-settings-card-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7456,7 +7494,7 @@ direct_bindings:
   token.dsw.alias-settings-card-stroke:
     token: --dsw-alias-settings-card-stroke
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7468,7 +7506,7 @@ direct_bindings:
   token.dsw.alias-tooltip-bg:
     token: --dsw-alias-tooltip-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7480,7 +7518,7 @@ direct_bindings:
   token.dsw.alias-tooltip-key-bg:
     token: --dsw-alias-tooltip-key-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7492,7 +7530,7 @@ direct_bindings:
   token.dsw.alias-toast-bg:
     token: --dsw-alias-toast-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7504,7 +7542,7 @@ direct_bindings:
   token.dsw.alias-toast-label:
     token: --dsw-alias-toast-label
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7516,7 +7554,7 @@ direct_bindings:
   token.dsw.alias-turn-trigger-bg:
     token: --dsw-alias-turn-trigger-bg
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7528,7 +7566,7 @@ direct_bindings:
   token.dsw.alias-turn-trigger-bg-hover:
     token: --dsw-alias-turn-trigger-bg-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7540,7 +7578,7 @@ direct_bindings:
   token.dsw.alias-link:
     token: --dsw-alias-link
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7552,7 +7590,7 @@ direct_bindings:
   token.dsw.alias-switch-thumb:
     token: --dsw-alias-switch-thumb
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7564,7 +7602,7 @@ direct_bindings:
   token.dsw.specific-menu:
     token: --dsw-specific-menu
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7576,7 +7614,7 @@ direct_bindings:
   token.dsw.specific-sidebar-fill:
     token: --dsw-specific-sidebar-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7588,7 +7626,7 @@ direct_bindings:
   token.dsw.specific-input-major:
     token: --dsw-specific-input-major
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7600,7 +7638,7 @@ direct_bindings:
   token.dsw.specific-bubble:
     token: --dsw-specific-bubble
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7612,7 +7650,7 @@ direct_bindings:
   token.dsw.specific-selector:
     token: --dsw-specific-selector
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7624,7 +7662,7 @@ direct_bindings:
   token.dsw.specific-sidebar-nav-item-active:
     token: --dsw-specific-sidebar-nav-item-active
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7636,7 +7674,7 @@ direct_bindings:
   token.dsw.specific-sidebar-nav-item-active-accent:
     token: --dsw-specific-sidebar-nav-item-active-accent
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7648,7 +7686,7 @@ direct_bindings:
   token.dsw.specific-sidebar-nav-item-hover:
     token: --dsw-specific-sidebar-nav-item-hover
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7660,7 +7698,7 @@ direct_bindings:
   token.dsw.specific-bubble-highlight:
     token: --dsw-specific-bubble-highlight
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7672,7 +7710,7 @@ direct_bindings:
   token.dsw.specific-login-input:
     token: --dsw-specific-login-input
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7684,7 +7722,7 @@ direct_bindings:
   token.dsw.specific-tip:
     token: --dsw-specific-tip
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: dead
     modifiers: []
     tier: dead
@@ -7696,7 +7734,7 @@ direct_bindings:
   token.shiki.background:
     token: --shiki-background
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7708,7 +7746,7 @@ direct_bindings:
   token.shiki.foreground:
     token: --shiki-foreground
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7720,7 +7758,7 @@ direct_bindings:
   token.shiki.token-comment:
     token: --shiki-token-comment
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7732,7 +7770,7 @@ direct_bindings:
   token.shiki.token-constant:
     token: --shiki-token-constant
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7744,7 +7782,7 @@ direct_bindings:
   token.shiki.token-function:
     token: --shiki-token-function
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7756,7 +7794,7 @@ direct_bindings:
   token.shiki.token-keyword:
     token: --shiki-token-keyword
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7768,7 +7806,7 @@ direct_bindings:
   token.shiki.token-link:
     token: --shiki-token-link
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7780,7 +7818,7 @@ direct_bindings:
   token.shiki.token-parameter:
     token: --shiki-token-parameter
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7792,7 +7830,7 @@ direct_bindings:
   token.shiki.token-punctuation:
     token: --shiki-token-punctuation
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7804,7 +7842,7 @@ direct_bindings:
   token.shiki.token-string:
     token: --shiki-token-string
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7816,7 +7854,7 @@ direct_bindings:
   token.shiki.token-string-expression:
     token: --shiki-token-string-expression
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -7828,7 +7866,7 @@ direct_bindings:
   token.dsw.static-blue-500:
     token: --dsw-static-blue-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7840,7 +7878,7 @@ direct_bindings:
   token.dsw.static-blue-950:
     token: --dsw-static-blue-950
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7852,7 +7890,7 @@ direct_bindings:
   token.dsw.static-blue-300:
     token: --dsw-static-blue-300
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7864,7 +7902,7 @@ direct_bindings:
   token.dsw.static-blue-400:
     token: --dsw-static-blue-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7876,7 +7914,7 @@ direct_bindings:
   token.dsw.static-blue-450:
     token: --dsw-static-blue-450
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7888,7 +7926,7 @@ direct_bindings:
   token.dsw.static-blue-600:
     token: --dsw-static-blue-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7900,7 +7938,7 @@ direct_bindings:
   token.dsw.static-blue-900:
     token: --dsw-static-blue-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7912,7 +7950,7 @@ direct_bindings:
   token.dsw.static-blue-100:
     token: --dsw-static-blue-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -7924,7 +7962,7 @@ direct_bindings:
   token.dsw.static-blue-50:
     token: --dsw-static-blue-50
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -7936,7 +7974,7 @@ direct_bindings:
   token.dsw.static-blue-50p:
     token: --dsw-static-blue-50p
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -7948,7 +7986,7 @@ direct_bindings:
   token.dsw.static-blue-75:
     token: --dsw-static-blue-75
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -7960,7 +7998,7 @@ direct_bindings:
   token.dsw.static-blue-800:
     token: --dsw-static-blue-800
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -7972,7 +8010,7 @@ direct_bindings:
   token.dsw.static-deepseek-500:
     token: --dsw-static-deepseek-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7984,7 +8022,7 @@ direct_bindings:
   token.dsw.static-deepseek-400:
     token: --dsw-static-deepseek-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -7996,7 +8034,7 @@ direct_bindings:
   token.dsw.static-deepseek-450:
     token: --dsw-static-deepseek-450
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8008,7 +8046,7 @@ direct_bindings:
   token.dsw.static-deepseek-100:
     token: --dsw-static-deepseek-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8020,7 +8058,7 @@ direct_bindings:
   token.dsw.static-deepseek-200:
     token: --dsw-static-deepseek-200
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8032,7 +8070,7 @@ direct_bindings:
   token.dsw.static-deepseek-50:
     token: --dsw-static-deepseek-50
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8044,7 +8082,7 @@ direct_bindings:
   token.dsw.static-deepseek-800:
     token: --dsw-static-deepseek-800
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8056,7 +8094,7 @@ direct_bindings:
   token.dsw.static-deepseek-300:
     token: --dsw-static-deepseek-300
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8068,7 +8106,7 @@ direct_bindings:
   token.dsw.static-deepseek-600:
     token: --dsw-static-deepseek-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8080,7 +8118,7 @@ direct_bindings:
   token.dsw.static-deepseek-700-delete:
     token: --dsw-static-deepseek-700-delete
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8092,7 +8130,7 @@ direct_bindings:
   token.dsw.static-deepseek-900:
     token: --dsw-static-deepseek-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8104,7 +8142,7 @@ direct_bindings:
   token.dsw.static-green-500:
     token: --dsw-static-green-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8116,7 +8154,7 @@ direct_bindings:
   token.dsw.static-green-400:
     token: --dsw-static-green-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8128,7 +8166,7 @@ direct_bindings:
   token.dsw.static-green-100:
     token: --dsw-static-green-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8140,7 +8178,7 @@ direct_bindings:
   token.dsw.static-green-500-a08:
     token: --dsw-static-green-500-a08
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8152,7 +8190,7 @@ direct_bindings:
   token.dsw.static-green-500-a12:
     token: --dsw-static-green-500-a12
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8164,7 +8202,7 @@ direct_bindings:
   token.dsw.static-green-900:
     token: --dsw-static-green-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8176,7 +8214,7 @@ direct_bindings:
   token.dsw.static-amber-400:
     token: --dsw-static-amber-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8188,7 +8226,7 @@ direct_bindings:
   token.dsw.static-amber-500:
     token: --dsw-static-amber-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8200,7 +8238,7 @@ direct_bindings:
   token.dsw.static-amber-600:
     token: --dsw-static-amber-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8212,7 +8250,7 @@ direct_bindings:
   token.dsw.static-amber-100:
     token: --dsw-static-amber-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8224,7 +8262,7 @@ direct_bindings:
   token.dsw.static-amber-900:
     token: --dsw-static-amber-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8236,7 +8274,7 @@ direct_bindings:
   token.dsw.static-neutral-00:
     token: --dsw-static-neutral-00
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8248,7 +8286,7 @@ direct_bindings:
   token.dsw.static-neutral-50:
     token: --dsw-static-neutral-50
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8260,7 +8298,7 @@ direct_bindings:
   token.dsw.static-neutral-800:
     token: --dsw-static-neutral-800
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8272,7 +8310,7 @@ direct_bindings:
   token.dsw.static-neutral-850:
     token: --dsw-static-neutral-850
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8284,7 +8322,7 @@ direct_bindings:
   token.dsw.static-neutral-100:
     token: --dsw-static-neutral-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8296,7 +8334,7 @@ direct_bindings:
   token.dsw.static-neutral-200:
     token: --dsw-static-neutral-200
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8308,7 +8346,7 @@ direct_bindings:
   token.dsw.static-neutral-300:
     token: --dsw-static-neutral-300
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8320,7 +8358,7 @@ direct_bindings:
   token.dsw.static-neutral-600:
     token: --dsw-static-neutral-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8332,7 +8370,7 @@ direct_bindings:
   token.dsw.static-neutral-700:
     token: --dsw-static-neutral-700
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8344,7 +8382,7 @@ direct_bindings:
   token.dsw.static-neutral-1000:
     token: --dsw-static-neutral-1000
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8356,7 +8394,7 @@ direct_bindings:
   token.dsw.static-neutral-400:
     token: --dsw-static-neutral-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8368,7 +8406,7 @@ direct_bindings:
   token.dsw.static-neutral-550:
     token: --dsw-static-neutral-550
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8380,7 +8418,7 @@ direct_bindings:
   token.dsw.static-neutral-150:
     token: --dsw-static-neutral-150
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8392,7 +8430,7 @@ direct_bindings:
   token.dsw.static-neutral-250:
     token: --dsw-static-neutral-250
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8404,7 +8442,7 @@ direct_bindings:
   token.dsw.static-neutral-500:
     token: --dsw-static-neutral-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8416,7 +8454,7 @@ direct_bindings:
   token.dsw.static-neutral-900:
     token: --dsw-static-neutral-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8428,7 +8466,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-00:
     token: --dsw-static-neutral-bluish-00
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8440,7 +8478,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-800:
     token: --dsw-static-neutral-bluish-800
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8452,7 +8490,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-50:
     token: --dsw-static-neutral-bluish-50
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8464,7 +8502,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-850:
     token: --dsw-static-neutral-bluish-850
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8476,7 +8514,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-750:
     token: --dsw-static-neutral-bluish-750
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8488,7 +8526,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-100:
     token: --dsw-static-neutral-bluish-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8500,7 +8538,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-400:
     token: --dsw-static-neutral-bluish-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8512,7 +8550,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-1000:
     token: --dsw-static-neutral-bluish-1000
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8524,7 +8562,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-60:
     token: --dsw-static-neutral-bluish-60
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8536,7 +8574,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-700:
     token: --dsw-static-neutral-bluish-700
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8548,7 +8586,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-75:
     token: --dsw-static-neutral-bluish-75
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8560,7 +8598,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-900:
     token: --dsw-static-neutral-bluish-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8572,7 +8610,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-300:
     token: --dsw-static-neutral-bluish-300
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8584,7 +8622,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-600:
     token: --dsw-static-neutral-bluish-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8596,7 +8634,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-950:
     token: --dsw-static-neutral-bluish-950
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8608,7 +8646,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-150:
     token: --dsw-static-neutral-bluish-150
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8620,7 +8658,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-200:
     token: --dsw-static-neutral-bluish-200
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8632,7 +8670,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-500:
     token: --dsw-static-neutral-bluish-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8644,7 +8682,7 @@ direct_bindings:
   token.dsw.static-neutral-bluish-875:
     token: --dsw-static-neutral-bluish-875
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8656,7 +8694,7 @@ direct_bindings:
   token.dsw.static-red-400:
     token: --dsw-static-red-400
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8668,7 +8706,7 @@ direct_bindings:
   token.dsw.static-red-600:
     token: --dsw-static-red-600
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8680,7 +8718,7 @@ direct_bindings:
   token.dsw.static-red-400-a12:
     token: --dsw-static-red-400-a12
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8692,7 +8730,7 @@ direct_bindings:
   token.dsw.static-red-600-a08:
     token: --dsw-static-red-600-a08
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: live
     modifiers: []
     tier: advanced
@@ -8704,7 +8742,7 @@ direct_bindings:
   token.dsw.static-red-100:
     token: --dsw-static-red-100
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8716,7 +8754,7 @@ direct_bindings:
   token.dsw.static-red-50:
     token: --dsw-static-red-50
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8728,7 +8766,7 @@ direct_bindings:
   token.dsw.static-red-500:
     token: --dsw-static-red-500
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8740,7 +8778,7 @@ direct_bindings:
   token.dsw.static-red-900:
     token: --dsw-static-red-900
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color（原子 hex）
     status: dead
     modifiers: []
     tier: dead
@@ -8752,7 +8790,7 @@ direct_bindings:
   token.dsw.focus-ring-color:
     token: --dsw-focus-ring-color
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -8764,7 +8802,7 @@ direct_bindings:
   token.dsw.menu-surface-fill:
     token: --dsw-menu-surface-fill
     value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type_note: color
     status: live
     modifiers: []
     tier: stable
@@ -8775,8 +8813,8 @@ direct_bindings:
     docs: 菜单表面填充（材质层）
   token.dsw.menu-backdrop-filter:
     token: --dsw-menu-backdrop-filter
-    value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type: filter
+    value_type_note: filter（blur 等）
     status: live
     modifiers: []
     tier: stable
@@ -8788,7 +8826,7 @@ direct_bindings:
   token.dsw.shadow-lv3:
     token: --dsw-shadow-lv3
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers: []
     tier: stable
@@ -8800,7 +8838,7 @@ direct_bindings:
   token.dsw.shadow-lv2:
     token: --dsw-shadow-lv2
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers: []
     tier: stable
@@ -8812,7 +8850,7 @@ direct_bindings:
   token.dsw.shadow-lv1:
     token: --dsw-shadow-lv1
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: dead
     modifiers: []
     tier: dead
@@ -8824,7 +8862,7 @@ direct_bindings:
   token.dsw.shadow-lv1-blur:
     token: --dsw-shadow-lv1-blur
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: dead
     modifiers: []
     tier: dead
@@ -8836,7 +8874,7 @@ direct_bindings:
   token.dsw.elevation-prominent:
     token: --dsw-elevation-prominent
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers:
     - gated
@@ -8849,7 +8887,7 @@ direct_bindings:
   token.dsw.elevation-panel:
     token: --dsw-elevation-panel
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers:
     - gated
@@ -8862,7 +8900,7 @@ direct_bindings:
   token.dsw.elevation-stroke:
     token: --dsw-elevation-stroke
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers:
     - gated
@@ -8875,7 +8913,7 @@ direct_bindings:
   token.dsw.elevation-soft:
     token: --dsw-elevation-soft
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers:
     - gated
@@ -8888,7 +8926,7 @@ direct_bindings:
   token.dsw.elevation-stroke-color:
     token: --dsw-elevation-stroke-color
     value_type: shadow
-    value_type_note: shadow（多段阴影）
+    value_type_note: shadow（box-shadow 值）
     status: live
     modifiers:
     - gated
@@ -8900,8 +8938,8 @@ direct_bindings:
     docs: 材质阴影：stroke-color
   token.dsw.gradient-onboarding-blue-stops:
     token: --dsw-gradient-onboarding-blue-stops
-    value_type: color
-    value_type_note: 渐变（颜色停滞）
+    value_type: gradient
+    value_type_note: gradient（色标/线性渐变）
     status: live
     modifiers: []
     tier: stable
@@ -8912,8 +8950,8 @@ direct_bindings:
     docs: 渐变：onboarding-blue 色标
   token.dsw.gradient-onboarding-cyan-stops:
     token: --dsw-gradient-onboarding-cyan-stops
-    value_type: color
-    value_type_note: 渐变（颜色停滞）
+    value_type: gradient
+    value_type_note: gradient（色标/线性渐变）
     status: live
     modifiers: []
     tier: stable
@@ -8924,8 +8962,8 @@ direct_bindings:
     docs: 渐变：onboarding-cyan 色标
   token.dsw.gradient-onboarding-violet-stops:
     token: --dsw-gradient-onboarding-violet-stops
-    value_type: color
-    value_type_note: 渐变（颜色停滞）
+    value_type: gradient
+    value_type_note: gradient（色标/线性渐变）
     status: live
     modifiers: []
     tier: stable
@@ -8936,8 +8974,8 @@ direct_bindings:
     docs: 渐变：onboarding-violet 色标
   token.dsw.linear-gradient-think:
     token: --dsw-linear-gradient-think
-    value_type: color
-    value_type_note: 渐变（颜色停滞）
+    value_type: gradient
+    value_type_note: gradient（色标/线性渐变）
     status: dead
     modifiers: []
     tier: dead
@@ -8948,8 +8986,8 @@ direct_bindings:
     docs: 线性渐变：gradient-think
   token.dsw.linear-think-select:
     token: --dsw-linear-think-select
-    value_type: color
-    value_type_note: 渐变（颜色停滞）
+    value_type: gradient
+    value_type_note: gradient（色标/线性渐变）
     status: dead
     modifiers: []
     tier: dead
@@ -8961,7 +8999,7 @@ direct_bindings:
   token.dsw.font-family:
     token: --dsw-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: live
     modifiers: []
     tier: stable
@@ -8973,7 +9011,7 @@ direct_bindings:
   token.dsw.font-xs-13:
     token: --dsw-font-xs-13
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -8985,7 +9023,7 @@ direct_bindings:
   token.dsw.font-xxs-12:
     token: --dsw-font-xxs-12
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -8997,7 +9035,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block:
     token: --dsw-font-markdown-code-block
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9009,7 +9047,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small:
     token: --dsw-font-markdown-code-block-small
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9021,7 +9059,7 @@ direct_bindings:
   token.dsw.font-family-brand:
     token: --dsw-font-family-brand
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: live
     modifiers: []
     tier: stable
@@ -9033,7 +9071,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13:
     token: --dsw-font-xs-strong-13
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9045,7 +9083,7 @@ direct_bindings:
   token.dsw.font-xxxs-11:
     token: --dsw-font-xxxs-11
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9057,7 +9095,7 @@ direct_bindings:
   token.dsw.font-l-20:
     token: --dsw-font-l-20
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9069,7 +9107,7 @@ direct_bindings:
   token.dsw.font-markdown-base:
     token: --dsw-font-markdown-base
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9081,7 +9119,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong:
     token: --dsw-font-markdown-base-strong
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9093,7 +9131,7 @@ direct_bindings:
   token.dsw.font-markdown-code:
     token: --dsw-font-markdown-code
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9105,7 +9143,7 @@ direct_bindings:
   token.dsw.font-markdown-code-font-family:
     token: --dsw-font-markdown-code-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: live
     modifiers: []
     tier: stable
@@ -9117,7 +9155,7 @@ direct_bindings:
   token.dsw.font-markdown-h1:
     token: --dsw-font-markdown-h1
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9129,7 +9167,7 @@ direct_bindings:
   token.dsw.font-markdown-h2:
     token: --dsw-font-markdown-h2
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9141,7 +9179,7 @@ direct_bindings:
   token.dsw.font-markdown-h3:
     token: --dsw-font-markdown-h3
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9153,7 +9191,7 @@ direct_bindings:
   token.dsw.font-markdown-h4:
     token: --dsw-font-markdown-h4
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9165,7 +9203,7 @@ direct_bindings:
   token.dsw.font-markdown-small:
     token: --dsw-font-markdown-small
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9177,7 +9215,7 @@ direct_bindings:
   token.dsw.font-markdown-table:
     token: --dsw-font-markdown-table
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9189,7 +9227,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head:
     token: --dsw-font-markdown-table-head
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9201,7 +9239,7 @@ direct_bindings:
   token.dsw.font-s-14:
     token: --dsw-font-s-14
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: live
     modifiers: []
     tier: stable
@@ -9213,7 +9251,7 @@ direct_bindings:
   token.dsw.font-markdown-base-font-size:
     token: --dsw-font-markdown-base-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9225,7 +9263,7 @@ direct_bindings:
   token.dsw.font-markdown-base-line-height:
     token: --dsw-font-markdown-base-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9237,7 +9275,7 @@ direct_bindings:
   token.dsw.font-markdown-h1-font-size:
     token: --dsw-font-markdown-h1-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9249,7 +9287,7 @@ direct_bindings:
   token.dsw.font-markdown-h1-line-height:
     token: --dsw-font-markdown-h1-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9261,7 +9299,7 @@ direct_bindings:
   token.dsw.font-markdown-h2-font-size:
     token: --dsw-font-markdown-h2-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9273,7 +9311,7 @@ direct_bindings:
   token.dsw.font-markdown-h2-line-height:
     token: --dsw-font-markdown-h2-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9285,7 +9323,7 @@ direct_bindings:
   token.dsw.font-markdown-h3-font-size:
     token: --dsw-font-markdown-h3-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9297,7 +9335,7 @@ direct_bindings:
   token.dsw.font-markdown-h3-line-height:
     token: --dsw-font-markdown-h3-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9309,7 +9347,7 @@ direct_bindings:
   token.dsw.font-markdown-small-font-size:
     token: --dsw-font-markdown-small-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9321,7 +9359,7 @@ direct_bindings:
   token.dsw.font-markdown-small-line-height:
     token: --dsw-font-markdown-small-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: live
     modifiers: []
     tier: stable
@@ -9333,7 +9371,7 @@ direct_bindings:
   token.dsw.font-base-16:
     token: --dsw-font-base-16
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -9345,7 +9383,7 @@ direct_bindings:
   token.dsw.font-base-16-font-family:
     token: --dsw-font-base-16-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9357,7 +9395,7 @@ direct_bindings:
   token.dsw.font-base-16-font-size:
     token: --dsw-font-base-16-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9369,7 +9407,7 @@ direct_bindings:
   token.dsw.font-base-16-font-style:
     token: --dsw-font-base-16-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9381,7 +9419,7 @@ direct_bindings:
   token.dsw.font-base-16-font-weight:
     token: --dsw-font-base-16-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9393,7 +9431,7 @@ direct_bindings:
   token.dsw.font-base-16-line-height:
     token: --dsw-font-base-16-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9405,7 +9443,7 @@ direct_bindings:
   token.dsw.font-base-strong-16:
     token: --dsw-font-base-strong-16
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -9417,7 +9455,7 @@ direct_bindings:
   token.dsw.font-base-strong-16-font-family:
     token: --dsw-font-base-strong-16-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9429,7 +9467,7 @@ direct_bindings:
   token.dsw.font-base-strong-16-font-size:
     token: --dsw-font-base-strong-16-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9441,7 +9479,7 @@ direct_bindings:
   token.dsw.font-base-strong-16-font-style:
     token: --dsw-font-base-strong-16-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9453,7 +9491,7 @@ direct_bindings:
   token.dsw.font-base-strong-16-font-weight:
     token: --dsw-font-base-strong-16-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9465,7 +9503,7 @@ direct_bindings:
   token.dsw.font-base-strong-16-line-height:
     token: --dsw-font-base-strong-16-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9477,7 +9515,7 @@ direct_bindings:
   token.dsw.font-l-20-font-family:
     token: --dsw-font-l-20-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9489,7 +9527,7 @@ direct_bindings:
   token.dsw.font-l-20-font-size:
     token: --dsw-font-l-20-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9501,7 +9539,7 @@ direct_bindings:
   token.dsw.font-l-20-font-style:
     token: --dsw-font-l-20-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9513,7 +9551,7 @@ direct_bindings:
   token.dsw.font-l-20-font-weight:
     token: --dsw-font-l-20-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9525,7 +9563,7 @@ direct_bindings:
   token.dsw.font-l-20-line-height:
     token: --dsw-font-l-20-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9537,7 +9575,7 @@ direct_bindings:
   token.dsw.font-m-18:
     token: --dsw-font-m-18
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -9549,7 +9587,7 @@ direct_bindings:
   token.dsw.font-m-18-font-family:
     token: --dsw-font-m-18-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9561,7 +9599,7 @@ direct_bindings:
   token.dsw.font-m-18-font-size:
     token: --dsw-font-m-18-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9573,7 +9611,7 @@ direct_bindings:
   token.dsw.font-m-18-font-style:
     token: --dsw-font-m-18-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9585,7 +9623,7 @@ direct_bindings:
   token.dsw.font-m-18-font-weight:
     token: --dsw-font-m-18-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9597,7 +9635,7 @@ direct_bindings:
   token.dsw.font-m-18-line-height:
     token: --dsw-font-m-18-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9609,7 +9647,7 @@ direct_bindings:
   token.dsw.font-markdown-base-font-family:
     token: --dsw-font-markdown-base-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9621,7 +9659,7 @@ direct_bindings:
   token.dsw.font-markdown-base-font-style:
     token: --dsw-font-markdown-base-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9633,7 +9671,7 @@ direct_bindings:
   token.dsw.font-markdown-base-font-weight:
     token: --dsw-font-markdown-base-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9645,7 +9683,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic:
     token: --dsw-font-markdown-base-italic
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -9657,7 +9695,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic-font-family:
     token: --dsw-font-markdown-base-italic-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9669,7 +9707,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic-font-size:
     token: --dsw-font-markdown-base-italic-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9681,7 +9719,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic-font-style:
     token: --dsw-font-markdown-base-italic-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9693,7 +9731,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic-font-weight:
     token: --dsw-font-markdown-base-italic-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9705,7 +9743,7 @@ direct_bindings:
   token.dsw.font-markdown-base-italic-line-height:
     token: --dsw-font-markdown-base-italic-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9717,7 +9755,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-font-family:
     token: --dsw-font-markdown-base-strong-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9729,7 +9767,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-font-size:
     token: --dsw-font-markdown-base-strong-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9741,7 +9779,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-font-style:
     token: --dsw-font-markdown-base-strong-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9753,7 +9791,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-font-weight:
     token: --dsw-font-markdown-base-strong-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9765,7 +9803,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic:
     token: --dsw-font-markdown-base-strong-italic
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -9777,7 +9815,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic-font-family:
     token: --dsw-font-markdown-base-strong-italic-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9789,7 +9827,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic-font-size:
     token: --dsw-font-markdown-base-strong-italic-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9801,7 +9839,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic-font-style:
     token: --dsw-font-markdown-base-strong-italic-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9813,7 +9851,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic-font-weight:
     token: --dsw-font-markdown-base-strong-italic-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9825,7 +9863,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-italic-line-height:
     token: --dsw-font-markdown-base-strong-italic-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9837,7 +9875,7 @@ direct_bindings:
   token.dsw.font-markdown-base-strong-line-height:
     token: --dsw-font-markdown-base-strong-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9849,7 +9887,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-font-family:
     token: --dsw-font-markdown-code-block-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9861,7 +9899,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-font-size:
     token: --dsw-font-markdown-code-block-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9873,7 +9911,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-font-style:
     token: --dsw-font-markdown-code-block-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9885,7 +9923,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-font-weight:
     token: --dsw-font-markdown-code-block-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9897,7 +9935,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-line-height:
     token: --dsw-font-markdown-code-block-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9909,7 +9947,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small-font-family:
     token: --dsw-font-markdown-code-block-small-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -9921,7 +9959,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small-font-size:
     token: --dsw-font-markdown-code-block-small-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9933,7 +9971,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small-font-style:
     token: --dsw-font-markdown-code-block-small-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9945,7 +9983,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small-font-weight:
     token: --dsw-font-markdown-code-block-small-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -9957,7 +9995,7 @@ direct_bindings:
   token.dsw.font-markdown-code-block-small-line-height:
     token: --dsw-font-markdown-code-block-small-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9969,7 +10007,7 @@ direct_bindings:
   token.dsw.font-markdown-code-font-size:
     token: --dsw-font-markdown-code-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -9981,7 +10019,7 @@ direct_bindings:
   token.dsw.font-markdown-code-font-style:
     token: --dsw-font-markdown-code-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -9993,7 +10031,7 @@ direct_bindings:
   token.dsw.font-markdown-code-font-weight:
     token: --dsw-font-markdown-code-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10005,7 +10043,7 @@ direct_bindings:
   token.dsw.font-markdown-code-line-height:
     token: --dsw-font-markdown-code-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10017,7 +10055,7 @@ direct_bindings:
   token.dsw.font-markdown-h1-font-family:
     token: --dsw-font-markdown-h1-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10029,7 +10067,7 @@ direct_bindings:
   token.dsw.font-markdown-h1-font-style:
     token: --dsw-font-markdown-h1-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10041,7 +10079,7 @@ direct_bindings:
   token.dsw.font-markdown-h1-font-weight:
     token: --dsw-font-markdown-h1-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10053,7 +10091,7 @@ direct_bindings:
   token.dsw.font-markdown-h2-font-family:
     token: --dsw-font-markdown-h2-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10065,7 +10103,7 @@ direct_bindings:
   token.dsw.font-markdown-h2-font-style:
     token: --dsw-font-markdown-h2-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10077,7 +10115,7 @@ direct_bindings:
   token.dsw.font-markdown-h2-font-weight:
     token: --dsw-font-markdown-h2-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10089,7 +10127,7 @@ direct_bindings:
   token.dsw.font-markdown-h3-font-family:
     token: --dsw-font-markdown-h3-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10101,7 +10139,7 @@ direct_bindings:
   token.dsw.font-markdown-h3-font-style:
     token: --dsw-font-markdown-h3-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10113,7 +10151,7 @@ direct_bindings:
   token.dsw.font-markdown-h3-font-weight:
     token: --dsw-font-markdown-h3-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10125,7 +10163,7 @@ direct_bindings:
   token.dsw.font-markdown-h4-font-family:
     token: --dsw-font-markdown-h4-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10137,7 +10175,7 @@ direct_bindings:
   token.dsw.font-markdown-h4-font-size:
     token: --dsw-font-markdown-h4-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10149,7 +10187,7 @@ direct_bindings:
   token.dsw.font-markdown-h4-font-style:
     token: --dsw-font-markdown-h4-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10161,7 +10199,7 @@ direct_bindings:
   token.dsw.font-markdown-h4-font-weight:
     token: --dsw-font-markdown-h4-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10173,7 +10211,7 @@ direct_bindings:
   token.dsw.font-markdown-h4-line-height:
     token: --dsw-font-markdown-h4-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10185,7 +10223,7 @@ direct_bindings:
   token.dsw.font-markdown-small-font-family:
     token: --dsw-font-markdown-small-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10197,7 +10235,7 @@ direct_bindings:
   token.dsw.font-markdown-small-font-style:
     token: --dsw-font-markdown-small-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10209,7 +10247,7 @@ direct_bindings:
   token.dsw.font-markdown-small-font-weight:
     token: --dsw-font-markdown-small-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10221,7 +10259,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic:
     token: --dsw-font-markdown-small-italic
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10233,7 +10271,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic-font-family:
     token: --dsw-font-markdown-small-italic-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10245,7 +10283,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic-font-size:
     token: --dsw-font-markdown-small-italic-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10257,7 +10295,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic-font-style:
     token: --dsw-font-markdown-small-italic-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10269,7 +10307,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic-font-weight:
     token: --dsw-font-markdown-small-italic-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10281,7 +10319,7 @@ direct_bindings:
   token.dsw.font-markdown-small-italic-line-height:
     token: --dsw-font-markdown-small-italic-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10293,7 +10331,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong:
     token: --dsw-font-markdown-small-strong
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10305,7 +10343,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-font-family:
     token: --dsw-font-markdown-small-strong-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10317,7 +10355,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-font-size:
     token: --dsw-font-markdown-small-strong-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10329,7 +10367,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-font-style:
     token: --dsw-font-markdown-small-strong-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10341,7 +10379,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-font-weight:
     token: --dsw-font-markdown-small-strong-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10353,7 +10391,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic:
     token: --dsw-font-markdown-small-strong-italic
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10365,7 +10403,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic-font-family:
     token: --dsw-font-markdown-small-strong-italic-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10377,7 +10415,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic-font-size:
     token: --dsw-font-markdown-small-strong-italic-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10389,7 +10427,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic-font-style:
     token: --dsw-font-markdown-small-strong-italic-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10401,7 +10439,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic-font-weight:
     token: --dsw-font-markdown-small-strong-italic-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10413,7 +10451,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-italic-line-height:
     token: --dsw-font-markdown-small-strong-italic-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10425,7 +10463,7 @@ direct_bindings:
   token.dsw.font-markdown-small-strong-line-height:
     token: --dsw-font-markdown-small-strong-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10437,7 +10475,7 @@ direct_bindings:
   token.dsw.font-markdown-table-font-family:
     token: --dsw-font-markdown-table-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10449,7 +10487,7 @@ direct_bindings:
   token.dsw.font-markdown-table-font-size:
     token: --dsw-font-markdown-table-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10461,7 +10499,7 @@ direct_bindings:
   token.dsw.font-markdown-table-font-style:
     token: --dsw-font-markdown-table-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10473,7 +10511,7 @@ direct_bindings:
   token.dsw.font-markdown-table-font-weight:
     token: --dsw-font-markdown-table-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10485,7 +10523,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head-font-family:
     token: --dsw-font-markdown-table-head-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10497,7 +10535,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head-font-size:
     token: --dsw-font-markdown-table-head-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10509,7 +10547,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head-font-style:
     token: --dsw-font-markdown-table-head-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10521,7 +10559,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head-font-weight:
     token: --dsw-font-markdown-table-head-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10533,7 +10571,7 @@ direct_bindings:
   token.dsw.font-markdown-table-head-line-height:
     token: --dsw-font-markdown-table-head-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10545,7 +10583,7 @@ direct_bindings:
   token.dsw.font-markdown-table-line-height:
     token: --dsw-font-markdown-table-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10557,7 +10595,7 @@ direct_bindings:
   token.dsw.font-s-14-font-family:
     token: --dsw-font-s-14-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10569,7 +10607,7 @@ direct_bindings:
   token.dsw.font-s-14-font-size:
     token: --dsw-font-s-14-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10581,7 +10619,7 @@ direct_bindings:
   token.dsw.font-s-14-font-style:
     token: --dsw-font-s-14-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10593,7 +10631,7 @@ direct_bindings:
   token.dsw.font-s-14-font-weight:
     token: --dsw-font-s-14-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10605,7 +10643,7 @@ direct_bindings:
   token.dsw.font-s-14-line-height:
     token: --dsw-font-s-14-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10617,7 +10655,7 @@ direct_bindings:
   token.dsw.font-s-strong-14:
     token: --dsw-font-s-strong-14
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10629,7 +10667,7 @@ direct_bindings:
   token.dsw.font-s-strong-14-font-family:
     token: --dsw-font-s-strong-14-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10641,7 +10679,7 @@ direct_bindings:
   token.dsw.font-s-strong-14-font-size:
     token: --dsw-font-s-strong-14-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10653,7 +10691,7 @@ direct_bindings:
   token.dsw.font-s-strong-14-font-style:
     token: --dsw-font-s-strong-14-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10665,7 +10703,7 @@ direct_bindings:
   token.dsw.font-s-strong-14-font-weight:
     token: --dsw-font-s-strong-14-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10677,7 +10715,7 @@ direct_bindings:
   token.dsw.font-s-strong-14-line-height:
     token: --dsw-font-s-strong-14-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10689,7 +10727,7 @@ direct_bindings:
   token.dsw.font-xl-24:
     token: --dsw-font-xl-24
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10701,7 +10739,7 @@ direct_bindings:
   token.dsw.font-xl-24-font-family:
     token: --dsw-font-xl-24-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10713,7 +10751,7 @@ direct_bindings:
   token.dsw.font-xl-24-font-size:
     token: --dsw-font-xl-24-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10725,7 +10763,7 @@ direct_bindings:
   token.dsw.font-xl-24-font-style:
     token: --dsw-font-xl-24-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10737,7 +10775,7 @@ direct_bindings:
   token.dsw.font-xl-24-font-weight:
     token: --dsw-font-xl-24-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10749,7 +10787,7 @@ direct_bindings:
   token.dsw.font-xl-24-line-height:
     token: --dsw-font-xl-24-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10761,7 +10799,7 @@ direct_bindings:
   token.dsw.font-xs-13-font-family:
     token: --dsw-font-xs-13-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10773,7 +10811,7 @@ direct_bindings:
   token.dsw.font-xs-13-font-size:
     token: --dsw-font-xs-13-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10785,7 +10823,7 @@ direct_bindings:
   token.dsw.font-xs-13-font-style:
     token: --dsw-font-xs-13-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10797,7 +10835,7 @@ direct_bindings:
   token.dsw.font-xs-13-font-weight:
     token: --dsw-font-xs-13-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10809,7 +10847,7 @@ direct_bindings:
   token.dsw.font-xs-13-line-height:
     token: --dsw-font-xs-13-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10821,7 +10859,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13-font-family:
     token: --dsw-font-xs-strong-13-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10833,7 +10871,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13-font-size:
     token: --dsw-font-xs-strong-13-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10845,7 +10883,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13-font-style:
     token: --dsw-font-xs-strong-13-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10857,7 +10895,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13-font-weight:
     token: --dsw-font-xs-strong-13-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10869,7 +10907,7 @@ direct_bindings:
   token.dsw.font-xs-strong-13-line-height:
     token: --dsw-font-xs-strong-13-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10881,7 +10919,7 @@ direct_bindings:
   token.dsw.font-xxs-12-font-family:
     token: --dsw-font-xxs-12-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10893,7 +10931,7 @@ direct_bindings:
   token.dsw.font-xxs-12-font-size:
     token: --dsw-font-xxs-12-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10905,7 +10943,7 @@ direct_bindings:
   token.dsw.font-xxs-12-font-style:
     token: --dsw-font-xxs-12-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10917,7 +10955,7 @@ direct_bindings:
   token.dsw.font-xxs-12-font-weight:
     token: --dsw-font-xxs-12-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -10929,7 +10967,7 @@ direct_bindings:
   token.dsw.font-xxs-12-line-height:
     token: --dsw-font-xxs-12-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10941,7 +10979,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12:
     token: --dsw-font-xxs-strong-12
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -10953,7 +10991,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12-font-family:
     token: --dsw-font-xxs-strong-12-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -10965,7 +11003,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12-font-size:
     token: --dsw-font-xxs-strong-12-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -10977,7 +11015,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12-font-style:
     token: --dsw-font-xxs-strong-12-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -10989,7 +11027,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12-font-weight:
     token: --dsw-font-xxs-strong-12-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -11001,7 +11039,7 @@ direct_bindings:
   token.dsw.font-xxs-strong-12-line-height:
     token: --dsw-font-xxs-strong-12-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -11013,7 +11051,7 @@ direct_bindings:
   token.dsw.font-xxxs-11-font-family:
     token: --dsw-font-xxxs-11-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -11025,7 +11063,7 @@ direct_bindings:
   token.dsw.font-xxxs-11-font-size:
     token: --dsw-font-xxxs-11-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -11037,7 +11075,7 @@ direct_bindings:
   token.dsw.font-xxxs-11-font-style:
     token: --dsw-font-xxxs-11-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -11049,7 +11087,7 @@ direct_bindings:
   token.dsw.font-xxxs-11-font-weight:
     token: --dsw-font-xxxs-11-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -11061,7 +11099,7 @@ direct_bindings:
   token.dsw.font-xxxs-11-line-height:
     token: --dsw-font-xxxs-11-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -11073,7 +11111,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11:
     token: --dsw-font-xxxs-strong-11
     value_type: font
-    value_type_note: font / length
+    value_type_note: font composite（简写）
     status: dead
     modifiers: []
     tier: dead
@@ -11085,7 +11123,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11-font-family:
     token: --dsw-font-xxxs-strong-11-font-family
     value_type: font_stack
-    value_type_note: font / length
+    value_type_note: font_stack / asset
     status: dead
     modifiers: []
     tier: dead
@@ -11097,7 +11135,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11-font-size:
     token: --dsw-font-xxxs-strong-11-font-size
     value_type: length
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -11109,7 +11147,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11-font-style:
     token: --dsw-font-xxxs-strong-11-font-style
     value_type: font_style
-    value_type_note: font / length
+    value_type_note: keyword（italic/normal）
     status: dead
     modifiers: []
     tier: dead
@@ -11121,7 +11159,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11-font-weight:
     token: --dsw-font-xxxs-strong-11-font-weight
     value_type: weight
-    value_type_note: font / length
+    value_type_note: weight
     status: dead
     modifiers: []
     tier: dead
@@ -11133,7 +11171,7 @@ direct_bindings:
   token.dsw.font-xxxs-strong-11-line-height:
     token: --dsw-font-xxxs-strong-11-line-height
     value_type: line_height
-    value_type_note: font / length
+    value_type_note: length / number（行高可无单位）
     status: dead
     modifiers: []
     tier: dead
@@ -11145,7 +11183,7 @@ direct_bindings:
   token.dsw.radius-sm:
     token: --dsw-radius-sm
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11157,7 +11195,7 @@ direct_bindings:
   token.dsw.radius-md:
     token: --dsw-radius-md
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11169,7 +11207,7 @@ direct_bindings:
   token.dsw.radius-lg:
     token: --dsw-radius-lg
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11181,7 +11219,7 @@ direct_bindings:
   token.dsw.radius-xl:
     token: --dsw-radius-xl
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11193,7 +11231,7 @@ direct_bindings:
   token.dsw.radius-xs:
     token: --dsw-radius-xs
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11205,7 +11243,7 @@ direct_bindings:
   token.dsw.radius-panel:
     token: --dsw-radius-panel
     value_type: length
-    value_type_note: length / number
+    value_type_note: length
     status: live
     modifiers: []
     tier: stable
@@ -11216,8 +11254,8 @@ direct_bindings:
     docs: 圆角档位：panel
   token.dsw.corner-shape:
     token: --dsw-corner-shape
-    value_type: number
-    value_type_note: length / number
+    value_type: shape
+    value_type_note: keyword（round/squircle）
     status: live
     modifiers: []
     tier: stable
@@ -11228,8 +11266,8 @@ direct_bindings:
     docs: 角形状
   token.dsw.mask-blur:
     token: --dsw-mask-blur
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword（none）
     status: live
     modifiers: []
     tier: stable
@@ -11240,8 +11278,8 @@ direct_bindings:
     docs: 蒙层：blur
   token.dsh.content-font-delta:
     token: --dsh-content-font-delta
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11252,8 +11290,8 @@ direct_bindings:
     docs: 正文字号增量
   token.dsh.content-font-size-secondary:
     token: --dsh-content-font-size-secondary
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11264,8 +11302,8 @@ direct_bindings:
     docs: 次级正文字号
   token.dsh.content-font-delta-secondary:
     token: --dsh-content-font-delta-secondary
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11276,8 +11314,8 @@ direct_bindings:
     docs: 次级正文字号增量
   token.dsh.code-font-delta:
     token: --dsh-code-font-delta
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11288,8 +11326,8 @@ direct_bindings:
     docs: 代码字号增量
   token.dsh.font-family-text-default:
     token: --dsh-font-family-text-default
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11300,8 +11338,8 @@ direct_bindings:
     docs: 正文字族默认值
   token.dsh.scrollbar-width:
     token: --dsh-scrollbar-width
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11312,8 +11350,8 @@ direct_bindings:
     docs: 滚动条宽度
   token.dsh.font-family-code-default:
     token: --dsh-font-family-code-default
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11324,8 +11362,8 @@ direct_bindings:
     docs: 代码字族默认值
   token.dsh.scrollbar-thumb:
     token: --dsh-scrollbar-thumb
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11336,8 +11374,8 @@ direct_bindings:
     docs: 滚动条滑块
   token.dsh.scrollbar-thumb-border:
     token: --dsh-scrollbar-thumb-border
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11348,8 +11386,8 @@ direct_bindings:
     docs: 滚动条滑块描边
   token.dsh.scrollbar-thumb-hover:
     token: --dsh-scrollbar-thumb-hover
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11360,8 +11398,8 @@ direct_bindings:
     docs: 滚动条滑块悬停
   token.dsh.scrollbar-track-margin:
     token: --dsh-scrollbar-track-margin
-    value_type: number
-    value_type_note: length / number
+    value_type: length
+    value_type_note: length / keyword
     status: live
     modifiers: []
     tier: stable
@@ -11372,8 +11410,8 @@ direct_bindings:
     docs: 滚动条轨道留白
   token.dsw.focus-ring-width:
     token: --dsw-focus-ring-width
-    value_type: color
-    value_type_note: color（背景类可接受 paint）
+    value_type: length
+    value_type_note: length（宽度）
     status: live
     modifiers: []
     tier: stable

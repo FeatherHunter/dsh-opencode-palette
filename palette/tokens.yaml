@@ -43,7 +43,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：第 1 层
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:171
   - packages/client/ui-theme/src/styles/design-platform.css:289
@@ -108,7 +108,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：基础
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:167
   - packages/client/ui-theme/src/styles/design-platform.css:285
@@ -173,7 +173,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：module-platform
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:179
   - packages/client/ui-theme/src/styles/design-platform.css:297
@@ -230,7 +230,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：第 2 层
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:172
   - packages/client/ui-theme/src/styles/design-platform.css:290
@@ -273,7 +273,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：第 3 层
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:173
   - packages/client/ui-theme/src/styles/design-platform.css:291
@@ -306,7 +306,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：skeleton
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:182
   - packages/client/ui-theme/src/styles/design-platform.css:300
@@ -337,7 +337,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：蒙层 1
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:174
   - packages/client/ui-theme/src/styles/design-platform.css:292
@@ -358,7 +358,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：文档预览
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:168
   - packages/client/ui-theme/src/styles/design-platform.css:286
@@ -377,7 +377,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：文档选区
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:169
   - packages/client/ui-theme/src/styles/design-platform.css:287
@@ -394,7 +394,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：拖放蒙层
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:178
   - packages/client/ui-theme/src/styles/design-platform.css:296
@@ -411,7 +411,7 @@ tokens:
   status: live
   rank: live
   zh: 背景与填充：overlay
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:181
   - packages/client/ui-theme/src/styles/design-platform.css:299
@@ -428,7 +428,7 @@ tokens:
   status: dead
   rank: dead
   zh: 背景与填充：蒙层 2
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:175
   - packages/client/ui-theme/src/styles/design-platform.css:293
@@ -444,7 +444,7 @@ tokens:
   status: dead
   rank: dead
   zh: 背景与填充：蒙层 3
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:176
   - packages/client/ui-theme/src/styles/design-platform.css:294
@@ -460,7 +460,7 @@ tokens:
   status: dead
   rank: dead
   zh: 背景与填充：照片蒙层
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:177
   - packages/client/ui-theme/src/styles/design-platform.css:295
@@ -476,7 +476,7 @@ tokens:
   status: dead
   rank: dead
   zh: 背景与填充：多选
-  value_type: color（背景类可接受 paint）
+  value_type: color / paint（背景类可放渐变或图片）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:180
   - packages/client/ui-theme/src/styles/design-platform.css:298
@@ -492,7 +492,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:222
   - packages/client/ui-theme/src/styles/design-platform.css:340
@@ -759,7 +759,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：三级
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:225
   - packages/client/ui-theme/src/styles/design-platform.css:343
@@ -988,7 +988,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：次
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:223
   - packages/client/ui-theme/src/styles/design-platform.css:341
@@ -1207,7 +1207,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：caption
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:214
   - packages/client/ui-theme/src/styles/design-platform.css:332
@@ -1290,7 +1290,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:221
   - packages/client/ui-theme/src/styles/design-platform.css:339
@@ -1317,7 +1317,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：弱化
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:217
   - packages/client/ui-theme/src/styles/design-platform.css:335
@@ -1348,7 +1348,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:220
   - packages/client/ui-theme/src/styles/design-platform.css:338
@@ -1381,7 +1381,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：主 弱化
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:219
   - packages/client/ui-theme/src/styles/design-platform.css:337
@@ -1402,7 +1402,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：deep-diving
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:215
   - packages/client/ui-theme/src/styles/design-platform.css:333
@@ -1419,7 +1419,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：deep-diving-shimmer
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:216
   - packages/client/ui-theme/src/styles/design-platform.css:334
@@ -1436,7 +1436,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：文档预览
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:170
   - packages/client/ui-theme/src/styles/design-platform.css:288
@@ -1453,7 +1453,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:218
   - packages/client/ui-theme/src/styles/design-platform.css:336
@@ -1470,7 +1470,7 @@ tokens:
   status: live
   rank: live
   zh: 文字：shimmer
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:224
   - packages/client/ui-theme/src/styles/design-platform.css:342
@@ -1487,7 +1487,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：业务 主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:240
   - packages/client/ui-theme/src/styles/design-platform.css:358
@@ -1632,7 +1632,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：错误 主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:250
   - packages/client/ui-theme/src/styles/design-platform.css:368
@@ -1747,7 +1747,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：成功 主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:253
   - packages/client/ui-theme/src/styles/design-platform.css:371
@@ -1794,7 +1794,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：三级
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:259
   - packages/client/ui-theme/src/styles/design-platform.css:377
@@ -1831,7 +1831,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：warn-label
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:256
   - packages/client/ui-theme/src/styles/design-platform.css:374
@@ -1874,7 +1874,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:257
   - packages/client/ui-theme/src/styles/design-platform.css:375
@@ -1909,7 +1909,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：业务 三级
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:241
   - packages/client/ui-theme/src/styles/design-platform.css:359
@@ -1932,7 +1932,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：错误 次
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:251
   - packages/client/ui-theme/src/styles/design-platform.css:369
@@ -1955,7 +1955,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：成功 三级
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:255
   - packages/client/ui-theme/src/styles/design-platform.css:373
@@ -1976,7 +1976,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：成功 次
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:254
   - packages/client/ui-theme/src/styles/design-platform.css:372
@@ -1997,7 +1997,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：次
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:258
   - packages/client/ui-theme/src/styles/design-platform.css:376
@@ -2018,7 +2018,7 @@ tokens:
   status: live
   rank: live
   zh: 状态：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:252
   - packages/client/ui-theme/src/styles/design-platform.css:370
@@ -2035,7 +2035,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：主 填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:204
   - packages/client/ui-theme/src/styles/design-platform.css:322
@@ -2060,7 +2060,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:197
   - packages/client/ui-theme/src/styles/design-platform.css:315
@@ -2083,7 +2083,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：幽灵 激活 填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:199
   - packages/client/ui-theme/src/styles/design-platform.css:317
@@ -2106,7 +2106,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：主 悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:205
   - packages/client/ui-theme/src/styles/design-platform.css:323
@@ -2129,7 +2129,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:194
   - packages/client/ui-theme/src/styles/design-platform.css:312
@@ -2150,7 +2150,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:195
   - packages/client/ui-theme/src/styles/design-platform.css:313
@@ -2171,7 +2171,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:196
   - packages/client/ui-theme/src/styles/design-platform.css:314
@@ -2192,7 +2192,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：幽灵 激活 边框
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:198
   - packages/client/ui-theme/src/styles/design-platform.css:316
@@ -2213,7 +2213,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:201
   - packages/client/ui-theme/src/styles/design-platform.css:319
@@ -2234,7 +2234,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:202
   - packages/client/ui-theme/src/styles/design-platform.css:320
@@ -2251,7 +2251,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:207
   - packages/client/ui-theme/src/styles/design-platform.css:325
@@ -2268,7 +2268,7 @@ tokens:
   status: live
   rank: live
   zh: 按钮：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:208
   - packages/client/ui-theme/src/styles/design-platform.css:326
@@ -2285,7 +2285,7 @@ tokens:
   status: dead
   rank: dead
   zh: 按钮：幽灵 激活 悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:200
   - packages/client/ui-theme/src/styles/design-platform.css:318
@@ -2301,7 +2301,7 @@ tokens:
   status: dead
   rank: dead
   zh: 按钮：主 弱化
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:203
   - packages/client/ui-theme/src/styles/design-platform.css:321
@@ -2317,7 +2317,7 @@ tokens:
   status: dead
   rank: dead
   zh: 按钮：填充 隐形
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:206
   - packages/client/ui-theme/src/styles/design-platform.css:324
@@ -2333,7 +2333,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：l2
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:187
   - packages/client/ui-theme/src/styles/design-platform.css:305
@@ -2462,7 +2462,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：l3
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:188
   - packages/client/ui-theme/src/styles/design-platform.css:306
@@ -2543,7 +2543,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：l1
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:185
   - packages/client/ui-theme/src/styles/design-platform.css:303
@@ -2624,7 +2624,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：l4
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:189
   - packages/client/ui-theme/src/styles/design-platform.css:307
@@ -2703,7 +2703,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：l2-darkmode-thin
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:186
   - packages/client/ui-theme/src/styles/design-platform.css:304
@@ -2730,7 +2730,7 @@ tokens:
   status: live
   rank: live
   zh: 边框：inverted
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:184
   - packages/client/ui-theme/src/styles/design-platform.css:302
@@ -2749,7 +2749,7 @@ tokens:
   status: dead
   rank: dead
   zh: 边框：反色 2
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:183
   - packages/client/ui-theme/src/styles/design-platform.css:301
@@ -2765,7 +2765,7 @@ tokens:
   status: live
   rank: live
   zh: 交互：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:213
   - packages/client/ui-theme/src/styles/design-platform.css:331
@@ -2928,7 +2928,7 @@ tokens:
   status: live
   rank: live
   zh: 交互：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:211
   - packages/client/ui-theme/src/styles/design-platform.css:329
@@ -2957,7 +2957,7 @@ tokens:
   status: live
   rank: live
   zh: 交互：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:212
   - packages/client/ui-theme/src/styles/design-platform.css:330
@@ -2988,7 +2988,7 @@ tokens:
   status: live
   rank: live
   zh: 交互：激活
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:209
   - packages/client/ui-theme/src/styles/design-platform.css:327
@@ -3011,7 +3011,7 @@ tokens:
   status: dead
   rank: dead
   zh: 交互：悬停 强调
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:210
   - packages/client/ui-theme/src/styles/design-platform.css:328
@@ -3027,7 +3027,7 @@ tokens:
   status: live
   rank: live
   zh: 品牌：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:191
   - packages/client/ui-theme/src/styles/design-platform.css:309
@@ -3054,7 +3054,7 @@ tokens:
   status: live
   rank: live
   zh: 品牌：主
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:192
   - packages/client/ui-theme/src/styles/design-platform.css:310
@@ -3087,7 +3087,7 @@ tokens:
   status: dead
   rank: dead
   zh: 品牌：主 反色
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:190
   - packages/client/ui-theme/src/styles/design-platform.css:308
@@ -3103,7 +3103,7 @@ tokens:
   status: dead
   rank: dead
   zh: 品牌：文字
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:193
   - packages/client/ui-theme/src/styles/design-platform.css:311
@@ -3119,7 +3119,7 @@ tokens:
   status: live
   rank: live
   zh: Markdown：代码块
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:230
   - packages/client/ui-theme/src/styles/design-platform.css:348
@@ -3168,7 +3168,7 @@ tokens:
   status: live
   rank: live
   zh: Markdown：代码 块
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:229
   - packages/client/ui-theme/src/styles/design-platform.css:347
@@ -3189,7 +3189,7 @@ tokens:
   status: live
   rank: live
   zh: Markdown：citation
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:228
   - packages/client/ui-theme/src/styles/design-platform.css:346
@@ -3206,7 +3206,7 @@ tokens:
   status: live
   rank: live
   zh: Markdown：代码
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:233
   - packages/client/ui-theme/src/styles/design-platform.css:351
@@ -3223,7 +3223,7 @@ tokens:
   status: live
   rank: live
   zh: Markdown：tag
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:235
   - packages/client/ui-theme/src/styles/design-platform.css:353
@@ -3240,7 +3240,7 @@ tokens:
   status: dead
   rank: dead
   zh: Markdown：代码 代码段 选中
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:231
   - packages/client/ui-theme/src/styles/design-platform.css:349
@@ -3256,7 +3256,7 @@ tokens:
   status: dead
   rank: dead
   zh: Markdown：代码 代码段
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:232
   - packages/client/ui-theme/src/styles/design-platform.css:350
@@ -3272,7 +3272,7 @@ tokens:
   status: dead
   rank: dead
   zh: Markdown：占位
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:234
   - packages/client/ui-theme/src/styles/design-platform.css:352
@@ -3288,7 +3288,7 @@ tokens:
   status: live
   rank: live
   zh: 代码：diff-added
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:242
   - packages/client/ui-theme/src/styles/design-platform.css:360
@@ -3305,7 +3305,7 @@ tokens:
   status: live
   rank: live
   zh: 代码：diff-deleted
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:243
   - packages/client/ui-theme/src/styles/design-platform.css:361
@@ -3322,7 +3322,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-added-bg
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:244
   - packages/client/ui-theme/src/styles/design-platform.css:362
@@ -3339,7 +3339,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-added-gutter
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:245
   - packages/client/ui-theme/src/styles/design-platform.css:363
@@ -3356,7 +3356,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-added-marker
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:246
   - packages/client/ui-theme/src/styles/design-platform.css:364
@@ -3373,7 +3373,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-deleted-bg
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:247
   - packages/client/ui-theme/src/styles/design-platform.css:365
@@ -3390,7 +3390,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-deleted-gutter
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:248
   - packages/client/ui-theme/src/styles/design-platform.css:366
@@ -3407,7 +3407,7 @@ tokens:
   status: live
   rank: live
   zh: 文件：diff-deleted-marker
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:249
   - packages/client/ui-theme/src/styles/design-platform.css:367
@@ -3424,7 +3424,7 @@ tokens:
   status: live
   rank: live
   zh: 菜单：icon
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:226
   - packages/client/ui-theme/src/styles/design-platform.css:344
@@ -3447,7 +3447,7 @@ tokens:
   status: live
   rank: live
   zh: 菜单：分组头填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:272
   - packages/client/ui-theme/src/styles/design-platform.css:390
@@ -3464,7 +3464,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条：bg-l2
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:237
   - packages/client/ui-theme/src/styles/design-platform.css:355
@@ -3541,7 +3541,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:239
   - packages/client/ui-theme/src/styles/design-platform.css:357
@@ -3618,7 +3618,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条：bg-l1
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:236
   - packages/client/ui-theme/src/styles/design-platform.css:354
@@ -3637,7 +3637,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条：悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:238
   - packages/client/ui-theme/src/styles/design-platform.css:356
@@ -3654,7 +3654,7 @@ tokens:
   status: live
   rank: live
   zh: 引导页：强调
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:3
   declared_value: rgb(57, 100, 254)
@@ -3670,7 +3670,7 @@ tokens:
   status: live
   rank: live
   zh: 引导页：次 填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:8
   - packages/client/ui-theme/src/styles/onboarding.css:14
@@ -3687,7 +3687,7 @@ tokens:
   status: live
   rank: live
   zh: 引导页：卡片 填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:7
   - packages/client/ui-theme/src/styles/onboarding.css:13
@@ -3704,7 +3704,7 @@ tokens:
   status: live
   rank: live
   zh: 引导页：勾选框 边框
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:9
   - packages/client/ui-theme/src/styles/onboarding.css:15
@@ -3721,7 +3721,7 @@ tokens:
   status: live
   rank: live
   zh: 设置：卡片 填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/base.css:32
   declared_value: var(--dsw-alias-bg-layer-2)
@@ -3743,7 +3743,7 @@ tokens:
   status: live
   rank: live
   zh: 设置：卡片 描边
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/base.css:33
   declared_value: var(--dsw-alias-border-l4)
@@ -3765,7 +3765,7 @@ tokens:
   status: live
   rank: live
   zh: 提示：bg
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:263
   - packages/client/ui-theme/src/styles/design-platform.css:383
@@ -3784,7 +3784,7 @@ tokens:
   status: live
   rank: live
   zh: 提示：key-bg
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:264
   - packages/client/ui-theme/src/styles/design-platform.css:384
@@ -3801,7 +3801,7 @@ tokens:
   status: live
   rank: live
   zh: 轻提示：bg
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:261
   - packages/client/ui-theme/src/styles/design-platform.css:379
@@ -3818,7 +3818,7 @@ tokens:
   status: live
   rank: live
   zh: 轻提示：label
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:262
   - packages/client/ui-theme/src/styles/design-platform.css:380
@@ -3835,7 +3835,7 @@ tokens:
   status: live
   rank: live
   zh: 对话轮次：触发器
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:265
   - packages/client/ui-theme/src/styles/design-platform.css:381
@@ -3852,7 +3852,7 @@ tokens:
   status: live
   rank: live
   zh: 对话轮次：触发器 悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:266
   - packages/client/ui-theme/src/styles/design-platform.css:382
@@ -3869,7 +3869,7 @@ tokens:
   status: live
   rank: live
   zh: 链接：
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:227
   - packages/client/ui-theme/src/styles/design-platform.css:345
@@ -3900,7 +3900,7 @@ tokens:
   status: live
   rank: live
   zh: 开关：滑块
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:260
   - packages/client/ui-theme/src/styles/design-platform.css:378
@@ -3916,7 +3916,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：菜单
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:273
   - packages/client/ui-theme/src/styles/design-platform.css:391
@@ -3956,7 +3956,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：侧栏填充
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:275
   - packages/client/ui-theme/src/styles/design-platform.css:393
@@ -3982,7 +3982,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：input-major
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:269
   - packages/client/ui-theme/src/styles/design-platform.css:387
@@ -4014,7 +4014,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：气泡
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:268
   - packages/client/ui-theme/src/styles/design-platform.css:386
@@ -4034,7 +4034,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：选择器
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:274
   - packages/client/ui-theme/src/styles/design-platform.css:392
@@ -4050,7 +4050,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：侧栏导航激活
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:277
   - packages/client/ui-theme/src/styles/design-platform.css:395
@@ -4066,7 +4066,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：侧栏导航激活强调
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:276
   - packages/client/ui-theme/src/styles/design-platform.css:394
@@ -4082,7 +4082,7 @@ tokens:
   status: live
   rank: live
   zh: 区域特化：侧栏导航悬停
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:278
   - packages/client/ui-theme/src/styles/design-platform.css:396
@@ -4098,7 +4098,7 @@ tokens:
   status: dead
   rank: dead
   zh: 区域特化：气泡高亮
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:267
   - packages/client/ui-theme/src/styles/design-platform.css:385
@@ -4113,7 +4113,7 @@ tokens:
   status: dead
   rank: dead
   zh: 区域特化：登录输入
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:270
   - packages/client/ui-theme/src/styles/design-platform.css:388
@@ -4128,7 +4128,7 @@ tokens:
   status: dead
   rank: dead
   zh: 区域特化：提示
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:279
   - packages/client/ui-theme/src/styles/design-platform.css:397
@@ -4143,7 +4143,7 @@ tokens:
   status: live
   rank: live
   zh: 代码高亮背景
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:9
   declared_value: var(--dsw-alias-markdown-code-block)
@@ -4158,7 +4158,7 @@ tokens:
   status: live
   rank: live
   zh: 代码高亮前景
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:8
   declared_value: var(--dsw-alias-label-primary)
@@ -4173,7 +4173,7 @@ tokens:
   status: live
   rank: live
   zh: 注释
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:12
   - packages/client/ui-theme/src/styles/shiki.css:24
@@ -4188,7 +4188,7 @@ tokens:
   status: live
   rank: live
   zh: 常量
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:10
   - packages/client/ui-theme/src/styles/shiki.css:22
@@ -4203,7 +4203,7 @@ tokens:
   status: live
   rank: live
   zh: 函数
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:15
   - packages/client/ui-theme/src/styles/shiki.css:27
@@ -4218,7 +4218,7 @@ tokens:
   status: live
   rank: live
   zh: 关键字
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:13
   - packages/client/ui-theme/src/styles/shiki.css:25
@@ -4233,7 +4233,7 @@ tokens:
   status: live
   rank: live
   zh: 链接
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:18
   - packages/client/ui-theme/src/styles/shiki.css:30
@@ -4248,7 +4248,7 @@ tokens:
   status: live
   rank: live
   zh: 参数
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:14
   - packages/client/ui-theme/src/styles/shiki.css:26
@@ -4263,7 +4263,7 @@ tokens:
   status: live
   rank: live
   zh: 标点
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:17
   - packages/client/ui-theme/src/styles/shiki.css:29
@@ -4278,7 +4278,7 @@ tokens:
   status: live
   rank: live
   zh: 字符串
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:11
   - packages/client/ui-theme/src/styles/shiki.css:23
@@ -4293,7 +4293,7 @@ tokens:
   status: live
   rank: live
   zh: 字符串插值
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/shiki.css:16
   - packages/client/ui-theme/src/styles/shiki.css:28
@@ -4309,7 +4309,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:14
   - packages/client/ui-theme/src/styles/design-platform.css:95
@@ -4330,7 +4330,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 950
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:21
   - packages/client/ui-theme/src/styles/design-platform.css:102
@@ -4347,7 +4347,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 300
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:11
   - packages/client/ui-theme/src/styles/design-platform.css:92
@@ -4364,7 +4364,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:12
   - packages/client/ui-theme/src/styles/design-platform.css:93
@@ -4381,7 +4381,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 450
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:13
   - packages/client/ui-theme/src/styles/design-platform.css:94
@@ -4398,7 +4398,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:17
   - packages/client/ui-theme/src/styles/design-platform.css:98
@@ -4415,7 +4415,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：blue 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:20
   - packages/client/ui-theme/src/styles/design-platform.css:101
@@ -4432,7 +4432,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：blue 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:10
   - packages/client/ui-theme/src/styles/design-platform.css:91
@@ -4448,7 +4448,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：blue 50
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:15
   - packages/client/ui-theme/src/styles/design-platform.css:96
@@ -4464,7 +4464,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：blue 50p
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:16
   - packages/client/ui-theme/src/styles/design-platform.css:97
@@ -4480,7 +4480,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：blue 75
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:18
   - packages/client/ui-theme/src/styles/design-platform.css:99
@@ -4496,7 +4496,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：blue 800
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:19
   - packages/client/ui-theme/src/styles/design-platform.css:100
@@ -4512,7 +4512,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:28
   - packages/client/ui-theme/src/styles/design-platform.css:109
@@ -4531,7 +4531,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:26
   - packages/client/ui-theme/src/styles/design-platform.css:107
@@ -4550,7 +4550,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 450
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:27
   - packages/client/ui-theme/src/styles/design-platform.css:108
@@ -4569,7 +4569,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:22
   - packages/client/ui-theme/src/styles/design-platform.css:103
@@ -4586,7 +4586,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 200
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:23
   - packages/client/ui-theme/src/styles/design-platform.css:104
@@ -4603,7 +4603,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 50
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:29
   - packages/client/ui-theme/src/styles/design-platform.css:110
@@ -4620,7 +4620,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：deepseek 800
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:32
   - packages/client/ui-theme/src/styles/design-platform.css:113
@@ -4637,7 +4637,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：deepseek 300
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:24
   - packages/client/ui-theme/src/styles/design-platform.css:105
@@ -4653,7 +4653,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：deepseek 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:30
   - packages/client/ui-theme/src/styles/design-platform.css:111
@@ -4669,7 +4669,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：deepseek 700 delete
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:31
   - packages/client/ui-theme/src/styles/design-platform.css:112
@@ -4685,7 +4685,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：deepseek 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:33
   - packages/client/ui-theme/src/styles/design-platform.css:114
@@ -4701,7 +4701,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:36
   - packages/client/ui-theme/src/styles/design-platform.css:117
@@ -4720,7 +4720,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:35
   - packages/client/ui-theme/src/styles/design-platform.css:116
@@ -4737,7 +4737,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:34
   - packages/client/ui-theme/src/styles/design-platform.css:115
@@ -4754,7 +4754,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 500 a08
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:37
   - packages/client/ui-theme/src/styles/design-platform.css:118
@@ -4771,7 +4771,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 500 a12
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:38
   - packages/client/ui-theme/src/styles/design-platform.css:119
@@ -4788,7 +4788,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：green 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:39
   - packages/client/ui-theme/src/styles/design-platform.css:120
@@ -4805,7 +4805,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：amber 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:6
   - packages/client/ui-theme/src/styles/design-platform.css:87
@@ -4824,7 +4824,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：amber 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:7
   - packages/client/ui-theme/src/styles/design-platform.css:88
@@ -4843,7 +4843,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：amber 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:8
   - packages/client/ui-theme/src/styles/design-platform.css:89
@@ -4860,7 +4860,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：amber 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:5
   - packages/client/ui-theme/src/styles/design-platform.css:86
@@ -4877,7 +4877,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：amber 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:9
   - packages/client/ui-theme/src/styles/design-platform.css:90
@@ -4894,7 +4894,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 00
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:40
   - packages/client/ui-theme/src/styles/design-platform.css:121
@@ -4921,7 +4921,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 50
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:49
   - packages/client/ui-theme/src/styles/design-platform.css:130
@@ -4946,7 +4946,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 800
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:53
   - packages/client/ui-theme/src/styles/design-platform.css:134
@@ -4971,7 +4971,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 850
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:54
   - packages/client/ui-theme/src/styles/design-platform.css:135
@@ -4996,7 +4996,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:42
   - packages/client/ui-theme/src/styles/design-platform.css:123
@@ -5019,7 +5019,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 200
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:44
   - packages/client/ui-theme/src/styles/design-platform.css:125
@@ -5038,7 +5038,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 300
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:46
   - packages/client/ui-theme/src/styles/design-platform.css:127
@@ -5055,7 +5055,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:51
   - packages/client/ui-theme/src/styles/design-platform.css:132
@@ -5072,7 +5072,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 700
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:52
   - packages/client/ui-theme/src/styles/design-platform.css:133
@@ -5091,7 +5091,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 1000
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:41
   - packages/client/ui-theme/src/styles/design-platform.css:122
@@ -5108,7 +5108,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:47
   - packages/client/ui-theme/src/styles/design-platform.css:128
@@ -5125,7 +5125,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral 550
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:50
   - packages/client/ui-theme/src/styles/design-platform.css:131
@@ -5142,7 +5142,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：neutral 150
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:43
   - packages/client/ui-theme/src/styles/design-platform.css:124
@@ -5158,7 +5158,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：neutral 250
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:45
   - packages/client/ui-theme/src/styles/design-platform.css:126
@@ -5174,7 +5174,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：neutral 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:48
   - packages/client/ui-theme/src/styles/design-platform.css:129
@@ -5190,7 +5190,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：neutral 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:55
   - packages/client/ui-theme/src/styles/design-platform.css:136
@@ -5206,7 +5206,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 00
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:56
   - packages/client/ui-theme/src/styles/design-platform.css:137
@@ -5227,7 +5227,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 800
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:70
   - packages/client/ui-theme/src/styles/design-platform.css:151
@@ -5244,7 +5244,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 50
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:64
   - packages/client/ui-theme/src/styles/design-platform.css:145
@@ -5261,7 +5261,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 850
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:71
   - packages/client/ui-theme/src/styles/design-platform.css:152
@@ -5280,7 +5280,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 750
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:68
   - packages/client/ui-theme/src/styles/design-platform.css:149
@@ -5297,7 +5297,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:58
   - packages/client/ui-theme/src/styles/design-platform.css:139
@@ -5314,7 +5314,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:62
   - packages/client/ui-theme/src/styles/design-platform.css:143
@@ -5337,7 +5337,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 1000
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:57
   - packages/client/ui-theme/src/styles/design-platform.css:138
@@ -5356,7 +5356,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 60
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:66
   - packages/client/ui-theme/src/styles/design-platform.css:147
@@ -5373,7 +5373,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 700
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:67
   - packages/client/ui-theme/src/styles/design-platform.css:148
@@ -5390,7 +5390,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 75
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:69
   - packages/client/ui-theme/src/styles/design-platform.css:150
@@ -5407,7 +5407,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:73
   - packages/client/ui-theme/src/styles/design-platform.css:154
@@ -5424,7 +5424,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 300
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:61
   - packages/client/ui-theme/src/styles/design-platform.css:142
@@ -5443,7 +5443,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:65
   - packages/client/ui-theme/src/styles/design-platform.css:146
@@ -5460,7 +5460,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 950
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:74
   - packages/client/ui-theme/src/styles/design-platform.css:155
@@ -5477,7 +5477,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 150
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:59
   - packages/client/ui-theme/src/styles/design-platform.css:140
@@ -5494,7 +5494,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 200
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:60
   - packages/client/ui-theme/src/styles/design-platform.css:141
@@ -5511,7 +5511,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:63
   - packages/client/ui-theme/src/styles/design-platform.css:144
@@ -5528,7 +5528,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：neutral bluish 875
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:72
   - packages/client/ui-theme/src/styles/design-platform.css:153
@@ -5545,7 +5545,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：red 400
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:76
   - packages/client/ui-theme/src/styles/design-platform.css:157
@@ -5562,7 +5562,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：red 600
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:80
   - packages/client/ui-theme/src/styles/design-platform.css:161
@@ -5581,7 +5581,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：red 400 a12
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:77
   - packages/client/ui-theme/src/styles/design-platform.css:158
@@ -5598,7 +5598,7 @@ tokens:
   status: live
   rank: live
   zh: 调色板原子：red 600 a08
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:81
   - packages/client/ui-theme/src/styles/design-platform.css:162
@@ -5615,7 +5615,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：red 100
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:75
   - packages/client/ui-theme/src/styles/design-platform.css:156
@@ -5631,7 +5631,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：red 50
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:79
   - packages/client/ui-theme/src/styles/design-platform.css:160
@@ -5647,7 +5647,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：red 500
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:78
   - packages/client/ui-theme/src/styles/design-platform.css:159
@@ -5663,7 +5663,7 @@ tokens:
   status: dead
   rank: dead
   zh: 调色板原子：red 900
-  value_type: color（背景类可接受 paint）
+  value_type: color（原子 hex）
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:82
   - packages/client/ui-theme/src/styles/design-platform.css:163
@@ -5678,7 +5678,7 @@ tokens:
   status: live
   rank: live
   zh: 焦点环颜色
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/focus.css:19
   declared_value: transparent
@@ -5793,7 +5793,7 @@ tokens:
   status: live
   rank: live
   zh: 菜单表面填充（材质层）
-  value_type: color（背景类可接受 paint）
+  value_type: color
   declared:
   - packages/client/ui-theme/src/styles/design-platform.css:271
   - packages/client/ui-theme/src/styles/design-platform.css:389
@@ -5811,7 +5811,7 @@ tokens:
   status: live
   rank: live
   zh: 菜单：backdrop-filter
-  value_type: color（背景类可接受 paint）
+  value_type: filter（blur 等）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:20
   declared_value: blur(40px) saturate(150%)
@@ -5846,7 +5846,7 @@ tokens:
   status: live
   rank: live
   zh: 阴影：lv3
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:8
   declared_value: 0 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 4px 0 rgba(0, 0, 0, 0.02), 0 12px 32px 0 rgba(0, 0, 0, 0.08)
@@ -5863,7 +5863,7 @@ tokens:
   status: live
   rank: live
   zh: 阴影：lv2
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:7
   declared_value: 0 4px 12px 0 rgba(0, 0, 0, 0.02), 0 2px 8px 0 rgba(0, 0, 0, 0.04)
@@ -5878,7 +5878,7 @@ tokens:
   status: dead
   rank: dead
   zh: 阴影：lv1
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:5
   declared_value: 0 2px 4px 0 rgba(0, 0, 0, 0.05)
@@ -5892,7 +5892,7 @@ tokens:
   status: dead
   rank: dead
   zh: 阴影：lv1-blur
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:6
   declared_value: 0 4px 12px 0 rgba(0, 0, 0, 0.02)
@@ -5908,7 +5908,7 @@ tokens:
   - gated
   rank: live+gated
   zh: 材质阴影：prominent
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:36
   declared_value: var(--dsw-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.04), 0 0 20px 0 rgba(0, 0, 0, 0.05)
@@ -5960,7 +5960,7 @@ tokens:
   - gated
   rank: live+gated
   zh: 材质阴影：panel
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:34
   declared_value: var(--dsw-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.03), 0 0 16px 0 rgba(0, 0, 0, 0.02)
@@ -5996,7 +5996,7 @@ tokens:
   - gated
   rank: live+gated
   zh: 材质阴影：stroke
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:33
   declared_value: 0 0 0 0.5px var(--dsw-elevation-stroke-color)
@@ -6014,7 +6014,7 @@ tokens:
   - gated
   rank: live+gated
   zh: 材质阴影：soft
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:38
   declared_value: var(--dsw-elevation-stroke), 0 4px 16px 0 rgba(0, 0, 0, 0.03), 0 0 24px 0 rgba(0, 0, 0, 0.03)
@@ -6034,7 +6034,7 @@ tokens:
   - gated
   rank: live+gated
   zh: 材质阴影：stroke-color
-  value_type: shadow（多段阴影）
+  value_type: shadow（box-shadow 值）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:17
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:24
@@ -6051,7 +6051,7 @@ tokens:
   status: live
   rank: live
   zh: 渐变：onboarding-blue 色标
-  value_type: 渐变（颜色停滞）
+  value_type: gradient（色标/线性渐变）
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:5
   declared_value: '#3964fe 18.75%, #398efe 51.78%, #6dccff 86.252%, #3964fe'
@@ -6066,7 +6066,7 @@ tokens:
   status: live
   rank: live
   zh: 渐变：onboarding-cyan 色标
-  value_type: 渐变（颜色停滞）
+  value_type: gradient（色标/线性渐变）
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:6
   declared_value: '#0293b4 21.154%, #2dc8eb 50.954%, #aff0ff 85.326%, #0293b4'
@@ -6081,7 +6081,7 @@ tokens:
   status: live
   rank: live
   zh: 渐变：onboarding-violet 色标
-  value_type: 渐变（颜色停滞）
+  value_type: gradient（色标/线性渐变）
   declared:
   - packages/client/ui-theme/src/styles/onboarding.css:4
   declared_value: '#2a2fb6 33.102%, #8b76f6 50.954%, #c5c0ff 85.326%, #2a2fb6'
@@ -6096,7 +6096,7 @@ tokens:
   status: dead
   rank: dead
   zh: 线性渐变：gradient-think
-  value_type: 渐变（颜色停滞）
+  value_type: gradient（色标/线性渐变）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:2
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:43
@@ -6111,7 +6111,7 @@ tokens:
   status: dead
   rank: dead
   zh: 线性渐变：think-select
-  value_type: 渐变（颜色停滞）
+  value_type: gradient（色标/线性渐变）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:3
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:44
@@ -6126,7 +6126,7 @@ tokens:
   status: live
   rank: live
   zh: 全局字族
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/base.css:9
   - packages/client/ui-theme/src/styles/base.css:30
@@ -6168,7 +6168,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：xs 13
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:234
   declared_value: 13px/20px var(--dsw-font-family)
@@ -6209,7 +6209,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：xxs 12
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:248
   declared_value: 12px/18px var(--dsw-font-family)
@@ -6232,7 +6232,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown code block
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:170
   declared_value: var(--dsh-code-font-size, 11px) / calc(19px + var(--dsh-code-font-delta)) var(--ds-font-family-code)
@@ -6259,7 +6259,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown code block small
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:178
   declared_value: var(--dsh-code-font-size, 11px) / calc(16px + var(--dsh-code-font-delta)) var(--ds-font-family-code)
@@ -6284,7 +6284,7 @@ tokens:
   status: live
   rank: live
   zh: 品牌字族
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/base.css:10
   declared_value: '''Montserrat'', var(--dsh-font-family-text-default)'
@@ -6301,7 +6301,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：xs strong 13
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:241
   declared_value: 500 13px/20px var(--dsw-font-family)
@@ -6322,7 +6322,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：xxxs 11
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:262
   declared_value: 11px/14px var(--dsw-font-family)
@@ -6339,7 +6339,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：l 20
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:192
   declared_value: 500 20px/28px var(--dsw-font-family)
@@ -6354,7 +6354,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown base
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:93
   declared_value: var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6369,7 +6369,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown base strong
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:100
   declared_value: 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6384,7 +6384,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown code
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:163
   declared_value: calc(12px + var(--dsh-code-font-delta)) / calc(19px + var(--dsh-code-font-delta)) var(--ds-font-family-code)
@@ -6399,7 +6399,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-code 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:164
   declared_value: var(--ds-font-family-code)
@@ -6414,7 +6414,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown h1
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:65
   declared_value: 700 calc(21px + var(--dsh-content-font-delta)) / calc(30px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6429,7 +6429,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown h2
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:72
   declared_value: 700 calc(19px + var(--dsh-content-font-delta)) / calc(28px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6444,7 +6444,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown h3
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:79
   declared_value: 700 calc(18px + var(--dsh-content-font-delta)) / calc(26px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6459,7 +6459,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown h4
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:86
   declared_value: 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -6474,7 +6474,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown small
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:135
   declared_value: 12px/20px var(--dsw-font-family)
@@ -6489,7 +6489,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown table
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:121
   declared_value: var(--dsh-content-font-size-secondary, 13px)/calc(22px + var(--dsh-content-font-delta-secondary, 0px)) var(--dsw-font-family)
@@ -6504,7 +6504,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：markdown table head
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:128
   declared_value: 500 var(--dsh-content-font-size-secondary, 13px)/calc(22px + var(--dsh-content-font-delta-secondary, 0px)) var(--dsw-font-family)
@@ -6519,7 +6519,7 @@ tokens:
   status: live
   rank: live
   zh: 排印复合：s 14
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:220
   declared_value: 14px/22px var(--dsw-font-family)
@@ -6534,7 +6534,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-base 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:97
   declared_value: var(--dsh-content-font-size, 14px)
@@ -6547,7 +6547,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-base 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:96
   declared_value: calc(24px + var(--dsh-content-font-delta))
@@ -6560,7 +6560,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h1 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:69
   declared_value: calc(21px + var(--dsh-content-font-delta))
@@ -6573,7 +6573,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h1 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:68
   declared_value: calc(30px + var(--dsh-content-font-delta))
@@ -6586,7 +6586,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h2 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:76
   declared_value: calc(19px + var(--dsh-content-font-delta))
@@ -6599,7 +6599,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h2 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:75
   declared_value: calc(28px + var(--dsh-content-font-delta))
@@ -6612,7 +6612,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h3 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:83
   declared_value: calc(18px + var(--dsh-content-font-delta))
@@ -6625,7 +6625,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-h3 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:82
   declared_value: calc(26px + var(--dsh-content-font-delta))
@@ -6638,7 +6638,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-small 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:139
   declared_value: 12px
@@ -6651,7 +6651,7 @@ tokens:
   status: live
   rank: live
   zh: 排印：markdown-small 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:138
   declared_value: 20px
@@ -6664,7 +6664,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：base 16
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:206
   declared_value: 16px/24px var(--dsw-font-family)
@@ -6678,7 +6678,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-16 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:207
   declared_value: var(--dsw-font-family)
@@ -6692,7 +6692,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-16 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:210
   declared_value: 16px
@@ -6706,7 +6706,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-16 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:211
   declared_value: normal
@@ -6720,7 +6720,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-16 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:208
   declared_value: '400'
@@ -6734,7 +6734,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-16 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:209
   declared_value: 24px
@@ -6748,7 +6748,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：base strong 16
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:213
   declared_value: 500 16px/24px var(--dsw-font-family)
@@ -6762,7 +6762,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-strong-16 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:214
   declared_value: var(--dsw-font-family)
@@ -6776,7 +6776,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-strong-16 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:217
   declared_value: 16px
@@ -6790,7 +6790,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-strong-16 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:218
   declared_value: normal
@@ -6804,7 +6804,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-strong-16 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:215
   declared_value: '500'
@@ -6818,7 +6818,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：base-strong-16 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:216
   declared_value: 24px
@@ -6832,7 +6832,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：l-20 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:193
   declared_value: var(--dsw-font-family)
@@ -6846,7 +6846,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：l-20 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:196
   declared_value: 20px
@@ -6860,7 +6860,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：l-20 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:197
   declared_value: normal
@@ -6874,7 +6874,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：l-20 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:194
   declared_value: '500'
@@ -6888,7 +6888,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：l-20 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:195
   declared_value: 28px
@@ -6902,7 +6902,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：m 18
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:199
   declared_value: 500 16px/28px var(--dsw-font-family)
@@ -6916,7 +6916,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：m-18 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:200
   declared_value: var(--dsw-font-family)
@@ -6930,7 +6930,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：m-18 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:203
   declared_value: 16px
@@ -6944,7 +6944,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：m-18 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:204
   declared_value: normal
@@ -6958,7 +6958,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：m-18 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:201
   declared_value: '500'
@@ -6972,7 +6972,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：m-18 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:202
   declared_value: 28px
@@ -6986,7 +6986,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:94
   declared_value: var(--dsw-font-family)
@@ -7000,7 +7000,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:98
   declared_value: normal
@@ -7014,7 +7014,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:95
   declared_value: '400'
@@ -7028,7 +7028,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：markdown base italic
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:107
   declared_value: italic var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -7042,7 +7042,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-italic 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:108
   declared_value: var(--dsw-font-family)
@@ -7056,7 +7056,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-italic 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:111
   declared_value: var(--dsh-content-font-size, 14px)
@@ -7070,7 +7070,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-italic 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:112
   declared_value: italic
@@ -7084,7 +7084,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-italic 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:109
   declared_value: '400'
@@ -7098,7 +7098,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-italic 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:110
   declared_value: calc(24px + var(--dsh-content-font-delta))
@@ -7112,7 +7112,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:101
   declared_value: var(--dsw-font-family)
@@ -7126,7 +7126,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:104
   declared_value: var(--dsh-content-font-size, 14px)
@@ -7140,7 +7140,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:105
   declared_value: normal
@@ -7154,7 +7154,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:102
   declared_value: '600'
@@ -7168,7 +7168,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：markdown base strong italic
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:114
   declared_value: italic 600 var(--dsh-content-font-size, 14px) / calc(24px + var(--dsh-content-font-delta)) var(--dsw-font-family)
@@ -7182,7 +7182,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong-italic 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:115
   declared_value: var(--dsw-font-family)
@@ -7196,7 +7196,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong-italic 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:118
   declared_value: var(--dsh-content-font-size, 14px)
@@ -7210,7 +7210,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong-italic 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:119
   declared_value: italic
@@ -7224,7 +7224,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong-italic 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:116
   declared_value: '600'
@@ -7238,7 +7238,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong-italic 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:117
   declared_value: calc(24px + var(--dsh-content-font-delta))
@@ -7252,7 +7252,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-base-strong 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:103
   declared_value: calc(24px + var(--dsh-content-font-delta))
@@ -7266,7 +7266,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:171
   declared_value: var(--ds-font-family-code)
@@ -7280,7 +7280,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:174
   declared_value: var(--dsh-code-font-size, 11px)
@@ -7294,7 +7294,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:175
   declared_value: normal
@@ -7308,7 +7308,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:172
   declared_value: '400'
@@ -7322,7 +7322,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:173
   declared_value: calc(19px + var(--dsh-code-font-delta))
@@ -7336,7 +7336,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block-small 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:179
   declared_value: var(--ds-font-family-code)
@@ -7350,7 +7350,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block-small 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:182
   declared_value: var(--dsh-code-font-size, 11px)
@@ -7364,7 +7364,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block-small 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:183
   declared_value: normal
@@ -7378,7 +7378,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block-small 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:180
   declared_value: '400'
@@ -7392,7 +7392,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code-block-small 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:181
   declared_value: calc(16px + var(--dsh-code-font-delta))
@@ -7406,7 +7406,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:167
   declared_value: calc(12px + var(--dsh-code-font-delta))
@@ -7420,7 +7420,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:168
   declared_value: normal
@@ -7434,7 +7434,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:165
   declared_value: '400'
@@ -7448,7 +7448,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-code 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:166
   declared_value: calc(19px + var(--dsh-code-font-delta))
@@ -7462,7 +7462,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h1 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:66
   declared_value: var(--dsw-font-family)
@@ -7476,7 +7476,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h1 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:70
   declared_value: normal
@@ -7490,7 +7490,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h1 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:67
   declared_value: '700'
@@ -7504,7 +7504,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h2 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:73
   declared_value: var(--dsw-font-family)
@@ -7518,7 +7518,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h2 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:77
   declared_value: normal
@@ -7532,7 +7532,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h2 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:74
   declared_value: '700'
@@ -7546,7 +7546,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h3 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:80
   declared_value: var(--dsw-font-family)
@@ -7560,7 +7560,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h3 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:84
   declared_value: normal
@@ -7574,7 +7574,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h3 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:81
   declared_value: '700'
@@ -7588,7 +7588,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h4 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:87
   declared_value: var(--dsw-font-family)
@@ -7602,7 +7602,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h4 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:90
   declared_value: var(--dsh-content-font-size, 14px)
@@ -7616,7 +7616,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h4 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:91
   declared_value: normal
@@ -7630,7 +7630,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h4 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:88
   declared_value: '600'
@@ -7644,7 +7644,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-h4 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:89
   declared_value: calc(24px + var(--dsh-content-font-delta))
@@ -7658,7 +7658,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:136
   declared_value: var(--dsw-font-family)
@@ -7672,7 +7672,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:140
   declared_value: normal
@@ -7686,7 +7686,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:137
   declared_value: '400'
@@ -7700,7 +7700,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：markdown small italic
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:149
   declared_value: italic 12px/20px var(--dsw-font-family)
@@ -7714,7 +7714,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-italic 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:150
   declared_value: var(--dsw-font-family)
@@ -7728,7 +7728,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-italic 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:153
   declared_value: 12px
@@ -7742,7 +7742,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-italic 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:154
   declared_value: italic
@@ -7756,7 +7756,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-italic 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:151
   declared_value: '400'
@@ -7770,7 +7770,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-italic 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:152
   declared_value: 20px
@@ -7784,7 +7784,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：markdown small strong
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:142
   declared_value: 600 12px/20px var(--dsw-font-family)
@@ -7798,7 +7798,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:143
   declared_value: var(--dsw-font-family)
@@ -7812,7 +7812,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:146
   declared_value: 12px
@@ -7826,7 +7826,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:147
   declared_value: normal
@@ -7840,7 +7840,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:144
   declared_value: '600'
@@ -7854,7 +7854,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：markdown small strong italic
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:156
   declared_value: italic 600 12px/20px var(--dsw-font-family)
@@ -7868,7 +7868,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong-italic 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:157
   declared_value: var(--dsw-font-family)
@@ -7882,7 +7882,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong-italic 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:160
   declared_value: 12px
@@ -7896,7 +7896,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong-italic 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:161
   declared_value: italic
@@ -7910,7 +7910,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong-italic 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:158
   declared_value: '600'
@@ -7924,7 +7924,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong-italic 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:159
   declared_value: 20px
@@ -7938,7 +7938,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-small-strong 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:145
   declared_value: 20px
@@ -7952,7 +7952,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:122
   declared_value: var(--dsw-font-family)
@@ -7966,7 +7966,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:125
   declared_value: var(--dsh-content-font-size-secondary, 13px)
@@ -7980,7 +7980,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:126
   declared_value: normal
@@ -7994,7 +7994,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:123
   declared_value: '400'
@@ -8008,7 +8008,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table-head 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:129
   declared_value: var(--dsw-font-family)
@@ -8022,7 +8022,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table-head 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:132
   declared_value: var(--dsh-content-font-size-secondary, 13px)
@@ -8036,7 +8036,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table-head 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:133
   declared_value: normal
@@ -8050,7 +8050,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table-head 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:130
   declared_value: '500'
@@ -8064,7 +8064,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table-head 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:131
   declared_value: calc(22px + var(--dsh-content-font-delta-secondary, 0px))
@@ -8078,7 +8078,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：markdown-table 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:124
   declared_value: calc(22px + var(--dsh-content-font-delta-secondary, 0px))
@@ -8092,7 +8092,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-14 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:221
   declared_value: var(--dsw-font-family)
@@ -8106,7 +8106,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-14 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:224
   declared_value: 14px
@@ -8120,7 +8120,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-14 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:225
   declared_value: normal
@@ -8134,7 +8134,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-14 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:222
   declared_value: '400'
@@ -8148,7 +8148,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-14 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:223
   declared_value: 22px
@@ -8162,7 +8162,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：s strong 14
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:227
   declared_value: 500 14px/22px var(--dsw-font-family)
@@ -8176,7 +8176,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-strong-14 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:228
   declared_value: var(--dsw-font-family)
@@ -8190,7 +8190,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-strong-14 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:231
   declared_value: 14px
@@ -8204,7 +8204,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-strong-14 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:232
   declared_value: normal
@@ -8218,7 +8218,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-strong-14 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:229
   declared_value: '500'
@@ -8232,7 +8232,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：s-strong-14 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:230
   declared_value: 22px
@@ -8246,7 +8246,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：xl 24
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:185
   declared_value: 600 24px/32px var(--dsw-font-family)
@@ -8260,7 +8260,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xl-24 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:186
   declared_value: var(--dsw-font-family)
@@ -8274,7 +8274,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xl-24 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:189
   declared_value: 24px
@@ -8288,7 +8288,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xl-24 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:190
   declared_value: normal
@@ -8302,7 +8302,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xl-24 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:187
   declared_value: '600'
@@ -8316,7 +8316,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xl-24 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:188
   declared_value: 32px
@@ -8330,7 +8330,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-13 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:235
   declared_value: var(--dsw-font-family)
@@ -8344,7 +8344,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-13 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:238
   declared_value: 13px
@@ -8358,7 +8358,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-13 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:239
   declared_value: normal
@@ -8372,7 +8372,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-13 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:236
   declared_value: '400'
@@ -8386,7 +8386,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-13 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:237
   declared_value: 20px
@@ -8400,7 +8400,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-strong-13 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:242
   declared_value: var(--dsw-font-family)
@@ -8414,7 +8414,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-strong-13 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:245
   declared_value: 13px
@@ -8428,7 +8428,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-strong-13 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:246
   declared_value: normal
@@ -8442,7 +8442,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-strong-13 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:243
   declared_value: '500'
@@ -8456,7 +8456,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xs-strong-13 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:244
   declared_value: 20px
@@ -8470,7 +8470,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-12 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:249
   declared_value: var(--dsw-font-family)
@@ -8484,7 +8484,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-12 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:252
   declared_value: 12px
@@ -8498,7 +8498,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-12 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:253
   declared_value: normal
@@ -8512,7 +8512,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-12 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:250
   declared_value: '400'
@@ -8526,7 +8526,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-12 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:251
   declared_value: 18px
@@ -8540,7 +8540,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：xxs strong 12
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:255
   declared_value: 500 12px/18px var(--dsw-font-family)
@@ -8554,7 +8554,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-strong-12 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:256
   declared_value: var(--dsw-font-family)
@@ -8568,7 +8568,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-strong-12 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:259
   declared_value: 12px
@@ -8582,7 +8582,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-strong-12 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:260
   declared_value: normal
@@ -8596,7 +8596,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-strong-12 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:257
   declared_value: '500'
@@ -8610,7 +8610,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxs-strong-12 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:258
   declared_value: 18px
@@ -8624,7 +8624,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-11 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:263
   declared_value: var(--dsw-font-family)
@@ -8638,7 +8638,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-11 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:266
   declared_value: 11px
@@ -8652,7 +8652,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-11 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:267
   declared_value: normal
@@ -8666,7 +8666,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-11 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:264
   declared_value: '400'
@@ -8680,7 +8680,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-11 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:265
   declared_value: 14px
@@ -8694,7 +8694,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印复合：xxxs strong 11
-  value_type: font / length
+  value_type: font composite（简写）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:269
   declared_value: 500 11px/14px var(--dsw-font-family)
@@ -8708,7 +8708,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-strong-11 字族（长手）
-  value_type: font / length
+  value_type: font_stack / asset
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:270
   declared_value: var(--dsw-font-family)
@@ -8722,7 +8722,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-strong-11 字号（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:273
   declared_value: 11px
@@ -8736,7 +8736,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-strong-11 字体样式（长手）
-  value_type: font / length
+  value_type: keyword（italic/normal）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:274
   declared_value: normal
@@ -8750,7 +8750,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-strong-11 字重（长手）
-  value_type: font / length
+  value_type: weight
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:271
   declared_value: '500'
@@ -8764,7 +8764,7 @@ tokens:
   status: dead
   rank: dead
   zh: 排印：xxxs-strong-11 行高（长手）
-  value_type: font / length
+  value_type: length / number（行高可无单位）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:272
   declared_value: 14px
@@ -8778,7 +8778,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：sm
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:19
   declared_value: 8px
@@ -8927,7 +8927,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：md
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:20
   declared_value: 12px
@@ -9048,7 +9048,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：lg
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:21
   declared_value: 16px
@@ -9161,7 +9161,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：xl
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:22
   declared_value: 20px
@@ -9210,7 +9210,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：xs
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:18
   declared_value: 4px
@@ -9259,7 +9259,7 @@ tokens:
   status: live
   rank: live
   zh: 圆角档位：panel
-  value_type: length / number
+  value_type: length
   declared:
   - packages/client/ui-theme/src/styles/base.css:23
   declared_value: 28px
@@ -9282,7 +9282,7 @@ tokens:
   status: live
   rank: live
   zh: 角形状
-  value_type: length / number
+  value_type: keyword（round/squircle）
   declared:
   - packages/client/ui-theme/src/styles/corner-shape.css:18
   declared_value: superellipse(1.5)
@@ -9297,7 +9297,7 @@ tokens:
   status: live
   rank: live
   zh: 蒙层：blur
-  value_type: length / number
+  value_type: length / keyword（none）
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:19
   declared_value: none
@@ -9318,7 +9318,7 @@ tokens:
   status: live
   rank: live
   zh: 正文字号增量
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:57
   declared_value: calc(var(--dsh-content-font-size, 14px) - 14px)
@@ -9375,7 +9375,7 @@ tokens:
   status: live
   rank: live
   zh: 次级正文字号
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:58
   declared_value: min(calc(var(--dsh-content-font-size, 14px) - 1px), max(13px, calc(var(--dsh-content-font-size, 14px) - 2px)))
@@ -9434,7 +9434,7 @@ tokens:
   status: live
   rank: live
   zh: 次级正文字号增量
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:59
   declared_value: calc(var(--dsh-content-font-size-secondary) - 13px)
@@ -9465,7 +9465,7 @@ tokens:
   status: live
   rank: live
   zh: 代码字号增量
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/gradient-shadow-text.css:63
   declared_value: calc(var(--dsh-code-font-size, 11px) - 11px)
@@ -9480,7 +9480,7 @@ tokens:
   status: live
   rank: live
   zh: 正文字族默认值
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/base.css:7
   declared_value: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif
@@ -9495,7 +9495,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条宽度
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/scrollbar.css:25
   declared_value: 5px
@@ -9514,7 +9514,7 @@ tokens:
   status: live
   rank: live
   zh: 代码字族默认值
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/base.css:11
   declared_value: '''SF Mono'', ''JetBrains Mono'', ''Fira Code'', Consolas, ''Liberation Mono'', Menlo, Courier, ''PingFang SC'', ''Microsoft YaHei'''
@@ -9529,7 +9529,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条滑块
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/scrollbar.css:17
   declared_value: var(--dsw-alias-scrollbar-bg-l1)
@@ -9544,7 +9544,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条滑块描边
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/scrollbar.css:19
   declared_value: 0px
@@ -9559,7 +9559,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条滑块悬停
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/scrollbar.css:18
   declared_value: var(--dsw-alias-scrollbar-hover-l1)
@@ -9574,7 +9574,7 @@ tokens:
   status: live
   rank: live
   zh: 滚动条轨道留白
-  value_type: length / number
+  value_type: length / keyword
   declared:
   - packages/client/ui-theme/src/styles/scrollbar.css:20
   declared_value: 0px
@@ -9589,7 +9589,7 @@ tokens:
   status: live
   rank: live
   zh: --dsw-focus-ring-width
-  value_type: color（背景类可接受 paint）
+  value_type: length（宽度）
   declared:
   - packages/client/ui-theme/src/styles/focus.css:3
   declared_value: 2px

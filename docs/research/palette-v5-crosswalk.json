@@ -1,6 +1,6 @@
 {
  "stats": {
-  "capabilities": 331,
+  "capabilities": 333,
   "direct_bindings": 425,
   "runtime": 148
  },
@@ -717,7 +717,7 @@
    {
     "token": "--shiki-background",
     "semantic": "content.code.background",
-    "capability": null,
+    "capability": "content.code.background",
     "direct_binding": "token.shiki.background"
    },
    {

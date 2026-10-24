@@ -14,13 +14,13 @@ code{font-family:ui-monospace,Consolas,monospace;font-size:12.8px;background:#f4
 <p class="muted">机器生成：<code>scripts/research/gen_palette_v5.py</code> · 数据：<code>docs/research/palette-v5-crosswalk.json</code></p>
 
 <h2>0. 一句话</h2>
-<p>能力菜单 <b>331</b> 条（语义能力 + token 能力 + DOM 效果），直绑定 <b>425</b> 条（425 个 token 全量兜底），运行时登记 <b>148</b> 条（不建能力）。菜单条目的 <code>binds</code>/<code>tech</code> 指回登记层，登记层每条都有落点。</p>
+<p>能力菜单 <b>333</b> 条（语义能力 + token 能力 + DOM 效果），直绑定 <b>425</b> 条（425 个 token 全量兜底），运行时登记 <b>148</b> 条（不建能力）。菜单条目的 <code>binds</code>/<code>tech</code> 指回登记层，登记层每条都有落点。</p>
 
 <h2>1. 集合闭合校验</h2>
 <table><thead><tr><th>项</th><th>数字</th><th>说明</th></tr></thead><tbody>
 <tr><td>公开 token</td><td class="num">425</td><td>= 颜色 222 + 非颜色 203</td></tr>
 <tr><td>直绑定条目</td><td class="num">425</td><td>和 425 一一对应（id = <code>token.&lt;ns&gt;.&lt;名字&gt;</code>）</td></tr>
-<tr><td>能力菜单</td><td class="num">331</td><td>手写 28 + master 236 + P4 52 + P2 20（合并/去重后）</td></tr>
+<tr><td>能力菜单</td><td class="num">333</td><td>手写 28 + master 236 + P4 52 + P2 20（合并/去重后）</td></tr>
 <tr><td>运行时登记</td><td class="num">148</td><td>148 = --dsh 60 + --dsl 20 + 局部 --dsw 12 + 组件局部 56</td></tr>
 </tbody></table>
 
