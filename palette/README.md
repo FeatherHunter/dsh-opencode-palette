@@ -4,7 +4,7 @@
 
 ## 为什么这样拆：六条第一性原理
 
-1. **单一事实源**：同一个事实只在一个文件出现一次。宿主 token 名只在 `tokens.yaml`，选择器只在 `anchors.yaml`，能力只在 `palette.yaml`。
+1. **单一事实源**：同一个事实只在一个文件出现一次。宿主 token 名只在 `tokens.yaml`，选择器只在 `anchors.yaml`，能力只在 `capabilities.yaml`（`palette.yaml` 是它们的合成视图，不产生新事实）。
 2. **按技术域拆分**：一种落地手段一个文件。加新手段 = 加文件/加原语，不改能力菜单结构。
 3. **按变化频率分层**：宿主每次升级都变的（token、锚点）标记为生成物；一年改几次的（词表、值类型）手写；每周增长的（能力）单独一个文件。
 4. **契约先行**：能力 id 的每一段都必须来自词表，写原语的字段与参数都有清单，值必须按类型解析后再序列化。
@@ -16,8 +16,8 @@
 | 文件 | 内容 | 手写? |
 |---|---|---|
 | `_index.yaml` | 注册表：模块清单、版本、生成命令、计数 | 手写 |
-| `palette.src.yaml` | **手写能力源**：28 条手写能力 + 控件模板 + `api`/`palette_version`；改能力改这里 | 手写 |
-| `palette.yaml` | **生成物**：能力菜单 `capabilities`（331 条，含手写/展开/master/P1–P4）+ `direct_bindings`（425 条，425 个公开 token 一通一）；由 `gen_palette_v5.py` 生成，**不要手改** | **生成** |
+| `capabilities.yaml` | **手写能力源**：28 条手写能力 + 控件模板 + `api`/`palette_version`；改能力改这里 | 手写 |
+| `palette.yaml` | **合成视图**：由全部底层模块合成——词表/值类型/原语/资源/探测/锚点 + 能力菜单 `capabilities`（331 条）+ `direct_bindings`（425 条）+ runtime 摘要；由 `gen_palette_v5.py` 生成，**不要手改** | **生成** |
 | `vocabulary.yaml` | 词表：区域/角色/属性/recipe/状态/语言/能力域（34）/目录 | 手写 |
 | `values.yaml` | 值类型（23 种）、书写系统 Unicode 范围、主题变量语法 | 手写 |
 | `primitives.yaml` | 写原语：token / rule / dom / host_api 的字段与策略 | 手写 |
@@ -27,7 +27,7 @@
 | `anchors.yaml` | DOM 锚点候选 + 控件清单 | **部分生成** |
 | `SPEC.md` | 格式规范入口：palette.yaml + theme.yaml + assets 三样东西、加载管线、验收判据（给人/新 AI 读，不参与机器校验） | 手写 |
 
-> 给新会话的读法：先读 `SPEC.md`（要做什么）→ 再读 `_index.yaml`（有哪些模块/计数）→ 再读 `palette.src.yaml`（手写能力）与 `palette.yaml`（含生成的直绑定；**不要手改**）。
+> 给新会话的读法：先读 `SPEC.md`（要做什么）→ 再读 `_index.yaml`（有哪些模块/计数）→ 再读 `palette.yaml`（合成后的能力全集；**不要手改**；加能力改 `capabilities.yaml`）。
 
 ## 三层用法
 
@@ -47,7 +47,7 @@
 1. 跑扫描：`npm run palette:scan-tokens`、`npm run palette:scan-anchors`
 2. 看 `coverage-gaps.md`：新增 token / 锚点 / 控件
 3. 有缺口 → 先补 `anchors.yaml`（人工确认置信度）或 `tokens.yaml`（自动）
-4. 新能力 → `palette.src.yaml` 加条目（只引用已有词表/值类型/原语），跑 `python scripts/research/gen_palette_v5.py` 重新生成 `palette.yaml`
+4. 新能力 → `capabilities.yaml` 加条目（只引用已有词表/值类型/原语），跑 `python scripts/research/gen_palette_v5.py` 重新合成 `palette.yaml`
 5. 需要新类型/新原语 → 改 `values.yaml` / `primitives.yaml`，不改 palette 条目形状
 6. 跑门禁：`python scripts/research/palette-check.py`（跨模块引用、计数、生成物一致性、版本对账）
 7. 预览截图对比；升 `palette_version`（新增 +0.1.0，破坏性 +1.0.0）

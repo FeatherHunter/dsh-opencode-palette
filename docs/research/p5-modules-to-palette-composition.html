@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>palette.yaml 由全部底层 YAML 合成（机制与分工）</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 980px; margin: 40px auto; padding: 0 24px; line-height: 1.75; color: #1a1a1a; }
+  h1 { font-size: 26px; border-bottom: 2px solid #1a1a1a; padding-bottom: 10px; }
+  h2 { font-size: 19px; margin-top: 32px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; }
+  th, td { border: 1px solid #d0d0d0; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f5f5f5; }
+  code { background: #f2f2f2; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  pre { background: #f8f8f8; border-left: 4px solid #444; padding: 12px 16px; font-size: 13px; overflow-x: auto; }
+  .note { color: #555; font-size: 14px; }
+</style>
+</head>
+<body>
+<h1>palette.yaml 由全部底层 YAML 合成（机制与分工）</h1>
+
+<h2>一、两个角度，不混用</h2>
+<table>
+<tr><th>角度</th><th>对象</th><th>谁维护</th><th>内容</th></tr>
+<tr>
+  <td>主题设计者（用户 / 主题作者 / 外部 AI）</td>
+  <td>主题包：<code>&lt;主题目录&gt;/theme.yaml + assets/</code></td>
+  <td>主题作者</td>
+  <td>只写能力 id + 值 + 资源文件；看不到任何宿主 token 名</td>
+</tr>
+<tr>
+  <td>插件开发者（我们）</td>
+  <td><code>palette/</code> 目录（能力集）</td>
+  <td>本仓库</td>
+  <td>词表、值类型、写原语、资源策略、探测、锚点、宿主 token 事实、能力菜单</td>
+</tr>
+</table>
+<p>所以不存在「主题设计者手写 palette.yaml」这回事。<code>palette/</code> 整体是开发者侧的东西。</p>
+
+<h2>二、palette.yaml 不是手写的，它由底层 YAML 合成</h2>
+<pre>
+palette/capabilities.yaml   手写能力源（28 条手写能力 + 控件模板）
+palette/vocabulary.yaml     词表：区域/角色/属性/recipe/状态/语言/能力域 34
+palette/values.yaml         值类型 23 种 + Unicode 范围 + 变量语法
+palette/primitives.yaml     写原语：token/rule/dom/host_api + realization 契约
+palette/assets.yaml         资源类型与安全策略
+palette/probes.yaml         探测原语
+palette/anchors.yaml        DOM 锚点 + 控件清单
+palette/tokens.yaml         宿主 token 事实表 425 条 + runtime 148 条登记
+docs/research/*.json        P1–P4 逐条讨论表（能力菜单的来源）
+                    ↓  scripts/research/gen_palette_v5.py（可重跑）
+palette/palette.yaml        合成视图（32 段）：grammar / vocabulary / value_types /
+                            write_kinds / realization / policies / assets / probes /
+                            anchors / controls / control_templates /
+                            capabilities 331 / direct_bindings 425 /
+                            token_summary / runtime_summary / generated 溯源
+</pre>
+
+<h2>三、palette.yaml 里有什么</h2>
+<table>
+<tr><th>段</th><th>内容</th><th>来自</th></tr>
+<tr><td><code>grammar</code> / <code>capability_domains</code> / <code>regions</code> / <code>roles</code> / <code>properties</code> / <code>recipes</code> / <code>states</code> / <code>languages</code> / <code>catalog</code></td><td>id 文法与词表全量</td><td>vocabulary.yaml</td></tr>
+<tr><td><code>value_types</code> / <code>scripts</code> / <code>variables_spec</code> / <code>semantics</code></td><td>值类型定义、Unicode 范围、变量语法</td><td>values.yaml</td></tr>
+<tr><td><code>write_kinds</code> / <code>realization</code> / <code>policies</code></td><td>写原语与策略、realization 契约</td><td>primitives.yaml</td></tr>
+<tr><td><code>assets_policy</code> / <code>assets_kinds</code></td><td>资源安全策略与类型</td><td>assets.yaml</td></tr>
+<tr><td><code>probes</code></td><td>探测原语与环境</td><td>probes.yaml</td></tr>
+<tr><td><code>anchors</code> / <code>controls</code></td><td>宿主锚点候选与控件清单</td><td>anchors.yaml</td></tr>
+<tr><td><code>token_summary</code></td><td>425 token 的命名空间、颜色轴、状态模型摘要</td><td>tokens.yaml</td></tr>
+<tr><td><code>capabilities</code> 331</td><td>能力菜单（语义能力 + token 能力 + DOM 效果）</td><td>capabilities.yaml + P1–P4 表</td></tr>
+<tr><td><code>direct_bindings</code> 425</td><td>425 个公开 token 的直绑定兜底（id = <code>token.&lt;ns&gt;.&lt;名字&gt;</code>）</td><td>tokens.yaml</td></tr>
+<tr><td><code>runtime_summary</code></td><td>运行时 148 条局部分组摘要（不建用户能力）</td><td>tokens.yaml runtime 段</td></tr>
+<tr><td><code>generated</code></td><td>溯源：由哪些模块合成、生成器、宿主版本</td><td>生成器写入</td></tr>
+</table>
+
+<h2>四、为什么这样</h2>
+<ul>
+  <li><b>单一事实源</b>：每个事实只在它的模块里写一次；palette.yaml 是只读合成视图，门禁逐段比对，不一致即报错。</li>
+  <li><b>主题设计者只写 theme.yaml</b>：能力 id 拼错即报错；宿主名全部藏在 palette。</li>
+  <li><b>可扩展</b>：宿主升级 → 重扫 tokens.yaml → 重跑生成器；新增能力 → 改 capabilities.yaml → 重跑。palette.yaml 永远由机器重算，不靠人抄。</li>
+  <li><b>可审计</b>：P1–P4 每一行 → 能力/直绑定的落点可逐行核对（<code>v3-p1p4-to-yaml-crosswalk.html</code>）。</li>
+</ul>
+
+<h2>五、与上一版说明的差异（已纠正）</h2>
+<p>上一版把 <code>palette.src.yaml</code> 当成唯一手写源、把 <code>palette.yaml</code> 当成「生成物」。正确模型是：</p>
+<ul>
+  <li>手写源不是单独一个「src」文件，而是<b>全部底层模块</b>，其中能力菜单的手写部分在 <code>capabilities.yaml</code>（与 vocabulary/values/… 平级的一个模块）。</li>
+  <li><code>palette.yaml</code> 是<b>所有底层模块的合成视图</b>（32 段），不再只含 capabilities + direct_bindings。</li>
+  <li>门禁新增逐段一致性校验：<code>palette.yaml.X</code> 必须等于对应模块的 <code>X</code>。</li>
+</ul>
+
+<h2>六、当前数字</h2>
+<ul>
+  <li>palette.yaml：32 段、约 311 KB；<code>capabilities</code> 331、<code>direct_bindings</code> 425、<code>runtime_summary</code> 148。</li>
+  <li>门禁 <code>scripts/research/palette-check.py</code>：10/10 YAML、0 错 0 警。</li>
+</ul>
+</body>
+</html>

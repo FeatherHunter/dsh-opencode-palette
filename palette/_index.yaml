@@ -2,18 +2,26 @@ api: 3
 palette_version: 3.0.0
 implementation: scaffold
 requires:
+  capabilities: '>=3.0.0'
   vocabulary: '>=3.0.0'
   values: '>=3.0.0'
   primitives: '>=3.0.0'
   assets: '>=3.0.0'
   probes: '>=3.0.0'
 modules:
+  capabilities:
+    file: capabilities.yaml
+    version: 3.0.0
+    generated: false
+    kind: capabilities_source
+    summary: 手写能力源——28 条手写能力 + 控件模板 + api/palette_version；改能力改这里
   palette:
     file: palette.yaml
     version: 3.0.0
-    generated: false
-    kind: capabilities
-    summary: 能力菜单——一行一个可配置能力（谁·哪个部件·哪个维度 + 如何落到宿主）
+    generated: true
+    kind: composed
+    command: python scripts/research/gen_palette_v5.py（由全部底层模块合成；勿手改）
+    summary: 能力全集合成视图——词表/值类型/原语/资源/探测/锚点 + 能力菜单 331 + 直绑定 425 + runtime 摘要
   vocabulary:
     file: vocabulary.yaml
     version: 3.0.0

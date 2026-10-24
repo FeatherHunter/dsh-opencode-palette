@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""P5 定稿：把 P1–P4 的讨论结果固化成 palette/palette.yaml（能力菜单 + 直绑定）+ tokens.yaml runtime 段 + 交叉对照。
+"""P5 定稿：把全部底层模块合成为 palette/palette.yaml（能力全集视图），并维护 tokens.yaml runtime 段与交叉对照。
 
 运行：python scripts/research/gen_palette_v5.py
+输入（全部底层模块）：
+  palette/capabilities.yaml（手写能力源：28 条手写能力 + 控件模板）
+  palette/vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml
+  docs/research/capability-master.json / color-ability-map.json / noncolor-surface-map.json / private-surface-map.json（P1–P4 逐条表）
 输出：
-  palette/palette.yaml                       能力菜单（capabilities）+ 直绑定（direct_bindings）
+  palette/palette.yaml                       合成视图：词表/值类型/原语/资源/探测/锚点 + 能力菜单（capabilities）+ 直绑定（direct_bindings）
   palette/tokens.yaml                        追加 runtime 段（148 条登记）
   palette/vocabulary.yaml                    追加 token 能力域
   docs/research/palette-v5-crosswalk.json    P1/P2/P3/P4 每一行 → YAML 落点
@@ -100,13 +104,13 @@ master = jload("docs/research/capability-master.json")["rows"]
 p1 = jload("docs/research/color-ability-map.json")["rows"]
 p4 = jload("docs/research/noncolor-surface-map.json")
 p2 = jload("docs/research/private-surface-map.json")
-menu = load("palette/palette.src.yaml")
+menu = load("palette/capabilities.yaml")
 values_doc = load("palette/values.yaml")
 valid_types = set(values_doc["value_types"].keys())
 
 # ---------- 能力菜单 ----------
 caps = {}
-# palette.src.yaml 是唯一手写源；palette.yaml 整份由本脚本重建（可重跑）
+# capabilities.yaml 是手写能力源；palette.yaml 由本脚本从全部底层模块合成（可重跑）
 for cid, c in menu["capabilities"].items():
     e = dict(c)
     e["tier"] = {"basic": "stable"}.get(e.get("tier"), e.get("tier", "stable"))
@@ -248,24 +252,71 @@ for t in tokens:
         "docs": t.get("zh") or "",
     }
 
-# ---------- 写 palette.yaml ----------
+# ---------- 合成 palette.yaml（全部底层模块 → 一份能力全集视图） ----------
+voc = load("palette/vocabulary.yaml")
+vals = load("palette/values.yaml")
+prims = load("palette/primitives.yaml")
+assets_doc = load("palette/assets.yaml")
+probes_doc = load("palette/probes.yaml")
+anchors_doc = load("palette/anchors.yaml")
+
+SOURCE_MODULES = [
+    "capabilities.yaml", "vocabulary.yaml", "values.yaml", "primitives.yaml",
+    "assets.yaml", "probes.yaml", "anchors.yaml", "tokens.yaml",
+]
+
 out = {
     "api": 3,
     "palette_version": "3.0.0",
     "title": menu.get("title"),
     "description": menu.get("description"),
+    "generated": {
+        "from": SOURCE_MODULES,
+        "generator": "scripts/research/gen_palette_v5.py",
+        "host": tokens_doc.get("host"),
+        "note": "palette.yaml 由底层模块合成；改模块后重跑本脚本，不要手改本文件。",
+    },
+    # —— 底层模块的合成视图（与模块逐段一致，门禁校验） ——
+    "grammar": voc.get("grammar"),
+    "capability_domains": voc.get("capability_domains"),
+    "regions": voc.get("regions"),
+    "roles": voc.get("roles"),
+    "properties": voc.get("properties"),
+    "recipes": voc.get("recipes"),
+    "states": voc.get("states"),
+    "languages": voc.get("languages"),
+    "catalog": voc.get("catalog"),
+    "value_types": vals.get("value_types"),
+    "scripts": vals.get("scripts"),
+    "variables_spec": vals.get("variables"),
+    "semantics": vals.get("semantics"),
+    "write_kinds": prims.get("write_kinds"),
+    "realization": prims.get("realization"),
+    "policies": prims.get("policies"),
+    "assets_policy": assets_doc.get("policy"),
+    "assets_kinds": assets_doc.get("kinds"),
+    "probes": probes_doc,
+    "anchors": anchors_doc.get("anchors"),
+    "controls": anchors_doc.get("controls"),
+    # —— 能力全集 ——
     "control_templates": menu.get("control_templates", {}),
     "capabilities": caps,
     "direct_bindings": direct,
-    "extensions": menu.get("extensions") or {},
+    "token_summary": {
+        "namespaces": tokens_doc.get("namespaces"),
+        "color_axis": tokens_doc.get("color_axis"),
+        "status_model": tokens_doc.get("status_model"),
+        "total": len(tokens),
+    },
+    "extensions_reserved": menu.get("extensions") or {},
 }
 HEADER = (
-    "# palette.yaml —— DSH 全量主题能力表（P5 定稿，机器生成部分见 direct_bindings）\n"
-    "# 生成器：scripts/research/gen_palette_v5.py\n"
-    "# 结构：capabilities = 能力菜单（语义能力 + token 能力 + DOM 效果）；direct_bindings = 425 个 token 的直绑定兜底。\n# 手写源：palette/palette.src.yaml（改能力改那里）；本文件不要手改。\n"
-    "# 每条能力都指向底层实现技术（token / 规则 / DOM），裸 token 名只出现在 binds / token 字段里。\n\n"
+    "# palette.yaml —— DSH 全量主题能力表（合成视图，P5 定稿）\n"
+    "# 本文件由 scripts/research/gen_palette_v5.py 从以下底层模块合成，不要手改：\n"
+    "#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml\n"
+    "# 各段是底层模块的合成视图；capabilities 是能力菜单；direct_bindings 是 425 个 token 的直绑定兜底；runtime_summary 是运行时登记摘要。\n"
+    "# 每条能力都指向底层实现技术（token / 规则 / DOM / 字体 / 资源），裸 token 名只出现在 binds / token 字段里。\n\n"
 )
-dump_yaml("palette/palette.yaml", out, HEADER)
 
 # ---------- tokens.yaml：追加 runtime 段 ----------
 rt = p4["runtime"]
@@ -320,6 +371,13 @@ runtime = {
 runtime["total"] = sum(g["count"] for g in runtime["groups"])
 tokens_doc["runtime"] = runtime
 dump_yaml("palette/tokens.yaml", tokens_doc)
+
+out["runtime_summary"] = {
+    "total": runtime["total"],
+    "groups": [{"id": g["id"], "prefix": g.get("prefix"), "count": g["count"], "note": g.get("note")} for g in runtime["groups"]],
+    "scan": runtime.get("scan"),
+}
+dump_yaml("palette/palette.yaml", out, HEADER)
 
 # ---------- vocabulary：token 能力域 ----------
 voc = load("palette/vocabulary.yaml")

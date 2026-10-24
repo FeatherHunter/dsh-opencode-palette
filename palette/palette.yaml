@@ -1,8 +1,8 @@
-# palette.yaml —— DSH 全量主题能力表（P5 定稿，机器生成部分见 direct_bindings）
-# 生成器：scripts/research/gen_palette_v5.py
-# 结构：capabilities = 能力菜单（语义能力 + token 能力 + DOM 效果）；direct_bindings = 425 个 token 的直绑定兜底。
-# 手写源：palette/palette.src.yaml（改能力改那里）；本文件不要手改。
-# 每条能力都指向底层实现技术（token / 规则 / DOM），裸 token 名只出现在 binds / token 字段里。
+# palette.yaml —— DSH 全量主题能力表（合成视图，P5 定稿）
+# 本文件由 scripts/research/gen_palette_v5.py 从以下底层模块合成，不要手改：
+#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml
+# 各段是底层模块的合成视图；capabilities 是能力菜单；direct_bindings 是 425 个 token 的直绑定兜底；runtime_summary 是运行时登记摘要。
+# 每条能力都指向底层实现技术（token / 规则 / DOM / 字体 / 资源），裸 token 名只出现在 binds / token 字段里。
 
 api: 3
 palette_version: 3.0.0
@@ -12,6 +12,1250 @@ description: '插件的唯一能力真源。用户主题只能写这里登记过
   宿主改名时，只改 tokens.yaml / anchors.yaml，本文件不动。
 
   '
+generated:
+  from:
+  - capabilities.yaml
+  - vocabulary.yaml
+  - values.yaml
+  - primitives.yaml
+  - assets.yaml
+  - probes.yaml
+  - anchors.yaml
+  - tokens.yaml
+  generator: scripts/research/gen_palette_v5.py
+  host:
+    version: 0.2.1-rc.3
+    commit: 1f81c047fc48fa190a683e469daa699857e9afe8
+    theme_surface_note: rc.3 与 rc.2 的 ui-theme styles SHA256 全同、0 增删声明 → token 表不变
+    source: D:\Temp\dsh-src
+    path_base: 仓库根相对路径（packages/… 或 apps/…，可带 :行号）
+    scan_script: scripts/research/gen_token_registry.py
+  note: palette.yaml 由底层模块合成；改模块后重跑本脚本，不要手改本文件。
+grammar:
+  property_id: <region>.<role>.<property>
+  recipe_id: <region>.<recipe>
+  recipe_role_id: <region>.<role>.<recipe>
+  expanded_property_id: <region>.<control_name>.<property>
+  expanded_dedupe: 展开 id 与手写 id 相同时，手写优先，展开条目不另计
+  control_name_source: anchors.yaml controls 的键：<region>.<controlName>（如 composer.sendButton）
+  custom_prefix: custom
+  vocabulary_bound: true
+  locked: true
+  capability_id: <domain>.<segment>(.<segment>){1,5}
+  capability_id_pattern: ^[a-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+){1,8}$
+  capability_domains_ref: capability_domains
+  direct_binding_prefix: token
+capability_domains:
+- id: global
+  label: 全局
+- id: window
+  label: 窗口外壳
+- id: sidebar
+  label: 侧栏
+- id: conversation
+  label: 对话区
+- id: composer
+  label: 输入区
+- id: detail
+  label: 详情面板
+- id: settings
+  label: 设置页
+- id: menu
+  label: 菜单/弹窗
+- id: code
+  label: 代码
+- id: markdown
+  label: Markdown
+- id: tool
+  label: 工具调用
+- id: terminal
+  label: 终端
+- id: deliverable
+  label: 交付物
+- id: plugin
+  label: 插件页
+- id: content
+  label: 内容（代码/Markdown/搜索等正文区域）
+- id: control
+  label: 控件（按钮/输入/图标等可换控件）
+- id: status
+  label: 状态色（成功/警告/错误/进行中）
+- id: atom
+  label: 调色板原子（底层原材料）
+- id: specific
+  label: 区域特化色（bubble/sidebar-fill 等）
+- id: effect
+  label: 视觉特效（阴影/材质/景深）
+- id: onboarding
+  label: 引导页
+- id: overlay
+  label: 蒙层/浮层
+- id: document
+  label: 文档预览
+- id: decor
+  label: 装饰（噪点/纹理/边框）
+- id: tooltip
+  label: 提示气泡
+- id: toast
+  label: 轻提示
+- id: selection
+  label: 选区/选中态
+- id: entry
+  label: 入口（官方 slot 按钮等）
+- id: structure
+  label: 结构改动（隐藏/移动/注入，实验）
+- id: typography
+  label: 排印（字族/字号/行高/字重）
+- id: radius
+  label: 圆角
+- id: runtime
+  label: 运行时布局量（--dsh 等内部变量，登记不开放）
+- id: mask
+  label: 蒙层/模糊
+- id: token
+  zh: 直绑定（裸 token 名）
+  desc: 自动生成的 token 直绑定条目；id 形如 token.<namespace>.<名字>
+regions:
+- id: global
+  label: 全局
+- id: window
+  label: 窗口外壳
+- id: sidebar
+  label: 侧栏
+- id: conversation
+  label: 对话区
+- id: composer
+  label: 输入区
+- id: detail
+  label: 详情面板
+- id: settings
+  label: 设置页
+- id: menu
+  label: 菜单与弹层
+- id: code
+  label: 代码与差异
+- id: markdown
+  label: Markdown 排版
+- id: tool
+  label: 工具调用卡片
+- id: terminal
+  label: 终端
+- id: deliverable
+  label: 产物与文件
+- id: plugin
+  label: 插件市场
+roles:
+- id: page
+  label: 页面
+- id: window
+  label: 窗口
+- id: main
+  label: 主区
+- id: panel
+  label: 面板
+- id: surface
+  label: 表面（可点可悬停的容器）
+- id: card
+  label: 卡片
+- id: block
+  label: 代码块
+- id: item
+  label: 列表项
+- id: button
+  label: 按钮
+- id: input
+  label: 输入框
+- id: text
+  label: 正文
+- id: paragraph
+  label: 段落
+- id: heading
+  label: 标题
+- id: list
+  label: 列表
+- id: link
+  label: 链接
+- id: icon
+  label: 图标
+- id: menu
+  label: 菜单
+- id: menuitem
+  label: 菜单项
+- id: tooltip
+  label: 气泡提示
+- id: tab
+  label: 标签页
+- id: badge
+  label: 徽标
+- id: scrollbar
+  label: 滚动条
+- id: selection
+  label: 选区
+- id: titleBar
+  label: 标题栏
+- id: table
+  label: 表格
+- id: divider
+  label: 分隔线
+- id: overlay
+  label: 遮罩层
+properties:
+- id: background
+  label: 背景
+  value: paint
+- id: foreground
+  label: 前景色
+  value: color
+- id: border_color
+  label: 边框颜色
+  value: color
+- id: border_width
+  label: 边框粗细
+  value: length
+- id: radius
+  label: 圆角
+  value: length
+- id: shadow
+  label: 阴影
+  value: shadow
+- id: font_family
+  label: 字体
+  value: typeface
+- id: font_size
+  label: 字号
+  value: length
+- id: line_height
+  label: 行高
+  value: line_height
+- id: font_weight
+  label: 字重
+  value: weight
+- id: letter_spacing
+  label: 字距
+  value: length
+- id: icon
+  label: 图标
+  value: icon
+- id: opacity
+  label: 透明度
+  value: number
+- id: blur
+  label: 模糊
+  value: length
+- id: transition
+  label: 过渡
+  value: duration
+- id: image
+  label: 背景图
+  value: image
+recipes:
+- id: glass
+  label: 毛玻璃
+- id: wallpaper
+  label: 壁纸
+- id: noise
+  label: 噪点纹理
+- id: vignette
+  label: 暗角
+- id: gradient_border
+  label: 渐变描边
+- id: scanline
+  label: 扫描线
+- id: paper
+  label: 纸张质感
+states:
+  hover: :hover
+  active: :active
+  focus: :focus-visible
+  disabled: '[disabled], [aria-disabled="true"]'
+  selected: '[aria-selected="true"]'
+languages:
+  selector: :lang({tag})
+  tags:
+  - zh-CN
+  - zh-TW
+  - en
+  - ja
+  - ko
+  - fr
+  - de
+  - es
+  - pt
+  - it
+  - ru
+  - ar
+  - vi
+  - th
+  - hi
+catalog:
+  order:
+  - global
+  - window
+  - sidebar
+  - conversation
+  - composer
+  - menu
+  - code
+  - markdown
+  - tool
+  - terminal
+  - deliverable
+  - settings
+  - plugin
+  - detail
+  groups:
+  - id: quickstart
+    label: 快速上手
+    members:
+    - global.page.background
+    - global.text.foreground
+    - global.link.foreground
+    - sidebar.panel.background
+  - id: effects
+    label: 视觉效果
+    members:
+    - '*.glass'
+    - '*.wallpaper'
+    - '*.noise'
+  - id: chrome
+    label: 窗口外壳
+    members:
+    - window.*
+  - id: control
+    label: 控件
+    members:
+    - button.*
+value_types:
+  color:
+    kind: color
+    diurnal: true
+    ref: true
+    parse: css_color
+    serialize: css_color
+  gradient:
+    kind: gradient
+    stops:
+      min: 2
+      max: 4
+    diurnal: true
+    ref: true
+    parse: css_gradient
+    serialize: css_gradient
+  paint:
+    kind: union
+    of:
+    - color
+    - gradient
+    - image
+    diurnal: true
+    ref: true
+    parse: css_paint
+    serialize: css_paint
+  length:
+    kind: length
+    units:
+    - px
+    - rem
+    - em
+    - '%'
+    - vh
+    - vw
+    diurnal: false
+    ref: true
+    parse: css_length
+    serialize: css_length
+  number:
+    kind: number
+    min: 0
+    max: 1
+    step: 0.01
+    diurnal: false
+    ref: true
+  line_height:
+    kind: union
+    of:
+    - number
+    - length
+    diurnal: false
+    ref: true
+  font_stack:
+    kind: font_stack
+    diurnal: false
+    ref: true
+    parse: font_stack
+    serialize: font_stack
+  font_set:
+    kind: map
+    key: script
+    value: font_stack
+    value_asset: font
+    unicode_range: builtin
+    diurnal: false
+    ref: true
+  typeface:
+    kind: union
+    of:
+    - font_stack
+    - asset_font
+    - font_set
+    diurnal: false
+    ref: true
+  asset_font:
+    kind: asset
+    asset_kind: font
+    diurnal: false
+    ref: false
+  weight:
+    kind: enum
+    values:
+    - 100
+    - 200
+    - 300
+    - 400
+    - 500
+    - 600
+    - 700
+    - 800
+    - 900
+    diurnal: false
+    ref: false
+  icon:
+    kind: asset
+    asset_kind: icon
+    diurnal: false
+    ref: false
+  image:
+    kind: asset
+    asset_kind: wallpaper
+    diurnal: true
+    ref: false
+  animated_image:
+    kind: asset
+    asset_kind: wallpaper
+    animated: true
+    diurnal: true
+    ref: false
+  video:
+    kind: asset
+    asset_kind: video
+    diurnal: true
+    ref: false
+    poster: optional
+  media:
+    kind: union
+    of:
+    - image
+    - animated_image
+    - video
+    diurnal: true
+    ref: false
+  shadow:
+    kind: shadow
+    diurnal: true
+    ref: true
+  duration:
+    kind: duration
+    units:
+    - ms
+    - s
+    diurnal: false
+    ref: false
+  easing:
+    kind: easing
+    diurnal: false
+    ref: false
+  font:
+    zh: CSS font 简写（font shorthand）
+    kind: string
+    css_grammar: font
+    example: 14px/24px 'Noto Sans SC', sans-serif
+    diurnal: true
+    parse: 按 CSS font 简写语法校验（字族必须在白名单/资源内）
+    note: '宿主 30 个排印复合 token 用 `font: var(--dsw-font-*)` 简写消费，写整条即可整体生效。'
+  font_style:
+    zh: 字体样式
+    kind: enum
+    values:
+    - normal
+    - italic
+    - oblique
+    diurnal: false
+    note: 宿主 150 条排印长手中的 font-style 轴；多数为 dead，仅登记。
+  filter:
+    zh: CSS 滤镜 / 背景滤镜
+    kind: string
+    css_grammar: filter | backdrop-filter
+    example: blur(12px) saturate(120%)
+    diurnal: true
+  shape:
+    zh: 形状（squircle 等）
+    kind: enum
+    values:
+    - squircle
+    - round
+    - bevel
+    diurnal: false
+    note: --dsw-corner-shape 当前无消费方；登记以便宿主日后启用。
+scripts:
+  latin: U+0000-024F, U+1E00-1EFF, U+2000-206F, U+20A0-20CF, U+2100-214F
+  greek: U+0370-03FF
+  cyrillic: U+0400-04FF, U+0500-052F
+  hebrew: U+0590-05FF, U+FB1D-FB4F
+  arabic: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+FB50-FDFF, U+FE70-FEFF
+  devanagari: U+0900-097F
+  thai: U+0E00-0E7F
+  han: U+2E80-2EFF, U+3400-4DBF, U+4E00-9FFF, U+F900-FAFF, U+20000-2FA1F
+  kana: U+3040-30FF, U+31F0-31FF
+  hangul: U+1100-11FF, U+3130-318F, U+AC00-D7AF
+variables_spec:
+  pattern: ^[a-z][a-z0-9]*(-[a-z0-9]+)*$
+  max: 64
+  reserved_prefix: palette
+  css_var_prefix: --palette-var-
+semantics:
+  absent: 不注入
+  null: 清除本层写入
+  values_are_visual_truth: false
+write_kinds:
+  token:
+    label: 变量注入
+    status: stable
+    description: '通过 host API 注册或覆盖 CSS 变量。宿主消费 var(--name) 即生效。
+
+      本原语只服务 palette 作者（能力绑定）：名字必须在 tokens.yaml 里主状态 = live；
+
+      允许写死名/门控名时须显式 allow_primary_status / allow_modifiers + allow_reason。
+
+      例外（v1.10）：realization 级 `when: { probe: token_live }` 守卫的条件写——守卫已表达
+
+      「只在该 token 活着时才写」，该守卫绑定的 token 写可不给 allow_*（详见 §1b realization schema）。
+
+      用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
+
+      '
+    fields:
+      name:
+        required: true
+        type: token_name
+        pattern: ^--[a-z][a-z0-9-]*$
+      state:
+        required: false
+        type: enum
+        values:
+        - hover
+        - active
+        - focus
+        - disabled
+        - selected
+      value:
+        required: false
+        type: any
+      value_template:
+        required: false
+        type: string
+      allow_primary_status:
+        required: false
+        type: list
+        values:
+        - live
+        - dead
+        - missing
+      allow_modifiers:
+        required: false
+        type: list
+        values:
+        - pinned
+        - gated
+        - declared_invalid
+      allow_reason:
+        required: false
+        type: string
+    validates:
+    - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 15 条样本，未覆盖的名字 = 门禁错误）
+    - allow_primary_status 缺省时主状态必须为 live；allow_modifiers 只放宽修饰、不改变主状态
+    - 出现 allow_primary_status 或 allow_modifiers 时 allow_reason 必填
+    - live 名不得给 allow_primary_status（放宽主状态只用于非 live 名）
+    - tokens.yaml 表内条目名全局唯一（重名 = 门禁错误）
+    - 'token_live 守卫的条件写例外（v1.10）：被 realization 级 when: { probe: token_live } 守卫、且未显式给 allow_* 的 token 写视为合法；守卫绑定该写自己的 token 名（见 §1b）'
+  rule:
+    label: 样式规则
+    status: stable
+    description: '按锚点写一条 CSS 规则。锚点来自 anchors.yaml；层叠层级用 layers 枚举；
+
+      状态自动拼选择器后缀；语言自动包 :lang()；与宿主 inline style 冲突时才允许 !important。
+
+      '
+    fields:
+      anchor:
+        required: false
+        type: anchor_ref
+      at:
+        required: false
+        type: enum
+        values:
+        - '@font-face'
+        - '@keyframes'
+        - '@property'
+      layer:
+        required: true
+        type: enum
+        ref: layers
+      state:
+        required: false
+        type: enum
+        ref: states
+      lang:
+        required: false
+        type: language_tag
+      decl:
+        required: true
+        type: map
+        key: css_property
+        value: string
+      important:
+        required: false
+        type: enum
+        values:
+        - never
+        - when_inline_conflict
+        - always
+        default: never
+      media:
+        required: false
+        type: string
+    validates:
+    - anchor 与 at 必须且只能给一个
+    - decl 的值必须经过 parse → serialize，禁止原文拼接
+    - important=always 需要 allow_reason
+    policies:
+      important_default: never
+      important_when_inline_conflict: true
+      allowed_css_properties:
+      - background
+      - background-color
+      - background-image
+      - background-size
+      - background-position
+      - color
+      - font-family
+      - font-size
+      - line-height
+      - font-weight
+      - letter-spacing
+      - border-color
+      - border-width
+      - border-style
+      - border-radius
+      - box-shadow
+      - opacity
+      - filter
+      - backdrop-filter
+      - -webkit-backdrop-filter
+      - mask-image
+      - mask-size
+      - mask-repeat
+      - mask-position
+      - outline-color
+      - outline-width
+      - outline-style
+      - text-decoration-color
+      - caret-color
+      - scrollbar-color
+      - scrollbar-width
+      - transition
+      - transform
+      allowed_at_descriptors:
+        '@font-face':
+        - font-family
+        - src
+        - font-weight
+        - font-style
+        - font-display
+        - unicode-range
+        '@keyframes':
+        - '*'
+        '@property':
+        - syntax
+        - inherits
+        - initial-value
+  dom:
+    label: DOM 操作
+    status: stable
+    description: 'CSS 表达不了的效果（视频背景、换图标、插图层）用 DOM 操作。
+
+      每个写必须有稳定 id 和 teardown（切主题/关插件时精确撤销），
+
+      对 React 渲染的节点必须配 guard: observer（重渲染后幂等重放）。
+
+      '
+    fields:
+      anchor:
+        required: true
+        type: anchor_ref
+      op:
+        required: true
+        type: enum
+        ref: dom_ops
+      payload:
+        required: false
+        type: any
+      params:
+        required: false
+        type: map
+      teardown:
+        required: true
+        type: enum
+        ref: teardowns
+      guard:
+        required: false
+        type: enum
+        values:
+        - none
+        - observer
+        default: none
+    dom_ops:
+      insert-layer:
+        description: 在锚点内插入纯样式层（图/渐变/颜色），不接收事件
+        payload:
+        - paint
+        - image
+        - animated_image
+        params:
+          position:
+            type: enum
+            values:
+            - fixed
+            - absolute
+            default: fixed
+          inset:
+            type: string
+            default: '0'
+          z:
+            type: number
+            default: -1
+          fit:
+            type: enum
+            values:
+            - cover
+            - contain
+            - repeat
+            default: cover
+          pointer_events:
+            type: enum
+            values:
+            - none
+            default: none
+      insert-media-layer:
+        description: 在锚点内插入媒体层（图 / 动态图 / 视频），视频需 <video>
+        payload:
+        - image
+        - animated_image
+        - video
+        params:
+          position:
+            type: enum
+            values:
+            - fixed
+            - absolute
+            default: absolute
+          inset:
+            type: string
+            default: '0'
+          z:
+            type: number
+            default: 0
+          fit:
+            type: enum
+            values:
+            - cover
+            - contain
+            - repeat
+            default: cover
+          loop:
+            type: boolean
+            default: true
+          muted:
+            type: boolean
+            default: true
+          autoplay:
+            type: boolean
+            default: true
+          poster:
+            type: boolean
+            default: true
+          playback_rate:
+            type: number
+            default: 1
+          reduced_motion:
+            type: enum
+            values:
+            - pause
+            - static_poster
+            default: static_poster
+          pointer_events:
+            type: enum
+            values:
+            - none
+            default: none
+      replace-children:
+        description: 替换锚点子节点（换图标/头像）；必须能恢复原节点
+        payload:
+        - icon
+        - image
+        - svg
+        params:
+          keep_size:
+            type: boolean
+            default: true
+          keep_color:
+            type: boolean
+            default: false
+      set-attribute:
+        description: 改锚点属性（aria-label 等）；谨慎，仅白名单属性
+        payload:
+        - string
+        params:
+          attribute:
+            type: enum
+            values:
+            - aria-label
+            - title
+    teardowns:
+    - remove-node
+    - restore-children
+    - restore-attribute
+    guards:
+    - none
+    - observer
+    policies:
+      write_modes:
+        mask: null
+        replace: null
+        overlay: null
+      dom_write_order:
+      - insert-layer
+      - insert-media-layer
+      - replace-children
+      - set-attribute
+  host_api:
+    label: 宿主接口
+    status: reserved
+    description: '未来宿主开放「样式插件 API / 窗口控件 API」时使用。
+
+      注意：桌面标题栏当前走 token（宿主探针读 --dsw-specific-sidebar-fill 与
+
+      --dsw-alias-label-primary 后调 setTitleBarOverlay），不需要 host_api。
+
+      '
+    fields:
+      api:
+        required: true
+        type: string
+      params:
+        required: false
+        type: map
+      teardown:
+        required: true
+        type: enum
+        ref: teardowns
+realization:
+  description: '一个能力（capability）由若干 realization 组成，按声明顺序取第一条「探测通过」的；
+
+    recipe 的每个 aspect 各自独立降级。realization 级 when 是整条效果链的前置探测。
+
+    '
+  fields:
+    id:
+      required: true
+      type: string
+    accepts:
+      required: false
+      type: value_type_ref
+    when:
+      required: false
+      type: guard
+    writes:
+      required: true
+      type: list
+      item: write
+  guard:
+    probe:
+      required: true
+      type: string
+      ref: probes.primitives
+    args:
+      required: false
+      type: map
+  validates:
+  - when.probe 必须引用 probes.yaml 已登记的原语；args 的键必须是该原语声明的参数
+  - token_live 守卫的绑定：显式给 args.name 时，该 realization 内每个 token 写的 name 必须与之一致；省略 args.name 时逐写绑定各自 token 名（每条 token 写只在自己那个 token 活着时执行）
+  - 守卫只对 token 写生效；realization 内其余写（rule/dom）照常执行，除非另有 when
+  - 无守卫的 token 写必须遵守 write_kinds.token.validates 的 allow_* 规则
+policies:
+  layers:
+  - tokens
+  - base
+  - component
+  - state
+  - override
+  layer_order_statement: 'tokens   = 变量层（最先写）
+
+    base     = 元素基础样式
+
+    component= 组件级覆盖
+
+    state    = 状态规则（hover/active/focus/disabled/selected）
+
+    override = 需要压过宿主时的最后一层
+
+    '
+  write_order:
+  - token
+  - rule
+  - dom
+  atomic: '一个效果的多个写要么全部成功，要么全部回滚；
+
+    recipe 的各 aspect 互相独立，单 aspect 失败只降级该 aspect。
+
+    '
+  idempotent: 同一能力重复应用结果一致；切换主题按写 id 求差集撤销。
+  diagnostics: '每个写最终状态必须是：applied / degraded / suppressed / failed 之一，
+
+    并带原因（如「锚点不存在」「token 为死名」「被宿主 !important 压制」）。
+
+    '
+assets_policy:
+  uri: relative_only
+  external: forbidden
+  data_url: forbidden
+  max_total_bytes: 33554432
+  max_files: 64
+  path_rules:
+  - 禁止 '..' 越界
+  - 禁止绝对路径与盘符
+  - 扩展名白名单见 kinds
+assets_kinds:
+  wallpaper:
+    media:
+    - jpg
+    - jpeg
+    - png
+    - webp
+    - avif
+    - gif
+    animated_media:
+    - gif
+    - webp
+    - avif
+    - apng
+    max_bytes: 8388608
+    diurnal: true
+    description: 背景图；动态图（GIF/WebP/AVIF/APNG）可直接当 CSS 背景，浏览器自动播放。
+  icon:
+    media:
+    - svg
+    - png
+    - webp
+    max_bytes: 262144
+    diurnal: false
+    recommended:
+    - svg
+    description: 按钮图标、头像；用 mask 时实际取形状，颜色仍由 token 决定。
+  font:
+    media:
+    - woff2
+    - woff
+    - ttf
+    - otf
+    max_bytes: 5242880
+    diurnal: false
+    families_max: 4
+    description: '字体文件通过 @font-face 注册；配合 values.yaml 的 scripts 表生成 unicode-range，
+
+      可实现同一段里英文/中文各用各的字体（第 1 条需求）。
+
+      '
+  video:
+    media:
+    - mp4
+    - webm
+    max_bytes: 67108864
+    diurnal: true
+    codecs:
+    - h264
+    - vp9
+    muted_required: true
+    autoplay: true
+    loop: true
+    poster: optional
+    reduced_motion: static_poster
+    description: '视频不能当 CSS 背景，必须由 primitives.yaml 的 insert-media-layer 插入 <video>。
+
+      体积/分辨率建议：1080p、≤30 s、≤32 MiB；导出前压缩。
+
+      '
+probes:
+  api: 3
+  primitives:
+    selector_exists:
+      label: 锚点存在
+      kind: dom
+      eval: selector_match
+      args:
+      - anchor
+      description: 在当前页面里能否匹配到锚点；匹配不到则该锚点相关写入降级。
+    token_live:
+      label: token 活着
+      kind: host
+      eval: token_status_live
+      args:
+      - name
+      description: 该宿主 token 有消费方（status=live），写它才会生效。作为 realization 守卫时 `args.name` 可省略：省略即逐写绑定该 realization 内 token 写各自的 token 名；显式给出时必须与写入名一致。
+    token_declared:
+      label: token 已声明
+      kind: host
+      eval: token_declared
+      args:
+      - name
+      description: 该 token 在宿主样式里声明过（哪怕没有消费方）；用于区分「拼错」与「死名」。
+  profiles:
+    live:
+      description: 真实页面，用真实 DOM 与计算样式
+    preview:
+      description: 预览区，构造近似 DOM，允许部分原语返回 unknown
+    fixture:
+      description: 测试夹具，结果必须确定，用于 CI
+  results:
+    supported:
+      description: 探测通过，可以写入
+    unsupported:
+      description: 探测失败，走下一档降级效果
+    unknown:
+      description: 预览环境无法判定，按 supported 处理但标「未验证」
+anchors:
+  global.root:
+    candidates:
+    - body
+    scope: document
+    confidence: documented
+  window.titleBar:
+    candidates: []
+    scope: element
+    confidence: documented
+    note: '宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
+
+      再调 setTitleBarOverlay；所以能力写 token 即可，不需要选择器。
+
+      '
+  sidebar.root:
+    candidates:
+    - '[data-slot="conversation.session"]'
+    - '[data-sidebar]'
+    scope: element
+    confidence: inferred
+  sidebar.item:
+    candidates:
+    - '[data-slot="conversation.session"] [data-nav-item]'
+    - '[data-slot="conversation.session"] a[href]'
+    scope: element
+    confidence: inferred
+  conversation.main:
+    candidates:
+    - '[data-slot="conversation.chat.flow"]'
+    scope: element
+    confidence: documented
+  conversation.node:
+    candidates:
+    - '[data-slot="conversation.chat.node"]'
+    scope: element
+    confidence: documented
+  composer.root:
+    candidates:
+    - '[data-slot="conversation.composer"]'
+    - form[data-testid="composer"]
+    scope: element
+    confidence: inferred
+  composer.input:
+    candidates:
+    - '[data-slot="conversation.composer"] textarea'
+    - '[data-slot="conversation.composer"] [contenteditable="true"]'
+    scope: element
+    confidence: inferred
+  composer.sendButton:
+    candidates:
+    - '[data-composer-send]'
+    - button[data-role="send"]
+    - '[aria-label="Send"]'
+    scope: element
+    confidence: inferred
+  menu.surface:
+    candidates:
+    - '[role="menu"]'
+    scope: element
+    confidence: documented
+  menu.item:
+    candidates:
+    - '[role="menuitem"]'
+    - '[role="menuitemradio"]'
+    scope: element
+    confidence: documented
+  tooltip.root:
+    candidates:
+    - '[role="tooltip"]'
+    scope: element
+    confidence: documented
+  code.block:
+    candidates:
+    - .md-code-block
+    scope: element
+    confidence: documented
+  code.inline:
+    candidates:
+    - code:not(pre code)
+    scope: element
+    confidence: documented
+  markdown.paragraph:
+    candidates:
+    - p
+    scope: document
+    confidence: documented
+  markdown.heading:
+    candidates:
+    - h1
+    - h2
+    - h3
+    - h4
+    - h5
+    - h6
+    scope: document
+    confidence: documented
+  markdown.list:
+    candidates:
+    - ul
+    - ol
+    - li
+    scope: document
+    confidence: documented
+  markdown.blockquote:
+    candidates:
+    - blockquote
+    scope: document
+    confidence: documented
+  tool.card:
+    candidates:
+    - '[data-slot="conversation.chat.node"] [data-block-type]'
+    - '[data-code-block]'
+    scope: element
+    confidence: inferred
+  terminal.root:
+    candidates:
+    - '[role="log"]'
+    - '[data-terminal]'
+    scope: element
+    confidence: inferred
+  deliverable.card:
+    candidates:
+    - '[data-slot="conversation.chat.node"] [data-deliverable]'
+    scope: element
+    confidence: fragile
+  scrollbar.root:
+    candidates:
+    - body
+    scope: document
+    confidence: documented
+  selection.text:
+    candidates:
+    - body
+    scope: document
+    confidence: documented
+controls:
+  composer.sendButton:
+    region: composer
+    role: button
+    template: button
+    anchors:
+    - '[data-composer-send]'
+    - button[data-role="send"]
+    confidence: inferred
+  composer.attachButton:
+    region: composer
+    role: button
+    template: button
+    anchors:
+    - '[aria-label*="attach" i]'
+    - button[data-role="attach"]
+    confidence: inferred
+  conversation.copyButton:
+    region: conversation
+    role: button
+    template: button
+    anchors:
+    - '[data-slot="conversation.chat.node"] button[aria-label*="copy" i]'
+    confidence: inferred
+  conversation.retryButton:
+    region: conversation
+    role: button
+    template: button
+    anchors:
+    - button[aria-label*="retry" i]
+    confidence: inferred
+  menu.item:
+    region: menu
+    role: menuitem
+    template: item
+    anchors:
+    - '[role="menuitem"]'
+    - '[role="menuitemradio"]'
+    confidence: documented
+  settings.tab:
+    region: settings
+    role: tab
+    template: item
+    anchors:
+    - '[role="tab"]'
+    confidence: documented
+  sidebar.item:
+    region: sidebar
+    role: item
+    template: item
+    anchors:
+    - '[data-slot="conversation.session"] [data-nav-item]'
+    confidence: inferred
+  markdown.link:
+    region: markdown
+    role: link
+    template: text
+    anchors:
+    - a
+    confidence: documented
+  global.tooltip:
+    region: global
+    role: tooltip
+    template: text
+    anchors:
+    - '[role="tooltip"]'
+    confidence: documented
+  settings.switch:
+    region: settings
+    role: button
+    template: button
+    anchors:
+    - '[role="switch"]'
+    confidence: documented
+  global.dialog:
+    region: global
+    role: overlay
+    template: surface
+    anchors:
+    - '[role="dialog"]'
+    confidence: documented
+  code.block:
+    region: code
+    role: panel
+    template: surface
+    anchors:
+    - .md-code-block
+    confidence: documented
 control_templates:
   button:
     properties:
@@ -10138,4 +11382,57 @@ direct_bindings:
     family: other
     subgroup: null
     docs: --dsw-focus-ring-width
-extensions: {}
+token_summary:
+  namespaces:
+    dsw: 403
+    shiki: 11
+    dsh: 11
+    total: 425
+  color_axis:
+    total: 222
+    live: 184
+    dead: 38
+    breakdown:
+      alias: 107
+      specific: 11
+      shiki: 11
+      static: 77
+      focus: 1
+      menu_color: 1
+      shadow: 4
+      elevation: 5
+      gradient: 3
+      linear: 2
+  status_model:
+    primary_status:
+      live: 有消费方，写它生效
+      dead: 宿主声明了但没有任何 var()/JS 消费方
+      missing: 宿主从未声明这个名字（用户可能拼错或宿主升级改名）
+    modifiers:
+      pinned: 宿主用字面量 / !important / inline 钉住（仍允许设置，只提示）
+      gated: 宿主在元素级重声明同名变量（elevation 族），body 级写入被子元素覆盖
+      declared_invalid: 宿主声明了但消费链无效（靠 fallback / JS 注入才有值）
+  total: 425
+extensions_reserved: {}
+runtime_summary:
+  total: 148
+  groups:
+  - id: dsh-extra
+    prefix: --dsh-
+    count: 60
+    note: 宿主 JS/组件运行时写入（布局量、字体差量、视觉参数）；body 级写入可能被子元素覆盖。
+  - id: dsl
+    prefix: --dsl-
+    count: 20
+    note: 宿主组件内部别名（元素级本地定义）；改上游 token 或走规则层可间接触达（P2 已逐条登记）。
+  - id: local-dsw
+    prefix: --dsw-
+    count: 12
+    note: 其他包局部定义的同前缀变量（非 ui-theme 公开面）；不保证跨版本稳定。
+  - id: local-other
+    prefix: ''
+    count: 56
+    note: 组件局部变量（无统一前缀）；仅本组件内消费。
+  scan:
+    source: scripts/research/data/runtime-scan-web-2026-10-20.json
+    date: 2026-10-20（安装版 rc.2 首屏实测；rc.3 主题面零变更，升级演练 P7 复测）

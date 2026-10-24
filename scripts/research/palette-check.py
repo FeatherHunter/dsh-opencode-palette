@@ -32,7 +32,7 @@ ROOT = os.path.join(os.path.dirname(__file__), '..', '..', 'palette')
 FILES = [
     '_index.yaml',
     'palette.yaml',
-    'palette.src.yaml',
+    'capabilities.yaml',
     'vocabulary.yaml',
     'values.yaml',
     'primitives.yaml',
@@ -443,9 +443,40 @@ def main():
         if name not in FILES:
             errors.append(f'palette/{name} 未在 palette-check.py 的 FILES 注册')
 
+    # —— palette.yaml 是合成视图：关键段必须与底层模块逐段一致（零偏差） ——
+    for key, module, sub in [
+        ('grammar', 'vocabulary.yaml', 'grammar'),
+        ('capability_domains', 'vocabulary.yaml', 'capability_domains'),
+        ('regions', 'vocabulary.yaml', 'regions'),
+        ('roles', 'vocabulary.yaml', 'roles'),
+        ('properties', 'vocabulary.yaml', 'properties'),
+        ('recipes', 'vocabulary.yaml', 'recipes'),
+        ('states', 'vocabulary.yaml', 'states'),
+        ('languages', 'vocabulary.yaml', 'languages'),
+        ('catalog', 'vocabulary.yaml', 'catalog'),
+        ('value_types', 'values.yaml', 'value_types'),
+        ('scripts', 'values.yaml', 'scripts'),
+        ('variables_spec', 'values.yaml', 'variables'),
+        ('semantics', 'values.yaml', 'semantics'),
+        ('write_kinds', 'primitives.yaml', 'write_kinds'),
+        ('realization', 'primitives.yaml', 'realization'),
+        ('policies', 'primitives.yaml', 'policies'),
+        ('assets_policy', 'assets.yaml', 'policy'),
+        ('assets_kinds', 'assets.yaml', 'kinds'),
+        ('controls', 'anchors.yaml', 'controls'),
+        ('anchors', 'anchors.yaml', 'anchors'),
+        ('control_templates', 'capabilities.yaml', 'control_templates'),
+    ]:
+        if palette.get(key) != (loaded.get(module) or {}).get(sub):
+            errors.append(f'palette.yaml.{key} 与 {module}.{sub} 不一致（合成视图必须零偏差）')
+    if palette.get('probes') != loaded.get('probes.yaml'):
+        errors.append('palette.yaml.probes 与 probes.yaml 不一致（合成视图必须零偏差）')
+    if (palette.get('generated') or {}).get('generator') != 'scripts/research/gen_palette_v5.py':
+        errors.append('palette.yaml.generated.generator 缺失或不对')
+
     # —— 计数与 _index 比对 ——
     counts = idx.get('counts', {})
-    src_caps = (loaded.get('palette.src.yaml') or {}).get('capabilities') or {}
+    src_caps = (loaded.get('capabilities.yaml') or {}).get('capabilities') or {}
     domains_covered = len(covered & set(cap_domains))
     checks = [
         ('capabilities_authored', len(src_caps)),

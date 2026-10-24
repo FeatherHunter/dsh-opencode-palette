@@ -2,7 +2,7 @@
 
 - 状态：**P5 定稿（2026-10-24，v1.12）**。决策来源 = #147「讨论：Token 模型与「全量」边界」，已过九轮独立对抗式二审（v1.1 → v1.10）与 P1–P4 逐技术组讨论。
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
-- 机器源：`palette/` 目录（手写源 `palette.src.yaml` + 8 个模块 + 生成物 `palette.yaml`）；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁（`scripts/research/palette-check.py`）为准。
+- 机器源：`palette/` 目录（手写能力源 `capabilities.yaml` + 7 个底层模块 → 合成为 `palette.yaml`）；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁（`scripts/research/palette-check.py`）为准。
 - 零偏差对照：P1–P4 每一行 → YAML 落点见 `docs/research/v3-p1p4-to-yaml-crosswalk.html`（机器生成）。
 
 ## 0. 一页结论
@@ -36,8 +36,8 @@ V3 主题系统只有三样东西：
 ```
 palette/                        能力集（构建期真源，随插件版本发布）
   _index.yaml                   注册表：模块/版本/生成命令/计数 ← 唯一入口
-  palette.src.yaml              手写能力源（28 条手写能力 + 控件模板）← 人工维护入口
-  palette.yaml                  生成物：capabilities（331）+ direct_bindings（425）← 不要手改
+  capabilities.yaml             手写能力源（28 条手写能力 + 控件模板）← 人工维护入口
+  palette.yaml                  合成视图：全部底层模块 + capabilities（331）+ direct_bindings（425）← 不要手改
   vocabulary.yaml               区域/角色/属性/recipe/状态/语言/能力域 + grammar
   values.yaml                   值类型（23 种，含 font/font_style/filter/shape）+ Unicode 范围 + 变量语法
   primitives.yaml               写原语：token/rule/dom/host_api + realization 契约
@@ -103,8 +103,8 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 
 | 模块 | 管什么 | 不许管什么 |
 |---|---|---|
-| `palette.src.yaml` | 手写能力条目、控件模板 | 生成条目（在 palette.yaml） |
-| `palette.yaml`（生成） | 能力菜单 + 直绑定 + 控件模板 | 手改；改手写源后重跑生成器 |
+| `capabilities.yaml` | 手写能力条目、控件模板 | 生成条目（在 palette.yaml） |
+| `palette.yaml`（合成） | 全部底层模块的合成视图：词表/值类型/原语/资源/探测/锚点 + 能力菜单 + 直绑定 | 手改；改任何模块后重跑生成器 |
 | `vocabulary.yaml` | 名字合法性（id 每段/能力域） | 任何实现细节 |
 | `values.yaml` | 值长什么样、怎么解析/序列化 | 值写到哪儿 |
 | `primitives.yaml` | 写入手段与字段、撤销、冲突策略、realization 契约 | 具体能力 |
@@ -116,7 +116,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 生成链（全部可重跑）：
 
 - `scripts/research/gen_token_registry.py` → `palette/tokens.yaml`（425 条 + runtime 段）
-- `scripts/research/gen_palette_v5.py` → `palette/palette.yaml`（capabilities + direct_bindings）+ `docs/research/palette-v5-crosswalk.json`
+- `scripts/research/gen_palette_v5.py` → `palette/palette.yaml`（由 capabilities/vocabulary/values/primitives/assets/probes/anchors/tokens 合成：capabilities + direct_bindings + 各段视图）+ `docs/research/palette-v5-crosswalk.json`
 - `scripts/research/palette-check.py` → 全量门禁
 
 ## 5. 加载管线
@@ -193,4 +193,4 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 - 2026-10-22 v1.0：格式确定，落盘 palette/。
 - 2026-10-22 v1.1～v1.10：九轮独立对抗式二审修正（425 数字、值类型、状态模型主状态+修饰、展开 id 规则、checker 从 7 项扩到全量 YAML/守卫/declared/version 校验、条件写契约单源化等；详见 git 历史）。
 - 2026-10-24 v1.11：`tokens.yaml` 由扫描器全量生成 425 条（含状态/声明/全部消费位置/运行时段），宿主基准升 rc.3。
-- 2026-10-24 v1.12（P5 定稿）：能力菜单固化为手写源 `palette.src.yaml` + 生成物 `palette.yaml`（`capabilities` 331 + `direct_bindings` 425）；新增 kind `token`/`effect`、字段 `tier`/`exposure`/`status`/`probe`/`binds`/`tech`/`source`；`values.yaml` 新增 `font`/`font_style`/`filter`/`shape`；`vocabulary.yaml` 新增 `token` 能力域（34）；`tokens.yaml` 新增 `runtime` 段（148 条登记）；去除 v1 JSON 兼容、`raw_tokens`、legacy 映射层；验收改 10 条（含 direct_bindings 覆盖、集合闭合、crosswalk 零偏差）。
+- 2026-10-24 v1.12（P5 定稿）：能力菜单固化为手写源 `capabilities.yaml` + 由全部底层模块合成的 `palette.yaml`（`capabilities` 331 + `direct_bindings` 425）；新增 kind `token`/`effect`、字段 `tier`/`exposure`/`status`/`probe`/`binds`/`tech`/`source`；`values.yaml` 新增 `font`/`font_style`/`filter`/`shape`；`vocabulary.yaml` 新增 `token` 能力域（34）；`tokens.yaml` 新增 `runtime` 段（148 条登记）；去除 v1 JSON 兼容、`raw_tokens`、legacy 映射层；验收改 10 条（含 direct_bindings 覆盖、集合闭合、crosswalk 零偏差）。
