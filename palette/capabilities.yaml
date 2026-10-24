@@ -43,7 +43,7 @@ capabilities:
   global.page.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - surface
     - global
@@ -107,7 +107,7 @@ capabilities:
   global.text.foreground:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - text
     - global
@@ -173,7 +173,7 @@ capabilities:
   global.link.foreground:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - text
     - link
@@ -189,7 +189,7 @@ capabilities:
   window.titleBar.background:
     kind: property
     since: 3.0.0
-    tier: expert
+    tier: advanced
     envs:
     - desktop
     tags:
@@ -224,7 +224,7 @@ capabilities:
   sidebar.panel.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - sidebar
     - surface
@@ -325,7 +325,7 @@ capabilities:
   conversation.main.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - conversation
     - surface
@@ -369,7 +369,7 @@ capabilities:
   composer.input.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - composer
     - input
@@ -413,7 +413,7 @@ capabilities:
   composer.input.foreground:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - composer
     - input
@@ -485,7 +485,7 @@ capabilities:
   menu.surface.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - menu
     - surface
@@ -598,7 +598,7 @@ capabilities:
   code.block.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - code
     - surface
@@ -644,7 +644,7 @@ capabilities:
   code.block.line_height:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - code
     - typography
@@ -662,7 +662,7 @@ capabilities:
   markdown.paragraph.line_height:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - markdown
     - typography
@@ -689,7 +689,7 @@ capabilities:
   markdown.heading.line_height:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - markdown
     - typography
@@ -708,7 +708,7 @@ capabilities:
   markdown.paragraph.font_size:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - markdown
     - typography
@@ -734,7 +734,7 @@ capabilities:
   markdown.heading.font_size:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - markdown
     - typography
@@ -752,7 +752,7 @@ capabilities:
   markdown.link.foreground:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - markdown
     - link
@@ -775,7 +775,7 @@ capabilities:
   tool.card.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - tool
     - card
@@ -794,7 +794,7 @@ capabilities:
   tool.card.radius:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - tool
     - card
@@ -812,7 +812,7 @@ capabilities:
   terminal.panel.background:
     kind: property
     since: 3.0.0
-    tier: basic
+    tier: stable
     tags:
     - terminal
     - surface

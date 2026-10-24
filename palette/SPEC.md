@@ -1,6 +1,6 @@
 # V3 主题格式规格（palette 能力集 + theme.yaml 主题包）
 
-- 状态：**P5 定稿（2026-10-24，v1.12）**。决策来源 = #147「讨论：Token 模型与「全量」边界」，已过九轮独立对抗式二审（v1.1 → v1.10）与 P1–P4 逐技术组讨论。
+- 状态：**P6 定稿（2026-10-24，v1.13）**。决策来源 = #147「讨论：Token 模型与「全量」边界」；已过 P1–P5 逐技术组讨论、P6 零偏差审计（34/34），并经第 12 轮独立对抗式二审（2026-10-24，发现 5 P1 + 8 P2，已按 v1.13 修正）。
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
 - 机器源：`palette/` 目录（手写能力源 `capabilities.yaml` + 7 个底层模块 → 合成为 `palette.yaml`）；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁（`scripts/research/palette-check.py`）为准。
 - 零偏差对照：P1–P4 每一行 → YAML 落点见 `docs/research/v3-p1p4-to-yaml-crosswalk.html`（机器生成）。
@@ -22,7 +22,7 @@ V3 主题系统只有三样东西：
 - **能力（capability）**：一个可配置项。`kind` 四种：`property`（区域.角色.属性，带 realization 链）、`recipe`（复合效果，按 aspect 独立降级）、`token`（直指 token 的语义能力，`binds` 指向登记层）、`effect`（DOM/规则效果，`tech` 说明实现技术）。
 - **能力 id**：`<domain>.<segment>(.<segment>){1,5}`；`domain` 取 `vocabulary.yaml` 的 `capability_domains`（34 个：14 区域 + 15 语义域 + typography/radius/runtime/mask + `token`）。展开 id 规则仍为 `<region>.<controlName>.<property>`。
 - **直绑定（direct binding）**：425 个公开 token 每条一个兜底能力，id = `token.<namespace>.<名字去前缀>`，如 `token.dsw.alias-bg-base`。保证「425 全量可达」，语义能力覆盖不到时用它。
-- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（319）∪ `control_templates × controls` 展开（65，去重 5） = **379 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
+- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（321）∪ `control_templates × controls` 展开（65，去重 5） = **381 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
 - **词表规模（v1.13）**：区域 14、角色 29、属性 16、recipe 7、状态 5、能力域 34、锚点 26（documented 17 / inferred 8 / fragile 1）、控件 12。
 - **token 归属（v1.13）**：每个宿主 token 只有一个 owner 能力。三套来源表合并时做归属唯一化：重复语义行并入 owner 的 `merged_from`；区域级旋钮（圆角/字色/行高/背景等）改走**规则层**（精确技术路径，不再抢共享 token）；宿主未给独立通道的项目移出菜单（标题栏独立配色归 #154，侧栏引导项圆角暂不可达）。详见 `docs/research/v3-ownership-policy.md`。
 - **主题包（theme package）**：一个目录，含 `theme.yaml` 与 `assets/`；目录名可自由取，显示名取 `theme.yaml` 的 `meta.name`。
@@ -38,8 +38,9 @@ V3 主题系统只有三样东西：
 ```
 palette/                        能力集（构建期真源，随插件版本发布）
   _index.yaml                   注册表：模块/版本/生成命令/计数 ← 唯一入口
-  capabilities.yaml             手写能力源（28 条手写能力 + 控件模板）← 人工维护入口
-  palette.yaml                  合成视图：全部底层模块 + capabilities（319）+ direct_bindings（425）← 不要手改
+  capabilities.yaml             手写能力源（30 条手写能力 + 控件模板）← 人工维护入口
+  ownership.yaml                能力归属策略（merged / renamed / converted / dropped）
+  palette.yaml                  合成视图：全部底层模块 + capabilities（321）+ direct_bindings（425）← 不要手改
   vocabulary.yaml               区域/角色/属性/recipe/状态/语言/能力域 + grammar
   values.yaml                   值类型（23 种，含 font/font_style/filter/shape）+ Unicode 范围 + 变量语法
   primitives.yaml               写原语：token/rule/dom/host_api + realization 契约
@@ -94,7 +95,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 
 硬规则：
 
-1. `capabilities` 的键必须是**合并视图里登记过的能力 id**（379 条；拼错 = 校验错误）。直绑定 id（`token.*`，425 条）同样合法。
+1. `capabilities` 的键必须是**合并视图里登记过的能力 id**（381 条；拼错 = 校验错误）。直绑定 id（`token.*`，425 条）同样合法。
 2. 值必须符合该能力的值类型；`diurnal: true` 的类型接受单值或 `{light, dark}`，`diurnal: false` 只接受单值；`null` = 清掉该层，没写 = 不注入。
 3. 宿主名字不出现：宿主 token 名只出现在 palette 的 `binds` / `token` 字段；直绑定 id 里的名字是稳定 id 的一部分，不是宿主运行时名。
 4. 值与资源在写进样式表前必须解析后重新序列化（防 CSS 注入）；资源路径必须落在主题包内。
@@ -139,7 +140,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 | 层 | 内容 | 谁用 |
 |---|---|---|
 | L1 | 37 个 opencode token（老编辑器等价物；内部映射保留，不改名） | 普通用户、老主题 |
-| L2 | 语义能力菜单（合并视图 379 条 = 319 条能力 + 65 条模板展开 − 5 条重名；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
+| L2 | 语义能力菜单（合并视图 381 条 = 321 条能力 + 65 条模板展开 − 5 条重名；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
 | L3 | 直绑定 425 条（`token.<ns>.<名字>`）+ 状态提示（live/dead/gated/pinned） | 专家、外部 AI 逃生舱 |
 
 规则：L2 只列可达能力（dead 只登记不默认暴露）；L3 一律允许设置，保存只提示状态，不阻止、不删除。
@@ -160,7 +161,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 
 ## 8. 验收判据（可变成测试）
 
-1. `palette/` 10 个 YAML 全部解析；`palette-check.py` 跨模块检查 **0 错误 0 警告**（id 文法/能力域、token 存在与状态、realization 契约、锚点、值类型、直接绑定 425 覆盖、runtime 148 登记、`_index` 计数、模块 version/requires）。
+1. `palette/` 11 个 YAML 全部解析；`palette-check.py` 跨模块检查 **0 错误 0 警告**（id 文法/能力域、token 存在与状态、realization 契约、锚点、值类型、直接绑定 425 覆盖、runtime 148 登记、`_index` 计数、模块 version/requires）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
 3. **425 全量可达**：`direct_bindings` 恰 425 条且与 `tokens.yaml` 一一对应（无遗漏、无多余、id 唯一）。
 4. **集合闭合**：425 = 颜色 222 + 非颜色 203；573 = 425 + 148；`crosswalk` 中 P1–P4 每一行都有落点（能力或直绑定）。
@@ -168,12 +169,12 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 6. 视频背景经 `insert-media-layer` 生效，切主题后精确撤销（无残留节点）。
 7. 预览与运行时对同一 theme.yaml 产生同一份 plan（快照测试）。
 8. 状态提示：dead/gated/pinned 名在编辑器显示状态、可写、不阻止。
-9. `_index.yaml` 计数与重算一致：`capabilities_authored`=30、`capabilities_generated`=65、`capabilities_unique`=379、`regions_covered`=12（缺口 detail/plugin，目标 14/14）、`domains_covered`=30、`direct_bindings`=425、`runtime_registered`=148。
+9. `_index.yaml` 计数与重算一致：`capabilities_authored`=30、`capabilities_generated`=65、`capabilities_unique`=381、`regions_covered`=12（缺口 detail/plugin，目标 14/14）、`domains_covered`=30、`direct_bindings`=425、`runtime_registered`=148。
 10. 零偏差：`gen_palette_v5.py` 重跑结果与提交一致；`docs/research/palette-v5-crosswalk.json` 覆盖 P1/P2/P3/P4 全部行。
 
 ## 9. 未定项（不要假装已定）
 
-- 字段细节（`meta` 子字段、license、hostContract 等）与 `api` 最终编号：由 #140 承接（本票只定承载格式与概念集合）。
+- 字段细节（`meta` 子字段、license 等）：2026-10-24 起由本 SPEC §3 固定；后续调整走 §11 变更记录（#140 已关闭，字段清单以本文件为唯一真源）。
 - 主题包资源如何从本地目录送到浏览器（文件通道/URL 方案）：未确证。
 - 排印轴验收归 #148、材质档位归 #149、区域背景与媒体归 #137、预览区复刻归 #146、主题编辑器 UI 归 #141、37 款迁移归 #145（切分已入 #147 裁定记录，用户仍可调）。
 - `extensions`（B 脚本 / C HTML 片段）扩展层：格式预留，加载器未实现；开启时必须有安装前强提示。
@@ -185,7 +186,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 
 ## 10. 决策来源
 
-- #147 裁定记录（U1–U22）：全量收录（C1–C5 × A–F）、可达=编辑器+手写、预览区、区模型、变量表保留、入口层级、三级 tier、扩展层、主题来源两类、变量 $ref、多语言字体、V3 一次做全、主题包目录、只有 YAML、内置+本地、字段 6 键、别名链、严格拒收、不做 reduced-motion、本票只定承载格式、六条验收、技术自检归我方、5 条增量设计逐条裁定。
+- #147 裁定记录（U1–U22）：全量收录（C1–C5 × A–F）、可达=编辑器+手写、预览区、区模型、变量表保留、入口层级、三级 tier、扩展层、主题来源两类、变量 $ref、多语言字体、V3 一次做全、主题包目录、只有 YAML、内置+本地、theme.yaml **五键**（api/meta/variables/capabilities/extensions）、别名链、严格拒收、不做 reduced-motion、本票只定承载格式、六条验收、技术自检归我方。
 - 逐技术组讨论：P1 颜色 222 / P2 私有契约面 / P3 DOM / P4 非颜色 203 + 运行时 148（各 HTML 表见 `docs/research/`）。
 - 证据文档：`v3-color-222-ability-map.html`、`v3-private-surface-ability-map.html`、`v3-dom-ability-map.html`、`v3-noncolor-surface-ability-map.html`、`v3-capability-master.html`、`color-axis-token-inventory.md`、`theme-ceiling-absolute.md`、`moddable-surface-registry.md`。
 - 机器源：`palette/`（v3.0.0）。
@@ -196,3 +197,4 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 - 2026-10-22 v1.1～v1.10：九轮独立对抗式二审修正（425 数字、值类型、状态模型主状态+修饰、展开 id 规则、checker 从 7 项扩到全量 YAML/守卫/declared/version 校验、条件写契约单源化等；详见 git 历史）。
 - 2026-10-24 v1.11：`tokens.yaml` 由扫描器全量生成 425 条（含状态/声明/全部消费位置/运行时段），宿主基准升 rc.3。
 - 2026-10-24 v1.12（P5 定稿）：能力菜单固化为手写源 `capabilities.yaml` + 由全部底层模块合成的 `palette.yaml`（`capabilities` 319 + `direct_bindings` 425）；新增 kind `token`/`effect`、字段 `tier`/`exposure`/`status`/`probe`/`binds`/`tech`/`source`；`values.yaml` 新增 `font`/`font_style`/`filter`/`shape`；`vocabulary.yaml` 新增 `token` 能力域（34）；`tokens.yaml` 新增 `runtime` 段（148 条登记）；去除 v1 JSON 兼容、`raw_tokens`、legacy 映射层；验收改 10 条（含 direct_bindings 覆盖、集合闭合、crosswalk 零偏差）。
+- 2026-10-24 v1.13（P6 定稿）：`ownership` 策略从生成器硬编码迁到 `palette/ownership.yaml` 模块（merged 10 / renamed 4 / converted 9 / dropped 2），合成视图不再产生新事实；两条 recipe 能力（`composer.glass`、`menu.surface.glass`）保留进合成能力集；tier 词表统一为 stable/advanced/experimental/dead；`capabilities.yaml` 手写能力 30 条、合成能力 321 条；第 12 轮独立二审的 5 P1 + 8 P2 已修。

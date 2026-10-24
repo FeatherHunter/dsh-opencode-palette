@@ -113,7 +113,9 @@ caps = {}
 # capabilities.yaml 是手写能力源；palette.yaml 由本脚本从全部底层模块合成（可重跑）
 for cid, c in menu["capabilities"].items():
     e = dict(c)
-    e["tier"] = {"basic": "stable"}.get(e.get("tier"), e.get("tier", "stable"))
+    e["tier"] = e.get("tier", "stable")
+    if e["tier"] not in ("stable", "advanced", "experimental", "dead"):
+        raise SystemExit("capability " + cid + ": tier 不在四档: " + repr(e["tier"]))
     e.setdefault("exposure", "默认开放")
     e["source"] = "hand-authored"
     caps[cid] = e
@@ -231,64 +233,12 @@ if tc is not None:
             tc["merged_from"].append(r["ability"])
 
 # ---------- token 归属策略（方案 A：一个 token 只有一个 owner） ----------
-OWNERSHIP_MERGED = [
-    # (重复能力, owner) —— 同一 token 的重复语义行；保留 owner，其余并入 merged_from
-    ("global.text.primary", "global.text.foreground"),
-    ("specific.sidebar.fill", "sidebar.panel.background"),
-    ("content.markdown.code-block.background", "code.block.background"),
-    ("content.code.block.background", "code.block.background"),
-    ("content.code.block.banner.background", "content.markdown.code-block.banner"),
-    ("typography.family.default", "global.text.font_family"),
-    ("global.link.text", "global.link.foreground"),
-    ("content.code.block.content.font", "typography.markdown-code-block.composite"),
-    ("content.terminal.font", "typography.markdown-code-block-small.composite"),
-    ("content.code.block.banner.font", "code.block.font_family"),
-]
+ownership_doc = load("palette/ownership.yaml")
+OWNERSHIP_MERGED = list(ownership_doc.get("merged", {}).items())
+OWNERSHIP_CONVERT = dict(ownership_doc.get("converted", {}))
+OWNERSHIP_DROP = dict(ownership_doc.get("dropped", {}))
+OWNERSHIP_RENAME = dict(ownership_doc.get("renamed", {}))
 
-OWNERSHIP_CONVERT = {
-    # 区域旋钮 → 规则层（精确技术路径，不再写共享 token）
-    "composer.input.foreground": dict(kind="property", value="color", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="color", use="rule", anchor="composer.input",
-                                     layer="component", decl={"color": "$value"})])]),
-    "markdown.link.foreground": dict(kind="property", value="color", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="color", use="rule", anchor="markdown.link",
-                                     layer="component", decl={"color": "$value"})])]),
-    "markdown.paragraph.font_size": dict(kind="property", value="length", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="fs", use="rule", anchor="markdown.paragraph",
-                                     layer="component", decl={"font-size": "$value"})])]),
-    "markdown.paragraph.line_height": dict(kind="property", value="line_height", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="lh", use="rule", anchor="markdown.paragraph",
-                                     layer="component", decl={"line-height": "$value"})])]),
-    "code.block.radius": dict(kind="property", value="length", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="r", use="rule", anchor="code.block",
-                                     layer="component", decl={"border-radius": "$value"})])]),
-    "tool.search.radius": dict(kind="property", value="length", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="r", use="rule", anchor="tool.search",
-                                     layer="component", decl={"border-radius": "$value"})])]),
-    "terminal.block.radius": dict(kind="property", value="length", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="r", use="rule", anchor="terminal.root",
-                                     layer="component", decl={"border-radius": "$value"})])]),
-    "tool.web.radius": dict(kind="property", value="length", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="r", use="rule", anchor="tool.web",
-                                     layer="component", decl={"border-radius": "$value"})])]),
-    "sidebar.item.background": dict(kind="property", value="paint", tier="stable", realization=[
-        dict(id="rule", writes=[dict(id="bg", use="rule", anchor="sidebar.item",
-                                     layer="component", decl={"background-color": "$value"})])]),
-}
-
-OWNERSHIP_DROP = {
-    # 宿主未给独立通道：先不设旋钮，路径研究记录在 docs/research/v3-ownership-policy.md
-    "window.titleBar.background": "标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单",
-    "sidebar.guide.entry.radius": "宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单",
-}
-
-# 转换前先把「研究表里的旧 id」改名到最终 id（内容不变）
-OWNERSHIP_RENAME = {
-    "content.code.block.radius": "code.block.radius",
-    "content.search.radius": "tool.search.radius",
-    "content.terminal.radius": "terminal.block.radius",
-    "content.web.radius": "tool.web.radius",
-}
 for old, new in OWNERSHIP_RENAME.items():
     if old in caps and new not in caps:
         caps[new] = caps.pop(old)
@@ -342,7 +292,8 @@ for cid in list(caps):
         if ws:
             r["writes"] = ws
     e["realization"] = [r for r in (e.get("realization") or []) if r.get("writes")]
-    if e.get("kind") in ("property", "recipe") and not e.get("realization") and not e.get("binds"):
+    if (e.get("kind") in ("property", "recipe") and not e.get("realization")
+            and not e.get("binds") and not e.get("aspects")):
         caps.pop(cid)
 
 # ---------- 直绑定：425 全量 ----------

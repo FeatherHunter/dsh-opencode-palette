@@ -1,0 +1,140 @@
+# 能力归属策略（手写源）。改归属改这里，palette.yaml 由生成器合成。
+api: 3
+description: 能力归属决策（v1.13）：哪些重复语义合并到哪条能力、哪些区域旋钮降级为规则层、哪些改名、哪些不设旋钮。palette.yaml 的 ownership 段直接来自本模块。
+merged:
+  global.text.primary: global.text.foreground
+  specific.sidebar.fill: sidebar.panel.background
+  content.markdown.code-block.background: code.block.background
+  content.code.block.background: code.block.background
+  content.code.block.banner.background: content.markdown.code-block.banner
+  typography.family.default: global.text.font_family
+  global.link.text: global.link.foreground
+  content.code.block.content.font: typography.markdown-code-block.composite
+  content.terminal.font: typography.markdown-code-block-small.composite
+  content.code.block.banner.font: code.block.font_family
+renamed:
+  content.code.block.radius: code.block.radius
+  content.search.radius: tool.search.radius
+  content.terminal.radius: terminal.block.radius
+  content.web.radius: tool.web.radius
+dropped:
+  window.titleBar.background: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
+  sidebar.guide.entry.radius: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
+converted:
+  composer.input.foreground:
+    kind: property
+    value: color
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: color
+        use: rule
+        anchor: composer.input
+        layer: component
+        decl:
+          color: $value
+  markdown.link.foreground:
+    kind: property
+    value: color
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: color
+        use: rule
+        anchor: markdown.link
+        layer: component
+        decl:
+          color: $value
+  markdown.paragraph.font_size:
+    kind: property
+    value: length
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: fs
+        use: rule
+        anchor: markdown.paragraph
+        layer: component
+        decl:
+          font-size: $value
+  markdown.paragraph.line_height:
+    kind: property
+    value: line_height
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: lh
+        use: rule
+        anchor: markdown.paragraph
+        layer: component
+        decl:
+          line-height: $value
+  code.block.radius:
+    kind: property
+    value: length
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: code.block
+        layer: component
+        decl:
+          border-radius: $value
+  tool.search.radius:
+    kind: property
+    value: length
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: tool.search
+        layer: component
+        decl:
+          border-radius: $value
+  terminal.block.radius:
+    kind: property
+    value: length
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: terminal.root
+        layer: component
+        decl:
+          border-radius: $value
+  tool.web.radius:
+    kind: property
+    value: length
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: tool.web
+        layer: component
+        decl:
+          border-radius: $value
+  sidebar.item.background:
+    kind: property
+    value: paint
+    tier: stable
+    realization:
+    - id: rule
+      writes:
+      - id: bg
+        use: rule
+        anchor: sidebar.item
+        layer: component
+        decl:
+          background-color: $value

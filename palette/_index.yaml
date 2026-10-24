@@ -14,7 +14,7 @@ modules:
     version: 3.0.0
     generated: false
     kind: capabilities_source
-    summary: 手写能力源——28 条手写能力 + 控件模板 + api/palette_version；改能力改这里
+    summary: 手写能力源——30 条手写能力 + 控件模板 + api/palette_version；改能力改这里
   palette:
     file: palette.yaml
     version: 3.0.0
@@ -61,16 +61,22 @@ modules:
     summary: 宿主 token 全集 425 条：状态（live/dead + 修饰）、声明位置（全部）、消费次数、消费位置（全部）、本仓是否已注入；扫描器生成，勿手改
   anchors:
     file: anchors.yaml
-    version: dsh 0.2.1-rc.2 @ 687f282
+    version: dsh 0.2.1-rc.3 @ 1f81c04（anchors 清单为人工核对，rc.3 无锚点变化）
     generated: partial
     kind: host_facts
     command: palette:scan-anchors（扫描器规划中；当前 anchors.yaml 为人工清单）
     reviewed: true
     summary: DOM 锚点候选与控件清单（宿主私有选择器集中地）
+  ownership:
+    file: ownership.yaml
+    kind: policy
+    generated: false
+    summary: 能力归属策略——merged 10 / renamed 4 / converted 9 / dropped 2；palette.yaml 的 ownership 段来自本模块
+    version: 3.0.0
 counts:
   capabilities_authored: 30
   capabilities_generated: 65
-  capabilities_unique: 379
+  capabilities_unique: 381
   controls: 12
   regions: 14
   roles: 29
@@ -82,7 +88,6 @@ counts:
   direct_bindings: 425
   runtime_registered: 148
 artifacts:
-  merged: palette/_merged.yaml
-  gaps: docs/palette/coverage-gaps.md
-  matrix: docs/palette/capability-matrix.md
-  schema: palette/schema/palette-v3.schema.json
+  palette: palette/palette.yaml
+  crosswalk: docs/research/palette-v5-crosswalk.json
+  capability_master: docs/research/capability-master.json

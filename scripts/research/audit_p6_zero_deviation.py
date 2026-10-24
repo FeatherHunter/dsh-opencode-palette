@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""P6 零偏差审计：SPEC ↔ palette/ 10 个 YAML ↔ P1–P4 研究表逐条一致。
+"""P6 零偏差审计：SPEC ↔ palette/ 11 个 YAML ↔ P1–P4 研究表逐条一致。
 
 检查组：
 A 集合闭合（425=403+11+11=222+203；573=425+148）
@@ -99,7 +99,7 @@ p3_rows = [r for r in master["rows"] if r.get("kind") != "token-semantic"]
 check("C4 P3 行数 23 且落点都在 capabilities", len(cw["rows"]["P3"]) == 23,
       len(cw["rows"]["P3"]))
 def has_probe(c):
-    if c.get("probe") or c.get("kind") == "effect":
+    if c.get("probe") or c.get("kind") in ("effect", "recipe"):
         return True
     for rz in c.get("realization") or []:
         if (rz.get("when") or {}).get("probe"):
@@ -114,8 +114,8 @@ check("C6 tier 只在 stable/advanced/experimental/dead", tiers <= {"stable", "a
 
 # ---------- D. SPEC ↔ YAML ----------
 yamls = sorted(f for f in os.listdir("palette") if f.endswith(".yaml"))
-check("D1 palette/ 下 10 个 YAML", len(yamls) == 10, yamls)
-for n in ("319", "379", "425", "148", "26", "29", "34"):
+check("D1 palette/ 下 11 个 YAML", len(yamls) == 11, yamls)
+for n in ("321", "381", "425", "148", "26", "29", "34"):
     check(f"D2 SPEC 含当前计数 {n}", n in spec)
 spec_head = spec.split("## 11. 变更记录")[0]
 stale = [n for n in ("331", "392", "333", "394", "397") if n in spec_head]

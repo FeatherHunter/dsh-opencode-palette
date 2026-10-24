@@ -40,6 +40,7 @@ FILES = [
     'probes.yaml',
     'tokens.yaml',
     'anchors.yaml',
+    'ownership.yaml',
 ]
 
 
@@ -502,7 +503,7 @@ def main():
     modules = idx.get('modules', {})
     for mname, meta in modules.items():
         if meta.get('file') not in FILES:
-            errors.append(f'_index modules.{mname}: 文件 {meta.get("file")} 不在 10 个 YAML 内')
+            errors.append(f'_index modules.{mname}: 文件 {meta.get("file")} 不在 FILES 注册清单内')
 
     # —— _index 模块 version 与 requires 约束 ——
     semver = re.compile(r'^\d+\.\d+\.\d+$')
@@ -537,7 +538,7 @@ def main():
             errors.append(f'_index.requires.{rname}={rspec!r} 未满足（modules.{rname}.version={ver}）')
 
     print(f'YAML 解析         = {len(loaded)}/{len(FILES)}（目录内 {len(on_disk)} 个）')
-    print(f'能力（手写）      = {len(caps)}')
+    print(f'能力（合成）      = {len(caps)}')
     print(f'能力（模板展开）  = {generated_raw}（去重后新增 {deduped}）')
     print(f'能力（合并唯一）  = {len(merged)}')
     print(f'区域覆盖          = {len(covered & regions)}/{len(regions)}（缺口 {", ".join(gap) or "无"}）')

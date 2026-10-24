@@ -1679,6 +1679,65 @@ capabilities:
           color: $value
     exposure: 默认开放
     source: hand-authored
+  composer.glass:
+    kind: recipe
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - effect
+    - glass
+    - composer
+    docs: '第 6 条需求：输入区玻璃态。模糊与半透明底色两个 aspect 独立降级：
+
+      宿主不支持 backdrop-filter 时仍保留半透明底色，文字可读。
+
+      '
+    value:
+      type: object
+      fields:
+        blur:
+          type: length
+          default: 12px
+        opacity:
+          type: number
+          default: 0.6
+        tint:
+          type: color
+          default:
+            light: '#ffffff'
+            dark: '#1b1b1c'
+    aspects:
+      backdrop:
+        fields:
+        - blur
+        effects:
+        - id: rule-blur
+          writes:
+          - id: blur
+            use: rule
+            anchor: composer.root
+            layer: component
+            decl:
+              backdrop-filter: blur($fields.blur)
+              -webkit-backdrop-filter: blur($fields.blur)
+      tint:
+        fields:
+        - opacity
+        - tint
+        effects:
+        - id: rule-tint
+          writes:
+          - id: tint
+            use: rule
+            anchor: composer.root
+            layer: component
+            decl:
+              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
+    meta:
+      gap: 玻璃能否吃到底层媒体层取决于层叠上下文，需实测。
+    exposure: 默认开放
+    source: hand-authored
+    realization: []
   menu.surface.background:
     kind: property
     since: 3.0.0
@@ -1705,6 +1764,59 @@ capabilities:
         important: when_inline_conflict
     exposure: 默认开放
     source: hand-authored
+  menu.surface.glass:
+    kind: recipe
+    since: 3.0.0
+    tier: advanced
+    tags:
+    - effect
+    - glass
+    - menu
+    docs: 控件级 recipe 示例（recipe_role_id：<region>.<role>.<recipe>）。
+    value:
+      type: object
+      fields:
+        blur:
+          type: length
+          default: 16px
+        opacity:
+          type: number
+          default: 0.7
+        tint:
+          type: color
+          default:
+            light: '#f8f9fa'
+            dark: '#1b1b1c'
+    aspects:
+      backdrop:
+        fields:
+        - blur
+        effects:
+        - id: rule-blur
+          writes:
+          - id: blur
+            use: rule
+            anchor: menu.surface
+            layer: component
+            decl:
+              backdrop-filter: blur($fields.blur)
+              -webkit-backdrop-filter: blur($fields.blur)
+      tint:
+        fields:
+        - opacity
+        - tint
+        effects:
+        - id: rule-tint
+          writes:
+          - id: tint
+            use: rule
+            anchor: menu.surface
+            layer: component
+            decl:
+              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
+    exposure: 默认开放
+    source: hand-authored
+    realization: []
   menu.item.background:
     kind: property
     since: 3.0.0

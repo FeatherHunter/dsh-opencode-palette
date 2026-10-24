@@ -16,8 +16,9 @@
 | 文件 | 内容 | 手写? |
 |---|---|---|
 | `_index.yaml` | 注册表：模块清单、版本、生成命令、计数 | 手写 |
-| `capabilities.yaml` | **手写能力源**：28 条手写能力 + 控件模板 + `api`/`palette_version`；改能力改这里 | 手写 |
-| `palette.yaml` | **合成视图**：由全部底层模块合成——词表/值类型/原语/资源/探测/锚点 + 能力菜单 `capabilities`（331 条）+ `direct_bindings`（425 条）+ runtime 摘要；由 `gen_palette_v5.py` 生成，**不要手改** | **生成** |
+| `capabilities.yaml` | **手写能力源**：30 条手写能力 + 控件模板 + `api`/`palette_version`；改能力改这里 | 手写 |
+| `ownership.yaml` | 能力归属策略：merged / renamed / converted / dropped | 手写 |
+| `palette.yaml` | **合成视图**：由全部底层模块合成——词表/值类型/原语/资源/探测/锚点 + 能力菜单 `capabilities`（合成条数以 `_index.yaml` 为准）+ `direct_bindings`（425 条）+ runtime 摘要；由 `gen_palette_v5.py` 生成，**不要手改** | **生成** |
 | `vocabulary.yaml` | 词表：区域/角色/属性/recipe/状态/语言/能力域（34）/目录 | 手写 |
 | `values.yaml` | 值类型（23 种）、书写系统 Unicode 范围、主题变量语法 | 手写 |
 | `primitives.yaml` | 写原语：token / rule / dom / host_api 的字段与策略 | 手写 |
@@ -37,7 +38,7 @@
 
 ## 构建期要产出的东西（尚未实现）
 
-- `_merged.yaml`：合并视图，给人和 AI 通读（不参与校验）
+- `palette.yaml`：合并视图，给人和 AI 通读（由 `scripts/research/gen_palette_v5.py` 生成，不手改）
 - `schema/palette-v3.schema.json`：编辑器与 AI 的校验 schema
 - `docs/palette/capability-matrix.md`：区域 × 角色 × 属性 的能力矩阵
 - `docs/palette/coverage-gaps.md`：宿主有、能力集没有的缺口 = 扩建待办
