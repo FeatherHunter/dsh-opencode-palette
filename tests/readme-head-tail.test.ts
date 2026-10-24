@@ -65,7 +65,7 @@ const REMOVED_CAPSULES = [
   'ROADMAP',
 ]
 
-const CONTRIBUTORS = ['oopsdoes', 'gitwch1', 'anci3ntr0ck', 'SRKBob', 'anupamme', 'Number444', 'xiSage', 'the-beating-light-of-the-nail']
+const CONTRIBUTORS = ['oopsdoes', 'insp63', 'gitwch1', 'anci3ntr0ck', 'SRKBob', 'anupamme', 'Number444', 'xiSage', 'the-beating-light-of-the-nail']
 
 // ── 1 · 五枚胶囊在场，且顺序与链接目标与定稿一致 ──
 for (const [lang, table] of Object.entries(CAPSULES)) {
@@ -171,16 +171,16 @@ test('MORE：四条兄弟插件各为定稿句，ilife 排在第四条，四行�
   }
 })
 
-// ── 5 · THANKS：八人九 🌹，按花数排行（GitHub 一手数据 2026-10-17 复核） ──
-// 用户 2026-09-17 复稿把唯一的外部 PR 作者记进来，旧口径「0 个 PR / PR 虚位以待」作废；
-// 2026-10-05 用户要求删掉首句「提交一个 Issue，就记一个 🌹 —— 下面这些需求都已经做出来了。」
-// （英文页同句一并删除），THANKS 段只剩贡献者逐条。
-// 2026-10-06 用户要求一单一花 + 按花数排行：@oopsdoes（#46、#55）两花置顶。
-// 2026-10-17 一手数据全量复核（89 issue + 1 PR，无分页丢失）：外部贡献者 8 人 9 花 ——
-//   新增 @gitwch1（#73 想法，1 花）与 @anci3ntr0ck（#73 报障，1 花），其余六人每人 1 花；
-//   同花数按最新贡献时间降序重排，故 @SRKBob(#43) 起依次为 #32 → #12 → #11 → #3，
-//   @the-beating-light-of-the-nail(#3) 落到最后一行。
-test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () => {
+// ── 5 · THANKS：九人十花机器表（2026-10-22 致谢自动化移植，源仓方案） ──
+// 旧手工段（八人九花逐人描述句）退役，旧文案留 git 历史：中英两页改为同构三列表格，
+// 数据源是 docs/thanks-data.json，scripts/update-thanks.ts 一次写三处
+// （中文 README 用中文表，英文页与包内副本用英文表）。
+// 首跑 bootstrap（154 议题/PR＋122 讨论）纠偏已由维护者确认：新增 @insp63（#124，排第二）、
+// @anupamme 的 #32 确认为 PR（链接走 /pull/32）、#73 为 anci3ntr0ck 开的＋gitwch1 留言参与。
+// 行序 = 总数多在前、同数按最后活跃倒排（oopsdoes 两花置顶）。
+// 精确一致（花串＝渲染结果、三处逐字节对等）由 tests/verify-thanks-table.ts 钉死，
+// 这里只钉头尾可见形态（标记、引言、行序、花总数、旧口径不回潮）。
+test('THANKS：九人十花同构表（oopsdoes 两花置顶，insp63 第二）', () => {
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     const thanks = doc.indexOf('<sub>THANKS</sub>')
     assert.ok(thanks > -1, `${name} 应有 THANKS 段`)
@@ -190,33 +190,54 @@ test('THANKS：八人九花，按花数排行（oopsdoes 两花置顶）', () =>
       assert.ok(doc.slice(thanks).includes(`[@${handle}](https://github.com/${handle})`),
         `${name} 应点名 @${handle}`)
     }
-    // 按花数排行 + 同花数按最新贡献降序：@oopsdoes（#46、#55，两花）置顶，
-    // 其余一花依次 gitwch1 → anci3ntr0ck → SRKBob → anupamme → Number444 → xiSage → the-beating-light-of-the-nail。
-    // 用 handle 出现位置断言（gitwch1 与 anci3ntr0ck 同为 #73，比编号更稳）。
+    // 行序：oopsdoes 置顶，其余按最后活跃降序
+    // （insp63 → gitwch1 → anci3ntr0ck → SRKBob → anupamme → Number444 → xiSage → the-beating-light-of-the-nail）
     const top = doc.slice(thanks)
     const order = CONTRIBUTORS.map((h) => top.indexOf(`[@${h}]`))
     assert.deepEqual(order, [...order].sort((a, b) => a - b),
-      `${name} 应按花数排行、同花数按最新贡献降序：${CONTRIBUTORS.join(' → ')}`)
+      `${name} 应按花数排行、同花数按最后活跃降序：${CONTRIBUTORS.join(' → ')}`)
     for (const h of CONTRIBUTORS) assert.ok(top.indexOf(`[@${h}]`) > -1, `${name} 应点名 @${h}`)
     // @oopsdoes 行应同时含 #46 与 #55，且 #46 在 #55 之前
     assert.ok(top.includes('#46') && top.includes('#55'), `${name} 的 @oopsdoes 行应同时含 #46 与 #55`)
     assert.ok(top.indexOf('#46') < top.indexOf('#55'), `${name} 的 #46 应在 #55 之前`)
-    // 新增两人都记的 #73 在段内；早于两人的旧单号保持 #32 → #12 → #11 → #3 的降序
-    assert.ok(top.includes('#73'), `${name} 应有 #73 的两条贡献`)
-    const seq = ['#32 ', '#12 ', '#11 ', '#3 '].map((n) => top.indexOf(` ${n}`))
-    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 其余应保持 #32 → #12 → #11 → #3 时间降序`)
+    // 新人 #124 排在 #73 之前；其余旧单号保持 #43 → #32 → #12 → #11 → #3 时间降序
+    assert.ok(top.includes('[#124]'), `${name} 应有新人 insp63 的 #124`)
+    assert.ok(top.includes('[#73]'), `${name} 应有 #73 的两条贡献`)
+    assert.ok(top.indexOf('[#124]') < top.indexOf('[#73]'), `${name} 的 #124 应排在 #73 之前`)
+    for (const n of ['[#43]', '[#32]', '[#12]', '[#11]', '[#3]']) assert.ok(top.includes(n), `${name} 应有 ${n}`)
+    const seq = ['[#43]', '[#32]', '[#12]', '[#11]', '[#3]'].map((n) => top.indexOf(n))
+    assert.deepEqual(seq, [...seq].sort((a, b) => a - b), `${name} 其余应保持 #43 → #32 → #12 → #11 → #3 时间降序`)
     assert.ok(Math.max(...seq) > top.indexOf('#55'), `${name} 其余条目应排在 @oopsdoes 之后`)
-    // 一单一花：9 个单号（#3、#11、#12、#32、#43、#46、#55、#73×2）对 9 朵 🌹
-    assert.equal(count(top, '🌹'), 9, `${name} 的 THANKS 应一单一花共 9 朵（首句已删，不再多算）`)
-    // 旧口径不许回来：PR 邀请句已整句删除
+    // #32 是外部 PR：链接走 /pull/32，不再是旧表含糊的裸号
+    assert.ok(top.includes('[#32](https://github.com/FeatherHunter/dsh-opencode-palette/pull/32)'),
+      `${name} 的 #32 应链到 pull/32`)
+    // 一单一花：#3、#11、#12、#32、#43、#46、#55、#73×2、#124 共 10 朵 🌹
+    assert.equal(count(top, '🌹'), 10, `${name} 的 THANKS 应共 10 朵（oopsdoes 两朵，其余一人一朵）`)
+    // 旧口径不许回来：PR 邀请句、旧首句
     assert.equal(doc.includes('PR 虚位以待'), false, `${name} 不应再有「PR 虚位以待」`)
     assert.equal(doc.includes('PRs wanted'), false, `${name} 不应再有 "PRs wanted"`)
+    assert.equal(doc.includes('提交一个 Issue，就记一个 🌹'), false, `${name} 不应再有中文旧首句`)
+    assert.equal(doc.includes('Every issue gets a 🌹'), false, `${name} 不应再有英文旧首句`)
+    // 旧逐人描述句不许回来（表格只留链接，描述留 git 历史）
+    for (const gone of ['提议不透明主题', '复现不出', 'proposed light-mode', 'found no repro']) {
+      assert.equal(top.includes(gone), false, `${name} 不应再有旧描述句「${gone}」`)
+    }
   }
-  // 2026-10-05 用户要求整句删除，三份文档同步
-  const THANKS = [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]
-  for (const [name, doc] of THANKS) {
-    assert.equal(doc.includes('提交一个 Issue，就记一个 🌹'), false, `${name} 不应再有中文首句`)
-    assert.equal(doc.includes('Every issue gets a 🌹'), false, `${name} 不应再有英文首句`)
+  // 表头与标记：中文页用中文表头＋ZH 标记，英文页与包内副本用英文表头＋EN 标记
+  assert.ok(ZH.includes('<!-- THANKS-TABLE-ZH-START -->') && ZH.includes('<!-- THANKS-TABLE-ZH-END -->'), '中文页应有中文表标记')
+  assert.equal(count(ZH, '<!-- THANKS-TABLE-ZH-START -->'), 1, '中文表标记应只出现一次')
+  assert.ok(ZH.includes('| 贡献者 | 致敬 | 贡献 |'), '中文页表头应为中文三列')
+  for (const [name, doc] of [['英文页', EN], ['包内副本', PKG]]) {
+    assert.ok(doc.includes('<!-- THANKS-TABLE-EN-START -->') && doc.includes('<!-- THANKS-TABLE-EN-END -->'), `${name} 应有英文表标记`)
+    assert.equal(count(doc, '<!-- THANKS-TABLE-EN-START -->'), 1, `${name} 英文表标记应只出现一次`)
+    assert.ok(doc.includes('| Contributor | Tribute | Contributions |'), `${name} 表头应为英文三列`)
+  }
+  // 引言结语：致谢区有头有尾，机器只换标记之间的表
+  assert.ok(ZH.includes('感谢每一位提交 Issue、PR 与参与讨论的朋友'), '中文页应有致谢引言')
+  assert.ok(ZH.includes('也感谢在评论区与讨论区留下想法的每一位朋友'), '中文页应有致谢结语')
+  for (const [name, doc] of [['英文页', EN], ['包内副本', PKG]]) {
+    assert.ok(doc.includes('Thanks to everyone who opened an issue, sent a PR'), `${name} 应有致谢引言`)
+    assert.ok(doc.includes('And thanks to everyone who left thoughts in comments and discussions'), `${name} 应有致谢结语`)
   }
 })
 
@@ -240,8 +261,10 @@ test('CONNECT：PR/ISSUE 入口与交流群二维码沿用，宽度不变', () =
   for (const gone of ['Found a bug or have an idea', '[open an issue](', "you'd rather talk it over"]) {
     assert.equal(EN.includes(gone), false, `英文页不应再有「${gone}」`)
   }
-  assert.ok(ZH.includes('src="assets/feishu-qr.png"'), '中文页二维码路径在场（文件名沿用，内容已换成群码）')
-  assert.ok(EN.includes('src="../assets/feishu-qr.png"'), '英文页二维码路径在场')
+  for (const qr of ['contact-feishu-permanent.png', 'contact-qq-permanent.png', 'contact-wechat-weekly.png']) {
+    assert.ok(ZH.includes(`src="assets/${qr}"`), `中文页群码路径在场：${qr}`)
+    assert.ok(EN.includes(`src="../assets/${qr}"`), `英文页群码路径在场：${qr}`)
+  }
   for (const doc of [ZH, EN, PKG]) {
     assert.ok(doc.includes('width="260"'), '二维码宽度沿用 260')
   }

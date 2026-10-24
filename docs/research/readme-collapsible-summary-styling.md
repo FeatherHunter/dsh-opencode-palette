@@ -3,6 +3,7 @@
 > 日期：2026-10-24 · 触发问题：README 里的章节折叠按钮外观不满意（纯深色/浅色背景 + 黑色三角，点开再点收回）。
 > 范围：只研究 GitHub.com 的 Markdown 渲染（README / issue / PR 同一渲染栈），不覆盖 Typora、VS Code、npm、第三方站点等其他 Markdown 渲染器。
 > 方法：官方规范/文档原文 + GitHub 官方开源 sanitizer 源码 + 对 GitHub Markdown API 与真实仓库页面的实测。所有 URL 见文末「来源一览」，均可复验。
+> 版本：2026-10-24 合并了同目录并行稿 v2 的增量（github/markup 官方自述、`name` 手风琴、WHATWG summary 内容模型、`<picture>` 官方博客、三角 `::marker` 机制）；v2 对“相对路径图片不会自动卡片化”的勘误经矩阵实测成立，已采纳（§3.1）。
 
 ---
 
@@ -12,7 +13,7 @@
 | --- | --- |
 | 1）这种样式问题在 **Markdown 语法** 中能解决吗？ | **不能。** Markdown（CommonMark/GFM）规范里没有“折叠”语法，也没有任何样式语法。`<details>` / `<summary>` 是**直接透传的 raw HTML**；按钮长什么样属于 CSS，不属于 Markdown。 |
 | 2）是 **Markdown 本身能解决、但 GitHub 有限制** 吗？ | **是“HTML/CSS 能，GitHub 不许”。** 任何接 CSS 的 Markdown 渲染器都能给 `<details>` 加皮肤；但 GitHub 在 GFM→HTML 之后会**额外 sanitize**（GFM 规范 §1.1 明写），白名单**剥掉 `style` / `class`**，`<style>` 被转义、`<link>` 被删除、`<script>` 不可用。 |
-| 3）**GitHub 的渲染机制里** 其实有技术可以解决吗？ | **没有可用的 CSS 通道**；但有“内容层”技巧可以明显改善观感：`<picture>` 深浅色自适应（GitHub 原生组件 `themed-picture`）、SVG/PNG 设计图塞进 summary、emoji、`<kbd>`/`<mark>`/`<sub>`/`<sup>`、`align`/`width`/`height`/`title`/`open`、GitHub 原生 alert 区块；此外同时带 `width`+`height` 的图片会被 GitHub 自动附加 `max-width:100%` 并实测加主题 muted 背景 + 6px 圆角（`js-gh-image-fallback`）。**原生三角箭头、summary 行背景、展开区外观仍然改不了**；要完全自定义只能走 GitHub Pages / 外部站（或只对本人生效的浏览器 userstyle）。 |
+| 3）**GitHub 的渲染机制里** 其实有技术可以解决吗？ | **没有可用的 CSS 通道**；但有“内容层”技巧可以明显改善观感：`<picture>` 深浅色自适应（GitHub 原生组件 `themed-picture`）、SVG/PNG 设计图塞进 summary、emoji、`<kbd>`/`<mark>`/`<sub>`/`<sup>`、`align`/`width`/`height`/`title`/`open`、GitHub 原生 alert 区块；此外 `<details name="demo">` 可做手风琴（同名组一次只开一个，§6.3）；绝对 URL 图片同时带 `width`+`height` 时会被 GitHub 自动加 muted 背景 + 6px 圆角（`js-gh-image-fallback`），而相对路径 `assets/…` 图片不会（§3.1，实测差异）。**原生三角箭头、summary 行背景、展开区外观仍然改不了**；要完全自定义只能走 GitHub Pages / 外部站（或只对本人生效的浏览器 userstyle）。 |
 
 **一句话**：GitHub 只让 `<details>` 带“结构”，不让带“皮肤”；皮肤只能以**图片/语义标签**的形式塞进 summary 的**内容**里。
 
@@ -88,6 +89,12 @@ GFM 基于 CommonMark；[§4.6 HTML blocks](https://github.github.com/gfm/#html-
 
 **结论**：GitHub 上 `<details>` 的标签结构可用，但“能带什么属性、什么样式”由 GitHub 的 sanitizer 白名单决定，规范本身不保证任何样式能力。
 
+### 2.3 那个三角箭头是谁画的？
+
+浏览器默认样式是 `summary { display: list-item; }`，三角来自 `list-item` 的 `::marker` 伪元素——它**不在 DOM 里**，HTML 属性选不中，作者无法用 HTML 改它。
+
+GitHub 的 Primer CSS 只加了两条相关规则：`summary{display:list-item}` 与 `details summary{cursor:pointer}`（`.local/gh-docs/primer-38ae573fa780d76a.css` 可检索）；**没有**给 summary 设置背景色/文字色。折叠行的背景来自主题容器，三角形状与颜色来自浏览器 + 主题。也就是说：**三角和行背景都不接受 README 作者输入**，这不是“写法不对”，而是这两个视觉层根本不在作者可控的 HTML 里。
+
 ---
 
 ## 3. GitHub 实际渲染管线的 API 一手实测（可复现）
@@ -103,7 +110,9 @@ GitHub 提供一个无需登录的 Markdown 渲染接口（有匿名限流）：
 | `<summary style="background:#f0f0f0;color:red" class="foo" id="bar">…` | `<summary id="user-content-bar">…` | **style / class 被剥光**；`id` 保留且自动加 `user-content-` 前缀 |
 | `<details style="background:#123456" class="x" open>` | `<details open="">` | style / class 剥光；`open` 保留 |
 | `<summary bgcolor="…" align="center" title="tip">` | `<summary align="center" title="tip">` | `bgcolor` 剥掉；`align` / `title` 保留 |
-| `<img src="…" width="200" height="30" align="right">` | 保留；GitHub 用 `<a target="_blank" … href="camo…">` 包一层，并追加自己的 `style="max-width: 100%; …"` | 能用 width/height/align 控制**尺寸与对齐**；颜色/边框仍不可控 |
+| `<img src="…" width="200" height="30" align="right">`（绝对 URL） | 保留；GitHub 用 `<a target="_blank" … href="camo…">` 包一层，并追加自己的 `style="max-width: 100%; …"` | 能用 width/height/align 控制**尺寸与对齐**；颜色/边框仍不可控 |
+| `<img src="assets/x.svg" width="600" height="80">`（相对路径） | 只补 `style="max-width: 100%; height: auto; max-height: 80px;"`；**没有**背景/圆角/`js-gh-image-fallback` | 相对图片保持透明背景，不会被“卡片化” |
+| `<img src="https://…" width="600" height="80">`（绝对 URL） | 交给 `camo.githubusercontent.com` 代理，再追加 `aspect-ratio`、`background-color: var(--bgColor-muted); border-radius: 6px` 与 `class="js-gh-image-fallback"` | 外链图片会被自动“卡片化”（是否好看取决于图片本身；本仓 README 用相对路径，不适用） |
 | `<picture><source media="(prefers-color-scheme: dark)" srcset="…"><img src="…"></picture>` | `<themed-picture data-catalyst-inline="true"><picture><source media="…" srcset="camo…"><img …></picture></themed-picture>` | **GitHub 支持深浅色自适应图**（这是少数“渲染机制级”的样式能力） |
 | `<kbd>` / `<mark>` / `<sub>` / `<sup>` / `<s>` | 全部保留 | 这些语义标签自带浏览器外观，可用于内容层美化 |
 | `<p style="…">` / `<span class="…">` | `<p>` / `<span>` | style / class 一律剥掉 |
@@ -113,13 +122,16 @@ GitHub 提供一个无需登录的 Markdown 渲染接口（有匿名限流）：
 | 内联 `<svg><circle …/></svg>` | `svg` 标签被剥，只剩周围文字 | 不可用（但 `<img src="*.svg">` 可以） |
 | `<table bgcolor="#f00" width="100%">` | `bgcolor` 剥掉，`width` 保留 | 同上 |
 | `<summary>**Bold MD**</summary>` | 原样输出 `**Bold MD**`（Markdown 不解析） | summary 里只能用 HTML，不能写 Markdown 语法 |
-| `<summary><h3>标题</h3></summary>` | `<h3>` 保留 | summary 允许块级标签，但官方未记载、不建议 |
+| `<summary><h3>标题</h3></summary>` | `<h3>` 保留 | WHATWG 规范允许 summary 内容 = phrasing content + heading content；GitHub API 实测保留。但 GitHub 官方文档未记载，视觉/读屏行为需自测 |
+| `<details name="demo-group">`（两个同名实例） | `<details name="user-content-demo-group">` ×2 | `name` 保留并加 `user-content-` 前缀；同名仍同组，浏览器原生“手风琴”（一次只开一个） |
 | `<video src="https://github.com/user-attachments/assets/…" controls>` | 保留 | video 只认 GitHub 自家 user-attachments（前序研究已证） |
 | 裸 `https://github.com/user-attachments/assets/<uuid>` | GitHub 自动生成原生视频卡：`<details open="" class="details-reset border rounded-2">…` | 这个“带边框圆角的卡片”是 GitHub 自己的组件；用户手写 `class` 会被剥掉 |
 
 补充：`<details>` 内有多行/空行时，其中 Markdown（列表、粗体、代码块）会正常解析；`<summary>` 是单行 raw HTML，内部 Markdown 不解析。
 
 补充：API 输出与站内渲染的一个已知差异——API 不重写相对链接；站内会把 README 里的 `assets/x.svg` 重写成 `/owner/repo/raw/main/assets/x.svg`（见 §5）。HTML 属性与标签的白名单行为一致。
+
+补充（合并 v2 稿时查清的一个坑）：图片“卡片化”只发生在**绝对 URL** 图片上；同尺寸相对路径图片不会触发。2026-10-24 用矩阵复测（相对 `assets/x.svg`、`/assets/x.svg`、`./assets/x.svg` vs 绝对 avatar / shields / raw.githubusercontent / githubassets）确认：前三者只有 `max-width/height:auto/max-height`，后四者额外带 `aspect-ratio` + `background-color: var(--bgColor-muted)` + `border-radius: 6px` + `class="js-gh-image-fallback"`。因此本仓 README 用相对 `assets/…` 不会出现自动卡片；想要卡片外观，必须自己把图设计成卡片。
 
 ### 3.2 结论
 
@@ -130,6 +142,16 @@ GitHub 提供一个无需登录的 Markdown 渲染接口（有匿名限流）：
 ---
 
 ## 4. 官方开源 sanitizer：白名单解释“为什么被剥”
+
+最直接的官方自述来自 GitHub 官方仓库 [github/markup README](https://github.com/github/markup/blob/master/README.md)（逐字，2026-10-24 抓取）：
+
+> 1. `github-markup` selects an _underlying library_ to convert the raw markup to HTML.
+> 2. The HTML is sanitized, aggressively removing things that could harm you and your kin—such as `script` tags, inline-styles, and `class` or `id` attributes.
+> 3. Syntax highlighting is performed on code blocks.
+> 4. The HTML is passed through other filters that add special sauce, such as emoji, task lists, named anchors, CDN caching for images, and autolinking.
+> 5. The resulting HTML is rendered on GitHub.com.
+
+同文件还特别说明：只有第 1 步由这个 gem 负责，其余步骤都发生在 GitHub.com 的管线里（“markup itself does no sanitization”）。所以清洗是 GitHub 网站层的产品/安全决策，不是 Markdown 库的限制。
 
 GitHub 公开维护 Markdown 处理用的 `html-pipeline` 库；其中 `SanitizationFilter` 定义了“用户内容允许的 HTML”：
 
@@ -240,6 +262,7 @@ WHITELIST = {
   - 删除 `<link>`、`<meta>`、`<base>`；
   - 不允许 `<script>`；
   - 内联 `<svg>` 被剥（但外链 SVG 图片可以）。
+- GitHub 官方 `github/markup` README 也直接点名被清洗的是 “`script` tags, inline-styles, and `class` or `id` attributes”，与实测完全一致（§4）。
 - 所以在 GitHub 上，**不是“Markdown 语法不支持折叠样式”，而是“GitHub 渲染器把可样式化的通道整体关闭了”**。
 
 ### 6.3 问题 3：GitHub 的渲染机制里其实有技术可以解决吗？
@@ -252,17 +275,19 @@ WHITELIST = {
 | --- | --- |
 | 深浅色自适应 banner | `<picture><source media="(prefers-color-scheme: dark)" srcset="…"><img src="…"></picture>`，GitHub 渲染为 `themed-picture`，跟随主题切换 |
 | 设计好的按钮/横幅图 | 在 summary 内放 `<img src="assets/xxx.svg" width=… height=…>`；GitHub 会给图片加 `max-width:100%` 等自身样式，视觉上像“设计过的按钮” |
-| 图片自动“卡片化” | 同时写 `width` + `height` 的图片，GitHub 实测会追加 `background-color: var(--bgColor-muted); border-radius: 6px` 与 `js-gh-image-fallback` 类（主题色自动适配深浅色） |
+| 图片自动“卡片化”（**仅绝对 URL**） | 同时写 `width` + `height` 的绝对 URL 图片，GitHub 会追加 `background-color: var(--bgColor-muted); border-radius: 6px` 与 `js-gh-image-fallback` 类（主题色自动适配深浅色）；相对路径 `assets/…` 图片不触发（§3.1） |
 | 图标/符号 | emoji 短码（`:movie_camera:` → 🎥）、`<kbd>`、`<mark>`、`<sub>` / `<sup>` |
 | 对齐/尺寸 | `<p align="center">`、`<div align="center">`、`<img align=… width=… height=…>`；`<summary align=… title=…>` 的属性会保留（视觉是否生效依浏览器而定） |
 | 默认展开 | `<details open>` |
+| 手风琴分组（一次只开一个） | 给多个 details 同一个 `name`：`<details name="demo">`；API 实测 `name` 保留并加 `user-content-` 前缀，同名仍同组。旧浏览器忽略 `name` 时退化为可多开（可接受） |
+| summary 内块级/语义内容 | WHATWG 规范允许 summary 内容 = phrasing content + heading content；`<h3>`、`<kbd>`、`<b>`、`<mark>` 均保留（但 GitHub 文档未记载，视觉与读屏需自测） |
 | GitHub 原生 alert 区块 | `> [!NOTE]` / `[!TIP]` / `[!IMPORTANT]` / `[!WARNING]` / `[!CAUTION]` 会得到带主题色和图标框（官方文档：Alerts，“displayed with distinctive colors and icons”；不能折叠、不能嵌套，但可做“好看的说明区”） |
 | 视频卡 | 裸 user-attachments 链接 = GitHub 原生视频卡（可折叠、带边框圆角），但它的皮肤同样不可改 |
 
 | 不能做 | 原因 |
 | --- | --- |
 | 改 summary 背景色/文字色/边框/圆角 | `style`、`class` 被剥；`bgcolor` 被剥 |
-| 隐藏/替换原生三角箭头 | 需要 `summary::marker` / `list-style` CSS；没有 CSS 通道 |
+| 隐藏/替换原生三角箭头 | 三角是浏览器画的 `::marker` 伪元素（不在 DOM），需 `summary::marker` / `list-style` CSS；GitHub 没有 CSS 通道 |
 | 引入自定义 CSS | `<style>` 被转义、`<link>` 被删 |
 | 用 JS 做动画/美化 | `<script>` 不可用 |
 | 内联 SVG 图标 | `svg` 标签被剥（改用 `<img src="*.svg">`） |
@@ -299,6 +324,9 @@ WHITELIST = {
 要点：
 
 - 图片走相对路径即可，GitHub 会重写到 `/owner/repo/raw/main/…`（§5 已证）；SVG 通过 camo 代理显示。
+- 官方支持这种写法：GitHub Blog（2025-04）明确推荐在 README 里用 `<picture>` + `prefers-color-scheme` 做深浅色自适应图（来源 #14）。
+- 位置有两种：放 `<summary>` 内，或放在外层 `<details>` **上方**。推荐后者更稳：summary 是单行控件，宽图会撑高折叠行、挤压三角与文字对齐；若放 summary 内，建议用高度 ≤ 40px 的细横幅。
+- 风险：`themed-picture` 在新版前端有加载问题的社区报告（community #210469，未复现）；上线前在桌面深/浅色 + 手机各验一次。
 - 不要依赖 `width="100%"`：`width` 是整数属性，百分比不合法、可能被浏览器忽略；把 SVG 本身画成足够宽，GitHub 会加 `max-width:100%` 自动适配容器。
 - 建议横幅图只用图形 + 英文/系统字体，避免依赖特殊字体。
 - 原生三角不会消失，但视觉重心变成你设计的横幅；这是 GitHub 内能做到的上限。
@@ -315,11 +343,18 @@ WHITELIST = {
 
 GitHub 上大量头部项目都保持原生 `<details>`；`<details>`/`<summary>` 的可访问性（键盘、读屏）是最好的，DIY 替代品反而容易退步。
 
+### 方案 E（可选）：内层 7 个 details 做手风琴
+
+给 7 个内层 `<details>` 统一加 `name="demo-videos"`（属性已实测保留并加 `user-content-` 前缀，同名仍同组），浏览器原生保证同一组同一时间只展开一个，减少“全展开后 7 个三角排一列”的凌乱感。
+
+风险：旧浏览器/部分客户端忽略 `name` 时退化为可多开（可接受）；GitHub 移动端与新版前端未实测；如果读者需要同时对比两段视频，手风琴反而碍事——这种场景不要用。
+
 ### 决策时必须考虑的约束
 
 - **npm / 插件市场页会剥离 raw HTML**（前序研究 `readme-collapsible-demo-videos.md` 的结论）：这些页面看不到折叠块，因此裸 user-attachments URL 的兜底必须保留。
 - 第三方 Markdown 渲染器（VS Code 预览、某些客户端）对 `<details>` 支持不一。
 - summary 内 Markdown 不解析（§3），只能用 HTML/emoji。
+- summary 内放 `<h3>` 虽然 WHATWG 允许且 API 保留，但 GitHub 官方文档未记载，视觉与读屏行为需自测；不建议依赖标题层级。
 - GitHub sanitizer 可能随版本收紧；今天能用的属性未来不保证。
 - 原生 `<details>` 的可访问性优于任何“图片伪装按钮”。
 
@@ -340,6 +375,11 @@ GitHub 上大量头部项目都保持原生 `<details>`；`<details>`/`<summary>
 | 9 | 实测：[FeatherHunter/dsh-opencode-palette 渲染页](https://github.com/FeatherHunter/dsh-opencode-palette) | 真实页面：手写 details 无属性；裸视频链接 = GitHub 原生卡片 |
 | 10 | 本仓前序研究 `docs/research/readme-collapsible-demo-videos.md` | 视频嵌入、嵌套折叠、npm/市场页剥离 HTML 等既有结论 |
 | 11 | [GitHub Docs · Basic writing and formatting syntax · Alerts](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#alerts) | GitHub 原生 alert（`> [!NOTE]` 等）：自带颜色与图标，是唯一“有样式感”的区块 |
+| 12 | [github/markup README](https://github.com/github/markup/blob/master/README.md) | GitHub 官方自述：HTML 会被“aggressively”清洗，点名 script、inline-styles、class/id；且清洗发生在 GitHub.com 而非 markdown 库 |
+| 13 | [WHATWG HTML · the summary element](https://html.spec.whatwg.org/multipage/interactive-elements.html#the-summary-element) | summary 内容模型：phrasing content + heading content（`<h3>` 合法） |
+| 14 | [GitHub Blog · How to make your images adjust for dark mode and light mode](https://github.blog/developer-skills/github/how-to-make-your-images-in-markdown-on-github-adjust-for-dark-mode-and-light-mode/) | 官方推荐 README 用 `<picture>` + `prefers-color-scheme`（2025-04） |
+| 15 | [MDN · `<details>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details) | `name` 手风琴分组、`open` 行为 |
+| 16 | [Primer CSS 样式包](https://github.githubassets.com/assets/primer-38ae573fa780d76a.css) | summary 相关只有 `display:list-item` / `cursor:pointer`；三角来自 `::marker` |
 
 ### 附：最小复现脚本（PowerShell，无需登录）
 

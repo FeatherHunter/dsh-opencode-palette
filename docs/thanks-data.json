@@ -1,0 +1,122 @@
+{
+  "_说明": "致谢表的数据源（scripts/update-thanks.ts 唯一读写）。authors 的键是 GitHub 登录名；issues/prs/discussions 存 {n, at}（编号与它诞生的时间，时间一律 UTC 的 ISO，渲染时按编号升序）；comments 存 {n, thread, at}，同一人在同一串下只记一次（留言几次都只算一次参与）；lastActive 是此人全部事项里最晚的时间，门禁会重算核对。cursors 是已扫描到的最大编号：issues 含 PR（两处共用一套编号），discussions 单独一套；脚本只看比游标新的，老的不再碰，合并进来后把游标推到实际看到的最大值，绝不回退。手工补漏直接改这份文件，再跑 node scripts/update-thanks.ts --render-only 只重画表格不联网。",
+  "authors": {
+    "Number444": {
+      "issues": [
+        {
+          "n": 12,
+          "at": "2026-09-15T08:53:10Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-09-15T08:53:10Z"
+    },
+    "SRKBob": {
+      "issues": [
+        {
+          "n": 43,
+          "at": "2026-10-02T10:53:37Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-10-02T10:53:37Z"
+    },
+    "anci3ntr0ck": {
+      "issues": [
+        {
+          "n": 73,
+          "at": "2026-10-15T05:01:03Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-10-15T05:01:03Z"
+    },
+    "anupamme": {
+      "issues": [],
+      "prs": [
+        {
+          "n": 32,
+          "at": "2026-09-17T00:53:15Z"
+        }
+      ],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-09-17T00:53:15Z"
+    },
+    "gitwch1": {
+      "issues": [],
+      "prs": [],
+      "discussions": [],
+      "comments": [
+        {
+          "n": 73,
+          "thread": "issue",
+          "at": "2026-10-15T15:49:23Z"
+        }
+      ],
+      "lastActive": "2026-10-15T15:49:23Z"
+    },
+    "insp63": {
+      "issues": [
+        {
+          "n": 124,
+          "at": "2026-10-19T19:34:17Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-10-19T19:34:17Z"
+    },
+    "oopsdoes": {
+      "issues": [
+        {
+          "n": 46,
+          "at": "2026-10-05T01:27:22Z"
+        },
+        {
+          "n": 55,
+          "at": "2026-10-06T03:10:23Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-10-06T03:10:23Z"
+    },
+    "the-beating-light-of-the-nail": {
+      "issues": [
+        {
+          "n": 3,
+          "at": "2026-08-18T00:34:40Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-08-18T00:34:40Z"
+    },
+    "xiSage": {
+      "issues": [
+        {
+          "n": 11,
+          "at": "2026-09-09T01:48:49Z"
+        }
+      ],
+      "prs": [],
+      "discussions": [],
+      "comments": [],
+      "lastActive": "2026-09-09T01:48:49Z"
+    }
+  },
+  "cursors": {
+    "discussions": 122,
+    "issues": 154
+  }
+}
