@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>P1 / P2 / P3 设计的核心思路（从第一性原理出发）</title>
+<style>
+  :root{
+    --bg:#0f1115;--panel:#161a20;--panel2:#1c2128;--line:#2a313a;
+    --fg:#e6e9ef;--fg2:#a9b2bf;--fg3:#7d8794;--accent:#7aa2ff;--good:#5bd08a;--warn:#f0b24a;--bad:#f2708a;--chip:#222a34;
+  }
+  @media (prefers-color-scheme:light){
+    :root{--bg:#f6f7f9;--panel:#fff;--panel2:#f0f2f5;--line:#dde1e6;--fg:#14181d;--fg2:#4a5360;--fg3:#77808c;--chip:#eceff3}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.72;font-size:14.5px}
+  .wrap{max-width:1080px;margin:0 auto;padding:30px 18px 90px}
+  h1{font-size:24px;margin:0 0 6px}
+  .sub{color:var(--fg2);font-size:13.5px;margin-bottom:22px}
+  h2{font-size:18px;margin:34px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:20px 0 6px;color:var(--fg2)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin:10px 0}
+  .k{color:var(--fg3);font-size:12px}
+  .chain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+  .chain span{background:var(--chip);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:13px}
+  .chain b{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg2);font-weight:600;background:var(--panel2)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.2px;background:var(--chip);padding:1px 5px;border-radius:4px}
+  .note{border-left:3px solid var(--accent);background:rgba(122,162,255,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .warn{border-left-color:var(--warn);background:rgba(240,178,74,.08)}
+  .good{border-left-color:var(--good);background:rgba(91,208,138,.08)}
+  ul{margin:6px 0 6px 20px;padding:0}li{margin:4px 0}
+  .muted{color:var(--fg3);font-size:12.6px}
+  .q{font-weight:650;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>P1 / P2 / P3 设计的核心思路</h1>
+<div class="sub">从第一性原理出发 · 2026-10-24 · 对应文件：P1 颜色 222 / P2 私有契约面 / P3 DOM 层 / 能力主表</div>
+
+<h2>0. 第一性问题：屏幕上的像素由什么决定？</h2>
+<div class="card">
+<p>主题系统要回答的唯一问题：<b>「用户想改的那个视觉效果，最终由什么被决定？」</b></p>
+<p>浏览器把一个像素画出来，只有四类输入：</p>
+<ol>
+<li><b>DOM 结构</b>：有哪些节点、什么属性、什么层级。</li>
+<li><b>CSSOM</b>：样式表规则、内联声明、自定义属性（token）的值。</li>
+<li><b>媒体资源</b>：图片、视频、音频解码出的像素。</li>
+<li><b>字体</b>：字形轮廓、度量、栅格化。</li>
+</ol>
+<p class="muted">没有第五类输入。Canvas/WebGL/shader 最终也落到 DOM（canvas 节点）+ 代码，不是新的像素输入源；所以穷举这四类，就是穷举「能改什么」。</p>
+</div>
+
+<h2>1. 由输入推出 5 条写通道（完备性）</h2>
+<div class="chain">
+<span>① DOM</span><b>→</b><span>C3 增删改节点</span>
+<span>② CSSOM</span><b>→</b><span>C1 写自定义属性值（token）</span><b>+</b><span>C2 写规则/内联</span>
+<span>③ 媒体</span><b>→</b><span>C4 资源文件</span>
+<span>④ 字体</span><b>→</b><span>C5 @font-face</span>
+</div>
+<div class="card">
+<p><b>关键推理：</b>CSSOM 有两个独立写入口 —— 改「自定义属性的值」（C1，官方 API 就是给这个用的）和改「规则表/内联声明」（C2，任意选择器+任意属性）。它们不是同一件事：C1 只能改宿主已经消费的名字，C2 能凭空新增效果（如毛玻璃、动效、噪点）。</p>
+<p>所以 <b>5 = 4 类输入 + 1 次 CSSOM 拆分</b>，不多不少。这是「我们不可能漏掉一种改法」的证明骨架。</p>
+</div>
+
+<h2>2. 通道里「谁可写」由宿主事实决定，不由偏好决定</h2>
+<table>
+<tr><th>通道</th><th>「可写对象」是什么</th><th>谁决定边界</th><th>对应设计</th></tr>
+<tr><td>C1 token</td><td>宿主声明并消费的变量名</td><td>宿主 CSS：425 个主题命名空间 + 运行时 573 个变量</td><td><b>P1</b>（颜色 222）</td></tr>
+<tr><td>C2 规则</td><td>选择器能命中的元素 + 合法声明的属性</td><td>宿主 DOM 的锚点（data-slot / role / 全局类）与 CSS 白名单</td><td><b>P2 部分 + P3 部分</b></td></tr>
+<tr><td>C3 DOM</td><td>页面内节点（增删改）</td><td>React 重渲染的存活率；宿主私有类名不可依赖</td><td><b>P3</b></td></tr>
+<tr><td>C4 媒体</td><td>主题包内资源</td><td>体积/格式限制 + 插入位置</td><td>P3 背景媒体行</td></tr>
+<tr><td>C5 字体</td><td>@font-face 与字族</td><td>unicode-range、字体文件可加载性</td><td>P4 排印</td></tr>
+</table>
+<p class="muted">第一性要求：<b>先列宿主事实（名字/锚点/存活率），再谈能力</b>。能力不是「我们想做」，而是「宿主允许我们写 + 用户能看见」的交集。</p>
+
+<h2>3. P1 的核心：颜色 = 222 个可寻址的「语义输入」</h2>
+<div class="card">
+<p><b>为什么从颜色开始：</b>颜色是 CSSOM 里被消费最广、改一条 token 就能全站生效的输入；它也是用户第一眼看到的东西。</p>
+<p><b>三条设计铁律：</b></p>
+<ol>
+<li><b>集合封闭</b>：颜色轴 = 222 名（alias 107 + specific 11 + shiki 11 + static 77 + focus 1 + menu 1 + shadow 4 + elevation 5 + gradient 3 + linear 2），222 条一条不少；状态分 live 184 / gated 5 / dead 38，dead 也登记（用户要「全量收录」）。</li>
+<li><b>一个 token 一个语义</b>：222 个建议语义能力 + 222 个直绑定兜底（<code>token.&lt;名&gt;</code>），不合并（用户裁定 m03131）。合并会省事，但会丢精度。</li>
+<li><b>每条回答五个问题</b>：是什么 / 能改什么 / 值类型（是否成对）/ 靠哪条实现技术生效 / 失败如何诊断。所以表里有 消费来源、成对、探针、tier/暴露、实现技术链。</li>
+</ol>
+</div>
+<div class="note"><b>P1 暴露的一个反直觉事实：</b>「名字存在」不等于「改了就生效」。222 里 38 个是死名（没有消费方），5 个是 gated（宿主在元素级重声明，body 写入会被盖，必须 token+规则双写）。所以能力表必须带「状态」与「实现技术」，否则编辑器会把死名当可用项。</div>
+
+<h2>4. P2 的核心：私有面 = 问「这个值归谁拥有」</h2>
+<div class="card">
+<p>P2 覆盖四类灰色地带：<code>--dsl-*</code> 20 条、<code>--terminal-cursor*</code> 4 条、inline 28 种 / 74 点、硬编码色 381 行（含 13 个 fallback）。</p>
+<p><b>第一性判据：</b>看这个变量的值<b>上游是谁</b>——</p>
+<ul>
+<li>值里引用 <code>var(--dsw-*)</code> 的：能力<b>指向上游 token</b>，不新增重复能力（否则同一效果两个入口，违反「一个语义一个条目」）。</li>
+<li>纯本地声明、无上游的：能力落在<b>规则层</b>（选择器命中该元素），值类型是 length/keyword。</li>
+<li>宿主用 JS 逐元素 inline 写的（终端光标）：只能<b>运行时重写 + MutationObserver 幂等重放</b>，并接受「重渲染会再写一次」的事实。</li>
+<li>硬编码色：<code>var(--token, #hex)</code> 的 fallback 能救（设 token 即覆盖）；独立字面量救不了，<b>诚实标「不在用户能力范围」</b>，不假装能改。</li>
+</ul>
+</div>
+
+<h2>5. P3 的核心：DOM 层按「存活率」分档，而不是按「想要程度」</h2>
+<table>
+<tr><th>档</th><th>做什么</th><th>存活率事实</th><th>设计</th></tr>
+<tr><td>stable · 装饰性</td><td>插背景层、换图标、插官方 slot 入口</td><td>卸载 4/4；重渲染靠 MutationObserver 幂等重放</td><td>正式开放，必须写 teardown + guard</td></tr>
+<tr><td>experimental · 结构性</td><td>隐藏/移动/重排控件、插 HTML 片段</td><td>重渲染仅 1/4 存活；可能破坏键盘可达性</td><td>默认关闭 + 强提示 + 一键恢复</td></tr>
+<tr><td>不做</td><td>原生标题栏内部、跨 Shadow Root、跨文档、音频/BGM、canvas shader</td><td>物理或契约不可能</td><td>写明「做不到」与原因</td></tr>
+</table>
+<div class="note warn"><b>锚点的第一性：</b>规则/DOM 能命中谁，是宿主 DOM 的客观事实，不是我们的猜测。所以 P3 的锚点只认「宿主测试里反查到的 data-slot 真实取值」（19 个），配合 role/全局类；哈希类名只能按后缀兜底，不能写死；写死的猜测锚点一律删掉。</div>
+
+<h2>6. 三张表为什么必须能被同一套验收检验</h2>
+<div class="card">
+<p>能力条目的「可信」不是看起来能，而是同时过四道客观判据（U20 的实现口径）：</p>
+<ol>
+<li><b>重渲染存活</b>：宿主重渲染后效果还在（DOM 层靠 observer 重放）。</li>
+<li><b>主题切换存活</b>：D→E 失败时保持 D（事务性切换，dry-run 预编译）。</li>
+<li><b>卸载全还原</b>：每个 write 有稳定 id + teardown，切主题差集清理。</li>
+<li><b>上游升级不炸</b>：锚点/名字走 probe，unknown → 降级或跳过 + 诊断，不抛错。</li>
+</ol>
+<p>再加第五道底线：<b>可探测</b>（每条能力带 probe：token_live / selector_exists），没有探针的能力不算能力。</p>
+</div>
+
+<h2>7. 为什么要有能力主表（P0-2 的修复）</h2>
+<div class="card">
+<p>P1/P2/P3 是「按底层技术切」的三份清单，天然会出现<b>同一效果跨技术重复</b>：焦点环既是 token 又是规则；滚动条既是 4 个 token 又是伪元素规则；菜单材质面既是 token 又是 backdrop-filter。</p>
+<p>所以加一层<b>能力主表</b>：以「用户看到的效果」为唯一身份（capability_id），下面并列多条实现技术链（token→rule→runtime）。规则是：</p>
+<ul>
+<li>主表每条能力 = 一个效果；实现技术可以多条，但<b>身份唯一</b>。</li>
+<li>P1 的 222 条直绑定不删，作为 <code>fallback</code> 兜底（保证 222 全可达）。</li>
+<li>P2/P3 新增的能力都必须能回答「为什么不是已有能力的重复」。</li>
+</ul>
+</div>
+
+<h2>8. 全套推理链（一句话版）</h2>
+<div class="card">
+<p class="q">像素由 4 类输入决定 → CSSOM 拆成 2 个写口 → 5 条通道穷尽 → 每条通道的「可写对象」由宿主事实界定 → 把事实逐条变成可寻址的能力（P1 颜色 222 / P2 私有面 / P3 DOM）→ 同一效果合并进主表、直绑定兜底兜住全量 → 每条能力过四道验收 + 探针 → 24 条需求逐条溯源 → 集合算术保证不漏（425 = 222 + 203；573 = 425 + 148）→ 做不到的写进「明确不做」并给原因。</p>
+</div>
+
+<h2>9. 这套思路的三个可检验推论</h2>
+<table>
+<tr><th>推论</th><th>检验方式</th><th>当前结果</th></tr>
+<tr><td>不可能漏掉一种改法</td><td>4 类输入 × 写口穷举；任何新效果必须能归到 C1–C5</td><td>生态 20 款插件 100% 落在 5 通道内；唯一通道外现象是「改已构建前端产物」，JS 插件做不到</td></tr>
+<tr><td>不漏一个 token</td><td>集合算术 + 生成器扫描（不手抄）</td><td>425 = 222 颜色 + 203 非颜色；222 = 184 live + 5 gated + 38 dead；均有机器生成清单</td></tr>
+<tr><td>每个能力可验证</td><td>四道验收 + probe + 构建期 id 文法校验</td><td>222 id 与 222 直绑定 id 0 违规 0 重名；checker 0 错 0 警</td></tr>
+</table>
+
+<div class="card good">
+<p><b>一句话总结：</b>P1 解决「颜色输入有多少个可寻址单位」；P2 解决「灰色地带的值该归谁管」；P3 解决「DOM 层按存活率能开放到什么程度」；主表解决「同一效果不要重复登记」；覆盖声明 + 集合算术解决「不许漏」；四道验收 + 探针解决「不许假」；明确不做清单解决「不许装」。</p>
+</div>
+
+<div class="muted" style="margin-top:30px;border-top:1px solid var(--line);padding-top:12px">
+相关文件：<code>docs/research/v3-capability-master.html</code> · <code>v3-color-222-ability-map.html</code> · <code>v3-private-surface-ability-map.html</code> · <code>v3-dom-ability-map.html</code> · <code>v3-p1p2p3-adversarial-review.html</code> · <code>palette/SPEC.md</code> · <code>docs/research/theme-ceiling-absolute.md</code>
+</div>
+
+</div>
+</body>
+</html>

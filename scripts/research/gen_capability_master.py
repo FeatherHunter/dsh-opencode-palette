@@ -265,7 +265,7 @@ th{{background:#f2f5f9;position:sticky;top:0}}
 <h2>三、覆盖声明</h2>
 <ul>
 <li>本表覆盖：颜色轴 222 条（其中 {stats['color_axis_merged']} 条重复语义并入 5 组 effect 主条）→ token-semantic {stats['token_semantic']} 条；P3 DOM 效果 {stats['p3_effect']} 条；P2 私有面能力 {stats['p2_new']} 条；合计 {stats['total']} 条。</li>
-<li>不在本表：非颜色 203 条 token（排印 182 / radius 6 / dsh 11 / menu 1 / corner 1 / mask 1 / other 1）→ P4；运行时 148 个局部变量 → P4；窗口外壳物理边界 → #154。</li>
+<li>不在本表：非颜色 203 条 token（排印 182 / radius 6 / dsh 11 / menu 1 / corner 1 / mask 1 / other 1）与运行时 148 个局部变量 → 见 <b>P4</b> 文档 <code>v3-noncolor-surface-ability-map.html</code>（203 条逐条 + 148 条全部登记，集合闭合：425 = 222 + 203，573 = 425 + 148）；窗口外壳物理边界 → #154。</li>
 <li>每条能力的取值形状、成对规则、图片资源限制，仍以 <code>palette/</code> 9 个 YAML 与 <code>palette/SPEC.md</code> 为准。</li>
 </ul>
 </body></html>
