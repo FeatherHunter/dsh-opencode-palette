@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>#147 · 公开 token 425 能撑起哪些能力（上限讨论）</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#161a20; --panel2:#1c2128; --line:#2a313a;
+    --fg:#e6e9ef; --fg2:#a9b2bf; --fg3:#7d8794;
+    --accent:#7aa2ff; --good:#5bd08a; --warn:#f0b24a; --bad:#f2708a;
+    --chip:#222a34;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f6f7f9; --panel:#ffffff; --panel2:#f0f2f5; --line:#dde1e6;
+      --fg:#14181d; --fg2:#4a5360; --fg3:#77808c; --chip:#eceff3; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1000px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-size:24px;margin:0 0 6px}
+  h2{font-size:19px;margin:34px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:16px;margin:20px 0 8px}
+  .sub{color:var(--fg2);font-size:13px;margin-bottom:24px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .k{color:var(--fg3);font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  .v{font-size:20px;font-weight:650;margin-top:2px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg2);font-weight:600;font-size:13px;background:var(--panel2)}
+  tr:hover td{background:var(--panel2)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;
+    background:var(--chip);padding:1px 5px;border-radius:5px}
+  pre{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;font-size:13px;line-height:1.55}
+  pre code{background:none;padding:0}
+  .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;margin-right:6px}
+  .b-ok{background:rgba(91,208,138,.15);color:var(--good)}
+  .b-warn{background:rgba(240,178,74,.15);color:var(--warn)}
+  .b-bad{background:rgba(242,112,138,.15);color:var(--bad)}
+  .b-info{background:rgba(122,162,255,.15);color:var(--accent)}
+  .muted{color:var(--fg2)}
+  .q{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px 18px;margin:16px 0}
+  .q h3{margin-top:0;color:var(--accent)}
+  .chips span{display:inline-block;background:var(--chip);border:1px solid var(--line);
+    border-radius:6px;padding:2px 8px;margin:3px 4px 3px 0;font-size:12.5px;color:var(--fg2)}
+  ul{margin:6px 0 10px 20px;padding:0}
+  li{margin:3px 0}
+  .note{border-left:3px solid var(--warn);background:rgba(240,178,74,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  .foot{margin-top:40px;color:var(--fg3);font-size:12px;border-top:1px solid var(--line);padding-top:14px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media (max-width:720px){ .two{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>#147 · 公开 token 425 能撑起哪些能力（上限讨论）</h1>
+<div class="sub">2026-10-24 · 底层技术 → 能力上限 · 第 1 组：公开 token · 附：今天的格式结论与待你裁定项</div>
+
+<div class="card">
+  <div class="k">本轮要你拍板的一件事</div>
+  <div class="v">颜色 222 这组，能力条目按哪种形态做：A / B / C</div>
+  <div class="muted" style="margin-top:6px">推荐 A：语义条目（人用的菜单）+ 直绑定条目（全量兜底）。详见文末「待裁定」。</div>
+</div>
+
+<h2>0. 今天已经定下的格式结论（有原话，不再重问）</h2>
+<table>
+  <tr><th>#</th><th>结论</th><th>含义</th></tr>
+  <tr><td>1</td><td><code>theme.yaml</code> 只有 5 个键</td>
+      <td><code>api / meta / variables / capabilities / extensions</code>；资源放 <code>assets/</code>，不是键。</td></tr>
+  <tr><td>2</td><td>不要 <code>_index.yaml</code></td>
+      <td>源片各自带 <code>module</code> 头，构建扫目录合成 <code>palette.yaml</code>；计数由构建写入合成文件头部。</td></tr>
+  <tr><td>3</td><td>完全不支持 <code>raw_tokens</code></td>
+      <td>能力覆盖不了 token 之外的技术，且自由文本难校验、维护不值。</td></tr>
+  <tr><td>4</td><td>425 全覆盖靠「直绑定条目」</td>
+      <td>语义能力 + 构建期自动生成的直绑定条目，CI 保证 425 个 token 每条都有条目、都有值类型。</td></tr>
+  <tr><td>5</td><td>能力 → 底层实现技术</td>
+      <td>token 只是五条实现路线之一；能力条目记录的是「靠哪条技术、绑哪个落点」。</td></tr>
+  <tr><td>6</td><td>先谈技术上限，再谈能力条目</td>
+      <td>本文件就是第 1 组（公开 token）；后续依次私有契约面 / DOM / 资源 / 字体 / 外壳。</td></tr>
+</table>
+
+<h2>1. 425 的全貌：一个加法，不是一堆名字</h2>
+<div class="grid">
+  <div class="card"><div class="k">--dsw</div><div class="v">403</div><div class="muted">宿主主题命名空间（颜色 211 + 排印 182 + 圆角 6 + 角形状 1 + 遮罩 1 + 菜单 2）</div></div>
+  <div class="card"><div class="k">--shiki</div><div class="v">11</div><div class="muted">代码高亮（1 背景 + 1 前景 + 9 语法类别）</div></div>
+  <div class="card"><div class="k">--dsh</div><div class="v">11</div><div class="muted">运行期字族默认 / 字号增量 / 滚动条</div></div>
+  <div class="card"><div class="k">合计</div><div class="v">425</div><div class="muted">= 公开契约全集（U1 要求全量收录）</div></div>
+</div>
+
+<h2>2. 按「能做出什么效果」分成 6 组</h2>
+<table>
+  <tr><th>组</th><th>数量</th><th>能撑起的能力（例子）</th><th>上限 / 风险</th></tr>
+  <tr>
+    <td><b>颜色</b></td>
+    <td>222</td>
+    <td>页面/面板/侧栏/卡片背景，文字层级，品牌色，边框与分隔线，hover/active/selected/focus 状态，diff 增删，markdown 六类，代码高亮 9 类，阴影与材质，渐变，焦点环，菜单材质</td>
+    <td><span class="badge b-ok">活 184</span><span class="badge b-bad">死 38</span>
+        <code>elevation</code> 族被组件元素级重声明（token 写了会被盖）；<code>static</code> 77 是上游原子（60 活 / 17 死）；shiki 6 个由运行时消费、CSS 扫描看不见</td>
+  </tr>
+  <tr>
+    <td><b>排印</b></td>
+    <td>182</td>
+    <td>全局字族（正文/品牌/代码），29 种内容样式的字号/字重/斜体/行高（markdown 正文、small、h1–h4、代码、代码块、表格等）</td>
+    <td><b>31 个复合 = 29 样式 + 2 字族</b>；其余 <b>151 个长手是死名</b>（149 个无消费方，改了不生效）；行高没有独立全局轴；终端字号走 JS</td>
+  </tr>
+  <tr>
+    <td><b>圆角/形状</b></td>
+    <td>7</td>
+    <td>按钮/卡片/输入/面板/弹层的圆角档位、角形状</td>
+    <td>部分组件自带圆角变量或硬编码，改了不跟着变</td>
+  </tr>
+  <tr>
+    <td><b>材质/遮罩</b></td>
+    <td>3</td>
+    <td>菜单半透明材质、蒙层</td>
+    <td><code>--dsw-mask-blur</code> 宿主固定 <code>none</code>；玻璃要叠加规则/DOM 层</td>
+  </tr>
+  <tr>
+    <td><b>渐变/线性</b></td>
+    <td>5</td>
+    <td>启动页 blue/cyan/violet 三段渐变、思考态流光</td>
+    <td>2 个 linear 是死名；启动页渐变被组件直接引用</td>
+  </tr>
+  <tr>
+    <td><b>交互/外壳</b></td>
+    <td>11</td>
+    <td>全局默认字族（正文/代码）、正文/次级字号增量、滚动条颜色/宽度/轨道</td>
+    <td>滚动条 thumb 被 35 个组件局部重绑 → token 只改默认底；这些是运行期值，部分需规则层</td>
+  </tr>
+</table>
+
+<h3>能实现的「炫酷效果」清单</h3>
+<div class="chips">
+  <span>整套深浅色</span><span>品牌色替换</span><span>代码高亮主题</span><span>Markdown 全排版</span>
+  <span>侧栏/菜单/弹层材质</span><span>焦点环</span><span>滚动条主题化</span><span>diff 配色</span>
+  <span>启动页渐变</span><span>阴影层级</span>
+</div>
+
+<h3>token 单独做不到的（要靠后续技术组）</h3>
+<div class="chips">
+  <span>图片 / GIF / 视频背景 → 资源媒体</span>
+  <span>真玻璃（模糊）→ 规则 + DOM 层</span>
+  <span>换字体文件 → 字体通道</span>
+  <span>换图标 → DOM 操作</span>
+  <span>隐藏 / 移动 / 重排控件 → DOM 操作</span>
+  <span>标题栏 → 窗口外壳</span>
+  <span>布局密度 → inline / 规则</span>
+</div>
+
+<h2>3. 颜色 222 的内部结构（下一步要逐组定条目）</h2>
+<table>
+  <tr><th>子组</th><th>数量（活/死）</th><th>对应能力域</th></tr>
+  <tr><td>alias · 背景与表面</td><td>15（14/1）</td><td>页面底、面板、卡片、弹层、侧栏、输入框、代码块、markdown 段、文件预览、多选行</td></tr>
+  <tr><td>alias · 文字</td><td>13 + link 1（13/1 含死 brand-text）</td><td>正文/次级/三级/反色文字、链接、Toast、Tooltip</td></tr>
+  <tr><td>alias · 品牌与状态</td><td>brand 4 + state 12</td><td>主/次品牌色、成功/警告/错误/信息的文字与底</td></tr>
+  <tr><td>alias · 边框与分隔</td><td>7（6/1）</td><td>边框层级 l1–l4、分隔线、反色边框</td></tr>
+  <tr><td>alias · 交互状态</td><td>button 15 + interactive 5 + switch 1 + menu 2 + scrollbar 4</td><td>按钮各态、hover/active、开关滑块、菜单项、滚动条</td></tr>
+  <tr><td>alias · 内容专区</td><td>diff 6 + markdown 8 + code 2 + file 6</td><td>diff 增删、markdown 代码段、代码块头、文件引用</td></tr>
+  <tr><td>alias · 页面特化</td><td>onboarding 4 + settings 2 + tooltip 2 + toast 2 + turn 2</td><td>首次引导、设置卡、提示、Toast、Turn 触发态</td></tr>
+  <tr><td>specific</td><td>11（8/3）</td><td>气泡、输入大框、登录输入、选择器、侧栏填充与导航态、提示</td></tr>
+  <tr><td>shiki</td><td>11（11/0）</td><td>代码高亮背景/前景 + 9 类语法色</td></tr>
+  <tr><td>static（原子）</td><td>77（60/17）</td><td>上游调色板原子：色阶、语义源色；不直接对应某个控件</td></tr>
+  <tr><td>focus / menu / shadow / elevation / gradient / linear</td><td>1 / 1 / 4（2/2） / 5（5/0，gated） / 3 / 2（0/2）</td><td>焦点环、菜单材质、浮层阴影、材质阴影、渐变、线性流光</td></tr>
+</table>
+<p class="muted">注：合计 222 = 107 alias + 11 specific + 11 shiki + 77 static + 1 focus + 1 menu + 4 shadow + 5 elevation + 3 gradient + 2 linear；活 184 / 死 38。</p>
+
+<h2>4. 两种条目的样子（这就是 A 方案的两层）</h2>
+<div class="two">
+  <div>
+    <h3>语义条目（人用）</h3>
+<pre><code>- id: sidebar.panel.background
+  label: 侧栏背景
+  value_type: paint        # 颜色 / 渐变 / 图片
+  tier: stable
+  realization:
+    use: token
+    name: --dsw-specific-sidebar-fill</code></pre>
+    <div class="muted">按界面区域/角色命名；编辑器里显示中文名；值有类型校验。</div>
+  </div>
+  <div>
+    <h3>直绑定条目（全量兜底）</h3>
+<pre><code>- id: token.static-blue-450
+  label: "蓝 450（--dsw-static-blue-450）"
+  value_type: color
+  tier: experimental       # 默认收起
+  realization:
+    use: token
+    name: --dsw-static-blue-450</code></pre>
+    <div class="muted">构建期从 tokens 表自动生成；保证 425 条每条可点到；死名标 dead 并注明「宿主无消费方」。</div>
+  </div>
+</div>
+
+<div class="q">
+  <h3>待你裁定：颜色 222 组按哪种形态做？</h3>
+  <ul>
+    <li><b>A（推荐）</b>：两层 —— 语义条目约 100–120 条（tier 稳定）+ 直绑定 222 条（含死名，tier 实验、默认收起）。人用语义，AI 用全量。</li>
+    <li><b>B</b>：只做语义条目，直绑定后置（一部分 token 暂不可达）。</li>
+    <li><b>C</b>：只做直绑定 222 条（全量但人的可用性最差）。</li>
+  </ul>
+  <div>回复「A」「B」或「C」即可。定了之后我把颜色组的语义条目清单逐项列出来给你过，再进排印组。</div>
+</div>
+
+<h2>5. 下一步（按顺序，一组一张表）</h2>
+<ol>
+  <li><b>公开 token 425</b>（本文件）：颜色 → 排印 → 圆角/形状 → 材质 → 渐变 → 交互/外壳</li>
+  <li>私有契约面：<code>--dsh</code> 布局量、<code>--dsl</code> 内部别名、组件局部变量、inline 74 点、哈希类名 156、硬编码色 351 行</li>
+  <li>DOM 操作：插层、换图标、结构改动（对应 U7 的三级 tier）</li>
+  <li>资源媒体：图片/GIF/APNG/视频/音频（格式、体积、层级、播放、性能）</li>
+  <li>字体：<code>@font-face</code> + <code>unicode-range</code>、字重、多语言（对应 U10）</li>
+  <li>窗口外壳：标题栏 overlay 四效果（对应 #154）</li>
+</ol>
+<div class="note">这 6 组谈完，能力条目全部定稿，才进「5 条增量设计」的最终裁定与零偏差修正。</div>
+
+<div class="foot">
+  来源：宿主源码实测（<code>packages/client/ui-theme/src/styles/*.css</code>）+ Playwright 首屏扫描（897 元素 / 4342 条规则 / 573 个变量名）+ 既有研究笔记<br>
+  文件：<code>docs/research/v3-token-425-ability-ceiling.html</code> · 会话 #147
+</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,4095 @@
+{
+ "summary": {
+  "total": 222,
+  "live": 179,
+  "dead": 38,
+  "gated": 5,
+  "with_consumers": 175,
+  "dead_names": [
+   "--dsw-alias-bg-mask-2",
+   "--dsw-alias-bg-mask-3",
+   "--dsw-alias-bg-mask-photo",
+   "--dsw-alias-bg-multi-select",
+   "--dsw-alias-button-ghost-active-hover",
+   "--dsw-alias-button-primary-dimmed",
+   "--dsw-alias-button-tool-bar-fill-invisible",
+   "--dsw-alias-border-inverted2",
+   "--dsw-alias-interactive-bg-hover-accent",
+   "--dsw-alias-brand-primary-invert",
+   "--dsw-alias-brand-text",
+   "--dsw-alias-markdown-code-segment-selected",
+   "--dsw-alias-markdown-code-segment-unselected",
+   "--dsw-alias-markdown-placeholder",
+   "--dsw-specific-bubble-highlight",
+   "--dsw-specific-login-input",
+   "--dsw-specific-tip",
+   "--dsw-shadow-lv1",
+   "--dsw-shadow-lv1-blur",
+   "--dsw-linear-gradient-think",
+   "--dsw-linear-think-select",
+   "--dsw-static-blue-100",
+   "--dsw-static-blue-50",
+   "--dsw-static-blue-50p",
+   "--dsw-static-blue-75",
+   "--dsw-static-blue-800",
+   "--dsw-static-deepseek-300",
+   "--dsw-static-deepseek-600",
+   "--dsw-static-deepseek-700-delete",
+   "--dsw-static-deepseek-900",
+   "--dsw-static-neutral-150",
+   "--dsw-static-neutral-250",
+   "--dsw-static-neutral-500",
+   "--dsw-static-neutral-900",
+   "--dsw-static-red-100",
+   "--dsw-static-red-50",
+   "--dsw-static-red-500",
+   "--dsw-static-red-900"
+  ]
+ },
+ "tokens": [
+  {
+   "name": "--dsw-alias-bg-base",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：基础",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:167",
+   "declared_all": [
+    "design-platform.css:167",
+    "design-platform.css:285"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 41,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/MessageItem.module.css",
+    "ui-chat/src/client/chat/ReasoningRow.module.css",
+    "ui-conversation/src/client/queue/QueueDock.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-document-preview",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：文档预览",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:168",
+   "declared_all": [
+    "design-platform.css:168",
+    "design-platform.css:286"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-100)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-sidebar-documentpreview/src/client/TextPreview.module.css",
+    "ui-sidebar-documentpreview/src/client/pdf/PdfBody.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-document-selection",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：文档选区",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:169",
+   "declared_all": [
+    "design-platform.css:169",
+    "design-platform.css:287"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-blue-500) 40%, transparent)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-sidebar-documentpreview/src/client/pdf/PdfBody.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-layer-1",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：第 1 层",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:171",
+   "declared_all": [
+    "design-platform.css:171",
+    "design-platform.css:289"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 53,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-chat/src/client/chat/TurnNavigator.module.css",
+    "ui-deliverables/src/client/ChangedFiles.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-layer-2",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：第 2 层",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:172",
+   "declared_all": [
+    "design-platform.css:172",
+    "design-platform.css:290"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 23,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-directory-picker-browse/src/client/DirectoryBrowser.module.css",
+    "ui-dockkit/src/components/dockkit.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-layer-3",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：第 3 层",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:173",
+   "declared_all": [
+    "design-platform.css:173",
+    "design-platform.css:291"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 17,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-primitives/src/ConfigField.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-mask-1",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：蒙层 1",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:174",
+   "declared_all": [
+    "design-platform.css:174",
+    "design-platform.css:292"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.24)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/ImageLightbox.module.css",
+    "ui-primitives/src/Modal.module.css",
+    "ui-settings-general/src/client/SettingsRoot.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-mask-2",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：蒙层 2",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:175",
+   "declared_all": [
+    "design-platform.css:175",
+    "design-platform.css:293"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.12)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-bg-mask-3",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：蒙层 3",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:176",
+   "declared_all": [
+    "design-platform.css:176",
+    "design-platform.css:294"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.48)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-bg-mask-drop",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：拖放蒙层",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:178",
+   "declared_all": [
+    "design-platform.css:178",
+    "design-platform.css:296"
+   ],
+   "declared_value": "rgba(255, 255, 255, 0.7)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-attachment/src/DropOverlay.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-mask-photo",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：照片蒙层",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:177",
+   "declared_all": [
+    "design-platform.css:177",
+    "design-platform.css:295"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.88)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-bg-module-platform",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：module-platform",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:179",
+   "declared_all": [
+    "design-platform.css:179",
+    "design-platform.css:297"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-60)",
+   "consumers": 30,
+   "consumer_examples": [
+    "locale/src/client/LanguageRow.module.css",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-multi-select",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：多选",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:180",
+   "declared_all": [
+    "design-platform.css:180",
+    "design-platform.css:298"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-60)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-bg-overlay",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：overlay",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:181",
+   "declared_all": [
+    "design-platform.css:181",
+    "design-platform.css:299"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-150)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-user-questions/src/client/QuestionComposer.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-bg-skeleton",
+   "subgroup": "alias/bg",
+   "zh": "背景与填充：skeleton",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:182",
+   "declared_all": [
+    "design-platform.css:182",
+    "design-platform.css:300"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.04)",
+   "consumers": 8,
+   "consumer_examples": [
+    "ui-input-trigger/src/client/MenuView.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-plugin-market/src/client/DiscoverSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-caption",
+   "subgroup": "alias/label",
+   "zh": "文字：caption",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:214",
+   "declared_all": [
+    "design-platform.css:214",
+    "design-platform.css:332"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-400)",
+   "consumers": 79,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-agent-preset/src/client/AgentPresetSeat.module.css",
+    "ui-chat/src/client/chat/ContextBody.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-deep-diving",
+   "subgroup": "alias/label",
+   "zh": "文字：deep-diving",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:215",
+   "declared_all": [
+    "design-platform.css:215",
+    "design-platform.css:333"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-deepseek-500) 70%, var(--dsw-static-blue-950))",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/ChatView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-deep-diving-shimmer",
+   "subgroup": "alias/label",
+   "zh": "文字：deep-diving-shimmer",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:216",
+   "declared_all": [
+    "design-platform.css:216",
+    "design-platform.css:334"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-deepseek-500) 30%, var(--dsw-static-blue-950))",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/ChatView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-dimmed",
+   "subgroup": "alias/label",
+   "zh": "文字：弱化",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:217",
+   "declared_all": [
+    "design-platform.css:217",
+    "design-platform.css:335"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-200)",
+   "consumers": 9,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/HeroShell.module.css",
+    "ui-model-selection/src/client/ModelSelect.module.css",
+    "ui-permission-presets/src/client/PermissionSelect.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-document-preview",
+   "subgroup": "alias/label",
+   "zh": "文字：文档预览",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:170",
+   "declared_all": [
+    "design-platform.css:170",
+    "design-platform.css:288"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-700)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-sidebar-documentpreview/src/client/pdf/PdfBody.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-primary",
+   "subgroup": "alias/label",
+   "zh": "文字：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:222",
+   "declared_all": [
+    "design-platform.css:222",
+    "design-platform.css:340"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-1000)",
+   "consumers": 333,
+   "consumer_examples": [
+    "locale/src/client/LanguageRow.module.css",
+    "renderer/welcome.css",
+    "src/preload-menu.ts"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-primary-bluish",
+   "subgroup": "alias/label",
+   "zh": "文字：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:218",
+   "declared_all": [
+    "design-platform.css:218",
+    "design-platform.css:336"
+   ],
+   "declared_value": "var(--dsw-static-blue-900)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/HeroShell.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-primary-dimmed",
+   "subgroup": "alias/label",
+   "zh": "文字：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:219",
+   "declared_all": [
+    "design-platform.css:219",
+    "design-platform.css:337"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-950)",
+   "consumers": 4,
+   "consumer_examples": [
+    "ui-conversation/src/client/queue/QueueDock.module.css",
+    "ui-goal/src/client/GoalBar.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-primary-foreground",
+   "subgroup": "alias/label",
+   "zh": "文字：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:220",
+   "declared_all": [
+    "design-platform.css:220",
+    "design-platform.css:338"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 9,
+   "consumer_examples": [
+    "ui-message-feedback/src/client/FeedbackDialog.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-primitives/src/Button.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-primary-inverted",
+   "subgroup": "alias/label",
+   "zh": "文字：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:221",
+   "declared_all": [
+    "design-platform.css:221",
+    "design-platform.css:339"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 12,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-attachment/src/FileCard.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-secondary",
+   "subgroup": "alias/label",
+   "zh": "文字：次",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:223",
+   "declared_all": [
+    "design-platform.css:223",
+    "design-platform.css:341"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-700)",
+   "consumers": 245,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "src/preload-menu.ts",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-shimmer",
+   "subgroup": "alias/label",
+   "zh": "文字：shimmer",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:224",
+   "declared_all": [
+    "design-platform.css:224",
+    "design-platform.css:342"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-neutral-1000) 30%, transparent)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/TextShimmer.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-label-tertiary",
+   "subgroup": "alias/label",
+   "zh": "文字：三级",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:225",
+   "declared_all": [
+    "design-platform.css:225",
+    "design-platform.css:343"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-600)",
+   "consumers": 319,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetLabel.module.css",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-business-primary",
+   "subgroup": "alias/state",
+   "zh": "状态：业务",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:240",
+   "declared_all": [
+    "design-platform.css:240",
+    "design-platform.css:358"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-500)",
+   "consumers": 162,
+   "consumer_examples": [
+    "src/preload-menu.ts",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-business-tertiary",
+   "subgroup": "alias/state",
+   "zh": "状态：业务",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:241",
+   "declared_all": [
+    "design-platform.css:241",
+    "design-platform.css:359"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-100)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-conversation/src/client/input/editor/composer-editor.module.css",
+    "ui-conversation/src/client/skeleton/HeroShell.module.css",
+    "ui-plan/src/client/PlanModeControl.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-error-primary",
+   "subgroup": "alias/state",
+   "zh": "状态：错误",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:250",
+   "declared_all": [
+    "design-platform.css:250",
+    "design-platform.css:368"
+   ],
+   "declared_value": "var(--dsw-static-red-600)",
+   "consumers": 118,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-attachment/src/FileCard.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-error-secondary",
+   "subgroup": "alias/state",
+   "zh": "状态：错误",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:251",
+   "declared_all": [
+    "design-platform.css:251",
+    "design-platform.css:369"
+   ],
+   "declared_value": "var(--dsw-static-red-400)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-primitives/src/ansi.ts",
+    "ui-trajectory/src/client/TrajectoryCell.module.css",
+    "ui-trajectory/src/client/TrajectoryTable.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-idle-primary",
+   "subgroup": "alias/state",
+   "zh": "状态：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:252",
+   "declared_all": [
+    "design-platform.css:252",
+    "design-platform.css:370"
+   ],
+   "declared_value": "var(--dsw-static-neutral-300)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/StateDot.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-success-primary",
+   "subgroup": "alias/state",
+   "zh": "状态：成功",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:253",
+   "declared_all": [
+    "design-platform.css:253",
+    "design-platform.css:371"
+   ],
+   "declared_value": "var(--dsw-static-green-500)",
+   "consumers": 27,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/ReviewTab.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-success-secondary",
+   "subgroup": "alias/state",
+   "zh": "状态：成功",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:254",
+   "declared_all": [
+    "design-platform.css:254",
+    "design-platform.css:372"
+   ],
+   "declared_value": "var(--dsw-static-green-400)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-primitives/src/ansi.ts",
+    "ui-shortcuts/src/client/Reference.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-success-tertiary",
+   "subgroup": "alias/state",
+   "zh": "状态：成功",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:255",
+   "declared_all": [
+    "design-platform.css:255",
+    "design-platform.css:373"
+   ],
+   "declared_value": "var(--dsw-static-green-100)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-primitives/src/ConnectionIndicator.module.css",
+    "ui-trajectory/src/client/TrajectoryCell.module.css",
+    "ui-trajectory/src/client/TrajectoryTable.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-warn-label",
+   "subgroup": "alias/state",
+   "zh": "状态：warn-label",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:256",
+   "declared_all": [
+    "design-platform.css:256",
+    "design-platform.css:374"
+   ],
+   "declared_value": "var(--dsw-static-amber-600)",
+   "consumers": 18,
+   "consumer_examples": [
+    "ui-model-selection/src/client/ModelSelect.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-primitives/src/ConnectionIndicator.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-warn-primary",
+   "subgroup": "alias/state",
+   "zh": "状态：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:257",
+   "declared_all": [
+    "design-platform.css:257",
+    "design-platform.css:375"
+   ],
+   "declared_value": "var(--dsw-static-amber-500)",
+   "consumers": 14,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-chat/src/client/chat/MessageItem.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-warn-secondary",
+   "subgroup": "alias/state",
+   "zh": "状态：次",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:258",
+   "declared_all": [
+    "design-platform.css:258",
+    "design-platform.css:376"
+   ],
+   "declared_value": "var(--dsw-static-amber-400)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-primitives/src/ansi.ts",
+    "ui-shortcuts/src/client/Reference.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-state-warn-tertiary",
+   "subgroup": "alias/state",
+   "zh": "状态：三级",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:259",
+   "declared_all": [
+    "design-platform.css:259",
+    "design-platform.css:377"
+   ],
+   "declared_value": "var(--dsw-static-amber-100)",
+   "consumers": 19,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css",
+    "ui-plugin-market/src/client/DiscoverSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-contrast-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:194",
+   "declared_all": [
+    "design-platform.css:194",
+    "design-platform.css:312"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-700)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-attachment/src/FileCard.module.css",
+    "ui-attachment/src/client/ComposerAttachments.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-elevated-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:195",
+   "declared_all": [
+    "design-platform.css:195",
+    "design-platform.css:313"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 3,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-sidebar/src/client/SidebarRoot.module.css",
+    "ui-workspace/src/client/rows/Rows.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-floating-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:196",
+   "declared_all": [
+    "design-platform.css:196",
+    "design-platform.css:314"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-plan/src/client/PlanPreview.module.css",
+    "ui-tool/src/client/tool/components/QuestionToolRow.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-floating-hover",
+   "subgroup": "alias/button",
+   "zh": "按钮：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:197",
+   "declared_all": [
+    "design-platform.css:197",
+    "design-platform.css:315"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-75)",
+   "consumers": 4,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-sidebar/src/client/SidebarRoot.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-ghost-active-border",
+   "subgroup": "alias/button",
+   "zh": "按钮：幽灵",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:198",
+   "declared_all": [
+    "design-platform.css:198",
+    "design-platform.css:316"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-500)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/Pill.module.css",
+    "ui-schedule/src/client/ClockPicker.module.css",
+    "ui-schedule/src/client/DatePicker.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-ghost-active-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：幽灵",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:199",
+   "declared_all": [
+    "design-platform.css:199",
+    "design-platform.css:317"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-100)",
+   "consumers": 4,
+   "consumer_examples": [
+    "ui-primitives/src/Pill.module.css",
+    "ui-schedule/src/client/ClockPicker.module.css",
+    "ui-schedule/src/client/DatePicker.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-ghost-active-hover",
+   "subgroup": "alias/button",
+   "zh": "按钮：幽灵",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:200",
+   "declared_all": [
+    "design-platform.css:200",
+    "design-platform.css:318"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-150)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-button-info-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:201",
+   "declared_all": [
+    "design-platform.css:201",
+    "design-platform.css:319"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-500)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/InputBar.module.css",
+    "ui-directory-picker-browse/src/client/DirectoryBrowser.module.css",
+    "ui-user-questions/src/client/QuestionComposer.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-info-hover",
+   "subgroup": "alias/button",
+   "zh": "按钮：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:202",
+   "declared_all": [
+    "design-platform.css:202",
+    "design-platform.css:320"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-400)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/InputBar.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-primary-dimmed",
+   "subgroup": "alias/button",
+   "zh": "按钮：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:203",
+   "declared_all": [
+    "design-platform.css:203",
+    "design-platform.css:321"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-100)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-button-primary-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:204",
+   "declared_all": [
+    "design-platform.css:204",
+    "design-platform.css:322"
+   ],
+   "declared_value": "var(--dsw-alias-brand-primary)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-message-feedback/src/client/FeedbackDialog.module.css",
+    "ui-primitives/src/Button.module.css",
+    "ui-primitives/src/RiskConfirmation.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-primary-hover",
+   "subgroup": "alias/button",
+   "zh": "按钮：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:205",
+   "declared_all": [
+    "design-platform.css:205",
+    "design-platform.css:323"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-750)",
+   "consumers": 4,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-primitives/src/Button.module.css",
+    "ui-settings-account/src/client/AccountSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-tool-bar-fill",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:207",
+   "declared_all": [
+    "design-platform.css:207",
+    "design-platform.css:325"
+   ],
+   "declared_value": "rgba(84, 85, 87, 0.5)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/Button.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-button-tool-bar-fill-invisible",
+   "subgroup": "alias/button",
+   "zh": "按钮：填充 隐形",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:206",
+   "declared_all": [
+    "design-platform.css:206",
+    "design-platform.css:324"
+   ],
+   "declared_value": "rgba(31, 31, 31, 0.36)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-button-tool-bar-hover",
+   "subgroup": "alias/button",
+   "zh": "按钮：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:208",
+   "declared_all": [
+    "design-platform.css:208",
+    "design-platform.css:326"
+   ],
+   "declared_value": "rgba(84, 85, 87, 0.6)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/Button.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-inverted",
+   "subgroup": "alias/border",
+   "zh": "边框：inverted",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:184",
+   "declared_all": [
+    "design-platform.css:184",
+    "design-platform.css:302"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-commands/src/client/PopupSelectView.module.css",
+    "ui-settings-account/src/client/SignInDialog.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-inverted2",
+   "subgroup": "alias/border",
+   "zh": "边框：反色 2",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:183",
+   "declared_all": [
+    "design-platform.css:183",
+    "design-platform.css:301"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-border-l1",
+   "subgroup": "alias/border",
+   "zh": "边框：l1",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:185",
+   "declared_all": [
+    "design-platform.css:185",
+    "design-platform.css:303"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.04)",
+   "consumers": 48,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-chat/src/client/chat/GenericCommandCard.module.css",
+    "ui-chat/src/client/chat/TurnTriggerNodeView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-l2",
+   "subgroup": "alias/border",
+   "zh": "边框：l2",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:187",
+   "declared_all": [
+    "design-platform.css:187",
+    "design-platform.css:305"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.1)",
+   "consumers": 85,
+   "consumer_examples": [
+    "locale/src/client/LanguageRow.module.css",
+    "renderer/welcome.css",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-l2-darkmode-thin",
+   "subgroup": "alias/border",
+   "zh": "边框：l2-darkmode-thin",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:186",
+   "declared_all": [
+    "design-platform.css:186",
+    "design-platform.css:304"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.1)",
+   "consumers": 9,
+   "consumer_examples": [
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-attachment/src/MessageImage.module.css",
+    "ui-attachment/src/client/ComposerAttachments.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-l3",
+   "subgroup": "alias/border",
+   "zh": "边框：l3",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:188",
+   "declared_all": [
+    "design-platform.css:188",
+    "design-platform.css:306"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.12)",
+   "consumers": 56,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-conversation/src/client/skeleton/ContextMeter.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-border-l4",
+   "subgroup": "alias/border",
+   "zh": "边框：l4",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:189",
+   "declared_all": [
+    "design-platform.css:189",
+    "design-platform.css:307"
+   ],
+   "declared_value": "rgba(0, 0, 0, 0.16)",
+   "consumers": 44,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-chat/src/client/chat/TurnNavigator.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-interactive-bg-active",
+   "subgroup": "alias/interactive",
+   "zh": "交互：激活",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:209",
+   "declared_all": [
+    "design-platform.css:209",
+    "design-platform.css:327"
+   ],
+   "declared_value": "rgba(38, 49, 72, 0.1)",
+   "consumers": 4,
+   "consumer_examples": [
+    "ui-directory-picker-browse/src/client/DirectoryBrowser.module.css",
+    "ui-primitives/src/Button.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-interactive-bg-hover",
+   "subgroup": "alias/interactive",
+   "zh": "交互：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:213",
+   "declared_all": [
+    "design-platform.css:213",
+    "design-platform.css:331"
+   ],
+   "declared_value": "rgba(38, 49, 72, 0.06)",
+   "consumers": 149,
+   "consumer_examples": [
+    "locale/src/client/LanguageRow.module.css",
+    "src/preload-menu.ts",
+    "ui-agent-preset/src/client/AgentPresetSeat.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-interactive-bg-hover-accent",
+   "subgroup": "alias/interactive",
+   "zh": "交互：悬停 强调",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:210",
+   "declared_all": [
+    "design-platform.css:210",
+    "design-platform.css:328"
+   ],
+   "declared_value": "rgba(38, 49, 72, 0.14)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-interactive-bg-hover-danger",
+   "subgroup": "alias/interactive",
+   "zh": "交互：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:211",
+   "declared_all": [
+    "design-platform.css:211",
+    "design-platform.css:329"
+   ],
+   "declared_value": "rgba(236, 19, 19, 0.05)",
+   "consumers": 11,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-attachment/src/MessageImage.module.css",
+    "ui-model-selection/src/client/ModelSelect.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-interactive-bg-hover-solid",
+   "subgroup": "alias/interactive",
+   "zh": "交互：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:212",
+   "declared_all": [
+    "design-platform.css:212",
+    "design-platform.css:330"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-75)",
+   "consumers": 8,
+   "consumer_examples": [
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-chat/src/client/chat/MessageItem.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-brand-primary",
+   "subgroup": "alias/brand",
+   "zh": "品牌：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:192",
+   "declared_all": [
+    "design-platform.css:192",
+    "design-platform.css:310"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-1000)",
+   "consumers": 13,
+   "consumer_examples": [
+    "renderer/welcome.css",
+    "ui-attachment/src/FileCard.module.css",
+    "ui-plugin-manager/src/client/PluginManagerPage.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-brand-primary-invert",
+   "subgroup": "alias/brand",
+   "zh": "品牌：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:190",
+   "declared_all": [
+    "design-platform.css:190",
+    "design-platform.css:308"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-1000)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-brand-primary-new-colorprimary-new-color",
+   "subgroup": "alias/brand",
+   "zh": "品牌：主",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:191",
+   "declared_all": [
+    "design-platform.css:191",
+    "design-platform.css:309"
+   ],
+   "declared_value": "rgb(65, 118, 230)",
+   "consumers": 16,
+   "consumer_examples": [
+    "ui-dockkit/src/components/dockkit.module.css",
+    "ui-settings-account/src/client/AccountNotice.module.css",
+    "ui-settings-general/src/client/DesktopUpdateIndicator.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-brand-text",
+   "subgroup": "alias/brand",
+   "zh": "品牌：文字",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:193",
+   "declared_all": [
+    "design-platform.css:193",
+    "design-platform.css:311"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-1000)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-markdown-citation",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：citation",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:228",
+   "declared_all": [
+    "design-platform.css:228",
+    "design-platform.css:346"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-100)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-trajectory/src/client/TrajectoryTable.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-markdown-code-block",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：代码块",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:230",
+   "declared_all": [
+    "design-platform.css:230",
+    "design-platform.css:348"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-50)",
+   "consumers": 19,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/ContextInjectionRow.module.css",
+    "ui-chat/src/client/chat/GenericCommandCard.module.css",
+    "ui-chat/src/client/chat/TurnTriggerNodeView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-markdown-code-block-banner",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：代码",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:229",
+   "declared_all": [
+    "design-platform.css:229",
+    "design-platform.css:347"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-50)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/SearchBlock.module.css",
+    "ui-primitives/src/markdown/CodeBlock.module.css",
+    "ui-skill/src/client/SkillRow.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-markdown-code-segment-selected",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：代码",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:231",
+   "declared_all": [
+    "design-platform.css:231",
+    "design-platform.css:349"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-markdown-code-segment-unselected",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：代码",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:232",
+   "declared_all": [
+    "design-platform.css:232",
+    "design-platform.css:350"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-75)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-markdown-inline-code",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：代码",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:233",
+   "declared_all": [
+    "design-platform.css:233",
+    "design-platform.css:351"
+   ],
+   "declared_value": "var(--dsw-static-neutral-50)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/markdown/MarkdownText.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-markdown-placeholder",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：占位",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:234",
+   "declared_all": [
+    "design-platform.css:234",
+    "design-platform.css:352"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-60)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-alias-markdown-tag",
+   "subgroup": "alias/markdown",
+   "zh": "Markdown：tag",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:235",
+   "declared_all": [
+    "design-platform.css:235",
+    "design-platform.css:353"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-75)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-dockkit/src/components/dockkit.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-code-diff-added",
+   "subgroup": "alias/code",
+   "zh": "代码：diff-added",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:242",
+   "declared_all": [
+    "design-platform.css:242",
+    "design-platform.css:360"
+   ],
+   "declared_value": "var(--dsw-static-green-500-a08)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/DiffBlock.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-code-diff-deleted",
+   "subgroup": "alias/code",
+   "zh": "代码：diff-deleted",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:243",
+   "declared_all": [
+    "design-platform.css:243",
+    "design-platform.css:361"
+   ],
+   "declared_value": "var(--dsw-static-red-600-a08)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/DiffBlock.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-added-bg",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-added-bg",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:244",
+   "declared_all": [
+    "design-platform.css:244",
+    "design-platform.css:362"
+   ],
+   "declared_value": "rgb(230, 244, 231)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-added-gutter",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-added-gutter",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:245",
+   "declared_all": [
+    "design-platform.css:245",
+    "design-platform.css:363"
+   ],
+   "declared_value": "rgb(237, 247, 237)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-added-marker",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-added-marker",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:246",
+   "declared_all": [
+    "design-platform.css:246",
+    "design-platform.css:364"
+   ],
+   "declared_value": "rgb(1, 162, 65)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-deleted-bg",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-deleted-bg",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:247",
+   "declared_all": [
+    "design-platform.css:247",
+    "design-platform.css:365"
+   ],
+   "declared_value": "rgb(252, 230, 226)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-deleted-gutter",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-deleted-gutter",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:248",
+   "declared_all": [
+    "design-platform.css:248",
+    "design-platform.css:366"
+   ],
+   "declared_value": "rgb(253, 236, 233)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-file-diff-deleted-marker",
+   "subgroup": "alias/file",
+   "zh": "文件：diff-deleted-marker",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:249",
+   "declared_all": [
+    "design-platform.css:249",
+    "design-platform.css:367"
+   ],
+   "declared_value": "rgb(186, 39, 35)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-deliverables/src/client/FileDiff.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-menu-group-header-fill",
+   "subgroup": "alias/menu",
+   "zh": "菜单：分组头填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:272",
+   "declared_all": [
+    "design-platform.css:272",
+    "design-platform.css:390"
+   ],
+   "declared_value": "rgba(248, 249, 250, 0.94)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/MenuGroup.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-menu-icon",
+   "subgroup": "alias/menu",
+   "zh": "菜单：icon",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:226",
+   "declared_all": [
+    "design-platform.css:226",
+    "design-platform.css:344"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-800)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-input-trigger/src/client/MenuView.module.css",
+    "ui-model-selection/src/client/ModelSelect.module.css",
+    "ui-primitives/src/Menu.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-scrollbar-bg-l1",
+   "subgroup": "alias/scrollbar",
+   "zh": "滚动条：bg-l1",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:236",
+   "declared_all": [
+    "design-platform.css:236",
+    "design-platform.css:354"
+   ],
+   "declared_value": "var(--dsw-static-neutral-200)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/ConversationRoot.module.css",
+    "ui-theme/src/styles/scrollbar.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-scrollbar-bg-l2",
+   "subgroup": "alias/scrollbar",
+   "zh": "滚动条：bg-l2",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:237",
+   "declared_all": [
+    "design-platform.css:237",
+    "design-platform.css:355"
+   ],
+   "declared_value": "var(--dsw-static-neutral-200)",
+   "consumers": 33,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css",
+    "ui-approval/src/client/ApprovalPanel.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-scrollbar-hover-l1",
+   "subgroup": "alias/scrollbar",
+   "zh": "滚动条：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:238",
+   "declared_all": [
+    "design-platform.css:238",
+    "design-platform.css:356"
+   ],
+   "declared_value": "var(--dsw-static-neutral-300)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/scrollbar.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-scrollbar-hover-l2",
+   "subgroup": "alias/scrollbar",
+   "zh": "滚动条：悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:239",
+   "declared_all": [
+    "design-platform.css:239",
+    "design-platform.css:357"
+   ],
+   "declared_value": "var(--dsw-static-neutral-300)",
+   "consumers": 33,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css",
+    "ui-approval/src/client/ApprovalPanel.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-onboarding-accent",
+   "subgroup": "alias/onboarding",
+   "zh": "引导页：强调",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:3",
+   "declared_all": [
+    "onboarding.css:3"
+   ],
+   "declared_value": "rgb(57, 100, 254)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-onboarding-card-fill",
+   "subgroup": "alias/onboarding",
+   "zh": "引导页：卡片",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:7",
+   "declared_all": [
+    "onboarding.css:7",
+    "onboarding.css:13"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-neutral-bluish-00) 80%, transparent)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-onboarding-checkbox-border",
+   "subgroup": "alias/onboarding",
+   "zh": "引导页：勾选框",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:9",
+   "declared_all": [
+    "onboarding.css:9",
+    "onboarding.css:15"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-static-neutral-bluish-1000) 20%, transparent)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-onboarding-secondary-fill",
+   "subgroup": "alias/onboarding",
+   "zh": "引导页：次",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:8",
+   "declared_all": [
+    "onboarding.css:8",
+    "onboarding.css:14"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-settings-card-fill",
+   "subgroup": "alias/settings",
+   "zh": "设置：卡片",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "base.css:32",
+   "declared_all": [
+    "base.css:32"
+   ],
+   "declared_value": "var(--dsw-alias-bg-layer-2)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-settings-account/src/client/AccountSection.module.css",
+    "ui-settings-models/src/client/ModelsSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-settings-card-stroke",
+   "subgroup": "alias/settings",
+   "zh": "设置：卡片",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "base.css:33",
+   "declared_all": [
+    "base.css:33"
+   ],
+   "declared_value": "var(--dsw-alias-border-l4)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-settings-account/src/client/AccountSection.module.css",
+    "ui-settings-models/src/client/ModelsSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-tooltip-bg",
+   "subgroup": "alias/tooltip",
+   "zh": "提示：bg",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:263",
+   "declared_all": [
+    "design-platform.css:263",
+    "design-platform.css:383"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-850)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/Tooltip.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-tooltip-key-bg",
+   "subgroup": "alias/tooltip",
+   "zh": "提示：key-bg",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:264",
+   "declared_all": [
+    "design-platform.css:264",
+    "design-platform.css:384"
+   ],
+   "declared_value": "color-mix(in srgb, var(--dsw-alias-tooltip-bg), white 18%)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-primitives/src/ShortcutKeys.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-toast-bg",
+   "subgroup": "alias/toast",
+   "zh": "轻提示：bg",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:261",
+   "declared_all": [
+    "design-platform.css:261",
+    "design-platform.css:379"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-800)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/Toast.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-toast-label",
+   "subgroup": "alias/toast",
+   "zh": "轻提示：label",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:262",
+   "declared_all": [
+    "design-platform.css:262",
+    "design-platform.css:380"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/Toast.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-turn-trigger-bg",
+   "subgroup": "alias/turn",
+   "zh": "对话轮次：触发器",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:265",
+   "declared_all": [
+    "design-platform.css:265",
+    "design-platform.css:381"
+   ],
+   "declared_value": "var(--dsw-alias-markdown-code-block)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/TurnTriggerNodeView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-turn-trigger-bg-hover",
+   "subgroup": "alias/turn",
+   "zh": "对话轮次：触发器",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:266",
+   "declared_all": [
+    "design-platform.css:266",
+    "design-platform.css:382"
+   ],
+   "declared_value": "var(--dsw-alias-interactive-bg-hover)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/TurnTriggerNodeView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-link",
+   "subgroup": "alias/link",
+   "zh": "链接：",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:227",
+   "declared_all": [
+    "design-platform.css:227",
+    "design-platform.css:345"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-500)",
+   "consumers": 12,
+   "consumer_examples": [
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-deliverables/src/client/PresentRow.module.css",
+    "ui-plugin-market/src/client/DiscoverSection.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-alias-switch-thumb",
+   "subgroup": "alias/switch",
+   "zh": "开关：滑块",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:260",
+   "declared_all": [
+    "design-platform.css:260",
+    "design-platform.css:378"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/Switch.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-bubble",
+   "subgroup": "specific",
+   "zh": "区域特化：气泡",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:268",
+   "declared_all": [
+    "design-platform.css:268",
+    "design-platform.css:386"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-50)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/MessageItem.module.css",
+    "ui-goal/src/client/GoalCommandInputView.module.css",
+    "ui-user-questions/src/client/QuestionReplyView.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-bubble-highlight",
+   "subgroup": "specific",
+   "zh": "区域特化：气泡高亮",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:267",
+   "declared_all": [
+    "design-platform.css:267",
+    "design-platform.css:385"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-200)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-specific-input-major",
+   "subgroup": "specific",
+   "zh": "区域特化：input-major",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:269",
+   "declared_all": [
+    "design-platform.css:269",
+    "design-platform.css:387"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-00)",
+   "consumers": 10,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css",
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-attachment/src/FileCard.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-login-input",
+   "subgroup": "specific",
+   "zh": "区域特化：登录输入",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:270",
+   "declared_all": [
+    "design-platform.css:270",
+    "design-platform.css:388"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-50)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-specific-menu",
+   "subgroup": "specific",
+   "zh": "区域特化：菜单",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:273",
+   "declared_all": [
+    "design-platform.css:273",
+    "design-platform.css:391",
+    "design-platform.css:403",
+    "design-platform.css:407"
+   ],
+   "declared_value": "var(--dsw-menu-surface-fill)",
+   "consumers": 14,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/stat-dialog.module.css",
+    "ui-conversation/src/client/queue/QueueDock.module.css",
+    "ui-conversation/src/client/skeleton/ContextMeter.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-selector",
+   "subgroup": "specific",
+   "zh": "区域特化：选择器",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:274",
+   "declared_all": [
+    "design-platform.css:274",
+    "design-platform.css:392"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-60)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/InputBar.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-sidebar-fill",
+   "subgroup": "specific",
+   "zh": "区域特化：侧栏填充",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:275",
+   "declared_all": [
+    "design-platform.css:275",
+    "design-platform.css:393"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-50)",
+   "consumers": 11,
+   "consumer_examples": [
+    "src/preload-windows.ts",
+    "ui-layout/src/client/AppFrame.module.css",
+    "ui-schedule/src/client/TaskManagerPage.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-sidebar-nav-item-active",
+   "subgroup": "specific",
+   "zh": "区域特化：侧栏导航激活",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:277",
+   "declared_all": [
+    "design-platform.css:277",
+    "design-platform.css:395"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-100)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-general/src/client/SettingsRoot.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-sidebar-nav-item-active-accent",
+   "subgroup": "specific",
+   "zh": "区域特化：侧栏导航激活强调",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:276",
+   "declared_all": [
+    "design-platform.css:276",
+    "design-platform.css:394"
+   ],
+   "declared_value": "var(--dsw-static-deepseek-100)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-user-questions/src/client/QuestionComposer.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-sidebar-nav-item-hover",
+   "subgroup": "specific",
+   "zh": "区域特化：侧栏导航悬停",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:278",
+   "declared_all": [
+    "design-platform.css:278",
+    "design-platform.css:396"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-75)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-general/src/client/SettingsRoot.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-specific-tip",
+   "subgroup": "specific",
+   "zh": "区域特化：提示",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:279",
+   "declared_all": [
+    "design-platform.css:279",
+    "design-platform.css:397"
+   ],
+   "declared_value": "var(--dsw-static-neutral-bluish-60)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-background",
+   "subgroup": "shiki",
+   "zh": "代码高亮背景",
+   "value_type": "color",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "shiki.css:9",
+   "declared_all": [
+    "shiki.css:9"
+   ],
+   "declared_value": "var(--dsw-alias-markdown-code-block)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/markdown/CodeBlock.tsx"
+   ]
+  },
+  {
+   "name": "--shiki-foreground",
+   "subgroup": "shiki",
+   "zh": "代码高亮前景",
+   "value_type": "color",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "shiki.css:8",
+   "declared_all": [
+    "shiki.css:8"
+   ],
+   "declared_value": "var(--dsw-alias-label-primary)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/markdown/CodeBlock.tsx"
+   ]
+  },
+  {
+   "name": "--shiki-token-comment",
+   "subgroup": "shiki",
+   "zh": "注释（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:12",
+   "declared_all": [
+    "shiki.css:12",
+    "shiki.css:24"
+   ],
+   "declared_value": "#868e96",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-constant",
+   "subgroup": "shiki",
+   "zh": "常量（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:10",
+   "declared_all": [
+    "shiki.css:10",
+    "shiki.css:22"
+   ],
+   "declared_value": "#1c7ed6",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-function",
+   "subgroup": "shiki",
+   "zh": "函数（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:15",
+   "declared_all": [
+    "shiki.css:15",
+    "shiki.css:27"
+   ],
+   "declared_value": "#6741d9",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-keyword",
+   "subgroup": "shiki",
+   "zh": "关键字（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:13",
+   "declared_all": [
+    "shiki.css:13",
+    "shiki.css:25"
+   ],
+   "declared_value": "#d6336c",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-link",
+   "subgroup": "shiki",
+   "zh": "链接（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:18",
+   "declared_all": [
+    "shiki.css:18",
+    "shiki.css:30"
+   ],
+   "declared_value": "#1971c2",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-parameter",
+   "subgroup": "shiki",
+   "zh": "参数（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:14",
+   "declared_all": [
+    "shiki.css:14",
+    "shiki.css:26"
+   ],
+   "declared_value": "#e8590c",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-punctuation",
+   "subgroup": "shiki",
+   "zh": "标点（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:17",
+   "declared_all": [
+    "shiki.css:17",
+    "shiki.css:29"
+   ],
+   "declared_value": "#495057",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-string",
+   "subgroup": "shiki",
+   "zh": "字符串（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:11",
+   "declared_all": [
+    "shiki.css:11",
+    "shiki.css:23"
+   ],
+   "declared_value": "#2f9e44",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--shiki-token-string-expression",
+   "subgroup": "shiki",
+   "zh": "字符串插值（shiki）",
+   "value_type": "color",
+   "status": "live(runtime)",
+   "note": "由 shiki 运行时读取 CSS 变量消费；CSS 扫描看不见，改颜色仍生效",
+   "declared": "shiki.css:16",
+   "declared_all": [
+    "shiki.css:16",
+    "shiki.css:28"
+   ],
+   "declared_value": "#2b8a3e",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-focus-ring-color",
+   "subgroup": "focus",
+   "zh": "焦点环颜色",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "focus.css:19",
+   "declared_all": [
+    "focus.css:19"
+   ],
+   "declared_value": "transparent",
+   "consumers": 104,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-agent-preset/src/client/PresetGuideDialog.module.css",
+    "ui-attachment/src/MessageImage.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-menu-surface-fill",
+   "subgroup": "menu",
+   "zh": "菜单表面填充（材质层）",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:271",
+   "declared_all": [
+    "design-platform.css:271",
+    "design-platform.css:389"
+   ],
+   "declared_value": "rgba(248, 249, 250, 0.58)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/MenuSurface.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-shadow-lv1",
+   "subgroup": "shadow",
+   "zh": "阴影：lv1",
+   "value_type": "shadow（多段阴影）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "gradient-shadow-text.css:5",
+   "declared_all": [
+    "gradient-shadow-text.css:5"
+   ],
+   "declared_value": "0 2px 4px 0 rgba(0, 0, 0, 0.05)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-shadow-lv1-blur",
+   "subgroup": "shadow",
+   "zh": "阴影：lv1-blur",
+   "value_type": "shadow（多段阴影）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "gradient-shadow-text.css:6",
+   "declared_all": [
+    "gradient-shadow-text.css:6"
+   ],
+   "declared_value": "0 4px 12px 0 rgba(0, 0, 0, 0.02)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-shadow-lv2",
+   "subgroup": "shadow",
+   "zh": "阴影：lv2",
+   "value_type": "shadow（多段阴影）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "gradient-shadow-text.css:7",
+   "declared_all": [
+    "gradient-shadow-text.css:7"
+   ],
+   "declared_value": "0 4px 12px 0 rgba(0, 0, 0, 0.02), 0 2px 8px 0 rgba(0, 0, 0, 0.04)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-approval/src/client/ApprovalPanel.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-shadow-lv3",
+   "subgroup": "shadow",
+   "zh": "阴影：lv3",
+   "value_type": "shadow（多段阴影）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "gradient-shadow-text.css:8",
+   "declared_all": [
+    "gradient-shadow-text.css:8"
+   ],
+   "declared_value": "0 0 1px 0 rgba(0, 0, 0, 0.2), 0 0 4px 0 rgba(0, 0, 0, 0.02), 0 12px 32px 0 rgba(0, 0, 0, 0.08)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-primitives/src/HoverCard.module.css",
+    "ui-primitives/src/Toast.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-elevation-panel",
+   "subgroup": "elevation",
+   "zh": "材质阴影：panel",
+   "value_type": "shadow（多段阴影）",
+   "status": "gated",
+   "note": "被组件元素级重声明（elevation 族）：body 级 token 写入会被子元素盖掉；能力需走规则层（body *{} 或更高特异性）",
+   "declared": "gradient-shadow-text.css:34",
+   "declared_all": [
+    "gradient-shadow-text.css:34"
+   ],
+   "declared_value": "var(--dsw-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.03), 0 0 16px 0 rgba(0, 0, 0, 0.02)",
+   "consumers": 11,
+   "consumer_examples": [
+    "ui-attachment/src/AttachmentRail.module.css",
+    "ui-chat/src/client/chat/ChatView.module.css",
+    "ui-chat/src/client/chat/TurnNavigator.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-elevation-prominent",
+   "subgroup": "elevation",
+   "zh": "材质阴影：prominent",
+   "value_type": "shadow（多段阴影）",
+   "status": "gated",
+   "note": "被组件元素级重声明（elevation 族）：body 级 token 写入会被子元素盖掉；能力需走规则层（body *{} 或更高特异性）",
+   "declared": "gradient-shadow-text.css:36",
+   "declared_all": [
+    "gradient-shadow-text.css:36"
+   ],
+   "declared_value": "var(--dsw-elevation-stroke), 0 3px 8px 0 rgba(0, 0, 0, 0.04), 0 0 20px 0 rgba(0, 0, 0, 0.05)",
+   "consumers": 18,
+   "consumer_examples": [
+    "ui-chat/src/client/chat/stat-dialog.module.css",
+    "ui-commands/src/client/PopupSelectView.module.css",
+    "ui-conversation/src/client/skeleton/ContextMeter.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-elevation-soft",
+   "subgroup": "elevation",
+   "zh": "材质阴影：soft",
+   "value_type": "shadow（多段阴影）",
+   "status": "gated",
+   "note": "被组件元素级重声明（elevation 族）：body 级 token 写入会被子元素盖掉；能力需走规则层（body *{} 或更高特异性）",
+   "declared": "gradient-shadow-text.css:38",
+   "declared_all": [
+    "gradient-shadow-text.css:38"
+   ],
+   "declared_value": "var(--dsw-elevation-stroke), 0 4px 16px 0 rgba(0, 0, 0, 0.03), 0 0 24px 0 rgba(0, 0, 0, 0.03)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/InputBar.module.css",
+    "ui-primitives/src/SegmentedControl.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-elevation-stroke",
+   "subgroup": "elevation",
+   "zh": "材质阴影：stroke",
+   "value_type": "shadow（多段阴影）",
+   "status": "gated",
+   "note": "被组件元素级重声明（elevation 族）：body 级 token 写入会被子元素盖掉；能力需走规则层（body *{} 或更高特异性）",
+   "declared": "gradient-shadow-text.css:33",
+   "declared_all": [
+    "gradient-shadow-text.css:33"
+   ],
+   "declared_value": "0 0 0 0.5px var(--dsw-elevation-stroke-color)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/gradient-shadow-text.css"
+   ]
+  },
+  {
+   "name": "--dsw-elevation-stroke-color",
+   "subgroup": "elevation",
+   "zh": "材质阴影：stroke-color",
+   "value_type": "shadow（多段阴影）",
+   "status": "gated",
+   "note": "被组件元素级重声明（elevation 族）：body 级 token 写入会被子元素盖掉；能力需走规则层（body *{} 或更高特异性）",
+   "declared": "gradient-shadow-text.css:17",
+   "declared_all": [
+    "gradient-shadow-text.css:17",
+    "gradient-shadow-text.css:24"
+   ],
+   "declared_value": "var(--dsw-alias-border-l4)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/gradient-shadow-text.css"
+   ]
+  },
+  {
+   "name": "--dsw-gradient-onboarding-blue-stops",
+   "subgroup": "gradient",
+   "zh": "渐变：onboarding-blue 色标",
+   "value_type": "渐变（颜色停滞）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:5",
+   "declared_all": [
+    "onboarding.css:5"
+   ],
+   "declared_value": "#3964fe 18.75%, #398efe 51.78%, #6dccff 86.252%, #3964fe",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-gradient-onboarding-cyan-stops",
+   "subgroup": "gradient",
+   "zh": "渐变：onboarding-cyan 色标",
+   "value_type": "渐变（颜色停滞）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:6",
+   "declared_all": [
+    "onboarding.css:6"
+   ],
+   "declared_value": "#0293b4 21.154%, #2dc8eb 50.954%, #aff0ff 85.326%, #0293b4",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-gradient-onboarding-violet-stops",
+   "subgroup": "gradient",
+   "zh": "渐变：onboarding-violet 色标",
+   "value_type": "渐变（颜色停滞）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "onboarding.css:4",
+   "declared_all": [
+    "onboarding.css:4"
+   ],
+   "declared_value": "#2a2fb6 33.102%, #8b76f6 50.954%, #c5c0ff 85.326%, #2a2fb6",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-settings-account/src/client/DesktopOnboarding.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-linear-gradient-think",
+   "subgroup": "linear",
+   "zh": "线性渐变：gradient-think",
+   "value_type": "渐变（颜色停滞）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "gradient-shadow-text.css:2",
+   "declared_all": [
+    "gradient-shadow-text.css:2",
+    "gradient-shadow-text.css:43"
+   ],
+   "declared_value": "linear-gradient(180deg, #fff 20.19%, rgba(255, 255, 255, 0) 100%)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-linear-think-select",
+   "subgroup": "linear",
+   "zh": "线性渐变：think-select",
+   "value_type": "渐变（颜色停滞）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "gradient-shadow-text.css:3",
+   "declared_all": [
+    "gradient-shadow-text.css:3",
+    "gradient-shadow-text.css:44"
+   ],
+   "declared_value": "linear-gradient(180deg, #f5f6f7 20.19%, rgba(245, 246, 247, 0) 100%)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-100",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:10",
+   "declared_all": [
+    "design-platform.css:10",
+    "design-platform.css:91"
+   ],
+   "declared_value": "rgb(219, 234, 254)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-300",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 300",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:11",
+   "declared_all": [
+    "design-platform.css:11",
+    "design-platform.css:92"
+   ],
+   "declared_value": "rgb(147, 197, 253)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-400",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:12",
+   "declared_all": [
+    "design-platform.css:12",
+    "design-platform.css:93"
+   ],
+   "declared_value": "rgb(96, 165, 250)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/ansi.ts"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-450",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 450",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:13",
+   "declared_all": [
+    "design-platform.css:13",
+    "design-platform.css:94"
+   ],
+   "declared_value": "rgb(77, 147, 248)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-conversation/src/client/skeleton/ContextMeter.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-50",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 50",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:15",
+   "declared_all": [
+    "design-platform.css:15",
+    "design-platform.css:96"
+   ],
+   "declared_value": "rgb(239, 246, 255)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-500",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:14",
+   "declared_all": [
+    "design-platform.css:14",
+    "design-platform.css:95"
+   ],
+   "declared_value": "rgb(59, 130, 246)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-primitives/src/ansi.ts",
+    "ui-theme/src/styles/design-platform.css",
+    "ui-trajectory/src/client/TrajectoryTable.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-50p",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 50p",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:16",
+   "declared_all": [
+    "design-platform.css:16",
+    "design-platform.css:97"
+   ],
+   "declared_value": "rgb(234, 243, 255)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-600",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:17",
+   "declared_all": [
+    "design-platform.css:17",
+    "design-platform.css:98"
+   ],
+   "declared_value": "rgb(37, 99, 235)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/ansi.ts"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-75",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 75",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:18",
+   "declared_all": [
+    "design-platform.css:18",
+    "design-platform.css:99"
+   ],
+   "declared_value": "rgb(229, 240, 255)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-800",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 800",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:19",
+   "declared_all": [
+    "design-platform.css:19",
+    "design-platform.css:100"
+   ],
+   "declared_value": "rgb(30, 64, 175)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-blue-900",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:20",
+   "declared_all": [
+    "design-platform.css:20",
+    "design-platform.css:101"
+   ],
+   "declared_value": "rgb(14, 48, 116)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-blue-950",
+   "subgroup": "static/blue",
+   "zh": "调色板原子：蓝 950",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:21",
+   "declared_all": [
+    "design-platform.css:21",
+    "design-platform.css:102"
+   ],
+   "declared_value": "rgb(23, 37, 84)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-100",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:22",
+   "declared_all": [
+    "design-platform.css:22",
+    "design-platform.css:103"
+   ],
+   "declared_value": "rgb(228, 237, 253)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-200",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 200",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:23",
+   "declared_all": [
+    "design-platform.css:23",
+    "design-platform.css:104"
+   ],
+   "declared_value": "rgb(211, 226, 255)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-300",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 300",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:24",
+   "declared_all": [
+    "design-platform.css:24",
+    "design-platform.css:105"
+   ],
+   "declared_value": "rgb(183, 200, 254)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-deepseek-400",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:26",
+   "declared_all": [
+    "design-platform.css:26",
+    "design-platform.css:107"
+   ],
+   "declared_value": "rgb(122, 170, 255)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-primitives/src/Toast.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-450",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 450",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:27",
+   "declared_all": [
+    "design-platform.css:27",
+    "design-platform.css:108"
+   ],
+   "declared_value": "rgb(86, 134, 254)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-50",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 50",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:29",
+   "declared_all": [
+    "design-platform.css:29",
+    "design-platform.css:110"
+   ],
+   "declared_value": "rgb(237, 243, 254)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-500",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:28",
+   "declared_all": [
+    "design-platform.css:28",
+    "design-platform.css:109"
+   ],
+   "declared_value": "rgb(65, 118, 230)",
+   "consumers": 9,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-600",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:30",
+   "declared_all": [
+    "design-platform.css:30",
+    "design-platform.css:111"
+   ],
+   "declared_value": "rgb(72, 104, 178)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-deepseek-700-delete",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 700-delete",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:31",
+   "declared_all": [
+    "design-platform.css:31",
+    "design-platform.css:112"
+   ],
+   "declared_value": "rgb(47, 76, 143)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-deepseek-800",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 800",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:32",
+   "declared_all": [
+    "design-platform.css:32",
+    "design-platform.css:113"
+   ],
+   "declared_value": "rgb(52, 65, 91)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-deepseek-900",
+   "subgroup": "static/deepseek",
+   "zh": "调色板原子：DeepSeek 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:33",
+   "declared_all": [
+    "design-platform.css:33",
+    "design-platform.css:114"
+   ],
+   "declared_value": "rgb(40, 49, 66)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-green-100",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:34",
+   "declared_all": [
+    "design-platform.css:34",
+    "design-platform.css:115"
+   ],
+   "declared_value": "rgb(230, 250, 237)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-green-400",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:35",
+   "declared_all": [
+    "design-platform.css:35",
+    "design-platform.css:116"
+   ],
+   "declared_value": "rgb(78, 209, 126)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-green-500",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:36",
+   "declared_all": [
+    "design-platform.css:36",
+    "design-platform.css:117"
+   ],
+   "declared_value": "rgb(34, 197, 94)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-green-500-a08",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 500-a08",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:37",
+   "declared_all": [
+    "design-platform.css:37",
+    "design-platform.css:118"
+   ],
+   "declared_value": "rgb(34 197 94 / 8%)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-green-500-a12",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 500-a12",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:38",
+   "declared_all": [
+    "design-platform.css:38",
+    "design-platform.css:119"
+   ],
+   "declared_value": "rgb(34 197 94 / 12%)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-green-900",
+   "subgroup": "static/green",
+   "zh": "调色板原子：绿 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:39",
+   "declared_all": [
+    "design-platform.css:39",
+    "design-platform.css:120"
+   ],
+   "declared_value": "rgb(35, 60, 44)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-amber-100",
+   "subgroup": "static/amber",
+   "zh": "调色板原子：琥珀 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:5",
+   "declared_all": [
+    "design-platform.css:5",
+    "design-platform.css:86"
+   ],
+   "declared_value": "rgb(254, 245, 231)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-amber-400",
+   "subgroup": "static/amber",
+   "zh": "调色板原子：琥珀 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:6",
+   "declared_all": [
+    "design-platform.css:6",
+    "design-platform.css:87"
+   ],
+   "declared_value": "rgb(247, 173, 49)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-amber-500",
+   "subgroup": "static/amber",
+   "zh": "调色板原子：琥珀 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:7",
+   "declared_all": [
+    "design-platform.css:7",
+    "design-platform.css:88"
+   ],
+   "declared_value": "rgb(245, 158, 11)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-amber-600",
+   "subgroup": "static/amber",
+   "zh": "调色板原子：琥珀 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:8",
+   "declared_all": [
+    "design-platform.css:8",
+    "design-platform.css:89"
+   ],
+   "declared_value": "rgb(221, 134, 41)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-amber-900",
+   "subgroup": "static/amber",
+   "zh": "调色板原子：琥珀 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:9",
+   "declared_all": [
+    "design-platform.css:9",
+    "design-platform.css:90"
+   ],
+   "declared_value": "rgb(39, 36, 31)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-00",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 00",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:40",
+   "declared_all": [
+    "design-platform.css:40",
+    "design-platform.css:121"
+   ],
+   "declared_value": "rgb(255, 255, 255)",
+   "consumers": 12,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-plan/src/client/PlanPreview.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-100",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:42",
+   "declared_all": [
+    "design-platform.css:42",
+    "design-platform.css:123"
+   ],
+   "declared_value": "rgb(245, 245, 245)",
+   "consumers": 4,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-plan/src/client/PlanPreview.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-1000",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 1000",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:41",
+   "declared_all": [
+    "design-platform.css:41",
+    "design-platform.css:122"
+   ],
+   "declared_value": "rgb(0, 0, 0)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-150",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 150",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:43",
+   "declared_all": [
+    "design-platform.css:43",
+    "design-platform.css:124"
+   ],
+   "declared_value": "rgb(237, 237, 237)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-neutral-200",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 200",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:44",
+   "declared_all": [
+    "design-platform.css:44",
+    "design-platform.css:125"
+   ],
+   "declared_value": "rgb(229, 229, 229)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-sidebar-right/src/client/tabs/guide/GuideBody.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-250",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 250",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:45",
+   "declared_all": [
+    "design-platform.css:45",
+    "design-platform.css:126"
+   ],
+   "declared_value": "rgb(220, 220, 220)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-neutral-300",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 300",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:46",
+   "declared_all": [
+    "design-platform.css:46",
+    "design-platform.css:127"
+   ],
+   "declared_value": "rgb(212, 212, 212)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-400",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:47",
+   "declared_all": [
+    "design-platform.css:47",
+    "design-platform.css:128"
+   ],
+   "declared_value": "rgb(162, 164, 166)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.tsx"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-50",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 50",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:49",
+   "declared_all": [
+    "design-platform.css:49",
+    "design-platform.css:130"
+   ],
+   "declared_value": "rgb(250, 250, 250)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-plan/src/client/PlanPreview.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-500",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:48",
+   "declared_all": [
+    "design-platform.css:48",
+    "design-platform.css:129"
+   ],
+   "declared_value": "rgb(127, 130, 135)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-neutral-550",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 550",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:50",
+   "declared_all": [
+    "design-platform.css:50",
+    "design-platform.css:131"
+   ],
+   "declared_value": "rgb(101, 103, 107)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-600",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:51",
+   "declared_all": [
+    "design-platform.css:51",
+    "design-platform.css:132"
+   ],
+   "declared_value": "rgb(84, 85, 87)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-700",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 700",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:52",
+   "declared_all": [
+    "design-platform.css:52",
+    "design-platform.css:133"
+   ],
+   "declared_value": "rgb(60, 60, 61)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-sidebar-right/src/client/tabs/guide/GuideBody.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-800",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 800",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:53",
+   "declared_all": [
+    "design-platform.css:53",
+    "design-platform.css:134"
+   ],
+   "declared_value": "rgb(41, 41, 41)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-plan/src/client/PlanPreview.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-850",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 850",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:54",
+   "declared_all": [
+    "design-platform.css:54",
+    "design-platform.css:135"
+   ],
+   "declared_value": "rgb(33, 33, 35)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-deliverables/src/client/ChangedFiles.module.css",
+    "ui-deliverables/src/client/Deliverables.module.css",
+    "ui-plan/src/client/PlanPreview.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-900",
+   "subgroup": "static/neutral",
+   "zh": "调色板原子：中性 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:55",
+   "declared_all": [
+    "design-platform.css:55",
+    "design-platform.css:136"
+   ],
+   "declared_value": "rgb(15, 15, 15)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-00",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 00",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:56",
+   "declared_all": [
+    "design-platform.css:56",
+    "design-platform.css:137"
+   ],
+   "declared_value": "rgb(255, 255, 255)",
+   "consumers": 16,
+   "consumer_examples": [
+    "ui-primitives/src/Tooltip.module.css",
+    "ui-theme/src/styles/design-platform.css",
+    "ui-theme/src/styles/onboarding.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-100",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:58",
+   "declared_all": [
+    "design-platform.css:58",
+    "design-platform.css:139"
+   ],
+   "declared_value": "rgb(235, 238, 242)",
+   "consumers": 7,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-1000",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 1000",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:57",
+   "declared_all": [
+    "design-platform.css:57",
+    "design-platform.css:138"
+   ],
+   "declared_value": "rgb(15, 17, 21)",
+   "consumers": 6,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css",
+    "ui-theme/src/styles/onboarding.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-150",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 150",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:59",
+   "declared_all": [
+    "design-platform.css:59",
+    "design-platform.css:140"
+   ],
+   "declared_value": "rgb(233, 236, 242)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-200",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 200",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:60",
+   "declared_all": [
+    "design-platform.css:60",
+    "design-platform.css:141"
+   ],
+   "declared_value": "rgb(225, 229, 238)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-300",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 300",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:61",
+   "declared_all": [
+    "design-platform.css:61",
+    "design-platform.css:142"
+   ],
+   "declared_value": "rgb(207, 211, 214)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-400",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:62",
+   "declared_all": [
+    "design-platform.css:62",
+    "design-platform.css:143"
+   ],
+   "declared_value": "rgb(173, 178, 184)",
+   "consumers": 7,
+   "consumer_examples": [
+    "ui-agent-preset/src/client/AgentPresetSection.module.css",
+    "ui-conversation/src/client/skeleton/ContextMeter.module.css",
+    "ui-theme/src/client/AppearanceRow.module.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-50",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 50",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:64",
+   "declared_all": [
+    "design-platform.css:64",
+    "design-platform.css:145"
+   ],
+   "declared_value": "rgb(249, 250, 251)",
+   "consumers": 10,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-500",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:63",
+   "declared_all": [
+    "design-platform.css:63",
+    "design-platform.css:144"
+   ],
+   "declared_value": "rgb(151, 157, 166)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-60",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 60",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:66",
+   "declared_all": [
+    "design-platform.css:66",
+    "design-platform.css:147"
+   ],
+   "declared_value": "rgb(245, 246, 247)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-600",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:65",
+   "declared_all": [
+    "design-platform.css:65",
+    "design-platform.css:146"
+   ],
+   "declared_value": "rgb(129, 133, 140)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-700",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 700",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:67",
+   "declared_all": [
+    "design-platform.css:67",
+    "design-platform.css:148"
+   ],
+   "declared_value": "rgb(97, 102, 107)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-75",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 75",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:69",
+   "declared_all": [
+    "design-platform.css:69",
+    "design-platform.css:150"
+   ],
+   "declared_value": "rgb(241, 243, 245)",
+   "consumers": 5,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-750",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 750",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:68",
+   "declared_all": [
+    "design-platform.css:68",
+    "design-platform.css:149"
+   ],
+   "declared_value": "rgb(67, 69, 74)",
+   "consumers": 9,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-800",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 800",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:70",
+   "declared_all": [
+    "design-platform.css:70",
+    "design-platform.css:151"
+   ],
+   "declared_value": "rgb(53, 54, 56)",
+   "consumers": 12,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-850",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 850",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:71",
+   "declared_all": [
+    "design-platform.css:71",
+    "design-platform.css:152"
+   ],
+   "declared_value": "rgb(44, 44, 46)",
+   "consumers": 10,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css",
+    "ui-theme/src/styles/onboarding.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-875",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 875",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:72",
+   "declared_all": [
+    "design-platform.css:72",
+    "design-platform.css:153"
+   ],
+   "declared_value": "rgb(35, 35, 36)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-900",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:73",
+   "declared_all": [
+    "design-platform.css:73",
+    "design-platform.css:154"
+   ],
+   "declared_value": "rgb(27, 27, 28)",
+   "consumers": 4,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-neutral-bluish-950",
+   "subgroup": "static/neutral-bluish",
+   "zh": "调色板原子：中性偏蓝 950",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:74",
+   "declared_all": [
+    "design-platform.css:74",
+    "design-platform.css:155"
+   ],
+   "declared_value": "rgb(21, 21, 23)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-red-100",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 100",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:75",
+   "declared_all": [
+    "design-platform.css:75",
+    "design-platform.css:156"
+   ],
+   "declared_value": "rgb(254, 226, 226)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-red-400",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 400",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:76",
+   "declared_all": [
+    "design-platform.css:76",
+    "design-platform.css:157"
+   ],
+   "declared_value": "rgb(242, 90, 90)",
+   "consumers": 3,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-red-400-a12",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 400-a12",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:77",
+   "declared_all": [
+    "design-platform.css:77",
+    "design-platform.css:158"
+   ],
+   "declared_value": "rgb(242 90 90 / 12%)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-red-50",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 50",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:79",
+   "declared_all": [
+    "design-platform.css:79",
+    "design-platform.css:160"
+   ],
+   "declared_value": "rgb(254, 242, 242)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-red-500",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 500",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:78",
+   "declared_all": [
+    "design-platform.css:78",
+    "design-platform.css:159"
+   ],
+   "declared_value": "rgb(239, 68, 68)",
+   "consumers": 0,
+   "consumer_examples": []
+  },
+  {
+   "name": "--dsw-static-red-600",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 600",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:80",
+   "declared_all": [
+    "design-platform.css:80",
+    "design-platform.css:161"
+   ],
+   "declared_value": "rgb(236, 19, 19)",
+   "consumers": 2,
+   "consumer_examples": [
+    "ui-primitives/src/FileTypeIcon.module.css",
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-red-600-a08",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 600-a08",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "live",
+   "note": "可改：见消费方与示例",
+   "declared": "design-platform.css:81",
+   "declared_all": [
+    "design-platform.css:81",
+    "design-platform.css:162"
+   ],
+   "declared_value": "rgb(236 19 19 / 8%)",
+   "consumers": 1,
+   "consumer_examples": [
+    "ui-theme/src/styles/design-platform.css"
+   ]
+  },
+  {
+   "name": "--dsw-static-red-900",
+   "subgroup": "static/red",
+   "zh": "调色板原子：红 900",
+   "value_type": "color（背景类可接受 paint）",
+   "status": "dead",
+   "note": "宿主当前无消费方：改了不生效（死名，条目保留但标 dead）",
+   "declared": "design-platform.css:82",
+   "declared_all": [
+    "design-platform.css:82",
+    "design-platform.css:163"
+   ],
+   "declared_value": "rgb(87, 12, 12)",
+   "consumers": 0,
+   "consumer_examples": []
+  }
+ ]
+}

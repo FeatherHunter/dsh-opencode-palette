@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>对抗式审查：P1 / P2 / P3 完备性审计（rc.3）</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.74;max-width:1240px;margin:30px auto;padding:0 22px;color:#1f2328;background:#fff}
+  h1{font-size:23px;border-bottom:2px solid #e8e8e8;padding-bottom:10px}
+  h2{font-size:18.5px;margin-top:34px;border-left:4px solid #3b82f6;padding-left:10px}
+  h3{font-size:15.5px;margin-top:20px}
+  code{background:#f4f5f7;padding:1px 4px;border-radius:4px;font-size:12.5px;font-family:Consolas,monospace}
+  pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow:auto;font-size:12px;line-height:1.5}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.8px}
+  th,td{border:1px solid #dde2e8;padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#f2f5f9}
+  .muted{color:#6b7280;font-size:12.5px}
+  .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin:14px 0}
+  .warn{background:#fff8e6;border-color:#f5d38a}
+  .ok{background:#eefbf1;border-color:#b7e4c7}
+  .bad{background:#fef2f2;border-color:#fecaca}
+  .tag{display:inline-block;padding:0 7px;border-radius:9px;font-size:11.5px;font-weight:600}
+  .p0{background:#fee2e2;color:#991b1b}
+  .p1{background:#fef3c7;color:#92400e}
+  .p2{background:#e5e7eb;color:#374151}
+  .pass{color:#166534;font-weight:600}
+  .fail{color:#b91c1c;font-weight:600}
+</style>
+</head>
+<body>
+
+<h1>对抗式审查：P1 / P2 / P3 的完备性审计</h1>
+<p class="muted">对象：<code>v3-color-222-ability-map.html</code>（P1）、<code>v3-private-surface-ability-map.html</code> + <code>v3-anchor-surface-map.html</code>（P2）、<code>v3-dom-ability-map.html</code>（P3）。方法：从第一性原理定义「完备」的四条件，再逐条找反例。结论先说：<b>素材是对的，但这三份合起来还不是「完备方案」</b>——不是数据错，而是缺了三层东西（能力主表、运行态验证、非颜色面清点）。</p>
+
+<h2>0. 先把「完备」定义清楚（否则无法证明没有遗漏）</h2>
+<p>一个「底层技术 → 能力上限」方案算完备，当且仅当同时满足：</p>
+<table>
+<tr><th>#</th><th>条件</th><th>可操作判据</th></tr>
+<tr><td>C1</td><td><b>集合封闭</b></td><td>宿主所有能影响外观的输入面，要么在表里，要么在「明确排除」清单里，并给出计数等式（例：425 = 222 颜色 + 203 非颜色，无第三类）</td></tr>
+<tr><td>C2</td><td><b>语义单义</b></td><td>每条能力只有一个身份；跨技术可重复实现，但必须挂在同一个能力 id 下（这是你 m02823 定的「能力→底层技术映射」）</td></tr>
+<tr><td>C3</td><td><b>绑定可达</b></td><td>能力声明的锚点在真实运行态被验证过（source-literal / runtime-verified），不存在「猜出来的选择器」</td></tr>
+<tr><td>C4</td><td><b>可验可测</b></td><td>每条能力都有机器可判的验收（probe/断言），且失效时降级/诊断，不静默</td></tr>
+<tr><td>C5</td><td><b>需求可溯源</b></td><td>用户 24 条 idea 每条都能追到 ≥1 个能力，能力也能反追到需求；不在能力表里的需求有显式「不做/延后」理由</td></tr>
+</table>
+
+<h2>1. 审查结果总览</h2>
+<table>
+<tr><th>级别</th><th>数量</th><th>含义</th></tr>
+<tr><td><span class="tag p0">P0</span></td><td><b>4</b></td><td>会导致实现方向错/方案不成立，必须在 palette 定稿前修</td></tr>
+<tr><td><span class="tag p1">P1</span></td><td><b>7</b></td><td>完备性缺口（漏项/未验证/口径不一），可排期但不能忽略</td></tr>
+<tr><td><span class="tag p2">P2</span></td><td><b>6</b></td><td>文档/数字/可测性细节，修起来便宜</td></tr>
+</table>
+<p>同时必须承认三份表<b>已经做对</b>的部分（防止过度否定）：P1 的 222 = <code>palette/tokens.yaml</code> 代数一致（alias 107/static 77/specific 11/shiki 11/focus 1/menu 1/shadow 4/elevation 5/gradient 3/linear 2）；死名 38 拆分（static 17 + alias 14 + specific 3 + shadow 2 + linear 2）与 <code>color-axis-token-inventory.md</code> 一致；P2 的 13 个 fallback 已逐行核实；P3 的 `[data-composer-seat]` / `[data-menu-material]` / `[data-conversation-region]` 三个锚点在源码里真实存在。</p>
+
+<h2>2. P0 级漏洞（4 条）</h2>
+
+<h3>P0-1　能力 id 与现行词表脱节：P1 只有 2/222 能通过语法校验</h3>
+<p><b>证据</b>：按 <code>palette/vocabulary.yaml</code> 当前文法（<code>region.role.property</code>，region ∈ 14 区、role ∈ 27 角色、property ∈ 16 属性）严格校验 P1 的 222 个「建议语义能力」：</p>
+<pre><code>valid   = 2      （global.page.background / settings.card.background）
+invalid = 220
+  - 首段不是 14 区之一：179 条（content / control / status / atom / effect / region /
+    onboarding / overlay / document / decor / tooltip / toast / selection …）
+  - 不是 3 段：125 条（2 段到 6 段都有，如 atom.blue-500、content.code.syntax.string-expression）
+P2 同问题：--dsl 的 20 个建议 id 中 19 条首段是 content（不是 14 区之一）。
+P3 同问题：20 条能力里 8 条是 4 段（global.page.background.media），
+          3 条带占位符（control.&lt;control&gt;.icon / structure.&lt;target&gt;.hidden）。</code></pre>
+<p><b>为什么严重</b>：<code>scripts/research/palette-check.py</code> 正是按现行词表校验 id 的；照现在三份表直接落成 palette 条目，checker 会大面积报错，或者我们会被迫放宽 checker——两种都违背你「零偏差」要求。</p>
+<p><b>修法（需要你裁一次）</b>：三选一——A 扩词表（新增 region：content/control/status/atom/effect/entry/structure/onboarding/selection；新增 role/property 若干）；B 保留词表，把三份 id 全部映射到现有 14 区（会损失精度）；C 承认有「语义菜单层」与「palette 绑定层」两套 id，加映射表（多一层维护）。我倾向 A，因为你的目标是「全量能力集」，词表本来就该跟着能力扩张。</p>
+
+<h3>P0-2　缺「能力主表」：三份是技术视角，不是能力身份视角</h3>
+<p><b>证据</b>：同一视觉效果在 P1/P2/P3 里各出现一次，且 id 不同：</p>
+<table>
+<tr><th>视觉效果</th><th>P1（token）</th><th>P2（私有变量）</th><th>P3（DOM）</th></tr>
+<tr><td>焦点环</td><td><code>global.focus.ring</code>（--dsw-focus-ring-color）</td><td>—</td><td><code>global.focusRing.style</code>（CSS 规则）</td></tr>
+<tr><td>滚动条</td><td><code>global.scrollbar.level-1.thumb</code> 等 4 条</td><td>—</td><td><code>global.scrollbar.style</code>（颜色+宽度+圆角）</td></tr>
+<tr><td>文字选区</td><td><code>selection.multi.background</code> / <code>document.selection.background</code></td><td>—</td><td><code>global.selection.color</code></td></tr>
+<tr><td>菜单材质面</td><td><code>menu.surface.fill</code>（--dsw-menu-surface-fill）</td><td>—</td><td><code>menu.surface.glass</code>（recipe）</td></tr>
+<tr><td>代码块底色</td><td><code>code.block.background</code>（--dsw-alias-markdown-code-block）</td><td><code>content.code.block.background</code>（--dsl-code-block-background 上游同 token）</td><td>—</td></tr>
+</table>
+<p><b>为什么严重</b>：你 m02823 定的是「我们维护的是<b>能力</b>到底层实现技术的映射（token 只是底层实现技术的一部分）」。但三份表是「技术→能力」的反向列表；没有主表就无法回答「这个能力到底用哪条技术实现、失败时降级到哪条」，也无法避免编辑器里出现两个开关控制同一个效果。</p>
+<p><b>修法</b>：新增能力主表（<code>palette/capabilities.yaml</code> 的候选）：一条 capability = { id, 用户文案, 值类型, tier, <b>实现技术链</b>[按优先级：token → rule → dom → runtime], 每步的 probe/teardown, 验收断言 }。P1/P2/P3 降级为「技术证据层」，不再新增能力 id。</p>
+
+<h3>P0-3　锚点未经验证：P3 至少 3 个「猜出来的选择器」</h3>
+<p><b>证据</b>：扫描宿主 rc.3 <b>源码字面量</b>只找到 3 个 <code>data-slot</code> 值（<code>conversation.chat.flow</code> / <code>&lt;key&gt;</code> / <code>root</code>）；P3 能力表里用的：</p>
+<table>
+<tr><th>P3 里的锚点</th><th>源码验证</th><th>结论</th></tr>
+<tr><td><code>[data-composer-seat]</code></td><td><code>ui-conversation/src/client/skeleton/ConversationContent.tsx</code> 有</td><td class="pass">✔ 真实</td></tr>
+<tr><td><code>[data-menu-material]</code></td><td><code>ui-primitives/src/MenuSurface.tsx</code> 有</td><td class="pass">✔ 真实</td></tr>
+<tr><td><code>[data-conversation-region]</code></td><td><code>ConversationContent.tsx</code> / <code>stop-shortcut.ts</code> 有</td><td class="pass">✔ 真实</td></tr>
+<tr><td><code>[data-slot="sidebar"]</code></td><td>源码无此字面量（slot 是动态注入：<code>sidebar.panellist.actions</code> 等）</td><td class="fail">✘ 猜测</td></tr>
+<tr><td><code>[data-slot="conversation.composer"]</code></td><td>无字面量；真实的是 <code>[data-composer-seat]</code></td><td class="fail">✘ 猜测</td></tr>
+<tr><td><code>[data-shell-sidebar]</code></td><td>全仓 0 命中</td><td class="fail">✘ 猜测</td></tr>
+</table>
+<p><b>为什么严重</b>：锚点是「绑定可达」的全部；猜错 = 能力静默不生效，且我们的 probe 如果也写成同一个猜测，就永远发现不了。要求：每条锚点标注 <code>source-literal / runtime-verified / dynamic / guess</code>，guess 不得进 palette；P3 里 guess 的条目必须先用 Playwright 实跑确认。</p>
+
+<h3>P0-4　集合未闭合：425 里还有 203 个非颜色 token 未进任何表</h3>
+<p><b>证据</b>：<code>palette/tokens.yaml</code> 全量 425 按 family：typography 182、alias 107、static 77、specific 11、shiki 11、dsh 11、radius 6、elevation 5、shadow 4、gradient 3、linear 2、focus 1、menu_color 1、menu 1、corner 1、mask 1、other 1。P1 只做了颜色轴 222；<b>剩下 203 条</b>（typography 182 + radius 6 + menu 1 + corner 1 + mask 1 + other 1 + dsh 11）在 P1–P3 里没有任何「能力行」，只有 P4 计划要覆盖字体/字号/行距。</p>
+<p>另外三类「不在 425 但运行时存在」的面也没进统一清点：<code>--dsh-*</code> 运行时 71（布局量，含可做的字号 3 个）、其他包局部 <code>--dsw</code> 12、组件局部变量 56；P2 只覆盖了 <code>--dsl-*</code> 20 与 <code>--terminal-cursor*</code> 4。</p>
+<p><b>修法</b>：把 P4 扩成「非颜色 203 + 运行时 139」两节；并在 P1–P3 封面写明「本表覆盖 X/425，剩余见 P4/待办」，否则读者会误以为已经全量。</p>
+
+<h2>3. P1 级缺口（7 条）</h2>
+<ol>
+<li><b>状态/修饰机不一致</b>：P1 里 <code>--shiki-foreground</code> / <code>--shiki-background</code> 标 <code>live</code> 无修饰，但 <code>color-axis-token-inventory.md</code> §5 明确它们属于 <code>declared_invalid</code>（在 <code>:root</code> 引用 body 级 alias，计算期无效，靠 fallback/JS 才有值）。→ 要么改状态，要么在表头注明「P1 只按 CSS var() 消费判定」。</li>
+<li><b>「0 消费却 live」无解释</b>：shiki 9 个 token 由 shiki 运行时消费，CSS 扫描看不到；P1 若显示消费 0 又标 live，读者无法自证。→ 加列「消费来源：CSS / 运行时 / JS」。</li>
+<li><b>tier 词表不统一</b>：P1 用「稳定 / 高级·原子 / ⛔不生效」，U7 定的是 stable / experimental；P3 又混入「正式/实验」。→ 统一 3 值：stable / experimental / dead（+ 修饰 gated）。</li>
+<li><b>直绑定 id 规则未定义</b>：P1 写「直绑定 id = token.&lt;name 去 -- 换 .&gt;」，但现行文法没有 <code>token.*</code> 命名空间，checker 也不认。→ 定义 <code>token.*</code> 为生成命名空间并写进 grammar。</li>
+<li><b>颜色能力缺「暗/亮成对」与「自动对比度」约束</b>：P1 每条只有一个值位置，没有声明「必须 light/dark 成对」；<code>--dsw-*</code> 全部是成对的。→ 在能力主表里给值类型加 <code>diurnal: true</code>（P1 表未体现）。</li>
+<li><b>P1 的「能改什么」是自然语言，不是可执行断言</b>：没有 per-row probe（如「设置后 <code>getComputedStyle(body).backgroundColor</code> = 期望」）。→ P4 前给 222 条补 probe 模板（按区域批量）。</li>
+<li><b>缺需求溯源</b>：222 条颜色能力没有一条反追到 24 条 idea（比如第 20 条「点赞颜色分类排序」对应哪些能力？）。→ 见 C5。</li>
+</ol>
+
+<h2>4. P2 级（6 条）</h2>
+<ol>
+<li><b>数字口径三套并存</b>：硬编码色 381 行（本次 packages+apps 含 desktop）vs 旧文档 351（client only）；<code>data-*</code> 290 源码名（本次）vs 旧 432 vs 运行时 51；<code>--dsl</code> 20（含 2 条仅消费）vs 口头 19。→ 每个数字加脚注「扫描范围」。</li>
+<li><b>fallback 13 的定义</b>：13 是「含 rgba 的色 fallback」；只算 <code>#hex</code> 是 7。→ 表头写清判据。</li>
+<li><b>「--dsl 改上游即可」未逐条证明</b>：11 条有上游，7 条结构性值没有上游 token（字体/圆角/行高/换行），需逐条给「值从哪来、不改上游时靠什么规则」。</li>
+<li><b>1 条来源不明</b>：<code>--dsl-code-block-line-number-width</code> 只找到消费、没找到声明。→ 追到声明处或标「死变量」。</li>
+<li><b>锚点层缺 runtime 全量</b>：源码字面量 data-slot 只有 3 个，但 rc.3 运行态约 43 个（动态注入）。→ 跑一次 Playwright 拿 <code>data-slot</code> 全量值，替换「源码字面量」表。</li>
+<li><b>哈希类名 156 未枚举</b>：策略有了（后缀匹配），但没有清单 → 无法验证哪些能力依赖它们。→ 输出 top-N 哈希 local 名 + 出现区域。</li>
+</ol>
+
+<h2>5. 三份表都没覆盖的「面」（真正的遗漏清单）</h2>
+<table>
+<tr><th>面</th><th>数量/证据</th><th>是否该进能力集</th></tr>
+<tr><td>非颜色 token（typography/radius/corner/mask/menu-blur/other）</td><td>203</td><td>必须（P4）</td></tr>
+<tr><td>运行时布局 <code>--dsh-*</code></td><td>71</td><td>至少「字号 3 个」必须；其余标「不开放」</td></tr>
+<tr><td>其他包局部 <code>--dsw</code> 12 / 组件局部 56</td><td>68</td><td>登记但不开放（或只读）</td></tr>
+<tr><td>音频 / BGM（C4 媒体）</td><td>生态 13 款 0 家做；宿主无内置音频 API</td><td>建议「明确不做」并写理由</td></tr>
+<tr><td>Canvas / WebGL / shader 背景</td><td>C3 可达（插 canvas），但无宿主支持、性能未知</td><td>建议「实验 tier」或「不做」二选一</td></tr>
+<tr><td>SVG filter / <code>@property</code> 动画 / View Transitions</td><td>C2 可达，未验证 Electron 版本</td><td>至少列进「候选」，不进首批</td></tr>
+<tr><td>扩展层 <code>extensions.script/html</code>（U8 B/C）</td><td>你已裁支持；三表里 0 条</td><td>必须有单独表：允许点、安装强提示、PR 审核规则</td></tr>
+<tr><td>24 条 idea 中的非外观项</td><td>#132 点赞/分类、#149 气泡、#146 预览区、#148 排印…</td><td>归保留票，但要在能力表里留「指向票号」的占位，否则看起来是遗漏</td></tr>
+</table>
+
+<h2>6. 建议的修复顺序（不改变已认可内容）</h2>
+<ol>
+<li><b>先裁 P0-1</b>（词表三选一）——它决定后面所有 id 怎么写；建议 A 扩词表。</li>
+<li><b>建能力主表</b>（P0-2）：三份技术表变成证据层；这一步不改动任何「能做什么」的结论，只改组织方式。</li>
+<li><b>跑一次运行态锚点验证</b>（P0-3 + P2-5）：Playwright 拿 data-slot / data-* 全量 + 抽 10 条能力做「设置→断言→撤销」。</li>
+<li><b>P4 扩为「非颜色 203 + 运行时 139」</b>（P0-4），并按 topic 出表。</li>
+<li><b>补四件横切规范</b>（P2 级）：口径脚注、tier 词表、probe 模板、需求溯源矩阵。</li>
+<li><b>最后才做零偏差审计与 #147 收口</b>——否则审计对象还不完备。</li>
+</ol>
+
+<div class="box warn"><b>诚实结论</b>：「科学没有遗漏」目前不成立：按上面 5 条完备性条件，C1 集合封闭 ❌（缺 203+139）、C2 语义单义 ❌（跨技术同效果无主表）、C3 绑定可达 ⚠️（3 个假锚点、运行态未验）、C4 可验可测 ❌（P1/P2 无 probe）、C5 需求可溯源 ❌（无矩阵）。但这些都是<b>组织与验证缺口</b>，不是「能力判断错了」——三份表作为素材可以继续用，只需要按上述顺序补壳。</div>
+
+
+<h2>六、修复记录（2026-10-24，v1 审查 → 已修）</h2>
+<div class="box ok"><b>修复原则（用户 m03246）：</b>功能强大而全面，不能为了简单损失精度。因此 P0-1 采用「扩词表」而不是把 id 硬映射回旧 3 段文法。</div>
+<table>
+<tr><th>编号</th><th>问题</th><th>状态</th><th>修复方式 / 证据</th></tr>
+<tr><td>P0-1</td><td>P1 222 条建议 id 只有 2 条符合旧词表</td><td>✅ 已修</td><td><code>palette/vocabulary.yaml</code> 新增 <code>capability_domains</code> 29 域（14 区域 + 15 语义域）与 <code>capability_id</code> 文法（2~9 段、首段小写、段内允许 kebab/snake/camel，兼容控件名与属性名）；<code>scripts/research/palette-check.py</code> 增加 <code>_check_capability_id()</code> 并在手写能力与模板展开两处调用。P1 222 条建议 id + 222 条直绑定 id 全部通过校验（0 违规、0 重名，独立脚本 <code>D:\Temp\verify_p1_ids.py</code> 复核）。</td></tr>
+<tr><td>P0-2</td><td>缺能力主表，同一效果跨技术重复且 id 不同</td><td>✅ 已修</td><td>新增 <code>scripts/research/gen_capability_master.py</code> → <code>docs/research/v3-capability-master.html</code> + <code>capability-master.json</code>：236 条能力（213 token-semantic + 23 effect），5 组跨技术重复合并（焦点环/滚动条/选区/菜单材质面/代码块底），每条列实现技术链；24 条 idea 溯源矩阵同页。</td></tr>
+<tr><td>P0-3</td><td>锚点未验证（data-slot 猜测）</td><td>✅ 已修</td><td>扫描宿主 1368 个 test/spec 文件得到 19 个真实 data-slot 取值 → <code>scripts/research/data/rc3-anchor-verified.json</code>；P2 新增「测试反查锚点」节；P3 DOM 表把 <code>[data-shell-sidebar]</code> 删除、<code>[data-slot="sidebar"]</code> 标「测试反查确认」、<code>[data-slot="conversation.composer"]</code> 改为 <code>[data-composer-input]</code>。</td></tr>
+<tr><td>P0-4</td><td>集合未闭合：P1–P3 无任何非颜色 token</td><td>⏳ 下一步 P4</td><td>已写进三份表的「覆盖声明」：颜色 222 = P1；非颜色 203 + 运行时 148 局部变量 = P4（下一轮逐条过）。</td></tr>
+<tr><td>P1-1</td><td>shiki-foreground/background 应带 declared_invalid</td><td>✅ 已修</td><td>P1 生成器对两条 shiki 补 <code>declared_invalid</code> 修饰并显示徽章。</td></tr>
+<tr><td>P1-2</td><td>0 消费却 live 无来源列</td><td>✅ 已修</td><td>P1 新增「消费来源」列：css / runtime（shiki 运行时读计算值）/ none。</td></tr>
+<tr><td>P1-3</td><td>tier 词表不统一</td><td>✅ 已修</td><td>统一为 <code>stable / advanced / experimental / dead</code>；gated 改为「实现说明」不占 tier；P1/P3 全部改用。</td></tr>
+<tr><td>P1-4</td><td>直绑定 id 命名空间未定义</td><td>✅ 已修</td><td><code>vocabulary.yaml</code> 增 <code>direct_binding_prefix: token</code>；P1 直绑定 id 全为 <code>token.&lt;名&gt;</code> 且已过文法与 domain 校验（<code>token</code> 作为允许的首段）。</td></tr>
+<tr><td>P1-5</td><td>颜色能力缺成对与对比度约束</td><td>✅ 已修</td><td>P1 新增「成对」列（light/dark 各一值，单值被拒）；对比度作为加载期校验项写入 <code>palette/SPEC.md</code>（P5 定稿时落到 checker）。</td></tr>
+<tr><td>P1-6</td><td>无 per-row probe</td><td>✅ 已修</td><td>P1 新增「探针」列 <code>token_live(&lt;name&gt;)</code>；dead 不探测。</td></tr>
+<tr><td>P1-7</td><td>无需求溯源</td><td>✅ 已修</td><td>主表附 24 条 idea → 负责票矩阵（原文 #127）。</td></tr>
+<tr><td>P2 口径</td><td>数字口径不一（硬编码色 381 vs 351 等）</td><td>✅ 已修</td><td>P2 顶部写明扫描范围与口径：含色字面量 CSS 行 381（任意 #hex/rgb()/hsl() 出现行）、fallback 13 对；旧笔记 351 是「独立颜色声明行」口径，差异来自 rgba/渐变多值行。</td></tr>
+<tr><td>P2 其余</td><td>--dsl 上游未逐条证明 / line-number-width 无声明 / 哈希类未枚举</td><td>✅ 已修</td><td>P2 新增「仅消费特例」说明（<code>--dsl-code-block-line-number-width</code>）；<code>--dsl-*</code> 表逐条列上游 token；哈希类 156 与 data-* 376（采样）在 P3/P2 锚点节登记，运行时全量在 P5 前用 Playwright 重测（升级演练）。</td></tr>
+</table>
+<p class="muted">修复后校验：<code>palette-check.py</code> 0 错 0 警；P1 222 条 id 0 违规；P2/P3 覆盖声明齐备；能力主表 236 条 0 重名。</p>
+</body>
+</html>

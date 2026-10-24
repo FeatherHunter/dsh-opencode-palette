@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>已派出：DSH 0.2.1-rc.3 变更调查（对 V3 的影响）</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a20;--panel2:#1c2128;--line:#2a313a;--fg:#e6e9ef;--fg2:#a9b2bf;--fg3:#7d8794;--accent:#7aa2ff;--good:#5bd08a;--warn:#f0b24a;--bad:#f2708a;--chip:#222a34}
+  @media (prefers-color-scheme: light){:root{--bg:#f6f7f9;--panel:#fff;--panel2:#f0f2f5;--line:#dde1e6;--fg:#14181d;--fg2:#4a5360;--fg3:#77808c;--chip:#eceff3}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;font-size:15px}
+  .wrap{max-width:960px;margin:0 auto;padding:32px 20px 80px}
+  h1{font-size:23px;margin:0 0 6px} h2{font-size:18px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .sub{color:var(--fg2);font-size:13px;margin-bottom:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:12px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+  .k{color:var(--fg3);font-size:12px;text-transform:uppercase;letter-spacing:.04em} .v{font-size:17px;font-weight:650;margin-top:3px}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg2);font-weight:600;font-size:13px;background:var(--panel2)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12.5px;background:var(--chip);padding:1px 5px;border-radius:5px}
+  ul{margin:6px 0 10px 20px;padding:0} li{margin:4px 0}
+  .badge{display:inline-block;font-size:12px;padding:1px 8px;border-radius:999px;margin-right:6px}
+  .b-ok{background:rgba(91,208,138,.15);color:var(--good)} .b-warn{background:rgba(240,178,74,.15);color:var(--warn)} .b-info{background:rgba(122,162,255,.15);color:var(--accent)}
+  .note{border-left:3px solid var(--warn);background:rgba(240,178,74,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:10px 0}
+  .muted{color:var(--fg2)} .foot{margin-top:36px;color:var(--fg3);font-size:12px;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>已派出子代理：DSH 0.2.1-rc.3 变更调查</h1>
+<div class="sub">2026-10-24 · 目标：确认 rc.3 相对当前基准 0.2.1-rc.2（commit 687f282）的全部变更，判断是否影响 V3 升级方案，并把 V3 基准切换到 rc.3</div>
+
+<div class="grid">
+  <div class="card"><div class="k">当前 V3 基准</div><div class="v">0.2.1-rc.2</div><div class="muted">commit <code>687f282</code>，本地 <code>D:\Temp\dsh-src</code></div></div>
+  <div class="card"><div class="k">目标基准</div><div class="v">0.2.1-rc.3（待确认 tag）</div><div class="muted">确认确切 tag 与 commit sha 后全部对齐</div></div>
+  <div class="card"><div class="k">产出</div><div class="v">1 份研究笔记</div><div class="muted"><code>docs/research/host-rc3-delta-and-v3-impact.md</code></div></div>
+</div>
+
+<h2>1. 子代理要做的调查</h2>
+<table>
+  <tr><th>#</th><th>调查项</th><th>对比内容</th></tr>
+  <tr><td>1</td><td>版本确认</td><td>rc.3 的 tag / commit sha / 发布日期；若不存在，说明最新版本是什么</td></tr>
+  <tr><td>2</td><td>token 面 diff</td><td><code>packages/client/ui-theme/src/styles/*.css</code> 全部 9 个文件：声明数量、新增/删除/改名 token 名单</td></tr>
+  <tr><td>3</td><td>注入机制</td><td><code>theme.overrideTokens</code> / <code>validateOverrides</code> / body inline 写入 / <code>data-ds-dark-theme</code> / <code>claimStyles</code> / 注入顺序</td></tr>
+  <tr><td>4</td><td>DOM 锚点</td><td><code>data-slot</code> 值、公开类名（md-code-block 等）、ARIA、CSS Modules 哈希 pattern（<code>tsdown.client.ts</code>）</td></tr>
+  <tr><td>5</td><td>排版</td><td><code>--dsw-font-*</code> 182 个（31 复合 + 151 长手）是否变化；字号/行高/字族默认</td></tr>
+  <tr><td>6</td><td>窗口外壳</td><td><code>apps/desktop/src/main.ts</code> / <code>preload-windows.ts</code>：titleBarOverlay、探针 token、MutationObserver 是否还在</td></tr>
+  <tr><td>7</td><td>资源/安全/插件</td><td>媒体能力、CSP、Shadow DOM、插件加载与样式认领方式是否变化</td></tr>
+  <tr><td>8</td><td>新增能力</td><td>rc.3 有没有 V3 该利用的新 token 家族 / 新公开 DOM 契约 / 新插件 API</td></tr>
+</table>
+
+<h2>2. 要对比的基准数字（rc.2 口径）</h2>
+<div class="card">
+  <ul>
+    <li>主题 token 命名空间：<b>425</b> = <code>--dsw</code> 403 + <code>--shiki</code> 11 + <code>--dsh</code> 11</li>
+    <li>颜色轴：<b>222</b>（活 <b>184</b> / 死 <b>38</b>）= alias 107 + specific 11 + shiki 11 + static 77 + focus 1 + menu 1 + shadow 4 + elevation 5 + gradient 3 + linear 2</li>
+    <li>运行时 CSS 变量：<b>573</b>（多出 148：<code>--dsh</code> 60 + <code>--dsl</code> 20 + 包局部 <code>--dsw</code> 12 + 组件局部 56）</li>
+    <li>排版：<code>--dsw-font-*</code> <b>182</b> = 31 复合 + 151 长手（149 长手无消费方）</li>
+    <li>死名 38、gated 5（elevation 族）、shiki 9 个 <code>--shiki-token-*</code> 运行时消费</li>
+  </ul>
+</div>
+
+<h2>3. 判定标准（什么算「影响 V3」）</h2>
+<div class="card">
+  <ul>
+    <li><span class="badge b-bad">影响基准</span> token 名字/数量变化、38 死名清单变化、gated 机制变化 → 我们的 <code>tokens.yaml</code>、225 清单、扫描脚本全部要改</li>
+    <li><span class="badge b-warn">影响方案</span> 注入机制 / DOM 锚点 / 哈希类名 / 窗口外壳机制变化 → palette 能力条目与绑定策略要改</li>
+    <li><span class="badge b-ok">无影响</span> 纯 UI 文案、内部重构、与我们 5 条通道无关的改动</li>
+    <li><span class="badge b-info">新机会</span> rc.3 新增的 token 家族 / 公开 DOM 契约 / 插件 API → V3 应纳入能力全集</li>
+  </ul>
+</div>
+
+<div class="note">子代理完成后会回报一句话结论 + 是否影响 V3 基准 + 最关键的 3 条变更；研究笔记写进 <code>docs/research/host-rc3-delta-and-v3-impact.md</code>，我核验后再把 rc.3 基准同步到 #147 票面与 palette/。</div>
+
+<div class="foot">本页 = 派单说明 · 会话 #147 · 生成于 2026-10-24</div>
+</div>
+</body>
+</html>

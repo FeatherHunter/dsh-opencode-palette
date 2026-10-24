@@ -67,6 +67,15 @@ def main():
     roles = {r['id'] for r in voc['roles']}
     props = {p['id'] for p in voc['properties']}
     recipes = {r['id'] for r in voc['recipes']}
+    cap_domains = {d['id'] for d in (voc.get('capability_domains') or [])}
+    cap_pattern = re.compile((voc.get('grammar') or {}).get('capability_id_pattern') or r'^[a-z][a-z0-9-]*(\.[a-z0-9-]+){1,5}$')
+
+
+    def _check_capability_id(cid):
+        if not cap_pattern.match(cid):
+            errors.append(f'{cid}: capability_id 不符合文法（2~6 段小写 kebab）')
+        elif cid.split('.')[0] not in cap_domains:
+            errors.append(f'{cid}: capability domain {cid.split(".")[0]} 未登记（见 vocabulary.capability_domains）')
     value_types = set(vals['value_types'])
     anchor_ids = set(anchors['anchors'])
     controls = anchors['controls']
@@ -188,6 +197,7 @@ def main():
     caps = palette['capabilities']
     for cid, c in caps.items():
         parts = cid.split('.')
+        _check_capability_id(cid)
         kind = c.get('kind')
         if kind == 'property':
             if len(parts) != 3:
@@ -250,7 +260,9 @@ def main():
             if prop not in props:
                 errors.append(f'control {ctl}: 模板属性 {prop} 不在属性词表')
                 continue
-            expanded_ids.append(f'{ctl_region}.{ctl_name}.{prop}')
+            _eid = f'{ctl_region}.{ctl_name}.{prop}'
+            _check_capability_id(_eid)
+            expanded_ids.append(_eid)
             generated_raw += 1
 
     for tname, tmeta in templates.items():

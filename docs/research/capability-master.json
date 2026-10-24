@@ -1,0 +1,4125 @@
+{
+ "stats": {
+  "total": 236,
+  "token_semantic": 213,
+  "effect": 23,
+  "stable": 133,
+  "experimental": 6,
+  "color_axis_direct": 222,
+  "merged_groups": 5,
+  "color_axis_merged": 9,
+  "p3_effect": 16,
+  "p2_new": 2
+ },
+ "rows": [
+  {
+   "id": "global.surface.layer-1",
+   "kind": "token-semantic",
+   "effect": "第一层表面（卡片/区块底）；主要影响：轨迹表、定时任务",
+   "tech": [
+    "token:--dsw-alias-bg-layer-1"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.layer.1"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-layer-1)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.page.background",
+   "kind": "token-semantic",
+   "effect": "页面/应用底色（整个窗口的底）；主要影响：定时任务、应用外壳",
+   "tech": [
+    "token:--dsw-alias-bg-base"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.base"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-base)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.surface.module",
+   "kind": "token-semantic",
+   "effect": "模块底板（平台模块区）；主要影响：快捷键、轨迹表",
+   "tech": [
+    "token:--dsw-alias-bg-module-platform"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.module.platform"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-module-platform)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.surface.layer-2",
+   "kind": "token-semantic",
+   "effect": "第二层表面（弹窗/设置卡底；宿主 Modal 用）；主要影响：轨迹表、文档预览",
+   "tech": [
+    "token:--dsw-alias-bg-layer-2"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.layer.2"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-layer-2)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.surface.layer-3",
+   "kind": "token-semantic",
+   "effect": "第三层表面（再浮起一层）；主要影响：插件管理、智能体预设",
+   "tech": [
+    "token:--dsw-alias-bg-layer-3"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.layer.3"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-layer-3)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.surface.skeleton",
+   "kind": "token-semantic",
+   "effect": "骨架屏占位底色；主要影响：输入触发、插件管理",
+   "tech": [
+    "token:--dsw-alias-bg-skeleton"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.skeleton"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-skeleton)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.mask.primary",
+   "kind": "token-semantic",
+   "effect": "主蒙层（Lightbox/Modal/Settings 遮罩）；主要影响：基础组件/Markdown、设置·通用",
+   "tech": [
+    "token:--dsw-alias-bg-mask-1"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.mask.1"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-mask-1)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "document.preview.background",
+   "kind": "token-semantic",
+   "effect": "文档预览底；主要影响：文档预览",
+   "tech": [
+    "token:--dsw-alias-bg-document-preview"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.document.preview"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-document-preview)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "document.selection.background",
+   "kind": "token-semantic",
+   "effect": "文档选区底；主要影响：文档预览",
+   "tech": [
+    "token:--dsw-alias-bg-document-selection"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.document.selection"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-document-selection)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.mask.drop",
+   "kind": "token-semantic",
+   "effect": "拖放蒙层；主要影响：附件",
+   "tech": [
+    "token:--dsw-alias-bg-mask-drop"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.mask.drop"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-mask-drop)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.surface",
+   "kind": "token-semantic",
+   "effect": "浮层表面填充；主要影响：用户提问卡",
+   "tech": [
+    "token:--dsw-alias-bg-overlay"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.overlay"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-bg-overlay)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.mask.alt-2",
+   "kind": "token-semantic",
+   "effect": "次蒙层 2（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-bg-mask-2"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.mask.2"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.mask.alt-3",
+   "kind": "token-semantic",
+   "effect": "次蒙层 3（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-bg-mask-3"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.mask.3"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "overlay.mask.photo",
+   "kind": "token-semantic",
+   "effect": "照片蒙层（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-bg-mask-photo"
+   ],
+   "fallback": [
+    "token.dsw.alias.bg.mask.photo"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.primary",
+   "kind": "token-semantic",
+   "effect": "正文主文字；主要影响：轨迹表、插件管理",
+   "tech": [
+    "token:--dsw-alias-label-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.tertiary",
+   "kind": "token-semantic",
+   "effect": "三级/弱文字；主要影响：定时任务、轨迹表",
+   "tech": [
+    "token:--dsw-alias-label-tertiary"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.tertiary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-tertiary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.secondary",
+   "kind": "token-semantic",
+   "effect": "次级文字；主要影响：插件管理、轨迹表",
+   "tech": [
+    "token:--dsw-alias-label-secondary"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.secondary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-secondary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.caption",
+   "kind": "token-semantic",
+   "effect": "小字/说明文字；主要影响：轨迹表、对话主窗口",
+   "tech": [
+    "token:--dsw-alias-label-caption"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.caption"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-caption)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.inverted",
+   "kind": "token-semantic",
+   "effect": "反色文字（深底上）；主要影响：基础组件/Markdown、桌面外壳",
+   "tech": [
+    "token:--dsw-alias-label-primary-inverted"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.primary.inverted"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-primary-inverted)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.dimmed",
+   "kind": "token-semantic",
+   "effect": "弱化文字；主要影响：模型选择、会话/输入区",
+   "tech": [
+    "token:--dsw-alias-label-dimmed"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.dimmed"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-dimmed)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.text.on-accent",
+   "kind": "token-semantic",
+   "effect": "强调底上的前景文字；主要影响：消息反馈、插件管理",
+   "tech": [
+    "token:--dsw-alias-label-primary-foreground"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.primary.foreground"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-primary-foreground)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.primary-dimmed",
+   "kind": "token-semantic",
+   "effect": "主文字弱化态；主要影响：会话/输入区、目标",
+   "tech": [
+    "token:--dsw-alias-label-primary-dimmed"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.primary.dimmed"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-primary-dimmed)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "decor.text.deep-diving",
+   "kind": "token-semantic",
+   "effect": "深度思考标签文字；主要影响：对话主窗口",
+   "tech": [
+    "token:--dsw-alias-label-deep-diving"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.deep.diving"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-deep-diving)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "decor.text.deep-diving-shimmer",
+   "kind": "token-semantic",
+   "effect": "深度思考流光文字；主要影响：对话主窗口",
+   "tech": [
+    "token:--dsw-alias-label-deep-diving-shimmer"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.deep.diving.shimmer"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-deep-diving-shimmer)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "document.preview.text",
+   "kind": "token-semantic",
+   "effect": "文档预览文字；主要影响：文档预览",
+   "tech": [
+    "token:--dsw-alias-label-document-preview"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.document.preview"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-document-preview)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.text.primary-bluish",
+   "kind": "token-semantic",
+   "effect": "偏蓝主文字（Markdown 链接用）；主要影响：会话/输入区",
+   "tech": [
+    "token:--dsw-alias-label-primary-bluish"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.primary.bluish"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-primary-bluish)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "decor.text.shimmer",
+   "kind": "token-semantic",
+   "effect": "文字流光效果；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-label-shimmer"
+   ],
+   "fallback": [
+    "token.dsw.alias.label.shimmer"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-label-shimmer)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.business.primary",
+   "kind": "token-semantic",
+   "effect": "状态色：business / primary；主要影响：轨迹表、定时任务",
+   "tech": [
+    "token:--dsw-alias-state-business-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.business.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-business-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.error.primary",
+   "kind": "token-semantic",
+   "effect": "状态色：error / primary；主要影响：轨迹表、插件管理",
+   "tech": [
+    "token:--dsw-alias-state-error-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.error.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-error-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.success.primary",
+   "kind": "token-semantic",
+   "effect": "状态色：success / primary；主要影响：基础组件/Markdown、设置·模型",
+   "tech": [
+    "token:--dsw-alias-state-success-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.success.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-success-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.warn.tertiary",
+   "kind": "token-semantic",
+   "effect": "状态色：warn / tertiary；主要影响：插件管理、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-warn-tertiary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.warn.tertiary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-warn-tertiary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.warn.label",
+   "kind": "token-semantic",
+   "effect": "状态色：warn / label；主要影响：基础组件/Markdown、文档预览",
+   "tech": [
+    "token:--dsw-alias-state-warn-label"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.warn.label"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-warn-label)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.warn.primary",
+   "kind": "token-semantic",
+   "effect": "状态色：warn / primary；主要影响：插件管理、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-warn-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.warn.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-warn-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.business.tertiary",
+   "kind": "token-semantic",
+   "effect": "状态色：business / tertiary；主要影响：会话/输入区、计划视图",
+   "tech": [
+    "token:--dsw-alias-state-business-tertiary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.business.tertiary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-business-tertiary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.error.secondary",
+   "kind": "token-semantic",
+   "effect": "状态色：error / secondary；主要影响：轨迹表、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-error-secondary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.error.secondary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-error-secondary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.success.tertiary",
+   "kind": "token-semantic",
+   "effect": "状态色：success / tertiary；主要影响：轨迹表、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-success-tertiary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.success.tertiary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-success-tertiary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.success.secondary",
+   "kind": "token-semantic",
+   "effect": "状态色：success / secondary；主要影响：插件管理、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-success-secondary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.success.secondary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-success-secondary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.warn.secondary",
+   "kind": "token-semantic",
+   "effect": "状态色：warn / secondary；主要影响：审批、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-warn-secondary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.warn.secondary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-warn-secondary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "status.idle.primary",
+   "kind": "token-semantic",
+   "effect": "状态色：idle / primary；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-state-idle-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.state.idle.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-state-idle-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.primary.background",
+   "kind": "token-semantic",
+   "effect": "按钮：primary-fill；主要影响：消息反馈、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-button-primary-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.primary.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-primary-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.floating.hover.background",
+   "kind": "token-semantic",
+   "effect": "按钮：floating-hover；主要影响：桌面外壳、对话主窗口",
+   "tech": [
+    "token:--dsw-alias-button-floating-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.floating.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-floating-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.ghost.active.background",
+   "kind": "token-semantic",
+   "effect": "按钮：ghost-active-fill；主要影响：基础组件/Markdown、定时任务",
+   "tech": [
+    "token:--dsw-alias-button-ghost-active-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.ghost.active.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-ghost-active-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.primary.hover.background",
+   "kind": "token-semantic",
+   "effect": "按钮：primary-hover；主要影响：桌面外壳、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-button-primary-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.primary.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-primary-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.contrast.background",
+   "kind": "token-semantic",
+   "effect": "按钮：contrast-fill；主要影响：附件",
+   "tech": [
+    "token:--dsw-alias-button-contrast-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.contrast.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-contrast-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.elevated.background",
+   "kind": "token-semantic",
+   "effect": "按钮：elevated-fill；主要影响：桌面外壳、左侧栏",
+   "tech": [
+    "token:--dsw-alias-button-elevated-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.elevated.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-elevated-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.floating.background",
+   "kind": "token-semantic",
+   "effect": "按钮：floating-fill；主要影响：对话主窗口、计划视图",
+   "tech": [
+    "token:--dsw-alias-button-floating-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.floating.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-floating-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.ghost.active.border",
+   "kind": "token-semantic",
+   "effect": "按钮：ghost-active-border；主要影响：基础组件/Markdown、定时任务",
+   "tech": [
+    "token:--dsw-alias-button-ghost-active-border"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.ghost.active.border"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-ghost-active-border)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.info.background",
+   "kind": "token-semantic",
+   "effect": "按钮：info-fill；主要影响：会话/输入区、目录选择",
+   "tech": [
+    "token:--dsw-alias-button-info-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.info.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-info-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.info.hover.background",
+   "kind": "token-semantic",
+   "effect": "按钮：info-hover；主要影响：会话/输入区",
+   "tech": [
+    "token:--dsw-alias-button-info-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.info.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-info-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.tool-bar.background",
+   "kind": "token-semantic",
+   "effect": "按钮：tool-bar-fill；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-button-tool-bar-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.tool.bar.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-tool-bar-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.tool-bar.hover.background",
+   "kind": "token-semantic",
+   "effect": "按钮：tool-bar-hover；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-button-tool-bar-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.tool.bar.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-button-tool-bar-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.ghost.active.hover.background",
+   "kind": "token-semantic",
+   "effect": "按钮：ghost-active-hover",
+   "tech": [
+    "token:--dsw-alias-button-ghost-active-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.ghost.active.hover"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.primary-dimmed",
+   "kind": "token-semantic",
+   "effect": "按钮：primary-dimmed",
+   "tech": [
+    "token:--dsw-alias-button-primary-dimmed"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.primary.dimmed"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.button.tool-bar.background-invisible",
+   "kind": "token-semantic",
+   "effect": "按钮：tool-bar-fill-invisible",
+   "tech": [
+    "token:--dsw-alias-button-tool-bar-fill-invisible"
+   ],
+   "fallback": [
+    "token.dsw.alias.button.tool.bar.fill.invisible"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.level-2",
+   "kind": "token-semantic",
+   "effect": "常规边框（最常用）；主要影响：轨迹表、Dock",
+   "tech": [
+    "token:--dsw-alias-border-l2"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.l2"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-l2)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.level-3",
+   "kind": "token-semantic",
+   "effect": "强边框（第七章开关/输入框）；主要影响：定时任务、设置·模型",
+   "tech": [
+    "token:--dsw-alias-border-l3"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.l3"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-l3)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.level-1",
+   "kind": "token-semantic",
+   "effect": "最弱边框/分隔；主要影响：会话/输入区、轨迹表",
+   "tech": [
+    "token:--dsw-alias-border-l1"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.l1"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-l1)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.level-4",
+   "kind": "token-semantic",
+   "effect": "最强边框；主要影响：插件管理、Dock",
+   "tech": [
+    "token:--dsw-alias-border-l4"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.l4"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-l4)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.level-2-thin",
+   "kind": "token-semantic",
+   "effect": "暗色下更细的边框；主要影响：附件、轨迹表",
+   "tech": [
+    "token:--dsw-alias-border-l2-darkmode-thin"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.l2.darkmode.thin"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-l2-darkmode-thin)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.inverted",
+   "kind": "token-semantic",
+   "effect": "反色边框；主要影响：命令面板、设置·账号",
+   "tech": [
+    "token:--dsw-alias-border-inverted"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.inverted"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-border-inverted)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.border.inverted-2",
+   "kind": "token-semantic",
+   "effect": "反色边框 2（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-border-inverted2"
+   ],
+   "fallback": [
+    "token.dsw.alias.border.inverted2"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.interaction.hover",
+   "kind": "token-semantic",
+   "effect": "通用悬停底色（149 处，最高频）；主要影响：轨迹表、定时任务",
+   "tech": [
+    "token:--dsw-alias-interactive-bg-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.interactive.bg.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-interactive-bg-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.interaction.hover-danger",
+   "kind": "token-semantic",
+   "effect": "危险操作悬停底；主要影响：设置·模型、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-interactive-bg-hover-danger"
+   ],
+   "fallback": [
+    "token.dsw.alias.interactive.bg.hover.danger"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-interactive-bg-hover-danger)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.interaction.hover-solid",
+   "kind": "token-semantic",
+   "effect": "不透明悬停底色；主要影响：附件、对话主窗口",
+   "tech": [
+    "token:--dsw-alias-interactive-bg-hover-solid"
+   ],
+   "fallback": [
+    "token.dsw.alias.interactive.bg.hover.solid"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-interactive-bg-hover-solid)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.interaction.active",
+   "kind": "token-semantic",
+   "effect": "按下/激活态；主要影响：目录选择、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-interactive-bg-active"
+   ],
+   "fallback": [
+    "token.dsw.alias.interactive.bg.active"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-interactive-bg-active)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.interaction.hover-accent",
+   "kind": "token-semantic",
+   "effect": "强调悬停（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-interactive-bg-hover-accent"
+   ],
+   "fallback": [
+    "token.dsw.alias.interactive.bg.hover.accent"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.brand.primary-legacy",
+   "kind": "token-semantic",
+   "effect": "品牌主色（宿主畸形名，19 处仍在用）；主要影响：轨迹表、设置·通用",
+   "tech": [
+    "token:--dsw-alias-brand-primary-new-colorprimary-new-color"
+   ],
+   "fallback": [
+    "token.dsw.alias.brand.primary.new.colorprimary.new.color"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-brand-primary-new-colorprimary-new-color)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.brand.primary",
+   "kind": "token-semantic",
+   "effect": "品牌主色；主要影响：桌面外壳、设置·账号",
+   "tech": [
+    "token:--dsw-alias-brand-primary"
+   ],
+   "fallback": [
+    "token.dsw.alias.brand.primary"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-brand-primary)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.brand.primary-inverted",
+   "kind": "token-semantic",
+   "effect": "品牌主色反色（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-brand-primary-invert"
+   ],
+   "fallback": [
+    "token.dsw.alias.brand.primary.invert"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.brand.text",
+   "kind": "token-semantic",
+   "effect": "品牌文字（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-brand-text"
+   ],
+   "fallback": [
+    "token.dsw.alias.brand.text"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.code-block.background",
+   "kind": "token-semantic",
+   "effect": "Markdown 代码块底；主要影响：基础组件/Markdown、对话主窗口",
+   "tech": [
+    "token:--dsw-alias-markdown-code-block"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.code.block"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-markdown-code-block)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.code-block.banner",
+   "kind": "token-semantic",
+   "effect": "代码块标题栏底；主要影响：基础组件/Markdown、技能",
+   "tech": [
+    "token:--dsw-alias-markdown-code-block-banner"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.code.block.banner"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-markdown-code-block-banner)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.citation",
+   "kind": "token-semantic",
+   "effect": "引用/引用块；主要影响：轨迹表",
+   "tech": [
+    "token:--dsw-alias-markdown-citation"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.citation"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-markdown-citation)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.inline-code",
+   "kind": "token-semantic",
+   "effect": "行内代码底；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-markdown-inline-code"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.inline.code"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-markdown-inline-code)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.tag",
+   "kind": "token-semantic",
+   "effect": "标签样式；主要影响：Dock",
+   "tech": [
+    "token:--dsw-alias-markdown-tag"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.tag"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-markdown-tag)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.code-segment.selected",
+   "kind": "token-semantic",
+   "effect": "代码段选中（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-markdown-code-segment-selected"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.code.segment.selected"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.code-segment.unselected",
+   "kind": "token-semantic",
+   "effect": "代码段未选中（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-markdown-code-segment-unselected"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.code.segment.unselected"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.markdown.placeholder",
+   "kind": "token-semantic",
+   "effect": "占位符（宿主无消费方）",
+   "tech": [
+    "token:--dsw-alias-markdown-placeholder"
+   ],
+   "fallback": [
+    "token.dsw.alias.markdown.placeholder"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.diff.code.added",
+   "kind": "token-semantic",
+   "effect": "代码 diff 新增色；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-code-diff-added"
+   ],
+   "fallback": [
+    "token.dsw.alias.code.diff.added"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-code-diff-added)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.diff.code.deleted",
+   "kind": "token-semantic",
+   "effect": "代码 diff 删除色；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-code-diff-deleted"
+   ],
+   "fallback": [
+    "token.dsw.alias.code.diff.deleted"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-code-diff-deleted)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.added.bg",
+   "kind": "token-semantic",
+   "effect": "文件 diff：added bg；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-added-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.added.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-added-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.added.gutter",
+   "kind": "token-semantic",
+   "effect": "文件 diff：added gutter；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-added-gutter"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.added.gutter"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-added-gutter)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.added.marker",
+   "kind": "token-semantic",
+   "effect": "文件 diff：added marker；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-added-marker"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.added.marker"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-added-marker)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.deleted.bg",
+   "kind": "token-semantic",
+   "effect": "文件 diff：deleted bg；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-deleted-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.deleted.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-deleted-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.deleted.gutter",
+   "kind": "token-semantic",
+   "effect": "文件 diff：deleted gutter；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-deleted-gutter"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.deleted.gutter"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-deleted-gutter)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.file.diff.deleted.marker",
+   "kind": "token-semantic",
+   "effect": "文件 diff：deleted marker；主要影响：交付物",
+   "tech": [
+    "token:--dsw-alias-file-diff-deleted-marker"
+   ],
+   "fallback": [
+    "token.dsw.alias.file.diff.deleted.marker"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-file-diff-deleted-marker)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "menu.icon",
+   "kind": "token-semantic",
+   "effect": "菜单图标；主要影响：输入触发、模型选择",
+   "tech": [
+    "token:--dsw-alias-menu-icon"
+   ],
+   "fallback": [
+    "token.dsw.alias.menu.icon"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-menu-icon)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "menu.group-header.background",
+   "kind": "token-semantic",
+   "effect": "菜单分组头底；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-menu-group-header-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.menu.group.header.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-menu-group-header-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.accent",
+   "kind": "token-semantic",
+   "effect": "引导页强调色；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-alias-onboarding-accent"
+   ],
+   "fallback": [
+    "token.dsw.alias.onboarding.accent"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-onboarding-accent)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.secondary.fill",
+   "kind": "token-semantic",
+   "effect": "引导页次级按钮/填充；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-alias-onboarding-secondary-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.onboarding.secondary.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-onboarding-secondary-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.card.fill",
+   "kind": "token-semantic",
+   "effect": "引导页卡片底；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-alias-onboarding-card-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.onboarding.card.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-onboarding-card-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.checkbox.border",
+   "kind": "token-semantic",
+   "effect": "引导页勾选框描边；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-alias-onboarding-checkbox-border"
+   ],
+   "fallback": [
+    "token.dsw.alias.onboarding.checkbox.border"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-onboarding-checkbox-border)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "settings.card.background",
+   "kind": "token-semantic",
+   "effect": "设置页卡片底；主要影响：ui-settings-plugin-inventory、智能体预设",
+   "tech": [
+    "token:--dsw-alias-settings-card-fill"
+   ],
+   "fallback": [
+    "token.dsw.alias.settings.card.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-settings-card-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "settings.card.border",
+   "kind": "token-semantic",
+   "effect": "设置页卡片描边；主要影响：ui-settings-plugin-inventory、智能体预设",
+   "tech": [
+    "token:--dsw-alias-settings-card-stroke"
+   ],
+   "fallback": [
+    "token.dsw.alias.settings.card.stroke"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-settings-card-stroke)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "tooltip.background",
+   "kind": "token-semantic",
+   "effect": "提示气泡底；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-tooltip-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.tooltip.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-tooltip-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "tooltip.key.background",
+   "kind": "token-semantic",
+   "effect": "提示快捷键底；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-tooltip-key-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.tooltip.key.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-tooltip-key-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "toast.background",
+   "kind": "token-semantic",
+   "effect": "轻提示底；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-toast-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.toast.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-toast-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "toast.text",
+   "kind": "token-semantic",
+   "effect": "轻提示文字；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-toast-label"
+   ],
+   "fallback": [
+    "token.dsw.alias.toast.label"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-toast-label)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "conversation.turn-trigger.background",
+   "kind": "token-semantic",
+   "effect": "对话轮次触发器底；主要影响：对话主窗口",
+   "tech": [
+    "token:--dsw-alias-turn-trigger-bg"
+   ],
+   "fallback": [
+    "token.dsw.alias.turn.trigger.bg"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-turn-trigger-bg)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "conversation.turn-trigger.background-hover",
+   "kind": "token-semantic",
+   "effect": "对话轮次触发器悬停；主要影响：对话主窗口",
+   "tech": [
+    "token:--dsw-alias-turn-trigger-bg-hover"
+   ],
+   "fallback": [
+    "token.dsw.alias.turn.trigger.bg.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-turn-trigger-bg-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.link.text",
+   "kind": "token-semantic",
+   "effect": "链接文字/图标；主要影响：基础组件/Markdown、交付物",
+   "tech": [
+    "token:--dsw-alias-link"
+   ],
+   "fallback": [
+    "token.dsw.alias.link"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-link)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "control.switch.thumb",
+   "kind": "token-semantic",
+   "effect": "开关滑块；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-alias-switch-thumb"
+   ],
+   "fallback": [
+    "token.dsw.alias.switch.thumb"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-alias-switch-thumb)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.sidebar.fill",
+   "kind": "token-semantic",
+   "effect": "区域特化：左侧栏底（同时决定桌面标题栏底色）；主要影响：应用外壳、桌面外壳",
+   "tech": [
+    "token:--dsw-specific-sidebar-fill"
+   ],
+   "fallback": [
+    "token.dsw.specific.sidebar.fill"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-sidebar-fill)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.input.major",
+   "kind": "token-semantic",
+   "effect": "区域特化：输入框主底；主要影响：基础组件/Markdown、审批",
+   "tech": [
+    "token:--dsw-specific-input-major"
+   ],
+   "fallback": [
+    "token.dsw.specific.input.major"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-input-major)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.bubble.fill",
+   "kind": "token-semantic",
+   "effect": "区域特化：气泡底；主要影响：对话主窗口、目标",
+   "tech": [
+    "token:--dsw-specific-bubble"
+   ],
+   "fallback": [
+    "token.dsw.specific.bubble"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-bubble)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.selector.fill",
+   "kind": "token-semantic",
+   "effect": "区域特化：选择器底；主要影响：会话/输入区",
+   "tech": [
+    "token:--dsw-specific-selector"
+   ],
+   "fallback": [
+    "token.dsw.specific.selector"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-selector)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.sidebar.nav-item.active",
+   "kind": "token-semantic",
+   "effect": "侧栏导航激活底；主要影响：设置·通用",
+   "tech": [
+    "token:--dsw-specific-sidebar-nav-item-active"
+   ],
+   "fallback": [
+    "token.dsw.specific.sidebar.nav.item.active"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-sidebar-nav-item-active)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.sidebar.nav-item.active-accent",
+   "kind": "token-semantic",
+   "effect": "侧栏导航激活强调；主要影响：用户提问卡",
+   "tech": [
+    "token:--dsw-specific-sidebar-nav-item-active-accent"
+   ],
+   "fallback": [
+    "token.dsw.specific.sidebar.nav.item.active.accent"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-sidebar-nav-item-active-accent)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.sidebar.nav-item.hover",
+   "kind": "token-semantic",
+   "effect": "侧栏导航悬停底；主要影响：设置·通用",
+   "tech": [
+    "token:--dsw-specific-sidebar-nav-item-hover"
+   ],
+   "fallback": [
+    "token.dsw.specific.sidebar.nav.item.hover"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-specific-sidebar-nav-item-hover)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.bubble.highlight",
+   "kind": "token-semantic",
+   "effect": "气泡高亮（宿主无消费方）",
+   "tech": [
+    "token:--dsw-specific-bubble-highlight"
+   ],
+   "fallback": [
+    "token.dsw.specific.bubble.highlight"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.login.input",
+   "kind": "token-semantic",
+   "effect": "登录输入框（宿主无消费方）",
+   "tech": [
+    "token:--dsw-specific-login-input"
+   ],
+   "fallback": [
+    "token.dsw.specific.login.input"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "specific.tip.fill",
+   "kind": "token-semantic",
+   "effect": "提示条（宿主无消费方）",
+   "tech": [
+    "token:--dsw-specific-tip"
+   ],
+   "fallback": [
+    "token.dsw.specific.tip"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.foreground",
+   "kind": "token-semantic",
+   "effect": "代码高亮前景；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--shiki-foreground"
+   ],
+   "fallback": [
+    "token.shiki.foreground"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-foreground)",
+   "status": "live",
+   "modifiers": [
+    "declared_invalid"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.comment",
+   "kind": "token-semantic",
+   "effect": "代码高亮：注释",
+   "tech": [
+    "token:--shiki-token-comment"
+   ],
+   "fallback": [
+    "token.shiki.token.comment"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-comment)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.constant",
+   "kind": "token-semantic",
+   "effect": "代码高亮：常量",
+   "tech": [
+    "token:--shiki-token-constant"
+   ],
+   "fallback": [
+    "token.shiki.token.constant"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-constant)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.function",
+   "kind": "token-semantic",
+   "effect": "代码高亮：函数",
+   "tech": [
+    "token:--shiki-token-function"
+   ],
+   "fallback": [
+    "token.shiki.token.function"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-function)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.keyword",
+   "kind": "token-semantic",
+   "effect": "代码高亮：关键字",
+   "tech": [
+    "token:--shiki-token-keyword"
+   ],
+   "fallback": [
+    "token.shiki.token.keyword"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-keyword)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.link",
+   "kind": "token-semantic",
+   "effect": "代码高亮：链接",
+   "tech": [
+    "token:--shiki-token-link"
+   ],
+   "fallback": [
+    "token.shiki.token.link"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-link)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.parameter",
+   "kind": "token-semantic",
+   "effect": "代码高亮：参数",
+   "tech": [
+    "token:--shiki-token-parameter"
+   ],
+   "fallback": [
+    "token.shiki.token.parameter"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-parameter)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.punctuation",
+   "kind": "token-semantic",
+   "effect": "代码高亮：标点",
+   "tech": [
+    "token:--shiki-token-punctuation"
+   ],
+   "fallback": [
+    "token.shiki.token.punctuation"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-punctuation)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.string",
+   "kind": "token-semantic",
+   "effect": "代码高亮：字符串",
+   "tech": [
+    "token:--shiki-token-string"
+   ],
+   "fallback": [
+    "token.shiki.token.string"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-string)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "content.code.syntax.string-expression",
+   "kind": "token-semantic",
+   "effect": "代码高亮：字符串插值",
+   "tech": [
+    "token:--shiki-token-string-expression"
+   ],
+   "fallback": [
+    "token.shiki.token.string.expression"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--shiki-token-string-expression)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-500；主要影响：主题自身、轨迹表",
+   "tech": [
+    "token:--dsw-static-blue-500"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.500"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-500)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-950",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-950；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-blue-950"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.950"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-950)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-300",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-300；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-blue-300"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.300"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-300)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-400；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-blue-400"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-450",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-450；主要影响：会话/输入区",
+   "tech": [
+    "token:--dsw-static-blue-450"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.450"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-450)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-600；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-blue-600"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.600"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-600)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-900；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-blue-900"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.900"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-blue-900)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-100",
+   "tech": [
+    "token:--dsw-static-blue-100"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.100"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-50",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-50",
+   "tech": [
+    "token:--dsw-static-blue-50"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.50"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-50p",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-50p",
+   "tech": [
+    "token:--dsw-static-blue-50p"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.50p"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-75",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-75",
+   "tech": [
+    "token:--dsw-static-blue-75"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.75"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.blue-800",
+   "kind": "token-semantic",
+   "effect": "调色板原子：blue-800",
+   "tech": [
+    "token:--dsw-static-blue-800"
+   ],
+   "fallback": [
+    "token.dsw.static.blue.800"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-500；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-deepseek-500"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.500"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-500)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-400；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-deepseek-400"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-450",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-450；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-deepseek-450"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.450"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-450)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-100；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-deepseek-100"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.100"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-100)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-200",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-200；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-deepseek-200"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.200"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-200)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-50",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-50；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-deepseek-50"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.50"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-50)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-800",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-800；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-deepseek-800"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.800"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-deepseek-800)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-300",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-300",
+   "tech": [
+    "token:--dsw-static-deepseek-300"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.300"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-600",
+   "tech": [
+    "token:--dsw-static-deepseek-600"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.600"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-700-delete",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-700-delete",
+   "tech": [
+    "token:--dsw-static-deepseek-700-delete"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.700.delete"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.deepseek-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：deepseek-900",
+   "tech": [
+    "token:--dsw-static-deepseek-900"
+   ],
+   "fallback": [
+    "token.dsw.static.deepseek.900"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-500；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-green-500"
+   ],
+   "fallback": [
+    "token.dsw.static.green.500"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-500)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-400；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-green-400"
+   ],
+   "fallback": [
+    "token.dsw.static.green.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-100；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-green-100"
+   ],
+   "fallback": [
+    "token.dsw.static.green.100"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-100)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-500-a08",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-500-a08；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-green-500-a08"
+   ],
+   "fallback": [
+    "token.dsw.static.green.500.a08"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-500-a08)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-500-a12",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-500-a12；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-green-500-a12"
+   ],
+   "fallback": [
+    "token.dsw.static.green.500.a12"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-500-a12)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.green-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：green-900；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-green-900"
+   ],
+   "fallback": [
+    "token.dsw.static.green.900"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-green-900)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.amber-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：amber-400；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-amber-400"
+   ],
+   "fallback": [
+    "token.dsw.static.amber.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-amber-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.amber-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：amber-500；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-amber-500"
+   ],
+   "fallback": [
+    "token.dsw.static.amber.500"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-amber-500)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.amber-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：amber-600；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-amber-600"
+   ],
+   "fallback": [
+    "token.dsw.static.amber.600"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-amber-600)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.amber-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：amber-100；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-amber-100"
+   ],
+   "fallback": [
+    "token.dsw.static.amber.100"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-amber-100)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.amber-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：amber-900；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-amber-900"
+   ],
+   "fallback": [
+    "token.dsw.static.amber.900"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-amber-900)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-00",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-00；主要影响：基础组件/Markdown、交付物",
+   "tech": [
+    "token:--dsw-static-neutral-00"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.00"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-00)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-50",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-50；主要影响：交付物、计划视图",
+   "tech": [
+    "token:--dsw-static-neutral-50"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.50"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-50)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-800",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-800；主要影响：交付物、计划视图",
+   "tech": [
+    "token:--dsw-static-neutral-800"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.800"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-800)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-850",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-850；主要影响：交付物、计划视图",
+   "tech": [
+    "token:--dsw-static-neutral-850"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.850"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-850)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-100；主要影响：交付物、计划视图",
+   "tech": [
+    "token:--dsw-static-neutral-100"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.100"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-100)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-200",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-200；主要影响：主题自身、右侧栏",
+   "tech": [
+    "token:--dsw-static-neutral-200"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.200"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-200)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-300",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-300；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-300"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.300"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-300)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-600；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-600"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.600"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-600)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-700",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-700；主要影响：右侧栏、主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-700"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.700"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-700)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-1000",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-1000；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-1000"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.1000"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-1000)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-400；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-neutral-400"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-550",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-550；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-550"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.550"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-550)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-150",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-150",
+   "tech": [
+    "token:--dsw-static-neutral-150"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.150"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-250",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-250",
+   "tech": [
+    "token:--dsw-static-neutral-250"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.250"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-500",
+   "tech": [
+    "token:--dsw-static-neutral-500"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.500"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-900",
+   "tech": [
+    "token:--dsw-static-neutral-900"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.900"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-00",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-00；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-00"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.00"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-00)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-800",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-800；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-800"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.800"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-800)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-50",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-50；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-50"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.50"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-50)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-850",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-850；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-850"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.850"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-850)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-750",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-750；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-750"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.750"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-750)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-100；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-100"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.100"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-100)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-400；主要影响：主题自身、智能体预设",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-400"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-1000",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-1000；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-1000"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.1000"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-1000)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-60",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-60；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-60"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.60"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-60)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-700",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-700；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-700"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.700"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-700)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-75",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-75；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-75"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.75"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-75)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-900；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-900"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.900"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-900)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-300",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-300；主要影响：主题自身、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-300"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.300"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-300)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-600；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-600"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.600"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-600)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-950",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-950；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-950"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.950"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-950)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-150",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-150；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-150"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.150"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-150)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-200",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-200；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-200"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.200"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-200)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-500；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-500"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.500"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-500)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.neutral-bluish-875",
+   "kind": "token-semantic",
+   "effect": "调色板原子：neutral-bluish-875；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-neutral-bluish-875"
+   ],
+   "fallback": [
+    "token.dsw.static.neutral.bluish.875"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-neutral-bluish-875)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-400",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-400；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-red-400"
+   ],
+   "fallback": [
+    "token.dsw.static.red.400"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-red-400)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-600",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-600；主要影响：基础组件/Markdown、主题自身",
+   "tech": [
+    "token:--dsw-static-red-600"
+   ],
+   "fallback": [
+    "token.dsw.static.red.600"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-red-600)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-400-a12",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-400-a12；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-red-400-a12"
+   ],
+   "fallback": [
+    "token.dsw.static.red.400.a12"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-red-400-a12)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-600-a08",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-600-a08；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-static-red-600-a08"
+   ],
+   "fallback": [
+    "token.dsw.static.red.600.a08"
+   ],
+   "tier": "advanced",
+   "exposure": "默认折叠（专家模式可写）",
+   "probe": "token_live(--dsw-static-red-600-a08)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-100",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-100",
+   "tech": [
+    "token:--dsw-static-red-100"
+   ],
+   "fallback": [
+    "token.dsw.static.red.100"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-50",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-50",
+   "tech": [
+    "token:--dsw-static-red-50"
+   ],
+   "fallback": [
+    "token.dsw.static.red.50"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-500",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-500",
+   "tech": [
+    "token:--dsw-static-red-500"
+   ],
+   "fallback": [
+    "token.dsw.static.red.500"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "atom.red-900",
+   "kind": "token-semantic",
+   "effect": "调色板原子：red-900",
+   "tech": [
+    "token:--dsw-static-red-900"
+   ],
+   "fallback": [
+    "token.dsw.static.red.900"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.shadow.lv3",
+   "kind": "token-semantic",
+   "effect": "阴影：lv3；主要影响：基础组件/Markdown",
+   "tech": [
+    "token:--dsw-shadow-lv3"
+   ],
+   "fallback": [
+    "token.dsw.shadow.lv3"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-shadow-lv3)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.shadow.lv2",
+   "kind": "token-semantic",
+   "effect": "阴影：lv2；主要影响：审批",
+   "tech": [
+    "token:--dsw-shadow-lv2"
+   ],
+   "fallback": [
+    "token.dsw.shadow.lv2"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-shadow-lv2)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.shadow.lv1",
+   "kind": "token-semantic",
+   "effect": "阴影：lv1",
+   "tech": [
+    "token:--dsw-shadow-lv1"
+   ],
+   "fallback": [
+    "token.dsw.shadow.lv1"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.shadow.lv1-blur",
+   "kind": "token-semantic",
+   "effect": "阴影：lv1-blur",
+   "tech": [
+    "token:--dsw-shadow-lv1-blur"
+   ],
+   "fallback": [
+    "token.dsw.shadow.lv1.blur"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.elevation.prominent",
+   "kind": "token-semantic",
+   "effect": "材质阴影：prominent；主要影响：对话主窗口、命令面板",
+   "tech": [
+    "token:--dsw-elevation-prominent"
+   ],
+   "fallback": [
+    "token.dsw.elevation.prominent"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-elevation-prominent)",
+   "status": "live",
+   "modifiers": [
+    "gated"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.elevation.panel",
+   "kind": "token-semantic",
+   "effect": "材质阴影：panel；主要影响：基础组件/Markdown、附件",
+   "tech": [
+    "token:--dsw-elevation-panel"
+   ],
+   "fallback": [
+    "token.dsw.elevation.panel"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-elevation-panel)",
+   "status": "live",
+   "modifiers": [
+    "gated"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.elevation.stroke",
+   "kind": "token-semantic",
+   "effect": "材质阴影：stroke；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-elevation-stroke"
+   ],
+   "fallback": [
+    "token.dsw.elevation.stroke"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-elevation-stroke)",
+   "status": "live",
+   "modifiers": [
+    "gated"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.elevation.soft",
+   "kind": "token-semantic",
+   "effect": "材质阴影：soft；主要影响：会话/输入区、基础组件/Markdown",
+   "tech": [
+    "token:--dsw-elevation-soft"
+   ],
+   "fallback": [
+    "token.dsw.elevation.soft"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-elevation-soft)",
+   "status": "live",
+   "modifiers": [
+    "gated"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.elevation.stroke-color",
+   "kind": "token-semantic",
+   "effect": "材质阴影：stroke-color；主要影响：主题自身",
+   "tech": [
+    "token:--dsw-elevation-stroke-color"
+   ],
+   "fallback": [
+    "token.dsw.elevation.stroke.color"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-elevation-stroke-color)",
+   "status": "live",
+   "modifiers": [
+    "gated"
+   ],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.gradient.blue",
+   "kind": "token-semantic",
+   "effect": "引导页蓝色渐变（色标）；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-gradient-onboarding-blue-stops"
+   ],
+   "fallback": [
+    "token.dsw.gradient.onboarding.blue.stops"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-gradient-onboarding-blue-stops)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.gradient.cyan",
+   "kind": "token-semantic",
+   "effect": "引导页青色渐变（色标）；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-gradient-onboarding-cyan-stops"
+   ],
+   "fallback": [
+    "token.dsw.gradient.onboarding.cyan.stops"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-gradient-onboarding-cyan-stops)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "onboarding.gradient.violet",
+   "kind": "token-semantic",
+   "effect": "引导页紫色渐变（色标）；主要影响：设置·账号",
+   "tech": [
+    "token:--dsw-gradient-onboarding-violet-stops"
+   ],
+   "fallback": [
+    "token.dsw.gradient.onboarding.violet.stops"
+   ],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "token_live(--dsw-gradient-onboarding-violet-stops)",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.linear.gradient-think",
+   "kind": "token-semantic",
+   "effect": "线性渐变：gradient-think",
+   "tech": [
+    "token:--dsw-linear-gradient-think"
+   ],
+   "fallback": [
+    "token.dsw.linear.gradient.think"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "effect.linear.think-select",
+   "kind": "token-semantic",
+   "effect": "线性渐变：think-select",
+   "tech": [
+    "token:--dsw-linear-think-select"
+   ],
+   "fallback": [
+    "token.dsw.linear.think.select"
+   ],
+   "tier": "dead",
+   "exposure": "不列（仅登记）",
+   "probe": "—",
+   "status": "dead",
+   "modifiers": [],
+   "sources": "P1"
+  },
+  {
+   "id": "global.focusRing",
+   "kind": "effect",
+   "effect": "焦点环：颜色 token + 规则（宽度/样式）",
+   "tech": [
+    "token:--dsw-focus-ring-color",
+    "rule:全页 :focus-visible"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1+P2+P3 合并"
+  },
+  {
+   "id": "global.scrollbar",
+   "kind": "effect",
+   "effect": "滚动条：4 个颜色 token + 规则（宽度/圆角/hover）",
+   "tech": [
+    "token:--dsw-alias-scrollbar-bg-l1",
+    "token:--dsw-alias-scrollbar-hover-l1",
+    "token:--dsw-alias-scrollbar-bg-l2",
+    "token:--dsw-alias-scrollbar-hover-l2",
+    "rule::: -webkit-scrollbar"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1+P2+P3 合并"
+  },
+  {
+   "id": "global.selection",
+   "kind": "effect",
+   "effect": "选区：选中底色 token（如有）+ ::selection 规则",
+   "tech": [
+    "rule:::selection"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1+P2+P3 合并"
+  },
+  {
+   "id": "menu.surface",
+   "kind": "effect",
+   "effect": "菜单材质面：宿主表面 token + 材质规则（玻璃/半透明）",
+   "tech": [
+    "token:--dsw-menu-surface-fill",
+    "token:--dsw-specific-menu",
+    "rule:backdrop-filter"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1+P2+P3 合并"
+  },
+  {
+   "id": "code.block.background",
+   "kind": "effect",
+   "effect": "代码块底：别名 token + 组件本地别名 --dsl-code-block-background + 规则",
+   "tech": [
+    "token:--dsw-alias-markdown-code-block",
+    "var:--dsl-code-block-background",
+    "rule:pre.shiki background"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P1+P2+P3 合并"
+  },
+  {
+   "id": "global.page.background.media",
+   "kind": "effect",
+   "effect": "整窗背景：静态图/动图/视频",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "sidebar.panel.background.media",
+   "kind": "effect",
+   "effect": "左侧工作区背景媒体",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "conversation.main.background.media",
+   "kind": "effect",
+   "effect": "对话主窗口背景媒体",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "composer.input.background.media",
+   "kind": "effect",
+   "effect": "输入框背景媒体/玻璃",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "global.page.overlay.tint",
+   "kind": "effect",
+   "effect": "整页渐变蒙层",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "global.page.texture.noise",
+   "kind": "effect",
+   "effect": "噪点/纹理",
+   "tech": [
+    "css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "composer.panel.glass",
+   "kind": "effect",
+   "effect": "输入区玻璃态",
+   "tech": [
+    "css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "control.button.icon",
+   "kind": "effect",
+   "effect": "任意按钮换图标（含发送按钮头像）",
+   "tech": [
+    "dom+css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "control.button.label",
+   "kind": "effect",
+   "effect": "控件文字替换",
+   "tech": [
+    "dom"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "entry.themeSettings.button",
+   "kind": "effect",
+   "effect": "官方 slot 插主题设置入口",
+   "tech": [
+    "dom"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "window.titleBar.background",
+   "kind": "effect",
+   "effect": "标题栏底色/字色",
+   "tech": [
+    "token+electron"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "window.titleBar.immersive",
+   "kind": "effect",
+   "effect": "内容延伸到标题栏（沉浸式）",
+   "tech": [
+    "token"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "effect.hover.surface",
+   "kind": "effect",
+   "effect": "hover 动效（缩放/位移/发光）",
+   "tech": [
+    "css"
+   ],
+   "fallback": [],
+   "tier": "stable",
+   "exposure": "默认开放",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "structure.element.hidden",
+   "kind": "effect",
+   "effect": "隐藏控件（实验）",
+   "tech": [
+    "dom"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "structure.element.move",
+   "kind": "effect",
+   "effect": "移动/重排控件（实验）",
+   "tech": [
+    "dom"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "structure.element.inject",
+   "kind": "effect",
+   "effect": "插入自定义节点（实验）",
+   "tech": [
+    "dom"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P3"
+  },
+  {
+   "id": "terminal.cursor",
+   "kind": "effect",
+   "effect": "终端光标 4 颜色（运行时重写 inline）",
+   "tech": [
+    "runtime+rule"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P2"
+  },
+  {
+   "id": "code.block.lineNumber.width",
+   "kind": "effect",
+   "effect": "代码块行号宽度（仅消费侧变量）",
+   "tech": [
+    "rule"
+   ],
+   "fallback": [],
+   "tier": "experimental",
+   "exposure": "默认关闭（实验）",
+   "probe": "selector_exists",
+   "status": "live",
+   "modifiers": [],
+   "sources": "P2"
+  }
+ ],
+ "ideas": [
+  [
+   "1",
+   "37 参数升级为全面 theme token",
+   "#147"
+  ],
+  [
+   "2",
+   "全量=颜色/字体/字号/行间距",
+   "#147 + #148"
+  ],
+  [
+   "3",
+   "玻璃状态",
+   "#149"
+  ],
+  [
+   "4",
+   "区域背景（静态/动态/视频）",
+   "#137"
+  ],
+  [
+   "5",
+   "多语字体字号",
+   "#148"
+  ],
+  [
+   "6",
+   "行间距",
+   "#148"
+  ],
+  [
+   "7",
+   "新 json schema 区分老 json",
+   "#147"
+  ],
+  [
+   "8",
+   "程序拿到即知版本",
+   "#147"
+  ],
+  [
+   "9",
+   "目录/文件布局",
+   "#147"
+  ],
+  [
+   "10",
+   "老 json 兼容",
+   "#147"
+  ],
+  [
+   "11",
+   "深度研究 theme token 造一致预览区",
+   "#146"
+  ],
+  [
+   "12",
+   "AI 创作主题",
+   "#147"
+  ],
+  [
+   "13",
+   "AI 创作入口",
+   "#147"
+  ],
+  [
+   "14",
+   "AI 创作流程",
+   "#147"
+  ],
+  [
+   "15",
+   "预览区一致性",
+   "#149（原 #142）"
+  ],
+  [
+   "16",
+   "老编辑器改造 + 37 参数映射",
+   "#147"
+  ],
+  [
+   "17",
+   "编辑处提醒 AI 创作",
+   "#147"
+  ],
+  [
+   "18",
+   "胶囊列表一键删除模式",
+   "#141"
+  ],
+  [
+   "19",
+   "点赞",
+   "#132"
+  ],
+  [
+   "20",
+   "每日统计",
+   "#132"
+  ],
+  [
+   "21",
+   "颜色分类排序",
+   "#132"
+  ],
+  [
+   "22",
+   "作者气泡特效",
+   "#149"
+  ],
+  [
+   "23",
+   "现有 37 款主题升级",
+   "#145"
+  ],
+  [
+   "24",
+   "所有可点控件交互效果",
+   "#141"
+  ]
+ ]
+}

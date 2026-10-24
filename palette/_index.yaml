@@ -63,11 +63,11 @@ modules:
     summary: 探测原语与探测环境——能力生效前先问宿主「这个还行吗」
   tokens:
     file: tokens.yaml
-    version: 'dsh 0.2.1-rc.2 @ 687f282'
-    generated: partial        # 当前为 15 条手工核实样本；完整 425 由扫描器生成
+    version: 'dsh 0.2.1-rc.3 @ 1f81c04（rc.3 主题面与 rc.2 逐字节相同）'
+    generated: full
     kind: host_facts
-    command: palette:scan-tokens（扫描器规划中；当前 tokens.yaml 为 15 条手工核实样本）
-    summary: 宿主 token 全集与活/死状态、声明行、消费方（扫描器产出后整表替换；当前 partial，15 条手工核实样本）
+    command: python scripts/research/gen_token_registry.py（扫描器已实现，全量 425 条）
+    summary: 宿主 token 全集 425 条：状态（live/dead + 修饰）、声明位置（全部）、消费次数、消费位置（全部）、本仓是否已注入；扫描器生成，勿手改
   anchors:
     file: anchors.yaml
     version: 'dsh 0.2.1-rc.2 @ 687f282'

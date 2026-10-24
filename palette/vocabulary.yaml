@@ -26,6 +26,51 @@ grammar:
   custom_prefix: custom
   vocabulary_bound: true       # 三段必须来自本文件词表（role 段也可是已登记控件名；custom 例外）
   locked: true                 # id 发布后不可改名，只能 deprecated + replaced_by
+  # 语义能力 id（P1/P2/P3/P4 文档与 palette 条目共用）：<domain>.<segment>{1..5}
+  # domain 见下方 capability_domains；segment 允许 kebab-case（layer-1 / string-expression）。
+  # property_id 是「写到哪」（绑定目标），capability_id 是「用户看到什么」（能力身份），两套不混用。
+  capability_id: '<domain>.<segment>(.<segment>){1,5}'
+  capability_id_pattern: '^[a-z][A-Za-z0-9_-]*(\.[A-Za-z0-9_-]+){1,8}$'   # 首段小写；2~9 段（直绑定 token.<长名> 需要更深）；段内允许 kebab/snake/camel
+  capability_domains_ref: capability_domains
+  direct_binding_prefix: token   # 构建期生成的直绑定条目命名空间：token.<token 名去 -- 换 .>
+
+# -----------------------------------------------------------------------------
+# 1b. 能力域（29）：能力 id 的第一段。= 现有 14 区域 + 15 个语义域。
+#     为什么扩：能力要「强大而全面」，不为简单牺牲精度；语义域与绑定区域分开后，
+#     能力 id 只表达用户看到什么，写到哪由 property_id/anchor 表达。
+# -----------------------------------------------------------------------------
+capability_domains:
+  # —— 与 14 区域同名（编辑器分组直接复用）——
+  - { id: global,       label: 全局 }
+  - { id: window,       label: 窗口外壳 }
+  - { id: sidebar,      label: 侧栏 }
+  - { id: conversation, label: 对话区 }
+  - { id: composer,     label: 输入区 }
+  - { id: detail,       label: 详情面板 }
+  - { id: settings,     label: 设置页 }
+  - { id: menu,         label: 菜单/弹窗 }
+  - { id: code,         label: 代码 }
+  - { id: markdown,     label: Markdown }
+  - { id: tool,         label: 工具调用 }
+  - { id: terminal,     label: 终端 }
+  - { id: deliverable,  label: 交付物 }
+  - { id: plugin,       label: 插件页 }
+  # —— 语义域（能力身份专用）——
+  - { id: content,      label: 内容（代码/Markdown/搜索等正文区域） }
+  - { id: control,      label: 控件（按钮/输入/图标等可换控件） }
+  - { id: status,       label: 状态色（成功/警告/错误/进行中） }
+  - { id: atom,         label: 调色板原子（底层原材料） }
+  - { id: specific,     label: 区域特化色（bubble/sidebar-fill 等） }
+  - { id: effect,       label: 视觉特效（阴影/材质/景深） }
+  - { id: onboarding,   label: 引导页 }
+  - { id: overlay,      label: 蒙层/浮层 }
+  - { id: document,     label: 文档预览 }
+  - { id: decor,        label: 装饰（噪点/纹理/边框） }
+  - { id: tooltip,      label: 提示气泡 }
+  - { id: toast,        label: 轻提示 }
+  - { id: selection,    label: 选区/选中态 }
+  - { id: entry,        label: 入口（官方 slot 按钮等） }
+  - { id: structure,    label: 结构改动（隐藏/移动/注入，实验） }
 
 # -----------------------------------------------------------------------------
 # 2. 区域（14）：编辑器一级分组

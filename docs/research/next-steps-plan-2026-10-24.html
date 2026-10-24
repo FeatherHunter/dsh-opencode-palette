@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>接下来怎么推进：rc.3 要不要先测 + 主线顺序</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a20;--panel2:#1c2128;--line:#2a313a;--fg:#e6e9ef;--fg2:#a9b2bf;--fg3:#7d8794;--accent:#7aa2ff;--good:#5bd08a;--warn:#f0b24a;--bad:#f2708a;--chip:#222a34}
+  @media (prefers-color-scheme: light){:root{--bg:#f6f7f9;--panel:#fff;--panel2:#f0f2f5;--line:#dde1e6;--fg:#14181d;--fg2:#4a5360;--fg3:#77808c;--chip:#eceff3}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;font-size:14px}
+  .wrap{max-width:1160px;margin:0 auto;padding:28px 18px 80px}
+  h1{font-size:23px;margin:0 0 6px}
+  h2{font-size:17px;margin:30px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:14px;margin:16px 0 6px;color:var(--fg2)}
+  .sub{color:var(--fg2);font-size:13px;margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .k{color:var(--fg3);font-size:12px}.v{font-size:20px;font-weight:650}.muted{color:var(--fg2)}
+  .ok{color:var(--good)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.8px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg2);font-weight:600;font-size:12px;background:var(--panel2)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:var(--chip);padding:1px 4px;border-radius:4px}
+  .badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;white-space:nowrap}
+  .b-ok{background:rgba(91,208,138,.15);color:var(--good)}
+  .b-warn{background:rgba(240,178,74,.15);color:var(--warn)}
+  .b-ban{background:rgba(242,112,138,.15);color:var(--bad)}
+  .b-info{background:rgba(122,162,255,.15);color:var(--accent)}
+  .note{border-left:3px solid var(--warn);background:rgba(240,178,74,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+  .q{border-left:3px solid var(--accent);background:rgba(122,162,255,.07);padding:12px 14px;border-radius:0 8px 8px 0;margin:14px 0}
+  .foot{margin-top:36px;color:var(--fg3);font-size:12px;border-top:1px solid var(--line);padding-top:12px}
+  ul{margin:6px 0 6px 20px;padding:0}li{margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>接下来怎么推进：rc.3 要不要先测 + 主线顺序</h1>
+<div class="sub">2026-10-24 · 回答 m03086 · 结论先说：<b>现在不用升级、不用先测 rc.3</b>；而且把这次升级留作「yaml 掌管升级」的验收用例，正合适。</div>
+
+<h2>1. 直接回答你两个问题</h2>
+<div class="grid">
+  <div class="card"><div class="k">需要先升级到 rc.3 吗</div><div class="v ok">不需要</div><div class="muted">token/主题面零变更，测了也是同一份结果</div></div>
+  <div class="card"><div class="k">可以留到以后吗</div><div class="v ok">可以，而且更好</div><div class="muted">留作「升级演练」验收用例</div></div>
+  <div class="card"><div class="k">能测到 yaml 掌管升级吗</div><div class="v ok">正好能</div><div class="muted">升级后重跑扫描器 = 一次真实演练</div></div>
+</div>
+
+<h3>1.1 为什么「不用先测」</h3>
+<table>
+  <tr><th>层面</th><th>rc.3 实际变化</th><th>要不要跑 rc.3 宿主</th></tr>
+  <tr><td>主题 token（425 / 222 / 184 / 38 / 573）</td><td><b>零</b>：9 CSS SHA256 全同、0 增删声明、npm 产物同数字</td><td><span class="badge b-ok">不用</span> 源码 + npm 产物双重验证已足够</td></tr>
+  <tr><td>注入机制 / 覆盖 API / 哈希 / 标题栏探针 / CSP</td><td><b>零</b>：逐字节相同，行号可照抄</td><td><span class="badge b-ok">不用</span></td></tr>
+  <tr><td>DOM 层</td><td>四条「加」：3 个新 slot、<code>.panelRow</code> 兼菜单按钮、几何松动、Tooltip 左侧</td><td><span class="badge b-warn">可延后</span> 前两条能从源码静态写进规则约束；几何/Tooltip 实测留到升级后</td></tr>
+  <tr><td>运行期 6 个统计数（897 / 4342 / 156 / 51 / 40 / 74）</td><td>rc.2 上测的；rc.3 未测</td><td><span class="badge b-warn">延后</span> 在文档里标「rc.2 实测、rc.3 待升级后重测」，不手改</td></tr>
+</table>
+
+<h3>1.2 为什么「留到升级时更好」：这正好是 yaml 掌管升级的真实演练</h3>
+<p><b>演练流程（升级那天照做）：</b></p>
+<ol>
+  <li>把预览/测试宿主升到 rc.3（或正式版）；</li>
+  <li>重跑 <code>python scripts/research/gen_token_registry.py</code> → <code>palette/tokens.yaml</code> 整表刷新；</li>
+  <li>重跑锚点扫描（<code>palette:scan-anchors</code>，实现期）→ <code>palette/anchors.yaml</code> 刷新；</li>
+  <li>生成 <b>diff 报告</b>：新增 / 删除 / 改名 / 活死状态变化 / 新 slot / 选择器失效；</li>
+  <li>看主题文件：<b>用户 theme.yaml 一个字都不用改</b>（模板/主题靠稳定 id + palette 别名链适配），只有 palette 层更新；</li>
+  <li>编辑器据此提示「宿主已升级，X 个能力需重新绑定 / Y 个新能力可用了」。</li>
+</ol>
+<p><b>验收判据（这次升级就验这 4 条）：</b></p>
+<table>
+  <tr><th>#</th><th>判据</th><th>失败说明什么</th></tr>
+  <tr><td>1</td><td>升级后重跑扫描器，时刻数字自动更新（零手改）</td><td>扫描器有硬编码</td></tr>
+  <tr><td>2</td><td>已有 theme.yaml 主题零修改仍能加载</td><td>主题与宿主名耦合了</td></tr>
+  <tr><td>3</td><td>宿主改名/删名 → 诊断出清单，不静默崩</td><td>别名链/探测没兜住</td></tr>
+  <tr><td>4</td><td>新 slot/新 token 自动出现在能力候选里</td><td>能力集没有「可发现」机制</td></tr>
+</table>
+<div class="note"><b>结论：</b>rc.3 运行期测试不是「不做」，是<b>挪到升级演练里做</b>，并且升级演练本身是 V3 的验收项（U20-②「四道验收」里的「上游升级不炸」）。现在把 rc.3 的静态结论写进规则约束即可。</div>
+
+<h2>2. 现在的主线顺序（我的建议）</h2>
+<table>
+  <tr><th>阶段</th><th>做什么</th><th>产出</th><th>依赖</th></tr>
+  <tr><td><b>P1</b>（现在）</td><td>颜色轴 222 条 → 逐条能力条目（每条：中文是什么 / 能改什么 / 值类型 / tier / 落在哪条实现技术上）</td><td>HTML 逐条清单 + palette 能力条目草案</td><td>已在进行</td></tr>
+  <tr><td><b>P2</b></td><td>私有契约面能撑什么（<code>--dsl-*</code> 20 / <code>--terminal-cursor*</code> 4 / 哈希类 156 / data-* / inline / 硬编码色）→ 能力上限</td><td>HTML 逐条 + 能力条目</td><td>P1 同法</td></tr>
+  <tr><td><b>P3</b></td><td>DOM 操作能力上限（插图层/换图标/局部修正/隐藏移动）+ rc.3 兼容项</td><td>HTML + tier 标注（正式/实验）</td><td>P2</td></tr>
+  <tr><td><b>P4</b></td><td>资源/媒体/字体/窗口外壳能力上限</td><td>HTML + 能力条目</td><td>P3</td></tr>
+  <tr><td><b>P5</b></td><td>palette 结构定稿：能力条目、绑定、状态、tier、别名链、主题格式；checker 0 错 0 警</td><td>palette v3 源文件</td><td>P1–P4</td></tr>
+  <tr><td><b>P6</b></td><td>零偏差审计（已定 U 决策逐条对照代码/YAML）+ #147 收口（U22 五条增量逐条裁定 → 你说「这票可以关」）</td><td>#147 关闭 + #128 地图 Decision</td><td>P5</td></tr>
+  <tr><td><b>P7</b></td><td><b>升级演练</b>（你升级 rc.3/正式版那天）：重跑扫描器 → diff 报告 → theme.yaml 零改动验证</td><td>升级报告 = U20 验收之一</td><td>你升级时机</td></tr>
+  <tr><td><b>P8</b></td><td>其余保留票接力：#148 排印 / #149 特效 / #137 背景媒体 / #146 预览区 / #141 点赞胶囊 / #145 37 款迁移 / #132 设计 / #154 窗口外壳</td><td>规格 → to-spec/to-tickets</td><td>P6 后</td></tr>
+</table>
+
+<h2>3. 现在就能做的一件小事（不需要 rc.3）</h2>
+<ul>
+  <li>把 rc.3 的 DOM 兼容项写进 palette 规则约束：<code>.panelRow</code> 排除 <code>[aria-haspopup]</code> / <code>[aria-expanded]</code>；3 个新 slot 登记为「打开主题设置」候选位；布局能力禁止假设 76px / 36px；Tooltip 支持 <code>data-side="left"</code>。</li>
+  <li>在 <code>moddable-surface-registry.md</code> 的 6 个运行期数旁标注「rc.2 实测；rc.3 待升级后重测（不得手改）」。</li>
+</ul>
+
+<h2>4. 需要你拍板的一处</h2>
+<div class="q">
+<b>❓ 计划确认：</b>是否按上面 P1→P7 的顺序推进？特别是这两点：<br>
+① <b>rc.3 运行期测试延后</b>到升级演练（P7），现在只做静态写入；<br>
+② <b>先做颜色 222 逐条</b>（P1），再按私有契约面 → DOM → 资源/字体 → 外壳 的顺序。<br>
+<span class="muted">如果你想先看别的（比如先看 DOM 操作能做什么炫酷功能，或先把 palette 结构定稿），直接说，我按你的优先级排。</span>
+</div>
+
+<div class="foot">本页 = 推进计划与 rc.3 测试建议 · #147 · 2026-10-24</div>
+</div>
+</body>
+</html>

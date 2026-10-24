@@ -40,7 +40,7 @@ palette/                        能力集（构建期真源，随插件版本发
   primitives.yaml               写原语：token/rule/dom/host_api
   assets.yaml                   资源类型与安全策略
   probes.yaml                   探测原语
-  tokens.yaml                   宿主 token 事实表（扫描器产出后整表替换；当前 partial，15 条手工核实样本）
+  tokens.yaml                   宿主 token 事实表（扫描器全量生成 425 条：状态/声明位置/消费次数与全部消费位置；勿手改）
   anchors.yaml                  锚点候选 + 控件清单（扫描生成，人工确认）
   SPEC.md                       本文件
 ```
@@ -118,7 +118,7 @@ assets:                     # 资源清单（可省略，由引用自动收集�
 
 扩展规则：新技术 = 新模块 + 在 `_index.yaml` 注册 + 在 `primitives.yaml` 加写原语；`palette.yaml` 条目形状不变。
 
-`tokens.yaml` / `anchors.yaml` 是**生成物**：当前版本只含 15 条已核实 token 样本与 23 个锚点；完整 425 条与全量锚点由扫描器（`palette:scan-tokens` / `palette:scan-anchors`，实现期）生成，生成后替换整表，不手工补。
+`tokens.yaml` / `anchors.yaml` 是**生成物**：`tokens.yaml` 已由扫描器全量生成 425 条（`python scripts/research/gen_token_registry.py`，含状态/声明位置/消费次数与全部消费位置；勿手改，宿主升级后重跑）；`anchors.yaml` 当前为人工清单 23 个锚点，全量锚点由 `palette:scan-anchors`（实现期）生成。生成后替换整表，不手工补。
 
 ## 5. 加载管线
 
@@ -176,7 +176,7 @@ theme.yaml + assets/
 
 1. `palette/` 9 个 YAML 全部被解析（`palette-check.py` v1.10 会 load 全部 9 个）；跨模块检查 0 错误（校验：手写/展开 id 各段词表与唯一性、value 类型、anchor/token（存在性）/写原语/dom op/recipe 名引用、decl 属性白名单与 @ 描述符、realization.when 守卫（probe 必须登记、args 键合法、token_live 显式 `args.name` 与写入 token 一致、守卫不得写在 write 级）、锚点与控件置信度计数、tokens 状态模型 schema（主状态/修饰/`allow_*` 一致）、tokens 表条目名语法与命名空间前缀、写死名或非 live 名时 `allow_primary_status`/`allow_modifiers` 强制（`allow_reason` 必填、live 名不得放宽主状态；被 `when: { probe: token_live }` 守卫的条件写视为合法，不强制 `allow_*`）、token 表条目重名拒绝、declared 路径必须为仓库根相对且在 host.source 可访问时存在、`_index` 计数（含 `regions_gap`，不符 = 错误）、模块 `version` 与 `requires` 约束（语义版本比较）；`npm run palette:gate` 接入 npm/CI 属实现期，见 §9）。
 2. 主题校验：拼错能力 id → 报错；写死名/未知 token → 警告不阻止。
-3. 425 个公开 token 全量可达（扫描器实现后）：生成完整 `tokens.yaml` 后，把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；当前先行用例 = 15 条样本 + 37 个 legacy 名 + 38 个死名。
+3. 425 个公开 token 全量可达：`tokens.yaml` 已含全量 425 条（含 189 dead + 5 gated），把表中每个名字依次写进 `raw_tokens`（单值/成对两种形态）校验全部通过；死名/改写名给提示不阻止。
 4. 老 v1 JSON 加载后 37 个 legacy 能力全部命中（夹具 + 测试）；未写的 token 取宿主默认。
 5. 值形状：`diurnal: true` 类型单值/成对都通过、`diurnal: false` 类型只接受单值、`raw_tokens` 两种形态都通过；非法值被拒。
 6. 视频背景经 `insert-media-layer` 生效，切主题后被精确撤销（无残留节点）。
@@ -218,3 +218,6 @@ theme.yaml + assets/
 - 2026-10-22 v1.8（第八轮二审修正）：`tokens.yaml` 的 `--dsw-static-blue-50` 补第二处声明行 `design-platform.css:96`；`palette-check.py` 补 `_index` 模块 `version` 与 `requires` 语义版本约束校验（此前 SPEC §7/README 声称门禁校验但未实现），并输出校验项 9；文档版本号同步 v1.8。
 - 2026-10-22 v1.9（第九轮二审修正）：`tokens.yaml` 两条排印长手 `--dsw-font-markdown-base-font-size` / `--dsw-font-markdown-base-line-height` 由 `live` 改 `dead`（宿主只声明长手、无消费方；消费方用复合 `font: var(--dsw-font-markdown-base)`，从不引用长手），样本计数改 12 live + 3 dead；`palette-check.py` 新增校验项 7f「被 `when: { probe: token_live }` 守卫的条件写视为合法、不强制 `allow_*`」（此前两条能力会因写 dead 名报错），并加守卫变异测试（去掉守卫 / 拼错探测名 → exit 1）；`host-style-override-attention.md` §0 算术 15→16；`color-axis-token-inventory.md` `CodeBlock.tsx` 引用行号 :53→:52；决定评论验收判据① checker 版本标签 v1.6→v1.9。
 - 2026-10-22 v1.10（第十轮二审修正）：条件写契约单源化——`primitives.yaml` 新增 §1b `realization` 段（`when` = probe + args 的结构与校验规则；`token_live` 守卫绑定：显式 `args.name` 必须与写入 token 一致、省略时逐写绑定），`token` 原语 description/validates 写明守卫例外；`probes.yaml` 注明 probe/args 门禁与守卫绑定语义；`palette-check.py` 新增校验项 7g（probe 必须登记、args 键合法、token_live 显式 `args.name` 与写入 token 一致、守卫不得写在 write 级），并加变异测试（拼错探测名 / args.name 不一致 / 去掉 dead 名守卫 / write 级守卫 → exit 1；显式 args.name 正确 → exit 0）；`SPEC.md` raw_tokens 示例换 live 样本；`host-style-override-attention.md` §0 补「字号/对齐」；票面进度与标签同步 v1.10。
+- 2026-10-24 v1.11（token 全量表 + rc.3 基准）：	okens.yaml 由 scripts/research/gen_token_registry.py 全量生成 425 条（--dsw 403 / --shiki 11 / --dsh 11；live 236 / dead 189；颜色轴 222 = live 184 + dead 38，其中 gated 5），每条含 status(+modifiers)、
+ank、declared（全部声明位置）、declared_value、consumers（消费处数）、consumed_by（全部消费位置，按次数降序）、in_repo、
+untime；排序按「大族 → 子组 → live（消费次数降序）→ gated → dead」（维护者 2026-10-24 要求 m02925/m02949）；宿主基准升 **0.2.1-rc.3 @ 1f81c04**（rc.3 主题面与 rc.2 逐字节相同，见 docs/research/host-rc3-delta-and-v3-impact.md）；生成两个清单 docs/research/v3-host-tokens-425-catalog.html、docs/research/v3-color-tokens-222-catalog.html。

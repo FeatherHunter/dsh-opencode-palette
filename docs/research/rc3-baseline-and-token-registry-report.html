@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rc.3 基准 + 全量 token 表：本轮交付</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a20;--panel2:#1c2128;--line:#2a313a;--fg:#e6e9ef;--fg2:#a9b2bf;--fg3:#7d8794;--accent:#7aa2ff;--good:#5bd08a;--warn:#f0b24a;--bad:#f2708a;--chip:#222a34}
+  @media (prefers-color-scheme: light){:root{--bg:#f6f7f9;--panel:#fff;--panel2:#f0f2f5;--line:#dde1e6;--fg:#14181d;--fg2:#4a5360;--fg3:#77808c;--chip:#eceff3}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;font-size:14px}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 18px 80px}
+  h1{font-size:23px;margin:0 0 6px}
+  h2{font-size:17px;margin:32px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  h3{font-size:14px;margin:18px 0 6px;color:var(--fg2)}
+  .sub{color:var(--fg2);font-size:13px;margin-bottom:18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+  .k{color:var(--fg3);font-size:12px}
+  .v{font-size:21px;font-weight:650}
+  .muted{color:var(--fg2)}
+  .ok{color:var(--good)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12.8px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--fg2);font-weight:600;font-size:12px;background:var(--panel2)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:var(--chip);padding:1px 4px;border-radius:4px}
+  pre{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;overflow:auto;font-size:12px;line-height:1.55}
+  .badge{display:inline-block;font-size:11px;padding:1px 7px;border-radius:999px;white-space:nowrap}
+  .b-ok{background:rgba(91,208,138,.15);color:var(--good)}
+  .b-warn{background:rgba(240,178,74,.15);color:var(--warn)}
+  .b-bad{background:rgba(242,112,138,.15);color:var(--bad)}
+  .b-info{background:rgba(122,162,255,.15);color:var(--accent)}
+  .note{border-left:3px solid var(--warn);background:rgba(240,178,74,.07);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+  .foot{margin-top:36px;color:var(--fg3);font-size:12px;border-top:1px solid var(--line);padding-top:12px}
+  ul{margin:6px 0 6px 20px;padding:0}
+  li{margin:3px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>rc.3 基准 + 全量 token 表：本轮交付</h1>
+<div class="sub">2026-10-24 · 回答 m02913 / m02925 / m02949 · 产物 3 个文件 + 票面已更新</div>
+
+<div class="grid">
+  <div class="card"><div class="k">V3 基准</div><div class="v">0.2.1-rc.3</div><div class="muted">commit <code>1f81c04</code></div></div>
+  <div class="card"><div class="k">主题 token 面变化</div><div class="v ok">零</div><div class="muted">9 个 CSS SHA256 全同</div></div>
+  <div class="card"><div class="k">tokens.yaml</div><div class="v">425 条</div><div class="muted">全量生成，非样本</div></div>
+  <div class="card"><div class="k">状态分布</div><div class="v">236 / 189</div><div class="muted">live / dead</div></div>
+  <div class="card"><div class="k">颜色轴</div><div class="v">222</div><div class="muted">live 184 · dead 38 · gated 5</div></div>
+  <div class="card"><div class="k">自检</div><div class="v ok">0 错 0 警</div><div class="muted">palette-check.py</div></div>
+</div>
+
+<h2>1. 你问的 rc.3：查完了，结论是「基准不变，但 DOM 层有增量」</h2>
+<p class="muted">rc.3 = tag <code>dsh-v0.2.1-rc.3</code> → commit <code>1f81c047fc48fa190a683e469daa699857e9afe8</code>（2026-10-23 发布，6 提交 / 640 文件）。调查方 = 独立子代理，报告已落盘 <code>docs/research/host-rc3-delta-and-v3-impact.md</code>（361 行）。</p>
+
+<h3>1.1 主题面：三条独立证据证明零变更</h3>
+<table>
+  <tr><th>证据</th><th>方法</th><th>结果</th></tr>
+  <tr><td>① CSS 文件</td><td><code>ui-theme/src/styles/</code> 9 个文件 SHA256 对比</td><td><span class="badge b-ok">逐字节相同</span></td></tr>
+  <tr><td>② 声明增删</td><td>640 文件 diff 中统计新增/删除的自定义属性声明</td><td><span class="badge b-ok">0 增 / 0 删</span></td></tr>
+  <tr><td>③ npm 产物</td><td><code>dsh-client-ui-theme@0.2.1-rc.3</code> 的 <code>lib/client.js</code> 计数</td><td><span class="badge b-ok">403 / 11 / 11 + font 182</span></td></tr>
+</table>
+<p>⇒ 我们已有的全部基准数字（425 / 403 / 11 / 11 / 222 / 184 / 38 / 182 / 602）<b>一个都不用改</b>。机制面（overrideTokens 零校验、body inline 注入、dark 属性、claimStyles、哈希类名、标题栏探针、无 CSP）也逐字节相同，连行号都能照抄。</p>
+
+<h3>1.2 DOM 层：四条增量，全是「加」，没有改或删</h3>
+<table>
+  <tr><th>#</th><th>变更</th><th>对 V3 的意义</th></tr>
+  <tr><td>1</td><td><b>3 个新官方插槽</b>：<code>sidebar.panellist.actions</code> / <code>conversation.session.header.views.actions</code> / <code>sidebar.right.tab.guide.actions</code>；新包 <code>ui-entry-customization</code> 默认进 web bundle → <code>data-slot</code> 40→43</td><td><span class="badge b-info">白拿席位</span> V3 可以把「打开主题设置」放进官方插槽，不用再写私有选择器</td></tr>
+  <tr><td>2</td><td><b><code>.panelRow</code> 兼作「更多」按钮的类</b>（<code>button.panelRow[aria-haspopup="menu"]</code>、<code>button.viewsMore</code>）</td><td><span class="badge b-warn">会误伤</span> 现有按 <code>.panelRow</code> 通吃的规则必须加 <code>[aria-haspopup]</code> / <code>[aria-expanded]</code> 排除</td></tr>
+  <tr><td>3</td><td><b>几何松动</b>：会话标签行 gap 36px→16px 20px 且可换行；header 从「定死 76px」改为「可超」；侧栏行距 4px→2px</td><td><span class="badge b-warn">别假设固定值</span> 布局类能力（行距/间距）不得写死旧数字</td></tr>
+  <tr><td>4</td><td><b>Tooltip 多第 4 个 <code>data-side="left"</code></b>，且气泡内部可滚动</td><td><span class="badge b-info">兼容</span> tooltip 定位/材质规则需覆盖新方向</td></tr>
+</table>
+<p class="muted">另外：6 个运行期实测数（897 元素 / 4342 规则 / 156 哈希类 / 51 data-* / 40 data-slot / 74 inline）必须<b>重测</b>，不许手改；573 个运行时变量可由「零增删声明」直接推出不变。</p>
+<div class="note"><b>我们只做了文档与基准同步，没有改宿主、没有改产品代码。</b>rc.3 的 DOM 兼容项已写进 #147 裁定记录，列为实现期规则约束。</div>
+
+<h2>2. 你要求的 token 表：已全量生成，一条一条可查</h2>
+<p class="muted">源文件：<code>palette/tokens.yaml</code>（383 KB，全量 425 条）。生成器：<code>scripts/research/gen_token_registry.py</code>（宿主升级后重跑即整表刷新；勿手改）。校验：<code>python scripts/research/palette-check.py</code> → 0 错 0 警。</p>
+
+<h3>2.1 每条 token 记录哪些信息（按你 m02949 的要求，全量都在源 YAML 里）</h3>
+<table>
+  <tr><th>字段</th><th>含义</th><th>示例</th></tr>
+  <tr><td><code>name</code> / <code>namespace</code> / <code>family</code> / <code>subgroup</code></td><td>名字、命名空间、大族、子组（用于分组排序）</td><td><code>--dsw-alias-bg-base</code> / dsw / alias / bg</td></tr>
+  <tr><td><code>status</code> + <code>modifiers</code> + <code>rank</code></td><td><b>状态标签</b>：live / dead；修饰 gated 等；排序用 rank</td><td>status: live；rank: live</td></tr>
+  <tr><td><code>zh</code> / <code>value_type</code></td><td>中文是什么、值类型</td><td>「背景与填充：基础」/ color（背景类可接受 paint）</td></tr>
+  <tr><td><code>declared</code>（全部）</td><td><b>声明位置</b>：所有声明行（浅色 + 深色两套）</td><td><code>packages/client/ui-theme/src/styles/design-platform.css:167</code>、<code>:285</code></td></tr>
+  <tr><td><code>declared_value</code></td><td>宿主给的字面/引用值（截断展示）</td><td><code>var(--dsw-static-neutral-bluish-00)</code></td></tr>
+  <tr><td><code>consumers</code></td><td><b>消费处数</b>（宿主真实引用次数，含 var() / getPropertyValue / setProperty）</td><td>41</td></tr>
+  <tr><td><code>consumed_by</code>（全部）</td><td><b>消费位置全量列表</b>：<code>path</code> + <code>count</code>，按次数降序</td><td><code>{ path: 'packages/client/ui-schedule/src/client/TaskManagerPage.module.css', count: 7 }</code> …</td></tr>
+  <tr><td><code>in_repo</code> / <code>runtime</code></td><td>本仓是否已注入；是否 shiki 运行时消费（探测盲区）</td><td>true / false</td></tr>
+</table>
+<p><b>排序原则（你 m02925 的要求）已落地</b>：大族（alias / specific / shiki / static / … / typography / dsh）→ 次一级子组（alias 的 19 个子组、static 的色系）→ 状态（live 按消费次数降序 → gated → dead）；每条显式带 status/modifiers 标签，相关属性的行位置彼此相邻。</p>
+
+<h3>2.2 实际样例（从 tokens.yaml 原样摘）</h3>
+<pre>  - name: --dsw-alias-bg-base
+    namespace: dsw
+    family: alias
+    subgroup: bg
+    status: live
+    rank: live
+    zh: '背景与填充：基础'
+    value_type: 'color（背景类可接受 paint）'
+    declared:
+      - packages/client/ui-theme/src/styles/design-platform.css:167
+      - packages/client/ui-theme/src/styles/design-platform.css:285
+    declared_value: 'var(--dsw-static-neutral-bluish-00)'
+    consumers: 41
+    consumed_by:   # 全部消费位置（按次数降序）
+      - { path: 'packages/client/ui-schedule/src/client/TaskManagerPage.module.css', count: 7 }
+      - { path: 'packages/client/ui-chat/src/client/chat/ChatView.module.css', count: 6 }
+      …（全部列表）
+    in_repo: true</pre>
+<p class="muted">dead 条目同样有 <code>status: dead</code> + note；gated 条目有 <code>modifiers: [gated]</code> + note（说明宿主元素级重声明，body 级写会被盖）。</p>
+
+<h3>2.3 两个逐条清单（HTML，已生成）</h3>
+<table>
+  <tr><th>清单</th><th>内容</th><th>路径</th></tr>
+  <tr><td>全量 425</td><td>每个 token 一行：状态 / 消费处数 / 声明位置与值 / 消费方示例；按上述原则分组</td><td><code>docs/research/v3-host-tokens-425-catalog.html</code></td></tr>
+  <tr><td>颜色轴 222</td><td>同上，但只含颜色轴；每族/子组分段，live 内按消费次数降序</td><td><code>docs/research/v3-color-tokens-222-catalog.html</code></td></tr>
+</table>
+<p class="muted">说明：HTML 清单为了可读性，消费方只显示前 3 条示例；<b>全量消费位置在 <code>palette/tokens.yaml</code> 的 <code>consumed_by</code></b>（这就是你说的「源头文件中需要有，不进合成 palette」）。</p>
+
+<h2>3. 本轮改了什么</h2>
+<table>
+  <tr><th>文件</th><th>动作</th></tr>
+  <tr><td><code>palette/tokens.yaml</code></td><td>由 15 条样本 → <b>全量 425 条生成</b>（状态标签、分组排序、全部声明位置、消费处数、全部消费位置、rc.3 基准）</td></tr>
+  <tr><td><code>palette/_index.yaml</code></td><td>tokens 条目：<code>generated: full</code>、version → rc.3、command/摘要同步</td></tr>
+  <tr><td><code>palette/SPEC.md</code></td><td>§2 文件职责、§4 生成物说明、§8 验收判据 3 全部改为「全量 425 已生成」；§11 加 v1.11 变更记录</td></tr>
+  <tr><td><code>scripts/research/gen_token_registry.py</code></td><td>新增全量生成器（可重跑；宿主升级后整表刷新）</td></tr>
+  <tr><td><code>docs/research/v3-host-tokens-425-catalog.html</code></td><td>新增全量清单</td></tr>
+  <tr><td><code>docs/research/v3-color-tokens-222-catalog.html</code></td><td>按新排序/状态标签重新生成</td></tr>
+  <tr><td>#147 票面</td><td>追加 m02913 / m02925 / m02949 原话；裁定记录加 3 条（rc.3 基准、tokens 全量表、DOM 兼容项）</td></tr>
+</table>
+
+<h2>4. 还没做 / 下一步</h2>
+<ul>
+  <li><b>运行期 6 个数重测</b>：用 Playwright 在 rc.3 宿主上重扫 897 / 4342 / 156 / 51 / 40 / 74（不能手改；573 不变）。</li>
+  <li><b>rc.3 DOM 兼容进 palette</b>：<code>.panelRow</code> 排除规则、3 个新 slot 作为「打开主题设置」候选位、几何不假设固定 76px/36px、Tooltip 左侧。</li>
+  <li><b>颜色轴 222 的语义能力逐条</b>：下一步按你「一条一条过」的要求，把颜色 222 条映射成能力条目（每条：能改什么、值类型、tier、落到哪条实现技术）。</li>
+  <li><b>其余底层技术逐个讨论</b>：私有契约面（<code>--dsl-*</code> / <code>--terminal-cursor*</code> / 哈希类 / data-*）→ DOM 操作 → 资源/字体 → 窗口外壳，每组都先出「能支持哪些能力（上限）」。</li>
+</ul>
+
+<div class="note"><b>一句话回答你 m02949：</b>「消费处数 / 消费位置（全部）/ 声明位置（全部）」已经全部写进源头 <code>palette/tokens.yaml</code>，不进合成 palette；以后查 token 不用再翻宿主源码。</div>
+
+<div class="foot">本页 = rc.3 基准 + 全量 token 表交付 · #147 · 2026-10-24</div>
+</div>
+</body>
+</html>

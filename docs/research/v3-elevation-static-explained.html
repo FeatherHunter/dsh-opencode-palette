@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>elevation「需规则层」与 static「高级原子」是什么 —— 给维护者的解释</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.75;max-width:980px;margin:32px auto;padding:0 22px;color:#1f2328;background:#fff}
+  h1{font-size:24px;border-bottom:2px solid #e8e8e8;padding-bottom:10px}
+  h2{font-size:19px;margin-top:34px;border-left:4px solid #3b82f6;padding-left:10px}
+  h3{font-size:15.5px;margin-top:22px;color:#111}
+  code{background:#f4f5f7;padding:1.5px 5px;border-radius:4px;font-size:13px;font-family:Consolas,monospace}
+  pre{background:#0f172a;color:#e2e8f0;padding:14px 16px;border-radius:8px;overflow:auto;font-size:12.5px;line-height:1.55}
+  pre code{background:none;color:inherit;padding:0}
+  .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin:14px 0}
+  .warn{background:#fff8e6;border-color:#f5d38a}
+  .ok{background:#eefbf1;border-color:#b7e4c7}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}
+  th,td{border:1px solid #dde2e8;padding:7px 9px;text-align:left;vertical-align:top}
+  th{background:#f2f5f9}
+  .tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:12px;margin-right:4px}
+  .t-ok{background:#dcfce7;color:#166534}
+  .t-adv{background:#fef3c7;color:#92400e}
+  .t-dead{background:#f3f4f6;color:#6b7280}
+  .muted{color:#6b7280;font-size:13px}
+  ol li,ul li{margin:5px 0}
+</style>
+</head>
+<body>
+
+<h1>两件事解释：elevation「稳定但需规则层」 / static「高级·默认不直接暴露」</h1>
+<p class="muted">给你（维护者）看的说明，不是实现文档。结论：这两条都不是缺陷，也不是「做不到」，而是「实现技术不同 / 风险不同」，所以标了不同的 tier。你的新规则「一个 token 一个语义、禁止合并」已生效并写进 #147。</p>
+
+<h2>一、elevation 5 条：为什么写 token 不够，必须再加规则层</h2>
+
+<h3>1. 它是什么</h3>
+<p>elevation 是宿主的「浮起材质」预设——不是颜色，而是「<b>阴影 + 0.5px 描边</b>」的组合值，用来表现「面板浮在页面上」的层次感（弹窗、命令面板、附件卡片、对话输入区等）。</p>
+<table>
+<tr><th>token</th><th>消费处数</th><th>主要影响区</th><th>用户感知</th></tr>
+<tr><td><code>--dsw-elevation-prominent</code></td><td>18</td><td>对话主窗口、命令面板</td><td>最强调的浮起（弹窗/命令面板）</td></tr>
+<tr><td><code>--dsw-elevation-panel</code></td><td>11</td><td>基础组件、附件</td><td>普通面板浮起</td></tr>
+<tr><td><code>--dsw-elevation-stroke</code></td><td>3</td><td>主题自身</td><td>浮起物外描边宽度</td></tr>
+<tr><td><code>--dsw-elevation-soft</code></td><td>2</td><td>会话/输入区、Markdown</td><td>更轻的浮起</td></tr>
+<tr><td><code>--dsw-elevation-stroke-color</code></td><td>1</td><td>主题自身</td><td>描边颜色</td></tr>
+</table>
+<p>Android 类比：它更像每个 View 的 <code>android:elevation</code>（逐控件属性），<b>不是</b>一个全局主题色。</p>
+
+<h3>2. 为什么「只写 token」改了没反应</h3>
+<p>宿主不是在 <code>body</code> 上声明一次就完事，而是<b>给页面上每个元素都声明了一份</b>（样式表原文，<code>packages/client/ui-theme/src/styles/gradient-shadow-text.css:31-40</code>）：</p>
+<pre><code>/* 宿主真实写法（简化） */
+body, body * {
+  --dsw-elevation-panel: &lt;阴影值&gt;;
+  --dsw-elevation-prominent: &lt;阴影值&gt;;
+  --dsw-elevation-soft: &lt;阴影值&gt;;
+  --dsw-elevation-stroke: &lt;描边&gt;;
+  --dsw-elevation-stroke-color: &lt;颜色&gt;;
+}</code></pre>
+<p>而我们的 A 通道（<code>theme.overrideTokens</code>）只能写 <code>&lt;body style="--dsw-elevation-panel: …"&gt;</code>。问题来了：<b>body 上写的值只作用于 body 自己</b>；它下面的每个子元素都有一份自己的同名声明，子元素那份覆盖父级继承——所以页面上真正显示的仍然是宿主原来的值。</p>
+<pre><code>/* 实测：body 上写入 token 后，元素上仍是宿主自己的声明 */
+&lt;body style="--dsw-elevation-panel: 0 4px 12px red"&gt;
+  &lt;div class="…"&gt;   /* 这个 div 自己声明了 --dsw-elevation-panel，body 的值传不进来 */
+</code></pre>
+
+<h3>3. 「需规则层」= 我们额外写一条 CSS 规则</h3>
+<p>所以这个能力在我们的能力条目里会写成<b>两条写（write）</b>：①token 写（给 body，覆盖没被元素声明的场景）②规则写（命中元素，真正生效）：</p>
+<pre><code>/* 我们的规则层（放进 &lt;style&gt;，且晚于宿主样式） */
+body, body * {
+  --dsw-elevation-panel: 0 4px 12px rgba(0,0,0,.18) !important;
+  --dsw-elevation-prominent: 0 8px 24px rgba(0,0,0,.22) !important;
+}</code></pre>
+<p>用户仍然只在编辑器里看到<b>一个</b>「浮起材质」能力（改强度/预设），内部自动双写。能力是<b>稳定可用</b>的，所以 tier = 稳定；只是「实现技术」一栏写的是 <code>token + rule</code>，不是纯 <code>token</code>。</p>
+
+<div class="box warn">
+<b>风险与限制（实现时要处理）：</b>
+<ul>
+<li><b>性能</b>：<code>body *</code> 规则影响全页元素，需要保守数量；不会每个元素都重算布局，但样式匹配有成本。</li>
+<li><b>局部重绑</b>：宿主的 <code>--dsw-elevation-stroke-color</code> 还在 ≥10 个组件里被单独重绑（如 <code>ui-attachment/AttachmentRail.module.css:95</code>、<code>ui-chat/chat/ChatView.module.css:287</code>、<code>ui-conversation/skeleton/InputBar.module.css:60,83</code>），这些组件里我们的规则可能被盖住——验收时要逐个点开弹窗/附件/输入区确认。</li>
+<li><b>不做 reduced-motion 适配</b>（你已裁：不加开关、不写代码）。</li>
+</ul>
+</div>
+
+<h2>二、static 77 个原子：为什么标「高级·默认不直接暴露」</h2>
+
+<h3>1. 它是什么</h3>
+<p>宿主的颜色是<b>两层</b>的：</p>
+<pre><code>底层原材料（static，77 个纯色 hex）
+   --dsw-static-blue-500: #3b82f6;      ← 77 个之一
+        ↓ 被引用
+语义色（alias，107 个）
+   --dsw-alias-button-primary-fill: var(--dsw-static-blue-500);
+        ↓ 被组件消费
+界面上的按钮 / 链接 / 状态点</code></pre>
+<p>证据：宿主 <code>design-platform.css</code> 里 202 条 alias 定义中，<b>138 条的值直接是 <code>var(--dsw-static-*)</code></b>，涉及约 <b>55 个不同的 static</b>。77 个 static 里：<span class="tag t-ok">live 60</span><span class="tag t-dead">dead 17</span>（17 个没有任何消费方，写了也不生效）。</p>
+
+<h3>2. 为什么默认不直接暴露给用户</h3>
+<p>因为改一个原子，会<b>连锁改掉所有引用它的语义色</b>。比如把 <code>--dsw-static-blue-500</code> 从蓝改成紫，可能同时改掉：按钮主色、链接色、选中态、焦点环、状态信息色……用户以为只改了一个「蓝」，实际整站配色都动了，还很容易把对比度改崩。</p>
+<p>而用户 99% 的意图是「页面底色、正文颜色、按钮颜色」这类<b>语义色</b>——这些在 P1 的表里已经有对应能力（如 <code>global.page.background</code>）。</p>
+
+<h3>3. 我们的处理（既满足「全量收录」，又不误导）</h3>
+<ul>
+<li><b>全量登记</b>：77 个原子全部在 <code>palette/tokens.yaml</code> 里，一个不少（你的「425 个都要有」要求）。</li>
+<li><b>tier = 高级 · 默认折叠</b>：编辑器里默认不展开，收在「变量表 / 专家区」；不放在常用能力列表里。</li>
+<li><b>一个 token 一个语义</b>：每个原子也各有一个语义 id（如 <code>atom.blue-500</code>），不合并。</li>
+<li><b>写时提示</b>：选中原子时提示「这是底层原材料，会影响 N 个语义色」，并把受影响的语义色列出来。</li>
+<li><b>死原子 17 个</b>：标「不生效」，可写但没有任何视觉变化（保留记录，不删）。</li>
+</ul>
+
+<h3>4. 一句话总结</h3>
+<div class="box ok">
+elevation 是「<b>实现技术要多一步（规则层）</b>」，能力稳定；static 是「<b>风险高、层级低（原材料）</b>」，所以默认折叠。两者都<b>不删、不合并、全量登记</b>，只是 tier 与入口不同。
+</div>
+
+<h2>三、「一个 token 一个语义、禁止合并」已生效并记录</h2>
+<ul>
+<li>P1 颜色轴结果：<b>222 token → 222 语义能力 → 222 直绑定</b>，1:1:1，没有任何合并。</li>
+<li>#147 已更新：你的原话「需要强调 条目禁止合并 一个token一个对应语义 很正常。」已追加进「维护者原话」区；「裁定记录」新增一条：<b>条目禁止合并（m03131）</b>，颜色轴 222:222:222。</li>
+<li>顺带修了 #147 body 里一处早先写入时的乱码（「格式（已定）」那条的 <code>theme.yaml / api / assets</code> 文字被转义弄坏），现在已是正确文本。</li>
+</ul>
+
+<h2>四、确认后我继续 P2</h2>
+<p>P2 = 私有契约面能撑哪些能力，一条一条列（同样 HTML）：</p>
+<table>
+<tr><th>层</th><th>条目数</th><th>大概能撑什么</th></tr>
+<tr><td><code>--dsl-*</code> 组件内部别名</td><td>20</td><td>代码块底/表格/搜索块等 7 类组件的局部配色</td></tr>
+<tr><td><code>--terminal-cursor*</code></td><td>4</td><td>终端光标颜色/底色（需规则层或运行时重写）</td></tr>
+<tr><td>哈希类名</td><td>156</td><td>只能按后缀命中的组件级样式（不稳定，需探测）</td></tr>
+<tr><td><code>data-*</code> / <code>data-slot</code></td><td>51 / 43</td><td>锚点：菜单、弹窗、会话、设置页等区域定位</td></tr>
+<tr><td>inline 层</td><td>74</td><td>被宿主钉住的布局量（多半「只能知道、改不了」）</td></tr>
+<tr><td>硬编码色</td><td>351 行</td><td>13 处 fallback 可经 token 覆盖；其余多为遮罩/注释/单体色</td></tr>
+</table>
+<p class="muted">你不需要现在确认 P2；先看这两条解释。有异议我改，没有异议我就按 P2 继续出表。</p>
+
+</body>
+</html>

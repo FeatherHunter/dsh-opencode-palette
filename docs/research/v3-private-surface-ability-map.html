@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>P2 私有契约面 → 能力映射（rc.3）</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.72;max-width:1180px;margin:30px auto;padding:0 22px;color:#1f2328;background:#fff}
+  h1{font-size:23px;border-bottom:2px solid #e8e8e8;padding-bottom:10px}
+  h2{font-size:18px;margin-top:34px;border-left:4px solid #3b82f6;padding-left:10px}
+  code{background:#f4f5f7;padding:1px 4px;border-radius:4px;font-size:12.5px;font-family:Consolas,monospace}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.8px}
+  th,td{border:1px solid #dde2e8;padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#f2f5f9;position:sticky;top:0}
+  .muted{color:#6b7280;font-size:12px}
+  .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin:14px 0}
+  .warn{background:#fff8e6;border-color:#f5d38a}
+  .ok{background:#eefbf1;border-color:#b7e4c7}
+  .tag{display:inline-block;padding:0 7px;border-radius:9px;font-size:11.5px;margin-right:3px}
+  .t-ok{background:#dcfce7;color:#166534}.t-mid{background:#fef3c7;color:#92400e}.t-dead{background:#f3f4f6;color:#6b7280}
+</style>
+</head>
+<body>
+<h1>P2 私有契约面 → 能力映射（宿主 rc.3 @ 1f81c04）</h1>
+<p class="muted">数据由 <code>scripts/research/gen_private_surface_map.py</code> 扫描宿主源码生成（不要手改本页）。<br>
+<b>扫描范围</b>：<code>D:\Temp\dsh-src</code> @ rc.3 <code>1f81c04</code>，<code>packages/client/**</code> 下 <code>.css</code> / <code>.tsx</code> / <code>.ts</code>，排除 <code>node_modules</code>、<code>dist</code>、测试与快照；<code>apps/desktop</code> 另在窗口外壳表（#154）。<br>
+<b>本次统计</b>：<code>--dsl-*</code> 20 条；<code>--terminal-cursor*</code> 4 条；含色字面量 CSS 行 381 行；<code>var(--token, #fallback)</code> 组合 13 对；inline 变量 28 种。</p>
+
+<div class="box"><b>覆盖声明（不遗漏）：</b>本表 100% 覆盖 P2 的四类私有面——
+① <code>--dsl-*</code> 20 条（含 1 条仅消费：<code>--dsl-code-block-line-number-width</code>，宿主无声明、靠消费侧 fallback）；
+② <code>--terminal-cursor*</code> 4 条；③ inline 28 种（含 body 3 个字号变量）；
+④ 硬编码色 fallback 13 对（可经 token 覆盖）+ 其余 368 行不可救（遮罩 alpha / 单体视觉色 / 注释）。
+<b>不在本表</b>：颜色轴 222 见 P1；非颜色 203 与运行时 <code>--dsh</code>/局部变量见 P4；<code>data-*</code>/哈希类/role 锚点在 P3。</div>
+
+<div class="box ok"><b>三条结论（先看这个）：</b>
+<ol>
+<li><b>--dsl-* 大部分不是「新能力」，而是上游 token 的局部缩写</b>：值里引用 <code>var(--dsw-*)</code> 的，改上游 token 即生效；不引用的（字体/圆角/行高/换行等结构性值）才需要规则层。</li>
+<li><b>--terminal-cursor* 必须运行时重写 inline</b>：宿主用 JS 逐元素写 inline，CSS 规则要 <code>!important</code>，且每次重渲染会重写 → 需要 MutationObserver 幂等重放。</li>
+<li><b>硬编码色里真正能救的只有 13 个 fallback</b>：<code>var(--token, #hex)</code> 形式，设 token 即覆盖；其余 338 行是遮罩 alpha / 单体视觉色 / 注释，不在用户能力范围。</li>
+</ol></div>
+
+<h2>一、<code>--dsl-*</code> 组件内部别名（20 条）</h2>
+<p class="muted">这些变量定义在组件自己的 CSS Module 里（元素本地），body 级写不进去。判断实现技术看「上游」列：有值 → 改上游 token；无值 → 规则层。</p>
+<table>
+<tr><th>变量</th><th>建议能力</th><th>区域</th><th>消费文件数</th><th>上游 token</th><th>实现技术</th><th>声明位置（节选）</th></tr>
+<tr><td><code>--dsl-code-block-background</code></td><td><code>content.code.block.background</code><br><span class=muted>color</span></td><td>基础组件 / 文档预览</td><td>2</td><td><code>--dsw-alias-markdown-code-block</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:9</code><br><code>packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css:17</code></td></tr>
+<tr><td><code>--dsl-code-block-banner-background-color</code></td><td><code>content.code.block.banner.background</code><br><span class=muted>color</span></td><td>基础组件</td><td>1</td><td><code>--dsw-alias-markdown-code-block-banner</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:4</code></td></tr>
+<tr><td><code>--dsl-code-block-banner-font</code></td><td><code>content.code.block.banner.font</code><br><span class=muted>font</span></td><td>基础组件</td><td>1</td><td><code>--dsw-font-family</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:7</code></td></tr>
+<tr><td><code>--dsl-code-block-border-radius</code></td><td><code>content.code.block.radius</code><br><span class=muted>length</span></td><td>主题自身 / 基础组件 / 文档预览</td><td>1</td><td><code>--dsw-radius-lg</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:5</code><br><code>packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css:14</code><br><code>packages/client/ui-theme/tests/radius-styles.client.spec.ts:30</code></td></tr>
+<tr><td><code>--dsl-code-block-content-font</code></td><td><code>content.code.block.content.font</code><br><span class=muted>font</span></td><td>基础组件</td><td>1</td><td><code>--dsw-font-markdown-code-block</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:8</code></td></tr>
+<tr><td><code>--dsl-code-block-line-number-width</code></td><td><code>content.private.code-block-line-number-width</code><br><span class=muted>other</span></td><td>基础组件</td><td>3</td><td>—</td><td>仅消费（未找到声明）</td><td>—</td></tr>
+<tr><td><code>--dsl-code-block-line-white-space</code></td><td><code>content.code.block.line.wrap</code><br><span class=muted>keyword</span></td><td>基础组件 / 文档预览 / 轨迹表格</td><td>1</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-primitives/src/markdown/CodeBlock.module.css:110</code><br><code>packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css:15</code><br><code>packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css:53</code><br><code>packages/client/ui-trajectory/src/client/TrajectoryTable.module.css:1338</code></td></tr>
+<tr><td><code>--dsl-command-whitespace</code></td><td><code>content.terminal.command.wrap</code><br><span class=muted>keyword</span></td><td>基础组件 / 工具调用</td><td>2</td><td><code>--dsl-terminal-command-whitespace</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/TerminalBlock.module.css:94</code><br><code>packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css:75</code></td></tr>
+<tr><td><code>--dsl-guide-entry-radius</code></td><td><code>sidebar.guide.entry.radius</code><br><span class=muted>length</span></td><td>右侧栏 / 终端</td><td>2</td><td><code>--dsw-radius-xl</code></td><td>token（改上游）</td><td><code>packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.module.css:5</code></td></tr>
+<tr><td><code>--dsl-read-gutter</code></td><td><code>content.private.read-gutter</code><br><span class=muted>other</span></td><td>基础组件</td><td>2</td><td>—</td><td>仅消费（未找到声明）</td><td>—</td></tr>
+<tr><td><code>--dsl-search-line-height</code></td><td><code>content.search.line-height</code><br><span class=muted>number</span></td><td>基础组件</td><td>1</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-primitives/src/SearchBlock.module.css:3</code></td></tr>
+<tr><td><code>--dsl-search-radius</code></td><td><code>content.search.radius</code><br><span class=muted>length</span></td><td>基础组件</td><td>1</td><td><code>--dsw-radius-lg</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/SearchBlock.module.css:2</code></td></tr>
+<tr><td><code>--dsl-terminal-command-whitespace</code></td><td><code>content.terminal.command.wrap</code><br><span class=muted>keyword</span></td><td>任务列表 / 其他 / 基础组件 / 工具调用</td><td>3</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-jobs/src/client/JobListAction.module.css:336</code><br><code>packages/client/ui-tool/src/client/tool/components/ToolRow.module.css:256</code><br><code>packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css:14</code></td></tr>
+<tr><td><code>--dsl-terminal-font</code></td><td><code>content.terminal.font</code><br><span class=muted>font</span></td><td>基础组件 / 工具调用 / 插件管理</td><td>1</td><td><code>--dsw-font-markdown-code-block-small</code></td><td>token（改上游）</td><td><code>packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css:1162</code><br><code>packages/client/ui-primitives/src/TerminalBlock.module.css:5</code><br><code>packages/client/ui-tool/src/client/tool/components/ToolRow.module.css:253</code><br><code>packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css:11</code></td></tr>
+<tr><td><code>--dsl-terminal-gutter</code></td><td><code>content.terminal.gutter</code><br><span class=muted>length</span></td><td>任务列表 / 基础组件</td><td>1</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-jobs/src/client/JobListAction.module.css:343</code><br><code>packages/client/ui-primitives/src/TerminalBlock.module.css:7</code></td></tr>
+<tr><td><code>--dsl-terminal-line-height</code></td><td><code>content.terminal.line-height</code><br><span class=muted>number</span></td><td>基础组件 / 工具调用 / 插件管理</td><td>2</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css:1163</code><br><code>packages/client/ui-primitives/src/TerminalBlock.module.css:3</code><br><code>packages/client/ui-tool/src/client/tool/components/ToolRow.module.css:254</code><br><code>packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css:12</code></td></tr>
+<tr><td><code>--dsl-terminal-line-whitespace</code></td><td><code>content.terminal.line.wrap</code><br><span class=muted>keyword</span></td><td>任务列表 / 基础组件 / 工具调用</td><td>2</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-jobs/src/client/JobListAction.module.css:337</code></td></tr>
+<tr><td><code>--dsl-terminal-output-max-height</code></td><td><code>content.terminal.output.max-height</code><br><span class=muted>length</span></td><td>任务列表 / 基础组件 / 工具调用 / 插件管理</td><td>1</td><td>—</td><td>规则层（元素本地声明）</td><td><code>packages/client/ui-jobs/src/client/JobListAction.module.css:338</code><br><code>packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css:1164</code><br><code>packages/client/ui-tool/src/client/tool/components/ToolRow.module.css:255</code><br><code>packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css:13</code></td></tr>
+<tr><td><code>--dsl-terminal-radius</code></td><td><code>content.terminal.radius</code><br><span class=muted>length</span></td><td>基础组件</td><td>1</td><td><code>--dsw-radius-lg</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/TerminalBlock.module.css:2</code></td></tr>
+<tr><td><code>--dsl-web-radius</code></td><td><code>content.web.radius</code><br><span class=muted>length</span></td><td>基础组件</td><td>1</td><td><code>--dsw-radius-lg</code></td><td>token（改上游）</td><td><code>packages/client/ui-primitives/src/WebBlock.module.css:2</code></td></tr>
+</table>
+
+<p class="muted">特例：<code>--dsl-code-block-line-number-width</code> 只在消费侧出现（宿主 <code>CodeBlock.module.css</code> 用 <code>var(..., calc(...))</code>），没有声明处 → 归「仅消费」，实现技术 = 规则层 + fallback。</p>
+
+<h2>二、<code>--terminal-cursor*</code> 终端光标（4 条）</h2>
+<table>
+<tr><th>变量</th><th>建议能力</th><th>消费处数</th><th>实现技术</th><th>声明位置</th></tr>
+<tr><td><code>--terminal-cursor</code></td><td><code>content.terminal.cursor.color</code><br><span class=muted>color</span></td><td>30</td><td>运行时（重写 inline）+ 规则层</td><td>—（JS inline 写，无 CSS 声明）</td></tr>
+<tr><td><code>--terminal-cursor-accent</code></td><td><code>content.terminal.cursor.accent</code><br><span class=muted>color</span></td><td>7</td><td>运行时（重写 inline）+ 规则层</td><td>—（JS inline 写，无 CSS 声明）</td></tr>
+<tr><td><code>--terminal-cursor-cell-background</code></td><td><code>content.terminal.cursor.cell.background</code><br><span class=muted>color</span></td><td>4</td><td>运行时（重写 inline）+ 规则层</td><td>—（JS inline 写，无 CSS 声明）</td></tr>
+<tr><td><code>--terminal-cursor-cell-foreground</code></td><td><code>content.terminal.cursor.cell.foreground</code><br><span class=muted>color</span></td><td>3</td><td>运行时（重写 inline）+ 规则层</td><td>—（JS inline 写，无 CSS 声明）</td></tr>
+</table>
+
+<h2>三、硬编码色的 13 个 fallback（可经 token 覆盖）</h2>
+<table>
+<tr><th>token</th><th>fallback 色</th><th>位置</th></tr>
+<tr><td><code>--dsw-alias-border-l2</code></td><td><code>rgba(0, 0, 0, 0.12)</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:9</code></td></tr>
+<tr><td><code>--dsw-alias-state-error-primary</code></td><td><code>#d54941</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:17</code></td></tr>
+<tr><td><code>--dsw-alias-label-tertiary</code></td><td><code>rgba(0, 0, 0, 0.45)</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:75</code></td></tr>
+<tr><td><code>--dsw-alias-state-error-primary</code></td><td><code>#d54941</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:81</code></td></tr>
+<tr><td><code>--dsw-alias-button-contrast-fill</code></td><td><code>rgba(0, 0, 0, 0.72)</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:97</code></td></tr>
+<tr><td><code>--dsw-alias-label-primary-inverted</code></td><td><code>#fff</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:98</code></td></tr>
+<tr><td><code>--dsw-alias-state-error-primary</code></td><td><code>#d54941</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:127</code></td></tr>
+<tr><td><code>--dsw-alias-fill-tertiary</code></td><td><code>rgba(0, 0, 0, 0.08)</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:140</code></td></tr>
+<tr><td><code>--dsw-alias-brand-primary</code></td><td><code>#4d6bfe</code></td><td><code>packages/client/ui-attachment/src/FileCard.module.css:148</code></td></tr>
+<tr><td><code>--dsw-alias-border-l2</code></td><td><code>rgba(0, 0, 0, 0.12)</code></td><td><code>packages/client/ui-chat/src/client/chat/MessageItem.module.css:300</code></td></tr>
+<tr><td><code>--dsw-alias-label-tertiary</code></td><td><code>rgba(0, 0, 0, 0.45)</code></td><td><code>packages/client/ui-chat/src/client/chat/MessageItem.module.css:333</code></td></tr>
+<tr><td><code>--dsw-alias-label-primary</code></td><td><code>#0f1115</code></td><td><code>packages/client/web/src/base.css:27</code></td></tr>
+<tr><td><code>--dsw-alias-bg-base</code></td><td><code>#fff</code></td><td><code>packages/client/web/src/base.css:28</code></td></tr>
+</table>
+<p class="muted">其余 368 行：遮罩 alpha（mask-image #000）、单体视觉色（FileCard color:#fff 等）、注释色值。它们不进入用户能力，最多在「规则兜底清单」记录。</p>
+
+<h2>四、inline 层（宿主内联样式）</h2>
+<p>宿主在组件里写 inline 的主要是<b>布局量</b>（不是颜色）：</p>
+<table>
+<tr><th>inline 变量名</th><th>出现次数</th></tr>
+<tr><td><code>--dsh-windows-titlebar-height</code></td><td>5</td></tr>
+<tr><td><code>--dsh-frame-top-clearance</code></td><td>5</td></tr>
+<tr><td><code>--document-zoom</code></td><td>4</td></tr>
+<tr><td><code>--dsh-chat-user-width</code></td><td>2</td></tr>
+<tr><td><code>--pdf-page-width</code></td><td>2</td></tr>
+<tr><td><code>--pdf-page-height</code></td><td>2</td></tr>
+<tr><td><code>--dsh-content-font-size</code></td><td>2</td></tr>
+<tr><td><code>--dsh-composer-height</code></td><td>1</td></tr>
+<tr><td><code>--dsh-conversation-viewport-height</code></td><td>1</td></tr>
+<tr><td><code>--dsh-width-handle-pointer-y</code></td><td>1</td></tr>
+<tr><td><code>--dsh-conversation-column-width</code></td><td>1</td></tr>
+<tr><td><code>--foreign</code></td><td>1</td></tr>
+<tr><td><code>--total-scale-factor</code></td><td>1</td></tr>
+<tr><td><code>--scale-round-x</code></td><td>1</td></tr>
+<tr><td><code>--scale-round-y</code></td><td>1</td></tr>
+<tr><td><code>--terminal-cursor</code></td><td>1</td></tr>
+<tr><td><code>--terminal-cursor-accent</code></td><td>1</td></tr>
+<tr><td><code>--terminal-cursor-cell-background</code></td><td>1</td></tr>
+<tr><td><code>--terminal-cursor-cell-foreground</code></td><td>1</td></tr>
+<tr><td><code>--dsh-code-font-size</code></td><td>1</td></tr>
+</table>
+<p class="muted">结论：inline 是「宿主钉住的值」，用户能力不建在这一层；只有 3 个 body 级字号变量（content/code/terminal font-size）可以做「改字号」能力，且需 !important 或运行时重写。</p>
+
+<h2>五、锚点层（哈希类 / data-* / data-slot）—— 下一节</h2>
+<div class="box warn">这部分是「规则能命中谁」，不是「能改什么」。它决定上面这些能力能否真正落在正确元素上。</div>
+<p class="muted">源码字面量扫描只命中 6 个 data-slot（其中 3 个为模板/根），不足以证明锚点真实存在；下表是从宿主 <b>test/spec 文件</b>里反查到的 <b>data-slot 实际取值</b>（19 个），作为 P3 锚点的第一手证据（数据：<code>scripts/research/data/rc3-anchor-verified.json</code>）。</p>
+<table>
+<tr><th>data-slot 值（测试引用）</th><th>证据来源</th></tr>
+<tr><td><code>[&#x27;root&#x27;, 8]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.chat.flow&#x27;, 5]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;sidebar.right.tab.document.unpreviewable&#x27;, 4]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.header&#x27;, 4]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;spec.inline.child&#x27;, 2]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;sidebar.panellist&#x27;, 2]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;sidebar.right.tab.document.actions&#x27;, 2]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;main&#x27;, 2]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.chat.node&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;${name}&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;spec.inline.block&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.session&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.view&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.hero.agentPreset&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;sidebar&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;shell.bottom&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;main.conversation&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;conversation.session.header&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr><tr><td><code>[&#x27;sidebar.workspaces&#x27;, 1]</code></td><td>宿主 test/spec 引用</td></tr>
+</table>
+<p class="muted">此外测试里还反查到 data-* 属性名 60 个（受采样上限；源码枚举 432 个）、querySelector 选择器 60 条（采样）。完整锚点表见 P3 DOM 表与 <code>docs/research/moddable-surface-registry.md</code> §3 B。</p>
+
+<h2>六、这批结果对 palette 的影响</h2>
+<ul>
+<li><code>--dsl-*</code> 有上游 token 的：能力条目仍指向<b>上游 token</b>（不新增一条私有变量能力，避免重复表达；符合你「一个 token 一个语义」）。</li>
+<li>结构性的（字体/圆角/行高/换行）：新增<b>规则层能力</b>，值类型 = font/length/number/keyword。</li>
+<li><code>--terminal-cursor*</code>：新增 4 条运行时能力，tier = 实验（重渲染需重放）。</li>
+<li>硬编码 fallback：不新增能力（已被对应 token 覆盖）。</li>
+</ul>
+
+</body>
+</html>

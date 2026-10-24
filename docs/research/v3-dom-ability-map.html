@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>P3 DOM 操作层 → 能力上限（rc.3）</title>
+<style>
+  body{font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.72;max-width:1240px;margin:30px auto;padding:0 22px;color:#1f2328;background:#fff}
+  h1{font-size:23px;border-bottom:2px solid #e8e8e8;padding-bottom:10px}
+  h2{font-size:18px;margin-top:34px;border-left:4px solid #3b82f6;padding-left:10px}
+  code{background:#f4f5f7;padding:1px 4px;border-radius:4px;font-size:12.5px;font-family:Consolas,monospace}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:12.8px}
+  th,td{border:1px solid #dde2e8;padding:6px 8px;text-align:left;vertical-align:top}
+  th{background:#f2f5f9}
+  .muted{color:#6b7280;font-size:12.5px}
+  .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:12px 16px;margin:14px 0}
+  .warn{background:#fff8e6;border-color:#f5d38a}
+  .ok{background:#eefbf1;border-color:#b7e4c7}
+  .tag{display:inline-block;padding:0 7px;border-radius:9px;font-size:11.5px;white-space:nowrap}
+  .t-ok{background:#dcfce7;color:#166534}
+  .t-mid{background:#fef3c7;color:#92400e}
+  .t-exp{background:#fee2e2;color:#991b1b}
+</style>
+</head>
+<body>
+
+<h1>P3 DOM 操作层（C3）→ 能撑哪些能力、上限在哪（宿主 rc.3 @ 1f81c04）</h1>
+<p class="muted">前两份：P1 颜色 222（<code>v3-color-222-ability-map.html</code>）、P2 私有变量 + 锚点（<code>v3-private-surface-ability-map.html</code> / <code>v3-anchor-surface-map.html</code>）。本份 = 第三种实现技术：DOM 操作。</p>
+
+<div class="box ok"><b>一页结论：</b>
+<ol>
+<li>DOM 层能撑的「炫酷效果」最多：<b>背景媒体、毛玻璃、渐变蒙层、噪点纹理、图标替换、入口按钮、滚动条/选区/焦点环样式、hover 动效、标题栏配色</b>，全部可行。</li>
+<li>但它是<b>唯一会碰「结构」的层</b>，按你 U7 的裁定分三级：装饰性 DOM（插图层/换图标）= <b>正式</b>；结构性改动（隐藏/移动/重排/增删节点）= <b>实验、默认关闭</b>。</li>
+<li>存活率是硬约束：结构性改动在「宿主重渲染」时只剩 <b>1/4</b> 能活；装饰性 = 插图层/图标替换用 <b>MutationObserver 幂等重放</b> 才能稳定。</li>
+<li>窗口外壳里，<b>标题栏底色/字色可以做</b>（token 探针 + setTitleBarOverlay）；<b>标题栏高度/按钮形状位置/macOS 菜单不能做</b>（原生）。</li>
+</ol></div>
+
+<h2>一、DOM 层能撑的能力（一条一条）</h2>
+<p class="muted">「实现技术」列：dom = 插节点/改属性；dom+css = 插节点 + 规则；css = 纯规则（属于 C2，列在这里因为常与 DOM 一起用）。
+tier 用统一词表 <code>stable</code> / <code>experimental</code>（gated/advanced 是实现说明，不是 tier）。</p>
+<div class="box"><b>覆盖声明（不遗漏）</b>：本表 = <b>DOM 通道（C3）可用能力 20 条</b> + 硬边界 5 类 + 唯一性/撤销/重放规则；
+<b>不在本表</b>：颜色 token 222（P1）、私有变量面（P2）、非颜色 token 203 与运行时局部变量（P4）。
+<b>锚点证据</b>：19 个 data-slot 取值来自宿主 test/spec 反查（<code>scripts/research/data/rc3-anchor-verified.json</code>），data-* 属性名 376 个（采样 60）、哈希类 156 个（只能后缀命中，不能写死）。
+<b>占位符展开</b>：表里的 <code>control.button.*</code> 是代表 id；生成时按控件表逐控件展开（sendButton / attachButton / copyButton / retryButton 等），仍受 vocabulary 的 29 域 + 已登记控件名约束。</div>
+<table>
+<tr><th>#</th><th>能力 id（建议）</th><th>用户看到的效果</th><th>实现技术</th><th>tier</th><th>绑定锚点（优先→兜底）</th><th>失败模式 / rc.3 备注</th></tr>
+
+<tr><td>1</td><td><code>global.page.background.media</code></td><td>整个窗口背景：静态图 / 动态图（gif/webp/avif）/ 视频</td><td>dom（insert-media-layer，fixed 底层）+ css</td><td><span class="tag t-ok">stable · 正式</span></td><td>body 直接插层（不依赖宿主类名）</td><td>视频需 <code>&lt;video muted loop autoplay&gt;</code>；gif 是图片不用 video；z-index:-1 + pointer-events:none；重渲染不删我们的层</td></tr>
+
+<tr><td>2</td><td><code>sidebar.panel.background.media</code></td><td>左侧工作区背景（图/动图/视频）</td><td>dom + css</td><td><span class="tag t-ok">stable · 正式</span></td><td><code>[data-slot="sidebar"]</code>（测试反查确认）→ <code>[data-slot="sidebar.panellist"]</code> → <code>[class*="sidebar"]</code>（兜底，可能误伤）</td><td>需 <code>position:relative</code> 容器 + 层裁剪；滚动区域可能盖住层</td></tr>
+
+<tr><td>3</td><td><code>conversation.main.background.media</code></td><td>对话主窗口背景（图/动图/视频）</td><td>dom + css</td><td><span class="tag t-ok">stable · 正式</span></td><td><code>[data-conversation-region]</code> / <code>[data-conversation-content]</code></td><td>对话滚动容器会重渲染；层要挂在稳定父节点</td></tr>
+
+<tr><td>4</td><td><code>composer.input.background.media</code></td><td>输入框背景（图/动图/视频）+ 可叠玻璃</td><td>dom + css</td><td><span class="tag t-ok">stable · 正式</span></td><td><code>[data-composer-seat]</code>（测试反查确认）→ <code>[data-composer-input]</code></td><td>注意 pointer-events；输入框上方 overlay 不能挡点击</td></tr>
+
+<tr><td>5</td><td><code>global.page.overlay.tint</code></td><td>整页渐变蒙层（压暗/提亮/染色）</td><td>dom + css</td><td><span class="tag t-ok">stable · 正式</span></td><td>body 插层</td><td>层要 <code>pointer-events:none</code>；与「背景媒体」叠放顺序要在 palette 里声明 layer 顺序</td></tr>
+
+<tr><td>6</td><td><code>global.page.texture.noise</code></td><td>噪点/纸纹/布料纹理（替代纯色质感）</td><td>css（background-image 重复）+ dom 可选</td><td><span class="tag t-ok">stable · 正式</span></td><td>body 插层</td><td>纹理图片走 assets；体积限制 32 MiB 总量</td></tr>
+
+<tr><td>7</td><td><code>composer.panel.glass</code></td><td>输入框/输入区的玻璃态（背景模糊 + 半透明）</td><td>css（<code>backdrop-filter</code>）+ dom（层级）</td><td><span class="tag t-ok">stable · 正式</span></td><td><code>[data-composer-seat]</code></td><td><b>关键前提</b>：玻璃要能模糊到背景媒体，层必须在其下方同一 stacking context；需验收「视频背景 + 玻璃输入框」组合</td></tr>
+
+<tr><td>8</td><td><code>menu.surface.glass</code></td><td>菜单/弹窗的材质面（毛玻璃 / 半透明 / 噪点）</td><td>css（<code>--dsw-menu-surface-fill</code> + backdrop-filter）</td><td><span class="tag t-ok">stable · 正式</span></td><td><code>[role="menu"]</code> / <code>[data-menu-material]</code></td><td>macOS 浮层有 94% 不透明钉死（<code>--dsw-specific-menu</code>），玻璃只能更不透明，不能更透</td></tr>
+
+<tr><td>9</td><td><code>control.button.icon</code></td><td>任意可换控件的图标（发送按钮换成 Hello Kitty 头像等）</td><td>dom（替换 svg/img）+ css（mask-image 保色）</td><td><span class="tag t-ok">stable · 正式</span></td><td>按控件：<code>[data-slot]</code> / label + aria-label → role</td><td>React 重渲染会还原 → MutationObserver 幂等重放；不破坏点击行为（只换视觉层）</td></tr>
+
+<tr><td>10</td><td><code>control.button.label</code></td><td>改控件文字（按钮文案/提示词）</td><td>dom（textContent）</td><td><span class="tag t-exp">experimental · 实验</span></td><td>同上</td><td>会被重渲染还原；i18n 切换后可能错位</td></tr>
+
+<tr><td>11</td><td><code>entry.themeSettings.button</code></td><td>在官方席位插「打开主题设置」入口</td><td>dom（appendChild）</td><td><span class="tag t-ok">stable · 正式</span></td><td>rc.3 新增 3 slot：<code>sidebar.panellist.actions</code> / <code>conversation.session.header.views.actions</code> / <code>sidebar.right.tab.guide.actions</code></td><td>这是 rc.3 送的官方位置；slot 不存在 → 降级到设置页入口</td></tr>
+
+<tr><td>12</td><td><code>window.titleBar.background</code></td><td>桌面标题栏底色/字色（含渐变延伸、半透明）</td><td>token（<code>--dsw-specific-sidebar-fill</code> + <code>--dsw-alias-label-primary</code> 探针）→ Electron <code>setTitleBarOverlay</code></td><td><span class="tag t-ok">stable · 正式</span></td><td>宿主探针 <code>preload-windows.ts:21-50</code>；<code>main.ts:1059</code></td><td>仅 desktop；web 降级为无标题栏。只能整色/字色，渐变会被探针取成透明 → 内容透出（沉浸式）</td></tr>
+
+<tr><td>13</td><td><code>window.titleBar.immersive</code></td><td>内容延伸到标题栏下方（沉浸式）</td><td>token 间接（sidebar-fill 设渐变/透明）</td><td><span class="tag t-ok">stable · 正式</span></td><td>同上</td><td>可读性风险：标题栏按钮与内容叠色，palette 里要声明对比度要求</td></tr>
+
+<tr><td>14</td><td><code>global.scrollbar.style</code></td><td>滚动条颜色/宽度/圆角（含 hover）</td><td>css（<code>::-webkit-scrollbar</code>）</td><td><span class="tag t-ok">stable · 正式</span></td><td>全页规则</td><td>浮层内的滚动条有 35 处局部重绑（<code>--dsh-scrollbar-thumb</code>），只能改默认底面；宽度对齐项验收</td></tr>
+
+<tr><td>15</td><td><code>global.selection.color</code></td><td>文字选区颜色</td><td>css（<code>::selection</code>）</td><td><span class="tag t-ok">stable · 正式</span></td><td>全页规则</td><td>无风险</td></tr>
+
+<tr><td>16</td><td><code>global.focusRing.style</code></td><td>焦点环颜色/宽度</td><td>css / token（<code>--dsw-focus-ring-color</code>）</td><td><span class="tag t-ok">stable · 正式</span></td><td>全页规则</td><td>宿主不声明默认值，我们自己给；对比度要校验</td></tr>
+
+<tr><td>17</td><td><code>effect.hover.surface</code></td><td>hover 时的缩放/位移/发光/描边动效</td><td>css（transform/transition/box-shadow）</td><td><span class="tag t-ok">stable · 正式</span></td><td>按区域锚点</td><td>不做 reduced-motion 适配（你已裁）；动效不得改变布局尺寸（避免抖动）</td></tr>
+
+<tr><td>18</td><td><code>structure.element.hidden</code></td><td>隐藏某个控件/元素</td><td>dom（remove/hide）</td><td><span class="tag t-exp">experimental · 实验</span></td><td>按控件锚点</td><td>重渲染会还原；可能破坏键盘可达性；默认关闭 + 一键恢复</td></tr>
+
+<tr><td>19</td><td><code>structure.element.move</code></td><td>移动/重排控件位置</td><td>dom（insertBefore/append）</td><td><span class="tag t-exp">experimental · 实验</span></td><td>同上</td><td>React 重渲染 1/4 存活；布局需重新测量</td></tr>
+
+<tr><td>20</td><td><code>structure.element.inject</code></td><td>插入自定义节点（HTML 片段）</td><td>dom + B/C 扩展层</td><td><span class="tag t-exp">experimental · 实验</span></td><td>同上</td><td>需强提示（可执行任意代码/读取页面）；内置主题不启用</td></tr>
+</table>
+
+<h2>二、DOM 层的硬边界（做不到 / 不建议）</h2>
+<ul>
+<li><b>原生窗口外壳内部</b>：标题栏高度、按钮形状/位置、macOS 原生菜单 —— 原生绘制，DOM/CSS 都改不了。</li>
+<li><b>跨 Shadow Root</b>：主 UI 无 shadow，但桌面壳里有 2 处 closed/open shadow；到不了里面。</li>
+<li><b>宿主内部状态</b>：会话数据、滚动位置、选中态 —— 读不到可靠语义，别做「按状态换色」。</li>
+<li><b>离开文档的层</b>：iframe 里的文档预览内容不受我们的样式影响（跨文档）。</li>
+<li><b>React 重渲染</b>：结构性改动不幂等重放会被还原；装饰性 DOM 必须 observer 重放。</li>
+</ul>
+
+<h2>三、四道验收在 DOM 能力上的含义（U20 的实现口径）</h2>
+<table>
+<tr><th>验收</th><th>DOM 能力怎么过</th></tr>
+<tr><td>宿主重渲染存活</td><td>插图层应挂在 body/稳定父节点、不进 React 树 → 天然存活；图标替换/入口按钮靠 MutationObserver 幂等重放；结构性改动标记「可能丢失」，编辑器里提示</td></tr>
+<tr><td>主题切换存活</td><td>切换 = 卸载旧 plan + 应用新 plan；所有 dom write 必须带稳定 id + <code>teardown</code>，切换差集清理</td></tr>
+<tr><td>卸载全还原</td><td>每个 dom write 必须可逆：删自己插的节点、恢复被改的属性（记录原值）、断开 observer</td></tr>
+<tr><td>上游升级不炸</td><td>锚点走 probe：<code>selector_exists</code> = unknown → 降级下一候选；都不中 → 跳过 + 诊断，不抛错</td></tr>
+</table>
+
+<h2>四、rc.3 对 DOM 能力的三条影响（已确认）</h2>
+<ol>
+<li><b>3 个新官方 slot</b>：可放「打开主题设置」入口（能力 #11），不用再靠哈希类猜位置。</li>
+<li><b><code>.panelRow</code> 冲突</b>：它现在同时是「更多」按钮的类（<code>button.panelRow[aria-haspopup="menu"]</code>、<code>button.viewsMore</code>）→ 我们的规则要 <code>:not([aria-haspopup])</code> 排除，否则会把菜单按钮一起改坏。</li>
+<li><b>几何松动</b>：会话标签行 <code>gap: 16px 20px</code> + <code>flex-wrap: wrap</code>、侧栏行距 2px、Tooltip 多 <code>data-side="left"</code> 与 <code>overflow:auto</code> → 依赖固定尺寸/溢出的装饰效果要按 rc.3 重新验收（旧截图不算数）。</li>
+</ol>
+
+<h2>四·五、明确不做清单（诚实边界，避免「看起来能」）</h2>
+<ul>
+<li><b>音频 / BGM</b>：不在外观语义内；主题包若真要放音频属于扩展层（B/C），本票不做能力条目。</li>
+<li><b>Canvas / WebGL / shader</b>：宿主主 UI 无 canvas（唯一 canvas 在 PDF 预览，属文档内容，不是外观）；做不了「shader 材质」这类效果，最多 CSS 近似。</li>
+<li><b>原生窗口外壳内部</b>：标题栏高度、按钮形状/位置、macOS 原生菜单 —— 原生绘制，DOM/CSS/token 都不可能。</li>
+<li><b>跨文档 / 跨 Shadow Root 内容</b>：iframe 文档预览、桌面壳 closed shadow 内部不受我们控制。</li>
+<li><b>非外观的功能项</b>（点赞/统计/市场/分发/issue 模板等）：属 #132 / #154 / 地图其他票，不在 P1–P3 范围。</li>
+</ul>
+
+<h2>五、这批能力如何落进 palette</h2>
+<pre><code>{# 能力条目示例（示意，非最终 YAML）
+id: global.page.background.media
+tier: stable
+value: media            # image / animated_image / video
+binds:
+  - { anchor: global.root, op: insert-media-layer, params: { position: fixed, inset: 0, z: -1, fit: cover } }
+  - { anchor: global.root, op: style-rule, decl: { background-color: '#000' } }
+teardown: remove-node
+guard: observer        # 重渲染后幂等重放（图标/入口按钮类才需要）
+}</code></pre>
+
+<h2>六、下一步 P4</h2>
+<p>P4 = 资源 / 字体 / 窗口外壳（C4/C5 + 外壳）：字体 @font-face + unicode-range、壁纸资源引用与体积/格式、视频解码与性能、标题栏四效果在 web/desktop 的降级。之后 P5 = palette 定稿，P6 = 零偏差审计 + #147 收口。</p>
+
+</body>
+</html>

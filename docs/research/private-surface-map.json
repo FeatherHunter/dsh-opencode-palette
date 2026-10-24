@@ -1,0 +1,847 @@
+{
+  "host": {
+    "version": "0.2.1-rc.3",
+    "commit": "1f81c047fc48fa190a683e469daa699857e9afe8",
+    "note": "--dsl-* / --terminal-cursor* / inline / 硬编码色 四层；rc.3 主题面零变更"
+  },
+  "counts": {
+    "dsl": 20,
+    "terminal": 4,
+    "hard_color_lines": 381,
+    "fallback_pairs": 13,
+    "inline_var_names": 28
+  },
+  "dsl": [
+    {
+      "name": "--dsl-code-block-background",
+      "ability": "content.code.block.background",
+      "value_type": "color",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-alias-markdown-code-block",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 9,
+          "value": "var(--dsw-alias-markdown-code-block);"
+        },
+        {
+          "path": "packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css",
+          "line": 17,
+          "value": "transparent;"
+        }
+      ],
+      "declared_count": 2,
+      "consumers": 2,
+      "regions": [
+        "基础组件",
+        "文档预览"
+      ],
+      "note": "值引用 --dsw-alias-markdown-code-block；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-code-block-banner-background-color",
+      "ability": "content.code.block.banner.background",
+      "value_type": "color",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-alias-markdown-code-block-banner",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 4,
+          "value": "var(--dsw-alias-markdown-code-block-banner);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-alias-markdown-code-block-banner；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-code-block-banner-font",
+      "ability": "content.code.block.banner.font",
+      "value_type": "font",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-font-family",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 7,
+          "value": "11px/18px var(--dsw-font-family);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-font-family；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-code-block-border-radius",
+      "ability": "content.code.block.radius",
+      "value_type": "length",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-radius-lg",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 5,
+          "value": "var(--dsw-radius-lg);"
+        },
+        {
+          "path": "packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css",
+          "line": 14,
+          "value": "0px;"
+        },
+        {
+          "path": "packages/client/ui-theme/tests/radius-styles.client.spec.ts",
+          "line": 30,
+          "value": "12px; }')).toHaveLength(1)"
+        }
+      ],
+      "declared_count": 3,
+      "consumers": 1,
+      "regions": [
+        "主题自身",
+        "基础组件",
+        "文档预览"
+      ],
+      "note": "值引用 --dsw-radius-lg；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-code-block-content-font",
+      "ability": "content.code.block.content.font",
+      "value_type": "font",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-font-markdown-code-block",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 8,
+          "value": "var(--dsw-font-markdown-code-block);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-font-markdown-code-block；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-code-block-line-number-width",
+      "ability": "content.private.code-block-line-number-width",
+      "value_type": "other",
+      "impl": "仅消费（未找到声明）",
+      "upstream": "",
+      "declared": [],
+      "declared_count": 0,
+      "consumers": 3,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "只在消费侧出现，来源待查"
+    },
+    {
+      "name": "--dsl-code-block-line-white-space",
+      "ability": "content.code.block.line.wrap",
+      "value_type": "keyword",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/markdown/CodeBlock.module.css",
+          "line": 110,
+          "value": "pre;"
+        },
+        {
+          "path": "packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css",
+          "line": 15,
+          "value": "pre;"
+        },
+        {
+          "path": "packages/client/ui-sidebar-documentpreview/src/client/code/CodeBody.module.css",
+          "line": 53,
+          "value": "pre-wrap;"
+        },
+        {
+          "path": "packages/client/ui-trajectory/src/client/TrajectoryTable.module.css",
+          "line": 1338,
+          "value": "pre;"
+        }
+      ],
+      "declared_count": 5,
+      "consumers": 1,
+      "regions": [
+        "基础组件",
+        "文档预览",
+        "轨迹表格"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-command-whitespace",
+      "ability": "content.terminal.command.wrap",
+      "value_type": "keyword",
+      "impl": "token（改上游）",
+      "upstream": "--dsl-terminal-command-whitespace",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/TerminalBlock.module.css",
+          "line": 94,
+          "value": "var(--dsl-terminal-command-whitespace, pre);"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css",
+          "line": 75,
+          "value": "pre-wrap;"
+        }
+      ],
+      "declared_count": 2,
+      "consumers": 2,
+      "regions": [
+        "基础组件",
+        "工具调用"
+      ],
+      "note": "值引用 --dsl-terminal-command-whitespace；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-guide-entry-radius",
+      "ability": "sidebar.guide.entry.radius",
+      "value_type": "length",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-radius-xl",
+      "declared": [
+        {
+          "path": "packages/client/ui-sidebar-right/src/client/tabs/guide/GuideBody.module.css",
+          "line": 5,
+          "value": "var(--dsw-radius-xl);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 2,
+      "regions": [
+        "右侧栏",
+        "终端"
+      ],
+      "note": "值引用 --dsw-radius-xl；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-read-gutter",
+      "ability": "content.private.read-gutter",
+      "value_type": "other",
+      "impl": "仅消费（未找到声明）",
+      "upstream": "",
+      "declared": [],
+      "declared_count": 0,
+      "consumers": 2,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "只在消费侧出现，来源待查"
+    },
+    {
+      "name": "--dsl-search-line-height",
+      "ability": "content.search.line-height",
+      "value_type": "number",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/SearchBlock.module.css",
+          "line": 3,
+          "value": "22px;"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-search-radius",
+      "ability": "content.search.radius",
+      "value_type": "length",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-radius-lg",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/SearchBlock.module.css",
+          "line": 2,
+          "value": "var(--dsw-radius-lg);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-radius-lg；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-terminal-command-whitespace",
+      "ability": "content.terminal.command.wrap",
+      "value_type": "keyword",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-jobs/src/client/JobListAction.module.css",
+          "line": 336,
+          "value": "pre-wrap;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/components/ToolRow.module.css",
+          "line": 256,
+          "value": "pre-wrap;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css",
+          "line": 14,
+          "value": "pre-wrap;"
+        }
+      ],
+      "declared_count": 3,
+      "consumers": 3,
+      "regions": [
+        "任务列表",
+        "其他",
+        "基础组件",
+        "工具调用"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-terminal-font",
+      "ability": "content.terminal.font",
+      "value_type": "font",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-font-markdown-code-block-small",
+      "declared": [
+        {
+          "path": "packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css",
+          "line": 1162,
+          "value": "var(--dsw-font-markdown-code-block-small);"
+        },
+        {
+          "path": "packages/client/ui-primitives/src/TerminalBlock.module.css",
+          "line": 5,
+          "value": "var(--dsw-font-markdown-code-block);"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/components/ToolRow.module.css",
+          "line": 253,
+          "value": "var(--dsw-font-markdown-code-block-small);"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css",
+          "line": 11,
+          "value": "var(--dsw-font-markdown-code-block-small);"
+        }
+      ],
+      "declared_count": 4,
+      "consumers": 1,
+      "regions": [
+        "基础组件",
+        "工具调用",
+        "插件管理"
+      ],
+      "note": "值引用 --dsw-font-markdown-code-block-small；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-terminal-gutter",
+      "ability": "content.terminal.gutter",
+      "value_type": "length",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-jobs/src/client/JobListAction.module.css",
+          "line": 343,
+          "value": "12px;"
+        },
+        {
+          "path": "packages/client/ui-primitives/src/TerminalBlock.module.css",
+          "line": 7,
+          "value": "30px;"
+        }
+      ],
+      "declared_count": 2,
+      "consumers": 1,
+      "regions": [
+        "任务列表",
+        "基础组件"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-terminal-line-height",
+      "ability": "content.terminal.line-height",
+      "value_type": "number",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css",
+          "line": 1163,
+          "value": "18px;"
+        },
+        {
+          "path": "packages/client/ui-primitives/src/TerminalBlock.module.css",
+          "line": 3,
+          "value": "22px;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/components/ToolRow.module.css",
+          "line": 254,
+          "value": "18px;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css",
+          "line": 12,
+          "value": "18px;"
+        }
+      ],
+      "declared_count": 4,
+      "consumers": 2,
+      "regions": [
+        "基础组件",
+        "工具调用",
+        "插件管理"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-terminal-line-whitespace",
+      "ability": "content.terminal.line.wrap",
+      "value_type": "keyword",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-jobs/src/client/JobListAction.module.css",
+          "line": 337,
+          "value": "pre-wrap;"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 2,
+      "regions": [
+        "任务列表",
+        "基础组件",
+        "工具调用"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-terminal-output-max-height",
+      "ability": "content.terminal.output.max-height",
+      "value_type": "length",
+      "impl": "规则层（元素本地声明）",
+      "upstream": "",
+      "declared": [
+        {
+          "path": "packages/client/ui-jobs/src/client/JobListAction.module.css",
+          "line": 338,
+          "value": "288px;"
+        },
+        {
+          "path": "packages/client/ui-plugin-manager/src/client/PluginManagerPage.module.css",
+          "line": 1164,
+          "value": "240px;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/components/ToolRow.module.css",
+          "line": 255,
+          "value": "224px;"
+        },
+        {
+          "path": "packages/client/ui-tool/src/client/tool/toolviews/bash-sample.module.css",
+          "line": 13,
+          "value": "224px;"
+        }
+      ],
+      "declared_count": 4,
+      "consumers": 1,
+      "regions": [
+        "任务列表",
+        "基础组件",
+        "工具调用",
+        "插件管理"
+      ],
+      "note": "在组件元素本地声明，body 级写无效；需规则命中该元素或改上游 --dsw-*"
+    },
+    {
+      "name": "--dsl-terminal-radius",
+      "ability": "content.terminal.radius",
+      "value_type": "length",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-radius-lg",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/TerminalBlock.module.css",
+          "line": 2,
+          "value": "var(--dsw-radius-lg);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-radius-lg；改上游 token 即可，无需碰 --dsl-*"
+    },
+    {
+      "name": "--dsl-web-radius",
+      "ability": "content.web.radius",
+      "value_type": "length",
+      "impl": "token（改上游）",
+      "upstream": "--dsw-radius-lg",
+      "declared": [
+        {
+          "path": "packages/client/ui-primitives/src/WebBlock.module.css",
+          "line": 2,
+          "value": "var(--dsw-radius-lg);"
+        }
+      ],
+      "declared_count": 1,
+      "consumers": 1,
+      "regions": [
+        "基础组件"
+      ],
+      "note": "值引用 --dsw-radius-lg；改上游 token 即可，无需碰 --dsl-*"
+    }
+  ],
+  "terminal": [
+    {
+      "name": "--terminal-cursor",
+      "ability": "content.terminal.cursor.color",
+      "value_type": "color",
+      "declared": [],
+      "consumers": 30,
+      "impl": "运行时（重写 inline）+ 规则层",
+      "note": "宿主由 JS 逐元素写 inline（terminal-cursor.ts），CSS 规则需 !important，或运行时 MutationObserver 重写"
+    },
+    {
+      "name": "--terminal-cursor-accent",
+      "ability": "content.terminal.cursor.accent",
+      "value_type": "color",
+      "declared": [],
+      "consumers": 7,
+      "impl": "运行时（重写 inline）+ 规则层",
+      "note": "宿主由 JS 逐元素写 inline（terminal-cursor.ts），CSS 规则需 !important，或运行时 MutationObserver 重写"
+    },
+    {
+      "name": "--terminal-cursor-cell-background",
+      "ability": "content.terminal.cursor.cell.background",
+      "value_type": "color",
+      "declared": [],
+      "consumers": 4,
+      "impl": "运行时（重写 inline）+ 规则层",
+      "note": "宿主由 JS 逐元素写 inline（terminal-cursor.ts），CSS 规则需 !important，或运行时 MutationObserver 重写"
+    },
+    {
+      "name": "--terminal-cursor-cell-foreground",
+      "ability": "content.terminal.cursor.cell.foreground",
+      "value_type": "color",
+      "declared": [],
+      "consumers": 3,
+      "impl": "运行时（重写 inline）+ 规则层",
+      "note": "宿主由 JS 逐元素写 inline（terminal-cursor.ts），CSS 规则需 !important，或运行时 MutationObserver 重写"
+    }
+  ],
+  "fallbacks": [
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 9,
+      "var": "--dsw-alias-border-l2",
+      "fallback": "rgba(0, 0, 0, 0.12)"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 17,
+      "var": "--dsw-alias-state-error-primary",
+      "fallback": "#d54941"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 75,
+      "var": "--dsw-alias-label-tertiary",
+      "fallback": "rgba(0, 0, 0, 0.45)"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 81,
+      "var": "--dsw-alias-state-error-primary",
+      "fallback": "#d54941"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 97,
+      "var": "--dsw-alias-button-contrast-fill",
+      "fallback": "rgba(0, 0, 0, 0.72)"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 98,
+      "var": "--dsw-alias-label-primary-inverted",
+      "fallback": "#fff"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 127,
+      "var": "--dsw-alias-state-error-primary",
+      "fallback": "#d54941"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 140,
+      "var": "--dsw-alias-fill-tertiary",
+      "fallback": "rgba(0, 0, 0, 0.08)"
+    },
+    {
+      "path": "packages/client/ui-attachment/src/FileCard.module.css",
+      "line": 148,
+      "var": "--dsw-alias-brand-primary",
+      "fallback": "#4d6bfe"
+    },
+    {
+      "path": "packages/client/ui-chat/src/client/chat/MessageItem.module.css",
+      "line": 300,
+      "var": "--dsw-alias-border-l2",
+      "fallback": "rgba(0, 0, 0, 0.12)"
+    },
+    {
+      "path": "packages/client/ui-chat/src/client/chat/MessageItem.module.css",
+      "line": 333,
+      "var": "--dsw-alias-label-tertiary",
+      "fallback": "rgba(0, 0, 0, 0.45)"
+    },
+    {
+      "path": "packages/client/web/src/base.css",
+      "line": 27,
+      "var": "--dsw-alias-label-primary",
+      "fallback": "#0f1115"
+    },
+    {
+      "path": "packages/client/web/src/base.css",
+      "line": 28,
+      "var": "--dsw-alias-bg-base",
+      "fallback": "#fff"
+    }
+  ],
+  "inline": {
+    "vars": [
+      [
+        "--dsh-windows-titlebar-height",
+        5
+      ],
+      [
+        "--dsh-frame-top-clearance",
+        5
+      ],
+      [
+        "--document-zoom",
+        4
+      ],
+      [
+        "--dsh-chat-user-width",
+        2
+      ],
+      [
+        "--pdf-page-width",
+        2
+      ],
+      [
+        "--pdf-page-height",
+        2
+      ],
+      [
+        "--dsh-content-font-size",
+        2
+      ],
+      [
+        "--dsh-composer-height",
+        1
+      ],
+      [
+        "--dsh-conversation-viewport-height",
+        1
+      ],
+      [
+        "--dsh-width-handle-pointer-y",
+        1
+      ],
+      [
+        "--dsh-conversation-column-width",
+        1
+      ],
+      [
+        "--foreign",
+        1
+      ],
+      [
+        "--total-scale-factor",
+        1
+      ],
+      [
+        "--scale-round-x",
+        1
+      ],
+      [
+        "--scale-round-y",
+        1
+      ],
+      [
+        "--terminal-cursor",
+        1
+      ],
+      [
+        "--terminal-cursor-accent",
+        1
+      ],
+      [
+        "--terminal-cursor-cell-background",
+        1
+      ],
+      [
+        "--terminal-cursor-cell-foreground",
+        1
+      ],
+      [
+        "--dsh-code-font-size",
+        1
+      ],
+      [
+        "--dsh-terminal-font-size",
+        1
+      ],
+      [
+        "--dsh-font-family-code",
+        1
+      ],
+      [
+        "--dsh-workspace-indent",
+        1
+      ],
+      [
+        "--dsh-boot-arc",
+        1
+      ],
+      [
+        "--dsh-composer-side-clearance",
+        1
+      ],
+      [
+        "--dsh-content-font-size-secondary",
+        1
+      ],
+      [
+        "--dsh-content-font-delta",
+        1
+      ],
+      [
+        "--dsl-terminal-command-whitespace",
+        1
+      ]
+    ],
+    "props": [
+      [
+        "width",
+        8
+      ],
+      [
+        "position",
+        6
+      ],
+      [
+        "height",
+        5
+      ],
+      [
+        "display",
+        4
+      ],
+      [
+        "gridColumn",
+        3
+      ],
+      [
+        "gridRow",
+        3
+      ],
+      [
+        "left",
+        3
+      ],
+      [
+        "visibility",
+        3
+      ],
+      [
+        "top",
+        2
+      ],
+      [
+        "flexGrow",
+        1
+      ],
+      [
+        "order",
+        1
+      ],
+      [
+        "depth",
+        1
+      ],
+      [
+        "gridTemplateColumns",
+        1
+      ],
+      [
+        "background",
+        1
+      ],
+      [
+        "color",
+        1
+      ],
+      [
+        "overflowY",
+        1
+      ],
+      [
+        "paddingBottom",
+        1
+      ],
+      [
+        "overflow",
+        1
+      ],
+      [
+        "contain",
+        1
+      ],
+      [
+        "opacity",
+        1
+      ],
+      [
+        "padding",
+        1
+      ],
+      [
+        "gap",
+        1
+      ],
+      [
+        "outline",
+        1
+      ]
+    ]
+  }
+}
