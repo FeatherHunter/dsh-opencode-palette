@@ -203,7 +203,7 @@ c = idx["counts"]
 used_domains = {k.split(".")[0] for k in caps}
 check("H1 _index 计数一致", c["direct_bindings"] == 425 and c["runtime_registered"] == 148
       and c["controls"] == 12 and c["domains_covered"] == len(used_domains)
-      and c["capabilities_unique"] == 379,
+      and c["capabilities_unique"] == 381,
       json.dumps(c, ensure_ascii=False)[:260])
 
 # ---------- I. 需求溯源与 crosswalk ----------

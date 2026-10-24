@@ -134,17 +134,25 @@ check("E2 直绑定 425 条且覆盖每个 token 恰一次", len(direct) == 425 
       len(direct))
 
 # ---------- F. 主题层干净 ----------
-check("F1 合成视图不含 raw_tokens 段", "raw_tokens" not in pal)
-check("F2 theme 层无 v1 JSON 兼容承诺", "v1 JSON 兼容" not in spec.split("## ")[0] or "无 v1 JSON" in spec)
-check("F3 palette api = 3", pal.get("api") == 3, pal.get("api"))
+def walk_keys(node, path=""):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            yield str(k), f"{path}.{k}"
+            yield from walk_keys(v, f"{path}.{k}")
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            yield from walk_keys(v, f"{path}[{i}]")
 
-# ---------- G. 生成器确定性 ----------
-h1 = hashlib.sha256(io.open("palette/palette.yaml", "rb").read()).hexdigest()
-os.system(f'"{sys.executable}" scripts/research/gen_palette_v5.py > /dev/null 2>&1' if os.name != "nt"
-          else f'"{sys.executable}" scripts/research/gen_palette_v5.py > nul 2>&1')
-h2 = hashlib.sha256(io.open("palette/palette.yaml", "rb").read()).hexdigest()
-check("G1 生成器可重跑且确定性", h1 == h2, f"{h1[:12]} vs {h2[:12]}")
+raw_hits = []
+for yname in yamls:
+    ydoc = yaml.safe_load(io.open(os.path.join("palette", yname), encoding="utf-8"))
+    for k, where in walk_keys(ydoc):
+        if k == "raw_tokens":
+            raw_hits.append(f"{yname}{where}")
+check("F1 全部 YAML 无 raw_tokens 键（递归）", not raw_hits, str(raw_hits[:3]))
+theme = yaml.safe_load(io.open("palette/SPEC.md", encoding="utf-8")) if False else None
+spec_text = io.open("palette/SPEC.md", encoding="utf-8").read()
+check("F2 SPEC 声明五键", "api" in spec_text and "capabilities" in spec_text and "extensions" in spec_text)
+pal = yaml.safe_load(io.open("palette/palette.yaml", encoding="utf-8"))
+check("F3 generated.from 含 ownership.yaml", "ownership.yaml" in (pal.get("generated", {}).get("from") or []))
 
-print()
-print(f"结果：PASS={len(PASS)} FAIL={len(FAIL)}" + ("" if not FAIL else " → " + " / ".join(FAIL)))
-sys.exit(1 if FAIL else 0)

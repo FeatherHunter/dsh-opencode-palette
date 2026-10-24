@@ -3,7 +3,7 @@
 
 运行：python scripts/research/gen_palette_v5.py
 输入（全部底层模块）：
-  palette/capabilities.yaml（手写能力源：28 条手写能力 + 控件模板）
+  palette/capabilities.yaml（手写能力源：30 条手写能力 + 控件模板）
   palette/vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml
   docs/research/capability-master.json / color-ability-map.json / noncolor-surface-map.json / private-surface-map.json（P1–P4 逐条表）
 输出：
@@ -296,6 +296,12 @@ for cid in list(caps):
             and not e.get("binds") and not e.get("aspects")):
         caps.pop(cid)
 
+# 来源计数（用于 crosswalk 报告，不手写数字）
+src_counts = {}
+for _c in caps.values():
+    _s = _c.get("source", "unknown")
+    src_counts[_s] = src_counts.get(_s, 0) + 1
+
 # ---------- 直绑定：425 全量 ----------
 direct = {}
 for t in tokens:
@@ -328,7 +334,7 @@ anchors_doc = load("palette/anchors.yaml")
 
 SOURCE_MODULES = [
     "capabilities.yaml", "vocabulary.yaml", "values.yaml", "primitives.yaml",
-    "assets.yaml", "probes.yaml", "anchors.yaml", "tokens.yaml",
+    "assets.yaml", "probes.yaml", "anchors.yaml", "tokens.yaml", "ownership.yaml",
 ]
 
 out = {
@@ -378,7 +384,7 @@ out = {
         "merged": {dup: owner for dup, owner in OWNERSHIP_MERGED},
         "renamed": dict(OWNERSHIP_RENAME),
         "converted": sorted(OWNERSHIP_CONVERT),
-        "dropped": ownership_dropped,
+        "dropped": {d["id"]: d["reason"] for d in ownership_dropped},
         "token_owner": claimed,
     },
     "extensions_reserved": menu.get("extensions") or {},
@@ -576,7 +582,7 @@ code{{font-family:ui-monospace,Consolas,monospace;font-size:12.8px;background:#f
 <table><thead><tr><th>项</th><th>数字</th><th>说明</th></tr></thead><tbody>
 <tr><td>公开 token</td><td class="num">425</td><td>= 颜色 222 + 非颜色 203</td></tr>
 <tr><td>直绑定条目</td><td class="num">{len(direct)}</td><td>和 425 一一对应（id = <code>token.&lt;ns&gt;.&lt;名字&gt;</code>）</td></tr>
-<tr><td>能力菜单</td><td class="num">{len(caps)}</td><td>手写 28 + master 236 + P4 52 + P2 20（合并/去重后）</td></tr>
+<tr><td>能力菜单</td><td class="num">{len(caps)}</td><td>手写 {src_counts.get("hand-authored", 0)} + master {src_counts.get("master", 0)} + P4 {src_counts.get("P4", 0)} + P2 {src_counts.get("P2", 0)}（合并/去重后）</td></tr>
 <tr><td>运行时登记</td><td class="num">{runtime['total']}</td><td>148 = --dsh 60 + --dsl 20 + 局部 --dsw 12 + 组件局部 56</td></tr>
 </tbody></table>
 

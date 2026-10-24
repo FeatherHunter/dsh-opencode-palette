@@ -21,7 +21,7 @@ modules:
     generated: true
     kind: composed
     command: python scripts/research/gen_palette_v5.py（由全部底层模块合成；勿手改）
-    summary: 能力全集合成视图——词表/值类型/原语/资源/探测/锚点 + 能力菜单 331 + 直绑定 425 + runtime 摘要
+    summary: 能力全集合成视图——词表/值类型/原语/资源/探测/锚点 + 能力菜单 321 + 直绑定 425 + runtime 摘要
   vocabulary:
     file: vocabulary.yaml
     version: 3.0.0
@@ -87,6 +87,7 @@ counts:
   domains_covered: 30
   direct_bindings: 425
   runtime_registered: 148
+  capabilities_synthesized: 321
 artifacts:
   palette: palette/palette.yaml
   crosswalk: docs/research/palette-v5-crosswalk.json

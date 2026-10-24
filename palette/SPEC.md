@@ -2,7 +2,7 @@
 
 - 状态：**P6 定稿（2026-10-24，v1.13）**。决策来源 = #147「讨论：Token 模型与「全量」边界」；已过 P1–P5 逐技术组讨论、P6 零偏差审计（34/34），并经第 12 轮独立对抗式二审（2026-10-24，发现 5 P1 + 8 P2，已按 v1.13 修正）。
 - 上位地图：「[wayfinder] V3 主题系统」（#128）
-- 机器源：`palette/` 目录（手写能力源 `capabilities.yaml` + 7 个底层模块 → 合成为 `palette.yaml`）；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁（`scripts/research/palette-check.py`）为准。
+- 机器源：`palette/` 目录（手写能力源 `capabilities.yaml` + 8 个底层模块 → 合成为 `palette.yaml`）；本文件是给人/新 AI 的规范入口；两者冲突时以 `palette/` + 门禁（`scripts/research/palette-check.py`）为准。
 - 零偏差对照：P1–P4 每一行 → YAML 落点见 `docs/research/v3-p1p4-to-yaml-crosswalk.html`（机器生成）。
 
 ## 0. 一页结论
@@ -115,11 +115,12 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 | `probes.yaml` | 生效前探测原语 | 探测结果的使用策略（在能力里） |
 | `tokens.yaml` | 宿主 token 全集事实 + runtime 登记 | 我们决定暴露哪些（在 palette） |
 | `anchors.yaml` | 宿主选择器/控件清单 | 能力语义 |
+| `ownership.yaml` | 能力归属策略：merged / renamed / converted / dropped | 能力条目本身（在 capabilities.yaml） |
 
 生成链（全部可重跑）：
 
 - `scripts/research/gen_token_registry.py` → `palette/tokens.yaml`（425 条 + runtime 段）
-- `scripts/research/gen_palette_v5.py` → `palette/palette.yaml`（由 capabilities/vocabulary/values/primitives/assets/probes/anchors/tokens 合成：capabilities + direct_bindings + 各段视图）+ `docs/research/palette-v5-crosswalk.json`
+- `scripts/research/gen_palette_v5.py` → `palette/palette.yaml`（由 capabilities/vocabulary/values/primitives/assets/probes/anchors/tokens/ownership 合成：capabilities + direct_bindings + 各段视图）+ `docs/research/palette-v5-crosswalk.json`
 - `scripts/research/palette-check.py` → 全量门禁
 
 ## 5. 加载管线
@@ -148,7 +149,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 补充定义：
 
 - **425 / 573 边界**：425 = 公开合约命名空间（`--dsw` 403 + `--shiki` 11 + `--dsh` 11）；573 = 运行时页面出现的变量名，多出 148 个局部变量（`--dsh` 额外 60 + `--dsl` 20 + 局部 `--dsw` 12 + 组件局部 56），登记在 `tokens.yaml` 的 `runtime` 段、不建用户能力。
-- **状态模型**：主状态（live/dead/missing）互斥 + 修饰（declared_invalid/pinned/gated）可叠加；颜色轴 184 + 38 = 222，gated 5 属颜色轴、另有 `--dsh-scrollbar-thumb` 1 属 `--dsh` 轴。
+- **状态模型**：主状态（live/dead/missing）互斥 + 修饰（declared_invalid/pinned/gated）可叠加；颜色轴 184 + 38 = 222；当前 gated 仅 elevation 五名（颜色轴内），无 `--dsh` 轴 gated。
 - **效果家族**：颜色/排印/圆角/阴影/玻璃/图标/媒体背景/外壳已落能力；动效曲线与密度（padding/margin/gap）当前不开放（宿主无 token + rule 白名单不含间距）；DOM 结构改动标 experimental（默认关闭）。
 
 ## 7. 版本与兼容

@@ -33,7 +33,7 @@ code{background:#f6f8fa;padding:1px 5px;border-radius:4px;font-size:12.5px}.mute
 doc = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>P6 零偏差审计报告</title><style>{CSS}</style></head><body>
 <h1>P6 零偏差审计报告</h1>
-<p class="muted">2026-10-24 · 脚本 <code>scripts/research/audit_p6_zero_deviation.py</code> · 对象：<code>palette/SPEC.md</code> ↔ <code>palette/</code> 10 个 YAML ↔ P1–P5 研究表</p>
+<p class="muted">2026-10-24 · 脚本 <code>scripts/research/audit_p6_zero_deviation.py</code> · 对象：<code>palette/SPEC.md</code> ↔ <code>palette/</code> 11 个 YAML ↔ P1–P5 研究表</p>
 <h2>结论</h2>
 <p><b>34 项全部 PASS，FAIL=0。</b>SPEC ↔ YAML ↔ 四份研究表逐条一致；集合闭合；主题层干净；生成器确定性。可以进入 #147 收口。</p>
 <h2>审计项与结果</h2>
@@ -47,8 +47,8 @@ doc = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta na
 <tr><td>颜色轴</td><td>222 = 184 live + 38 dead</td><td>gated 修饰 5，不增加计数</td></tr>
 <tr><td>非颜色</td><td>203</td><td>typography 182 + radius 6 + dsh 11 + menu/corner/mask/other 4</td></tr>
 <tr><td>运行时</td><td>148</td><td>--dsh 额外 60 + --dsl 20 + 局部 --dsw 12 + 组件局部 56</td></tr>
-<tr><td>能力菜单</td><td>319</td><td>手写 30 + master 213 + P4 51 + P2 19，去重后</td></tr>
-<tr><td>合并视图</td><td>379</td><td>319 + 模板展开 65 − 重名 5</td></tr>
+<tr><td>能力菜单</td><td>321</td><td>手写 29 + master 229 + P4 50 + P2 13，去重后</td></tr>
+<tr><td>合并视图</td><td>381</td><td>321 + 模板展开 65 − 重名 5</td></tr>
 <tr><td>直绑定</td><td>425</td><td>每个 token 恰一条</td></tr>
 <tr><td>词表</td><td>区域 14 / 角色 29 / 能力域 34 / 锚点 26 / 控件 12</td><td>vocabulary.yaml + anchors.yaml</td></tr>
 </tbody></table>

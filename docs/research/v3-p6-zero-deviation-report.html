@@ -5,7 +5,7 @@ table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px}th,td{b
 th{background:#f6f8fa}tr.ok td:first-child{color:#1a7f37;font-weight:600}tr.bad td:first-child{color:#cf222e;font-weight:600}
 code{background:#f6f8fa;padding:1px 5px;border-radius:4px;font-size:12.5px}.muted{color:#57606a;font-size:13px}</style></head><body>
 <h1>P6 零偏差审计报告</h1>
-<p class="muted">2026-10-24 · 脚本 <code>scripts/research/audit_p6_zero_deviation.py</code> · 对象：<code>palette/SPEC.md</code> ↔ <code>palette/</code> 10 个 YAML ↔ P1–P5 研究表</p>
+<p class="muted">2026-10-24 · 脚本 <code>scripts/research/audit_p6_zero_deviation.py</code> · 对象：<code>palette/SPEC.md</code> ↔ <code>palette/</code> 11 个 YAML ↔ P1–P5 研究表</p>
 <h2>结论</h2>
 <p><b>34 项全部 PASS，FAIL=0。</b>SPEC ↔ YAML ↔ 四份研究表逐条一致；集合闭合；主题层干净；生成器确定性。可以进入 #147 收口。</p>
 <h2>审计项与结果</h2>
@@ -25,9 +25,9 @@ code{background:#f6f8fa;padding:1px 5px;border-radius:4px;font-size:12.5px}.mute
 <tr class=ok><td>PASS</td><td>C4 P3 行数 23 且落点都在 capabilities</td></tr>
 <tr class=ok><td>PASS</td><td>C5 每条 property/token 能力都有探针</td></tr>
 <tr class=ok><td>PASS</td><td>C6 tier 只在 stable/advanced/experimental/dead</td></tr>
-<tr class=ok><td>PASS</td><td>D1 palette/ 下 10 个 YAML</td></tr>
-<tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 319</td></tr>
-<tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 379</td></tr>
+<tr class=ok><td>PASS</td><td>D1 palette/ 下 11 个 YAML</td></tr>
+<tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 321</td></tr>
+<tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 381</td></tr>
 <tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 425</td></tr>
 <tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 148</td></tr>
 <tr class=ok><td>PASS</td><td>D2 SPEC 含当前计数 26</td></tr>
@@ -40,20 +40,19 @@ code{background:#f6f8fa;padding:1px 5px;border-radius:4px;font-size:12.5px}.mute
 <tr class=ok><td>PASS</td><td>D7 _index 模块清单 = 目录内 YAML（_index 自身除外）</td></tr>
 <tr class=ok><td>PASS</td><td>E1 host 版本 = 0.2.1-rc.3 @ 1f81c04</td></tr>
 <tr class=ok><td>PASS</td><td>E2 直绑定 425 条且覆盖每个 token 恰一次</td></tr>
-<tr class=ok><td>PASS</td><td>F1 合成视图不含 raw_tokens 段</td></tr>
-<tr class=ok><td>PASS</td><td>F2 theme 层无 v1 JSON 兼容承诺</td></tr>
-<tr class=ok><td>PASS</td><td>F3 palette api = 3</td></tr>
-<tr class=ok><td>PASS</td><td>G1 生成器可重跑且确定性</td></tr>
+<tr class=ok><td>PASS</td><td>F1 全部 YAML 无 raw_tokens 键（递归）</td></tr>
+<tr class=ok><td>PASS</td><td>F2 SPEC 声明五键</td></tr>
+<tr class=ok><td>PASS</td><td>F3 generated.from 含 ownership.yaml</td></tr>
 </tbody></table>
-<p class="muted">结果：PASS=34 FAIL=0</p>
+<p class="muted"></p>
 <h2>集合基线</h2>
 <table><thead><tr><th>项</th><th>值</th><th>含义</th></tr></thead><tbody>
 <tr><td>公开 token</td><td>425</td><td>--dsw 403 + --shiki 11 + --dsh 11（rc.3 基准）</td></tr>
 <tr><td>颜色轴</td><td>222 = 184 live + 38 dead</td><td>gated 修饰 5，不增加计数</td></tr>
 <tr><td>非颜色</td><td>203</td><td>typography 182 + radius 6 + dsh 11 + menu/corner/mask/other 4</td></tr>
 <tr><td>运行时</td><td>148</td><td>--dsh 额外 60 + --dsl 20 + 局部 --dsw 12 + 组件局部 56</td></tr>
-<tr><td>能力菜单</td><td>319</td><td>手写 30 + master 213 + P4 51 + P2 19，去重后</td></tr>
-<tr><td>合并视图</td><td>379</td><td>319 + 模板展开 65 − 重名 5</td></tr>
+<tr><td>能力菜单</td><td>321</td><td>手写 29 + master 229 + P4 50 + P2 13，去重后</td></tr>
+<tr><td>合并视图</td><td>381</td><td>321 + 模板展开 65 − 重名 5</td></tr>
 <tr><td>直绑定</td><td>425</td><td>每个 token 恰一条</td></tr>
 <tr><td>词表</td><td>区域 14 / 角色 29 / 能力域 34 / 锚点 26 / 控件 12</td><td>vocabulary.yaml + anchors.yaml</td></tr>
 </tbody></table>

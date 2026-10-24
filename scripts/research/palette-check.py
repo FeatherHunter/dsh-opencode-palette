@@ -1,7 +1,7 @@
 """palette/ 跨模块一致性检查（门禁原型 v1.10）。
 
 校验：
-  1. 9 个 YAML 全部解析；目录里没有未注册的 YAML
+  1. 11 个 YAML 全部解析；目录里没有未注册的 YAML
   2. 手写能力 id 的每一段来自 vocabulary.yaml（region / role / property / recipe）
   3. value 类型来自 values.yaml；anchor 引用存在；写原语 / dom op / token 名存在
   4. rule 写的 decl 键在白名单内；@ 规则用 allowed_at_descriptors
@@ -350,7 +350,7 @@ def main():
     # —— token 存在性 ——
     missing_tokens = sorted(token_refs - token_names)
     for name in missing_tokens:
-        errors.append(f'token 引用 {name} 不在 tokens.yaml（当前 15 条样本；新引用需先登记事实）')
+        errors.append(f'token 引用 {name} 不在 tokens.yaml（当前 425 条样本；新引用需先登记事实）')
 
     # —— anchors.yaml 置信度计数 ——
     from collections import Counter
@@ -474,6 +474,28 @@ def main():
         errors.append('palette.yaml.probes 与 probes.yaml 不一致（合成视图必须零偏差）')
     if (palette.get('generated') or {}).get('generator') != 'scripts/research/gen_palette_v5.py':
         errors.append('palette.yaml.generated.generator 缺失或不对')
+
+    # —— v1.13 门禁：手写能力 ⊆ 合成 ∪ dropped；ownership 逐字段一致 ——
+    src_caps_all = set(((loaded.get('capabilities.yaml') or {}).get('capabilities') or {}).keys())
+    synth_caps = set((palette.get('capabilities') or {}).keys())
+    own_doc = loaded.get('ownership.yaml') or {}
+    dropped_ids = set((own_doc.get('dropped') or {}).keys())
+    not_landed = sorted(src_caps_all - synth_caps - dropped_ids)
+    if not_landed:
+        errors.append(f'手写能力未出现在合成视图且未登记 ownership.dropped: {not_landed}')
+    pal_own = dict(palette.get('ownership') or {})
+    pal_own.pop('token_owner', None)
+    mod_own = {k: v for k, v in own_doc.items() if k in ('merged', 'renamed', 'dropped')}
+    for k, v in mod_own.items():
+        if pal_own.get(k) != v:
+            errors.append(f'palette.yaml.ownership.{k} 与 ownership.yaml 不一致（合成视图必须零偏差）')
+    if pal_own.get('converted') != sorted((own_doc.get('converted') or {}).keys()):
+        errors.append('palette.yaml.ownership.converted 与 ownership.yaml 的键不一致')
+    for owner in (own_doc.get('merged') or {}).values():
+        if owner not in synth_caps:
+            errors.append(f'ownership.merged 的 owner 不在合成能力集: {owner}')
+    if (palette.get('generated') or {}).get('from') and 'ownership.yaml' not in palette['generated']['from']:
+        errors.append('palette.yaml.generated.from 缺 ownership.yaml')
 
     # —— 计数与 _index 比对 ——
     counts = idx.get('counts', {})

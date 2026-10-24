@@ -22,6 +22,7 @@ generated:
   - probes.yaml
   - anchors.yaml
   - tokens.yaml
+  - ownership.yaml
   generator: scripts/research/gen_palette_v5.py
   host:
     version: 0.2.1-rc.3
@@ -11612,10 +11613,8 @@ ownership:
   - tool.search.radius
   - tool.web.radius
   dropped:
-  - id: window.titleBar.background
-    reason: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
-  - id: sidebar.guide.entry.radius
-    reason: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
+    window.titleBar.background: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
+    sidebar.guide.entry.radius: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
   token_owner:
     --dsw-alias-bg-base: global.page.background
     --dsw-alias-label-primary: global.text.foreground
