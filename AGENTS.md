@@ -12,6 +12,10 @@ Five canonical triage roles map 1:1 to labels `needs-triage` / `needs-info` / `r
 
 Single-context: one `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+### 开发规范（维护者指令，强制）
+
+所有开发与问题推进按 [docs/agents/dev-standards.md](docs/agents/dev-standards.md)：JS 代码改动一律先重构为 TS；纯 TS 架构/数据结构/算法/设计模式/高级架构师思维；从第一性原理出发；每个里程碑做对抗式审查；目录与文件名自解释；不过度发散；充分封装解耦、组件可复用。
+
 ### 本机教学状态（不入库）
 
 个人 teach workspace 整组收在 `teach/`（`MISSION.md` / `RESOURCES.md` / `NOTES.md` / `lessons/` / `reference/` / `learning-records/` / `assets/`），已被 `.gitignore` 覆盖：根目录只放项目门面，教学文件不要放回根目录；教学会话先读 `teach/NOTES.md`。
