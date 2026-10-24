@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>P1–P5 第一性原理审计（2026-10-24）</title>
+<style>
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 1180px; margin: 32px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.65; }
+  h1 { font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+  h2 { font-size: 18px; margin-top: 34px; border-left: 4px solid #2f6f9f; padding-left: 10px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 13px; }
+  th, td { border: 1px solid #d0d0d0; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #f2f5f8; }
+  .pass { color: #197a2f; font-weight: 600; }
+  .fail { color: #b3261e; font-weight: 600; }
+  .fixed { color: #8a5a00; font-weight: 600; }
+  code { background: #f4f4f4; padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+  .lead { background: #f7f9fb; border: 1px solid #dce5ec; padding: 12px 16px; border-radius: 6px; }
+  ul { margin: 8px 0 14px; }
+</style>
+</head>
+<body>
+
+<h1>P1–P5 第一性原理审计</h1>
+<p>时间：2026-10-24　范围：P1 颜色 222、P2 私有面、P3 DOM、P4 非颜色 203 + 运行时 148、P5 定稿（palette/ 10 个 YAML + SPEC）　脚本：<code>scripts/research/audit_p1p5.py</code>（可复跑，零外部依赖）</p>
+
+<div class="lead">
+<p><strong>结论：</strong>50 项检查中 49 项通过；1 项不通过 —— <strong>14 个宿主 token 被多条能力同时写入</strong>（违背「一个 token 一个语义」）。</p>
+<p><strong>本轮已修 4 类问题</strong>（见 §2）：2 个 live token 无能力、值类型标注错误、crosswalk 9 行空落点、审计规则 3 处假阳性。</p>
+<p><strong>待决策 1 项</strong>（见 §3）：多写者 token 的归属策略，三选一后即可进 P6。</p>
+</div>
+
+<h2>1. 审计方法（第一性原理）</h2>
+<p>渲染只能改四类输入：DOM 结构、CSSOM、媒体资源、字体。由此得出 5 条通道与 6 层落点；再由此推出「完备性 5 条件」，逐条变成可执行检查：</p>
+<ul>
+  <li><strong>C1 集合封闭</strong>：425 = 222 + 203；573 = 425 + 148；无重叠、无遗漏。</li>
+  <li><strong>C2 语义单义</strong>：一个 token 只归一个语义、只被一个能力写；id 不撞名。</li>
+  <li><strong>C3 绑定可达</strong>：每条能力有可执行落地（token / 规则 / DOM / 资源），写原语与锚点合法。</li>
+  <li><strong>C4 可验可测</strong>：每条能力带探针；生成器可重跑且确定性；合成视图与源模块零偏差。</li>
+  <li><strong>C5 需求可溯源</strong>：P1–P4 每一行都能映射到具体能力或直绑定；24 条 idea 有归属票。</li>
+</ul>
+
+<h2>2. 检查结果</h2>
+<table>
+<tr><th>组</th><th>检查内容</th><th>结果</th></tr>
+<tr><td>A1–A8</td><td>集合算术：425 / 403+11+11 / 222+203 / 148 / 573，无重叠</td><td class="pass">8 PASS</td></tr>
+<tr><td>B1–B5</td><td>直绑定 425 条：唯一、覆盖每 token 一次、状态一致、值类型已定义、id 形状合法</td><td class="pass">5 PASS</td></tr>
+<tr><td>C1–C12</td><td>能力结构：id 文法与域、kind、写原语 use/anchor/op/token、`token_live` 守卫、值类型</td><td class="pass">12 PASS（修 3 处假阳性后）</td></tr>
+<tr><td>D1–D4</td><td>落点覆盖：425 全落点、222 全落点、203 全落点、236 live 全进能力层</td><td class="pass">4 PASS（修 2 个缺失 token 后）</td></tr>
+<tr><td>E1</td><td>颜色类值类型必须声明 diurnal（亮暗成对）</td><td class="pass">PASS</td></tr>
+<tr><td>F1–F9</td><td>合成视图零偏差：grammar / 能力域 / 值类型 / 写原语 / realization / assets / 控件 / 模板 / 探针</td><td class="pass">9 PASS</td></tr>
+<tr><td>G1–G3</td><td>主题层干净：五键、无 raw_tokens、无 v1 JSON 兼容承诺</td><td class="pass">3 PASS</td></tr>
+<tr><td>H1</td><td>`_index` 计数与实测一致（30 / 394 / 425 / 148 / 12 / 30）</td><td class="pass">PASS</td></tr>
+<tr><td>I1–I2</td><td>crosswalk 每行有落点（0 行空）、行数 222+24+23+203+236</td><td class="pass">2 PASS</td></tr>
+<tr><td>J1</td><td>生成器可重跑且确定性（两次产物哈希一致）</td><td class="pass">PASS</td></tr>
+<tr><td><strong>K1</strong></td><td><strong>每个 token 只有一个能力写它</strong></td><td class="fail">FAIL：14 个 token 多写者</td></tr>
+</table>
+
+<h3>2.1 本轮修复明细</h3>
+<table>
+<tr><th>问题</th><th>证据</th><th>修复</th></tr>
+<tr><td>2 个 live token 没有能力覆盖</td><td>`--shiki-background` 只有直绑定、无能力；`--dsw-focus-ring-width` 因语义 id 与 `global.focusRing` 冲突被跳过</td><td>新增 `content.code.background`、`global.focus.ring.width` 两条 token 能力（写入 `palette/capabilities.yaml`）；D4 从 234/236 → 236/236</td></tr>
+<tr><td>非颜色 token 值类型标错</td><td>`--dsw-focus-ring-width` 标 color、`--dsw-menu-backdrop-filter` 标 color、`--dsw-corner-shape` 标 length/number</td><td>值类型改为以 P1/P4 逐条表为准（length / filter / keyword / shape）；生成器 <code>gen_token_registry.py</code> 增覆盖表</td></tr>
+<tr><td>crosswalk 9 行 capability 为空</td><td>`--shiki-background`、`--dsw-focus-ring-width`、4 个 scrollbar、`--dsw-specific-menu`、`--dsw-focus-ring-color`、`--dsw-menu-surface-fill`</td><td>3 个被合并能力绑定（focusRing / scrollbar / menu.surface）；2 个补新能力后回填；I1 = 0 行空</td></tr>
+<tr><td>审计规则 3 处假阳性</td><td>recipe 落地在 `aspects.*.effects`；rule 写可用 `at:` 代替 anchor；域覆盖应按实际使用域计（30/34）</td><td>规则改对；C6/C8/H1 由 FAIL → PASS</td></tr>
+</table>
+
+<h2>3. 剩余唯一问题：14 个 token 被多条能力写</h2>
+<p>根因：P5 合成时把 master（236 行）、P4（52 条）、手写（30 条）三套表直接合并，没做「token 归属唯一化」。逐条如下（按性质分三类）：</p>
+
+<table>
+<tr><th>类别</th><th>token</th><th>写它的能力</th></tr>
+<tr><td rowspan="10">A. 同一语义重复行<br>（不同表各生成一条）</td><td>`--dsw-alias-markdown-code-block`</td><td>code.block.background（手写）· content.markdown.code-block.background（master）· content.code.block.background（P2）</td></tr>
+<tr><td>`--dsw-alias-markdown-code-block-banner`</td><td>content.markdown.code-block.banner（master）· content.code.block.banner.background（P2）</td></tr>
+<tr><td>`--dsw-font-family`</td><td>global.text.font_family（手写）· typography.family.default（P4）· content.code.block.banner.font（P2）</td></tr>
+<tr><td>`--dsw-alias-link`</td><td>global.link.foreground（手写）· markdown.link.foreground · global.link.text</td></tr>
+<tr><td>`--dsw-font-markdown-base-font-size`</td><td>markdown.paragraph.font_size · typography.markdown-base.font_size</td></tr>
+<tr><td>`--dsw-font-markdown-base-line-height`</td><td>markdown.paragraph.line_height · typography.markdown-base.line_height</td></tr>
+<tr><td>`--dsw-font-markdown-code-block`</td><td>typography.markdown-code-block.composite · content.code.block.content.font</td></tr>
+<tr><td>`--dsw-font-markdown-code-block-small`</td><td>typography.markdown-code-block-small.composite · content.terminal.font</td></tr>
+<tr><td>`--dsw-menu-surface-fill`</td><td>menu.surface.background（property 写）· menu.surface（effect 绑定）</td></tr>
+<tr><td>`--dsw-alias-label-primary` / `--dsw-specific-sidebar-fill`</td><td>除重复行外还含宿主耦合（见 B）</td></tr>
+<tr><td rowspan="3">B. 宿主耦合<br>（宿主内部只认一个 token）</td><td>`--dsw-specific-sidebar-fill`</td><td>sidebar.panel.background（侧栏底）· window.titleBar.background（标题栏底色=读侧栏色）· specific.sidebar.fill（重复行）</td></tr>
+<tr><td>`--dsw-alias-label-primary`</td><td>global.text.foreground（正文）· window.titleBar.background（标题栏字色）· composer.input.foreground（输入框文字）· global.text.primary（重复行）</td></tr>
+<tr><td>`--dsw-alias-bg-layer-2`</td><td>sidebar.item.background · global.surface.layer-2</td></tr>
+<tr><td rowspan="3">C. 区域旋钮<br>（想按区域改，但宿主只有全局 token）</td><td>`--dsw-radius-lg`</td><td>radius.lg · content.code.block.radius · content.search.radius · content.terminal.radius · content.web.radius</td></tr>
+<tr><td>`--dsw-radius-xl`</td><td>radius.xl · sidebar.guide.entry.radius</td></tr>
+<tr><td>（同上）</td><td>—</td></tr>
+</table>
+
+<h3>3.1 三个选项</h3>
+<table>
+<tr><th>选项</th><th>做法</th><th>代价</th></tr>
+<tr><td><strong>A（推荐）单一 owner</strong></td><td>① 重复语义行合并：保留手写/规范 id，其余进 `merged_from` 后删除；② 区域级旋钮改写规则层（如 `border-radius: &lt;值&gt;` 写到区域锚点，保留旋钮但不抢 token）；③ 宿主耦合项（标题栏底色=侧栏色派生、标题栏字色=主文字色）登记为 derived，不设独立旋钮，文档写明。</td><td>窗口区会少一个「标题栏独立配色」旋钮（宿主物理限制，写文档说明）；区域圆角/链接色改为规则实现（实现技术变一条，但能力仍在）。</td></tr>
+<tr><td>B 显式多写者</td><td>每个 token 保留多条能力，但要求显式 `shared_with` 声明 + 写入顺序（后写覆盖），编辑器对共享 token 的旋钮加警示。</td><td>用户可能同时看到两个互相覆盖的旋钮，结果依赖顺序；违背「一个 token 一个语义」。</td></tr>
+<tr><td>C 全部合并为一</td><td>每个 token 只留一条能力，删除区域级旋钮与标题栏旋钮。</td><td>菜单最短，但损失区域级表达力（用户无法单独调代码块圆角/链接色）。</td></tr>
+</table>
+
+<h2>4. 复跑方式</h2>
+<pre><code>python scripts/research/gen_palette_v5.py      # 重新合成 palette.yaml
+python scripts/research/palette-check.py       # 结构与 _index 校验（0 错 0 警）
+python scripts/research/audit_p1p5.py          # 本次第一性原理审计（当前 FAIL=1，即 K1）</code></pre>
+
+</body>
+</html>
