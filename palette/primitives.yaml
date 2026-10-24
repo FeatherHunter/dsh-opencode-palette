@@ -27,7 +27,7 @@ write_kinds:
       允许写死名/门控名时须显式 allow_primary_status / allow_modifiers + allow_reason。
       例外（v1.10）：realization 级 `when: { probe: token_live }` 守卫的条件写——守卫已表达
       「只在该 token 活着时才写」，该守卫绑定的 token 写可不给 allow_*（详见 §1b realization schema）。
-      用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
+      用户层只能写 palette 登记过的能力与直绑定（`token.*`）；宿主变量名不出现在 theme.yaml（SPEC §3 硬规则 3）。
     fields:
       name:            { required: true,  type: token_name, pattern: '^--[a-z][a-z0-9-]*$' }   # 语法上任意 -- 名；存在性由 validates 约束
       state:           { required: false, type: enum, values: [hover, active, focus, disabled, selected] }
@@ -37,7 +37,7 @@ write_kinds:
       allow_modifiers:      { required: false, type: list, values: [pinned, gated, declared_invalid] }
       allow_reason:         { required: false, type: string }  # 放宽主状态或声明修饰时必填
     validates:
-      - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 15 条样本，未覆盖的名字 = 门禁错误）
+      - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表 425 条；未覆盖的名字 = 门禁错误）
       - allow_primary_status 缺省时主状态必须为 live；allow_modifiers 只放宽修饰、不改变主状态
       - 出现 allow_primary_status 或 allow_modifiers 时 allow_reason 必填
       - live 名不得给 allow_primary_status（放宽主状态只用于非 live 名）

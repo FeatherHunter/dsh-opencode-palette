@@ -1,6 +1,6 @@
-# palette.yaml —— DSH 全量主题能力表（合成视图，P5 定稿）
+# palette.yaml —— DSH 全量主题能力表（合成视图，v1.13 定稿）
 # 本文件由 scripts/research/gen_palette_v5.py 从以下底层模块合成，不要手改：
-#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml
+#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml / ownership.yaml
 # 各段是底层模块的合成视图；capabilities 是能力菜单；direct_bindings 是 425 个 token 的直绑定兜底；runtime_summary 是运行时登记摘要。
 # 每条能力都指向底层实现技术（token / 规则 / DOM / 字体 / 资源），裸 token 名只出现在 binds / token 字段里。
 
@@ -535,7 +535,7 @@ write_kinds:
 
       「只在该 token 活着时才写」，该守卫绑定的 token 写可不给 allow_*（详见 §1b realization schema）。
 
-      用户层逃生舱 raw_tokens 不走本原语：名字不校验、只校验值形状（SPEC §3 硬规则 3）。
+      用户层只能写 palette 登记过的能力与直绑定（`token.*`）；宿主变量名不出现在 theme.yaml（SPEC §3 硬规则 3）。
 
       '
     fields:
@@ -576,7 +576,7 @@ write_kinds:
         required: false
         type: string
     validates:
-    - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表后；当前 15 条样本，未覆盖的名字 = 门禁错误）
+    - name 必须在 tokens.yaml 存在（tokens.yaml 为完整表 425 条；未覆盖的名字 = 门禁错误）
     - allow_primary_status 缺省时主状态必须为 live；allow_modifiers 只放宽修饰、不改变主状态
     - 出现 allow_primary_status 或 allow_modifiers 时 allow_reason 必填
     - live 名不得给 allow_primary_status（放宽主状态只用于非 live 名）
@@ -1557,7 +1557,8 @@ capabilities:
     docs: 侧栏列表项背景；没写的状态回落到默认值。
     probe: token_live(--dsw-alias-bg-layer-2)
     realization:
-    - id: rule
+    - &id009
+      id: rule
       writes:
       - id: bg
         use: rule
@@ -1670,7 +1671,8 @@ capabilities:
     value: color
     probe: token_live(--dsw-alias-label-primary)
     realization:
-    - id: rule
+    - &id001
+      id: rule
       writes:
       - id: color
         use: rule
@@ -1953,7 +1955,8 @@ capabilities:
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
     probe: selector_exists(markdown.paragraph)
     realization:
-    - id: rule
+    - &id004
+      id: rule
       writes:
       - id: lh
         use: rule
@@ -1994,7 +1997,8 @@ capabilities:
     value: length
     probe: selector_exists(markdown.paragraph)
     realization:
-    - id: rule
+    - &id003
+      id: rule
       writes:
       - id: fs
         use: rule
@@ -2034,7 +2038,8 @@ capabilities:
     value: color
     probe: token_live(--dsw-alias-link)
     realization:
-    - id: rule
+    - &id002
+      id: rule
       writes:
       - id: color
         use: rule
@@ -6383,7 +6388,8 @@ capabilities:
     probe: token_live(--dsw-radius-lg)
     value: length
     realization:
-    - id: rule
+    - &id005
+      id: rule
       writes:
       - id: r
         use: rule
@@ -6402,7 +6408,8 @@ capabilities:
     probe: token_live(--dsw-radius-lg)
     value: length
     realization:
-    - id: rule
+    - &id006
+      id: rule
       writes:
       - id: r
         use: rule
@@ -6421,7 +6428,8 @@ capabilities:
     probe: token_live(--dsw-radius-lg)
     value: length
     realization:
-    - id: rule
+    - &id007
+      id: rule
       writes:
       - id: r
         use: rule
@@ -6440,7 +6448,8 @@ capabilities:
     probe: token_live(--dsw-radius-lg)
     value: length
     realization:
-    - id: rule
+    - &id008
+      id: rule
       writes:
       - id: r
         use: rule
@@ -11603,15 +11612,60 @@ ownership:
     content.terminal.radius: terminal.block.radius
     content.web.radius: tool.web.radius
   converted:
-  - code.block.radius
-  - composer.input.foreground
-  - markdown.link.foreground
-  - markdown.paragraph.font_size
-  - markdown.paragraph.line_height
-  - sidebar.item.background
-  - terminal.block.radius
-  - tool.search.radius
-  - tool.web.radius
+    composer.input.foreground:
+      kind: property
+      value: color
+      tier: stable
+      realization:
+      - *id001
+    markdown.link.foreground:
+      kind: property
+      value: color
+      tier: stable
+      realization:
+      - *id002
+    markdown.paragraph.font_size:
+      kind: property
+      value: length
+      tier: stable
+      realization:
+      - *id003
+    markdown.paragraph.line_height:
+      kind: property
+      value: line_height
+      tier: stable
+      realization:
+      - *id004
+    code.block.radius:
+      kind: property
+      value: length
+      tier: stable
+      realization:
+      - *id005
+    tool.search.radius:
+      kind: property
+      value: length
+      tier: stable
+      realization:
+      - *id006
+    terminal.block.radius:
+      kind: property
+      value: length
+      tier: stable
+      realization:
+      - *id007
+    tool.web.radius:
+      kind: property
+      value: length
+      tier: stable
+      realization:
+      - *id008
+    sidebar.item.background:
+      kind: property
+      value: paint
+      tier: stable
+      realization:
+      - *id009
   dropped:
     window.titleBar.background: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
     sidebar.guide.entry.radius: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单

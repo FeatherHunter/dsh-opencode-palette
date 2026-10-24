@@ -35,7 +35,7 @@ doc = f"""<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta na
 <h1>P6 零偏差审计报告</h1>
 <p class="muted">2026-10-24 · 脚本 <code>scripts/research/audit_p6_zero_deviation.py</code> · 对象：<code>palette/SPEC.md</code> ↔ <code>palette/</code> 11 个 YAML ↔ P1–P5 研究表</p>
 <h2>结论</h2>
-<p><b>34 项全部 PASS，FAIL=0。</b>SPEC ↔ YAML ↔ 四份研究表逐条一致；集合闭合；主题层干净；生成器确定性。可以进入 #147 收口。</p>
+<p><b>{passn} 项全部 PASS，FAIL=0。</b>SPEC ↔ YAML ↔ 四份研究表逐条一致；集合闭合；主题层干净；生成器确定性。可以进入 #147 收口。</p>
 <h2>审计项与结果</h2>
 <table><thead><tr><th>结果</th><th>检查项</th></tr></thead><tbody>
 {body}

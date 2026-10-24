@@ -8,6 +8,10 @@ requires:
   primitives: '>=3.0.0'
   assets: '>=3.0.0'
   probes: '>=3.0.0'
+  tokens: '>=3.0.0'
+  anchors: '>=3.0.0'
+  ownership: '>=3.0.0'
+  palette: '>=3.0.0'
 modules:
   capabilities:
     file: capabilities.yaml
@@ -54,14 +58,16 @@ modules:
     summary: 探测原语与探测环境——能力生效前先问宿主「这个还行吗」
   tokens:
     file: tokens.yaml
-    version: dsh 0.2.1-rc.3 @ 1f81c04（rc.3 主题面与 rc.2 逐字节相同）
+    version: 3.0.0
+    host: dsh 0.2.1-rc.3 @ 1f81c04（rc.3 主题面与 rc.2 逐字节相同）
     generated: full
     kind: host_facts
     command: python scripts/research/gen_token_registry.py（扫描器已实现，全量 425 条）
     summary: 宿主 token 全集 425 条：状态（live/dead + 修饰）、声明位置（全部）、消费次数、消费位置（全部）、本仓是否已注入；扫描器生成，勿手改
   anchors:
     file: anchors.yaml
-    version: dsh 0.2.1-rc.3 @ 1f81c04（anchors 清单为人工核对，rc.3 无锚点变化）
+    version: 3.0.0
+    host: dsh 0.2.1-rc.3 @ 1f81c04（anchors 清单为人工核对，rc.3 无锚点变化）
     generated: partial
     kind: host_facts
     command: palette:scan-anchors（扫描器规划中；当前 anchors.yaml 为人工清单）

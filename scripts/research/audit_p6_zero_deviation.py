@@ -14,6 +14,7 @@ import hashlib
 import io
 import json
 import os
+import subprocess
 import sys
 
 import yaml
@@ -156,3 +157,15 @@ check("F2 SPEC 声明五键", "api" in spec_text and "capabilities" in spec_text
 pal = yaml.safe_load(io.open("palette/palette.yaml", encoding="utf-8"))
 check("F3 generated.from 含 ownership.yaml", "ownership.yaml" in (pal.get("generated", {}).get("from") or []))
 
+# ---------- G. 生成器确定性 ----------
+def _sha(p):
+    return hashlib.sha256(open(p, "rb").read()).hexdigest()
+
+
+_h1 = _sha("palette/palette.yaml")
+subprocess.run([sys.executable, "scripts/research/gen_palette_v5.py"], check=True, capture_output=True)
+_h2 = _sha("palette/palette.yaml")
+check("G1 生成器可重跑且确定性（两次哈希一致）", _h1 == _h2, "%s vs %s" % (_h1[:12], _h2[:12]))
+
+print("结果：PASS=%d FAIL=%d" % (len(PASS), len(FAIL)))
+sys.exit(1 if FAIL else 0)

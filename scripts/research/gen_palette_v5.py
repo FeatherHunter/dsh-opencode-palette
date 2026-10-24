@@ -383,16 +383,16 @@ out = {
     "ownership": {
         "merged": {dup: owner for dup, owner in OWNERSHIP_MERGED},
         "renamed": dict(OWNERSHIP_RENAME),
-        "converted": sorted(OWNERSHIP_CONVERT),
+        "converted": dict(OWNERSHIP_CONVERT),
         "dropped": {d["id"]: d["reason"] for d in ownership_dropped},
         "token_owner": claimed,
     },
     "extensions_reserved": menu.get("extensions") or {},
 }
 HEADER = (
-    "# palette.yaml —— DSH 全量主题能力表（合成视图，P5 定稿）\n"
+    "# palette.yaml —— DSH 全量主题能力表（合成视图，v1.13 定稿）\n"
     "# 本文件由 scripts/research/gen_palette_v5.py 从以下底层模块合成，不要手改：\n"
-    "#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml\n"
+    "#   capabilities.yaml / vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml / ownership.yaml\n"
     "# 各段是底层模块的合成视图；capabilities 是能力菜单；direct_bindings 是 425 个 token 的直绑定兜底；runtime_summary 是运行时登记摘要。\n"
     "# 每条能力都指向底层实现技术（token / 规则 / DOM / 字体 / 资源），裸 token 名只出现在 binds / token 字段里。\n\n"
 )

@@ -1,4 +1,4 @@
-"""palette/ 跨模块一致性检查（门禁原型 v1.10）。
+"""palette/ 跨模块一致性检查（门禁 v1.13，第 14 轮二审收尾）。
 
 校验：
   1. 11 个 YAML 全部解析；目录里没有未注册的 YAML
@@ -16,6 +16,9 @@
   7g. realization.when 守卫：probe 必须登记、args 键必须是该原语参数；token_live 显式 args.name 必须与写入 token 名一致，省略则逐写绑定（契约源 = primitives.yaml §1b）
   8. _index.yaml 的 counts 与重算一致（含 regions_gap；不符 = error）
   9. _index 模块 version 与 requires 约束（语义版本比较，不满足 = error）
+  10. 手写能力 ⊆ 合成 ∪ ownership.dropped（v1.13）
+  11. palette.yaml.ownership 与 ownership.yaml 全字段一致（含 converted 定义）
+  12. _index.capabilities_synthesized 与合成能力数一致；requires 覆盖全部模块
 
 用法：python scripts/research/palette-check.py
 退出码：0 无错误；1 有错误。
@@ -489,8 +492,8 @@ def main():
     for k, v in mod_own.items():
         if pal_own.get(k) != v:
             errors.append(f'palette.yaml.ownership.{k} 与 ownership.yaml 不一致（合成视图必须零偏差）')
-    if pal_own.get('converted') != sorted((own_doc.get('converted') or {}).keys()):
-        errors.append('palette.yaml.ownership.converted 与 ownership.yaml 的键不一致')
+    if pal_own.get('converted') != (own_doc.get('converted') or {}):
+        errors.append('palette.yaml.ownership.converted 与 ownership.yaml 不一致（须全字段相同）')
     for owner in (own_doc.get('merged') or {}).values():
         if owner not in synth_caps:
             errors.append(f'ownership.merged 的 owner 不在合成能力集: {owner}')
@@ -509,12 +512,17 @@ def main():
         ('domains_covered', domains_covered),
         ('direct_bindings', len(direct)),
         ('runtime_registered', rt.get('total') if rt else 0),
+        ('capabilities_synthesized', len(synth_caps)),
     ]
     for key, actual in checks:
         if key not in counts:
             errors.append(f'_index counts 缺 {key}（实际 {actual}）')
         elif counts[key] != actual:
             errors.append(f'_index counts.{key}={counts[key]} 实际 {actual}')
+    # —— requires 必须覆盖全部模块（含生成模块） ——
+    missing_req = sorted(set(idx.get('modules') or {}) - set(idx.get('requires') or {}))
+    if missing_req:
+        errors.append(f'_index.requires 未覆盖模块: {missing_req}')
     for key, actual in [('controls', len(controls)), ('regions', len(regions)), ('roles', len(roles))]:
         if counts.get(key) != actual:
             errors.append(f'_index counts.{key}={counts.get(key)} 实际 {actual}')
