@@ -574,8 +574,8 @@ def main():
     print(f'区域覆盖          = {len(covered & regions)}/{len(regions)}（缺口 {", ".join(gap) or "无"}）')
     print(f'能力域覆盖        = {domains_covered}/{len(cap_domains)}')
     print(f'控件 / 锚点       = {len(controls)} / {len(anchor_ids)}')
-    print(f'能力引用的 token  = {len(token_refs)}（样本表覆盖 {len(token_refs) - len(missing_tokens)}）')
-    print(f'状态样本          = {len(tokens.get("tokens", []))} 条（主状态 {dict(t_primary)}；修饰 {dict(t_mod) or "无"}）')
+    print(f'能力引用的 token  = {len(token_refs)}（全量表覆盖 {len(token_refs) - len(missing_tokens)}）')
+    print(f'状态表            = {len(tokens.get("tokens", []))} 条（主状态 {dict(t_primary)}；修饰 {dict(t_mod) or "无"}）')
     print(f'错误              = {len(errors)}')
     for e in errors:
         print('  ERR ', e)

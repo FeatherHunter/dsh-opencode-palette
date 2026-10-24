@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""P5 定稿：把全部底层模块合成为 palette/palette.yaml（能力全集视图），并维护 tokens.yaml runtime 段与交叉对照。
+"""v1.13 定稿：把全部底层模块合成为 palette/palette.yaml（能力全集视图），并维护 tokens.yaml runtime 段与交叉对照。
 
 运行：python scripts/research/gen_palette_v5.py
 输入（全部底层模块）：
   palette/capabilities.yaml（手写能力源：30 条手写能力 + 控件模板）
-  palette/vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml
+  palette/vocabulary.yaml / values.yaml / primitives.yaml / assets.yaml / probes.yaml / anchors.yaml / tokens.yaml / ownership.yaml
   docs/research/capability-master.json / color-ability-map.json / noncolor-surface-map.json / private-surface-map.json（P1–P4 逐条表）
 输出：
   palette/palette.yaml                       合成视图：词表/值类型/原语/资源/探测/锚点 + 能力菜单（capabilities）+ 直绑定（direct_bindings）
