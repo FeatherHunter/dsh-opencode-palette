@@ -199,6 +199,10 @@ roles:
   label: 分隔线
 - id: overlay
   label: 遮罩层
+- id: search
+  label: 搜索卡片
+- id: web
+  label: 网页卡片
 properties:
 - id: background
   label: 背景
@@ -1044,7 +1048,11 @@ anchors:
     confidence: documented
     note: '宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
 
-      再调 setTitleBarOverlay；所以能力写 token 即可，不需要选择器。
+      再调 setTitleBarOverlay；没有独立标题栏 token。
+
+      V3.0 不设「标题栏独立配色」能力（底色跟随侧栏、字色跟随主文字）；
+
+      「透明 overlay + 自绘」实验路径归 #154。
 
       '
   sidebar.root:
@@ -1168,6 +1176,30 @@ anchors:
     - body
     scope: document
     confidence: documented
+  markdown.link:
+    candidates:
+    - '[data-markdown-variant] a'
+    scope: document
+    confidence: inferred
+    meta:
+      evidence:
+      - packages/client/ui-primitives/src/markdown/MarkdownText.tsx:197
+  tool.search:
+    candidates:
+    - '[data-search]'
+    scope: document
+    confidence: documented
+    meta:
+      evidence:
+      - packages/client/ui-primitives/src/SearchBlock.tsx
+  tool.web:
+    candidates:
+    - '[data-web]'
+    scope: document
+    confidence: documented
+    meta:
+      evidence:
+      - packages/client/ui-primitives/src/WebBlock.tsx
 controls:
   composer.sendButton:
     region: composer
@@ -1375,6 +1407,8 @@ capabilities:
         name: --dsw-alias-label-primary
     exposure: 默认开放
     source: hand-authored
+    merged_from:
+    - global.text.primary
   global.text.font_family:
     kind: property
     since: 3.0.0
@@ -1428,6 +1462,8 @@ capabilities:
           font-family: $family_stack
     exposure: 默认开放
     source: hand-authored
+    merged_from:
+    - typography.family.default
   global.link.foreground:
     kind: property
     since: 3.0.0
@@ -1445,49 +1481,8 @@ capabilities:
         name: --dsw-alias-link
     exposure: 默认开放
     source: hand-authored
-  window.titleBar.background:
-    kind: property
-    since: 3.0.0
-    tier: expert
-    envs:
-    - desktop
-    tags:
-    - window
-    - chrome
-    value: paint
-    partial: true
-    gaps:
-    - 标题栏高度、按钮形状/位置不可改（宿主硬编码）
-    - 渐变会让宿主探针取不到合法 background-color → 退化为透明 overlay，只保留文字色可配
-    docs: '宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
-
-      再调 setTitleBarOverlay；写 token 即可，且会随注入即时生效。
-
-      '
-    realization:
-    - id: token
-      accepts: color
-      when:
-        probe: token_live
-      writes:
-      - id: fill
-        use: token
-        name: --dsw-specific-sidebar-fill
-      - id: symbol
-        use: token
-        name: --dsw-alias-label-primary
-    meta:
-      evidence:
-      - apps/desktop/src/preload-windows.ts:21-23
-      - apps/desktop/src/main.ts:1049-1059
-    exposure: 默认开放
-    source: hand-authored
-    binds: []
-    status: live
-    tech:
-    - token+electron
     merged_from:
-    - window.titleBar.background
+    - global.link.text
   sidebar.panel.background:
     kind: property
     since: 3.0.0
@@ -1541,10 +1536,12 @@ capabilities:
         guard: observer
     exposure: 默认开放
     source: hand-authored
+    merged_from:
+    - specific.sidebar.fill
   sidebar.item.background:
     kind: property
     since: 3.0.0
-    tier: advanced
+    tier: stable
     tags:
     - sidebar
     - item
@@ -1556,40 +1553,14 @@ capabilities:
     - selected
     docs: 侧栏列表项背景；没写的状态回落到默认值。
     realization:
-    - id: token
-      writes:
-      - id: token
-        use: token
-        name: --dsw-alias-bg-layer-2
-    - id: rules
+    - id: rule
       writes:
       - id: bg
         use: rule
         anchor: sidebar.item
         layer: component
         decl:
-          background: $value
-      - id: bg-hover
-        use: rule
-        anchor: sidebar.item
-        layer: state
-        state: hover
-        decl:
-          background: $value
-      - id: bg-active
-        use: rule
-        anchor: sidebar.item
-        layer: state
-        state: active
-        decl:
-          background: $value
-      - id: bg-selected
-        use: rule
-        anchor: sidebar.item
-        layer: state
-        state: selected
-        decl:
-          background: $value
+          background-color: $value
     exposure: 默认开放
     source: hand-authored
   conversation.main.background:
@@ -1692,69 +1663,14 @@ capabilities:
     - text
     value: color
     realization:
-    - id: token
+    - id: rule
       writes:
-      - id: token
-        use: token
-        name: --dsw-alias-label-primary
-    exposure: 默认开放
-    source: hand-authored
-  composer.glass:
-    kind: recipe
-    since: 3.0.0
-    tier: advanced
-    tags:
-    - effect
-    - glass
-    - composer
-    docs: '第 6 条需求：输入区玻璃态。模糊与半透明底色两个 aspect 独立降级：
-
-      宿主不支持 backdrop-filter 时仍保留半透明底色，文字可读。
-
-      '
-    value:
-      type: object
-      fields:
-        blur:
-          type: length
-          default: 12px
-        opacity:
-          type: number
-          default: 0.6
-        tint:
-          type: color
-          default:
-            light: '#ffffff'
-            dark: '#1b1b1c'
-    aspects:
-      backdrop:
-        fields:
-        - blur
-        effects:
-        - id: rule-blur
-          writes:
-          - id: blur
-            use: rule
-            anchor: composer.root
-            layer: component
-            decl:
-              backdrop-filter: blur($fields.blur)
-              -webkit-backdrop-filter: blur($fields.blur)
-      tint:
-        fields:
-        - opacity
-        - tint
-        effects:
-        - id: rule-tint
-          writes:
-          - id: tint
-            use: rule
-            anchor: composer.root
-            layer: component
-            decl:
-              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
-    meta:
-      gap: 玻璃能否吃到底层媒体层取决于层叠上下文，需实测。
+      - id: color
+        use: rule
+        anchor: composer.input
+        layer: component
+        decl:
+          color: $value
     exposure: 默认开放
     source: hand-authored
   menu.surface.background:
@@ -1780,58 +1696,6 @@ capabilities:
         decl:
           background: $value
         important: when_inline_conflict
-    exposure: 默认开放
-    source: hand-authored
-  menu.surface.glass:
-    kind: recipe
-    since: 3.0.0
-    tier: advanced
-    tags:
-    - effect
-    - glass
-    - menu
-    docs: 控件级 recipe 示例（recipe_role_id：<region>.<role>.<recipe>）。
-    value:
-      type: object
-      fields:
-        blur:
-          type: length
-          default: 16px
-        opacity:
-          type: number
-          default: 0.7
-        tint:
-          type: color
-          default:
-            light: '#f8f9fa'
-            dark: '#1b1b1c'
-    aspects:
-      backdrop:
-        fields:
-        - blur
-        effects:
-        - id: rule-blur
-          writes:
-          - id: blur
-            use: rule
-            anchor: menu.surface
-            layer: component
-            decl:
-              backdrop-filter: blur($fields.blur)
-              -webkit-backdrop-filter: blur($fields.blur)
-      tint:
-        fields:
-        - opacity
-        - tint
-        effects:
-        - id: rule-tint
-          writes:
-          - id: tint
-            use: rule
-            anchor: menu.surface
-            layer: component
-            decl:
-              background-color: color-mix(in srgb, $fields.tint calc($fields.opacity * 100%), transparent)
     exposure: 默认开放
     source: hand-authored
   menu.item.background:
@@ -1913,6 +1777,8 @@ capabilities:
     - var:--dsl-code-block-background
     merged_from:
     - code.block.background
+    - content.markdown.code-block.background
+    - content.code.block.background
   code.block.font_family:
     kind: property
     since: 3.0.0
@@ -1932,6 +1798,8 @@ capabilities:
           font-family: $value
     exposure: 默认开放
     source: hand-authored
+    merged_from:
+    - content.code.block.banner.font
   code.block.line_height:
     kind: property
     since: 3.0.0
@@ -1961,14 +1829,6 @@ capabilities:
     value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
     realization:
-    - id: prefer-token
-      accepts: line_height
-      when:
-        probe: token_live
-      writes:
-      - id: token
-        use: token
-        name: --dsw-font-markdown-base-line-height
     - id: rule
       writes:
       - id: lh
@@ -2008,14 +1868,6 @@ capabilities:
     - typography
     value: length
     realization:
-    - id: prefer-token
-      accepts: length
-      when:
-        probe: token_live
-      writes:
-      - id: token
-        use: token
-        name: --dsw-font-markdown-base-font-size
     - id: rule
       writes:
       - id: fs
@@ -2054,19 +1906,14 @@ capabilities:
     - link
     value: color
     realization:
-    - id: token
-      writes:
-      - id: token
-        use: token
-        name: --dsw-alias-link
     - id: rule
       writes:
       - id: color
         use: rule
-        anchor: markdown.paragraph
+        anchor: markdown.link
         layer: component
         decl:
-          text-decoration-color: $value
+          color: $value
     exposure: 默认开放
     source: hand-authored
   tool.card.background:
@@ -2204,6 +2051,7 @@ capabilities:
         dark: '#161b22'
     exposure: 默认开放
     source: hand-authored
+    realization: []
   global.focus.ring.width:
     kind: token
     since: 3.0.0
@@ -2223,6 +2071,7 @@ capabilities:
         dark: 3px
     exposure: 默认开放
     source: hand-authored
+    realization: []
   global.surface.layer-1:
     since: 3.0.0
     kind: token
@@ -2237,6 +2086,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-layer-1
     value: color
+    realization: []
   global.surface.module:
     since: 3.0.0
     kind: token
@@ -2251,6 +2101,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-module-platform
     value: color
+    realization: []
   global.surface.layer-2:
     since: 3.0.0
     kind: token
@@ -2265,6 +2116,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-layer-2
     value: color
+    realization: []
   global.surface.layer-3:
     since: 3.0.0
     kind: token
@@ -2279,6 +2131,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-layer-3
     value: color
+    realization: []
   global.surface.skeleton:
     since: 3.0.0
     kind: token
@@ -2293,6 +2146,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-skeleton
     value: color
+    realization: []
   overlay.mask.primary:
     since: 3.0.0
     kind: token
@@ -2307,6 +2161,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-mask-1
     value: color
+    realization: []
   document.preview.background:
     since: 3.0.0
     kind: token
@@ -2321,6 +2176,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-document-preview
     value: color
+    realization: []
   document.selection.background:
     since: 3.0.0
     kind: token
@@ -2335,6 +2191,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-document-selection
     value: color
+    realization: []
   overlay.mask.drop:
     since: 3.0.0
     kind: token
@@ -2349,6 +2206,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-mask-drop
     value: color
+    realization: []
   overlay.surface:
     since: 3.0.0
     kind: token
@@ -2363,6 +2221,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-overlay
     value: color
+    realization: []
   overlay.mask.alt-2:
     since: 3.0.0
     kind: token
@@ -2377,6 +2236,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-mask-2
     value: color
+    realization: []
   overlay.mask.alt-3:
     since: 3.0.0
     kind: token
@@ -2391,6 +2251,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-mask-3
     value: color
+    realization: []
   overlay.mask.photo:
     since: 3.0.0
     kind: token
@@ -2405,20 +2266,7 @@ capabilities:
     binds:
     - token: --dsw-alias-bg-mask-photo
     value: color
-  global.text.primary:
-    since: 3.0.0
-    kind: token
-    tier: stable
-    exposure: 默认开放
-    source: master
-    docs: 正文主文字；主要影响：轨迹表、插件管理
-    status: live
-    probe: token_live(--dsw-alias-label-primary)
-    tech:
-    - token:--dsw-alias-label-primary
-    binds:
-    - token: --dsw-alias-label-primary
-    value: color
+    realization: []
   global.text.tertiary:
     since: 3.0.0
     kind: token
@@ -2433,6 +2281,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-tertiary
     value: color
+    realization: []
   global.text.secondary:
     since: 3.0.0
     kind: token
@@ -2447,6 +2296,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-secondary
     value: color
+    realization: []
   global.text.caption:
     since: 3.0.0
     kind: token
@@ -2461,6 +2311,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-caption
     value: color
+    realization: []
   global.text.inverted:
     since: 3.0.0
     kind: token
@@ -2475,6 +2326,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-primary-inverted
     value: color
+    realization: []
   global.text.dimmed:
     since: 3.0.0
     kind: token
@@ -2489,6 +2341,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-dimmed
     value: color
+    realization: []
   control.text.on-accent:
     since: 3.0.0
     kind: token
@@ -2503,6 +2356,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-primary-foreground
     value: color
+    realization: []
   global.text.primary-dimmed:
     since: 3.0.0
     kind: token
@@ -2517,6 +2371,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-primary-dimmed
     value: color
+    realization: []
   decor.text.deep-diving:
     since: 3.0.0
     kind: token
@@ -2531,6 +2386,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-deep-diving
     value: color
+    realization: []
   decor.text.deep-diving-shimmer:
     since: 3.0.0
     kind: token
@@ -2545,6 +2401,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-deep-diving-shimmer
     value: color
+    realization: []
   document.preview.text:
     since: 3.0.0
     kind: token
@@ -2559,6 +2416,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-document-preview
     value: color
+    realization: []
   global.text.primary-bluish:
     since: 3.0.0
     kind: token
@@ -2573,6 +2431,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-primary-bluish
     value: color
+    realization: []
   decor.text.shimmer:
     since: 3.0.0
     kind: token
@@ -2587,6 +2446,7 @@ capabilities:
     binds:
     - token: --dsw-alias-label-shimmer
     value: color
+    realization: []
   status.business.primary:
     since: 3.0.0
     kind: token
@@ -2601,6 +2461,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-business-primary
     value: color
+    realization: []
   status.error.primary:
     since: 3.0.0
     kind: token
@@ -2615,6 +2476,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-error-primary
     value: color
+    realization: []
   status.success.primary:
     since: 3.0.0
     kind: token
@@ -2629,6 +2491,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-success-primary
     value: color
+    realization: []
   status.warn.tertiary:
     since: 3.0.0
     kind: token
@@ -2643,6 +2506,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-warn-tertiary
     value: color
+    realization: []
   status.warn.label:
     since: 3.0.0
     kind: token
@@ -2657,6 +2521,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-warn-label
     value: color
+    realization: []
   status.warn.primary:
     since: 3.0.0
     kind: token
@@ -2671,6 +2536,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-warn-primary
     value: color
+    realization: []
   status.business.tertiary:
     since: 3.0.0
     kind: token
@@ -2685,6 +2551,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-business-tertiary
     value: color
+    realization: []
   status.error.secondary:
     since: 3.0.0
     kind: token
@@ -2699,6 +2566,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-error-secondary
     value: color
+    realization: []
   status.success.tertiary:
     since: 3.0.0
     kind: token
@@ -2713,6 +2581,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-success-tertiary
     value: color
+    realization: []
   status.success.secondary:
     since: 3.0.0
     kind: token
@@ -2727,6 +2596,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-success-secondary
     value: color
+    realization: []
   status.warn.secondary:
     since: 3.0.0
     kind: token
@@ -2741,6 +2611,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-warn-secondary
     value: color
+    realization: []
   status.idle.primary:
     since: 3.0.0
     kind: token
@@ -2755,6 +2626,7 @@ capabilities:
     binds:
     - token: --dsw-alias-state-idle-primary
     value: color
+    realization: []
   control.button.primary.background:
     since: 3.0.0
     kind: token
@@ -2769,6 +2641,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-primary-fill
     value: color
+    realization: []
   control.button.floating.hover.background:
     since: 3.0.0
     kind: token
@@ -2783,6 +2656,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-floating-hover
     value: color
+    realization: []
   control.button.ghost.active.background:
     since: 3.0.0
     kind: token
@@ -2797,6 +2671,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-ghost-active-fill
     value: color
+    realization: []
   control.button.primary.hover.background:
     since: 3.0.0
     kind: token
@@ -2811,6 +2686,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-primary-hover
     value: color
+    realization: []
   control.button.contrast.background:
     since: 3.0.0
     kind: token
@@ -2825,6 +2701,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-contrast-fill
     value: color
+    realization: []
   control.button.elevated.background:
     since: 3.0.0
     kind: token
@@ -2839,6 +2716,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-elevated-fill
     value: color
+    realization: []
   control.button.floating.background:
     since: 3.0.0
     kind: token
@@ -2853,6 +2731,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-floating-fill
     value: color
+    realization: []
   control.button.ghost.active.border:
     since: 3.0.0
     kind: token
@@ -2867,6 +2746,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-ghost-active-border
     value: color
+    realization: []
   control.button.info.background:
     since: 3.0.0
     kind: token
@@ -2881,6 +2761,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-info-fill
     value: color
+    realization: []
   control.button.info.hover.background:
     since: 3.0.0
     kind: token
@@ -2895,6 +2776,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-info-hover
     value: color
+    realization: []
   control.button.tool-bar.background:
     since: 3.0.0
     kind: token
@@ -2909,6 +2791,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-tool-bar-fill
     value: color
+    realization: []
   control.button.tool-bar.hover.background:
     since: 3.0.0
     kind: token
@@ -2923,6 +2806,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-tool-bar-hover
     value: color
+    realization: []
   control.button.ghost.active.hover.background:
     since: 3.0.0
     kind: token
@@ -2937,6 +2821,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-ghost-active-hover
     value: color
+    realization: []
   control.button.primary-dimmed:
     since: 3.0.0
     kind: token
@@ -2951,6 +2836,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-primary-dimmed
     value: color
+    realization: []
   control.button.tool-bar.background-invisible:
     since: 3.0.0
     kind: token
@@ -2965,6 +2851,7 @@ capabilities:
     binds:
     - token: --dsw-alias-button-tool-bar-fill-invisible
     value: color
+    realization: []
   global.border.level-2:
     since: 3.0.0
     kind: token
@@ -2979,6 +2866,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-l2
     value: color
+    realization: []
   global.border.level-3:
     since: 3.0.0
     kind: token
@@ -2993,6 +2881,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-l3
     value: color
+    realization: []
   global.border.level-1:
     since: 3.0.0
     kind: token
@@ -3007,6 +2896,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-l1
     value: color
+    realization: []
   global.border.level-4:
     since: 3.0.0
     kind: token
@@ -3021,6 +2911,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-l4
     value: color
+    realization: []
   global.border.level-2-thin:
     since: 3.0.0
     kind: token
@@ -3035,6 +2926,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-l2-darkmode-thin
     value: color
+    realization: []
   global.border.inverted:
     since: 3.0.0
     kind: token
@@ -3049,6 +2941,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-inverted
     value: color
+    realization: []
   global.border.inverted-2:
     since: 3.0.0
     kind: token
@@ -3063,6 +2956,7 @@ capabilities:
     binds:
     - token: --dsw-alias-border-inverted2
     value: color
+    realization: []
   global.interaction.hover:
     since: 3.0.0
     kind: token
@@ -3077,6 +2971,7 @@ capabilities:
     binds:
     - token: --dsw-alias-interactive-bg-hover
     value: color
+    realization: []
   global.interaction.hover-danger:
     since: 3.0.0
     kind: token
@@ -3091,6 +2986,7 @@ capabilities:
     binds:
     - token: --dsw-alias-interactive-bg-hover-danger
     value: color
+    realization: []
   global.interaction.hover-solid:
     since: 3.0.0
     kind: token
@@ -3105,6 +3001,7 @@ capabilities:
     binds:
     - token: --dsw-alias-interactive-bg-hover-solid
     value: color
+    realization: []
   global.interaction.active:
     since: 3.0.0
     kind: token
@@ -3119,6 +3016,7 @@ capabilities:
     binds:
     - token: --dsw-alias-interactive-bg-active
     value: color
+    realization: []
   global.interaction.hover-accent:
     since: 3.0.0
     kind: token
@@ -3133,6 +3031,7 @@ capabilities:
     binds:
     - token: --dsw-alias-interactive-bg-hover-accent
     value: color
+    realization: []
   global.brand.primary-legacy:
     since: 3.0.0
     kind: token
@@ -3147,6 +3046,7 @@ capabilities:
     binds:
     - token: --dsw-alias-brand-primary-new-colorprimary-new-color
     value: color
+    realization: []
   global.brand.primary:
     since: 3.0.0
     kind: token
@@ -3161,6 +3061,7 @@ capabilities:
     binds:
     - token: --dsw-alias-brand-primary
     value: color
+    realization: []
   global.brand.primary-inverted:
     since: 3.0.0
     kind: token
@@ -3175,6 +3076,7 @@ capabilities:
     binds:
     - token: --dsw-alias-brand-primary-invert
     value: color
+    realization: []
   global.brand.text:
     since: 3.0.0
     kind: token
@@ -3189,20 +3091,7 @@ capabilities:
     binds:
     - token: --dsw-alias-brand-text
     value: color
-  content.markdown.code-block.background:
-    since: 3.0.0
-    kind: token
-    tier: stable
-    exposure: 默认开放
-    source: master
-    docs: Markdown 代码块底；主要影响：基础组件/Markdown、对话主窗口
-    status: live
-    probe: token_live(--dsw-alias-markdown-code-block)
-    tech:
-    - token:--dsw-alias-markdown-code-block
-    binds:
-    - token: --dsw-alias-markdown-code-block
-    value: color
+    realization: []
   content.markdown.code-block.banner:
     since: 3.0.0
     kind: token
@@ -3217,6 +3106,9 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-code-block-banner
     value: color
+    merged_from:
+    - content.code.block.banner.background
+    realization: []
   content.markdown.citation:
     since: 3.0.0
     kind: token
@@ -3231,6 +3123,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-citation
     value: color
+    realization: []
   content.markdown.inline-code:
     since: 3.0.0
     kind: token
@@ -3245,6 +3138,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-inline-code
     value: color
+    realization: []
   content.markdown.tag:
     since: 3.0.0
     kind: token
@@ -3259,6 +3153,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-tag
     value: color
+    realization: []
   content.markdown.code-segment.selected:
     since: 3.0.0
     kind: token
@@ -3273,6 +3168,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-code-segment-selected
     value: color
+    realization: []
   content.markdown.code-segment.unselected:
     since: 3.0.0
     kind: token
@@ -3287,6 +3183,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-code-segment-unselected
     value: color
+    realization: []
   content.markdown.placeholder:
     since: 3.0.0
     kind: token
@@ -3301,6 +3198,7 @@ capabilities:
     binds:
     - token: --dsw-alias-markdown-placeholder
     value: color
+    realization: []
   content.diff.code.added:
     since: 3.0.0
     kind: token
@@ -3315,6 +3213,7 @@ capabilities:
     binds:
     - token: --dsw-alias-code-diff-added
     value: color
+    realization: []
   content.diff.code.deleted:
     since: 3.0.0
     kind: token
@@ -3329,6 +3228,7 @@ capabilities:
     binds:
     - token: --dsw-alias-code-diff-deleted
     value: color
+    realization: []
   content.file.diff.added.bg:
     since: 3.0.0
     kind: token
@@ -3343,6 +3243,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-added-bg
     value: color
+    realization: []
   content.file.diff.added.gutter:
     since: 3.0.0
     kind: token
@@ -3357,6 +3258,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-added-gutter
     value: color
+    realization: []
   content.file.diff.added.marker:
     since: 3.0.0
     kind: token
@@ -3371,6 +3273,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-added-marker
     value: color
+    realization: []
   content.file.diff.deleted.bg:
     since: 3.0.0
     kind: token
@@ -3385,6 +3288,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-deleted-bg
     value: color
+    realization: []
   content.file.diff.deleted.gutter:
     since: 3.0.0
     kind: token
@@ -3399,6 +3303,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-deleted-gutter
     value: color
+    realization: []
   content.file.diff.deleted.marker:
     since: 3.0.0
     kind: token
@@ -3413,6 +3318,7 @@ capabilities:
     binds:
     - token: --dsw-alias-file-diff-deleted-marker
     value: color
+    realization: []
   menu.icon:
     since: 3.0.0
     kind: token
@@ -3427,6 +3333,7 @@ capabilities:
     binds:
     - token: --dsw-alias-menu-icon
     value: color
+    realization: []
   menu.group-header.background:
     since: 3.0.0
     kind: token
@@ -3441,6 +3348,7 @@ capabilities:
     binds:
     - token: --dsw-alias-menu-group-header-fill
     value: color
+    realization: []
   onboarding.accent:
     since: 3.0.0
     kind: token
@@ -3455,6 +3363,7 @@ capabilities:
     binds:
     - token: --dsw-alias-onboarding-accent
     value: color
+    realization: []
   onboarding.secondary.fill:
     since: 3.0.0
     kind: token
@@ -3469,6 +3378,7 @@ capabilities:
     binds:
     - token: --dsw-alias-onboarding-secondary-fill
     value: color
+    realization: []
   onboarding.card.fill:
     since: 3.0.0
     kind: token
@@ -3483,6 +3393,7 @@ capabilities:
     binds:
     - token: --dsw-alias-onboarding-card-fill
     value: color
+    realization: []
   onboarding.checkbox.border:
     since: 3.0.0
     kind: token
@@ -3497,6 +3408,7 @@ capabilities:
     binds:
     - token: --dsw-alias-onboarding-checkbox-border
     value: color
+    realization: []
   settings.card.background:
     since: 3.0.0
     kind: token
@@ -3511,6 +3423,7 @@ capabilities:
     binds:
     - token: --dsw-alias-settings-card-fill
     value: color
+    realization: []
   settings.card.border:
     since: 3.0.0
     kind: token
@@ -3525,6 +3438,7 @@ capabilities:
     binds:
     - token: --dsw-alias-settings-card-stroke
     value: color
+    realization: []
   tooltip.background:
     since: 3.0.0
     kind: token
@@ -3539,6 +3453,7 @@ capabilities:
     binds:
     - token: --dsw-alias-tooltip-bg
     value: color
+    realization: []
   tooltip.key.background:
     since: 3.0.0
     kind: token
@@ -3553,6 +3468,7 @@ capabilities:
     binds:
     - token: --dsw-alias-tooltip-key-bg
     value: color
+    realization: []
   toast.background:
     since: 3.0.0
     kind: token
@@ -3567,6 +3483,7 @@ capabilities:
     binds:
     - token: --dsw-alias-toast-bg
     value: color
+    realization: []
   toast.text:
     since: 3.0.0
     kind: token
@@ -3581,6 +3498,7 @@ capabilities:
     binds:
     - token: --dsw-alias-toast-label
     value: color
+    realization: []
   conversation.turn-trigger.background:
     since: 3.0.0
     kind: token
@@ -3595,6 +3513,7 @@ capabilities:
     binds:
     - token: --dsw-alias-turn-trigger-bg
     value: color
+    realization: []
   conversation.turn-trigger.background-hover:
     since: 3.0.0
     kind: token
@@ -3609,20 +3528,7 @@ capabilities:
     binds:
     - token: --dsw-alias-turn-trigger-bg-hover
     value: color
-  global.link.text:
-    since: 3.0.0
-    kind: token
-    tier: stable
-    exposure: 默认开放
-    source: master
-    docs: 链接文字/图标；主要影响：基础组件/Markdown、交付物
-    status: live
-    probe: token_live(--dsw-alias-link)
-    tech:
-    - token:--dsw-alias-link
-    binds:
-    - token: --dsw-alias-link
-    value: color
+    realization: []
   control.switch.thumb:
     since: 3.0.0
     kind: token
@@ -3637,20 +3543,7 @@ capabilities:
     binds:
     - token: --dsw-alias-switch-thumb
     value: color
-  specific.sidebar.fill:
-    since: 3.0.0
-    kind: token
-    tier: stable
-    exposure: 默认开放
-    source: master
-    docs: 区域特化：左侧栏底（同时决定桌面标题栏底色）；主要影响：应用外壳、桌面外壳
-    status: live
-    probe: token_live(--dsw-specific-sidebar-fill)
-    tech:
-    - token:--dsw-specific-sidebar-fill
-    binds:
-    - token: --dsw-specific-sidebar-fill
-    value: color
+    realization: []
   specific.input.major:
     since: 3.0.0
     kind: token
@@ -3665,6 +3558,7 @@ capabilities:
     binds:
     - token: --dsw-specific-input-major
     value: color
+    realization: []
   specific.bubble.fill:
     since: 3.0.0
     kind: token
@@ -3679,6 +3573,7 @@ capabilities:
     binds:
     - token: --dsw-specific-bubble
     value: color
+    realization: []
   specific.selector.fill:
     since: 3.0.0
     kind: token
@@ -3693,6 +3588,7 @@ capabilities:
     binds:
     - token: --dsw-specific-selector
     value: color
+    realization: []
   specific.sidebar.nav-item.active:
     since: 3.0.0
     kind: token
@@ -3707,6 +3603,7 @@ capabilities:
     binds:
     - token: --dsw-specific-sidebar-nav-item-active
     value: color
+    realization: []
   specific.sidebar.nav-item.active-accent:
     since: 3.0.0
     kind: token
@@ -3721,6 +3618,7 @@ capabilities:
     binds:
     - token: --dsw-specific-sidebar-nav-item-active-accent
     value: color
+    realization: []
   specific.sidebar.nav-item.hover:
     since: 3.0.0
     kind: token
@@ -3735,6 +3633,7 @@ capabilities:
     binds:
     - token: --dsw-specific-sidebar-nav-item-hover
     value: color
+    realization: []
   specific.bubble.highlight:
     since: 3.0.0
     kind: token
@@ -3749,6 +3648,7 @@ capabilities:
     binds:
     - token: --dsw-specific-bubble-highlight
     value: color
+    realization: []
   specific.login.input:
     since: 3.0.0
     kind: token
@@ -3763,6 +3663,7 @@ capabilities:
     binds:
     - token: --dsw-specific-login-input
     value: color
+    realization: []
   specific.tip.fill:
     since: 3.0.0
     kind: token
@@ -3777,6 +3678,7 @@ capabilities:
     binds:
     - token: --dsw-specific-tip
     value: color
+    realization: []
   content.code.foreground:
     since: 3.0.0
     kind: token
@@ -3791,6 +3693,7 @@ capabilities:
     binds:
     - token: --shiki-foreground
     value: color
+    realization: []
   content.code.syntax.comment:
     since: 3.0.0
     kind: token
@@ -3805,6 +3708,7 @@ capabilities:
     binds:
     - token: --shiki-token-comment
     value: color
+    realization: []
   content.code.syntax.constant:
     since: 3.0.0
     kind: token
@@ -3819,6 +3723,7 @@ capabilities:
     binds:
     - token: --shiki-token-constant
     value: color
+    realization: []
   content.code.syntax.function:
     since: 3.0.0
     kind: token
@@ -3833,6 +3738,7 @@ capabilities:
     binds:
     - token: --shiki-token-function
     value: color
+    realization: []
   content.code.syntax.keyword:
     since: 3.0.0
     kind: token
@@ -3847,6 +3753,7 @@ capabilities:
     binds:
     - token: --shiki-token-keyword
     value: color
+    realization: []
   content.code.syntax.link:
     since: 3.0.0
     kind: token
@@ -3861,6 +3768,7 @@ capabilities:
     binds:
     - token: --shiki-token-link
     value: color
+    realization: []
   content.code.syntax.parameter:
     since: 3.0.0
     kind: token
@@ -3875,6 +3783,7 @@ capabilities:
     binds:
     - token: --shiki-token-parameter
     value: color
+    realization: []
   content.code.syntax.punctuation:
     since: 3.0.0
     kind: token
@@ -3889,6 +3798,7 @@ capabilities:
     binds:
     - token: --shiki-token-punctuation
     value: color
+    realization: []
   content.code.syntax.string:
     since: 3.0.0
     kind: token
@@ -3903,6 +3813,7 @@ capabilities:
     binds:
     - token: --shiki-token-string
     value: color
+    realization: []
   content.code.syntax.string-expression:
     since: 3.0.0
     kind: token
@@ -3917,6 +3828,7 @@ capabilities:
     binds:
     - token: --shiki-token-string-expression
     value: color
+    realization: []
   atom.blue-500:
     since: 3.0.0
     kind: token
@@ -3931,6 +3843,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-500
     value: color
+    realization: []
   atom.blue-950:
     since: 3.0.0
     kind: token
@@ -3945,6 +3858,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-950
     value: color
+    realization: []
   atom.blue-300:
     since: 3.0.0
     kind: token
@@ -3959,6 +3873,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-300
     value: color
+    realization: []
   atom.blue-400:
     since: 3.0.0
     kind: token
@@ -3973,6 +3888,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-400
     value: color
+    realization: []
   atom.blue-450:
     since: 3.0.0
     kind: token
@@ -3987,6 +3903,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-450
     value: color
+    realization: []
   atom.blue-600:
     since: 3.0.0
     kind: token
@@ -4001,6 +3918,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-600
     value: color
+    realization: []
   atom.blue-900:
     since: 3.0.0
     kind: token
@@ -4015,6 +3933,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-900
     value: color
+    realization: []
   atom.blue-100:
     since: 3.0.0
     kind: token
@@ -4029,6 +3948,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-100
     value: color
+    realization: []
   atom.blue-50:
     since: 3.0.0
     kind: token
@@ -4043,6 +3963,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-50
     value: color
+    realization: []
   atom.blue-50p:
     since: 3.0.0
     kind: token
@@ -4057,6 +3978,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-50p
     value: color
+    realization: []
   atom.blue-75:
     since: 3.0.0
     kind: token
@@ -4071,6 +3993,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-75
     value: color
+    realization: []
   atom.blue-800:
     since: 3.0.0
     kind: token
@@ -4085,6 +4008,7 @@ capabilities:
     binds:
     - token: --dsw-static-blue-800
     value: color
+    realization: []
   atom.deepseek-500:
     since: 3.0.0
     kind: token
@@ -4099,6 +4023,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-500
     value: color
+    realization: []
   atom.deepseek-400:
     since: 3.0.0
     kind: token
@@ -4113,6 +4038,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-400
     value: color
+    realization: []
   atom.deepseek-450:
     since: 3.0.0
     kind: token
@@ -4127,6 +4053,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-450
     value: color
+    realization: []
   atom.deepseek-100:
     since: 3.0.0
     kind: token
@@ -4141,6 +4068,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-100
     value: color
+    realization: []
   atom.deepseek-200:
     since: 3.0.0
     kind: token
@@ -4155,6 +4083,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-200
     value: color
+    realization: []
   atom.deepseek-50:
     since: 3.0.0
     kind: token
@@ -4169,6 +4098,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-50
     value: color
+    realization: []
   atom.deepseek-800:
     since: 3.0.0
     kind: token
@@ -4183,6 +4113,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-800
     value: color
+    realization: []
   atom.deepseek-300:
     since: 3.0.0
     kind: token
@@ -4197,6 +4128,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-300
     value: color
+    realization: []
   atom.deepseek-600:
     since: 3.0.0
     kind: token
@@ -4211,6 +4143,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-600
     value: color
+    realization: []
   atom.deepseek-700-delete:
     since: 3.0.0
     kind: token
@@ -4225,6 +4158,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-700-delete
     value: color
+    realization: []
   atom.deepseek-900:
     since: 3.0.0
     kind: token
@@ -4239,6 +4173,7 @@ capabilities:
     binds:
     - token: --dsw-static-deepseek-900
     value: color
+    realization: []
   atom.green-500:
     since: 3.0.0
     kind: token
@@ -4253,6 +4188,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-500
     value: color
+    realization: []
   atom.green-400:
     since: 3.0.0
     kind: token
@@ -4267,6 +4203,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-400
     value: color
+    realization: []
   atom.green-100:
     since: 3.0.0
     kind: token
@@ -4281,6 +4218,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-100
     value: color
+    realization: []
   atom.green-500-a08:
     since: 3.0.0
     kind: token
@@ -4295,6 +4233,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-500-a08
     value: color
+    realization: []
   atom.green-500-a12:
     since: 3.0.0
     kind: token
@@ -4309,6 +4248,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-500-a12
     value: color
+    realization: []
   atom.green-900:
     since: 3.0.0
     kind: token
@@ -4323,6 +4263,7 @@ capabilities:
     binds:
     - token: --dsw-static-green-900
     value: color
+    realization: []
   atom.amber-400:
     since: 3.0.0
     kind: token
@@ -4337,6 +4278,7 @@ capabilities:
     binds:
     - token: --dsw-static-amber-400
     value: color
+    realization: []
   atom.amber-500:
     since: 3.0.0
     kind: token
@@ -4351,6 +4293,7 @@ capabilities:
     binds:
     - token: --dsw-static-amber-500
     value: color
+    realization: []
   atom.amber-600:
     since: 3.0.0
     kind: token
@@ -4365,6 +4308,7 @@ capabilities:
     binds:
     - token: --dsw-static-amber-600
     value: color
+    realization: []
   atom.amber-100:
     since: 3.0.0
     kind: token
@@ -4379,6 +4323,7 @@ capabilities:
     binds:
     - token: --dsw-static-amber-100
     value: color
+    realization: []
   atom.amber-900:
     since: 3.0.0
     kind: token
@@ -4393,6 +4338,7 @@ capabilities:
     binds:
     - token: --dsw-static-amber-900
     value: color
+    realization: []
   atom.neutral-00:
     since: 3.0.0
     kind: token
@@ -4407,6 +4353,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-00
     value: color
+    realization: []
   atom.neutral-50:
     since: 3.0.0
     kind: token
@@ -4421,6 +4368,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-50
     value: color
+    realization: []
   atom.neutral-800:
     since: 3.0.0
     kind: token
@@ -4435,6 +4383,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-800
     value: color
+    realization: []
   atom.neutral-850:
     since: 3.0.0
     kind: token
@@ -4449,6 +4398,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-850
     value: color
+    realization: []
   atom.neutral-100:
     since: 3.0.0
     kind: token
@@ -4463,6 +4413,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-100
     value: color
+    realization: []
   atom.neutral-200:
     since: 3.0.0
     kind: token
@@ -4477,6 +4428,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-200
     value: color
+    realization: []
   atom.neutral-300:
     since: 3.0.0
     kind: token
@@ -4491,6 +4443,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-300
     value: color
+    realization: []
   atom.neutral-600:
     since: 3.0.0
     kind: token
@@ -4505,6 +4458,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-600
     value: color
+    realization: []
   atom.neutral-700:
     since: 3.0.0
     kind: token
@@ -4519,6 +4473,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-700
     value: color
+    realization: []
   atom.neutral-1000:
     since: 3.0.0
     kind: token
@@ -4533,6 +4488,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-1000
     value: color
+    realization: []
   atom.neutral-400:
     since: 3.0.0
     kind: token
@@ -4547,6 +4503,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-400
     value: color
+    realization: []
   atom.neutral-550:
     since: 3.0.0
     kind: token
@@ -4561,6 +4518,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-550
     value: color
+    realization: []
   atom.neutral-150:
     since: 3.0.0
     kind: token
@@ -4575,6 +4533,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-150
     value: color
+    realization: []
   atom.neutral-250:
     since: 3.0.0
     kind: token
@@ -4589,6 +4548,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-250
     value: color
+    realization: []
   atom.neutral-500:
     since: 3.0.0
     kind: token
@@ -4603,6 +4563,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-500
     value: color
+    realization: []
   atom.neutral-900:
     since: 3.0.0
     kind: token
@@ -4617,6 +4578,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-900
     value: color
+    realization: []
   atom.neutral-bluish-00:
     since: 3.0.0
     kind: token
@@ -4631,6 +4593,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-00
     value: color
+    realization: []
   atom.neutral-bluish-800:
     since: 3.0.0
     kind: token
@@ -4645,6 +4608,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-800
     value: color
+    realization: []
   atom.neutral-bluish-50:
     since: 3.0.0
     kind: token
@@ -4659,6 +4623,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-50
     value: color
+    realization: []
   atom.neutral-bluish-850:
     since: 3.0.0
     kind: token
@@ -4673,6 +4638,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-850
     value: color
+    realization: []
   atom.neutral-bluish-750:
     since: 3.0.0
     kind: token
@@ -4687,6 +4653,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-750
     value: color
+    realization: []
   atom.neutral-bluish-100:
     since: 3.0.0
     kind: token
@@ -4701,6 +4668,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-100
     value: color
+    realization: []
   atom.neutral-bluish-400:
     since: 3.0.0
     kind: token
@@ -4715,6 +4683,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-400
     value: color
+    realization: []
   atom.neutral-bluish-1000:
     since: 3.0.0
     kind: token
@@ -4729,6 +4698,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-1000
     value: color
+    realization: []
   atom.neutral-bluish-60:
     since: 3.0.0
     kind: token
@@ -4743,6 +4713,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-60
     value: color
+    realization: []
   atom.neutral-bluish-700:
     since: 3.0.0
     kind: token
@@ -4757,6 +4728,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-700
     value: color
+    realization: []
   atom.neutral-bluish-75:
     since: 3.0.0
     kind: token
@@ -4771,6 +4743,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-75
     value: color
+    realization: []
   atom.neutral-bluish-900:
     since: 3.0.0
     kind: token
@@ -4785,6 +4758,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-900
     value: color
+    realization: []
   atom.neutral-bluish-300:
     since: 3.0.0
     kind: token
@@ -4799,6 +4773,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-300
     value: color
+    realization: []
   atom.neutral-bluish-600:
     since: 3.0.0
     kind: token
@@ -4813,6 +4788,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-600
     value: color
+    realization: []
   atom.neutral-bluish-950:
     since: 3.0.0
     kind: token
@@ -4827,6 +4803,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-950
     value: color
+    realization: []
   atom.neutral-bluish-150:
     since: 3.0.0
     kind: token
@@ -4841,6 +4818,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-150
     value: color
+    realization: []
   atom.neutral-bluish-200:
     since: 3.0.0
     kind: token
@@ -4855,6 +4833,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-200
     value: color
+    realization: []
   atom.neutral-bluish-500:
     since: 3.0.0
     kind: token
@@ -4869,6 +4848,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-500
     value: color
+    realization: []
   atom.neutral-bluish-875:
     since: 3.0.0
     kind: token
@@ -4883,6 +4863,7 @@ capabilities:
     binds:
     - token: --dsw-static-neutral-bluish-875
     value: color
+    realization: []
   atom.red-400:
     since: 3.0.0
     kind: token
@@ -4897,6 +4878,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-400
     value: color
+    realization: []
   atom.red-600:
     since: 3.0.0
     kind: token
@@ -4911,6 +4893,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-600
     value: color
+    realization: []
   atom.red-400-a12:
     since: 3.0.0
     kind: token
@@ -4925,6 +4908,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-400-a12
     value: color
+    realization: []
   atom.red-600-a08:
     since: 3.0.0
     kind: token
@@ -4939,6 +4923,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-600-a08
     value: color
+    realization: []
   atom.red-100:
     since: 3.0.0
     kind: token
@@ -4953,6 +4938,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-100
     value: color
+    realization: []
   atom.red-50:
     since: 3.0.0
     kind: token
@@ -4967,6 +4953,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-50
     value: color
+    realization: []
   atom.red-500:
     since: 3.0.0
     kind: token
@@ -4981,6 +4968,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-500
     value: color
+    realization: []
   atom.red-900:
     since: 3.0.0
     kind: token
@@ -4995,6 +4983,7 @@ capabilities:
     binds:
     - token: --dsw-static-red-900
     value: color
+    realization: []
   effect.shadow.lv3:
     since: 3.0.0
     kind: token
@@ -5009,6 +4998,7 @@ capabilities:
     binds:
     - token: --dsw-shadow-lv3
     value: shadow
+    realization: []
   effect.shadow.lv2:
     since: 3.0.0
     kind: token
@@ -5023,6 +5013,7 @@ capabilities:
     binds:
     - token: --dsw-shadow-lv2
     value: shadow
+    realization: []
   effect.shadow.lv1:
     since: 3.0.0
     kind: token
@@ -5037,6 +5028,7 @@ capabilities:
     binds:
     - token: --dsw-shadow-lv1
     value: shadow
+    realization: []
   effect.shadow.lv1-blur:
     since: 3.0.0
     kind: token
@@ -5051,6 +5043,7 @@ capabilities:
     binds:
     - token: --dsw-shadow-lv1-blur
     value: shadow
+    realization: []
   effect.elevation.prominent:
     since: 3.0.0
     kind: token
@@ -5065,6 +5058,7 @@ capabilities:
     binds:
     - token: --dsw-elevation-prominent
     value: shadow
+    realization: []
   effect.elevation.panel:
     since: 3.0.0
     kind: token
@@ -5079,6 +5073,7 @@ capabilities:
     binds:
     - token: --dsw-elevation-panel
     value: shadow
+    realization: []
   effect.elevation.stroke:
     since: 3.0.0
     kind: token
@@ -5093,6 +5088,7 @@ capabilities:
     binds:
     - token: --dsw-elevation-stroke
     value: shadow
+    realization: []
   effect.elevation.soft:
     since: 3.0.0
     kind: token
@@ -5107,6 +5103,7 @@ capabilities:
     binds:
     - token: --dsw-elevation-soft
     value: shadow
+    realization: []
   effect.elevation.stroke-color:
     since: 3.0.0
     kind: token
@@ -5121,6 +5118,7 @@ capabilities:
     binds:
     - token: --dsw-elevation-stroke-color
     value: shadow
+    realization: []
   onboarding.gradient.blue:
     since: 3.0.0
     kind: token
@@ -5135,6 +5133,7 @@ capabilities:
     binds:
     - token: --dsw-gradient-onboarding-blue-stops
     value: gradient
+    realization: []
   onboarding.gradient.cyan:
     since: 3.0.0
     kind: token
@@ -5149,6 +5148,7 @@ capabilities:
     binds:
     - token: --dsw-gradient-onboarding-cyan-stops
     value: gradient
+    realization: []
   onboarding.gradient.violet:
     since: 3.0.0
     kind: token
@@ -5163,6 +5163,7 @@ capabilities:
     binds:
     - token: --dsw-gradient-onboarding-violet-stops
     value: gradient
+    realization: []
   effect.linear.gradient-think:
     since: 3.0.0
     kind: token
@@ -5177,6 +5178,7 @@ capabilities:
     binds:
     - token: --dsw-linear-gradient-think
     value: gradient
+    realization: []
   effect.linear.think-select:
     since: 3.0.0
     kind: token
@@ -5191,6 +5193,7 @@ capabilities:
     binds:
     - token: --dsw-linear-think-select
     value: gradient
+    realization: []
   global.focusRing:
     since: 3.0.0
     kind: effect
@@ -5205,6 +5208,7 @@ capabilities:
     - rule:全页 :focus-visible
     binds:
     - token: --dsw-focus-ring-color
+    realization: []
   global.scrollbar:
     since: 3.0.0
     kind: effect
@@ -5225,6 +5229,7 @@ capabilities:
     - token: --dsw-alias-scrollbar-hover-l1
     - token: --dsw-alias-scrollbar-bg-l2
     - token: --dsw-alias-scrollbar-hover-l2
+    realization: []
   global.selection:
     since: 3.0.0
     kind: effect
@@ -5236,6 +5241,7 @@ capabilities:
     probe: selector_exists
     tech:
     - rule:::selection
+    realization: []
   menu.surface:
     since: 3.0.0
     kind: effect
@@ -5250,8 +5256,8 @@ capabilities:
     - token:--dsw-specific-menu
     - rule:backdrop-filter
     binds:
-    - token: --dsw-menu-surface-fill
     - token: --dsw-specific-menu
+    realization: []
   global.page.background.media:
     since: 3.0.0
     kind: effect
@@ -5263,6 +5269,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   sidebar.panel.background.media:
     since: 3.0.0
     kind: effect
@@ -5274,6 +5281,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   conversation.main.background.media:
     since: 3.0.0
     kind: effect
@@ -5285,6 +5293,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   composer.input.background.media:
     since: 3.0.0
     kind: effect
@@ -5296,6 +5305,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   global.page.overlay.tint:
     since: 3.0.0
     kind: effect
@@ -5307,6 +5317,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   global.page.texture.noise:
     since: 3.0.0
     kind: effect
@@ -5318,6 +5329,7 @@ capabilities:
     probe: selector_exists
     tech:
     - css
+    realization: []
   composer.panel.glass:
     since: 3.0.0
     kind: effect
@@ -5329,6 +5341,7 @@ capabilities:
     probe: selector_exists
     tech:
     - css
+    realization: []
   control.button.icon:
     since: 3.0.0
     kind: effect
@@ -5340,6 +5353,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom+css
+    realization: []
   control.button.label:
     since: 3.0.0
     kind: effect
@@ -5351,6 +5365,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom
+    realization: []
   entry.themeSettings.button:
     since: 3.0.0
     kind: effect
@@ -5362,6 +5377,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom
+    realization: []
   window.titleBar.immersive:
     since: 3.0.0
     kind: effect
@@ -5373,6 +5389,7 @@ capabilities:
     probe: selector_exists
     tech:
     - token
+    realization: []
   effect.hover.surface:
     since: 3.0.0
     kind: effect
@@ -5384,6 +5401,7 @@ capabilities:
     probe: selector_exists
     tech:
     - css
+    realization: []
   structure.element.hidden:
     since: 3.0.0
     kind: effect
@@ -5395,6 +5413,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom
+    realization: []
   structure.element.move:
     since: 3.0.0
     kind: effect
@@ -5406,6 +5425,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom
+    realization: []
   structure.element.inject:
     since: 3.0.0
     kind: effect
@@ -5417,6 +5437,7 @@ capabilities:
     probe: selector_exists
     tech:
     - dom
+    realization: []
   terminal.cursor:
     since: 3.0.0
     kind: effect
@@ -5433,6 +5454,7 @@ capabilities:
     - content.terminal.cursor.accent
     - content.terminal.cursor.cell.background
     - content.terminal.cursor.cell.foreground
+    realization: []
   code.block.lineNumber.width:
     since: 3.0.0
     kind: effect
@@ -5444,6 +5466,7 @@ capabilities:
     probe: selector_exists
     tech:
     - rule
+    realization: []
   menu.surface.backdrop_filter:
     since: 3.0.0
     kind: token
@@ -5456,18 +5479,7 @@ capabilities:
     binds:
     - token: --dsw-menu-backdrop-filter
     value: filter
-  typography.family.default:
-    since: 3.0.0
-    kind: token
-    tier: stable
-    exposure: 默认开放
-    source: P4
-    docs: 全局正文字族（默认）
-    status: live
-    probe: token_live(--dsw-font-family)
-    binds:
-    - token: --dsw-font-family
-    value: font_stack
+    realization: []
   typography.xs-13.composite:
     since: 3.0.0
     kind: token
@@ -5480,6 +5492,7 @@ capabilities:
     binds:
     - token: --dsw-font-xs-13
     value: font
+    realization: []
   typography.xxs-12.composite:
     since: 3.0.0
     kind: token
@@ -5492,6 +5505,7 @@ capabilities:
     binds:
     - token: --dsw-font-xxs-12
     value: font
+    realization: []
   typography.markdown-code-block.composite:
     since: 3.0.0
     kind: token
@@ -5504,6 +5518,9 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-code-block
     value: font
+    merged_from:
+    - content.code.block.content.font
+    realization: []
   typography.markdown-code-block-small.composite:
     since: 3.0.0
     kind: token
@@ -5516,6 +5533,9 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-code-block-small
     value: font
+    merged_from:
+    - content.terminal.font
+    realization: []
   typography.family.brand:
     since: 3.0.0
     kind: token
@@ -5528,6 +5548,7 @@ capabilities:
     binds:
     - token: --dsw-font-family-brand
     value: font_stack
+    realization: []
   typography.xs-strong-13.composite:
     since: 3.0.0
     kind: token
@@ -5540,6 +5561,7 @@ capabilities:
     binds:
     - token: --dsw-font-xs-strong-13
     value: font
+    realization: []
   typography.xxxs-11.composite:
     since: 3.0.0
     kind: token
@@ -5552,6 +5574,7 @@ capabilities:
     binds:
     - token: --dsw-font-xxxs-11
     value: font
+    realization: []
   typography.l-20.composite:
     since: 3.0.0
     kind: token
@@ -5564,6 +5587,7 @@ capabilities:
     binds:
     - token: --dsw-font-l-20
     value: font
+    realization: []
   typography.markdown-base.composite:
     since: 3.0.0
     kind: token
@@ -5576,6 +5600,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-base
     value: font
+    realization: []
   typography.markdown-base-strong.composite:
     since: 3.0.0
     kind: token
@@ -5588,6 +5613,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-base-strong
     value: font
+    realization: []
   typography.markdown-code.composite:
     since: 3.0.0
     kind: token
@@ -5600,6 +5626,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-code
     value: font
+    realization: []
   typography.markdown-code.font_family:
     since: 3.0.0
     kind: token
@@ -5612,6 +5639,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-code-font-family
     value: font_stack
+    realization: []
   typography.markdown-h1.composite:
     since: 3.0.0
     kind: token
@@ -5624,6 +5652,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h1
     value: font
+    realization: []
   typography.markdown-h2.composite:
     since: 3.0.0
     kind: token
@@ -5636,6 +5665,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h2
     value: font
+    realization: []
   typography.markdown-h3.composite:
     since: 3.0.0
     kind: token
@@ -5648,6 +5678,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h3
     value: font
+    realization: []
   typography.markdown-h4.composite:
     since: 3.0.0
     kind: token
@@ -5660,6 +5691,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h4
     value: font
+    realization: []
   typography.markdown-small.composite:
     since: 3.0.0
     kind: token
@@ -5672,6 +5704,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-small
     value: font
+    realization: []
   typography.markdown-table.composite:
     since: 3.0.0
     kind: token
@@ -5684,6 +5717,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-table
     value: font
+    realization: []
   typography.markdown-table-head.composite:
     since: 3.0.0
     kind: token
@@ -5696,6 +5730,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-table-head
     value: font
+    realization: []
   typography.s-14.composite:
     since: 3.0.0
     kind: token
@@ -5708,6 +5743,7 @@ capabilities:
     binds:
     - token: --dsw-font-s-14
     value: font
+    realization: []
   typography.markdown-base.font_size:
     since: 3.0.0
     kind: token
@@ -5720,6 +5756,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-base-font-size
     value: length
+    realization: []
   typography.markdown-base.line_height:
     since: 3.0.0
     kind: token
@@ -5732,6 +5769,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-base-line-height
     value: line_height
+    realization: []
   typography.markdown-h1.font_size:
     since: 3.0.0
     kind: token
@@ -5744,6 +5782,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h1-font-size
     value: length
+    realization: []
   typography.markdown-h1.line_height:
     since: 3.0.0
     kind: token
@@ -5756,6 +5795,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h1-line-height
     value: line_height
+    realization: []
   typography.markdown-h2.font_size:
     since: 3.0.0
     kind: token
@@ -5768,6 +5808,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h2-font-size
     value: length
+    realization: []
   typography.markdown-h2.line_height:
     since: 3.0.0
     kind: token
@@ -5780,6 +5821,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h2-line-height
     value: line_height
+    realization: []
   typography.markdown-h3.font_size:
     since: 3.0.0
     kind: token
@@ -5792,6 +5834,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h3-font-size
     value: length
+    realization: []
   typography.markdown-h3.line_height:
     since: 3.0.0
     kind: token
@@ -5804,6 +5847,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-h3-line-height
     value: line_height
+    realization: []
   typography.markdown-small.font_size:
     since: 3.0.0
     kind: token
@@ -5816,6 +5860,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-small-font-size
     value: length
+    realization: []
   typography.markdown-small.line_height:
     since: 3.0.0
     kind: token
@@ -5828,6 +5873,7 @@ capabilities:
     binds:
     - token: --dsw-font-markdown-small-line-height
     value: line_height
+    realization: []
   radius.sm:
     since: 3.0.0
     kind: token
@@ -5840,6 +5886,7 @@ capabilities:
     binds:
     - token: --dsw-radius-sm
     value: length
+    realization: []
   radius.md:
     since: 3.0.0
     kind: token
@@ -5852,6 +5899,7 @@ capabilities:
     binds:
     - token: --dsw-radius-md
     value: length
+    realization: []
   radius.lg:
     since: 3.0.0
     kind: token
@@ -5864,6 +5912,7 @@ capabilities:
     binds:
     - token: --dsw-radius-lg
     value: length
+    realization: []
   radius.xl:
     since: 3.0.0
     kind: token
@@ -5876,6 +5925,7 @@ capabilities:
     binds:
     - token: --dsw-radius-xl
     value: length
+    realization: []
   radius.xs:
     since: 3.0.0
     kind: token
@@ -5888,6 +5938,7 @@ capabilities:
     binds:
     - token: --dsw-radius-xs
     value: length
+    realization: []
   radius.panel:
     since: 3.0.0
     kind: token
@@ -5900,6 +5951,7 @@ capabilities:
     binds:
     - token: --dsw-radius-panel
     value: length
+    realization: []
   structure.corner.shape:
     since: 3.0.0
     kind: token
@@ -5912,6 +5964,7 @@ capabilities:
     binds:
     - token: --dsw-corner-shape
     value: shape
+    realization: []
   mask.blur:
     since: 3.0.0
     kind: token
@@ -5924,6 +5977,7 @@ capabilities:
     binds:
     - token: --dsw-mask-blur
     value: length
+    realization: []
   runtime.content-font-delta:
     since: 3.0.0
     kind: token
@@ -5936,6 +5990,7 @@ capabilities:
     binds:
     - token: --dsh-content-font-delta
     value: length
+    realization: []
   runtime.content-font-size-secondary:
     since: 3.0.0
     kind: token
@@ -5948,6 +6003,7 @@ capabilities:
     binds:
     - token: --dsh-content-font-size-secondary
     value: length
+    realization: []
   runtime.content-font-delta-secondary:
     since: 3.0.0
     kind: token
@@ -5960,6 +6016,7 @@ capabilities:
     binds:
     - token: --dsh-content-font-delta-secondary
     value: length
+    realization: []
   runtime.code-font-delta:
     since: 3.0.0
     kind: token
@@ -5972,6 +6029,7 @@ capabilities:
     binds:
     - token: --dsh-code-font-delta
     value: length
+    realization: []
   runtime.font-family-text-default:
     since: 3.0.0
     kind: token
@@ -5984,6 +6042,7 @@ capabilities:
     binds:
     - token: --dsh-font-family-text-default
     value: length
+    realization: []
   runtime.scrollbar-width:
     since: 3.0.0
     kind: token
@@ -5996,6 +6055,7 @@ capabilities:
     binds:
     - token: --dsh-scrollbar-width
     value: length
+    realization: []
   runtime.font-family-code-default:
     since: 3.0.0
     kind: token
@@ -6008,6 +6068,7 @@ capabilities:
     binds:
     - token: --dsh-font-family-code-default
     value: length
+    realization: []
   runtime.scrollbar-thumb:
     since: 3.0.0
     kind: token
@@ -6020,6 +6081,7 @@ capabilities:
     binds:
     - token: --dsh-scrollbar-thumb
     value: length
+    realization: []
   runtime.scrollbar-thumb-border:
     since: 3.0.0
     kind: token
@@ -6032,6 +6094,7 @@ capabilities:
     binds:
     - token: --dsh-scrollbar-thumb-border
     value: length
+    realization: []
   runtime.scrollbar-thumb-hover:
     since: 3.0.0
     kind: token
@@ -6044,6 +6107,7 @@ capabilities:
     binds:
     - token: --dsh-scrollbar-thumb-hover
     value: length
+    realization: []
   runtime.scrollbar-track-margin:
     since: 3.0.0
     kind: token
@@ -6056,81 +6120,7 @@ capabilities:
     binds:
     - token: --dsh-scrollbar-track-margin
     value: length
-  content.code.block.background:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-code-block-background；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-alias-markdown-code-block)
-    binds:
-    - token: --dsw-alias-markdown-code-block
-    tech:
-    - var:--dsl-code-block-background
-    - token:--dsw-alias-markdown-code-block
-    value: color
-  content.code.block.banner.background:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-code-block-banner-background-color；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-alias-markdown-code-block-banner)
-    binds:
-    - token: --dsw-alias-markdown-code-block-banner
-    tech:
-    - var:--dsl-code-block-banner-background-color
-    - token:--dsw-alias-markdown-code-block-banner
-    value: color
-  content.code.block.banner.font:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-code-block-banner-font；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-font-family)
-    binds:
-    - token: --dsw-font-family
-    tech:
-    - var:--dsl-code-block-banner-font
-    - token:--dsw-font-family
-    value: paint
-  content.code.block.radius:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-code-block-border-radius；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-radius-lg)
-    binds:
-    - token: --dsw-radius-lg
-    tech:
-    - var:--dsl-code-block-border-radius
-    - token:--dsw-radius-lg
-    value: length
-  content.code.block.content.font:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-code-block-content-font；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-font-markdown-code-block)
-    binds:
-    - token: --dsw-font-markdown-code-block
-    tech:
-    - var:--dsl-code-block-content-font
-    - token:--dsw-font-markdown-code-block
-    value: paint
+    realization: []
   content.private.code-block-line-number-width:
     since: 3.0.0
     kind: effect
@@ -6143,6 +6133,7 @@ capabilities:
     tech:
     - var:--dsl-code-block-line-number-width
     value: paint
+    realization: []
   content.code.block.line.wrap:
     since: 3.0.0
     kind: effect
@@ -6155,6 +6146,7 @@ capabilities:
     tech:
     - var:--dsl-code-block-line-white-space
     value: paint
+    realization: []
   content.terminal.command.wrap:
     since: 3.0.0
     kind: effect
@@ -6167,21 +6159,7 @@ capabilities:
     tech:
     - var:--dsl-command-whitespace
     value: paint
-  sidebar.guide.entry.radius:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-guide-entry-radius；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-radius-xl)
-    binds:
-    - token: --dsw-radius-xl
-    tech:
-    - var:--dsl-guide-entry-radius
-    - token:--dsw-radius-xl
-    value: length
+    realization: []
   content.private.read-gutter:
     since: 3.0.0
     kind: effect
@@ -6194,6 +6172,7 @@ capabilities:
     tech:
     - var:--dsl-read-gutter
     value: paint
+    realization: []
   content.search.line-height:
     since: 3.0.0
     kind: effect
@@ -6206,36 +6185,7 @@ capabilities:
     tech:
     - var:--dsl-search-line-height
     value: number
-  content.search.radius:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-search-radius；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-radius-lg)
-    binds:
-    - token: --dsw-radius-lg
-    tech:
-    - var:--dsl-search-radius
-    - token:--dsw-radius-lg
-    value: length
-  content.terminal.font:
-    since: 3.0.0
-    kind: token
-    tier: advanced
-    exposure: 专家模式（组件内部别名）
-    source: P2
-    docs: 宿主组件内部别名 --dsl-terminal-font；改上游 token 或规则可间接触达。
-    status: live
-    probe: token_live(--dsw-font-markdown-code-block-small)
-    binds:
-    - token: --dsw-font-markdown-code-block-small
-    tech:
-    - var:--dsl-terminal-font
-    - token:--dsw-font-markdown-code-block-small
-    value: paint
+    realization: []
   content.terminal.gutter:
     since: 3.0.0
     kind: effect
@@ -6248,6 +6198,7 @@ capabilities:
     tech:
     - var:--dsl-terminal-gutter
     value: length
+    realization: []
   content.terminal.line-height:
     since: 3.0.0
     kind: effect
@@ -6260,6 +6211,7 @@ capabilities:
     tech:
     - var:--dsl-terminal-line-height
     value: number
+    realization: []
   content.terminal.line.wrap:
     since: 3.0.0
     kind: effect
@@ -6272,6 +6224,7 @@ capabilities:
     tech:
     - var:--dsl-terminal-line-whitespace
     value: paint
+    realization: []
   content.terminal.output.max-height:
     since: 3.0.0
     kind: effect
@@ -6284,36 +6237,83 @@ capabilities:
     tech:
     - var:--dsl-terminal-output-max-height
     value: length
-  content.terminal.radius:
+    realization: []
+  code.block.radius:
     since: 3.0.0
-    kind: token
-    tier: advanced
+    kind: property
+    tier: stable
+    exposure: 专家模式（组件内部别名）
+    source: P2
+    docs: 宿主组件内部别名 --dsl-code-block-border-radius；改上游 token 或规则可间接触达。
+    status: live
+    probe: token_live(--dsw-radius-lg)
+    value: length
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: code.block
+        layer: component
+        decl:
+          border-radius: $value
+  tool.search.radius:
+    since: 3.0.0
+    kind: property
+    tier: stable
+    exposure: 专家模式（组件内部别名）
+    source: P2
+    docs: 宿主组件内部别名 --dsl-search-radius；改上游 token 或规则可间接触达。
+    status: live
+    probe: token_live(--dsw-radius-lg)
+    value: length
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: tool.search
+        layer: component
+        decl:
+          border-radius: $value
+  terminal.block.radius:
+    since: 3.0.0
+    kind: property
+    tier: stable
     exposure: 专家模式（组件内部别名）
     source: P2
     docs: 宿主组件内部别名 --dsl-terminal-radius；改上游 token 或规则可间接触达。
     status: live
     probe: token_live(--dsw-radius-lg)
-    binds:
-    - token: --dsw-radius-lg
-    tech:
-    - var:--dsl-terminal-radius
-    - token:--dsw-radius-lg
     value: length
-  content.web.radius:
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: terminal.root
+        layer: component
+        decl:
+          border-radius: $value
+  tool.web.radius:
     since: 3.0.0
-    kind: token
-    tier: advanced
+    kind: property
+    tier: stable
     exposure: 专家模式（组件内部别名）
     source: P2
     docs: 宿主组件内部别名 --dsl-web-radius；改上游 token 或规则可间接触达。
     status: live
     probe: token_live(--dsw-radius-lg)
-    binds:
-    - token: --dsw-radius-lg
-    tech:
-    - var:--dsl-web-radius
-    - token:--dsw-radius-lg
     value: length
+    realization:
+    - id: rule
+      writes:
+      - id: r
+        use: rule
+        anchor: tool.web
+        layer: component
+        decl:
+          border-radius: $value
 direct_bindings:
   token.dsw.alias-bg-layer-1:
     token: --dsw-alias-bg-layer-1
@@ -11451,6 +11451,11 @@ token_summary:
       gated: 宿主在元素级重声明同名变量（elevation 族），body 级写入被子元素覆盖
       declared_invalid: 宿主声明了但消费链无效（靠 fallback / JS 注入才有值）
   total: 425
+ownership_dropped:
+- id: window.titleBar.background
+  reason: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
+- id: sidebar.guide.entry.radius
+  reason: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
 extensions_reserved: {}
 runtime_summary:
   total: 148

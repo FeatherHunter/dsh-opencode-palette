@@ -22,7 +22,8 @@ V3 主题系统只有三样东西：
 - **能力（capability）**：一个可配置项。`kind` 四种：`property`（区域.角色.属性，带 realization 链）、`recipe`（复合效果，按 aspect 独立降级）、`token`（直指 token 的语义能力，`binds` 指向登记层）、`effect`（DOM/规则效果，`tech` 说明实现技术）。
 - **能力 id**：`<domain>.<segment>(.<segment>){1,5}`；`domain` 取 `vocabulary.yaml` 的 `capability_domains`（34 个：14 区域 + 15 语义域 + typography/radius/runtime/mask + `token`）。展开 id 规则仍为 `<region>.<controlName>.<property>`。
 - **直绑定（direct binding）**：425 个公开 token 每条一个兜底能力，id = `token.<namespace>.<名字去前缀>`，如 `token.dsw.alias-bg-base`。保证「425 全量可达」，语义能力覆盖不到时用它。
-- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（331）∪ `control_templates × anchors.controls` 展开（65，去重 4） = **392 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
+- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（331）∪ `control_templates × anchors.controls` 展开（65，去重 4） = **379 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
+- **token 归属（v1.13）**：每个宿主 token 只有一个 owner 能力。三套来源表合并时做归属唯一化：重复语义行并入 owner 的 `merged_from`；区域级旋钮（圆角/字色/行高/背景等）改走**规则层**（精确技术路径，不再抢共享 token）；宿主未给独立通道的项目移出菜单（标题栏独立配色归 #154，侧栏引导项圆角暂不可达）。详见 `docs/research/v3-ownership-policy.md`。
 - **主题包（theme package）**：一个目录，含 `theme.yaml` 与 `assets/`；目录名可自由取，显示名取 `theme.yaml` 的 `meta.name`。
 - **绑定（binding）**：能力 → 宿主落地手段：`token`（变量）/ `rule`（规则）/ `dom`（命令式 DOM）/ `asset`（资源）。策略链按「当前宿主可用」降级。
 - **tier**：`stable`（正式）/ `advanced`（高级·默认折叠）/ `experimental`（实验，默认关闭）/ `dead`（不可用，只登记）。
@@ -37,7 +38,7 @@ V3 主题系统只有三样东西：
 palette/                        能力集（构建期真源，随插件版本发布）
   _index.yaml                   注册表：模块/版本/生成命令/计数 ← 唯一入口
   capabilities.yaml             手写能力源（28 条手写能力 + 控件模板）← 人工维护入口
-  palette.yaml                  合成视图：全部底层模块 + capabilities（331）+ direct_bindings（425）← 不要手改
+  palette.yaml                  合成视图：全部底层模块 + capabilities（319）+ direct_bindings（425）← 不要手改
   vocabulary.yaml               区域/角色/属性/recipe/状态/语言/能力域 + grammar
   values.yaml                   值类型（23 种，含 font/font_style/filter/shape）+ Unicode 范围 + 变量语法
   primitives.yaml               写原语：token/rule/dom/host_api + realization 契约
@@ -92,7 +93,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 
 硬规则：
 
-1. `capabilities` 的键必须是**合并视图里登记过的能力 id**（392 条；拼错 = 校验错误）。直绑定 id（`token.*`，425 条）同样合法。
+1. `capabilities` 的键必须是**合并视图里登记过的能力 id**（379 条；拼错 = 校验错误）。直绑定 id（`token.*`，425 条）同样合法。
 2. 值必须符合该能力的值类型；`diurnal: true` 的类型接受单值或 `{light, dark}`，`diurnal: false` 只接受单值；`null` = 清掉该层，没写 = 不注入。
 3. 宿主名字不出现：宿主 token 名只出现在 palette 的 `binds` / `token` 字段；直绑定 id 里的名字是稳定 id 的一部分，不是宿主运行时名。
 4. 值与资源在写进样式表前必须解析后重新序列化（防 CSS 注入）；资源路径必须落在主题包内。
@@ -137,7 +138,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 | 层 | 内容 | 谁用 |
 |---|---|---|
 | L1 | 37 个 opencode token（老编辑器等价物；内部映射保留，不改名） | 普通用户、老主题 |
-| L2 | 语义能力菜单（合并视图 392 条：28 手写 + 65 展开 + 236 master + 52 P4 + 19 P2，去重后；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
+| L2 | 语义能力菜单（合并视图 379 条：30 手写 + 60 展开 + 236 master + 52 P4 + 19 P2，去重后；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
 | L3 | 直绑定 425 条（`token.<ns>.<名字>`）+ 状态提示（live/dead/gated/pinned） | 专家、外部 AI 逃生舱 |
 
 规则：L2 只列可达能力（dead 只登记不默认暴露）；L3 一律允许设置，保存只提示状态，不阻止、不删除。
@@ -166,7 +167,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 6. 视频背景经 `insert-media-layer` 生效，切主题后精确撤销（无残留节点）。
 7. 预览与运行时对同一 theme.yaml 产生同一份 plan（快照测试）。
 8. 状态提示：dead/gated/pinned 名在编辑器显示状态、可写、不阻止。
-9. `_index.yaml` 计数与重算一致：`capabilities_authored`=28、`capabilities_generated`=65、`capabilities_unique`=392、`regions_covered`=12（缺口 detail/plugin，目标 14/14）、`domains_covered`=30、`direct_bindings`=425、`runtime_registered`=148。
+9. `_index.yaml` 计数与重算一致：`capabilities_authored`=30、`capabilities_generated`=65、`capabilities_unique`=379、`regions_covered`=12（缺口 detail/plugin，目标 14/14）、`domains_covered`=30、`direct_bindings`=425、`runtime_registered`=148。
 10. 零偏差：`gen_palette_v5.py` 重跑结果与提交一致；`docs/research/palette-v5-crosswalk.json` 覆盖 P1/P2/P3/P4 全部行。
 
 ## 9. 未定项（不要假装已定）
@@ -193,4 +194,4 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 - 2026-10-22 v1.0：格式确定，落盘 palette/。
 - 2026-10-22 v1.1～v1.10：九轮独立对抗式二审修正（425 数字、值类型、状态模型主状态+修饰、展开 id 规则、checker 从 7 项扩到全量 YAML/守卫/declared/version 校验、条件写契约单源化等；详见 git 历史）。
 - 2026-10-24 v1.11：`tokens.yaml` 由扫描器全量生成 425 条（含状态/声明/全部消费位置/运行时段），宿主基准升 rc.3。
-- 2026-10-24 v1.12（P5 定稿）：能力菜单固化为手写源 `capabilities.yaml` + 由全部底层模块合成的 `palette.yaml`（`capabilities` 331 + `direct_bindings` 425）；新增 kind `token`/`effect`、字段 `tier`/`exposure`/`status`/`probe`/`binds`/`tech`/`source`；`values.yaml` 新增 `font`/`font_style`/`filter`/`shape`；`vocabulary.yaml` 新增 `token` 能力域（34）；`tokens.yaml` 新增 `runtime` 段（148 条登记）；去除 v1 JSON 兼容、`raw_tokens`、legacy 映射层；验收改 10 条（含 direct_bindings 覆盖、集合闭合、crosswalk 零偏差）。
+- 2026-10-24 v1.12（P5 定稿）：能力菜单固化为手写源 `capabilities.yaml` + 由全部底层模块合成的 `palette.yaml`（`capabilities` 319 + `direct_bindings` 425）；新增 kind `token`/`effect`、字段 `tier`/`exposure`/`status`/`probe`/`binds`/`tech`/`source`；`values.yaml` 新增 `font`/`font_style`/`filter`/`shape`；`vocabulary.yaml` 新增 `token` 能力域（34）；`tokens.yaml` 新增 `runtime` 段（148 条登记）；去除 v1 JSON 兼容、`raw_tokens`、legacy 映射层；验收改 10 条（含 direct_bindings 覆盖、集合闭合、crosswalk 零偏差）。

@@ -33,7 +33,9 @@ anchors:
     confidence: documented
     note: |
       宿主探针读取 --dsw-specific-sidebar-fill 与 --dsw-alias-label-primary，
-      再调 setTitleBarOverlay；所以能力写 token 即可，不需要选择器。
+      再调 setTitleBarOverlay；没有独立标题栏 token。
+      V3.0 不设「标题栏独立配色」能力（底色跟随侧栏、字色跟随主文字）；
+      「透明 overlay + 自绘」实验路径归 #154。
 
   sidebar.root:
     candidates: ['[data-slot="conversation.session"]', '[data-sidebar]']
@@ -140,6 +142,30 @@ anchors:
     scope: document
     confidence: documented        # 用 ::selection 伪元素
 
+  markdown.link:
+    candidates: ['[data-markdown-variant] a']
+    scope: document
+    confidence: inferred
+    meta:
+      evidence:
+        - packages/client/ui-primitives/src/markdown/MarkdownText.tsx:197
+
+  tool.search:
+    candidates: ['[data-search]']
+    scope: document
+    confidence: documented
+    meta:
+      evidence:
+        - packages/client/ui-primitives/src/SearchBlock.tsx
+
+  tool.web:
+    candidates: ['[data-web]']
+    scope: document
+    confidence: documented
+    meta:
+      evidence:
+        - packages/client/ui-primitives/src/WebBlock.tsx
+
 # -----------------------------------------------------------------------------
 # 2. 控件清单
 #    template：套用 palette.yaml 的 control_templates，构建期展开成能力 id
@@ -235,13 +261,13 @@ controls:
 
 # -----------------------------------------------------------------------------
 # 3. 覆盖率统计（门禁重算；数字必须与上方清单一致）
-#    anchors：23 个 = documented 15 / inferred 7 / fragile 1
+#    anchors：26 个 = documented 17 / inferred 8 / fragile 1
 #    controls：12 个 = documented 7 / inferred 5（独立计数，不计入 anchors 的 23）
 # -----------------------------------------------------------------------------
 coverage:
-  anchors: 23
-  documented: 15
-  inferred: 7
+  anchors: 26
+  documented: 17
+  inferred: 8
   fragile: 1
   controls_total: 12
   controls_documented: 7

@@ -70,10 +70,10 @@ modules:
 counts:
   capabilities_authored: 30
   capabilities_generated: 65
-  capabilities_unique: 394
+  capabilities_unique: 379
   controls: 12
   regions: 14
-  roles: 27
+  roles: 29
   regions_covered: 12
   regions_gap:
   - detail

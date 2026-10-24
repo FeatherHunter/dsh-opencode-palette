@@ -167,6 +167,10 @@ roles:
   label: 分隔线
 - id: overlay
   label: 遮罩层
+- id: search
+  label: 搜索卡片
+- id: web
+  label: 网页卡片
 properties:
 - id: background
   label: 背景

@@ -1,6 +1,6 @@
 {
  "stats": {
-  "capabilities": 333,
+  "capabilities": 319,
   "direct_bindings": 425,
   "runtime": 148
  },
@@ -99,7 +99,7 @@
    {
     "token": "--dsw-alias-label-primary",
     "semantic": "global.text.primary",
-    "capability": "global.text.primary",
+    "capability": null,
     "direct_binding": "token.dsw.alias.label.primary"
    },
    {
@@ -435,7 +435,7 @@
    {
     "token": "--dsw-alias-markdown-code-block",
     "semantic": "content.markdown.code-block.background",
-    "capability": "content.markdown.code-block.background",
+    "capability": null,
     "direct_binding": "token.dsw.alias.markdown.code.block"
    },
    {
@@ -639,7 +639,7 @@
    {
     "token": "--dsw-alias-link",
     "semantic": "global.link.text",
-    "capability": "global.link.text",
+    "capability": null,
     "direct_binding": "token.dsw.alias.link"
    },
    {
@@ -657,7 +657,7 @@
    {
     "token": "--dsw-specific-sidebar-fill",
     "semantic": "specific.sidebar.fill",
-    "capability": "specific.sidebar.fill",
+    "capability": null,
     "direct_binding": "token.dsw.specific.sidebar.fill"
    },
    {
@@ -1343,31 +1343,31 @@
    {
     "name": "--dsl-code-block-background",
     "ability": "content.code.block.background",
-    "capability": "content.code.block.background",
+    "capability": null,
     "direct_binding": "token.dsw.alias-markdown-code-block"
    },
    {
     "name": "--dsl-code-block-banner-background-color",
     "ability": "content.code.block.banner.background",
-    "capability": "content.code.block.banner.background",
+    "capability": null,
     "direct_binding": "token.dsw.alias-markdown-code-block-banner"
    },
    {
     "name": "--dsl-code-block-banner-font",
     "ability": "content.code.block.banner.font",
-    "capability": "content.code.block.banner.font",
+    "capability": null,
     "direct_binding": "token.dsw.font-family"
    },
    {
     "name": "--dsl-code-block-border-radius",
     "ability": "content.code.block.radius",
-    "capability": "content.code.block.radius",
+    "capability": null,
     "direct_binding": "token.dsw.radius-lg"
    },
    {
     "name": "--dsl-code-block-content-font",
     "ability": "content.code.block.content.font",
-    "capability": "content.code.block.content.font",
+    "capability": null,
     "direct_binding": "token.dsw.font-markdown-code-block"
    },
    {
@@ -1391,7 +1391,7 @@
    {
     "name": "--dsl-guide-entry-radius",
     "ability": "sidebar.guide.entry.radius",
-    "capability": "sidebar.guide.entry.radius",
+    "capability": null,
     "direct_binding": "token.dsw.radius-xl"
    },
    {
@@ -1409,7 +1409,7 @@
    {
     "name": "--dsl-search-radius",
     "ability": "content.search.radius",
-    "capability": "content.search.radius",
+    "capability": null,
     "direct_binding": "token.dsw.radius-lg"
    },
    {
@@ -1421,7 +1421,7 @@
    {
     "name": "--dsl-terminal-font",
     "ability": "content.terminal.font",
-    "capability": "content.terminal.font",
+    "capability": null,
     "direct_binding": "token.dsw.font-markdown-code-block-small"
    },
    {
@@ -1451,13 +1451,13 @@
    {
     "name": "--dsl-terminal-radius",
     "ability": "content.terminal.radius",
-    "capability": "content.terminal.radius",
+    "capability": null,
     "direct_binding": "token.dsw.radius-lg"
    },
    {
     "name": "--dsl-web-radius",
     "ability": "content.web.radius",
-    "capability": "content.web.radius",
+    "capability": null,
     "direct_binding": "token.dsw.radius-lg"
    },
    {
@@ -1668,7 +1668,7 @@
    {
     "token": "--dsw-font-family",
     "capability_id": "typography.family.default",
-    "capability": "typography.family.default",
+    "capability": null,
     "direct_binding": "token.dsw.font-family",
     "status": "live"
    },

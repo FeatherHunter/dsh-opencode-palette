@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>K1 那道题在问什么（大白话版）</title>
+<style>
+  body { font-family: "Segoe UI", "Microsoft YaHei", sans-serif; max-width: 1000px; margin: 32px auto; padding: 0 24px; color: #1a1a1a; line-height: 1.7; }
+  h1 { font-size: 23px; border-bottom: 2px solid #333; padding-bottom: 8px; }
+  h2 { font-size: 18px; margin-top: 28px; border-left: 4px solid #2f6f9f; padding-left: 10px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 18px; font-size: 13.5px; }
+  th, td { border: 1px solid #d0d0d0; padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: #f2f5f8; }
+  code { background: #f4f4f4; padding: 1px 5px; border-radius: 3px; font-size: 12.5px; }
+  .box { background: #f7f9fb; border: 1px solid #dce5ec; padding: 12px 16px; border-radius: 6px; }
+  .warn { background: #fff6ed; border: 1px solid #f0d9be; padding: 12px 16px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<h1>那道题到底在问什么</h1>
+
+<div class="box">
+<p><strong>一句话：</strong>宿主有几个「总开关」（theme token）。我们的编辑器菜单里有多个旋钮接在同一个总开关上。用户拧其中一个，其他旋钮管的地方也一起变 —— 旋钮名会骗人。要你选的是：这种情况怎么办。</p>
+</div>
+
+<h2>具体例子：圆角</h2>
+<p>宿主的圆角总开关只有 6 个（<code>radius-sm / md / lg / xl …</code>），没有「代码块专用圆角」「搜索框专用圆角」这种开关。</p>
+<p>但我们现在的能力菜单里，有 <strong>5 个旋钮都接在同一个 <code>radius-lg</code> 总开关上</strong>：</p>
+<table>
+<tr><th>菜单里显示的旋钮</th><th>实际拧的开关</th><th>用户以为的效果</th><th>实际效果</th></tr>
+<tr><td>全局圆角（lg）</td><td rowspan="5"><code>--dsw-radius-lg</code></td><td>所有大圆角元素</td><td>所有大圆角元素 ✓</td></tr>
+<tr><td>代码块圆角</td><td>只有代码块变圆</td><td>全站一起变（骗人）</td></tr>
+<tr><td>搜索框圆角</td><td>只有搜索框变圆</td><td>全站一起变（骗人）</td></tr>
+<tr><td>终端圆角</td><td>只有终端变圆</td><td>全站一起变（骗人）</td></tr>
+<tr><td>网页块圆角</td><td>只有网页块变圆</td><td>全站一起变（骗人）</td></tr>
+</table>
+<p>另外还有一类是<strong>宿主自己绑死的</strong>：标题栏底色在宿主里是「读侧栏的颜色」，没有独立的标题栏颜色开关；标题栏字色是「读正文主文字色」。所以标题栏这两个旋钮，无论怎么写都做不到「只改标题栏」。</p>
+
+<h2>三个选项</h2>
+<table>
+<tr><th>选项</th><th>用户看到什么</th><th>代价</th></tr>
+<tr><td><strong>A（推荐）每个开关只留一个主旋钮</strong></td>
+<td>圆角区只显示「全局圆角（lg）」这一个旋钮；想「只改代码块圆角」的能力保留，但换成另一种实现方式——直接给代码块那一片区域写 CSS 值，不去拧总开关。标题栏底色/字色不设旋钮，文档写明「跟随侧栏色 / 跟随主文字色」。</td>
+<td>窗口区少一个「标题栏独立配色」旋钮（宿主物理上就做不到独立）。</td></tr>
+<tr><td><strong>B 保留多个旋钮，但标共享</strong></td>
+<td>5 个旋钮都还在，编辑器里标注「与其他 4 个旋钮共享同一开关」，后改的覆盖先改的。</td>
+<td>用户很可能拧两个互相打架，结果取决于顺序；不推荐。</td></tr>
+<tr><td><strong>C 每个开关只留一个旋钮，删掉区域旋钮</strong></td>
+<td>只保留「全局圆角」；代码块/搜索框等区域旋钮直接不存在。</td>
+<td>丢了「只改某区域」的能力，菜单最短。</td></tr>
+</table>
+
+<div class="warn">
+<p><strong>推荐 A 的理由：</strong>旋钮名与实际效果一致（不骗人）；区域旋钮一个都不丢，只是换技术实现；唯一「损失」是标题栏独立配色——那本来就是宿主做不到的事。</p>
+<p><strong>需要你回的：</strong>A / B / C 一个字母。回完我就按它把 14 个共享开关全部处理掉，然后进 P6。</p>
+</div>
+
+</body>
+</html>
