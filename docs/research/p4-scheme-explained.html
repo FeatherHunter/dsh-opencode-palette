@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 方案说明：非颜色 token 203 + 运行时局部变量 148</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; font: 16px/1.75 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; color: #1f2328; background: #fff; }
+  @media (prefers-color-scheme: dark) { body { color: #e6edf3; background: #0d1117; } h1,h2 { border-color: #30363d !important; } code { background: #161b22 !important; } .card { background: #161b22 !important; border-color: #30363d !important; } .note { background: #2d2a1f !important; border-color: #6b5d2a !important; } }
+  h1 { font-size: 26px; border-bottom: 1px solid #d0d7de; padding-bottom: 12px; }
+  h2 { font-size: 20px; margin-top: 40px; border-bottom: 1px solid #e4e8ec; padding-bottom: 6px; }
+  p, li { margin: 8px 0; }
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13.5px; background: #f4f6f8; padding: 2px 5px; border-radius: 5px; }
+  pre { background: #f4f6f8; padding: 14px; border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.55; }
+  @media (prefers-color-scheme: dark) { pre { background: #161b22 !important; } }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+  th, td { border: 1px solid #d0d7de; padding: 8px 10px; vertical-align: top; text-align: left; }
+  th { background: #f0f3f6; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { th { background: #21262d !important; } th, td { border-color: #30363d !important; } }
+  .card { border: 1px solid #d0d7de; border-radius: 10px; padding: 16px 18px; margin: 18px 0; background: #fbfcfd; }
+  .note { border: 1px solid #d8c46a; background: #fdf8e3; border-radius: 10px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+  .tldr { font-size: 17px; line-height: 1.8; font-weight: 600; }
+  .muted { color: #6b7280; font-size: 14px; }
+  .tag { display: inline-block; font-size: 12.5px; padding: 1px 7px; border-radius: 999px; border: 1px solid #b9c0c8; margin-right: 6px; }
+  .ok { color: #1a7f37; font-weight: 600; }
+  .warn { color: #b34b00; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>P4 方案说明：非颜色 token 203 + 运行时局部变量 148</h1>
+<p class="muted">2026-10-24 · DeepSeek Harness 宿主基准 rc.3（1f81c04）· 本文件回答「P4 方案是什么」</p>
+
+<p class="tldr">一句话：P4 是把「底层技术 → 能力上限」里的<b>最后两块没逐条过的技术</b>过完——
+① 公开 token 里除颜色外的 <b>203 条</b>（排印 / 圆角 / 形状 / 材质）；
+② 运行时存在的 <b>148 条</b>局部变量（宿主内部、我们改不到，但必须证明「没漏」）。
+做完这两块，集合才闭合：<code>425 = 222（颜色）+ 203（非颜色）</code>，<code>573 = 425 + 148</code>。</p>
+
+<h2>1. P4 在整条主线里的位置</h2>
+<p>主线是「按底层实现技术逐组讨论，每组出一条一条的能力上限表，最后合成 palette 能力集」。前四组的分工：</p>
+<table>
+<tr><th>轮次</th><th>覆盖的底层技术</th><th>产物</th></tr>
+<tr><td>P1</td><td>公开 token · 颜色轴 <b>222</b> 条</td><td><code>v3-color-222-ability-map.html</code></td></tr>
+<tr><td>P2</td><td>私有契约面：<code>--dsl-*</code> 20、<code>--terminal-cursor*</code> 4、哈希类名 156、<code>data-*</code>、inline 74、硬编码色 381 行</td><td><code>v3-private-surface-ability-map.html</code></td></tr>
+<tr><td>P3</td><td>DOM 操作手段（插入图层、换图标、改结构……）</td><td><code>v3-dom-ability-map.html</code></td></tr>
+<tr><td><b>P4（本文件）</b></td><td>公开 token · <b>非颜色 203</b> 条 + 运行时局部变量 <b>148</b> 条</td><td><code>v3-noncolor-surface-ability-map.html</code></td></tr>
+</table>
+<p>P4 之后进入 P5：把 P1–P4 的结论固化成 <code>palette/</code> 的 9 个 YAML + SPEC（能力条目、值类型、绑定规则、探针、状态）。</p>
+
+<h2>2. 为什么 P4 必须做（不做的后果）</h2>
+<ul>
+  <li><b>不闭合：</b>公开命名空间是 425 条，P1 只过了颜色 222。剩 203 条没逐条过，就不能说「palette 覆盖 DSH 全部可支持上限」——用户 U1 的裁定是「必须包含上限，用不用另说」。</li>
+  <li><b>会漏能力：</b>排印 182 条里藏着「按内容角色改字号 / 行高」的落点；radius 6 条是圆角；menu / corner / mask 是材质与形状。这些不是颜色，但都是用户能感知的效果。</li>
+  <li><b>会错判：</b>运行时还有 148 条变量（宿主内部布局量、组件私有实现）。不登记就无法回答「我的主题为什么改了没反应」——其中绝大多数是「写在 body 上无效」的。</li>
+</ul>
+
+<h2>3. 分类判据（第一性原理）</h2>
+<p>不是按「名字好不好看」分类，而是按<b>「写入之后宿主会不会真的变」</b>分三类：</p>
+<table>
+<tr><th>类</th><th>含义</th><th>在 P4 里的条数</th><th>处理方式</th></tr>
+<tr><td><b>A. token 写入即生效</b></td><td>宿主在 body 级声明、消费方读这个变量</td><td>排印复合 <b>30</b>（其中 live 18）、radius <b>6</b>、menu 材质 <b>1</b></td><td>直接成为能力条目（直绑定 + 语义 id）</td></tr>
+<tr><td><b>B. token 写入无效，需要规则层</b></td><td>宿主不消费该变量，或元素级重声明盖住</td><td>排印长手 <b>150</b>（dead 139）、<code>--dsw-mask-blur</code>（钉死 <code>none</code>）</td><td>登记 + 标 dead / gated；<b>不冒充可用</b>；改字号/行高走规则层按内容角色</td></tr>
+<tr><td><b>C. 不建用户能力，只登记</b></td><td>元素级作用域 / JS 内部写入，body 覆盖无效</td><td><code>--dsh</code> 11 + 运行时 148</td><td>进登记表，注明「不开放、原因、证据」</td></tr>
+</table>
+
+<h2>4. 每一条长什么样（逐条格式）</h2>
+<p>203 条每行都有：</p>
+<table>
+<tr><th>列</th><th>回答的问题</th></tr>
+<tr><td>token 名 / 中文名</td><td>这个底层技术叫什么、给人看的中文是什么</td></tr>
+<tr><td>状态 + 修饰</td><td><code>live</code>（有消费方）/ <code>dead</code>（宿主不读）/ <code>gated</code>（元素级重声明）/ <code>declared_invalid</code>（声明与读取位置不一致）</td></tr>
+<tr><td>消费位置与次数</td><td>宿主哪里在用它（文件 + 行号 + 次数），以后不用翻源码</td></tr>
+<tr><td>值类型</td><td>能写什么：长度 / 字体栈 / 字体资源 / 数字 / 颜色 / 材质 / 形状</td></tr>
+<tr><td>能力 id</td><td>用户在 theme.yaml 里写的稳定名字，如 <code>typography.composite.headingL</code>、<code>radius.card</code></td></tr>
+<tr><td>能改什么效果</td><td>一句话说明用户能感知到什么</td></tr>
+<tr><td>tier / 暴露</td><td><code>stable</code>（正式）/ <code>advanced</code>（高级·默认折叠）/ <code>experimental</code>（实验）/ <code>dead</code>（不可用）</td></tr>
+<tr><td>探针</td><td>加载时怎么判断「宿主还认不认这条」：<code>token_live(name)</code> 等</td></tr>
+</table>
+
+<h2>5. 结果数字</h2>
+<div class="card">
+<p><b>非颜色公开 token 203 条</b>：</p>
+<ul>
+  <li>排印 <b>182</b> = 全局字族 2 + 复合 30（宿主用 <code>font: var(--dsw-font-*)</code> 简写消费，live 18 / dead 12）+ 长手 150（5 轴 × 30 角色，dead 139）</li>
+  <li>radius <b>6</b> · <code>--dsh</code> <b>11</b> · menu 材质 <b>1</b> · corner 形状 <b>1</b> · mask <b>1</b> · 焦点环宽度 <b>1</b></li>
+  <li>合计 live <b>52</b> / dead <b>151</b></li>
+  <li>203 条 capability_id 全部通过文法 + 能力域校验：<span class="ok">0 违规、0 重名</span>；新增能力域 <code>typography</code> / <code>radius</code> / <code>runtime</code> / <code>mask</code>（能力域总数 29 → 33）</li>
+</ul>
+<p><b>运行时局部变量 148 条</b>：</p>
+<ul>
+  <li><code>--dsh</code> 额外 <b>60</b> + <code>--dsl</code> <b>20</b>（P2 已过）+ 其他包局部 <code>--dsw</code> <b>12</b> + 组件局部其它 <b>56</b> = <b>148</b></li>
+  <li>口径 = 2026-10-20 安装版首屏 Playwright 实测；证据已入库 <code>scripts/research/data/runtime-scan-web-2026-10-20.json</code></li>
+  <li>rc.3 已确认主题面零变更（CSS 文件 SHA256 全同、0 增删声明）；运行时数字在 P7 升级演练时复测</li>
+</ul>
+<p><b>集合闭合</b>：<code>425 = 222（P1 颜色）+ 203（P4 非颜色）</code>；<code>573 = 425 + 148（运行时）</code>。</p>
+</div>
+
+<h2>6. 设计取舍与诚实边界</h2>
+<div class="note">
+<p><b>不冒充可用：</b>150 条排印长手里 139 条是 dead（宿主只声明、不读取）。我们把它们登记为 dead、默认不暴露；如果未来宿主开始消费，扫描器改状态即可，不需要改用户文件。</p>
+<p><b>运行时 148 不建用户能力：</b>它们要么是元素级作用域，要么是 JS 写入（如终端光标、布局量），body 级写入无效。登记目的只有两个：不再翻源码、证明没漏。</p>
+<p><b>排印的「可改」落在两处：</b>① 30 个复合 token（写入即生效，做「整体字号 / 行高」）；② 规则层按内容角色（<code>p</code> / <code>h1</code> / <code>code</code> / <code>blockquote</code>，做「某类内容单独改字号 / 行距」）。后者属于 P3 的规则手段，两者在主表里合成同一条能力。</p>
+<p><b>死名 ≠ 永久死：</b>状态由扫描器按宿主源码生成，宿主升级后重扫即可；用户 theme.yaml 不受影响。</p>
+</div>
+
+<h2>7. 产出与验收</h2>
+<ul>
+  <li>表：<a href="v3-noncolor-surface-ability-map.html">v3-noncolor-surface-ability-map.html</a>（203 条逐条 + 148 条分组登记 + 覆盖声明 + 集合算术）</li>
+  <li>数据：<code>docs/research/noncolor-surface-map.json</code>；生成器：<code>scripts/research/gen_noncolor_surface_map.py</code>（可重跑）</li>
+  <li>校验：<code>palette-check.py</code> <span class="ok">0 错 0 警</span>；203 条 id 独立校验 <span class="ok">0 违规 0 重名</span></li>
+  <li>提交：<code>3b917b1 docs(palette): P4 非颜色 203 + 运行时 148 逐条过（集合闭合 425=222+203 / 573=425+148）</code></li>
+</ul>
+
+<h2>8. 下一步</h2>
+<table>
+<tr><th>轮次</th><th>内容</th><th>产出</th></tr>
+<tr><td><b>P5</b></td><td>palette 定稿：把 P1–P4 的分类与落点固化成 <code>palette/</code> 9 个 YAML + SPEC（能力条目、值类型、绑定规则、探针、状态、33 个能力域）</td><td>零偏差的 palette v3 文档集</td></tr>
+<tr><td>P6</td><td>零偏差审计 + #147 收口（票面从「提案」改成「裁定记录」，用户确认后关闭）</td><td>#147 closed + 地图 #128 同步</td></tr>
+<tr><td>P7</td><td>升级演练：升到 rc.3 后重跑扫描器、diff 报告、theme.yaml 零改动</td><td>升级验收记录</td></tr>
+<tr><td>P8</td><td>保留票接力：#148 / #149 / #137 / #146 / #141 / #145 / #132 / #154</td><td>逐票推进</td></tr>
+</table>
+
+<p class="muted">本文件是 P4 的方案说明与结果摘要；逐条数据在 <code>v3-noncolor-surface-ability-map.html</code>。</p>
+
+</body>
+</html>
