@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P1 / P4 的内容落到哪些 YAML？</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 940px; margin: 0 auto; padding: 40px 24px 80px; font: 16px/1.75 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; color: #1f2328; background: #fff; }
+  @media (prefers-color-scheme: dark) { body { color: #e6edf3; background: #0d1117; } h1,h2 { border-color: #30363d !important; } code,pre { background: #161b22 !important; } .card { background: #161b22 !important; border-color: #30363d !important; } .note { background: #2d2a1f !important; border-color: #6b5d2a !important; } th { background: #21262d !important; } th,td { border-color: #30363d !important; } }
+  h1 { font-size: 25px; border-bottom: 1px solid #d0d7de; padding-bottom: 12px; }
+  h2 { font-size: 19.5px; margin-top: 38px; border-bottom: 1px solid #e4e8ec; padding-bottom: 6px; }
+  code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13.5px; background: #f4f6f8; padding: 2px 5px; border-radius: 5px; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+  th, td { border: 1px solid #d0d7de; padding: 8px 10px; vertical-align: top; text-align: left; }
+  th { background: #f0f3f6; font-weight: 600; }
+  .card { border: 1px solid #d0d7de; border-radius: 10px; padding: 16px 18px; margin: 18px 0; background: #fbfcfd; }
+  .note { border: 1px solid #d8c46a; background: #fdf8e3; border-radius: 10px; padding: 14px 18px; margin: 18px 0; font-size: 15px; }
+  .tldr { font-size: 17px; line-height: 1.8; font-weight: 600; }
+  .muted { color: #6b7280; font-size: 14px; }
+  .ok { color: #1a7f37; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>P1 / P4 的内容落到哪些 YAML？</h1>
+<p class="muted">回答：「P4 也是在 P1 的 yaml 中增加内容吗？」· 2026-10-24</p>
+
+<p class="tldr">不是「加到 P1 的 yaml」——P1 和 P4 是同一批 <code>palette/</code> YAML 的两种内容来源：<br>
+<b>① 登记层</b> <code>tokens.yaml</code>：425 条 token 全在这一份里（颜色 222 + 非颜色 203，按大族/子组分节）。
+<b>② 能力层</b> <code>palette.yaml</code>：只收「能变成用户能力」的条目（颜色语义 + 排印/圆角等），运行时 148 条不进能力层。</p>
+
+<h2>1. 现在的事实：P1/P4 的逐条表还是研究产物，还没写进 YAML</h2>
+<p>P1（颜色 222）与 P4（非颜色 203 + 运行时 148）目前是 <b>HTML + JSON 清单</b>，用来逐条讨论、确认分类。它们还不是 <code>palette/</code> 的 YAML 内容。</p>
+<p>把清单变成 YAML 是 <b>P5 定稿</b>要做的事——不是现在这一步，也不是「往 P1 的 yaml 里塞」。</p>
+
+<h2>2. P5 定稿时，P1/P4 的行分别落哪里</h2>
+<table>
+<tr><th>内容</th><th>落到哪个 YAML</th><th>为什么</th></tr>
+<tr>
+  <td>P1：颜色 token 222 条（含姓名/状态/消费/声明/值类型/探针）</td>
+  <td><code>palette/tokens.yaml</code>（登记）</td>
+  <td>登记层是「宿主有什么」的唯一真源；颜色与非颜色同表，按 family → subgroup → status 排</td>
+</tr>
+<tr>
+  <td>P4：非颜色 token 203 条</td>
+  <td><code>palette/tokens.yaml</code>（同一份，非颜色节）</td>
+  <td>同属「宿主 token」；不另建第二张表，避免两份口径</td>
+</tr>
+<tr>
+  <td>P4：运行时局部变量 148 条</td>
+  <td>计划：<code>palette/tokens.yaml</code> 新增 <code>runtime</code> 段（登记）；能力层<b>不收录</b>；当前仅存于 P4 的 JSON/HTML</td>
+  <td>它们不是公开契约、body 级覆盖无效；登记只为「不再翻源码 / 证明没漏」</td>
+</tr>
+<tr>
+  <td>P1：颜色语义能力（如 <code>global.page.background</code>）</td>
+  <td><code>palette/palette.yaml</code>（能力菜单）</td>
+  <td>能力层 = 用户能在 theme.yaml 里写什么，绑定链指向登记层条目</td>
+</tr>
+<tr>
+  <td>P4：排印复合 30 / radius 6 / menu 材质等能力</td>
+  <td><code>palette/palette.yaml</code>（能力菜单）</td>
+  <td>同上；排印长手 150 默认只登记、不生成能力（dead）</td>
+</tr>
+<tr>
+  <td>能力域 / 文法（P4 新增 typography、radius、runtime、mask）</td>
+  <td><code>palette/vocabulary.yaml</code></td>
+  <td><span class="ok">已在</span>：<code>capability_domains</code> 现在 33 个</td>
+</tr>
+<tr>
+  <td>值类型（长度 / 字体栈 / 字体资源 / 颜色 …）</td>
+  <td><code>palette/values.yaml</code></td>
+  <td>决定每个能力能写什么值、怎么校验</td>
+</tr>
+<tr>
+  <td>P3 锚点（data-slot / data-attribute / role）</td>
+  <td><code>palette/anchors.yaml</code></td>
+  <td>规则层能命中谁</td>
+</tr>
+<tr>
+  <td>探针（token_live 等）</td>
+  <td><code>palette/probes.yaml</code></td>
+  <td>加载时判断「宿主还认不认这条」</td>
+</tr>
+<tr>
+  <td>写入原语（token / rule / dom）</td>
+  <td><code>palette/primitives.yaml</code></td>
+  <td>能力到底怎么写进去</td>
+</tr>
+<tr>
+  <td>资源约束（图片/字体/视频）</td>
+  <td><code>palette/assets.yaml</code></td>
+  <td>主题包里允许放什么</td>
+</tr>
+</table>
+
+<div class="note">
+<p><b>一句话区分：</b><code>tokens.yaml</code> 回答「宿主有什么可以改」（425 全量，含改不动的）；<code>palette.yaml</code> 回答「用户能改什么」（能力菜单，只收可达的）。P1 与 P4 同时喂这两层：登记层全量收，能力层只收能用的。</p>
+</div>
+
+<h2>3. 当前落地进度（避免误会）</h2>
+<table>
+<tr><th>项</th><th>状态</th></tr>
+<tr><td><code>palette/tokens.yaml</code> 已含 425 条全量（颜色 + 非颜色）</td><td>✅ 已生成（383 KB，含状态/消费/声明/值类型）；<b>尚无 runtime 段</b>：运行时 148 条目前只在 P4 的 JSON/HTML 里，P5 再决定是否并进 tokens.yaml</td></tr>
+<tr><td><code>palette/vocabulary.yaml</code> 33 个能力域</td><td>✅ 已加（含 P4 的 typography / radius / runtime / mask）</td></tr>
+<tr><td>P1/P4 逐条能力表（HTML + JSON）</td><td>✅ 已完成（研究产物，供讨论与校验）</td></tr>
+<tr><td>P1/P4 的能力条目正式并入 <code>palette/palette.yaml</code>（能力菜单）</td><td>⏳ P5 定稿做</td></tr>
+<tr><td>能力主表 236 条（跨技术合并后）</td><td>✅ 已完成（P1–P3；P4 登记见 P4 表，能力合并将在 P5 统一）</td></tr>
+</table>
+
+<h2>4. P5 定稿的具体动作</h2>
+<ol>
+  <li>把 P1–P4 的能力行按 33 个域重排，生成新的 <code>palette/palette.yaml</code> 能力菜单（含直绑定条目兜底，保证 425 全覆盖）；</li>
+  <li>把每条能力的绑定链写清楚：<code>token → 规则 → DOM</code>，并标 tier（stable / advanced / experimental / dead）与探针；</li>
+  <li>让 <code>palette-check.py</code> 按新菜单全量校验（id 文法、域、绑定可达、探针、状态一致）；</li>
+  <li>产出零偏差对照表：P1/P2/P3/P4 的每一行 → 对应 YAML 里的条目/登记；没有落点或落点不符的，逐条解释。</li>
+</ol>
+
+<p class="muted">相关文件：<a href="p4-scheme-explained.html">P4 方案说明</a> · <a href="v3-noncolor-surface-ability-map.html">P4 明细</a> · <a href="v3-color-222-ability-map.html">P1 颜色明细</a> · <code>palette/tokens.yaml</code> · <code>palette/vocabulary.yaml</code></p>
+
+</body>
+</html>
