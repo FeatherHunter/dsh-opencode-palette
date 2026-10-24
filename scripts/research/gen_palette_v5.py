@@ -423,7 +423,13 @@ out = {
         "status_model": tokens_doc.get("status_model"),
         "total": len(tokens),
     },
-    "ownership_dropped": ownership_dropped,
+    "ownership": {
+        "merged": {dup: owner for dup, owner in OWNERSHIP_MERGED},
+        "renamed": dict(OWNERSHIP_RENAME),
+        "converted": sorted(OWNERSHIP_CONVERT),
+        "dropped": ownership_dropped,
+        "token_owner": claimed,
+    },
     "extensions_reserved": menu.get("extensions") or {},
 }
 HEADER = (
@@ -505,13 +511,45 @@ if "token" not in domains:
     dump_yaml("palette/vocabulary.yaml", voc)
 
 # ---------- 交叉对照 ----------
+_merged_map = dict(OWNERSHIP_MERGED)
+
+
+def resolve_cap(cid):
+    """研究表里的 id → 最终能力 id（考虑改名 / 合并 / 转换 / 移出）。"""
+    if not cid:
+        return None
+    if cid in caps:
+        return cid
+    renamed = OWNERSHIP_RENAME.get(cid)
+    if renamed and renamed in caps:
+        return renamed
+    owner = _merged_map.get(cid)
+    if owner and owner in caps:
+        return owner
+    return None
+
+
+_drop_map = dict(OWNERSHIP_DROP)
+
+
+def landing(cid):
+    """研究表 id → 落点；被移出菜单的明确记为 dropped（附原因），不伪装成能力。"""
+    hit = resolve_cap(cid)
+    if hit:
+        return hit
+    if cid in _drop_map:
+        return "dropped: " + _drop_map[cid]
+    return None
+
+
+
 cross = {"P1": [], "P2": [], "P3": [], "P4": [], "master": []}
 for r in p1:
     cross["P1"].append(
         {
             "token": r["token"],
             "semantic": r.get("semantic"),
-            "capability": r.get("semantic") if r.get("semantic") in caps else None,
+            "capability": resolve_cap(r.get("semantic")),
             "direct_binding": r.get("direct_id"),
         }
     )
@@ -521,7 +559,7 @@ for r in p2.get("dsl", []):
         {
             "name": r["name"],
             "ability": r["ability"],
-            "capability": r["ability"] if seen else None,
+            "capability": resolve_cap(r["ability"]),
             "direct_binding": (f"token.dsw.{r['upstream'][len('--dsw-'):]}" if r.get("upstream") in token_meta else None),
         }
     )
@@ -532,13 +570,13 @@ for r in p2.get("terminal", []):
 for r in p3_rows if (p3_rows := jload("docs/research/capability-master.json")["rows"]) and False else []:
     pass
 for r in master:
-    cross["master"].append({"id": r["id"], "capability": r["id"], "kind": r["kind"]})
+    cross["master"].append({"id": r["id"], "capability": landing(r["id"]), "kind": r["kind"]})
 for r in p4["rows"]:
     cross["P4"].append(
         {
             "token": r["token"],
             "capability_id": r["capability_id"],
-            "capability": r["capability_id"] if r["capability_id"] in caps else None,
+            "capability": resolve_cap(r["capability_id"]),
             "direct_binding": next((d for d, v in direct.items() if v["token"] == r["token"]), None),
             "status": r["status"],
         }
@@ -547,7 +585,7 @@ for r in p4["rows"]:
 # master 的 effect 条目 id 直接就是 capability
 for r in master:
     if r.get("kind") != "token-semantic":
-        cross["P3"].append({"id": r["id"], "capability": r["id"], "tech": r.get("tech", [])})
+        cross["P3"].append({"id": r["id"], "capability": landing(r["id"]), "tech": r.get("tech", [])})
 
 with open("docs/research/palette-v5-crosswalk.json", "w", encoding="utf-8", newline="\n") as f:
     json.dump({"stats": {"capabilities": len(caps), "direct_bindings": len(direct), "runtime": runtime["total"]}, "rows": cross}, f, ensure_ascii=False, indent=1)

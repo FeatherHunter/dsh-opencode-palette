@@ -22,7 +22,8 @@ V3 主题系统只有三样东西：
 - **能力（capability）**：一个可配置项。`kind` 四种：`property`（区域.角色.属性，带 realization 链）、`recipe`（复合效果，按 aspect 独立降级）、`token`（直指 token 的语义能力，`binds` 指向登记层）、`effect`（DOM/规则效果，`tech` 说明实现技术）。
 - **能力 id**：`<domain>.<segment>(.<segment>){1,5}`；`domain` 取 `vocabulary.yaml` 的 `capability_domains`（34 个：14 区域 + 15 语义域 + typography/radius/runtime/mask + `token`）。展开 id 规则仍为 `<region>.<controlName>.<property>`。
 - **直绑定（direct binding）**：425 个公开 token 每条一个兜底能力，id = `token.<namespace>.<名字去前缀>`，如 `token.dsw.alias-bg-base`。保证「425 全量可达」，语义能力覆盖不到时用它。
-- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（331）∪ `control_templates × anchors.controls` 展开（65，去重 4） = **379 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
+- **能力菜单（合并视图）**：`palette.yaml` 的 `capabilities`（319）∪ `control_templates × controls` 展开（65，去重 5） = **379 条唯一能力**；`direct_bindings` = **425 条**（与 token 一一对应）。
+- **词表规模（v1.13）**：区域 14、角色 29、属性 16、recipe 7、状态 5、能力域 34、锚点 26（documented 17 / inferred 8 / fragile 1）、控件 12。
 - **token 归属（v1.13）**：每个宿主 token 只有一个 owner 能力。三套来源表合并时做归属唯一化：重复语义行并入 owner 的 `merged_from`；区域级旋钮（圆角/字色/行高/背景等）改走**规则层**（精确技术路径，不再抢共享 token）；宿主未给独立通道的项目移出菜单（标题栏独立配色归 #154，侧栏引导项圆角暂不可达）。详见 `docs/research/v3-ownership-policy.md`。
 - **主题包（theme package）**：一个目录，含 `theme.yaml` 与 `assets/`；目录名可自由取，显示名取 `theme.yaml` 的 `meta.name`。
 - **绑定（binding）**：能力 → 宿主落地手段：`token`（变量）/ `rule`（规则）/ `dom`（命令式 DOM）/ `asset`（资源）。策略链按「当前宿主可用」降级。
@@ -138,7 +139,7 @@ extensions: {}              # 预留扩展层（B 脚本 / C HTML 片段）；�
 | 层 | 内容 | 谁用 |
 |---|---|---|
 | L1 | 37 个 opencode token（老编辑器等价物；内部映射保留，不改名） | 普通用户、老主题 |
-| L2 | 语义能力菜单（合并视图 379 条：30 手写 + 60 展开 + 236 master + 52 P4 + 19 P2，去重后；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
+| L2 | 语义能力菜单（合并视图 379 条 = 319 条能力 + 65 条模板展开 − 5 条重名；按 34 个能力域分组） | 想让主题「像某个世界」的用户 |
 | L3 | 直绑定 425 条（`token.<ns>.<名字>`）+ 状态提示（live/dead/gated/pinned） | 专家、外部 AI 逃生舱 |
 
 规则：L2 只列可达能力（dead 只登记不默认暴露）；L3 一律允许设置，保存只提示状态，不阻止、不删除。

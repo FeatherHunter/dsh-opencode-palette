@@ -112,6 +112,7 @@ capabilities:
     - text
     - global
     value: color
+    probe: token_live(--dsw-alias-label-primary)
     realization:
     - id: token
       writes:
@@ -178,6 +179,7 @@ capabilities:
     - link
     - global
     value: color
+    probe: token_live(--dsw-alias-link)
     realization:
     - id: token
       writes:
@@ -284,6 +286,7 @@ capabilities:
     - active
     - selected
     docs: 侧栏列表项背景；没写的状态回落到默认值。
+    probe: token_live(--dsw-alias-bg-layer-2)
     realization:
     - id: token
       writes:
@@ -329,6 +332,7 @@ capabilities:
     - media
     value: media
     docs: 第 10 条需求：对话主窗口背景（静态图 / 动态图 / 视频）。
+    probe: selector_exists(conversation.main)
     realization:
     - id: css-paint
       accepts: paint
@@ -372,6 +376,7 @@ capabilities:
     - media
     value: media
     docs: 第 11 条需求：输入框背景（静态图 / 动态图 / 视频）。
+    probe: selector_exists(composer.input)
     realization:
     - id: css-paint
       accepts: paint
@@ -414,6 +419,7 @@ capabilities:
     - input
     - text
     value: color
+    probe: token_live(--dsw-alias-label-primary)
     realization:
     - id: token
       writes:
@@ -484,6 +490,7 @@ capabilities:
     - menu
     - surface
     value: paint
+    probe: token_live(--dsw-menu-surface-fill)
     realization:
     - id: token
       writes:
@@ -562,6 +569,7 @@ capabilities:
     - hover
     - active
     - selected
+    probe: selector_exists(menu.item)
     realization:
     - id: rules
       writes:
@@ -623,6 +631,7 @@ capabilities:
     - code
     - typography
     value: typeface
+    probe: selector_exists(code.block)
     realization:
     - id: rule
       writes:
@@ -640,6 +649,7 @@ capabilities:
     - code
     - typography
     value: line_height
+    probe: selector_exists(code.block)
     realization:
     - id: rule
       writes:
@@ -658,6 +668,7 @@ capabilities:
     - typography
     value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
+    probe: selector_exists(markdown.paragraph)
     realization:
     - id: prefer-token
       accepts: line_height
@@ -684,6 +695,7 @@ capabilities:
     - typography
     value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（标题）。
+    probe: selector_exists(markdown.heading)
     realization:
     - id: rule
       writes:
@@ -701,6 +713,7 @@ capabilities:
     - markdown
     - typography
     value: length
+    probe: selector_exists(markdown.paragraph)
     realization:
     - id: prefer-token
       accepts: length
@@ -726,6 +739,7 @@ capabilities:
     - markdown
     - typography
     value: length
+    probe: selector_exists(markdown.heading)
     realization:
     - id: rule
       writes:
@@ -743,6 +757,7 @@ capabilities:
     - markdown
     - link
     value: color
+    probe: token_live(--dsw-alias-link)
     realization:
     - id: token
       writes:
@@ -765,6 +780,7 @@ capabilities:
     - tool
     - card
     value: paint
+    probe: selector_exists(tool.card)
     realization:
     - id: rule
       writes:
@@ -783,6 +799,7 @@ capabilities:
     - tool
     - card
     value: length
+    probe: selector_exists(tool.card)
     realization:
     - id: rule
       writes:
@@ -800,6 +817,7 @@ capabilities:
     - terminal
     - surface
     value: paint
+    probe: selector_exists(terminal.root)
     realization:
     - id: rule
       writes:
@@ -818,6 +836,7 @@ capabilities:
     - deliverable
     - card
     value: paint
+    probe: selector_exists(deliverable.card)
     realization:
     - id: rule
       writes:
@@ -836,6 +855,7 @@ capabilities:
     tags:
     - scrollbar
     value: paint
+    probe: selector_exists(scrollbar.root)
     realization:
     - id: rule
       writes:
@@ -852,6 +872,7 @@ capabilities:
     tags:
     - selection
     value: paint
+    probe: selector_exists(selection.text)
     realization:
     - id: rule
       writes:

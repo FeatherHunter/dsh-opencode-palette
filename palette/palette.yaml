@@ -1399,6 +1399,7 @@ capabilities:
     - text
     - global
     value: color
+    probe: token_live(--dsw-alias-label-primary)
     realization:
     - id: token
       writes:
@@ -1473,6 +1474,7 @@ capabilities:
     - link
     - global
     value: color
+    probe: token_live(--dsw-alias-link)
     realization:
     - id: token
       writes:
@@ -1552,6 +1554,7 @@ capabilities:
     - active
     - selected
     docs: 侧栏列表项背景；没写的状态回落到默认值。
+    probe: token_live(--dsw-alias-bg-layer-2)
     realization:
     - id: rule
       writes:
@@ -1573,6 +1576,7 @@ capabilities:
     - media
     value: media
     docs: 第 10 条需求：对话主窗口背景（静态图 / 动态图 / 视频）。
+    probe: selector_exists(conversation.main)
     realization:
     - id: css-paint
       accepts: paint
@@ -1618,6 +1622,7 @@ capabilities:
     - media
     value: media
     docs: 第 11 条需求：输入框背景（静态图 / 动态图 / 视频）。
+    probe: selector_exists(composer.input)
     realization:
     - id: css-paint
       accepts: paint
@@ -1662,6 +1667,7 @@ capabilities:
     - input
     - text
     value: color
+    probe: token_live(--dsw-alias-label-primary)
     realization:
     - id: rule
       writes:
@@ -1681,6 +1687,7 @@ capabilities:
     - menu
     - surface
     value: paint
+    probe: token_live(--dsw-menu-surface-fill)
     realization:
     - id: token
       writes:
@@ -1711,6 +1718,7 @@ capabilities:
     - hover
     - active
     - selected
+    probe: selector_exists(menu.item)
     realization:
     - id: rules
       writes:
@@ -1787,6 +1795,7 @@ capabilities:
     - code
     - typography
     value: typeface
+    probe: selector_exists(code.block)
     realization:
     - id: rule
       writes:
@@ -1808,6 +1817,7 @@ capabilities:
     - code
     - typography
     value: line_height
+    probe: selector_exists(code.block)
     realization:
     - id: rule
       writes:
@@ -1828,6 +1838,7 @@ capabilities:
     - typography
     value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（段落）。
+    probe: selector_exists(markdown.paragraph)
     realization:
     - id: rule
       writes:
@@ -1848,6 +1859,7 @@ capabilities:
     - typography
     value: line_height
     docs: 第 5 条需求：不同内容行距各自设置（标题）。
+    probe: selector_exists(markdown.heading)
     realization:
     - id: rule
       writes:
@@ -1867,6 +1879,7 @@ capabilities:
     - markdown
     - typography
     value: length
+    probe: selector_exists(markdown.paragraph)
     realization:
     - id: rule
       writes:
@@ -1886,6 +1899,7 @@ capabilities:
     - markdown
     - typography
     value: length
+    probe: selector_exists(markdown.heading)
     realization:
     - id: rule
       writes:
@@ -1905,6 +1919,7 @@ capabilities:
     - markdown
     - link
     value: color
+    probe: token_live(--dsw-alias-link)
     realization:
     - id: rule
       writes:
@@ -1924,6 +1939,7 @@ capabilities:
     - tool
     - card
     value: paint
+    probe: selector_exists(tool.card)
     realization:
     - id: rule
       writes:
@@ -1944,6 +1960,7 @@ capabilities:
     - tool
     - card
     value: length
+    probe: selector_exists(tool.card)
     realization:
     - id: rule
       writes:
@@ -1963,6 +1980,7 @@ capabilities:
     - terminal
     - surface
     value: paint
+    probe: selector_exists(terminal.root)
     realization:
     - id: rule
       writes:
@@ -1983,6 +2001,7 @@ capabilities:
     - deliverable
     - card
     value: paint
+    probe: selector_exists(deliverable.card)
     realization:
     - id: rule
       writes:
@@ -2003,6 +2022,7 @@ capabilities:
     tags:
     - scrollbar
     value: paint
+    probe: selector_exists(scrollbar.root)
     realization:
     - id: rule
       writes:
@@ -2021,6 +2041,7 @@ capabilities:
     tags:
     - selection
     value: paint
+    probe: selector_exists(selection.text)
     realization:
     - id: rule
       writes:
@@ -11451,11 +11472,312 @@ token_summary:
       gated: 宿主在元素级重声明同名变量（elevation 族），body 级写入被子元素覆盖
       declared_invalid: 宿主声明了但消费链无效（靠 fallback / JS 注入才有值）
   total: 425
-ownership_dropped:
-- id: window.titleBar.background
-  reason: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
-- id: sidebar.guide.entry.radius
-  reason: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
+ownership:
+  merged:
+    global.text.primary: global.text.foreground
+    specific.sidebar.fill: sidebar.panel.background
+    content.markdown.code-block.background: code.block.background
+    content.code.block.background: code.block.background
+    content.code.block.banner.background: content.markdown.code-block.banner
+    typography.family.default: global.text.font_family
+    global.link.text: global.link.foreground
+    content.code.block.content.font: typography.markdown-code-block.composite
+    content.terminal.font: typography.markdown-code-block-small.composite
+    content.code.block.banner.font: code.block.font_family
+  renamed:
+    content.code.block.radius: code.block.radius
+    content.search.radius: tool.search.radius
+    content.terminal.radius: terminal.block.radius
+    content.web.radius: tool.web.radius
+  converted:
+  - code.block.radius
+  - composer.input.foreground
+  - markdown.link.foreground
+  - markdown.paragraph.font_size
+  - markdown.paragraph.line_height
+  - sidebar.item.background
+  - terminal.block.radius
+  - tool.search.radius
+  - tool.web.radius
+  dropped:
+  - id: window.titleBar.background
+    reason: '标题栏底色=宿主读侧栏色；独立配色需「透明 overlay + 自绘」实验，归 #154，不进 V3.0 菜单'
+  - id: sidebar.guide.entry.radius
+    reason: 宿主无侧栏引导项专用锚点/通道（已探索 data-guide 不存在），无法精确实现，移出 V3.0 菜单
+  token_owner:
+    --dsw-alias-bg-base: global.page.background
+    --dsw-alias-label-primary: global.text.foreground
+    --dsw-font-family: global.text.font_family
+    --dsw-alias-link: global.link.foreground
+    --dsw-specific-sidebar-fill: sidebar.panel.background
+    --dsw-menu-surface-fill: menu.surface.background
+    --dsw-alias-markdown-code-block: code.block.background
+    --shiki-background: content.code.background
+    --dsw-focus-ring-width: global.focus.ring.width
+    --dsw-alias-bg-layer-1: global.surface.layer-1
+    --dsw-alias-bg-module-platform: global.surface.module
+    --dsw-alias-bg-layer-2: global.surface.layer-2
+    --dsw-alias-bg-layer-3: global.surface.layer-3
+    --dsw-alias-bg-skeleton: global.surface.skeleton
+    --dsw-alias-bg-mask-1: overlay.mask.primary
+    --dsw-alias-bg-document-preview: document.preview.background
+    --dsw-alias-bg-document-selection: document.selection.background
+    --dsw-alias-bg-mask-drop: overlay.mask.drop
+    --dsw-alias-bg-overlay: overlay.surface
+    --dsw-alias-bg-mask-2: overlay.mask.alt-2
+    --dsw-alias-bg-mask-3: overlay.mask.alt-3
+    --dsw-alias-bg-mask-photo: overlay.mask.photo
+    --dsw-alias-label-tertiary: global.text.tertiary
+    --dsw-alias-label-secondary: global.text.secondary
+    --dsw-alias-label-caption: global.text.caption
+    --dsw-alias-label-primary-inverted: global.text.inverted
+    --dsw-alias-label-dimmed: global.text.dimmed
+    --dsw-alias-label-primary-foreground: control.text.on-accent
+    --dsw-alias-label-primary-dimmed: global.text.primary-dimmed
+    --dsw-alias-label-deep-diving: decor.text.deep-diving
+    --dsw-alias-label-deep-diving-shimmer: decor.text.deep-diving-shimmer
+    --dsw-alias-label-document-preview: document.preview.text
+    --dsw-alias-label-primary-bluish: global.text.primary-bluish
+    --dsw-alias-label-shimmer: decor.text.shimmer
+    --dsw-alias-state-business-primary: status.business.primary
+    --dsw-alias-state-error-primary: status.error.primary
+    --dsw-alias-state-success-primary: status.success.primary
+    --dsw-alias-state-warn-tertiary: status.warn.tertiary
+    --dsw-alias-state-warn-label: status.warn.label
+    --dsw-alias-state-warn-primary: status.warn.primary
+    --dsw-alias-state-business-tertiary: status.business.tertiary
+    --dsw-alias-state-error-secondary: status.error.secondary
+    --dsw-alias-state-success-tertiary: status.success.tertiary
+    --dsw-alias-state-success-secondary: status.success.secondary
+    --dsw-alias-state-warn-secondary: status.warn.secondary
+    --dsw-alias-state-idle-primary: status.idle.primary
+    --dsw-alias-button-primary-fill: control.button.primary.background
+    --dsw-alias-button-floating-hover: control.button.floating.hover.background
+    --dsw-alias-button-ghost-active-fill: control.button.ghost.active.background
+    --dsw-alias-button-primary-hover: control.button.primary.hover.background
+    --dsw-alias-button-contrast-fill: control.button.contrast.background
+    --dsw-alias-button-elevated-fill: control.button.elevated.background
+    --dsw-alias-button-floating-fill: control.button.floating.background
+    --dsw-alias-button-ghost-active-border: control.button.ghost.active.border
+    --dsw-alias-button-info-fill: control.button.info.background
+    --dsw-alias-button-info-hover: control.button.info.hover.background
+    --dsw-alias-button-tool-bar-fill: control.button.tool-bar.background
+    --dsw-alias-button-tool-bar-hover: control.button.tool-bar.hover.background
+    --dsw-alias-button-ghost-active-hover: control.button.ghost.active.hover.background
+    --dsw-alias-button-primary-dimmed: control.button.primary-dimmed
+    --dsw-alias-button-tool-bar-fill-invisible: control.button.tool-bar.background-invisible
+    --dsw-alias-border-l2: global.border.level-2
+    --dsw-alias-border-l3: global.border.level-3
+    --dsw-alias-border-l1: global.border.level-1
+    --dsw-alias-border-l4: global.border.level-4
+    --dsw-alias-border-l2-darkmode-thin: global.border.level-2-thin
+    --dsw-alias-border-inverted: global.border.inverted
+    --dsw-alias-border-inverted2: global.border.inverted-2
+    --dsw-alias-interactive-bg-hover: global.interaction.hover
+    --dsw-alias-interactive-bg-hover-danger: global.interaction.hover-danger
+    --dsw-alias-interactive-bg-hover-solid: global.interaction.hover-solid
+    --dsw-alias-interactive-bg-active: global.interaction.active
+    --dsw-alias-interactive-bg-hover-accent: global.interaction.hover-accent
+    --dsw-alias-brand-primary-new-colorprimary-new-color: global.brand.primary-legacy
+    --dsw-alias-brand-primary: global.brand.primary
+    --dsw-alias-brand-primary-invert: global.brand.primary-inverted
+    --dsw-alias-brand-text: global.brand.text
+    --dsw-alias-markdown-code-block-banner: content.markdown.code-block.banner
+    --dsw-alias-markdown-citation: content.markdown.citation
+    --dsw-alias-markdown-inline-code: content.markdown.inline-code
+    --dsw-alias-markdown-tag: content.markdown.tag
+    --dsw-alias-markdown-code-segment-selected: content.markdown.code-segment.selected
+    --dsw-alias-markdown-code-segment-unselected: content.markdown.code-segment.unselected
+    --dsw-alias-markdown-placeholder: content.markdown.placeholder
+    --dsw-alias-code-diff-added: content.diff.code.added
+    --dsw-alias-code-diff-deleted: content.diff.code.deleted
+    --dsw-alias-file-diff-added-bg: content.file.diff.added.bg
+    --dsw-alias-file-diff-added-gutter: content.file.diff.added.gutter
+    --dsw-alias-file-diff-added-marker: content.file.diff.added.marker
+    --dsw-alias-file-diff-deleted-bg: content.file.diff.deleted.bg
+    --dsw-alias-file-diff-deleted-gutter: content.file.diff.deleted.gutter
+    --dsw-alias-file-diff-deleted-marker: content.file.diff.deleted.marker
+    --dsw-alias-menu-icon: menu.icon
+    --dsw-alias-menu-group-header-fill: menu.group-header.background
+    --dsw-alias-onboarding-accent: onboarding.accent
+    --dsw-alias-onboarding-secondary-fill: onboarding.secondary.fill
+    --dsw-alias-onboarding-card-fill: onboarding.card.fill
+    --dsw-alias-onboarding-checkbox-border: onboarding.checkbox.border
+    --dsw-alias-settings-card-fill: settings.card.background
+    --dsw-alias-settings-card-stroke: settings.card.border
+    --dsw-alias-tooltip-bg: tooltip.background
+    --dsw-alias-tooltip-key-bg: tooltip.key.background
+    --dsw-alias-toast-bg: toast.background
+    --dsw-alias-toast-label: toast.text
+    --dsw-alias-turn-trigger-bg: conversation.turn-trigger.background
+    --dsw-alias-turn-trigger-bg-hover: conversation.turn-trigger.background-hover
+    --dsw-alias-switch-thumb: control.switch.thumb
+    --dsw-specific-input-major: specific.input.major
+    --dsw-specific-bubble: specific.bubble.fill
+    --dsw-specific-selector: specific.selector.fill
+    --dsw-specific-sidebar-nav-item-active: specific.sidebar.nav-item.active
+    --dsw-specific-sidebar-nav-item-active-accent: specific.sidebar.nav-item.active-accent
+    --dsw-specific-sidebar-nav-item-hover: specific.sidebar.nav-item.hover
+    --dsw-specific-bubble-highlight: specific.bubble.highlight
+    --dsw-specific-login-input: specific.login.input
+    --dsw-specific-tip: specific.tip.fill
+    --shiki-foreground: content.code.foreground
+    --shiki-token-comment: content.code.syntax.comment
+    --shiki-token-constant: content.code.syntax.constant
+    --shiki-token-function: content.code.syntax.function
+    --shiki-token-keyword: content.code.syntax.keyword
+    --shiki-token-link: content.code.syntax.link
+    --shiki-token-parameter: content.code.syntax.parameter
+    --shiki-token-punctuation: content.code.syntax.punctuation
+    --shiki-token-string: content.code.syntax.string
+    --shiki-token-string-expression: content.code.syntax.string-expression
+    --dsw-static-blue-500: atom.blue-500
+    --dsw-static-blue-950: atom.blue-950
+    --dsw-static-blue-300: atom.blue-300
+    --dsw-static-blue-400: atom.blue-400
+    --dsw-static-blue-450: atom.blue-450
+    --dsw-static-blue-600: atom.blue-600
+    --dsw-static-blue-900: atom.blue-900
+    --dsw-static-blue-100: atom.blue-100
+    --dsw-static-blue-50: atom.blue-50
+    --dsw-static-blue-50p: atom.blue-50p
+    --dsw-static-blue-75: atom.blue-75
+    --dsw-static-blue-800: atom.blue-800
+    --dsw-static-deepseek-500: atom.deepseek-500
+    --dsw-static-deepseek-400: atom.deepseek-400
+    --dsw-static-deepseek-450: atom.deepseek-450
+    --dsw-static-deepseek-100: atom.deepseek-100
+    --dsw-static-deepseek-200: atom.deepseek-200
+    --dsw-static-deepseek-50: atom.deepseek-50
+    --dsw-static-deepseek-800: atom.deepseek-800
+    --dsw-static-deepseek-300: atom.deepseek-300
+    --dsw-static-deepseek-600: atom.deepseek-600
+    --dsw-static-deepseek-700-delete: atom.deepseek-700-delete
+    --dsw-static-deepseek-900: atom.deepseek-900
+    --dsw-static-green-500: atom.green-500
+    --dsw-static-green-400: atom.green-400
+    --dsw-static-green-100: atom.green-100
+    --dsw-static-green-500-a08: atom.green-500-a08
+    --dsw-static-green-500-a12: atom.green-500-a12
+    --dsw-static-green-900: atom.green-900
+    --dsw-static-amber-400: atom.amber-400
+    --dsw-static-amber-500: atom.amber-500
+    --dsw-static-amber-600: atom.amber-600
+    --dsw-static-amber-100: atom.amber-100
+    --dsw-static-amber-900: atom.amber-900
+    --dsw-static-neutral-00: atom.neutral-00
+    --dsw-static-neutral-50: atom.neutral-50
+    --dsw-static-neutral-800: atom.neutral-800
+    --dsw-static-neutral-850: atom.neutral-850
+    --dsw-static-neutral-100: atom.neutral-100
+    --dsw-static-neutral-200: atom.neutral-200
+    --dsw-static-neutral-300: atom.neutral-300
+    --dsw-static-neutral-600: atom.neutral-600
+    --dsw-static-neutral-700: atom.neutral-700
+    --dsw-static-neutral-1000: atom.neutral-1000
+    --dsw-static-neutral-400: atom.neutral-400
+    --dsw-static-neutral-550: atom.neutral-550
+    --dsw-static-neutral-150: atom.neutral-150
+    --dsw-static-neutral-250: atom.neutral-250
+    --dsw-static-neutral-500: atom.neutral-500
+    --dsw-static-neutral-900: atom.neutral-900
+    --dsw-static-neutral-bluish-00: atom.neutral-bluish-00
+    --dsw-static-neutral-bluish-800: atom.neutral-bluish-800
+    --dsw-static-neutral-bluish-50: atom.neutral-bluish-50
+    --dsw-static-neutral-bluish-850: atom.neutral-bluish-850
+    --dsw-static-neutral-bluish-750: atom.neutral-bluish-750
+    --dsw-static-neutral-bluish-100: atom.neutral-bluish-100
+    --dsw-static-neutral-bluish-400: atom.neutral-bluish-400
+    --dsw-static-neutral-bluish-1000: atom.neutral-bluish-1000
+    --dsw-static-neutral-bluish-60: atom.neutral-bluish-60
+    --dsw-static-neutral-bluish-700: atom.neutral-bluish-700
+    --dsw-static-neutral-bluish-75: atom.neutral-bluish-75
+    --dsw-static-neutral-bluish-900: atom.neutral-bluish-900
+    --dsw-static-neutral-bluish-300: atom.neutral-bluish-300
+    --dsw-static-neutral-bluish-600: atom.neutral-bluish-600
+    --dsw-static-neutral-bluish-950: atom.neutral-bluish-950
+    --dsw-static-neutral-bluish-150: atom.neutral-bluish-150
+    --dsw-static-neutral-bluish-200: atom.neutral-bluish-200
+    --dsw-static-neutral-bluish-500: atom.neutral-bluish-500
+    --dsw-static-neutral-bluish-875: atom.neutral-bluish-875
+    --dsw-static-red-400: atom.red-400
+    --dsw-static-red-600: atom.red-600
+    --dsw-static-red-400-a12: atom.red-400-a12
+    --dsw-static-red-600-a08: atom.red-600-a08
+    --dsw-static-red-100: atom.red-100
+    --dsw-static-red-50: atom.red-50
+    --dsw-static-red-500: atom.red-500
+    --dsw-static-red-900: atom.red-900
+    --dsw-shadow-lv3: effect.shadow.lv3
+    --dsw-shadow-lv2: effect.shadow.lv2
+    --dsw-shadow-lv1: effect.shadow.lv1
+    --dsw-shadow-lv1-blur: effect.shadow.lv1-blur
+    --dsw-elevation-prominent: effect.elevation.prominent
+    --dsw-elevation-panel: effect.elevation.panel
+    --dsw-elevation-stroke: effect.elevation.stroke
+    --dsw-elevation-soft: effect.elevation.soft
+    --dsw-elevation-stroke-color: effect.elevation.stroke-color
+    --dsw-gradient-onboarding-blue-stops: onboarding.gradient.blue
+    --dsw-gradient-onboarding-cyan-stops: onboarding.gradient.cyan
+    --dsw-gradient-onboarding-violet-stops: onboarding.gradient.violet
+    --dsw-linear-gradient-think: effect.linear.gradient-think
+    --dsw-linear-think-select: effect.linear.think-select
+    --dsw-focus-ring-color: global.focusRing
+    --dsw-alias-scrollbar-bg-l1: global.scrollbar
+    --dsw-alias-scrollbar-hover-l1: global.scrollbar
+    --dsw-alias-scrollbar-bg-l2: global.scrollbar
+    --dsw-alias-scrollbar-hover-l2: global.scrollbar
+    --dsw-specific-menu: menu.surface
+    --dsw-menu-backdrop-filter: menu.surface.backdrop_filter
+    --dsw-font-xs-13: typography.xs-13.composite
+    --dsw-font-xxs-12: typography.xxs-12.composite
+    --dsw-font-markdown-code-block: typography.markdown-code-block.composite
+    --dsw-font-markdown-code-block-small: typography.markdown-code-block-small.composite
+    --dsw-font-family-brand: typography.family.brand
+    --dsw-font-xs-strong-13: typography.xs-strong-13.composite
+    --dsw-font-xxxs-11: typography.xxxs-11.composite
+    --dsw-font-l-20: typography.l-20.composite
+    --dsw-font-markdown-base: typography.markdown-base.composite
+    --dsw-font-markdown-base-strong: typography.markdown-base-strong.composite
+    --dsw-font-markdown-code: typography.markdown-code.composite
+    --dsw-font-markdown-code-font-family: typography.markdown-code.font_family
+    --dsw-font-markdown-h1: typography.markdown-h1.composite
+    --dsw-font-markdown-h2: typography.markdown-h2.composite
+    --dsw-font-markdown-h3: typography.markdown-h3.composite
+    --dsw-font-markdown-h4: typography.markdown-h4.composite
+    --dsw-font-markdown-small: typography.markdown-small.composite
+    --dsw-font-markdown-table: typography.markdown-table.composite
+    --dsw-font-markdown-table-head: typography.markdown-table-head.composite
+    --dsw-font-s-14: typography.s-14.composite
+    --dsw-font-markdown-base-font-size: typography.markdown-base.font_size
+    --dsw-font-markdown-base-line-height: typography.markdown-base.line_height
+    --dsw-font-markdown-h1-font-size: typography.markdown-h1.font_size
+    --dsw-font-markdown-h1-line-height: typography.markdown-h1.line_height
+    --dsw-font-markdown-h2-font-size: typography.markdown-h2.font_size
+    --dsw-font-markdown-h2-line-height: typography.markdown-h2.line_height
+    --dsw-font-markdown-h3-font-size: typography.markdown-h3.font_size
+    --dsw-font-markdown-h3-line-height: typography.markdown-h3.line_height
+    --dsw-font-markdown-small-font-size: typography.markdown-small.font_size
+    --dsw-font-markdown-small-line-height: typography.markdown-small.line_height
+    --dsw-radius-sm: radius.sm
+    --dsw-radius-md: radius.md
+    --dsw-radius-lg: radius.lg
+    --dsw-radius-xl: radius.xl
+    --dsw-radius-xs: radius.xs
+    --dsw-radius-panel: radius.panel
+    --dsw-corner-shape: structure.corner.shape
+    --dsw-mask-blur: mask.blur
+    --dsh-content-font-delta: runtime.content-font-delta
+    --dsh-content-font-size-secondary: runtime.content-font-size-secondary
+    --dsh-content-font-delta-secondary: runtime.content-font-delta-secondary
+    --dsh-code-font-delta: runtime.code-font-delta
+    --dsh-font-family-text-default: runtime.font-family-text-default
+    --dsh-scrollbar-width: runtime.scrollbar-width
+    --dsh-font-family-code-default: runtime.font-family-code-default
+    --dsh-scrollbar-thumb: runtime.scrollbar-thumb
+    --dsh-scrollbar-thumb-border: runtime.scrollbar-thumb-border
+    --dsh-scrollbar-thumb-hover: runtime.scrollbar-thumb-hover
+    --dsh-scrollbar-track-margin: runtime.scrollbar-track-margin
 extensions_reserved: {}
 runtime_summary:
   total: 148
