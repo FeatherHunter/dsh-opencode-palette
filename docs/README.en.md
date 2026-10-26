@@ -254,7 +254,7 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 
 <div align="center">
 
-![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610232036)
+![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610260750)
 
 </div>
 
