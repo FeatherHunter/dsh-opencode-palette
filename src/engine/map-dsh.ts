@@ -2,7 +2,7 @@
 // DSH 升级改 CSS 变量名时，只需要改这一个文件。
 // 值 = opencode 颜色名；generate.ts 负责取值与派生（提亮/透明/对比色）。
 
-import { shade, withAlpha, contrastText, mixHex, readableTextOn, contrastRatio, type ResolvedColorMap } from './resolve.ts'
+import { shade, withAlpha, contrastText, mixHex, readableTextOn, contrastRatio, blendOntoBase, type ResolvedColorMap } from './resolve.ts'
 
 // 派生 token 的 helpers 来自 resolve.ts（shade/withAlpha/contrastText）
 
@@ -79,10 +79,10 @@ export const TOKEN_MAP: ReadonlyArray<readonly [string, string]> = [
   ['--dsw-alias-border-l4', 'borderActive'],
   ['--dsw-alias-button-ghost-active-border', 'borderActive'],
   // F5 新增缺口（DSH 0.1.7 rc.1/rc.2 design-platform diff 全量直配；缺槽/透明靠 usable() 跳过，不污染）
-  // diff 系取增/删前景与背景槽直配；state-idle 取中性次级（缺槽即跳过）；菜单/toast 取中性直配；
-  // tooltip 键帽底不能与浮层底同值，走 DERIVED_TOKENS（#120）。
-  ['--dsw-alias-code-diff-added', 'diffAdded'],
-  ['--dsw-alias-code-diff-deleted', 'diffRemoved'],
+  // file-diff-* 的「底/行号槽」是背景槽、marker 是前景槽，直配即可（对比度由 ensureDiffContrast 兜底）；
+  // state-idle 取中性次级（缺槽即跳过）；菜单/toast 取中性直配；
+  // code-diff-added/deleted 不是前景而是**水洗底**，不能直配 diffAdded/diffRemoved，由 generate.ts
+  // 在末段按最终状态色调 deriveDiffWash 派生；tooltip 键帽底不能与浮层底同值，同样走派生（#120）。
   ['--dsw-alias-file-diff-added-bg', 'diffAddedBg'],
   ['--dsw-alias-file-diff-added-gutter', 'diffAddedLineNumberBg'],
   ['--dsw-alias-file-diff-added-marker', 'diffAdded'],
@@ -115,6 +115,95 @@ function keycapColor(bg: string): string {
   return color
 }
 
+// 行内 diff 的加/删行（宿主 `_add_17vb8_48` / `_del_17vb8_38`）：
+//   ._add { color: var(--dsw-alias-state-success-primary); background: var(--dsw-alias-code-diff-added) }
+//   ._del { color: var(--dsw-alias-state-error-primary);   background: var(--dsw-alias-code-diff-deleted) }
+// 这两个 token 是**行底色**，配对文字是 state-success/error-primary（宿主默认值本身也只是
+// 绿/红 500 级 a08·a12 的水洗）。旧实现按名字把 diffAdded/diffRemoved 当「前景」直配进来 →
+// 行底变成不透明高饱和色；在 diffAdded ≈ success 的主题（catppuccin 全家）里文字与底同一个色，
+// 行内 diff 整行看不见（写入/编辑展示的截图事故）。
+// 派生时机：buildTokens **末段**（配对对比度修复之后）由 generate.ts 调 deriveDiffWash——行内
+// 文字色若被推离过，行底必须跟着重算，所以不能放进 DERIVED_TOKENS（那里只拿得到颜色键）。
+// 派生规则（第一性原理：底要服务固定的文字色 T，同时得看得出是一条色带）：
+//   1) 种子 = 主题自己的 diff 底（diffAddedBg/diffRemovedBg，进 buildTokens 前已过 ensureDiffContrast）；
+//   2) T 在种子上达标、且种子与卡片底可辨 → 直接用（保住主题原本的 diff 色调，不发明新颜色）；
+//   3) 达标但与卡片底同色（主题自己的 diff 底就等于代码底，色带消失）→ 退回宿主语义：
+//      状态色在卡片底上的水洗，取仍能让 T 达标的最高浓度（宿主默认就是 a08·a12 水洗）；
+//   4) 仍不成带（文字色对卡片底没余量）→ 把种子沿端点推（先远离 T：T 偏亮往黑、T 偏暗往白），
+//      取第一档「既达标又成带」；先推远离端是为了保住主题 diff 色的色相；
+//   5) 画布本身贴住两端、推到极限都成不了带 → 可读优先（退回水洗/首个达标值）；
+//   6) 种子缺槽/透明（委托画布）→ 交还宿主默认。
+const DIFF_WASH_MIN_CONTRAST = 4.5
+// 行底与卡片底的倍率：1.12 = 目标强度（宿主默认水洗的量级），1.08 = 硬地板（低于此色带就看不见）。
+// 画布本身贴住黑/白时（深色画布 + 深色 diff 底）地板也可能到不了（contrast(画布,最远端点) 就是天花板），
+// 这时按「可读优先 + 可达范围内最大可辨度」返回，测试用 min(地板, 天花板) 作判据。
+const DIFF_WASH_MIN_CUE = 1.12
+const DIFF_WASH_FLOOR_CUE = 1.08
+// 水洗浓度档位（从低到高）：上限 0.4，再高行底就贴住文字色，回到旧缺陷的「字底同色」
+const DIFF_WASH_TINT_STEPS: readonly number[] = [0.04, 0.08, 0.12, 0.16, 0.2, 0.24, 0.28, 0.32, 0.36, 0.4]
+// 推离档位（1% → 100%，1% 一档）：小步优先保住主题 diff 色的色相，细档让「刚可辨」落在最小偏离处
+const DIFF_WASH_PUSH_STEPS: readonly number[] = Array.from({ length: 100 }, (_, i) => (i + 1) / 100)
+const ALPHA_HEX = /^#[0-9a-fA-F]{8}$/
+const HEX_ANY = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/
+
+// 取一个不透明色：8 位 hex 先按 onto 压平（onto 缺失视为不可用）；缺槽/透明/非颜色 → null
+function flatToken(raw: string | null | undefined, onto?: string | null): string | null {
+  if (!raw || raw === 'transparent' || !HEX_ANY.test(raw)) return null
+  if (ALPHA_HEX.test(raw)) return onto ? blendOntoBase(raw, onto) : null
+  return raw
+}
+
+// 入参都是**已落地的 token 值**（不是颜色键）：这样可以在 buildTokens 末段按最终值派生——
+// pair-contrast 可能已经把状态色（行内文字色）推离过，行底必须跟着重算，否则两边各自为政。
+// fg = state-success/error-primary、seed = file-diff-*-bg、page = bg-base、card = markdown-code-block。
+export function deriveDiffWash(fgToken: string | null | undefined, seedToken: string | null | undefined, pageToken: string | null | undefined, cardToken: string | null | undefined): string {
+  // 画布：行内 diff 落在代码块卡片上（宿主 `_block_1u3n2_1` 的 background = markdown-code-block），
+  // 卡片留空退回页面底；两者都不可用 = 委托画布，这块底本该由宿主决定。
+  const page = flatToken(pageToken)
+  const card = flatToken(cardToken, page)
+  const canvas = card || page
+  if (!canvas) return 'transparent'
+  const seed = flatToken(seedToken, canvas) || canvas
+  const fg = flatToken(fgToken, seed)
+  if (!fg) return 'transparent'
+  const readable = (bg: string): boolean => contrastRatio(fg, bg) >= DIFF_WASH_MIN_CONTRAST
+  const cue = (bg: string): number => contrastRatio(bg, canvas)
+  if (readable(seed) && cue(seed) >= DIFF_WASH_MIN_CUE) return seed
+  // 候选按「偏离种子由小到大」排：水洗（= 宿主语义：状态色按浓度叠在卡片底上）排在推离之前
+  const candidates: string[] = []
+  const tint = readable(seed) ? tintOnto(fg, canvas, readable) : null
+  if (tint) candidates.push(tint)
+  // 远离文字色的方向：文字偏亮则把底推向黑，文字偏暗则推向白。越远离越可读。
+  const away = contrastRatio('#000000', fg) >= contrastRatio('#FFFFFF', fg) ? '#000000' : '#FFFFFF'
+  const toward = away === '#000000' ? '#FFFFFF' : '#000000'
+  for (const step of DIFF_WASH_PUSH_STEPS) {
+    for (const end of [away, toward]) {
+      const cand = mixHex(seed, end, step)
+      if (readable(cand)) candidates.push(cand)
+    }
+  }
+  // 取第一个够可辨的候选（偏离最小）；都不够 → 退守地板；地板也到不了（画布贴住黑白）→ 取可达
+  // 范围内最可辨的那个。三级顺序保证「正常主题落在最小偏离处」，极端画布才拿最大值。
+  let best: string | null = null
+  for (const cand of candidates) {
+    if (cue(cand) >= DIFF_WASH_MIN_CUE) return cand
+    if (best === null || cue(cand) > cue(best)) best = cand
+  }
+  for (const cand of candidates) {
+    if (cue(cand) >= DIFF_WASH_FLOOR_CUE) return cand
+  }
+  return best || seed
+}
+
+// 状态色在画布上的水洗色：返回仍满足 readable 的最高浓度档，全档都不达标 → null
+function tintOnto(fg: string, canvas: string, readable: (bg: string) => boolean): string | null {
+  for (let i = DIFF_WASH_TINT_STEPS.length - 1; i >= 0; i--) {
+    const tinted = mixHex(canvas, fg, DIFF_WASH_TINT_STEPS[i])
+    if (readable(tinted)) return tinted
+  }
+  return null
+}
+
 // ── 2. 派生 token：值不是直接取自颜色，而是按规则计算 ──
 // 格式: [DSH 变量, 计算函数(colors) → 值]（colors = resolveThemeColors 输出）
 export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMap) => string]> = [
@@ -137,6 +226,8 @@ export const DERIVED_TOKENS: ReadonlyArray<readonly [string, (c: ResolvedColorMa
   ['--dsw-alias-state-success-tertiary', (c) => withAlpha(c.success, 0.14)],
   ['--dsw-alias-state-warn-tertiary', (c) => withAlpha(c.warning, 0.14)],
   ['--dsw-alias-state-business-tertiary', (c) => withAlpha(c.primary, 0.12)],
+  // 行内 diff 行底（--dsw-alias-code-diff-added/deleted）不在这里：它依赖「最终落地的状态色」，
+  // 必须在 buildTokens 末段、配对对比度修复之后再派生 → generate.ts 调 deriveDiffWash。
   ['--dsw-alias-label-dimmed', (c) => withAlpha(c.textMuted, 0.8)],
   ['--dsw-alias-button-tool-bar-fill', (c) => withAlpha(c.text, 0.1)],
   ['--dsw-alias-button-tool-bar-hover', (c) => withAlpha(c.text, 0.16)],
