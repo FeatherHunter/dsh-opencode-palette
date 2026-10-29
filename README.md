@@ -216,7 +216,7 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 </div>
 
-<h2 align="center"><sub>THANKS</sub><br>感谢贡献者</h2>
+<h2 align="center"><sub>THANKS</sub><br>致谢</h2>
 
 <div align="left">
 
