@@ -211,7 +211,7 @@ const MODULE_ORDER: string[] = [
   'log-config-event-list', 'log-config-phones', 'log-config-log-names', 'log-config-resolve', 'log-config',
   'log-client-switch-cache', 'log-client-transport', 'log-client-trace', 'log-client-switch-ops',
   'log-client-forward', 'log-client-send', 'log-client-write', 'log-client',
-  'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry',
+  'resolve', 'pair-contrast', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry',
   'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
 ]
 
