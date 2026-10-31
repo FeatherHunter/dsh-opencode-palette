@@ -35,8 +35,8 @@ jobs:
       - name: Sync managed README blocks
         run: |
           set -e
-          npx -y dsh-featherhunter-plugin-base@0.1.2 readme:sync --readme README.md --self palette
-          npx -y dsh-featherhunter-plugin-base@0.1.2 readme:sync --readme docs/README.en.md --self palette
+          npx -y dsh-featherhunter-plugin-base@0.1.3 readme:sync --readme README.md --self palette
+          npx -y dsh-featherhunter-plugin-base@0.1.3 readme:sync --readme docs/README.en.md --self palette
       - name: Commit if changed
         run: |
           if git diff --quiet README.md docs/README.en.md docs/star-history.json docs/star-history.svg; then echo "No change"; exit 0; fi
