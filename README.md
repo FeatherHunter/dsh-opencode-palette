@@ -200,21 +200,23 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 「设置 → 插件 → OpenCode调色板」 → **检查更新**
 
+<!-- MORE-START -->
 <h2 align="center"><sub>MORE</sub><br>作者的其他作品</h2>
 
 <div align="left">
 
-喜欢这个插件的话，这几个你可能也用得上：
-
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。
+喜欢这个插件的话，这些可能你也用得上：
 
 **[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。
 
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。
+
 **[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念。
 
-**[ilife](https://github.com/FeatherHunter/ilife)** —— 爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。⚠️建设中⚠️待正式发布
+**[ilife](https://github.com/FeatherHunter/ilife)** —— ⚠️建设中⚠️爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。
 
 </div>
+<!-- MORE-END -->
 
 <h2 align="center"><sub>THANKS</sub><br>致谢</h2>
 
@@ -240,19 +242,23 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 </div>
 
+<!-- CONTACT-START -->
 <h2 align="center"><sub>CONNECT</sub><br>反馈与联系</h2>
 
 <div align="center">
 
-👏欢迎提交 [PR](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)、[ISSUE](https://github.com/FeatherHunter/dsh-opencode-palette/issues)。星星之火可以燎原🔥有任何建议、意见、想法、吐槽、idea都可以进群交流。
+👏欢迎提交PR、ISSUE。星星之火可以燎原🔥有任何建议、意见、想法、吐槽、idea都可以进群交流。
 
-<table align="center"><tr><td align="center"><b>飞书群（主）</b></td><td align="center"><b>QQ群（新）</b></td><td align="center"><b>微信群（新）</b></td></tr><tr><td><img src="assets/contact-feishu-permanent.png" width="260" alt="DSH 插件交流群 飞书群二维码" /></td><td><img src="assets/contact-qq-permanent.png" width="260" alt="DSH 插件交流群 QQ 群二维码" /></td><td><img src="assets/contact-wechat-weekly.png" width="260" alt="DSH 插件交流群微信群二维码" /></td></tr></table>
+<table align="center"><tr><td align="center"><b>飞书群（主）</b></td><td align="center"><b>QQ群（新）</b></td><td align="center"><b>微信群（新）</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-feishu.png" width="260" alt="DSH 插件交流群 飞书群二维码" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-qq.png" width="260" alt="DSH 插件交流群 QQ 群二维码" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-wechat-2026-10-23.png?v=20261023" width="260" alt="DSH 插件交流群微信群二维码" /></td></tr></table>
 
 </div>
+<!-- CONTACT-END -->
 
+<!-- STAR-HISTORY-START -->
 <div align="center">
 
-![星标增长曲线：左轴累计星标、右轴每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610300842)
+![星标增长曲线：左轴累计星标、右轴每日新增](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610290000)
 
 </div>
+<!-- STAR-HISTORY-END -->
 

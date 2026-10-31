@@ -465,6 +465,8 @@ function renderPanel(opts: RenderOptions = {}) {
     head: { appendChild: (el: { textContent: string }) => { styles.push(el) } },
     body: { hasAttribute: () => true, appendChild: (el: { parentNode: unknown }) => { el.parentNode = documentStub.body }, removeChild: () => {} },
     createElement: () => ({ dataset: {}, parentNode: null, textContent: '', style: { cssText: '', fontFamily: '' }, getBoundingClientRect: () => ({ width: 8 }) }),
+    // base 包 ensureBaseStyles 的判重入口：假 DOM 不缓存 <style>，恒返回 null 即可
+    getElementById: () => null,
     documentElement: { lang: opts.lang || 'zh' },
     addEventListener: () => {},
     removeEventListener: () => {},

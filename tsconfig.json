@@ -15,6 +15,13 @@
     "types": ["node"],
     "strict": true,
     "noEmit": true,
+    // base 包入口的类型垫片（types/base-client.d.ts / types/base-node.d.ts）：上游 d.ts 用无扩展名相对导入，
+    // NodeNext 下报 TS2834；本仓不开 skipLibCheck，故用 paths 精准覆盖这两个 specifier，其余模块解析不变。
+    // 运行时仍解析真实包，垫片只镜像本仓用到的类型面。
+    "paths": {
+      "dsh-featherhunter-plugin-base/client": ["./types/base-client.d.ts"],
+      "dsh-featherhunter-plugin-base/node": ["./types/base-node.d.ts"]
+    },
     // 106 基线条目：import type 等按官方基线书写，迁 TS 时不会退化成运行时导入。
     "verbatimModuleSyntax": true,
     "resolveJsonModule": true,

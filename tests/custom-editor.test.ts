@@ -296,6 +296,8 @@ function loadCustomPanel(opts: PanelOptions = {}): { html: string; panelProps: P
       removeChild: () => {},
     },
     createElement: () => ({ dataset: {}, parentNode: null, textContent: '', style: {} }),
+    // base 包 ensureBaseStyles 的判重入口：假 DOM 不缓存 <style>，恒返回 null 即可
+    getElementById: () => null,
     documentElement: { lang: opts.lang || 'zh-CN' },
     addEventListener: () => {},
     removeEventListener: () => {},

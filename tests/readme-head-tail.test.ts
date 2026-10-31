@@ -125,24 +125,24 @@ test('顶部区：标题、导航、求星句两页都在（求星句沿用 deck
 // 2026-10-21 用户再次精简三条：dsh-prompt 讲「反复重复的模板化提示词 → 存成自定义模板 → 选中直接注入」，
 // deck 去掉技能清单只留「预置好，装好即用」，im-companion 收成一句概念说明。
 // 2026-10-21 晚用户点名 MORE 写四条：新增 ilife（爱生活：居家生活套件），并把整段从居中改居左 ——
-// 长句居中读起来是散开的；ilife 仍在建设中，句尾照用户原话带「⚠️建设中⚠️待正式发布」。
+// 长句居中读起来是散开的。base 包迁移（票 10）后整段由 MORE 块渲染，ilife 句首带「⚠️建设中⚠️」。
 test('MORE：四条兄弟插件各为定稿句，ilife 排在第四条，四行居左', () => {
   assert.ok(ZH.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** —— 经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。'),
     '中文 dsh-prompt 一行应为定稿原文')
-  assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you repeat over and over, saved as custom templates and injected in one click — no more effort spent.'),
+  assert.ok(EN.includes('**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you keep retyping, saved as custom templates and injected on selection — no more wasted effort.'),
     '英文 dsh-prompt 一行应为定稿原文')
   assert.ok(ZH.includes('**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** —— 近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。'),
     '中文 deck 一行应为定稿原文')
-  assert.ok(EN.includes("**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it's installed."),
+  assert.ok(EN.includes('**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it is installed.'),
     '英文 deck 一行应为定稿原文')
   assert.ok(ZH.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** —— 给 dsh-im 加了「助理」和「家」的概念。'),
     '中文 im-companion 一行应为定稿原文')
   assert.ok(EN.includes('**[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.'),
     '英文 im-companion 一行应为定稿原文')
-  assert.ok(ZH.includes('**[ilife](https://github.com/FeatherHunter/ilife)** —— 爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。⚠️建设中⚠️待正式发布'),
-    '中文 ilife 一行应为定稿原文')
-  assert.ok(EN.includes('**[ilife](https://github.com/FeatherHunter/ilife)** — iLife (爱生活), the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more. ⚠️Work in progress⚠️pending official release'),
-    '英文 ilife 一行应为定稿原文')
+  assert.ok(ZH.includes('**[ilife](https://github.com/FeatherHunter/ilife)** —— ⚠️建设中⚠️爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。'),
+    '中文 ilife 一行应为 base 包 MORE 块定稿原文')
+  assert.ok(EN.includes('**[ilife](https://github.com/FeatherHunter/ilife)** — ⚠️Work in progress⚠️ iLife, the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more.'),
+    '英文 ilife 一行应为 base 包 MORE 块定稿原文')
   // 旧长句不许回潮（三条都被用户判为啰嗦）
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN]]) {
     assert.equal(doc.includes('天天要敲的那几句'), false, `${name} 不应再有「天天要敲的那几句」`)
@@ -163,8 +163,9 @@ test('MORE：四条兄弟插件各为定稿句，ilife 排在第四条，四行�
     // （只查 div：切片尾巴带上 THANKS 标题那半行 h2 自己的 align="center"，不算数）
     assert.ok(block.includes('<div align="left">'), 'MORE 段应左对齐')
     assert.equal(block.includes('<div align="center">'), false, 'MORE 段不应再包居中 div')
-    // 顺序 = 用户点名顺序：dsh-prompt → deck → im-companion → ilife
-    const order = ['[dsh-prompt]', '[dsh-mattpocock-skills-deck]', '[dsh-im-companion]', '[ilife]']
+    // 顺序 = base 包 MORE 块的统一顺序：deck → dsh-prompt → im-companion → ilife
+    // （迁移时按 base 清单重排；旧手写块的 dsh-prompt 第一顺序随之退役）
+    const order = ['[dsh-mattpocock-skills-deck]', '[dsh-prompt]', '[dsh-im-companion]', '[ilife]']
     const pos = order.map((n) => block.indexOf(n))
     for (const n of order) assert.ok(block.includes(n), `MORE 段内应有 ${n}`)
     assert.deepEqual(pos, [...pos].sort((a, b) => a - b), `MORE 四条应按定稿顺序排列：${order.join(' → ')}`)
@@ -173,8 +174,8 @@ test('MORE：四条兄弟插件各为定稿句，ilife 排在第四条，四行�
 
 // ── 5 · THANKS：九人十花机器表（2026-10-22 致谢自动化移植，源仓方案） ──
 // 旧手工段（八人九花逐人描述句）退役，旧文案留 git 历史：中英两页改为同构三列表格，
-// 数据源是 docs/thanks-data.json，scripts/update-thanks.ts 一次写三处
-// （中文 README 用中文表，英文页与包内副本用英文表）。
+// 数据源是 docs/thanks-data.json：scripts/update-thanks.ts 只写 JSON，三处表格由
+// base 包 readme:sync 同源渲染（中文 README 用中文表，英文页与包内副本用英文表）。
 // 首跑 bootstrap（154 议题/PR＋122 讨论）纠偏已由维护者确认：新增 @insp63（#124，排第二）、
 // @anupamme 的 #32 确认为 PR（链接走 /pull/32）、#73 为 anci3ntr0ck 开的＋gitwch1 留言参与。
 // 行序 = 总数多在前、同数按最后活跃倒排（oopsdoes 两花置顶）。
@@ -241,19 +242,25 @@ test('THANKS：九人十花同构表（oopsdoes 两花置顶，insp63 第二）'
   }
 })
 
-// ── 6 · CONNECT：PR/ISSUE 入口 + 社群二维码（2026-10-18 由「作者飞书」换成 DSH 插件交流群群码） ──
+// ── 6 · CONNECT：欢迎语 + 社群整卡（base 包 CDN 图，不再引用仓内二维码 PNG） ──
 // 2026-10-21 用户改写这句：「遇到问题或者有改进想法，直接 提 Issue 就行；也想找人聊聊…」
 // → 「👏欢迎提交PR、ISSUE。星星之火可以燎原🔥。有任何建议、意见、想法、吐槽、idea都可以进群交流。」
-test('CONNECT：PR/ISSUE 入口与交流群二维码沿用，宽度不变', () => {
-  // 新文案在场（PR 与 ISSUE 都得是能点的链接）
-  assert.ok(ZH.includes('👏欢迎提交'), '中文页应写「👏欢迎提交PR、ISSUE」')
-  assert.ok(ZH.includes('星星之火可以燎原🔥'), '中文页应写「星星之火可以燎原🔥」')
-  assert.ok(ZH.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)'), '中文页应有 PR 入口')
-  assert.ok(ZH.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '中文页应有 ISSUE 入口')
-  assert.ok(EN.includes('👏Welcome'), '英文页应写「👏Welcome PRs and issues」')
-  assert.ok(EN.includes('A single spark can start a prairie fire 🔥'), '英文页应有「星星之火」的英文句')
-  assert.ok(EN.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)'), '英文页应有 PR 入口')
-  assert.ok(EN.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), '英文页应有 ISSUE 入口')
+// base 包迁移（票 10）：CONNECT 块正文与三张整卡 URL 都由 base 包渲染，仓库不再放 contact-*.png；
+// 整卡宽度与群名 alt 沿用旧口径，PR/ISSUE 变成纯文本（不再各挂一个链接）。
+test('CONNECT：欢迎语与交流群整卡由 base 包渲染，宽度与群名不变', () => {
+  // 新文案在场（base 包 CONTACT_TEXT 的定稿句；PR/ISSUE 是正文文字，不再是链接）
+  assert.ok(ZH.includes('👏欢迎提交PR、ISSUE。星星之火可以燎原🔥有任何建议、意见、想法、吐槽、idea都可以进群交流。'),
+    '中文页应写 base 包 CONNECT 定稿欢迎语')
+  assert.ok(EN.includes('👏Welcome PRs and issues. A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.'),
+    '英文页应写 base 包 CONNECT 定稿欢迎语')
+  // 只查 CONNECT 托管块内：页头还挂着「欢迎提 Issue」徽章（那是另一处合规链接，不在本块）
+  const zhContact = ZH.slice(ZH.indexOf('<!-- CONTACT-START -->'), ZH.indexOf('<!-- CONTACT-END -->'))
+  const enContact = EN.slice(EN.indexOf('<!-- CONTACT-START -->'), EN.indexOf('<!-- CONTACT-END -->'))
+  for (const [name, block] of [['中文页', zhContact], ['英文页', enContact]]) {
+    assert.equal(block.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/pulls)'), false, `${name} CONNECT 块的 PR 已是纯文本，不应再挂链接`)
+    assert.equal(block.includes('](https://github.com/FeatherHunter/dsh-opencode-palette/issues)'), false, `${name} CONNECT 块的 ISSUE 已是纯文本，不应再挂链接`)
+    assert.ok(block.length > 0, '应能切出 CONNECT 托管块')
+  }
   // 旧句不许回潮
   for (const gone of ['遇到问题或者有改进想法', '[提 Issue](', '也想找人聊聊']) {
     assert.equal(ZH.includes(gone), false, `中文页不应再有「${gone}」`)
@@ -261,17 +268,21 @@ test('CONNECT：PR/ISSUE 入口与交流群二维码沿用，宽度不变', () =
   for (const gone of ['Found a bug or have an idea', '[open an issue](', "you'd rather talk it over"]) {
     assert.equal(EN.includes(gone), false, `英文页不应再有「${gone}」`)
   }
-  for (const qr of ['contact-feishu-permanent.png', 'contact-qq-permanent.png', 'contact-wechat-weekly.png']) {
-    assert.ok(ZH.includes(`src="assets/${qr}"`), `中文页群码路径在场：${qr}`)
-    assert.ok(EN.includes(`src="../assets/${qr}"`), `英文页群码路径在场：${qr}`)
+  // 三张整卡走 base 包 CDN（精确版本 + 限时卡日期缓存戳），仓内不再有 contact-*.png
+  const CDN = 'https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/'
+  const CARDS = ['card-feishu.png', 'card-qq.png', 'card-wechat-2026-10-23.png?v=20261023']
+  for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
+    for (const card of CARDS) assert.ok(doc.includes(CDN + card), `${name} 应有 base 包整卡：${card}`)
+    assert.equal(doc.split(`${CDN}card-`).length - 1, 3, `${name} 应恰好三张 base 包整卡`)
+    assert.ok(doc.includes('width="260"'), `${name} 整卡宽度沿用 260`)
+    assert.equal(doc.includes('contact-feishu-permanent.png') || doc.includes('contact-qq-permanent.png') || doc.includes('contact-wechat-weekly.png'), false,
+      `${name} 不应再引用仓内 contact-*.png`)
+    // 群名在 alt 文本里：中文页用中文群名，英文页与包内副本用英文群名
   }
-  for (const doc of [ZH, EN, PKG]) {
-    assert.ok(doc.includes('width="260"'), '二维码宽度沿用 260')
-  }
-  // 群码无需备注：文案应写明是交流群，且旧的「加作者 / 备注词」说法不得回潮
-  // （群名现在落在二维码的 alt 文本里，正文改成「进群交流」）
   assert.ok(ZH.includes('DSH 插件交流群'), '中文页应写明社群名称')
-  assert.ok(EN.includes('DSH plugin community group'), '英文页应写明社群名称')
+  for (const [name, doc] of [['英文页', EN], ['包内副本', PKG]]) {
+    assert.ok(doc.includes('DSH plugin community group'), `${name} 应写明社群名称`)
+  }
   assert.equal(ZH.includes('备注 `dsh-opencode-palette`'), false, '中文页不应再有「备注词」旧说法')
   assert.equal(EN.includes('mention `dsh-opencode-palette`'), false, '英文页不应再有 mention 旧说法')
   assert.equal(PKG.includes('mention `dsh-opencode-palette`'), false, '包内副本由英文页再生，不应带旧说法')

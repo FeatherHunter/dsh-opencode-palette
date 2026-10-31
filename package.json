@@ -17,6 +17,9 @@
     "verify:artifacts": "node scripts/verify-artifacts.ts",
     "readme:version": "node scripts/sync-readme-version.ts",
     "readme:version:check": "node scripts/sync-readme-version.ts --check",
+    "readme:init": "node node_modules/dsh-featherhunter-plugin-base/dist/node/cli.js readme:init --repo .",
+    "readme:sync": "node node_modules/dsh-featherhunter-plugin-base/dist/node/cli.js readme:sync --repo .",
+    "readme:check": "node node_modules/dsh-featherhunter-plugin-base/dist/node/cli.js readme:sync --check --repo .",
     "star:history": "node scripts/update-star-history.ts",
     "thanks:update": "node scripts/update-thanks.ts",
     "audit:themes": "node scripts/audit-themes.ts",
@@ -41,6 +44,7 @@
   "devDependencies": {
     "@types/node": "22.20.5",
     "@types/react": "18.3.31",
+    "dsh-featherhunter-plugin-base": "0.0.2",
     "dsh-log": "0.3.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",

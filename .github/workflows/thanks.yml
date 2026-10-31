@@ -29,12 +29,20 @@ jobs:
           # 只拉比游标新的编号：脚本自己会停在游标处，老数据一个都不重看；
           # 拿到一半、gh 报错、第一页是空的，脚本直接退出，一个字节都不写。
           node scripts/update-thanks.ts
+      # 脚本现在只写 docs/thanks-data.json，三处 README 表格由 base 包 readme:sync 同源渲染。
+      # 不用 --repo .：package/README.md 是构建产物（.gitignore 忽略、CI 检出没有），
+      # --repo . 会报 README not found 直接退出 1；这里只同步两个会入库的 README。
+      - name: Sync managed README blocks
+        run: |
+          set -e
+          npx -y dsh-featherhunter-plugin-base@0.0.2 readme:sync --readme README.md --self palette
+          npx -y dsh-featherhunter-plugin-base@0.0.2 readme:sync --readme docs/README.en.md --self palette
       - name: Commit if changed
         run: |
-          if git diff --quiet README.md docs/README.en.md docs/thanks-data.json package/README.md; then echo "No change"; exit 0; fi
+          if git diff --quiet README.md docs/README.en.md docs/thanks-data.json; then echo "No change"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md docs/README.en.md docs/thanks-data.json package/README.md
+          git add README.md docs/README.en.md docs/thanks-data.json
           git commit -m "致谢表自动更新：把新编号贡献并进来，中英两表按花数与最后活跃重排"
           # 从 checkout 到 push 之间 main 可能又被别的提交推前了，直接 push 会被拒（! [rejected] main -> main (fetch first)）。
           # 先同步远端再推；合并冲突或并发撞车时重试三次，仍失败就红，下一次定时任务会接着补。

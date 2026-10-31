@@ -29,25 +29,20 @@ jobs:
           gh api -H "Accept: application/vnd.github.star+json" "repos/FeatherHunter/dsh-opencode-palette/stargazers?per_page=100" --paginate --jq ".[].starred_at" > /tmp/stars.txt
           if [ ! -s /tmp/stars.txt ]; then echo "No stars fetched"; exit 0; fi
           node scripts/update-star-history.ts /tmp/stars.txt
+      # 星图缓存戳（?v=）与文案现在都归 base 包渲染：数据/图更新后跑 readme:sync 重画托管块。
+      # 不用 --repo .：package/README.md 是构建产物（.gitignore 忽略、CI 检出没有），
+      # --repo . 会报 README not found 直接退出 1；这里只同步两个会入库的 README。
+      - name: Sync managed README blocks
+        run: |
+          set -e
+          npx -y dsh-featherhunter-plugin-base@0.0.2 readme:sync --readme README.md --self palette
+          npx -y dsh-featherhunter-plugin-base@0.0.2 readme:sync --readme docs/README.en.md --self palette
       - name: Commit if changed
         run: |
-          if git diff --quiet docs/star-history.json docs/star-history.svg; then echo "No change"; exit 0; fi
-          # 缓存戳：GitHub 的图片代理按 URL 缓存 —— 图换了必须把 ?v= 换掉，否则读者看到的还是旧图。
-          # 戳到分钟（YYYYMMDDHHMM，UTC）而不是只到日：同一天里改图也得换 URL，
-          # 否则图片代理会顶着同一个 URL 继续吐旧图。
-          node -e "
-            const fs = require('fs');
-            const stamp = new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
-            for (const f of ['README.md','docs/README.en.md']) {
-              let s = fs.readFileSync(f,'utf8');
-              s = s.replace(/(star-history[.]svg[?]v=)[0-9]+/g, (m, p1) => p1 + stamp);
-              fs.writeFileSync(f, s);
-            }
-            console.log('cache stamp:', stamp);
-          "
+          if git diff --quiet README.md docs/README.en.md docs/star-history.json docs/star-history.svg; then echo "No change"; exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add docs/star-history.json docs/star-history.svg README.md docs/README.en.md
+          git add README.md docs/README.en.md docs/star-history.json docs/star-history.svg
           git commit -m "每日更新 Star History：拉取星标数据并重绘手绘曲线图"
           # 别裸 push：任务跑得久，期间远端可能又前进了（源仓那批每日任务就是这么全红的）。
           # 先 fetch + merge，冲突重试三次；三次还不成就今天先不更新（不报错，下次补上）。

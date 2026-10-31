@@ -202,21 +202,23 @@ dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
 
 Settings → Plugins → OpenCode Palette → **Check for updates**
 
+<!-- MORE-START -->
 <h2 align="center"><sub>MORE</sub><br>More from the author</h2>
 
 <div align="left">
 
-If you like this plugin, these might be useful too:
+If you like this plugin, these might help too:
 
-**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you repeat over and over, saved as custom templates and injected in one click — no more effort spent.
+**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it is installed.
 
-**[dsh-mattpocock-skills-deck](https://github.com/FeatherHunter/dsh-mattpocock-skills-deck)** — The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it's installed.
+**[dsh-prompt](https://github.com/FeatherHunter/dsh-prompt)** — The boilerplate prompts you keep retyping, saved as custom templates and injected on selection — no more wasted effort.
 
 **[dsh-im-companion](https://github.com/FeatherHunter/dsh-im-companion)** — Adds the ideas of an “assistant” and a “home” to dsh-im.
 
-**[ilife](https://github.com/FeatherHunter/ilife)** — iLife (爱生活), the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more. ⚠️Work in progress⚠️pending official release
+**[ilife](https://github.com/FeatherHunter/ilife)** — ⚠️Work in progress⚠️ iLife, the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more.
 
 </div>
+<!-- MORE-END -->
 
 <h2 align="center"><sub>THANKS</sub><br>Contributors</h2>
 
@@ -242,19 +244,23 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 
 </div>
 
+<!-- CONTACT-START -->
 <h2 align="center"><sub>CONNECT</sub><br>Feedback and Contact</h2>
 
 <div align="center">
 
-👏Welcome [PRs](https://github.com/FeatherHunter/dsh-opencode-palette/pulls) and [issues](https://github.com/FeatherHunter/dsh-opencode-palette/issues). A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
+👏Welcome PRs and issues. A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
 
-<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="../assets/contact-feishu-permanent.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="../assets/contact-qq-permanent.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="../assets/contact-wechat-weekly.png" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
+<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-feishu.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-qq.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-wechat-2026-10-23.png?v=20261023" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
 
 </div>
+<!-- CONTACT-END -->
 
+<!-- STAR-HISTORY-START -->
 <div align="center">
 
-![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610300842)
+![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610290000)
 
 </div>
+<!-- STAR-HISTORY-END -->
 

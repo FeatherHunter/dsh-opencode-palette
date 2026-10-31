@@ -12,6 +12,7 @@ import { THEME_ZH, THEME_EN, themeSearchText } from '../src/engine/zh-names.ts'
 import { buildUpdateTokens, buildUpdateTokensFromColors } from '../src/engine/update-tokens.ts'
 import { createClientLog } from 'dsh-log/client'
 import { mountUpdateEntry } from 'dsh-plugin-update/entry'
+import { createBaseUI, ensureBaseStyles } from 'dsh-featherhunter-plugin-base/client'
 import { CHANNEL, ENDPOINT, PLUGIN_ID, PHONE_PREFIX } from './channel.ts'
 import { clientSlug, filterCustomThemes, normalizeHexInput } from './custom-color.ts'
 import { loadCustomCache, saveCustomCache, reconcileCustomThemes } from './custom-store.ts'
@@ -102,6 +103,31 @@ function getReact(): ReactApi | null {
     if (reactHost.React) return reactHost.React
   }
   return null
+}
+
+// ── base 包通用件（面板底部的联系入口 + 作者插件卡）──
+// client 产物（dist/client/index.js）零 import、样式由 ensureBaseStyles 一次性注入 style#dsh-base-ui-style；
+// React 由宿主经 createBaseUI(React, …) 注入，所以浏览器里 React 仍然只有宿主那一份（bundle 里不重复打包）。
+// 缓存按 (宿主 React, 语言) 失效：语言切换是运行时行为，重建一次即可，避免每次渲染都造新组件。
+let baseUIReact: ReactApi | null = null
+let baseUILang: string | null = null
+let baseUICache: ReturnType<typeof createBaseUI> | null = null
+function getBaseUI(lang: string): ReturnType<typeof createBaseUI> | null {
+  const react = getReact()
+  if (!react) return null
+  if (baseUICache === null || baseUIReact !== react || baseUILang !== lang) {
+    baseUIReact = react
+    baseUILang = lang
+    // 类型面见 types/base-client.d.ts 的模块垫片（上游 d.ts 与本仓 NodeNext 解析不兼容）；运行时就是把宿主 React 原样交过去。
+    baseUICache = createBaseUI(react, {
+      lang: lang === 'en' ? 'en' : 'zh',
+      selfId: 'palette',
+    })
+  }
+  return baseUICache
+}
+function ensureBaseStylesOnce(): void {
+  if (typeof document !== 'undefined') ensureBaseStyles(document)
 }
 
 // ── 宿主桥：浏览器半调宿主半的电话 ──
@@ -207,12 +233,9 @@ const I18N: Record<string, LocalePair> = {
   'group.neutral': { zh: '中性', en: 'Neutral' },
   'group.transparent': { zh: '透明', en: 'Transparent' },
   'group.special': { zh: '特殊', en: 'Special' },
-  // 底部「作者其他插件」引流卡片（兄弟插件导流位，对齐 MattSkillsDeck 同款卡片）
-  authorPlugins: { zh: '作者其他插件', en: 'More from the author' },
-  authorPluginOpen: { zh: '在新窗口打开', en: 'Open in new window' },
-  'authorPlugin.skillsDeck': { zh: '装好即自带 25 个工程/效率技能，右侧面板直接调用', en: '25 engineering skills built in — call them from the side panel' },
-  'authorPlugin.prompt': { zh: '保存常用 prompt 预设，一键注入开发任务', en: 'Save your prompt presets, inject them into a dev task with one click' },
-  'authorPlugin.imCompanion': { zh: 'dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力', en: "Supercharges dsh-im with more than you'd expect" },
+  // 底部联系入口与作者插件卡改由 base 包通用件渲染（dsh-featherhunter-plugin-base/client）：
+  // 旧的 authorPlugins / authorPluginOpen / authorPlugin.* 词条已删除，文案与推荐列表只保留 base 一处真源，
+  // 避免面板文案与 README 联系信息出现第二份手写副本。
   // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
   logSwitch: { zh: '日志', en: 'Log' },
   logOn: { zh: '开', en: 'On' },
@@ -1698,72 +1721,17 @@ export function createClient(slotTarget: string) {
 
 
 
-        // ── 作者其他插件（底部引流位）──
-        // 只列兄弟插件、不自我推荐（本面板自己的星标链接就在标题行）；
-        // 静态外链列表，不做「已安装」检测（面板侧无稳定安装信号）。
-        const authorPlugins = [
-          { repo: 'dsh-mattpocock-skills-deck', descKey: 'authorPlugin.skillsDeck' },
-          { repo: 'dsh-prompt', descKey: 'authorPlugin.prompt' },
-          { repo: 'dsh-im-companion', descKey: 'authorPlugin.imCompanion' },
-        ]
-        // 外链小图标（方框 + 右上斜箭头，与 MattSkills 同款语义）
-        const extLinkIcon = function () {
-          return h('svg', {
-            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
-            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-            style: { display: 'block' },
-          }, [
-            h('path', { d: 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6' }),
-            h('polyline', { points: '15 3 21 3 21 9' }),
-            h('line', { x1: 10, y1: 14, x2: 21, y2: 3 }),
-          ])
-        }
-        // 四宫格小图标（卡片标题前）
-        const gridIcon = function () {
-          return h('svg', {
-            width: 12, height: 12, viewBox: '0 0 24 24', fill: 'none',
-            stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-            style: { display: 'block' },
-          }, [
-            h('rect', { key: 'tl', x: 3, y: 3, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'tr', x: 14, y: 3, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'bl', x: 3, y: 14, width: 7, height: 7, rx: 1 }),
-            h('rect', { key: 'br', x: 14, y: 14, width: 7, height: 7, rx: 1 }),
-          ])
-        }
-        // 底部引流卡片：3 行兄弟插件，整行可点（锚点），新窗口打开
-        const authorCard = h('div', {
-          style: {
-            marginTop: 4,
-            border: '1px solid var(--dsw-alias-border-l1)',
-            borderRadius: 10, padding: '12px 14px',
-            display: 'flex', flexDirection: 'column', gap: 4,
-          },
-        }, [
-          h('div', { style: { display: 'flex', alignItems: 'center', gap: 7, color: base, fontSize: 13, fontWeight: 600, marginBottom: 6 } }, [
-            h('span', { key: 'ico', style: { color: muted, display: 'inline-flex' } }, gridIcon()),
-            tr('authorPlugins'),
-          ]),
-          ...authorPlugins.map(function (p) {
-            return h('a', {
-              key: p.repo,
-              href: 'https://github.com/FeatherHunter/' + p.repo,
-              target: '_blank', rel: 'noopener noreferrer',
-              title: tr('authorPluginOpen') + (currentLang === 'zh' ? '：' : ': ') + p.repo,
-              [UI_INTERACTIVE_ATTR]: TIER_ROW,
-              style: {
-                display: 'flex', alignItems: 'baseline', gap: 10,
-                padding: '4px 6px', margin: '0 -6px', borderRadius: 6,
-                textDecoration: 'none', cursor: 'pointer',
-                background: 'transparent',
-              },
-            }, [
-              h('span', { key: 'name', style: { fontFamily: 'var(--ds-font-family-code)', fontSize: 12, fontWeight: 700, color: base, whiteSpace: 'nowrap' } }, p.repo),
-              h('span', { key: 'desc', style: { fontSize: 12, color: muted, flex: 1 } }, tr(p.descKey)),
-              h('span', { key: 'ext', style: { color: 'var(--dsw-alias-label-tertiary)', display: 'inline-flex', flex: 'none' } }, extLinkIcon()),
+        // ── 底部：联系入口 + 作者插件卡（base 包通用件；旧手写卡片与 6 条 I18N 词条已删除）──
+        // 元数据、文案、推荐列表全由 base 包提供（manifest 也从 CDN 拉，见 handover 01）；面板侧只负责挂载。
+        // React 由 createBaseUI(宿主 React) 注入，bundle 里不会出现第二份 React。
+        const baseUI = getBaseUI(currentLang)
+        if (baseUI) ensureBaseStylesOnce()
+        const baseLinks = baseUI
+          ? h('div', { style: { marginTop: 4, display: 'flex', flexDirection: 'column', gap: 10 } }, [
+              h(baseUI.ContactRow, { key: 'contact' }),
+              h(baseUI.AuthorPlugins, { key: 'more', lang: currentLang === 'en' ? 'en' : 'zh' }),
             ])
-          }),
-        ])
+          : null
 
         // ── 检查更新：新包入口件挂载位（头行右侧原位；宿主不可用时不渲染）──
         // 单按钮：openOn 'always'，点即查完开弹窗（无新版在弹窗内看“已是最新”，头行永不挂第二块）。
@@ -1955,7 +1923,7 @@ export function createClient(slotTarget: string) {
           // ── 自定义主题区（#86）：特殊分组下方的独立区块（+ 新增恒可见）──
           renderCustomSection(),
           // ── 底部：作者其他插件（引流位）──
-          authorCard,
+          baseLinks,
           // ── 37 色编辑弹窗（#86：仅编辑态渲染，SSR 首帧恒为 null）──
           renderEditor(),
           saveError ? h('div', {

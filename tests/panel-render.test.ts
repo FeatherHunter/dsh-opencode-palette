@@ -40,8 +40,9 @@ function loadReact(): { React: ReactModule; ReactDOMServer: ReactDOMServerLike }
 
 const { React, ReactDOMServer } = loadReact()
 
-// 引流卡片固定指向的三个兄弟插件仓库（顺序即渲染顺序）
-const AUTHOR_REPOS = ['dsh-mattpocock-skills-deck', 'dsh-prompt', 'dsh-im-companion']
+// 引流卡片固定指向的兄弟插件仓库（顺序即渲染顺序）：
+// base 包推荐卡按 manifest 的 order 排序，并以 selfId='palette' 过滤掉本插件自己 → deck → prompt → im → ilife。
+const AUTHOR_REPOS = ['dsh-mattpocock-skills-deck', 'dsh-prompt', 'dsh-im-companion', 'ilife']
 // 出现次数统计（用于「不多不少、每行一次」断言）
 function occurrences(hay: string, needle: string): number {
   return hay.split(needle).length - 1
@@ -130,6 +131,8 @@ interface MockDocument {
   head: { appendChild(el: MockElement): void }
   body: MockBody
   createElement(tag: string): MockElement | MockCanvas
+  // base 包 ensureBaseStyles 先查 style#dsh-base-ui-style 是否存在（假 DOM 恒无 → 每次注入一份）
+  getElementById(id: string): MockElement | null
   documentElement: MockDocumentElement
   addEventListener(): void
   removeEventListener(): void
@@ -332,6 +335,8 @@ function loadPanel(opts: LoadPanelOptions = {}): LoadPanelResult {
       return el
     },
     documentElement: documentElement,
+    // base 包 ensureBaseStyles 的判重入口：假 DOM 不缓存 <style>，恒返回 null 即可
+    getElementById: () => null,
     addEventListener: () => {},
     removeEventListener: () => {},
   }
@@ -492,10 +497,12 @@ test('入口 label 跟随语言切换：重注册后宿主读到新语言', () =
   assert.ok(registrations.slice(4).every((d) => d.label() === 'OpenCode调色板'), '切回后入口 label 应为中文')
 })
 
-test('引流卡片外链 title 冒号跟随语言（英文半角）', () => {
+test('引流卡片标题跟随语言（英文 base 包文案，无全角冒号）', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('Open in new window: dsh-prompt'), '英文冒号应为半角 ": "')
+  assert.ok(html.includes('dsh-base-plugins__title-text'), '引流卡片应由 base 包推荐卡渲染')
+  assert.ok(html.includes('More plugins by the author'), '英文卡片标题应为 base 包文案')
+  assert.ok(!html.includes('作者的其他插件'), '英文界面不应出现中文卡片标题')
   assert.ok(!html.includes('Open in new window：'), '英文不应出现全角冒号')
 })
 
@@ -629,61 +636,68 @@ test('ISSUE 入口是消息气泡图标（不再是匿名信息图标）', () =>
   assert.ok(!html.includes('<circle'), '不该再有任何 circle 图标（ISSUE 图标与主题圆点都已改）')
 })
 
-test('底部引流卡片（中文）：标题 + 3 行兄弟插件 + 外链图标', () => {
+test('底部引流卡片（中文）：base 包推荐卡标题 + 4 行兄弟插件 + 外链图标', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
-  assert.ok(html.includes('作者其他插件'), '缺引流卡片标题')
-  assert.ok(html.includes('装好即自带 25 个工程/效率技能，右侧面板直接调用'), '缺 skills-deck 文案')
-  assert.ok(html.includes('保存常用 prompt 预设，一键注入开发任务'), '缺 prompt 定稿文案（#59：去行话删空话）')
-  assert.ok(html.includes('dsh-im 的增强插件，在原插件基础上提供了超过你想象力的能力'), '缺 im-companion 文案')
+  assert.ok(html.includes('dsh-base-plugins'), '缺 base 包推荐卡容器')
+  assert.ok(html.includes('作者的其他插件'), '缺引流卡片标题（base 包文案）')
+  assert.ok(html.includes('近 30 万 star 的 mattpocock/skills 整套预置好（27 个技能），装好即用。'), '缺 skills-deck 文案')
+  assert.ok(html.includes('经常反复重复的模板化提示词，存成自定义模板，选中后直接注入，不再需要耗费精力。'), '缺 prompt 文案')
+  assert.ok(html.includes('给 dsh-im 加了「助理」和「家」的概念。'), '缺 im-companion 文案')
+  assert.ok(html.includes('⚠️建设中⚠️爱生活：居家生活套件，记账、运动、饮食、体重、食谱、物品管理、作息规划、备忘录等。'), '缺 ilife 文案')
   for (const repo of AUTHOR_REPOS) {
     const url = 'https://github.com/FeatherHunter/' + repo
     assert.equal(occurrences(html, url), 1, '引流链接应恰好出现一次：' + repo)
   }
-  // 图标确实渲染了：宫格标题图标 + 3 个外链箭头；锚点属性齐备
-  assert.equal(occurrences(html, 'polyline points="15 3 21 3 21 9"'), 3, '外链小图标应为 3 个')
-  assert.equal(occurrences(html, 'rect x="3" y="3"'), 1, '缺卡片标题前的宫格图标')
+  // base 包行结构：每行一个宫格图标 + 一个外链箭头；锚点属性齐备
+  assert.equal(occurrences(html, 'class="dsh-base-plugins__item"'), 4, 'base 推荐卡应为 4 行')
+  assert.equal(occurrences(html, 'dsh-base-plugins__row'), 4, '每行一条外链')
+  assert.equal(occurrences(html, 'dsh-base-plugins__ext'), 4, '每行一个外链小图标')
+  assert.equal(occurrences(html, 'dsh-base-plugins__title-icon'), 1, '缺卡片标题前的宫格图标')
   assert.equal(occurrences(html, 'target="_blank"'), occurrences(html, 'rel="noopener noreferrer"'), '外链锚点属性不成对')
 })
 
 test('底部引流卡片（英文）：整体英文，不出现中文引流文案', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('More from the author'), '缺英文卡片标题')
-  assert.ok(html.includes('25 engineering skills built in'), '缺 skills-deck 英文文案')
-  assert.ok(html.includes('Save your prompt presets'), '缺 prompt 英文文案')
-  assert.ok(html.includes("Supercharges dsh-im"), '缺 im-companion 英文文案')
-  assert.ok(!html.includes('作者其他插件'), '英文界面不应出现中文卡片标题')
-  assert.ok(!html.includes('装好即自带'), '英文界面不应出现中文引流文案')
-  assert.ok(!html.includes('不再繁琐'), '英文界面不应出现中文引流文案')
-  assert.equal(locale.dictFor('opencode-palette', 'zh', 'authorPlugins'), '作者其他插件')
-  assert.equal(locale.dictFor('opencode-palette', 'en', 'authorPlugins'), 'More from the author')
+  assert.ok(html.includes('More plugins by the author'), '缺英文卡片标题（base 包文案）')
+  assert.ok(html.includes('The whole mattpocock/skills set (nearly 300k stars) preinstalled — 27 skills, ready as soon as it is installed.'), '缺 skills-deck 英文文案')
+  assert.ok(html.includes('The boilerplate prompts you keep retyping, saved as custom templates and injected on selection — no more wasted effort.'), '缺 prompt 英文文案')
+  assert.ok(html.includes('Adds the ideas of an “assistant” and a “home” to dsh-im.'), '缺 im-companion 英文文案')
+  assert.ok(html.includes('⚠️Work in progress⚠️ iLife, the home-life suite: bookkeeping, exercise, diet, weight, recipes, item management, schedule planning, memos and more.'), '缺 ilife 英文文案')
+  assert.ok(!html.includes('作者的其他插件'), '英文界面不应出现中文卡片标题')
+  assert.ok(!html.includes('装好即用'), '英文界面不应出现中文引流文案')
+  // 标题/行文案归 base 包，不再进面板双语表（旧词条已随手写卡片删除）
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'authorPlugins'), undefined, '面板双语表不应再有 authorPlugins 词条')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'authorPlugins'), undefined, '面板双语表不应再有 authorPlugins 词条')
 })
 
 test('底部引流卡片：跟随语言切换实时改文案', () => {
   const locale = makeLocale('zh')
   const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
-  assert.ok(zhHtml.includes('作者其他插件'), '初始中文卡片标题缺失')
+  assert.ok(zhHtml.includes('作者的其他插件'), '初始中文卡片标题缺失')
+  assert.ok(zhHtml.includes('装好即用。'), '初始中文卡片描述缺失')
   locale.setActive('en')
   const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  assert.ok(enHtml.includes('More from the author'), '切换后缺英文卡片标题')
-  assert.ok(!enHtml.includes('作者其他插件'), '切换后不应残留中文卡片标题')
+  assert.ok(enHtml.includes('More plugins by the author'), '切换后缺英文卡片标题')
+  assert.ok(enHtml.includes('ready as soon as it is installed.'), '切换后缺英文卡片描述')
+  assert.ok(!enHtml.includes('作者的其他插件'), '切换后不应残留中文卡片标题')
 })
 
-test('底部引流卡片（浅色宿主）：只用语义 token，无深色硬编码残留', () => {
+test('底部引流卡片（浅色宿主）：样式走 base 包语义 token，无深色硬编码残留', () => {
   const { html } = loadPanel({ lang: 'zh-CN', disabled: true, hostDark: false })
-  const title = html.indexOf('作者其他插件')
+  const title = html.indexOf('作者的其他插件')
   assert.ok(title >= 0, '缺引流卡片标题')
-  // 卡片开标签在标题之前，按「最近的 border-radius:10px」回溯定位，末行取到卡片闭标签
-  const style = html.lastIndexOf('border-radius:10px', title)
-  assert.ok(style > 0, '未找到引流卡片开标签（卡片容器结构变了）')
-  const start = html.lastIndexOf('<div', style)
-  const seg = html.slice(start, html.indexOf('</div></div>', title))
-  assert.ok(seg.includes('var(--dsw-alias-border-l1)'), '卡片描边未走语义 token')
-  assert.ok(seg.includes('var(--dsw-alias-label-primary)'), '卡片插件名未走语义字色')
-  assert.ok(seg.includes('var(--dsw-alias-label-secondary)'), '卡片描述未走语义字色')
-  assert.ok(seg.includes('var(--dsw-alias-label-tertiary)'), '外链图标未走语义字色')
+  const cardStart = html.lastIndexOf('dsh-base-plugins', html.indexOf('dsh-base-plugins'))
+  assert.ok(cardStart >= 0, '缺 base 包推荐卡容器')
+  const seg = html.slice(cardStart, title + 80)
+  assert.ok(seg.includes('dsh-base-plugins__list'), '卡片行清单缺失')
   assert.ok(!/#555/.test(seg), '卡片内不应出现深色硬编码兜底色')
   assert.ok(!/#[0-9a-fA-F]{6}/.test(seg), '卡片内不应有任何硬编码 hex 颜色')
+  // 卡片皮肤（描边/字色/图标色）全在 base 包内联样式里，走 DSH 语义 token
+  const code = readFileSync(new URL('../package/lib/client.js', import.meta.url), 'utf8')
+  assert.ok(code.includes('.dsh-base-plugins{'), 'base 包推荐卡样式未内联进产物')
+  assert.ok(code.includes('var(--dsw-alias-border-l1'), 'base 包推荐卡描边未走语义 token')
+  assert.ok(code.includes('dsh-base-plugins__desc'), 'base 包推荐卡描述样式未内联进产物')
 })
 
 test('构建产物：新增预设与宽度对比字体检测都在产物里', () => {

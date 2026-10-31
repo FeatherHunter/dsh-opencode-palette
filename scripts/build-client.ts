@@ -23,6 +23,11 @@
 //     0.18.34～0.18.37 目录布局未变，只新增 dist/shared/version.js（0.18.36 #241 占位运行版归一），闭包 36 → 37 件。
 //     0.18.38 无模块增删（#243 自动续跑可见化、#244「已装好待重启」行对账，均只改 panel/batch 与 host/batch），闭包仍 37 件。
 //   dsh-log —— 同为运行时依赖；客户端入口同样构建期内联。
+//   dsh-featherhunter-plugin-base —— 同为运行时依赖；客户端入口（联系行 / 推荐卡 / 联系弹窗）构建期内联。
+//     client 产物是单文件 ESM、全文零 import（样式由 ensureBaseStyles 一次性注入 style 标签），
+//     React 由宿主 createBaseUI(React) 注入，所以浏览器里 React 仍然只有宿主那一份；这里只登记一件。
+//     产物首行的 banner（`/*! dsh-featherhunter-plugin-base v<版本> */`）会被 doctor 的 inline-bundle-version 校验，
+//     升级 base 版本时重跑 build 即可，banner 随 node_modules 里的依赖走。
 //
 // 引擎源码约束（DESIGN.md §7）：单行 import、无 default export、无 re-export、无动态导入；
 // npm 包走各自的转换器（polyglot 形态：多行 import / export 列表带 as 别名）。
@@ -184,6 +189,15 @@ const INLINE_PACKAGES: InlinePackage[] = [
       { key: 'upd-entry', file: 'dist/entry.js', deps: { './panel/entry.js': 'upd-panel-entry' } },
     ],
   },
+  // base 包客户端入口：单文件、零依赖（deps 为空），导出表在文件末尾（transformPackageModule 处理）。
+  {
+    spec: 'dsh-featherhunter-plugin-base/client',
+    pkg: 'dsh-featherhunter-plugin-base',
+    key: 'base-client',
+    modules: [
+      { key: 'base-client', file: 'dist/client/index.js', deps: {} },
+    ],
+  },
 ]
 
 /** 按模块键找内联规格（键 → { pkg, 模块声明 }）。 */
@@ -212,7 +226,7 @@ const MODULE_ORDER: string[] = [
   'log-client-switch-cache', 'log-client-transport', 'log-client-trace', 'log-client-switch-ops',
   'log-client-forward', 'log-client-send', 'log-client-write', 'log-client',
   'resolve', 'map-dsh', 'font-face', 'font-avail', 'font-names', 'local-fonts', 'generate', 'zh-names', 'registry', 'ip-presets', 'grouping', 'index', 'update-tokens', 'float-geometry',
-  'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'client',
+  'channel', 'custom-color', 'custom-store', 'ui-fx', 'custom-editor', 'base-client', 'client',
 ]
 
 // 引擎/运行时源码的 import/export 解析：见 scripts/lib/source-parser.ts（本文件只消费 parseLine）。
