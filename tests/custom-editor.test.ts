@@ -376,7 +376,7 @@ test('预置 IP 组 + 空自定义区（中文）：IP 与内置同区，自定�
   assert.ok(html.includes('✎ 编辑'), '✎ 编辑胶囊')
   assert.equal(editBtnDisabled(html), true, '空态 ✎ 编辑置灰禁用（原型 :606）')
   assert.equal(html.includes('保存主题'), false, '弹窗默认关闭')
-  // 头行三件套（2026-10-31 起由 base ActionCluster 渲染，0.1.4 组件面不变）的彩色图标自带渐变、圆环与圆点；
+  // 头行三件套（2026-10-31 起由 base ActionCluster 渲染，0.1.5 组件面不变）的彩色图标自带渐变、圆环与圆点；
   // 仍禁旧手绘 ⓘ（r=10）与旧实心消息气泡，并确认头行真的换成了 ActionCluster。
   assert.equal(html.includes('cx="12" cy="12" r="10"'), false, '旧 ⓘ 圆圈图标仍在')
   assert.equal(html.includes('M21 11.5a8.38'), false, '旧手绘消息气泡图标仍在')

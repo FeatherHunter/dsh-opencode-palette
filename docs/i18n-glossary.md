@@ -74,7 +74,7 @@
 待确认 2 的 defer 含义：`translucentNote` 待 #60 用字统一（透光/透明二选一）；`authorPlugin.imCompanion` 待 `dsh-im-companion` 能力清单事实锚，不编造。
 
 - 2026-10-06 漏网补齐：`starTitle`／`issueTitle` 进词典走 `tr()`；入口 label 语言切换时重注册（宿主只在注册时读 label）；引流外链 `title` 冒号跟随语言（zh 全角 `：`／en 半角 `:`）。
-- 2026-10-31 接入 base 0.1.1 页头三件套（联系 / Star / Issue）：手写 star／issue 图标与 `title` 悬停换成 base 包 `ActionGroup`（0.1.2 起更名 `ActionCluster`；现内联 0.1.4），两键随内联图标删除（悬停文案与可访问名改由 base 包 `HoverTip`／`texts` 提供），面板键 53 → 51、冻结 42 → 40。
+- 2026-10-31 接入 base 0.1.1 页头三件套（联系 / Star / Issue）：手写 star／issue 图标与 `title` 悬停换成 base 包 `ActionGroup`（0.1.2 起更名 `ActionCluster`；现内联 0.1.5），两键随内联图标删除（悬停文案与可访问名改由 base 包 `HoverTip`／`texts` 提供），面板键 53 → 51、冻结 42 → 40。
 
 ## 自定义主题编辑器 176 键（`runtime/client.ts`，#86 新增 / #95 取色器续增，与代码 I18N 逐行对账）
 
