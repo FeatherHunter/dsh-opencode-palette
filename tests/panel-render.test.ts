@@ -458,12 +458,21 @@ test('locale 服务切换实时生效：切到英文后重渲染即全英文', (
   assert.ok(!enHtml.includes('东京之夜'), '切换后不应残留中文主题名')
 })
 
-test('头行三件套（base 0.1.1 ActionGroup）：可访问名跟随语言，英文无中文残留', () => {
+test('头行三件套（base 0.1.2 ActionCluster）：彩色 16px 图标 + 可访问名跟随语言', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('dsh-base-actions dsh-base-actions--group'), '头行应是 base 包 ActionGroup 窄胶囊')
+  assert.ok(html.includes('dsh-base-cluster'), '头行应是 base 包 ActionCluster')
   assert.ok(html.includes('role="group"'), '三件套应是 aria group')
-  assert.ok(html.includes('aria-label="Contact, Star and Issue"'), '缺三件套组名（英文）')
+  assert.ok(html.includes('aria-label="Quick actions"'), '缺三件套组名（英文）')
+  assert.equal(occurrences(html, 'data-cluster-item="'), 3, 'ActionCluster 应渲染三枚动作按钮')
+  assert.equal(occurrences(html, 'class="dsh-base-cluster__btn dsh-base-cluster__btn--'), 3, '三枚按钮应有专属 class')
+  for (const id of ['contact', 'star', 'issue']) {
+    assert.ok(html.includes('dsh-base-cluster__svg--' + id), '缺 ' + id + ' 彩色图标')
+  }
+  assert.ok(html.includes('linearGradient'), '彩色图标应带渐变（linearGradient 不在场）')
+  assert.ok(html.includes('radialGradient'), '星标光晕应带径向渐变（radialGradient 不在场）')
+  assert.ok(!html.includes('dsh-base-actions--group'), '旧 ActionGroup 窄胶囊不应在场')
+  assert.ok(!html.includes('dsh-base-icon-action'), '旧线框图标控件不应在场')
   assert.ok(html.includes('aria-label="Contact us"'), '缺联系按钮英文可访问名')
   assert.ok(html.includes('aria-label="Star this project"'), '缺 Star 英文可访问名')
   assert.ok(html.includes('aria-label="Open an issue"'), '缺 Issue 英文可访问名')
@@ -477,11 +486,13 @@ test('头行三件套（base 0.1.1 ActionGroup）：可访问名跟随语言，�
 test('头行三件套可访问名跟随语言切换实时改', () => {
   const locale = makeLocale('zh')
   const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
+  assert.ok(zhHtml.includes('aria-label="快捷操作"'), '初始中文缺三件套组名')
   assert.ok(zhHtml.includes('aria-label="联系我们"'), '初始中文缺联系可访问名')
   assert.ok(zhHtml.includes('aria-label="Star 这个项目"'), '初始中文缺 Star 可访问名')
   assert.ok(zhHtml.includes('aria-label="提交 Issue"'), '初始中文缺 Issue 可访问名')
   locale.setActive('en')
   const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
+  assert.ok(enHtml.includes('aria-label="Quick actions"'), '切换后缺三件套英文组名')
   assert.ok(enHtml.includes('aria-label="Contact us"'), '切换后缺联系英文可访问名')
   assert.ok(enHtml.includes('aria-label="Star this project"'), '切换后缺 Star 英文可访问名')
   assert.ok(enHtml.includes('aria-label="Open an issue"'), '切换后缺 Issue 英文可访问名')
@@ -623,21 +634,20 @@ test('面板底部小字显示当前版本号', () => {
   assert.ok(html.includes('aria-label="Star 这个项目"'), '缺 Star 可访问名（悬停文案由 base 包 HoverTip 提供）')
 })
 
-test('星标是 base 包线框星图标（悬停文案随 HoverTip，不进 SSR）', () => {
+test('星标是 base 包金色渐变星图标（悬停文案随 HoverTip，不进 SSR）', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
-  assert.ok(html.includes('dsh-base-icon-action'), '缺 base 包图标控件')
-  assert.ok(html.includes('M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8Z'), '星标图标未换成 base 包线框星')
+  assert.ok(html.includes('dsh-base-cluster__svg--star'), '缺 base 包彩色星图标')
+  assert.ok(html.includes('M12 2.7l2.72 5.49 6.06.89-4.39 4.27 1.04 6.04L12 16.55l-5.43 2.84 1.04-6.04L3.22 9.08l6.06-.89z'), '星标图标未换成 base 包彩色星')
   assert.ok(html.includes('aria-label="Star 这个项目"'), '缺 Star 可访问名')
   assert.ok(!html.includes('你的 ⭐是我夜空中最亮的星'), '悬停文案不应再进 SSR / 面板词表')
 })
 
-test('ISSUE 入口是 base 包线框感叹号图标（不再是手绘实心气泡）', () => {
+test('ISSUE 入口是 base 包珊瑚粉气泡图标（不再是手绘线框感叹号）', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
-  const i = html.indexOf('dsh-opencode-palette/issues')
-  assert.ok(i >= 0, '缺 ISSUE 链接')
-  const seg = html.slice(i, i + 500)
-  assert.ok(seg.indexOf('M12 7.8v4.8') >= 0, 'ISSUE 图标未换成 base 包线框感叹号')
-  assert.ok(seg.indexOf('aria-label="提交 Issue"') >= 0, 'ISSUE 可访问名被改动')
+  assert.ok(html.includes('https://github.com/FeatherHunter/dsh-opencode-palette/issues"'), '缺 ISSUE 列表页链接')
+  assert.ok(html.includes('dsh-base-cluster__svg--issue'), 'ISSUE 图标未换成 base 包彩色气泡')
+  assert.ok(html.includes('aria-label="提交 Issue"'), 'ISSUE 可访问名被改动')
+  assert.ok(html.includes('#f43f5e'), '缺珊瑚粉渐变端点')
   assert.ok(!html.includes('M21 11.5a8.38'), '旧手绘消息气泡图标仍在')
   assert.ok(!html.includes('cx="12" cy="12" r="10"'), '旧 ⓘ 圆圈图标仍在')
 })
@@ -659,7 +669,7 @@ test('底部引流卡片（中文）：base 包推荐卡标题 + 4 行兄弟插�
   assert.equal(occurrences(html, 'dsh-base-plugins__row'), 4, '每行一条外链')
   assert.equal(occurrences(html, 'dsh-base-plugins__ext'), 4, '每行一个外链小图标')
   assert.equal(occurrences(html, 'dsh-base-plugins__title-icon'), 1, '缺卡片标题前的宫格图标')
-  // 页头 base ActionGroup 的 Star/Issue 也是外链（rel 顺序是 noreferrer noopener），这里只对账卡片内的外链锚点。
+  // 页头 base ActionCluster 的 Star/Issue 也是外链（rel 顺序是 noreferrer noopener），这里只对账卡片内的外链锚点。
   const card = html.slice(html.indexOf('dsh-base-plugins'))
   assert.ok(card.includes('dsh-base-plugins__item'), '应能切出 base 包推荐卡')
   assert.equal(occurrences(card, 'target="_blank"'), occurrences(card, 'rel="noopener noreferrer"'), '卡片外链锚点属性不成对')

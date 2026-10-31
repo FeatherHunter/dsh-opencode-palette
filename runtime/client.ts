@@ -107,7 +107,7 @@ function getReact(): ReactApi | null {
   return null
 }
 
-// ── base 包通用件（页头三件套 ActionGroup + 面板底部的联系入口 + 作者插件卡）──
+// ── base 包通用件（页头三件套 ActionCluster + 作者插件卡）──
 // client 产物（dist/client/index.js）零 import、样式由 ensureBaseStyles 一次性注入 style#dsh-base-ui-style；
 // React 由宿主经 createBaseUI(React, …) 注入，所以浏览器里 React 仍然只有宿主那一份（bundle 里不重复打包）。
 // 缓存按 (宿主 React, 语言) 失效：语言切换是运行时行为，重建一次即可，避免每次渲染都造新组件。
@@ -198,7 +198,7 @@ const I18N: Record<string, LocalePair> = {
   disabled: { zh: '已停用', en: 'Disabled' },
   disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
   enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
-  // 头行三件套的悬停文案与可访问名由 base 包 HoverTip / texts 提供（2026-10-31 接入 base 0.1.1）
+  // 头行三件套的悬停文案与可访问名由 base 包 HoverTip / texts 提供（2026-10-31 接入 base 0.1.1，同日升级 0.1.2 ActionCluster）
   typography: { zh: '字体字号', en: 'Typography' },
   bodyStyle: { zh: '正文样式', en: 'Body style' },
   mono: { zh: '全部文字', en: 'All text' },
@@ -234,7 +234,7 @@ const I18N: Record<string, LocalePair> = {
   'group.neutral': { zh: '中性', en: 'Neutral' },
   'group.transparent': { zh: '透明', en: 'Transparent' },
   'group.special': { zh: '特殊', en: 'Special' },
-  // 底部联系入口与作者插件卡改由 base 包通用件渲染（dsh-featherhunter-plugin-base/client）：
+  // 作者插件卡改由 base 包通用件渲染（dsh-featherhunter-plugin-base/client）；联系入口已收进头行 ActionCluster（0.1.2）：
   // 旧的 authorPlugins / authorPluginOpen / authorPlugin.* 词条已删除，文案与推荐列表只保留 base 一处真源，
   // 避免面板文案与 README 联系信息出现第二份手写副本。
   // ── 日志开关（面板头行的小开关；开的是 dsh-log 的落盘开关，排障用）──
@@ -1722,14 +1722,14 @@ export function createClient(slotTarget: string) {
 
 
 
-        // ── 底部：联系入口 + 作者插件卡（base 包通用件；旧手写卡片与 6 条 I18N 词条已删除）──
+        // ── 底部：作者插件卡（base 包通用件；旧手写卡片与 6 条 I18N 词条已删除）──
+        // 联系入口已收进头行 ActionCluster（base 0.1.2），底部不再有 ContactRow 一行。
         // 元数据、文案、推荐列表全由 base 包提供（manifest 也从 CDN 拉，见 handover 01）；面板侧只负责挂载。
         // React 由 createBaseUI(宿主 React) 注入，bundle 里不会出现第二份 React。
         const baseUI = getBaseUI(currentLang)
         if (baseUI) ensureBaseStylesOnce()
         const baseLinks = baseUI
-          ? h('div', { style: { marginTop: 4, display: 'flex', flexDirection: 'column', gap: 10 } }, [
-              h(baseUI.ContactRow, { key: 'contact' }),
+          ? h('div', { style: { marginTop: 4 } }, [
               h(baseUI.AuthorPlugins, { key: 'more', lang: currentLang === 'en' ? 'en' : 'zh' }),
             ])
           : null
@@ -1807,8 +1807,8 @@ export function createClient(slotTarget: string) {
               }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
               h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
               updateButton,
-              // 页头三件套：联系（弹扫码窗）/ Star / Issue，由 base 0.1.1 渲染成同一枚窄胶囊，悬停文案随语言
-              baseUI ? h(baseUI.ActionGroup, { key: 'actions', size: 16 }) : null,
+              // 页头三件套：联系（弹扫码窗）/ Star / Issue，由 base 0.1.2 ActionCluster 渲染成三枚彩色 16px 图标（无外框），悬停文案随语言
+              baseUI ? h(baseUI.ActionCluster, { key: 'actions', size: 16 }) : null,
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {
