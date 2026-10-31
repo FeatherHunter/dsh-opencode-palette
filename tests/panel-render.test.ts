@@ -458,7 +458,7 @@ test('locale 服务切换实时生效：切到英文后重渲染即全英文', (
   assert.ok(!enHtml.includes('东京之夜'), '切换后不应残留中文主题名')
 })
 
-test('头行三件套（base 0.1.3 ActionCluster）：彩色 16px 图标 + 可访问名跟随语言', () => {
+test('头行三件套（base 0.1.4 ActionCluster）：彩色 16px 图标 + 可访问名跟随语言', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
   assert.ok(html.includes('dsh-base-cluster'), '头行应是 base 包 ActionCluster')

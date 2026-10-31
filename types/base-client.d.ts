@@ -1,4 +1,4 @@
-// types/base-client.d.ts —— dsh-featherhunter-plugin-base@0.1.3 客户端入口的类型垫片（tsconfig.json 的 paths 映射）。
+// types/base-client.d.ts —— dsh-featherhunter-plugin-base@0.1.4 客户端入口的类型垫片（tsconfig.json 的 paths 映射）。
 // 为什么需要：上游 dist/client/index.d.ts 用无扩展名的相对导入（./types、./styles、./texts、./content），
 // 在本仓 NodeNext 解析下报 TS2834；本仓刻意不开 skipLibCheck（types/dsh.d.ts 必须被检查），也不改 node_modules，
 // 所以用 paths 把这个 specifier 精准指到本文件，只声明本仓用到的导出（字段语义对照上游 dist/client/types.d.ts）。
@@ -38,7 +38,7 @@ export interface BaseUIOptions {
 
 export interface BaseUI {
   AuthorPlugins: (props: BaseAuthorPluginsProps) => unknown
-  /** 页头三件套（联系 / Star / Issue）；base 0.1.3 起是三枚彩色 16px 静默图标（无外框；组件面不变） */
+  /** 页头三件套（联系 / Star / Issue）；base 0.1.4 起是三枚彩色 16px 静默图标（无外框；组件面不变） */
   ActionCluster: (props: BaseActionClusterProps) => unknown
 }
 
