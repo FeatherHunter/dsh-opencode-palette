@@ -92,6 +92,8 @@ const LEGACY_STORAGE_KEY = 'dsh.opencode-tui-theme.v2'
 const DEFAULT_STATE = { enabled: true, theme: 'opencode', mode: 'mono', size: 13, fontKey: 'JetBrains Mono', followAppearance: true }
 // 构建时由 scripts/build-client.ts 替换为 package.json 版本（面板底部署小字）
 const PALETTE_VERSION = '__PALETTE_VERSION__'
+// 页头三件套（联系 / Star / Issue）由 base 包渲染：仓库地址交给 createBaseUI，Issue 链接由它派生 /issues
+const REPO_URL = 'https://github.com/FeatherHunter/dsh-opencode-palette'
 
 function getReact(): ReactApi | null {
   if (typeof require === 'function') { try { return require('react') as ReactApi } catch (e) { /* 动态版无 require */ } }
@@ -105,7 +107,7 @@ function getReact(): ReactApi | null {
   return null
 }
 
-// ── base 包通用件（面板底部的联系入口 + 作者插件卡）──
+// ── base 包通用件（页头三件套 ActionGroup + 面板底部的联系入口 + 作者插件卡）──
 // client 产物（dist/client/index.js）零 import、样式由 ensureBaseStyles 一次性注入 style#dsh-base-ui-style；
 // React 由宿主经 createBaseUI(React, …) 注入，所以浏览器里 React 仍然只有宿主那一份（bundle 里不重复打包）。
 // 缓存按 (宿主 React, 语言) 失效：语言切换是运行时行为，重建一次即可，避免每次渲染都造新组件。
@@ -122,6 +124,7 @@ function getBaseUI(lang: string): ReturnType<typeof createBaseUI> | null {
     baseUICache = createBaseUI(react, {
       lang: lang === 'en' ? 'en' : 'zh',
       selfId: 'palette',
+      repoUrl: REPO_URL,
     })
   }
   return baseUICache
@@ -195,9 +198,7 @@ const I18N: Record<string, LocalePair> = {
   disabled: { zh: '已停用', en: 'Disabled' },
   disableTitle: { zh: '点击停用主题', en: 'Click to disable the theme' },
   enableTitle: { zh: '点击启用主题', en: 'Click to enable the theme' },
-  // 头行 star／issue 图标的悬浮气泡：此前硬编码中文未进词典，英文界面漏网（2026-10-06 补）
-  starTitle: { zh: '你的 ⭐是我夜空中最亮的星 🌹', en: 'Star this project on GitHub' },
-  issueTitle: { zh: '任何功能需求、故障、建议、意见都可以提ISSUE', en: 'Report bugs or request features in Issues' },
+  // 头行三件套的悬停文案与可访问名由 base 包 HoverTip / texts 提供（2026-10-31 接入 base 0.1.1）
   typography: { zh: '字体字号', en: 'Typography' },
   bodyStyle: { zh: '正文样式', en: 'Body style' },
   mono: { zh: '全部文字', en: 'All text' },
@@ -1806,33 +1807,8 @@ export function createClient(slotTarget: string) {
               }, tr('logSwitch') + ' ' + (logOn ? tr('logOn') : tr('logOff'))),
               h('span', { style: { fontSize: 11, color: 'var(--dsw-alias-label-tertiary)' } }, 'v' + PALETTE_VERSION),
               updateButton,
-              h('a', {
-                href: 'https://github.com/FeatherHunter/dsh-opencode-palette',
-                target: '_blank', rel: 'noopener noreferrer',
-                title: tr('starTitle'),
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: { display: 'inline-flex', cursor: 'pointer', lineHeight: 1, textDecoration: 'none' },
-              }, h('svg', {
-                width: 15, height: 15, viewBox: '0 0 24 24',
-                style: { display: 'block' },
-              }, h('path', {
-                d: 'M12 2.5l2.92 6.14 6.58.6-4.93 4.4 1.42 6.46L12 16.77l-5.99 3.33 1.42-6.46-4.93-4.4 6.58-.6L12 2.5z',
-                fill: '#FFC53D', stroke: '#B45309', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round',
-              }))),
-              // ISSUE 入口：彩色消息气泡（信息图标认不出「提需求」，气泡才读得出是反馈；浅底深底都可见的定值配色）
-              h('a', {
-                href: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues',
-                target: '_blank', rel: 'noopener noreferrer',
-                title: tr('issueTitle'),
-                [UI_INTERACTIVE_ATTR]: TIER_BUTTON,
-                style: { display: 'inline-flex', cursor: 'pointer' },
-              }, h('svg', {
-                width: 14, height: 14, viewBox: '0 0 24 24',
-                style: { display: 'block' },
-              }, h('path', {
-                d: 'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z',
-                fill: '#7DD3FC', stroke: '#0369A1', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round',
-              }))),
+              // 页头三件套：联系（弹扫码窗）/ Star / Issue，由 base 0.1.1 渲染成同一枚窄胶囊，悬停文案随语言
+              baseUI ? h(baseUI.ActionGroup, { key: 'actions', size: 16 }) : null,
               h('span', { style: { color: st.enabled ? 'var(--dsw-alias-state-success-primary)' : muted, fontSize: 12 } },
                 st.enabled ? tr('enabled') : tr('disabled')),
               h('span', {

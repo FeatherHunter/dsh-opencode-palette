@@ -458,30 +458,34 @@ test('locale 服务切换实时生效：切到英文后重渲染即全英文', (
   assert.ok(!enHtml.includes('东京之夜'), '切换后不应残留中文主题名')
 })
 
-test('头行 star/issue 入口 title 跟随语言（英文无中文残留）', () => {
+test('头行三件套（base 0.1.1 ActionGroup）：可访问名跟随语言，英文无中文残留', () => {
   const locale = makeLocale('en')
   const { html } = loadPanel({ locale })
-  assert.ok(html.includes('title="Star this project on GitHub"'), '缺 star 英文气泡')
-  assert.ok(html.includes('title="Report bugs or request features in Issues"'), '缺 issue 英文气泡')
-  assert.ok(!html.includes('夜空中最亮'), '英文界面不应出现中文求星气泡')
-  assert.ok(!html.includes('都可以提ISSUE'), '英文界面不应出现中文 issue 气泡')
-  assert.equal(locale.dictFor('opencode-palette', 'zh', 'starTitle'), '你的 ⭐是我夜空中最亮的星 🌹')
-  assert.equal(locale.dictFor('opencode-palette', 'en', 'starTitle'), 'Star this project on GitHub')
-  assert.equal(locale.dictFor('opencode-palette', 'zh', 'issueTitle'), '任何功能需求、故障、建议、意见都可以提ISSUE')
-  assert.equal(locale.dictFor('opencode-palette', 'en', 'issueTitle'), 'Report bugs or request features in Issues')
+  assert.ok(html.includes('dsh-base-actions dsh-base-actions--group'), '头行应是 base 包 ActionGroup 窄胶囊')
+  assert.ok(html.includes('role="group"'), '三件套应是 aria group')
+  assert.ok(html.includes('aria-label="Contact, Star and Issue"'), '缺三件套组名（英文）')
+  assert.ok(html.includes('aria-label="Contact us"'), '缺联系按钮英文可访问名')
+  assert.ok(html.includes('aria-label="Star this project"'), '缺 Star 英文可访问名')
+  assert.ok(html.includes('aria-label="Open an issue"'), '缺 Issue 英文可访问名')
+  assert.ok(!html.includes('联系我们'), '英文界面不应出现中文可访问名')
+  assert.ok(!html.includes('提交 Issue'), '英文界面不应出现中文 Issue 可访问名')
+  // 悬停文案由 base 包 HoverTip 在 hover 时挂 document.body，不进 SSR；面板双语表也随之删掉两键
+  assert.equal(locale.dictFor('opencode-palette', 'zh', 'starTitle'), undefined, '面板双语表不应再有 starTitle')
+  assert.equal(locale.dictFor('opencode-palette', 'en', 'issueTitle'), undefined, '面板双语表不应再有 issueTitle')
 })
 
-test('star/issue title 跟随语言切换实时改', () => {
+test('头行三件套可访问名跟随语言切换实时改', () => {
   const locale = makeLocale('zh')
   const { html: zhHtml, panelCmp, panelProps } = loadPanel({ locale })
-  assert.ok(zhHtml.includes('夜空中最亮'), '初始中文求星气泡缺失')
-  assert.ok(zhHtml.includes('都可以提ISSUE'), '初始中文 issue 气泡缺失')
+  assert.ok(zhHtml.includes('aria-label="联系我们"'), '初始中文缺联系可访问名')
+  assert.ok(zhHtml.includes('aria-label="Star 这个项目"'), '初始中文缺 Star 可访问名')
+  assert.ok(zhHtml.includes('aria-label="提交 Issue"'), '初始中文缺 Issue 可访问名')
   locale.setActive('en')
   const enHtml = ReactDOMServer.renderToString(React.createElement(panelCmp, panelProps))
-  assert.ok(enHtml.includes('Star this project on GitHub'), '切换后缺 star 英文气泡')
-  assert.ok(enHtml.includes('Report bugs or request features in Issues'), '切换后缺 issue 英文气泡')
-  assert.ok(!enHtml.includes('夜空中最亮'), '切换后不应残留中文求星气泡')
-  assert.ok(!enHtml.includes('都可以提ISSUE'), '切换后不应残留中文 issue 气泡')
+  assert.ok(enHtml.includes('aria-label="Contact us"'), '切换后缺联系英文可访问名')
+  assert.ok(enHtml.includes('aria-label="Star this project"'), '切换后缺 Star 英文可访问名')
+  assert.ok(enHtml.includes('aria-label="Open an issue"'), '切换后缺 Issue 英文可访问名')
+  assert.ok(!enHtml.includes('联系我们'), '切换后不应残留中文可访问名')
 })
 
 test('入口 label 跟随语言切换：重注册后宿主读到新语言', () => {
@@ -614,26 +618,28 @@ test('面板底部小字显示当前版本号', () => {
   const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
   const { html } = loadPanel({ lang: 'zh-CN' })
   assert.ok(html.includes('v' + pkg.version), '缺版本号小字 v' + pkg.version)
-  assert.ok(html.includes('https://github.com/FeatherHunter/dsh-opencode-palette"'), '缺星标链接')
-  assert.ok(html.includes('/issues"'), '缺ISSUE链接')
-  assert.ok(html.indexOf('夜空中最亮') >= 0, '缺星标hover')
-  assert.ok(html.includes('ISSUE'), '缺ISSUE hover')
+  assert.ok(html.includes('https://github.com/FeatherHunter/dsh-opencode-palette"'), '缺 Star 链接')
+  assert.ok(html.includes('https://github.com/FeatherHunter/dsh-opencode-palette/issues"'), '缺 Issue 链接')
+  assert.ok(html.includes('aria-label="Star 这个项目"'), '缺 Star 可访问名（悬停文案由 base 包 HoverTip 提供）')
 })
 
-test('星标 hover 文案尾部带 🌹', () => {
+test('星标是 base 包线框星图标（悬停文案随 HoverTip，不进 SSR）', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
-  assert.ok(html.includes('你的 ⭐是我夜空中最亮的星 🌹'), '星标 hover 缺尾部 🌹')
+  assert.ok(html.includes('dsh-base-icon-action'), '缺 base 包图标控件')
+  assert.ok(html.includes('M12 3.6l2.5 5.2 5.7.8-4.1 4 1 5.6-5.1-2.7-5.1 2.7 1-5.6-4.1-4 5.7-.8Z'), '星标图标未换成 base 包线框星')
+  assert.ok(html.includes('aria-label="Star 这个项目"'), '缺 Star 可访问名')
+  assert.ok(!html.includes('你的 ⭐是我夜空中最亮的星'), '悬停文案不应再进 SSR / 面板词表')
 })
 
-test('ISSUE 入口是消息气泡图标（不再是匿名信息图标）', () => {
+test('ISSUE 入口是 base 包线框感叹号图标（不再是手绘实心气泡）', () => {
   const { html } = loadPanel({ lang: 'zh-CN' })
   const i = html.indexOf('dsh-opencode-palette/issues')
   assert.ok(i >= 0, '缺 ISSUE 链接')
-  const seg = html.slice(i, i + 900)
-  assert.ok(seg.indexOf('M21 11.5a8.38') >= 0, 'ISSUE 图标未换成消息气泡路径')
-  assert.ok(seg.indexOf('任何功能需求') >= 0, 'ISSUE hover 文案被改动')
+  const seg = html.slice(i, i + 500)
+  assert.ok(seg.indexOf('M12 7.8v4.8') >= 0, 'ISSUE 图标未换成 base 包线框感叹号')
+  assert.ok(seg.indexOf('aria-label="提交 Issue"') >= 0, 'ISSUE 可访问名被改动')
+  assert.ok(!html.includes('M21 11.5a8.38'), '旧手绘消息气泡图标仍在')
   assert.ok(!html.includes('cx="12" cy="12" r="10"'), '旧 ⓘ 圆圈图标仍在')
-  assert.ok(!html.includes('<circle'), '不该再有任何 circle 图标（ISSUE 图标与主题圆点都已改）')
 })
 
 test('底部引流卡片（中文）：base 包推荐卡标题 + 4 行兄弟插件 + 外链图标', () => {
@@ -653,7 +659,10 @@ test('底部引流卡片（中文）：base 包推荐卡标题 + 4 行兄弟插�
   assert.equal(occurrences(html, 'dsh-base-plugins__row'), 4, '每行一条外链')
   assert.equal(occurrences(html, 'dsh-base-plugins__ext'), 4, '每行一个外链小图标')
   assert.equal(occurrences(html, 'dsh-base-plugins__title-icon'), 1, '缺卡片标题前的宫格图标')
-  assert.equal(occurrences(html, 'target="_blank"'), occurrences(html, 'rel="noopener noreferrer"'), '外链锚点属性不成对')
+  // 页头 base ActionGroup 的 Star/Issue 也是外链（rel 顺序是 noreferrer noopener），这里只对账卡片内的外链锚点。
+  const card = html.slice(html.indexOf('dsh-base-plugins'))
+  assert.ok(card.includes('dsh-base-plugins__item'), '应能切出 base 包推荐卡')
+  assert.equal(occurrences(card, 'target="_blank"'), occurrences(card, 'rel="noopener noreferrer"'), '卡片外链锚点属性不成对')
 })
 
 test('底部引流卡片（英文）：整体英文，不出现中文引流文案', () => {

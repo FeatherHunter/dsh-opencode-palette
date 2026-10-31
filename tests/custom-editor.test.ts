@@ -376,7 +376,12 @@ test('预置 IP 组 + 空自定义区（中文）：IP 与内置同区，自定�
   assert.ok(html.includes('✎ 编辑'), '✎ 编辑胶囊')
   assert.equal(editBtnDisabled(html), true, '空态 ✎ 编辑置灰禁用（原型 :606）')
   assert.equal(html.includes('保存主题'), false, '弹窗默认关闭')
-  assert.equal(html.includes('<circle'), false, '全局禁 <circle>')
+  // 头行三件套（2026-10-31 起由 base 0.1.1 ActionGroup 渲染）的 Issue 图标自带一枚线框圆环，
+  // 仍禁旧手绘 ⓘ（r=10）与旧实心消息气泡；其余 <circle> 一律不许出现。
+  assert.equal(html.includes('cx="12" cy="12" r="10"'), false, '旧 ⓘ 圆圈图标仍在')
+  assert.equal(html.includes('M21 11.5a8.38'), false, '旧手绘消息气泡图标仍在')
+  const circles = html.match(/<circle[^>]*>/g) ?? []
+  assert.ok(circles.every((c) => c.includes('cx="12" cy="12" r="9"')), '除 base Issue 线框圆环外不应有 <circle>：' + circles.join(' '))
 })
 
 test('预置 IP 组位置（用户口径 m08573）：内置组之后、自定义区之前，且不进自定义区计数', () => {

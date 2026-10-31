@@ -251,7 +251,7 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 
 👏Welcome PRs and issues. A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
 
-<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-feishu.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-qq.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.0.2/data/img/card-wechat-2026-10-23.png?v=20261023" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
+<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.1/data/img/card-feishu.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.1/data/img/card-qq.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.1/data/img/card-wechat-2026-10-31.png?v=20261031" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
 
 </div>
 <!-- CONTACT-END -->
@@ -259,7 +259,7 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 <!-- STAR-HISTORY-START -->
 <div align="center">
 
-![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610290000)
+![Star history chart: total stars on the left axis, daily new stars on the right axis](https://raw.githubusercontent.com/FeatherHunter/dsh-opencode-palette/main/docs/star-history.svg?v=202610300000)
 
 </div>
 <!-- STAR-HISTORY-END -->
