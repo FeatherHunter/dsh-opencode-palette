@@ -18,4 +18,8 @@
 - GitHub Actions 发布后回填：npm 可见版本 / dist.shasum / 附件 hash。
 
 ## 哈希
-（发布后回填）
+
+- **发布**：2026-11-01 01:48 +08:00 经 GitHub Actions `publish` run 41262443628 发布（`npm publish --tag latest`，7 files，704.1 kB）。
+- **npm**：`dsh-opencode-palette@2.1.11`，`dist-tags.latest` = 2.1.11；`dist.shasum` = b9ed38757cb37ea19f14f47ec5f637bca54adc15；`dist.integrity` = sha512-NeoMOYZ34XEGT6iylqn5JSjmmYafcyuevFUgm65L91tNe+QraraiYZMXC7rJSfhahCFM/f3qsnzGBOQPz/HxpA==；`dist.unpackedSize` = 1,795,619 B。
+- **GitHub Release**：https://github.com/FeatherHunter/dsh-opencode-palette/releases/tag/v2.1.11，资产 `dsh-opencode-palette-2.1.11.tgz` 与别名 `dsh-opencode-palette.tgz` 各 704,112 B，sha256 = 66a82308f8b8b6b0e70afd0a0bdd0fb4148a9a20077a292573745a98b11b9697（与本地 `npm pack` 逐字节一致）。
+- **镜像可见性**：npmmirror 2.1.11 于 2026-11-01 01:58 +08:00 可见（latest=2.1.11）；jsDelivr 与 unpkg 的 `@2.1.11/package.json` 均 200。
