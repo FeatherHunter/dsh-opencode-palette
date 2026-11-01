@@ -1,0 +1,80 @@
+name: publish
+
+# 双通道一次跑完：npm 官方源 + GitHub Release（与 AGENTS.md「Release」一节同口径）。
+# 本机对 registry.npmjs.org 的 TLS 被拦，发布动作改在 GitHub Actions 上跑：
+# 构建/测试步骤与本地文档一致，唯一差异是 check-deps 以 --warn-only 读数模式运行
+# （本次随包依赖刻意钉版不动，原因写进 package/release-notes-<版本>.md）。
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: npm dist-tag（默认 latest）
+        required: false
+        default: latest
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+          registry-url: 'https://registry.npmjs.org'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - name: 随包依赖读数（只报不拦；钉版原因见 release notes）
+        run: node scripts/check-deps.ts --warn-only
+      - run: npm run fonts
+      - run: npm run build:artifacts
+      - run: npm test
+      - run: npm run verify:artifacts
+      - name: 读取版本
+        id: v
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: npm publish（已发布则跳过）
+        working-directory: package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          if npm view "dsh-opencode-palette@$V" version >/dev/null 2>&1; then
+            echo "dsh-opencode-palette@$V 已在 npm 上，跳过发布"
+            exit 0
+          fi
+          npm publish --access public --tag "$TAG"
+      - name: 打包发布资产
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          mkdir -p dist-pkg
+          (cd package && npm pack --pack-destination ../dist-pkg)
+          cp "dist-pkg/dsh-opencode-palette-$V.tgz" "dist-pkg/dsh-opencode-palette.tgz"
+          ls -l dist-pkg
+      - name: GitHub Release
+        if: inputs.tag == 'latest'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          NOTES="package/release-notes-$V.md"
+          test -f "$NOTES"
+          if gh release view "v$V" >/dev/null 2>&1; then
+            echo "release v$V 已存在，跳过"
+            exit 0
+          fi
+          TITLE=$(head -n 1 "$NOTES" | sed 's/^# //')
+          gh release create "v$V" --target "$GITHUB_SHA" --title "$TITLE" --notes-file "$NOTES" --latest "dist-pkg/dsh-opencode-palette-$V.tgz" "dist-pkg/dsh-opencode-palette.tgz"

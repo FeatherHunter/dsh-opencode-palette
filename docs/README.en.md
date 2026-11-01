@@ -192,12 +192,12 @@ https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
 ```bash
-# upgrade to the latest (currently 2.1.10): one command per profile — web and desktop
+# upgrade to the latest (currently 2.1.11): one command per profile — web and desktop
 dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile desktop update dsh-opencode-palette
 # pin a specific version (swap the version number for the one you want):
-dsh plugin --profile web add dsh-opencode-palette@2.1.10
-dsh plugin --profile desktop add dsh-opencode-palette@2.1.10
+dsh plugin --profile web add dsh-opencode-palette@2.1.11
+dsh plugin --profile desktop add dsh-opencode-palette@2.1.11
 ```
 
 Settings → Plugins → OpenCode Palette → **Check for updates**
