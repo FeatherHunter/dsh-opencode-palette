@@ -20,4 +20,7 @@
 
 ## 哈希
 
-- 发布后回填：npm 可见版本 / `dist.shasum` / 附件 sha256 / 镜像可见性。
+- **发布**：2026-11-02 01:56 +08:00 经 GitHub Actions `publish` run [41333949615](https://github.com/FeatherHunter/dsh-opencode-palette/actions/runs/41333949615) 发布（`npm publish --tag latest`，7 files，715.0 kB）。
+- **npm**：`dsh-opencode-palette@2.1.12`，`dist-tags.latest` = 2.1.12；`dist.shasum` = d81d39c91fd5444fcb37b3bee9225b3e1af8c289；`dist.integrity` = sha512-5Bi1DkFixXg0EtWUUMJBwSSudHRREa4yrjLHc6pPe3+5/ar+fdyu9nTzUVXa//PrSJO3RUlhshlQeaKSdL60rA==；`dist.unpackedSize` = 1,825,086 B。
+- **GitHub Release**：https://github.com/FeatherHunter/dsh-opencode-palette/releases/tag/v2.1.12，资产 `dsh-opencode-palette-2.1.12.tgz` 与别名 `dsh-opencode-palette.tgz` 各 715,025 B，sha256 = 538168ea842fbd7869983ef6cccd936799bb147d1e36aa59613ca38d443dc539（与本地 `npm pack` 逐字节一致）。
+- **镜像可见性**：npmmirror latest = 2.1.12（约 2026-11-02 01:59 +08:00 可见）；jsDelivr 与 unpkg 的 `@2.1.12/package.json` 均 200。
