@@ -1,9 +1,10 @@
 // generate.ts — 生成器：解析后的主题颜色 + 排印参数 → DSH 注入物 { tokens, css }
 // 不变式：输出完全由输入决定（确定性）；system 主题（colors=null）只输出排印，不碰颜色
-import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors, TOOLTIP_TEXT_SELECTOR } from './map-dsh.ts'
+import { TOKEN_MAP, DERIVED_TOKENS, SHIKI_MAP, CSS_RULES, FONTS, SANS_STACK, normalizeThemeColors, TOOLTIP_TEXT_SELECTOR, deriveDiffWash } from './map-dsh.ts'
 import { FONT_FACE_CSS } from './font-face.ts'
 import { quoteFontFamily } from './font-names.ts'
 import { withAlpha, isDelegatedSurface, ensureDiffContrast, blendOntoBase, contrastRatio, readableTextOn, type ColorError, type ResolvedColorMap } from './resolve.ts'
+import { repairPairContrast } from './pair-contrast.ts'
 
 // 颜色值类型复用 resolve.ts 的 ResolvedColorMap（HEX/'transparent' 或失败占位 { __error }）
 
@@ -122,6 +123,37 @@ export function buildTokens(darkColors: ResolvedColorMap | null | undefined, lig
   }
   for (const [dshVar, from] of SHIKI_MAP) {
     put2(dshVar, usable(light, from), usable(darkColors, from))
+  }
+  // 配对对比度兜底（pair-contrast.ts）：宿主里真实存在的「文字色压在同一规则的背景色上」
+  // 配对（主色按钮反白字、错误药丸、警告标签、错误提示文字…）不达标时，只把其中一侧沿黑/白
+  // 推离到刚过 4.5 的最小一步；已经在阈上的主题一个字节都不会变。两半各自按自己的页面底判定。
+  // 行内 diff 行底（code-diff-*）此刻还没生成，因此那两条配对不参与本步——紧接着由
+  // deriveDiffWash 按**修复后**的状态色重新派生，天然满足配对与「色带可见」。
+  const halves = ['light', 'dark'] as const
+  const settled: Record<string, Record<string, string | undefined>> = {}
+  for (const half of halves) {
+    const values: Record<string, string | undefined> = {}
+    for (const name of Object.keys(tokens)) values[name] = tokens[name][half]
+    const repaired = repairPairContrast(values)
+    for (const name of repaired.changed) {
+      const next: TokenModes = { ...tokens[name] }
+      if (half === 'light') next.light = values[name]
+      else next.dark = values[name]
+      tokens[name] = next
+    }
+    settled[half] = values
+  }
+  // 行内 diff 行底：按每半**修复后**的值派生，再交回 put2 —— 半边存在性、「单套色主题两半各自
+  // 修复」、「非委托主题两半同深色值」这些规则与其它 token 走同一条路，不另开写入口。
+  const wash = (half: (typeof halves)[number], fg: string, seed: string): string | null => {
+    const value = deriveDiffWash(settled[half][fg], settled[half][seed], settled[half]['--dsw-alias-bg-base'], settled[half]['--dsw-alias-markdown-code-block'])
+    return value === TRANSPARENT ? null : value
+  }
+  for (const [name, fg, seed] of [
+    ['--dsw-alias-code-diff-added', '--dsw-alias-state-success-primary', '--dsw-alias-file-diff-added-bg'],
+    ['--dsw-alias-code-diff-deleted', '--dsw-alias-state-error-primary', '--dsw-alias-file-diff-deleted-bg'],
+  ] as const) {
+    put2(name, wash('light', fg, seed), wash('dark', fg, seed))
   }
   return tokens
 }

@@ -170,9 +170,11 @@ test('renderCustomTheme：浅色主题 diff 兜底走 light 方向（#120 缺陷
     diffRemovedLineNumberBg: '#FDECEA',
   }
   const r = renderCustomTheme({ id: 'light-diff', appearance: 'light', colors: synthetic }, {})
+  // fg 取 marker（= 兜底后的 diffAdded/diffRemoved）：code-diff-* 现在是行底不是前景，
+  // 与宿主 FileDiff 组件里的 -bg/-gutter 配对的是 marker 那一半。
   const pairs = [
-    ['--dsw-alias-code-diff-added', ['--dsw-alias-file-diff-added-bg', '--dsw-alias-file-diff-added-gutter']],
-    ['--dsw-alias-code-diff-deleted', ['--dsw-alias-file-diff-deleted-bg', '--dsw-alias-file-diff-deleted-gutter']],
+    ['--dsw-alias-file-diff-added-marker', ['--dsw-alias-file-diff-added-bg', '--dsw-alias-file-diff-added-gutter']],
+    ['--dsw-alias-file-diff-deleted-marker', ['--dsw-alias-file-diff-deleted-bg', '--dsw-alias-file-diff-deleted-gutter']],
   ] as const
   for (const [fgKey, bgKeys] of pairs) {
     const fg = r.tokens[fgKey]

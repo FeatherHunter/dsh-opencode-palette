@@ -733,9 +733,10 @@ test('DSH 0.1.7 F4 新卡片字号：随字号档缩放，默认还原上游密�
 test('DSH 0.1.7 F5 新增缺口：diff/状态/菜单直配，缺槽跳过不抛异常', () => {
   const r = renderTheme('opencode', TYPO)
   const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
-  assert.equal(t('--dsw-alias-code-diff-added'), '#4FD6BE', 'code-diff-added 达标原样透出 diffAdded')
-  // issue 80：删除对原值 #C53B53 on #37222C 仅 2.89，兜底提亮前景并压暗背景到达标（加深红 tint 向黑）
-  assert.equal(t('--dsw-alias-code-diff-deleted'), '#CB4F64', 'code-diff-deleted 兜底提亮后达标')
+  // 行内 diff 行底：宿主 `_add_17vb8`/`_del_17vb8` 把这俩当 background、把 state-success/error-primary
+  // 当 color，故取主题自己的 diff 底（水洗）而不是 diffAdded/diffRemoved 前景（见「行内 diff 行底」用例）
+  assert.equal(t('--dsw-alias-code-diff-added'), '#20303B', 'code-diff-added 应取主题 diff 底而非 diffAdded 前景')
+  assert.equal(t('--dsw-alias-code-diff-deleted'), '#352224', 'code-diff-deleted 应取主题修复后的 diff 底（与代码块底可辨）')
   assert.equal(t('--dsw-alias-file-diff-added-bg'), '#20303B', 'file-diff-added-bg 达标原样透出 diffAddedBg')
   assert.equal(t('--dsw-alias-file-diff-added-gutter'), '#1B2B34', 'file-diff-added-gutter 达标原样透出行号槽')
   assert.equal(t('--dsw-alias-file-diff-added-marker'), '#4FD6BE', 'file-diff-added-marker 复用前景')
@@ -817,22 +818,23 @@ test('tooltip 可读性（#120 缺陷 B）：全主题文字 vs 浮层底 >= 4.5
 })
 
 // issue 80：全主题 diff 对比度兜底（深色外观 4 对 fg/bg >= 4.5，增删背景不原样同值；透明主题跳过）
+// fg 取 marker 槽（= 兜底后的 diffAdded/diffRemoved 前景），这是宿主 FileDiff 组件里与 -bg/-gutter 配对的那一半。
 test('diff 可读性兜底：全主题删除/新增文本-背景 >= 4.5 且增删背景可分', () => {
   for (const name of themeNames()) {
     if (name === 'system') continue
     const r = renderTheme(name, TYPO)
     const t = (k: string): string | undefined => r.tokens[k] && r.tokens[k].dark
-    const delFg = t('--dsw-alias-code-diff-deleted')
     const delBgRaw = t('--dsw-alias-file-diff-deleted-bg')
     // lucent 系透明委托画布：背景透明跳过，不污染宿主默认（前景 marker 保留）
     if (delBgRaw === undefined && t('--dsw-alias-file-diff-added-bg') === undefined) continue
+    const delFg = t('--dsw-alias-file-diff-deleted-marker')
     assert.ok(delFg && delBgRaw, name + ' 删除对不应缺槽（桌面主题已补齐）')
     const json = getThemeJson(name)
     const base = resolveThemeColors(json, 'dark').background
     const eff = (v: string): string => (/^#[0-9a-fA-F]{8}$/.test(v) ? blendOntoBase(v, base) : v)
     const cDel = engineContrastRatio(delFg, eff(delBgRaw))
     assert.ok(cDel >= 4.5, name + ' 删除对对比度应 >= 4.5，实测 ' + cDel.toFixed(2))
-    const addFg = t('--dsw-alias-code-diff-added')
+    const addFg = t('--dsw-alias-file-diff-added-marker')
     const addBgRaw = t('--dsw-alias-file-diff-added-bg')
     assert.ok(addFg && addBgRaw, name + ' 新增对不应缺槽')
     const cAdd = engineContrastRatio(addFg, eff(addBgRaw))
@@ -844,6 +846,84 @@ test('diff 可读性兜底：全主题删除/新增文本-背景 >= 4.5 且增�
       assert.ok(engineContrastRatio(addFg, eff(addG)) >= 4.5, name + ' 新增 gutter 对比度应 >= 4.5')
       assert.ok(engineContrastRatio(delFg, eff(delG)) >= 4.5, name + ' 删除 gutter 对比度应 >= 4.5')
       assert.notEqual(addG.toUpperCase(), delG.toUpperCase(), name + ' 增删 gutter 不得原样同值')
+    }
+  }
+})
+
+// 行内写入/编辑 diff 的可读性与色带（截图事故）：宿主 `._add_17vb8_48` / `._del_17vb8_38` 把
+//   --dsw-alias-code-diff-added / -deleted 当**行底**，把 state-success/error-primary 当**文字色**
+// （宿主默认值本身也只是绿/红 a08·a12 水洗，文字色另取状态槽）。旧映射按名字把 diffAdded/
+// diffRemoved 直配进这两个「底」槽 → 行底变成不透明高饱和前景色；在 diffAdded ≈ success 的
+// 主题（catppuccin 全家 success = diffAdded = 绿）里文字与底同一个色，行内 diff 整行看不见。
+// 契约：全主题 + 全 IP 预设两半 —— ① 配对状态色对行底 >= 4.5（可读）；
+// ② 行底对代码块底 >= 1.08（看得出是条色带；目标值 1.12 = 宿主默认水洗量级，
+//    画布本身贴住黑/白时（深画布 + 深 diff 底）光学上到不了目标，只保证 1.08 这条地板）；
+// ③ 增/删行底不同色。
+test('行内 diff 行底：配对状态色对行底 >= 4.5 且行底与代码块底可辨（全主题 + IP 预设）', () => {
+  const pairs: ReadonlyArray<readonly [string, string]> = [
+    ['--dsw-alias-code-diff-added', '--dsw-alias-state-success-primary'],
+    ['--dsw-alias-code-diff-deleted', '--dsw-alias-state-error-primary'],
+  ]
+  // 8 位 hex 按画布压平（引擎里 solidColor 同样的处理），否则原样
+  const flatten = (v: string | undefined, onto: string | undefined): string | undefined => {
+    if (!v) return undefined
+    if (/^#[0-9a-fA-F]{8}$/.test(v)) return onto ? blendOntoBase(v, onto) : undefined
+    return v
+  }
+  const audit = (label: string, tokens: Record<string, { light?: string; dark?: string } | undefined>): void => {
+    const addTok = tokens['--dsw-alias-code-diff-added']
+    const delTok = tokens['--dsw-alias-code-diff-deleted']
+    // 委托画布（lucent 系）没有可用的代码块底：行底交还宿主默认，不硬造
+    if (!addTok && !delTok) return
+    for (const half of ['light', 'dark'] as const) {
+      const get = (k: string): string | undefined => {
+        const t = tokens[k]
+        return t ? t[half] : undefined
+      }
+      const page = flatten(get('--dsw-alias-bg-base'), undefined)
+      const card = flatten(get('--dsw-alias-markdown-code-block'), page) || page
+      const add = get('--dsw-alias-code-diff-added')
+      const del = get('--dsw-alias-code-diff-deleted')
+      assert.ok(add && del, label + '/' + half + ' 增删行底应各有值')
+      assert.ok(card, label + '/' + half + ' 应有代码块底可参照')
+      assert.notEqual(add.toUpperCase(), del.toUpperCase(), label + '/' + half + ' 增删行底不得同色')
+      for (const [washKey, fgKey] of pairs) {
+        const wash = get(washKey)
+        const fg = get(fgKey)
+        assert.ok(wash && fg, label + '/' + half + ' ' + washKey + ' / ' + fgKey + ' 缺半边')
+        const c = engineContrastRatio(fg, wash)
+        assert.ok(c >= 4.5, label + '/' + half + ' ' + fgKey + ' on ' + washKey + ' 仅 ' + c.toFixed(2) + '（行内 diff 会看不清）')
+        const cue = engineContrastRatio(wash, card)
+        // 地板 1.08 只在画布留有光学余量时可达：行底最多推到纯黑/纯白，天花板 = contrast(画布, 更远的端点)。
+        // 极端主题（深色画布 + 深色 diff 底）就贴在天花板上，所以判据取 min(地板, 天花板)。
+        const ceiling = Math.max(engineContrastRatio(card, '#000000'), engineContrastRatio(card, '#FFFFFF'))
+        const floor = Math.min(1.08, ceiling)
+        assert.ok(cue >= floor - 0.001, label + '/' + half + ' ' + washKey + ' 与代码块底只差 ' + cue.toFixed(2) + '（色带看不见，地板 ' + floor.toFixed(2) + '）')
+      }
+    }
+  }
+  for (const name of themeNames()) {
+    if (name === 'system') continue
+    audit(name, renderTheme(name, TYPO).tokens as Record<string, { light?: string; dark?: string }>)
+  }
+  for (const seed of listIpPresets()) {
+    audit('ip:' + seed.name, renderCustomTheme({ id: seed.name, appearance: seed.appearance, colors: seed.colors }, {}).tokens as Record<string, { light?: string; dark?: string }>)
+  }
+  // 截图事故现场：frappé 的 success = diffAdded = #A6D189（旧实现行底也是它，1.00:1）
+  const frappe = renderTheme('catppuccin-frappe', TYPO).tokens
+  const frappeAdd = frappe['--dsw-alias-code-diff-added'] && frappe['--dsw-alias-code-diff-added'].dark
+  assert.ok(frappeAdd && frappeAdd.toUpperCase() !== '#A6D189', 'frappé 行底不得等于 success/diffAdded 前景色')
+  // 主流深色主题的色带必须打到目标强度（1.12），只擦地板 1.08 说明派生走岔了
+  for (const name of ['catppuccin-frappe', 'opencode', 'kanagawa', 'nord', 'solarized', 'zenburn']) {
+    const tokens = renderTheme(name, TYPO).tokens as Record<string, { light?: string; dark?: string }>
+    for (const half of ['light', 'dark'] as const) {
+      const card = tokens['--dsw-alias-markdown-code-block']![half]
+      assert.ok(card, name + '/' + half + ' 应有代码块底')
+      for (const washKey of ['--dsw-alias-code-diff-added', '--dsw-alias-code-diff-deleted']) {
+        const wash = tokens[washKey]![half]
+        const cue = engineContrastRatio(wash, card)
+        assert.ok(cue >= 1.12, name + '/' + half + ' ' + washKey + ' 色带只差 ' + cue.toFixed(2) + '（应 >= 1.12）')
+      }
     }
   }
 })
