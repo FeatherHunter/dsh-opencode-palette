@@ -108,11 +108,11 @@ test('入口件：状态优先级 活任务 > 待重启 > 失败 > 有新版本 
 })
 
 test('入口件：五态文案唯一出处（中文照包原文）', () => {
-  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.7.2' }), error: null }), '检查更新')
-  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.8.0', canInstall: true }), error: null }), '有新版本 1.8.0')
-  assert.equal(entryLabelFor({ snapshot: snapshotOf({ job: { state: 'installing' } }), error: null }), '正在安装…')
-  assert.equal(entryLabelFor({ snapshot: snapshotOf({ blockedReason: 'pending-restart' }), error: null }), '待重启')
-  assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }), '更新失败，请查看详情')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.7.2' }), error: null }, 'zh'), '检查更新')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ latestVersion: '1.8.0', canInstall: true }), error: null }, 'zh'), '有新版本 1.8.0')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ job: { state: 'installing' } }), error: null }, 'zh'), '正在安装…')
+  assert.equal(entryLabelFor({ snapshot: snapshotOf({ blockedReason: 'pending-restart' }), error: null }, 'zh'), '待重启')
+  assert.equal(entryLabelFor({ snapshot: null, error: 'check-failed' }, 'zh'), '更新失败，请查看详情')
 })
 
 test('入口件：全部 blocked 码都有中文 title＋action（用户该做什么）', () => {
@@ -139,7 +139,7 @@ test('入口件：电话失败码与 internal 全中文，未来码兜底并带�
 test('入口件：挂载默认进面静默查一次（只读 status），按钮文案随状态走（0.8.0 upToDateDisplay 默认按钮即版本）', async () => {
   const host = stubHost({ [buildPhoneNames('palette').updateStatus]: reply(snapshotOf({ latestVersion: '1.7.2' })) })
   const container = stubContainer()
-  const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
+  const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call, locale: 'zh' })
   await tick()
   assert.ok(host.calls.some((c) => c.phone === buildPhoneNames('palette').updateStatus), '挂载默认 autoCheck mount：应静默查一次状态')
   await entry.refresh()
@@ -159,7 +159,7 @@ test('入口件：有新版本时按钮文案带版本号，待重启与失败�
   for (const [snapshot, label] of cases) {
     const host = stubHost({ [phones.updateStatus]: reply(snapshot) })
     const container = stubContainer()
-    const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call })
+    const entry = mountUpdateEntry(container, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: host.call, locale: 'zh' })
     await entry.refresh()
     assert.equal(entry.label(), label)
     assert.ok(container.innerHTML.includes(label))
@@ -167,7 +167,7 @@ test('入口件：有新版本时按钮文案带版本号，待重启与失败�
   }
   const failHost = stubHost({ [phones.updateStatus]: { ok: false, error: 'check-failed', errorKind: 'check-failed' } })
   const failBox = stubContainer()
-  const failEntry = mountUpdateEntry(failBox, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: failHost.call })
+  const failEntry = mountUpdateEntry(failBox, { pluginId: 'dsh-opencode-palette', prefix: 'palette', call: failHost.call, locale: 'zh' })
   await failEntry.refresh()
   assert.equal(failEntry.label(), '更新失败，请查看详情')
   assert.ok(failBox.innerHTML.includes('更新失败，请查看详情'))

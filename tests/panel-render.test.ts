@@ -22,10 +22,14 @@ interface ReactDOMServerLike {
 // 回退旧版 DSH 的 app.asar.unpacked（DSH 2.0.x 起宿主侧已不再随包提供 react-dom，
 // 硬编码该路径会让测试在换机/升级后直接崩，故解析失败时报明确修复指引）。
 function loadReact(): { React: ReactModule; ReactDOMServer: ReactDOMServerLike } {
-  const candidates = [
-    createRequire(import.meta.url),
-    createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/'),
-  ]
+  // 回退路径只在旧版 DSH 安装位成立；在 Linux/macOS runner 上 createRequire 会直接抛
+  // ERR_INVALID_ARG_VALUE（非绝对路径），所以包一层 try：装不到就跳过，用本仓 devDependencies。
+  const candidates = [createRequire(import.meta.url)]
+  try {
+    candidates.push(createRequire('D:/0Tools/DSH Desktop/resources/app.asar.unpacked/node_modules/'))
+  } catch {
+    // 换机 / 非 Windows / 旧安装位已不存在 —— 跳过回退候选即可。
+  }
   let missing: unknown = null
   for (const req of candidates) {
     try {

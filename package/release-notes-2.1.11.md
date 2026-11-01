@@ -7,11 +7,12 @@
 - **二维码有效期最后一天文案**：不再出现「该二维码 0 天内（…）有效」，最后一天改为「该二维码今天（M 月 D 日前）有效」。
 - **作者插件卡可读全文**：底部「作者的其他插件」每行描述被省略号截断，现在悬浮（或键盘聚焦）整行会用同一个 HoverTip 显示完整介绍。
 - **内联 base 客户端**：`package/lib/client.js` 内联的 base 客户端 banner 升到 `v0.1.5`；`package/package.json` 版本随根 `package.json`（2.1.10 → 2.1.11，patch）。
+- **测试可移植性**：`tests/update-panel.test.ts` 的入口件文案断言显式固定中文 locale（英文环境下不再误判成英文文案），`tests/panel-render.test.ts` 给旧版 DSH 安装位的 React 回退路径加了 try（Linux/macOS runner 上 `createRequire` 收到非绝对路径不再抛 `ERR_INVALID_ARG_VALUE`）。
 - **随包依赖维持钉版**：`dsh-plugin-update 0.18.38` / `dsh-log 0.3.4` 本次不动（上游现有 0.18.39 / 0.4.1，内联闭包需按新模块清单适配，另立发版处理）。发布工作流里 `check-deps` 以只读读数模式运行并保留输出。
 
 ## 验证结果
 - `npm run build` exit 0（typecheck → 字体内联 → tsc emit → 零依赖内联 `build-client.ts`），产物内联 base banner = `v0.1.5`。
-- `npm test` 全绿（Node 24 本地实跑，见本次发布工作流日志）。
+- `npm test` 全绿（本地 Node 24；CI Node 22.18 也跑过——两条环境都绿：本地以 `--import` 强制 `en-US` 复现过 CI 语言环境，入口件文案断言仍按中文原文通过）。
 - `npm run verify:artifacts` 八项全过（字体一致 / 两次构建逐字节一致 / 八件齐全非空 / 八件不含 CR / `package/lib` 恰 4 文件 / 八件未被 git 跟踪 / `font-face.ts` 仍被跟踪 / `.gitattributes` 钉 `eol=lf`）。
 - `npm pack`（在 `package/` 内）7 files；包内 version = 2.1.11。
 - GitHub Actions 发布后回填：npm 可见版本 / dist.shasum / 附件 hash。
