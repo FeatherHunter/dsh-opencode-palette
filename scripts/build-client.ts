@@ -144,6 +144,7 @@ const INLINE_PACKAGES: InlinePackage[] = [
   // 浏览器可跑；host 侧那棵树（dist/host/**、dist/core/{disk,executor,gate,reader,store-base,install-button}/**、dist/panel/batch/**）
   // 不在闭包内 —— 那是宿主半的真依赖（runtime/host.ts import 'dsh-plugin-update'，运行时从 node_modules 解析）。
   // 0.18.38 无模块增删（#243 自动续跑可见化、#244「已装好待重启」行对账，只改 panel/batch 与 host/batch，不进浏览器闭包），闭包仍 37 件。
+  // 0.18.39 新增 shared/failure-settled（#245 失败账本第三态判定，panel/entry、mount、render、view-model 共用），闭包 37 → 38 件。
   {
     spec: 'dsh-plugin-update/entry',
     pkg: 'dsh-plugin-update',
@@ -163,11 +164,13 @@ const INLINE_PACKAGES: InlinePackage[] = [
       { key: 'upd-shared-hash', file: 'dist/shared/hash.js', deps: {} },
       // 0.18.36 #241：占位运行版 0.0.0 归一为「未知」的共享叶子件（service 用它去掉恢复死锁）。
       { key: 'upd-shared-version', file: 'dist/shared/version.js', deps: {} },
+      // 0.18.39 #245：失败账本第三态判定（目标版事后装好 ⇒ 上次尝试已了结），panel 四处消费方共用。
+      { key: 'upd-shared-failure-settled', file: 'dist/shared/failure-settled.js', deps: { '../core/service.js': 'upd-core-service', './codes.js': 'upd-shared-codes', './version.js': 'upd-shared-version' } },
       { key: 'upd-core-failure', file: 'dist/core/failure.js', deps: { '../shared/codes.js': 'upd-shared-codes', '../shared/hash.js': 'upd-shared-hash' } },
       { key: 'upd-core-fetch', file: 'dist/core/fetch.js', deps: { './conclusion.js': 'upd-core-conclusion', './judgment.js': 'upd-core-judgment' } },
       { key: 'upd-core-service', file: 'dist/core/service.js', deps: { './conclusion.js': 'upd-core-conclusion', './failure.js': 'upd-core-failure', './fetch.js': 'upd-core-fetch', './judgment.js': 'upd-core-judgment', '../shared/codes.js': 'upd-shared-codes', '../shared/hash.js': 'upd-shared-hash', '../shared/version.js': 'upd-shared-version' } },
       { key: 'upd-panel-skip-store', file: 'dist/panel/skip-store.js', deps: { '../core/service.js': 'upd-core-service' } },
-      { key: 'upd-panel-view-model', file: 'dist/panel/view-model.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/i18n/text.js': 'upd-core-i18n-text', '../core/service.js': 'upd-core-service', '../shared/copy.js': 'upd-shared-copy', '../shared/codes.js': 'upd-shared-codes', '../shared/lang.js': 'upd-shared-lang' } },
+      { key: 'upd-panel-view-model', file: 'dist/panel/view-model.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/i18n/text.js': 'upd-core-i18n-text', '../core/service.js': 'upd-core-service', '../shared/failure-settled.js': 'upd-shared-failure-settled', '../shared/copy.js': 'upd-shared-copy', '../shared/codes.js': 'upd-shared-codes', '../shared/lang.js': 'upd-shared-lang' } },
       { key: 'upd-core-changelog-parse', file: 'dist/core/changelog/parse.js', deps: { '../service.js': 'upd-core-service', '../../shared/lang.js': 'upd-shared-lang' } },
       { key: 'upd-core-changelog-render-model', file: 'dist/core/changelog/render-model.js', deps: { '../i18n/text.js': 'upd-core-i18n-text', '../../shared/lang.js': 'upd-shared-lang', './parse.js': 'upd-core-changelog-parse' } },
       { key: 'upd-shared-last-resort', file: 'dist/shared/last-resort.js', deps: { './codes.js': 'upd-shared-codes' } },
@@ -176,16 +179,16 @@ const INLINE_PACKAGES: InlinePackage[] = [
       { key: 'upd-shared-manual-absent', file: 'dist/shared/manual-absent.js', deps: { '../core/i18n/text.js': 'upd-core-i18n-text', './commands.js': 'upd-shared-commands', './lang.js': 'upd-shared-lang' } },
       { key: 'upd-panel-archive-theme', file: 'dist/panel/archive-theme.js', deps: {} },
       { key: 'upd-panel-failure-latch', file: 'dist/panel/failure-latch.js', deps: { '../shared/lang.js': 'upd-shared-lang' } },
-      { key: 'upd-panel-render', file: 'dist/panel/render.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/changelog/parse.js': 'upd-core-changelog-parse', '../core/changelog/render-model.js': 'upd-core-changelog-render-model', '../core/i18n/text.js': 'upd-core-i18n-text', '../shared/copy.js': 'upd-shared-copy', '../shared/lang.js': 'upd-shared-lang', '../shared/last-resort.js': 'upd-shared-last-resort', '../shared/log-events.js': 'upd-shared-log-events', '../shared/manual-absent.js': 'upd-shared-manual-absent', './archive-theme.js': 'upd-panel-archive-theme', './failure-latch.js': 'upd-panel-failure-latch', './theme.js': 'upd-panel-theme', './view-model.js': 'upd-panel-view-model' } },
+      { key: 'upd-panel-render', file: 'dist/panel/render.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/changelog/parse.js': 'upd-core-changelog-parse', '../core/changelog/render-model.js': 'upd-core-changelog-render-model', '../core/i18n/text.js': 'upd-core-i18n-text', '../shared/copy.js': 'upd-shared-copy', '../shared/failure-settled.js': 'upd-shared-failure-settled', '../shared/lang.js': 'upd-shared-lang', '../shared/last-resort.js': 'upd-shared-last-resort', '../shared/log-events.js': 'upd-shared-log-events', '../shared/manual-absent.js': 'upd-shared-manual-absent', './archive-theme.js': 'upd-panel-archive-theme', './failure-latch.js': 'upd-panel-failure-latch', './theme.js': 'upd-panel-theme', './view-model.js': 'upd-panel-view-model' } },
       { key: 'upd-log-client-queue', file: 'dist/log/client-queue.js', deps: {} },
       { key: 'upd-log-panel-client', file: 'dist/log/panel-client.js', deps: { './client-queue.js': 'upd-log-client-queue', '../shared/hash.js': 'upd-shared-hash' } },
-      { key: 'upd-panel-mount', file: 'dist/panel/mount.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/changelog/parse.js': 'upd-core-changelog-parse', '../core/i18n/text.js': 'upd-core-i18n-text', '../core/service.js': 'upd-core-service', '../log/panel-client.js': 'upd-log-panel-client', '../shared/copy.js': 'upd-shared-copy', '../shared/config.js': 'upd-shared-config', '../shared/hash.js': 'upd-shared-hash', '../shared/lang.js': 'upd-shared-lang', './failure-latch.js': 'upd-panel-failure-latch', './render.js': 'upd-panel-render', './skip-store.js': 'upd-panel-skip-store', './theme.js': 'upd-panel-theme', './view-model.js': 'upd-panel-view-model' } },
+      { key: 'upd-panel-mount', file: 'dist/panel/mount.js', deps: { '../core/cause.js': 'upd-core-cause', '../core/changelog/parse.js': 'upd-core-changelog-parse', '../core/i18n/text.js': 'upd-core-i18n-text', '../core/service.js': 'upd-core-service', '../log/panel-client.js': 'upd-log-panel-client', '../shared/copy.js': 'upd-shared-copy', '../shared/config.js': 'upd-shared-config', '../shared/failure-settled.js': 'upd-shared-failure-settled', '../shared/hash.js': 'upd-shared-hash', '../shared/lang.js': 'upd-shared-lang', './failure-latch.js': 'upd-panel-failure-latch', './render.js': 'upd-panel-render', './skip-store.js': 'upd-panel-skip-store', './theme.js': 'upd-panel-theme', './view-model.js': 'upd-panel-view-model' } },
       { key: 'upd-core-queue-model', file: 'dist/core/queue/model.js', deps: {} },
       { key: 'upd-core-batch-model', file: 'dist/core/batch/model.js', deps: {} },
       { key: 'upd-panel-client', file: 'dist/panel/client.js', deps: { '../core/batch/model.js': 'upd-core-batch-model', '../core/changelog/parse.js': 'upd-core-changelog-parse', '../core/changelog/render-model.js': 'upd-core-changelog-render-model', '../core/queue/model.js': 'upd-core-queue-model', '../shared/commands.js': 'upd-shared-commands', '../shared/config.js': 'upd-shared-config' } },
       { key: 'upd-panel', file: 'dist/panel.js', deps: { './core/changelog/parse.js': 'upd-core-changelog-parse', './core/changelog/render-model.js': 'upd-core-changelog-render-model', './core/queue/model.js': 'upd-core-queue-model', './panel/archive-theme.js': 'upd-panel-archive-theme', './panel/client.js': 'upd-panel-client', './panel/failure-latch.js': 'upd-panel-failure-latch', './panel/mount.js': 'upd-panel-mount', './panel/render.js': 'upd-panel-render', './panel/skip-store.js': 'upd-panel-skip-store', './panel/theme.js': 'upd-panel-theme', './panel/view-model.js': 'upd-panel-view-model', './shared/codes.js': 'upd-shared-codes', './shared/copy.js': 'upd-shared-copy' } },
       { key: 'upd-core-i18n-styles', file: 'dist/core/i18n/styles.js', deps: {} },
-      { key: 'upd-panel-entry', file: 'dist/panel/entry.js', deps: { '../core/i18n/styles.js': 'upd-core-i18n-styles', '../core/i18n/text.js': 'upd-core-i18n-text', '../panel.js': 'upd-panel', '../shared/config.js': 'upd-shared-config', '../shared/lang.js': 'upd-shared-lang' } },
+      { key: 'upd-panel-entry', file: 'dist/panel/entry.js', deps: { '../core/i18n/styles.js': 'upd-core-i18n-styles', '../core/i18n/text.js': 'upd-core-i18n-text', '../panel.js': 'upd-panel', '../shared/config.js': 'upd-shared-config', '../shared/failure-settled.js': 'upd-shared-failure-settled', '../shared/lang.js': 'upd-shared-lang' } },
       { key: 'upd-entry', file: 'dist/entry.js', deps: { './panel/entry.js': 'upd-panel-entry' } },
     ],
   },
@@ -214,7 +217,7 @@ function inlineModuleFor(key: string): InlineModuleRef | null {
 const MODULE_ORDER: string[] = [
   'upd-shared-config', 'upd-shared-codes', 'upd-shared-lang', 'upd-core-i18n-dictionary', 'upd-core-i18n-text',
   'upd-core-cause', 'upd-shared-redaction', 'upd-shared-copy', 'upd-panel-theme', 'upd-core-judgment',
-  'upd-core-conclusion', 'upd-shared-hash', 'upd-shared-version', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service',
+  'upd-core-conclusion', 'upd-shared-hash', 'upd-shared-version', 'upd-core-failure', 'upd-core-fetch', 'upd-core-service', 'upd-shared-failure-settled',
   'upd-panel-skip-store', 'upd-panel-view-model', 'upd-core-changelog-parse', 'upd-core-changelog-render-model',
   'upd-shared-last-resort', 'upd-shared-log-events', 'upd-shared-commands', 'upd-shared-manual-absent',
   'upd-panel-archive-theme', 'upd-panel-failure-latch', 'upd-panel-render', 'upd-log-client-queue',
@@ -466,11 +469,11 @@ async function main(): Promise<void> {
     homepage: 'https://github.com/FeatherHunter/dsh-opencode-palette',
     bugs: { url: 'https://github.com/FeatherHunter/dsh-opencode-palette/issues' },
     // 宿主半运行时依赖：日志（dsh-log）与更新系统（dsh-plugin-update），用户装本插件时由 npm 按声明取。
-    // 两处都用精确钉版（0.3.4 / 0.18.38）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
+    // 两处都用精确钉版（0.3.4 / 0.18.39）：上游再发新版必须我们改声明重发（check-deps 负责提醒）。
     // 0.6.0 breaking：--dsh-upd-* 更名为 --dsh-update-*，d5-paper 主题删除；0.7.0 新增 themeTokens（弹窗换肤一等口径）。
     // 只有浏览器 bundle 的客户端入口是构建期从 node_modules 内联的（浏览器没有 node_modules）——
     // 新鲜度由构建前的 `node scripts/check-deps.ts` 硬门禁保证（本机落后就拦，离线则放行）。
-    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.38' },
+    dependencies: { 'dsh-log': '0.3.4', 'dsh-plugin-update': '0.18.39' },
     // 宿主要求：市场的兼容徽章读 manifest 的 engines.dsh（缺了就显示「未声明宿主要求」）。
     // 下界 = DSH 0.2.0-rc.1（0.2 线现行版）；npm 不解析 engines.dsh，所以没有 peerDependencies 那类 ERESOLVE 风险；
     // 市场侧用 includePrerelease 判定，故 0.2.x 的预发布版（含 0.2.0-rc.1）都在范围内。
