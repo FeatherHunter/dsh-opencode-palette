@@ -1,0 +1,26 @@
+# 真机验证接入（票 14）：本仓根目录无 files 白名单，真实发布载荷另走 package/ staging
+# （package/package.json 自带 files 白名单，verify/ 进不去）。
+# npm 只在没有 .npmignore 时才读 .gitignore，故这里镜像 .gitignore 的排除规则，
+# 保证 npm pack 清单与接入前逐条一致（接入前实测 636 个文件）；并排除验证工作根。
+# 维护约定：改根 .gitignore 的排除规则时同步本文件。
+node_modules/
+*.tgz
+.npmrc
+.scratch*
+dist/
+*.log
+/client.js
+/package/lib/
+/package/package.json
+/package/README.md
+/package/cordis.patch.yml
+/teach/
+MISSION.md
+RESOURCES.md
+NOTES.md
+.dsh-vision-router/
+%*%
+.local/
+.tmp-*
+__pycache__/
+verify/
