@@ -268,8 +268,10 @@ test('CONNECT：欢迎语与交流群整卡由 base 包渲染，宽度与群名�
   for (const gone of ['Found a bug or have an idea', '[open an issue](', "you'd rather talk it over"]) {
     assert.equal(EN.includes(gone), false, `英文页不应再有「${gone}」`)
   }
-  // 三张整卡走 base 包 CDN（精确版本 + 限时卡日期缓存戳），仓内不再有 contact-*.png
-  const CDN = 'https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.5/data/img/'
+  // 三张整卡走 base 包 CDN（精确版本 + 限时卡日期缓存戳），仓内不再有 contact-*.png。
+  // 版本号从 devDependencies 的精确声明取，避免 base 升版后这里与正文各改一遍。
+  const baseVersion = JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')).devDependencies['dsh-featherhunter-plugin-base'] as string
+  const CDN = `https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@${baseVersion}/data/img/`
   const CARDS = ['card-feishu.png', 'card-qq.png', 'card-wechat-2026-10-31.png?v=20261031']
   for (const [name, doc] of [['中文页', ZH], ['英文页', EN], ['包内副本', PKG]]) {
     for (const card of CARDS) assert.ok(doc.includes(CDN + card), `${name} 应有 base 包整卡：${card}`)
