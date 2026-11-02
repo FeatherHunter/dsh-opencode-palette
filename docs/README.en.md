@@ -192,12 +192,12 @@ https://github.com/user-attachments/assets/542f3083-eb7e-4b60-8d1a-a142ef9a87e9
 <h2 align="center"><sub>UPGRADE</sub><br>Upgrade</h2>
 
 ```bash
-# upgrade to the latest (currently 2.1.12): one command per profile — web and desktop
+# upgrade to the latest (currently 2.1.13): one command per profile — web and desktop
 dsh plugin --profile web update dsh-opencode-palette
 dsh plugin --profile desktop update dsh-opencode-palette
 # pin a specific version (swap the version number for the one you want):
-dsh plugin --profile web add dsh-opencode-palette@2.1.12
-dsh plugin --profile desktop add dsh-opencode-palette@2.1.12
+dsh plugin --profile web add dsh-opencode-palette@2.1.13
+dsh plugin --profile desktop add dsh-opencode-palette@2.1.13
 ```
 
 Settings → Plugins → OpenCode Palette → **Check for updates**
@@ -251,7 +251,7 @@ And thanks to everyone who left thoughts in comments and discussions. If you hit
 
 👏Welcome PRs and issues. A single spark can start a prairie fire 🔥. Any suggestion, opinion, idea or rant — come join the group and talk.
 
-<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.7/data/img/card-feishu.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.7/data/img/card-qq.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.7/data/img/card-wechat-2026-10-31.png?v=20261031" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
+<table align="center"><tr><td align="center"><b>Feishu Group (Main)</b></td><td align="center"><b>QQ Group (New)</b></td><td align="center"><b>WeChat Group (New)</b></td></tr><tr><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.8/data/img/card-feishu.png" width="260" alt="DSH plugin community group Feishu QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.8/data/img/card-qq.png" width="260" alt="DSH plugin community group QQ QR code" /></td><td><img src="https://cdn.jsdelivr.net/npm/dsh-featherhunter-plugin-base@0.1.8/data/img/card-wechat-2026-10-31.png?v=20261031" width="260" alt="DSH plugin community group WeChat QR code" /></td></tr></table>
 
 </div>
 <!-- CONTACT-END -->
